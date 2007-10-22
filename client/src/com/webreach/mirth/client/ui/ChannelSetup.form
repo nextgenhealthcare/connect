@@ -27,7 +27,7 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="channelView" alignment="0" pref="604" max="32767" attributes="0"/>
+          <Component id="channelView" alignment="0" pref="726" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
@@ -98,7 +98,10 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="summaryRevision" pref="111" max="32767" attributes="0"/>
+                              <Group type="103" groupAlignment="1" attributes="0">
+                                  <Component id="lastModified" pref="233" max="32767" attributes="0"/>
+                                  <Component id="summaryRevision" alignment="0" pref="233" max="32767" attributes="0"/>
+                              </Group>
                           </Group>
                           <Group type="102" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
@@ -120,9 +123,9 @@
                                       </Group>
                                   </Group>
                               </Group>
-                              <EmptySpace pref="170" max="32767" attributes="0"/>
+                              <EmptySpace pref="292" max="32767" attributes="0"/>
                           </Group>
-                          <Component id="jScrollPane1" pref="502" max="32767" attributes="2"/>
+                          <Component id="jScrollPane1" pref="624" max="32767" attributes="2"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -172,7 +175,11 @@
                                   <Component id="days" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <Component id="summaryRevision" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <Component id="summaryRevision" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="lastModified" min="-2" max="-2" attributes="0"/>
+                          </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
@@ -482,6 +489,12 @@
                 <Property name="text" type="java.lang.String" value="Revision: "/>
               </Properties>
             </Component>
+            <Component class="javax.swing.JLabel" name="lastModified">
+              <Properties>
+                <Property name="horizontalAlignment" type="int" value="4"/>
+                <Property name="text" type="java.lang.String" value="Last Modified: "/>
+              </Properties>
+            </Component>
           </SubComponents>
         </Container>
         <Container class="javax.swing.JPanel" name="source">
@@ -513,7 +526,7 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="sourceConnectorPane" alignment="0" pref="579" max="32767" attributes="0"/>
+                          <Component id="sourceConnectorPane" alignment="0" pref="701" max="32767" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="sourceSourceLabel" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
@@ -628,10 +641,10 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="destinationTablePane" alignment="0" pref="579" max="32767" attributes="0"/>
+                          <Component id="destinationTablePane" alignment="0" pref="701" max="32767" attributes="0"/>
                           <Group type="102" alignment="1" attributes="0">
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="destinationConnectorPane" pref="387" max="32767" attributes="0"/>
+                              <Component id="destinationConnectorPane" pref="509" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="destinationVariableList" min="-2" pref="186" max="-2" attributes="0"/>
                           </Group>

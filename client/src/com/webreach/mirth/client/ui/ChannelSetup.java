@@ -31,7 +31,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -43,7 +46,6 @@ import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
 import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -598,7 +600,7 @@ public class ChannelSetup extends javax.swing.JPanel
         sourceConnector.setTransformer(sourceTransformer);
         
         currentChannel.setSourceConnector(sourceConnector);
-        
+        setLastModified();
         loadChannelInfo();
         makeDestinationTable(true);
         setDestinationVariableList();
@@ -608,10 +610,20 @@ public class ChannelSetup extends javax.swing.JPanel
         parent.enableSave();
     }
     
+    private void setLastModified()
+    {
+        currentChannel.setLastModified(Calendar.getInstance());
+    }
+    
     private void updateRevision()
     {
         summaryRevision.setText("Revision: " + currentChannel.getRevision());
     }
+    
+    private void updateLastModified()
+    {
+        lastModified.setText("Last Modified: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(currentChannel.getLastModified().getTime()));
+    }    
     
     /** Load all of the saved channel information into the channel editor */
     private void loadChannelInfo()
@@ -626,6 +638,7 @@ public class ChannelSetup extends javax.swing.JPanel
         summaryNameField.setText(currentChannel.getName());
         summaryDescriptionText.setText(currentChannel.getDescription());
         updateRevision();
+        updateLastModified();
         
         if (currentChannel.isEnabled())
             summaryEnabledCheckbox.setSelected(true);
@@ -800,6 +813,7 @@ public class ChannelSetup extends javax.swing.JPanel
         currentChannel.setDeployScript(scripts.getScripts().get(ScriptPanel.DEPLOY_SCRIPT));
         currentChannel.setShutdownScript(scripts.getScripts().get(ScriptPanel.SHUTDOWN_SCRIPT));
         currentChannel.setPostprocessingScript(scripts.getScripts().get(ScriptPanel.POSTPROCESSOR_SCRIPT));
+        setLastModified();
         
         // Set the default protocols if transformers have never been visited
         
@@ -893,6 +907,7 @@ public class ChannelSetup extends javax.swing.JPanel
             {
                 currentChannel = (Channel)ObjectCloner.deepCopy(parent.channels.get(currentChannel.getId()));
                 updateRevision();
+                updateLastModified();
             }
             catch (ObjectClonerException e)
             {
@@ -1266,6 +1281,7 @@ public class ChannelSetup extends javax.swing.JPanel
         removeNamespaceCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
         synchronousCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
         summaryRevision = new javax.swing.JLabel();
+        lastModified = new javax.swing.JLabel();
         source = new javax.swing.JPanel();
         sourceSourceDropdown = new com.webreach.mirth.client.ui.components.MirthComboBox();
         sourceSourceLabel = new javax.swing.JLabel();
@@ -1431,6 +1447,9 @@ public class ChannelSetup extends javax.swing.JPanel
         summaryRevision.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         summaryRevision.setText("Revision: ");
 
+        lastModified.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        lastModified.setText("Last Modified: ");
+
         org.jdesktop.layout.GroupLayout summaryLayout = new org.jdesktop.layout.GroupLayout(summary);
         summary.setLayout(summaryLayout);
         summaryLayout.setHorizontalGroup(
@@ -1455,7 +1474,9 @@ public class ChannelSetup extends javax.swing.JPanel
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(summaryRevision, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE))
+                        .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(lastModified, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 233, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, summaryRevision, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 233, Short.MAX_VALUE)))
                     .add(summaryLayout.createSequentialGroup()
                         .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(storeMessages, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -1472,8 +1493,8 @@ public class ChannelSetup extends javax.swing.JPanel
                                         .add(days))
                                     .add(storeMessagesErrors, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                     .add(storeFiltered, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 170, Short.MAX_VALUE))
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 502, Short.MAX_VALUE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 292, Short.MAX_VALUE))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 624, Short.MAX_VALUE))
                 .addContainerGap())
         );
         summaryLayout.setVerticalGroup(
@@ -1512,7 +1533,10 @@ public class ChannelSetup extends javax.swing.JPanel
                             .add(numDays, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(storeMessagesDays, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(days)))
-                    .add(summaryRevision))
+                    .add(summaryLayout.createSequentialGroup()
+                        .add(summaryRevision)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(lastModified)))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(summaryLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(summaryDescriptionLabel)
@@ -1565,7 +1589,7 @@ public class ChannelSetup extends javax.swing.JPanel
             .add(sourceLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(sourceLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(sourceConnectorPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 579, Short.MAX_VALUE)
+                    .add(sourceConnectorPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 701, Short.MAX_VALUE)
                     .add(sourceLayout.createSequentialGroup()
                         .add(sourceSourceLabel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -1644,10 +1668,10 @@ public class ChannelSetup extends javax.swing.JPanel
             .add(destinationLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(destinationLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, destinationTablePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 579, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, destinationTablePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 701, Short.MAX_VALUE)
                     .add(destinationLayout.createSequentialGroup()
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(destinationConnectorPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 387, Short.MAX_VALUE)
+                        .add(destinationConnectorPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 509, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(destinationVariableList, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 186, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(org.jdesktop.layout.GroupLayout.LEADING, destinationLayout.createSequentialGroup()
@@ -1687,7 +1711,7 @@ public class ChannelSetup extends javax.swing.JPanel
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 604, Short.MAX_VALUE)
+            .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 726, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -2118,6 +2142,7 @@ public class ChannelSetup extends javax.swing.JPanel
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lastModified;
     private com.webreach.mirth.client.ui.components.MirthTextField numDays;
     private com.webreach.mirth.client.ui.components.MirthCheckBox removeNamespaceCheckBox;
     private com.webreach.mirth.client.ui.ScriptPanel scripts;

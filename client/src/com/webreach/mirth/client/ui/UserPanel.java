@@ -7,6 +7,7 @@
 package com.webreach.mirth.client.ui;
 
 import java.awt.Point;
+import java.text.SimpleDateFormat;
 import java.util.prefs.Preferences;
 
 import javax.swing.BorderFactory;
@@ -31,6 +32,7 @@ public class UserPanel extends javax.swing.JPanel
     private final String USERFULLNAME_COLUMN_NAME = "Full Name";
     private final String USERPHONENUMBER_COLUMN_NAME = "Phone Number";
     private final String USERDESCRIPTION_COLUMN_NAME = "Description";
+    private final String USERLASTLOGIN_COLUMN_NAME = "Last Login";
     private Frame parent;
     private int lastRow;
 
@@ -78,7 +80,9 @@ public class UserPanel extends javax.swing.JPanel
         usersTable.getColumnExt(USERFULLNAME_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         usersTable.getColumnExt(USER_EMAIL_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         usersTable.getColumnExt(USERPHONENUMBER_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
-
+        usersTable.getColumnExt(USERLASTLOGIN_COLUMN_NAME).setMinWidth(125);
+        usersTable.getColumnExt(USERLASTLOGIN_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        
         usersTable.packTable(UIConstants.COL_MARGIN);
 
         usersTable.setRowHeight(UIConstants.ROW_HEIGHT);
@@ -123,7 +127,7 @@ public class UserPanel extends javax.swing.JPanel
 
         if (parent.users != null)
         {
-            tableData = new Object[parent.users.size()][5];
+            tableData = new Object[parent.users.size()][6];
 
             for (int i = 0; i < parent.users.size(); i++)
             {
@@ -133,7 +137,8 @@ public class UserPanel extends javax.swing.JPanel
                 tableData[i][1] = temp.getFullName();
                 tableData[i][2] = temp.getEmail();
                 tableData[i][3] = temp.getPhoneNumber();
-                tableData[i][4] = temp.getDescription();
+                tableData[i][4] = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(temp.getLastLogin().getTime());
+                tableData[i][5] = temp.getDescription();
             }
         }
 
@@ -146,9 +151,9 @@ public class UserPanel extends javax.swing.JPanel
         else
         {
             usersTable = new MirthTable();
-            usersTable.setModel(new RefreshTableModel(tableData, new String[] { USERNAME_COLUMN_NAME, USERFULLNAME_COLUMN_NAME, USER_EMAIL_COLUMN_NAME, USERPHONENUMBER_COLUMN_NAME, USERDESCRIPTION_COLUMN_NAME })
+            usersTable.setModel(new RefreshTableModel(tableData, new String[] { USERNAME_COLUMN_NAME, USERFULLNAME_COLUMN_NAME, USER_EMAIL_COLUMN_NAME, USERPHONENUMBER_COLUMN_NAME, USERLASTLOGIN_COLUMN_NAME, USERDESCRIPTION_COLUMN_NAME })
             {
-                boolean[] canEdit = new boolean[] { false, false, false, false, false };
+                boolean[] canEdit = new boolean[] { false, false, false, false, false, false };
 
                 public boolean isCellEditable(int rowIndex, int columnIndex)
                 {
