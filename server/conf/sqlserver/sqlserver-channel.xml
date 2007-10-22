@@ -17,6 +17,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<result property="enabled" column="IS_ENABLED" />
 		<result property="version" column="VERSION" />
 		<result property="revision" column="REVISION" />		
+		<result property="lastModified" column="LAST_MODIFIED" />	
 		<result property="sourceConnector" column="SOURCE_CONNECTOR" />
 		<result property="destinationConnectors" column="DESTINATION_CONNECTORS" />
 		<result property="properties" column="PROPERTIES" />
@@ -45,8 +46,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	
 	<insert id="insertChannel" parameterClass="com.webreach.mirth.model.Channel">
 		INSERT INTO
-		CHANNEL (ID, NAME, DESCRIPTION, IS_ENABLED, VERSION, REVISION, SOURCE_CONNECTOR, DESTINATION_CONNECTORS, PROPERTIES, PREPROCESSING_SCRIPT, POSTPROCESSING_SCRIPT, DEPLOY_SCRIPT, SHUTDOWN_SCRIPT)
-		VALUES (#id#, #name#, #description#, #enabled#, #version#, #revision#, #sourceConnector#, #destinationConnectors#, #properties#, #preprocessingScript#, #postprocessingScript#, #deployScript#, #shutdownScript#)
+		CHANNEL (ID, NAME, DESCRIPTION, IS_ENABLED, VERSION, REVISION, LAST_MODIFIED, SOURCE_CONNECTOR, DESTINATION_CONNECTORS, PROPERTIES, PREPROCESSING_SCRIPT, POSTPROCESSING_SCRIPT, DEPLOY_SCRIPT, SHUTDOWN_SCRIPT)
+		VALUES (#id#, #name#, #description#, #enabled#, #version#, #revision#, #lastModified#, #sourceConnector#, #destinationConnectors#, #properties#, #preprocessingScript#, #postprocessingScript#, #deployScript#, #shutdownScript#)
 	</insert>
 	
 	<update id="updateChannel" parameterClass="com.webreach.mirth.model.Channel">
@@ -56,6 +57,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			IS_ENABLED = #enabled#,
 			VERSION = #version#,
 			REVISION = #revision#,
+			LAST_MODIFIED = #lastModified#,
 			SOURCE_CONNECTOR = #sourceConnector#,
 			DESTINATION_CONNECTORS = #destinationConnectors#,
 			PROPERTIES = #properties#,

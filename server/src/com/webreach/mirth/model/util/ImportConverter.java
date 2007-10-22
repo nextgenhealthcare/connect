@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Calendar;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -24,6 +25,8 @@ import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 
 public class ImportConverter {
+	private static ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+	
 	private enum Direction {
 		INBOUND, OUTBOUND
 	}
@@ -37,8 +40,7 @@ public class ImportConverter {
 	}
 
 	public static Channel convertChannelObject(Channel channel) throws Exception {
-		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-
+		
 		return (Channel) serializer.fromXML(convertChannelString(serializer.toXML(channel)));
 	}
 
@@ -180,6 +182,19 @@ public class ImportConverter {
 			}
 
 			if (minorVersion < 7) {
+				Element lastModified = document.createElement("lastModified");
+				Element time = document.createElement("time");
+				Element timezone = document.createElement("timezone");
+				
+				Calendar calendar = Calendar.getInstance();
+				time.setTextContent(calendar.getTimeInMillis() + "");
+				timezone.setTextContent(calendar.getTimeZone().getDisplayName());
+				
+				lastModified.appendChild(time);
+				lastModified.appendChild(timezone);
+				
+				channelRoot.appendChild(lastModified);
+				
 				updateFilterFor1_7(document);
 			}
 		}

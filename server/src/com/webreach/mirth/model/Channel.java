@@ -28,6 +28,7 @@ package com.webreach.mirth.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
 
@@ -46,6 +47,7 @@ public class Channel implements Serializable {
 	private String description;
 	private boolean enabled;
 	private String version;
+	private Calendar lastModified;
 	private int revision;
 	private Connector sourceConnector;
 	private List<Connector> destinationConnectors = new ArrayList<Connector>();
@@ -163,6 +165,14 @@ public class Channel implements Serializable {
         this.shutdownScript = shutdownScript;
     }
     
+	public Calendar getLastModified() {
+		return lastModified;
+	}
+
+	public void setLastModified(Calendar lastModified) {
+		this.lastModified = lastModified;
+	}
+    
 	public boolean equals(Object that) {
 		if (this == that) {
 			return true;
@@ -179,6 +189,7 @@ public class Channel implements Serializable {
 			EqualsUtil.areEqual(this.getName(), channel.getName()) &&
 			EqualsUtil.areEqual(this.getDescription(), channel.getDescription()) &&
 			EqualsUtil.areEqual(this.isEnabled(), channel.isEnabled()) &&
+			EqualsUtil.areEqual(this.getLastModified(), channel.getLastModified()) &&
 			EqualsUtil.areEqual(this.getVersion(), channel.getVersion()) &&
 			EqualsUtil.areEqual(this.getRevision(), channel.getRevision()) &&
 			EqualsUtil.areEqual(this.getSourceConnector(), channel.getSourceConnector()) &&

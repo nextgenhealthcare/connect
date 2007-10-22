@@ -11,6 +11,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<result property="fullName" column="FULLNAME" />
 		<result property="email" column="EMAIL" />
 		<result property="phoneNumber" column="PHONENUMBER" />
+		<result property="lastLogin" column="LAST_LOGIN" />
 		<result property="description" column="DESCRIPTION" />
 	</resultMap>
 	
@@ -21,7 +22,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	</resultMap>
 
 	<select id="getUser" parameterClass="com.webreach.mirth.model.User" resultMap="get-user-result">
-		SELECT ID, USERNAME, FULLNAME, EMAIL, PHONENUMBER, DESCRIPTION
+		SELECT ID, USERNAME, FULLNAME, EMAIL, PHONENUMBER, LAST_LOGIN, DESCRIPTION
 		FROM PERSON
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="id">
@@ -70,7 +71,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 
 	<update id="loginUser" parameterClass="java.lang.String">
 		UPDATE PERSON
-		SET LOGGED_IN = TRUE
+		SET LOGGED_IN = TRUE,
+		LAST_LOGIN = CURRENT_TIMESTAMP
 		WHERE ID = #id#
 	</update>
 

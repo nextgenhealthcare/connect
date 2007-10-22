@@ -27,6 +27,7 @@
 package com.webreach.mirth.model;
 
 import java.io.Serializable;
+import java.util.Calendar;
 
 import com.webreach.mirth.util.EqualsUtil;
 
@@ -37,6 +38,7 @@ public class User implements Serializable {
 	private String fullName;
 	private String description;
 	private String phoneNumber;
+	private Calendar lastLogin;
 	
 	public String getId() {
 		return this.id;
@@ -85,7 +87,15 @@ public class User implements Serializable {
 	public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
 	}
+	
+	public Calendar getLastLogin() {
+		return lastLogin;
+	}
 
+	public void setLastLogin(Calendar lastLogin) {
+		this.lastLogin = lastLogin;
+	}
+	
 	public boolean equals(Object that) {
 		if (this == that) {
 			return true;
@@ -103,6 +113,7 @@ public class User implements Serializable {
 			EqualsUtil.areEqual(this.getEmail(), user.getEmail()) &&
 			EqualsUtil.areEqual(this.getFullName(), user.getFullName()) &&
 			EqualsUtil.areEqual(this.getDescription(), user.getDescription()) &&
+			EqualsUtil.areEqual(this.getLastLogin(), user.getLastLogin()) &&
 			EqualsUtil.areEqual(this.getPhoneNumber(), user.getPhoneNumber());
 	}
 
@@ -114,6 +125,7 @@ public class User implements Serializable {
 		builder.append("email=" + getEmail() + ", ");
 		builder.append("fullname=" + getFullName() + ", ");
 		builder.append("description=" + getDescription() + ", ");
+		builder.append("lastLogin=" + getLastLogin() + ", ");
 		builder.append("phonenumber=" + getPhoneNumber());
 		builder.append("]");
 		return builder.toString();
