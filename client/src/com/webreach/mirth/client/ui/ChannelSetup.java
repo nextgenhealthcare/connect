@@ -92,8 +92,8 @@ public class ChannelSetup extends javax.swing.JPanel
     private final String DATA_TYPE_KEY = "DataType";
     public Channel currentChannel;
     public String lastIndex = "";
-    public TransformerPane transformerPane;
-    public FilterPane filterPane;
+    public TransformerPane transformerPane = new TransformerPane();
+    public FilterPane filterPane = new FilterPane();
     private Frame parent;
     private boolean isDeleting = false;
     private boolean loadingChannel = false;
@@ -627,13 +627,7 @@ public class ChannelSetup extends javax.swing.JPanel
     
     /** Load all of the saved channel information into the channel editor */
     private void loadChannelInfo()
-    {
-        if (transformerPane == null)
-            transformerPane = new TransformerPane();
-        
-        if (filterPane == null)
-            filterPane = new FilterPane();
-        
+    {        
         parent.setPanelName("Edit Channel - " + currentChannel.getName());
         summaryNameField.setText(currentChannel.getName());
         summaryDescriptionText.setText(currentChannel.getDescription());
@@ -784,30 +778,8 @@ public class ChannelSetup extends javax.swing.JPanel
         temp = currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME))));
         temp.setProperties(destinationConnectorClass.getProperties());
         
-        String validationMessage = checkAllForms(currentChannel);
-        if (validationMessage != null)
-        {
-            enabled = false;
-            
-            // If there is an error on one of the forms, then run the
-            // validation on the current form to display any errors.
-        	if (channelView.getSelectedComponent() == destination)
-        	{
-        		// If the destination is enabled...
-            	if (currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)))).isEnabled())
-            		destinationConnectorClass.checkProperties(destinationConnectorClass.getProperties(), true);
-        	}
-        	else if (channelView.getSelectedComponent() == source)
-        		sourceConnectorClass.checkProperties(sourceConnectorClass.getProperties(), true);
-            
-            summaryEnabledCheckbox.setSelected(false);
-            
-            parent.alertCustomError(validationMessage, CustomErrorDialog.ERROR_SAVING_CHANNEL);
-        }
-        
         currentChannel.setName(summaryNameField.getText());
         currentChannel.setDescription(summaryDescriptionText.getText());
-        currentChannel.setEnabled(enabled);
         
         currentChannel.setPreprocessingScript(scripts.getScripts().get(ScriptPanel.PREPROCESSOR_SCRIPT));
         currentChannel.setDeployScript(scripts.getScripts().get(ScriptPanel.DEPLOY_SCRIPT));
@@ -893,6 +865,30 @@ public class ChannelSetup extends javax.swing.JPanel
             currentChannel.getProperties().put("initialState", "stopped");
         else
             currentChannel.getProperties().put("initialState", "started");
+        
+        String validationMessage = checkAllForms(currentChannel);
+        if (validationMessage != null)
+        {
+            enabled = false;
+            
+            // If there is an error on one of the forms, then run the
+            // validation on the current form to display any errors.
+        	if (channelView.getSelectedComponent() == destination)
+        	{
+        		// If the destination is enabled...
+            	if (currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)))).isEnabled())
+            		destinationConnectorClass.checkProperties(destinationConnectorClass.getProperties(), true);
+        	}
+        	else if (channelView.getSelectedComponent() == source)
+        		sourceConnectorClass.checkProperties(sourceConnectorClass.getProperties(), true);
+            
+            summaryEnabledCheckbox.setSelected(false);
+            
+            parent.alertCustomError(validationMessage, CustomErrorDialog.ERROR_SAVING_CHANNEL);
+        }
+        
+        // Set the channel to enabled or disabled after it has been validated
+        currentChannel.setEnabled(enabled);
         
         boolean updated = true;
         
@@ -1161,7 +1157,7 @@ public class ChannelSetup extends javax.swing.JPanel
         	}
         }
         
-        errors += validateScripts(scripts.getScripts());
+        errors += validateScripts(channel);
         
         if (errors.equals(""))
         {
@@ -1204,21 +1200,25 @@ public class ChannelSetup extends javax.swing.JPanel
     	return errors;
     }
     
-    private String validateScripts(Map<String, String> scriptsMap)
+    private String validateScripts(Channel channel)
     {
     	String errors = "";
     	
-    	for (Iterator iter = scriptsMap.keySet().iterator(); iter.hasNext();)
-    	{
-            String key = (String) iter.next();
-            String value = (String)scriptsMap.get(key);
-            
-            String validationMessage = this.scripts.validateScript(value);
-        	if (validationMessage != null)
-        	{
-        		errors += "Error in channel script \"" + key + "\":\n" + validationMessage + "\n\n";
-        	}
-        }
+    	String validationMessage = this.scripts.validateScript(channel.getDeployScript());
+    	if (validationMessage != null)
+    		errors += "Error in channel script \"" + ScriptPanel.DEPLOY_SCRIPT + "\":\n" + validationMessage + "\n\n";
+    	
+    	validationMessage = this.scripts.validateScript(channel.getPreprocessingScript());
+    	if (validationMessage != null)
+    		errors += "Error in channel script \"" + ScriptPanel.PREPROCESSOR_SCRIPT + "\":\n" + validationMessage + "\n\n";
+    	
+    	validationMessage = this.scripts.validateScript(channel.getPostprocessingScript());
+    	if (validationMessage != null)
+    		errors += "Error in channel script \"" + ScriptPanel.POSTPROCESSOR_SCRIPT + "\":\n" + validationMessage + "\n\n";
+    	
+    	validationMessage = this.scripts.validateScript(channel.getShutdownScript());
+    	if (validationMessage != null)
+    		errors += "Error in channel script \"" + ScriptPanel.SHUTDOWN_SCRIPT + "\":\n" + validationMessage + "\n\n";
     	
     	return errors;
     }

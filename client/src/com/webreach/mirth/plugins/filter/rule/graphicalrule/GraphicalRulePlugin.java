@@ -12,6 +12,7 @@ import com.webreach.mirth.client.ui.editors.BasePanel;
 import com.webreach.mirth.client.ui.editors.GraphicalRulePanel;
 import com.webreach.mirth.client.ui.editors.filter.FilterPane;
 import com.webreach.mirth.plugins.FilterRulePlugin;
+import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class GraphicalRulePlugin extends FilterRulePlugin{
 	private GraphicalRulePanel panel;
@@ -108,11 +109,15 @@ public class GraphicalRulePlugin extends FilterRulePlugin{
         try
         {
             Context context = Context.enter();
-            Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + getScript(panel.getData()) + "}", null, 1, null);
+            Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + getScript(panel.getData()) + "}", UUIDGenerator.getUUID(), 1, null);
         }
         catch (EvaluatorException e)
         {
             return "Error on line " + e.lineNumber() + ": " + e.getMessage() + ".";
+        }
+        catch (Exception e)
+        {
+        	return "Unknown error occurred during validation.";
         }
         finally
         {

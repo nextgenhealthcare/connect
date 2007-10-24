@@ -14,6 +14,7 @@ import com.webreach.mirth.client.ui.editors.MirthEditorPane;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
 import com.webreach.mirth.plugins.TransformerStepPlugin;
+import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class JavascriptStepPlugin extends TransformerStepPlugin {
 	private ScriptPanel panel;
@@ -61,9 +62,11 @@ public class JavascriptStepPlugin extends TransformerStepPlugin {
 	public String doValidate() {
 		try {
 			Context context = Context.enter();
-			Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + panel.getScript() + "}", null, 1, null);
+			Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + panel.getScript() + "}", UUIDGenerator.getUUID(), 1, null);
 		} catch (EvaluatorException e) {
 			return "Error on line " + e.lineNumber() + ": " + e.getMessage() + ".";
+		} catch (Exception e) {
+			return "Unknown error occurred during validation.";
 		} finally {
 			Context.exit();
 		}

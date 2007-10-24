@@ -14,6 +14,8 @@ import org.mozilla.javascript.Script;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
+import com.webreach.mirth.server.util.UUIDGenerator;
+
 /**
  *
  * @author  brendanh
@@ -71,12 +73,16 @@ public class ScriptPanel extends javax.swing.JPanel
         Context context = Context.enter();
         try
         {
-            context.compileString("function rhinoDeployWrapper() {" + script.getText() + "}", null, 1, null);
+            context.compileString("function rhinoDeployWrapper() {" + script.getText() + "}", UUIDGenerator.getUUID(), 1, null);
             sb.append("JavaScript was successfully validated.");
         }
         catch (EvaluatorException e)
         {
             sb.append("Error on line " + e.lineNumber() + ": " + e.getMessage() + " of the current script.");
+        }
+        catch (Exception e)
+        {
+        	sb.append("Unknown error occurred during validation.");
         }
         
         Context.exit();
@@ -90,11 +96,15 @@ public class ScriptPanel extends javax.swing.JPanel
         Context context = Context.enter();
         try
         {
-            context.compileString("function rhinoDeployWrapper() {" + script + "}", null, 1, null);
+            context.compileString("function rhinoDeployWrapper() {" + script + "}", UUIDGenerator.getUUID(), 1, null);
         }
         catch (EvaluatorException e)
         {
             error = "Error on line " + e.lineNumber() + ": " + e.getMessage() + ".";
+        }
+        catch (Exception e)
+        {
+        	error = "Unknown error occurred during validation.";
         }
         
         Context.exit();

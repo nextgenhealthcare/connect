@@ -918,37 +918,40 @@ public class Frame extends JXFrame
         if (connectionError)
             return;
 
-        if (message.indexOf("Unauthorized") != -1 || message.indexOf("reset") != -1)
+        if (message != null)
         {
-            connectionError = true;
-            if (currentContentPage == dashboardPanel)
-                su.interruptThread();
-            alertWarning("Sorry your connection to Mirth has either timed out or there was an error in the connection.  Please login again.");
-            if (!exportChannelOnError())
-                return;
-            this.dispose();
-            Mirth.main(new String[] { PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION });
-            return;
+	        if (message.indexOf("Unauthorized") != -1 || message.indexOf("reset") != -1)
+	        {
+	            connectionError = true;
+	            if (currentContentPage == dashboardPanel)
+	                su.interruptThread();
+	            alertWarning("Sorry your connection to Mirth has either timed out or there was an error in the connection.  Please login again.");
+	            if (!exportChannelOnError())
+	                return;
+	            this.dispose();
+	            Mirth.main(new String[] { PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION });
+	            return;
+	        }
+	        else if (message.indexOf("Connection refused") != -1)
+	        {
+	            connectionError = true;
+	            if (currentContentPage == dashboardPanel)
+	                su.interruptThread();
+	            alertWarning("The Mirth server " + PlatformUI.SERVER_NAME + " is no longer running.  Please start it and login again.");
+	            if (!exportChannelOnError())
+	                return;
+	            this.dispose();
+	            Mirth.main(new String[] { PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION });
+	            return;
+	        }
         }
-        else if (message.indexOf("Connection refused") != -1)
-        {
-            connectionError = true;
-            if (currentContentPage == dashboardPanel)
-                su.interruptThread();
-            alertWarning("The Mirth server " + PlatformUI.SERVER_NAME + " is no longer running.  Please start it and login again.");
-            if (!exportChannelOnError())
-                return;
-            this.dispose();
-            Mirth.main(new String[] { PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION });
-            return;
-        }
-
-        logger.error(strace);
 
         String stackTrace = message + "\n";
         for (int i = 0; i < strace.length; i++)
             stackTrace += strace[i].toString() + "\n";
-
+        
+        logger.error(stackTrace);
+        
         new ErrorDialog(stackTrace);
     }
 

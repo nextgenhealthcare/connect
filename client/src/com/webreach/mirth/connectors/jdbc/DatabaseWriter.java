@@ -38,6 +38,7 @@ import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.model.DriverInfo;
+import com.webreach.mirth.server.util.UUIDGenerator;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -202,13 +203,19 @@ public class DatabaseWriter extends ConnectorClass
 	    	Context context = Context.enter();
 	        try
 	        {
-	            context.compileString("function rhinoDeployWrapper() {" + script + "}", null, 1, null);
+	            context.compileString("function rhinoDeployWrapper() {" + script + "}", UUIDGenerator.getUUID(), 1, null);
 	        }
 	        catch (EvaluatorException e)
 	        {
 	        	if (error == null)
 	        		error = "";
 	            error += "Error in connector \"" + getName() + "\" at Javascript:\nError on line " + e.lineNumber() + ": " + e.getMessage() + ".\n\n";
+	        }
+	        catch (Exception e)
+	        {
+	        	if (error == null)
+	        		error = "";
+	        	error += "Error in connector \"" + getName() + "\" at Javascript:\nUnknown error occurred during validation.";
 	        }
 	        
 	        Context.exit();
