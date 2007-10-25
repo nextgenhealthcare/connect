@@ -13,7 +13,7 @@ public class DocumentConnector extends AbstractServiceEnabledConnector {
 	private FilenameParser filenameParser = new VariableFilenameParser();
 	private String template;
 	private String outputPattern;
-	private boolean encrypted;
+	private boolean encrypt;
 	private String password;
 	private String documentType;
 	private String channelId;
@@ -42,12 +42,12 @@ public class DocumentConnector extends AbstractServiceEnabledConnector {
 		this.filenameParser = filenameParser;
 	}
 
-	public boolean isEncrypted() {
-		return this.encrypted;
+	public boolean isEncrypt() {
+		return this.encrypt;
 	}
 
-	public void setEncrypted(boolean encrypted) {
-		this.encrypted = encrypted;
+	public void setEncrypt(boolean encrypted) {
+		this.encrypt = encrypted;
 	}
 
 	public String getPassword() {

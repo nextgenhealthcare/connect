@@ -90,7 +90,7 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 			if (connector.getDocumentType().equals("pdf")) {
 				PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(file));
 				
-				if (connector.isEncrypted() && (connector.getPassword() != null)) {
+				if (connector.isEncrypt() && (connector.getPassword() != null)) {
 					writer.setEncryption(PdfWriter.STRENGTH128BITS, connector.getPassword(), null, PdfWriter.AllowCopy | PdfWriter.AllowPrinting | PdfWriter.AllowFillIn);
 				}
 			} else if (connector.getDocumentType().equals("rtf")) {
