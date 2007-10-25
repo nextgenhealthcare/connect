@@ -7,10 +7,11 @@
 package com.webreach.mirth.client.ui;
 
 import java.util.Map;
+
 import javax.swing.DefaultComboBoxModel;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
-import org.mozilla.javascript.Script;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
@@ -73,7 +74,7 @@ public class ScriptPanel extends javax.swing.JPanel
         Context context = Context.enter();
         try
         {
-            context.compileString("function rhinoDeployWrapper() {" + script.getText() + "}", UUIDGenerator.getUUID(), 1, null);
+            context.compileString("function rhinoDeployWrapper() {" + script.getText() + "}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
             sb.append("JavaScript was successfully validated.");
         }
         catch (EvaluatorException e)

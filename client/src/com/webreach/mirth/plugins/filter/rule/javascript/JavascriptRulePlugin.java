@@ -7,6 +7,7 @@ import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Script;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
+import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.editors.BasePanel;
 import com.webreach.mirth.client.ui.editors.ScriptPanel;
 import com.webreach.mirth.client.ui.editors.filter.FilterPane;
@@ -71,7 +72,7 @@ public class JavascriptRulePlugin extends FilterRulePlugin
         try
         {
             Context context = Context.enter();
-            Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + panel.getScript() + "}", UUIDGenerator.getUUID(), 1, null);
+            Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + panel.getScript() + "}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
         }
         catch (EvaluatorException e)
         {

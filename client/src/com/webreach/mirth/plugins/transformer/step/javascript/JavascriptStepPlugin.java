@@ -1,6 +1,5 @@
 package com.webreach.mirth.plugins.transformer.step.javascript;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.mozilla.javascript.Context;
@@ -8,9 +7,9 @@ import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Script;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
+import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.editors.BasePanel;
 import com.webreach.mirth.client.ui.editors.ScriptPanel;
-import com.webreach.mirth.client.ui.editors.MirthEditorPane;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
 import com.webreach.mirth.plugins.TransformerStepPlugin;
@@ -62,7 +61,7 @@ public class JavascriptStepPlugin extends TransformerStepPlugin {
 	public String doValidate() {
 		try {
 			Context context = Context.enter();
-			Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + panel.getScript() + "}", UUIDGenerator.getUUID(), 1, null);
+			Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + panel.getScript() + "}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
 		} catch (EvaluatorException e) {
 			return "Error on line " + e.lineNumber() + ": " + e.getMessage() + ".";
 		} catch (Exception e) {

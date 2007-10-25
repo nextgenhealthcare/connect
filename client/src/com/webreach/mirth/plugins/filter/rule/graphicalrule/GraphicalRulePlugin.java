@@ -7,6 +7,7 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Script;
 
+import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.editors.BasePanel;
 import com.webreach.mirth.client.ui.editors.GraphicalRulePanel;
@@ -109,7 +110,7 @@ public class GraphicalRulePlugin extends FilterRulePlugin{
         try
         {
             Context context = Context.enter();
-            Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + getScript(panel.getData()) + "}", UUIDGenerator.getUUID(), 1, null);
+            Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + getScript(panel.getData()) + "}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
         }
         catch (EvaluatorException e)
         {
