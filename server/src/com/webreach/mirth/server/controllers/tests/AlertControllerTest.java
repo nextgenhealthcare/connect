@@ -12,7 +12,7 @@ import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.tools.ScriptRunner;
-import com.webreach.mirth.server.util.UUIDGenerator;
+import com.webreach.mirth.util.UUIDGenerator;
 
 public class AlertControllerTest extends TestCase {
 	private AlertController alertController = AlertController.getInstance();

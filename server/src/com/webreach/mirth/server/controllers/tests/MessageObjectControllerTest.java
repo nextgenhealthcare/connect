@@ -48,7 +48,7 @@ import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.tools.ScriptRunner;
-import com.webreach.mirth.server.util.UUIDGenerator;
+import com.webreach.mirth.util.UUIDGenerator;
 
 public class MessageObjectControllerTest extends TestCase {
     private MessageObjectController messageObjectController = MessageObjectController.getInstance();

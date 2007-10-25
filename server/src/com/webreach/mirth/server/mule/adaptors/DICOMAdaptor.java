@@ -5,8 +5,8 @@ import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.model.converters.SerializerFactory;
 import com.webreach.mirth.model.converters.DICOMSerializer;
-import com.webreach.mirth.server.util.UUIDGenerator;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.util.UUIDGenerator;
 
 import java.util.Map;
 import java.util.Iterator;

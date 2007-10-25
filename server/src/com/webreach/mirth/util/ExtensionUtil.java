@@ -25,7 +25,6 @@ import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.util.FileUtil;
-import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class ExtensionUtil {
 	public static Map<String, ? extends MetaData> loadExtensionMetaData(String location) throws ControllerException {

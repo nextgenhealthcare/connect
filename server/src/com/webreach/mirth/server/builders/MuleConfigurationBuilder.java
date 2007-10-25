@@ -54,8 +54,8 @@ import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.controllers.TemplateController;
 import com.webreach.mirth.server.mule.adaptors.AdaptorFactory;
 import com.webreach.mirth.server.tools.ClassPathResource;
-import com.webreach.mirth.server.util.UUIDGenerator;
 import com.webreach.mirth.util.PropertyLoader;
+import com.webreach.mirth.util.UUIDGenerator;
 
 /**
  * A MuleConfigurationBuilder is used to generate Mule configurations based on

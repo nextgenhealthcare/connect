@@ -33,7 +33,8 @@ import org.mule.providers.TemplateValueReplacer;
 import org.mule.providers.service.ConnectorFactory;
 import org.mule.providers.soap.axis.extensions.MuleConfigProvider;
 import org.mule.providers.soap.axis.extensions.MuleTransport;
-import com.webreach.mirth.server.util.UUIDGenerator;
+
+import com.webreach.mirth.util.UUIDGenerator;
 
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOException;

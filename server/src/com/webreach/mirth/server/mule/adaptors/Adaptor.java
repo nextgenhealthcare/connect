@@ -14,7 +14,7 @@ import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.util.UUIDGenerator;
+import com.webreach.mirth.util.UUIDGenerator;
 
 public abstract class Adaptor {
 	private Logger logger = Logger.getLogger(this.getClass());

@@ -56,6 +56,7 @@ import com.webreach.mirth.server.builders.ErrorMessageBuilder;
 import com.webreach.mirth.server.util.*;
 import com.webreach.mirth.util.Encrypter;
 import com.webreach.mirth.util.EncryptionException;
+import com.webreach.mirth.util.UUIDGenerator;
 
 public class MessageObjectController {
 	private static final String RECEIVE_SOCKET = "receiverSocket";

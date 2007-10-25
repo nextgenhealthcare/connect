@@ -36,6 +36,7 @@ import org.mozilla.javascript.ScriptableObject;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.MirthJavascriptTransformerException;
+import com.webreach.mirth.util.UUIDGenerator;
 
 public class JavaScriptUtil {
 	private Logger logger = Logger.getLogger(this.getClass());
