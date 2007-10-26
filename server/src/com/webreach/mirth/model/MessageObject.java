@@ -26,15 +26,11 @@
 package com.webreach.mirth.model;
 
 import java.io.Serializable;
-import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.webreach.mirth.util.EqualsUtil;
-import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.controllers.ControllerException;
-import com.webreach.mirth.model.converters.DICOMSerializer;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
 public class MessageObject implements Serializable {
 	public enum Protocol {
@@ -354,7 +350,7 @@ public class MessageObject implements Serializable {
 		builder.append("errors=");
 		builder.append(this.getErrors());
         builder.append(", ");
-        builder.append("attachment=");
+        builder.append("isAttachment=");
         builder.append(this.isAttachment());
 		builder.append("]");
 		return builder.toString();
