@@ -15,7 +15,7 @@ import org.mozilla.javascript.EvaluatorException;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
-import com.webreach.mirth.server.util.UUIDGenerator;
+import com.webreach.mirth.util.UUIDGenerator;
 
 /**
  *

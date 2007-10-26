@@ -13,7 +13,7 @@ import com.webreach.mirth.client.ui.editors.BasePanel;
 import com.webreach.mirth.client.ui.editors.GraphicalRulePanel;
 import com.webreach.mirth.client.ui.editors.filter.FilterPane;
 import com.webreach.mirth.plugins.FilterRulePlugin;
-import com.webreach.mirth.server.util.UUIDGenerator;
+import com.webreach.mirth.util.UUIDGenerator;
 
 public class GraphicalRulePlugin extends FilterRulePlugin{
 	private GraphicalRulePanel panel;

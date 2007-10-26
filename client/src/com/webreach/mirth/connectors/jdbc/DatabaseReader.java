@@ -52,7 +52,7 @@ import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.DocumentSerializer;
-import com.webreach.mirth.server.util.UUIDGenerator;
+import com.webreach.mirth.util.UUIDGenerator;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are

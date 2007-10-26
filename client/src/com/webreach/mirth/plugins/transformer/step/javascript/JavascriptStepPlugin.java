@@ -13,7 +13,7 @@ import com.webreach.mirth.client.ui.editors.ScriptPanel;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
 import com.webreach.mirth.plugins.TransformerStepPlugin;
-import com.webreach.mirth.server.util.UUIDGenerator;
+import com.webreach.mirth.util.UUIDGenerator;
 
 public class JavascriptStepPlugin extends TransformerStepPlugin {
 	private ScriptPanel panel;
