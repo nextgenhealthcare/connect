@@ -507,7 +507,8 @@ public class DashboardPanel extends javax.swing.JPanel
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 10, 10, false);
             }
             
-            updateCurrentPluginPanel();
+            if(lastRow != row)
+                updateCurrentPluginPanel();
         }
     }
     
