@@ -38,17 +38,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
-import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import org.jdesktop.swingworker.SwingWorker;
-import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
 import org.syntax.jedit.SyntaxDocument;
@@ -61,7 +58,6 @@ import org.w3c.dom.Document;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.core.ListHandlerException;
 import com.webreach.mirth.client.core.MessageListHandler;
-import com.webreach.mirth.client.ui.CellData;
 import com.webreach.mirth.client.ui.EditMessageDialog;
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.Mirth;
@@ -74,7 +70,6 @@ import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.client.ui.util.FileUtil;
-import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.DocumentSerializer;
@@ -104,7 +99,6 @@ public class MessageBrowser extends javax.swing.JPanel
     private MessageListHandler messageListHandler;
     private List<MessageObject> messageObjectList;
     private MessageObjectFilter messageObjectFilter;
-    private DefaultTableModel messageTableModel;  
     private int messageCount = -1;
     private int currentPage = 0;
     private int pageSize;
@@ -869,12 +863,12 @@ public class MessageBrowser extends javax.swing.JPanel
     public String getSelectedMessageID()
     {
         int column = -1;
-        for (int i = 0; i < messageTableModel.getColumnCount(); i++)
+        for (int i = 0; i < messageTable.getModel().getColumnCount(); i++)
         {
-            if (messageTableModel.getColumnName(i).equals(MESSAGE_ID_COLUMN_NAME))
+            if (messageTable.getModel().getColumnName(i).equals(MESSAGE_ID_COLUMN_NAME))
                 column = i;
         }
-        return ((String) messageTableModel.getValueAt(messageTable.convertRowIndexToModel(messageTable.getSelectedRow()), column));
+        return ((String) messageTable.getModel().getValueAt(messageTable.convertRowIndexToModel(messageTable.getSelectedRow()), column));
     }
     
     /**

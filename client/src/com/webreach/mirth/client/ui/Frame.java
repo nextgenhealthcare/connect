@@ -58,7 +58,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
@@ -79,8 +78,6 @@ import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.browsers.event.EventBrowser;
 import com.webreach.mirth.client.ui.browsers.message.MessageBrowser;
-import com.webreach.mirth.client.ui.editors.filter.FilterPane;
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.model.Alert;
@@ -97,6 +94,7 @@ import com.webreach.mirth.model.converters.ObjectCloner;
 import com.webreach.mirth.model.converters.ObjectClonerException;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
+import com.webreach.mirth.model.filters.SystemEventFilter;
 import com.webreach.mirth.model.util.ImportConverter;
 import com.webreach.mirth.util.PropertyVerifier;
 
@@ -711,9 +709,12 @@ public class Frame extends JXFrame
         eventTasks.setFocusable(false);
 
         addTask("doRefreshEvents","Refresh","Refresh the list of events with the given filter.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), eventTasks, eventPopupMenu);
-        addTask("doClearEvents","Clear Events","Clear the System Events.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), eventTasks, eventPopupMenu);
-
+        addTask("doRemoveAllEvents","Remove All Events","Remove all the System Events.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_delete.png")), eventTasks, eventPopupMenu);
+        addTask("doRemoveFilteredEvents","Remove Filtered Events","Remove all System Events in the current filter.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_delete.png")), eventTasks, eventPopupMenu);
+        addTask("doRemoveEvent","Remove Event","Remove the selected Event.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), eventTasks, eventPopupMenu);
+        
         setNonFocusable(eventTasks);
+        setVisibleTasks(eventTasks, eventPopupMenu, 3, 3, false);
         taskPaneContainer.add(eventTasks);
     }
 
@@ -3058,7 +3059,7 @@ public class Frame extends JXFrame
         eventBrowser.refresh();
     }
 
-    public void doClearEvents()
+    public void doRemoveAllEvents()
     {
         if (alertOption("Are you sure you would like to clear all system events?"))
         {
@@ -3090,6 +3091,74 @@ public class Frame extends JXFrame
         }
     }
 
+    public void doRemoveFilteredEvents()
+    {
+        if (alertOption("Are you sure you would like to remove all currently filtered system events?"))
+        {
+            setWorking("Removing events...", true);
+
+            SwingWorker worker = new SwingWorker<Void, Void>()
+            {
+                public Void doInBackground()
+                {
+                    try
+                    {
+                        mirthClient.removeSystemEvents(eventBrowser.getCurrentFilter());
+                    }
+                    catch (ClientException e)
+                    {
+                        alertException(e.getStackTrace(), e.getMessage());
+                    }
+                    return null;
+                }
+
+                public void done()
+                {
+                    if(currentContentPage == eventBrowser)
+                    	eventBrowser.refresh();
+                    setWorking("", false);
+                }
+            };
+
+            worker.execute();
+        }
+    }
+
+    public void doRemoveEvent()
+    {
+        if (alertOption("Are you sure you would like to remove the selected system event?"))
+        {
+            setWorking("Removing event...", true);
+
+            SwingWorker worker = new SwingWorker<Void, Void>()
+            {
+                public Void doInBackground()
+                {
+                    try
+                    {
+                        SystemEventFilter filter = new SystemEventFilter();
+                        filter.setId(eventBrowser.getSelectedEventID());
+                        mirthClient.removeSystemEvents(filter);
+                    }
+                    catch (ClientException e)
+                    {
+                        alertException(e.getStackTrace(), e.getMessage());
+                    }
+                    return null;
+                }
+
+                public void done()
+                {
+                    if(currentContentPage == eventBrowser)
+                        eventBrowser.refresh();
+                    setWorking("", false);
+                }
+            };
+
+            worker.execute();
+        }
+    }
+    
     public void doRefreshSettings()
     {
         if(changesHaveBeenMade())

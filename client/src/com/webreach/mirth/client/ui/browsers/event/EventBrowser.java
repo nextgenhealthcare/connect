@@ -67,7 +67,6 @@ public class EventBrowser extends javax.swing.JPanel
     private SystemEventListHandler systemEventListHandler;
     private List<SystemEvent> systemEventList;
     private SystemEventFilter systemEventFilter;
-    private DefaultTableModel systemEventTableModel;  
     private int eventCount = -1;
     private int currentPage = 0;
     private int pageSize;
@@ -135,6 +134,7 @@ public class EventBrowser extends javax.swing.JPanel
     	pageSizeField.setText(pageSize + "");
         
         // use the start filters and make the table.
+    	parent.setVisibleTasks(parent.eventTasks, parent.eventPopupMenu, 3, 3, false);
         systemEventListHandler = null;
         
         eventField.setText("");
@@ -400,6 +400,7 @@ public class EventBrowser extends javax.swing.JPanel
      */
     public void deselectRows()
     {
+    	parent.setVisibleTasks(parent.eventTasks, parent.eventPopupMenu, 3, 3, false);
         if (eventTable != null)
         {
             eventTable.clearSelection();
@@ -436,6 +437,8 @@ public class EventBrowser extends javax.swing.JPanel
 
             if (row >= 0)
             {
+            	parent.setVisibleTasks(parent.eventTasks, parent.eventPopupMenu, 3, 3, true);
+            	
                 descriptionTextPane.setText(systemEventList.get(row).getDescription() + "\n" + systemEventList.get(row).getAttributes());
                 descriptionTextPane.setCaretPosition(0);
             }
@@ -445,15 +448,15 @@ public class EventBrowser extends javax.swing.JPanel
     /**
      * Returns the ID of the selected event in the table.
      */
-    public String getSelectedEventID()
+    public Integer getSelectedEventID()
     {
         int column = -1;
-        for (int i = 0; i < systemEventTableModel.getColumnCount(); i++)
+        for (int i = 0; i < eventTable.getModel().getColumnCount(); i++)
         {
-            if (systemEventTableModel.getColumnName(i).equals(EVENT_ID_COLUMN_NAME))
+            if (eventTable.getModel().getColumnName(i).equals(EVENT_ID_COLUMN_NAME))
                 column = i;
         }
-        return ((String) systemEventTableModel.getValueAt(eventTable.convertRowIndexToModel(eventTable.getSelectedRow()), column));
+        return ((Integer) (eventTable.getModel().getValueAt(eventTable.convertRowIndexToModel(eventTable.getSelectedRow()), column)));
     }
     
     /**
