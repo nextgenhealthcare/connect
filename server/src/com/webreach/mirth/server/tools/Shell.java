@@ -53,6 +53,8 @@ import org.apache.commons.cli.ParseException;
 
 import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.core.ListHandlerException;
+import com.webreach.mirth.client.core.SystemEventListHandler;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatistics;
 import com.webreach.mirth.model.ChannelStatus;
@@ -597,7 +599,7 @@ public class Shell {
 			File fXml = new File(path);
 			out.println("Exporting Configuration");
 			String configurationXML = serializer.toXML(configuration);
-			writeFile(fXml, configurationXML);
+			writeFile(fXml, configurationXML, false);
 		} catch (IOException e) {
 			error("unable to write file " + path + ": " + e);
 		}
@@ -666,7 +668,7 @@ public class Shell {
 			String script = scripts.get(name);
 			File fXml = new File(path);
 			out.println("Exporting " + name + " script" );
-			writeFile(fXml, script);
+			writeFile(fXml, script, false);
 		} catch (IOException e) {
 			error("unable to write file " + path + ": " + e);
 		}
@@ -728,7 +730,7 @@ public class Shell {
 					File fXml = new File(path + channel.getName() + ".xml");
 					out.println("Exporting " + channel.getName());
 					String channelXML = serializer.toXML(channel);
-					writeFile(fXml, channelXML);
+					writeFile(fXml, channelXML, false);
 				} catch (IOException e) {
 					error("unable to write file " + path + ": " + e);
 				}
@@ -744,7 +746,7 @@ public class Shell {
 					out.println("Exporting " + channel.getName());
 					String channelXML = serializer.toXML(channel);
 					try {
-						writeFile(fXml, channelXML);
+						writeFile(fXml, channelXML, false);
 					} catch (IOException e) {
 						error("unable to write file " + path + ": " + e);
 					}
@@ -996,21 +998,33 @@ public class Shell {
 		builder.append("Mirth Event Log Dump: " + (new Date()).toString() + "\n");
 		builder.append("Id, Event, Date, Description, Level\n");
 
-		List<SystemEvent> events = client.getSystemEvents(new SystemEventFilter());
-
-		for (Iterator iter = events.iterator(); iter.hasNext();) {
-			SystemEvent event = (SystemEvent) iter.next();
-			builder.append(event.getId() + ", " + event.getEvent() + ", " + formatDate(event.getDate()) + ", " + event.getDescription() + ", " + event.getLevel() + "\n");
-		}
-
 		File dumpFile = new File(dumpFilename);
-
+		SystemEventListHandler eventListHandler = client.getSystemEventListHandler(new SystemEventFilter(), 20, false);
 		try {
-			writeFile(dumpFile, builder.toString());
-			out.println("Events written to " + dumpFilename);
+			List<SystemEvent> events = eventListHandler.getFirstPage();
+			
+			// create the new empty file.
+			writeFile(dumpFile, "", false);
+			
+			while (events.size() != 0) {
+				for (Iterator iter = events.iterator(); iter.hasNext();) {
+					SystemEvent event = (SystemEvent) iter.next();
+					builder.append(event.getId() + ", " + event.getEvent() + ", " + formatDate(event.getDate()) + ", " + event.getDescription() + ", " + event.getLevel() + "\n");
+				}
+				
+				writeFile(dumpFile, builder.toString(), true);
+				builder.delete(0, builder.length());
+				
+				events = eventListHandler.getNextPage();
+			}
+			
+		} catch (ListHandlerException e1) {
+			e1.printStackTrace();
 		} catch (IOException e) {
 			error("Could not write file: " + dumpFile.getAbsolutePath());
 		}
+		
+		out.println("Events written to " + dumpFilename);
 	}
 
 	private void commandDumpStats(Token[] arguments) throws ClientException {
@@ -1032,7 +1046,7 @@ public class Shell {
 		File dumpFile = new File(dumpFilename);
 
 		try {
-			writeFile(dumpFile, builder.toString());
+			writeFile(dumpFile, builder.toString(), false);
 			out.println("Stats written to " + dumpFilename);
 		} catch (IOException e) {
 			error("Could not write file: " + dumpFile.getAbsolutePath());
@@ -1120,8 +1134,8 @@ public class Shell {
 		return source;
 	}
 
-	private void writeFile(File file, String data) throws IOException {
-		BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+	private void writeFile(File file, String data, boolean append) throws IOException {
+		BufferedWriter writer = new BufferedWriter(new FileWriter(file, append));
 
 		try {
 			writer.write(data);

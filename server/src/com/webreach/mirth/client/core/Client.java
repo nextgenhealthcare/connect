@@ -499,19 +499,6 @@ public class Client {
 	}
 
 	/**
-	 * Returns a list of system events.
-	 * 
-	 * @param filter
-	 * @return
-	 * @throws ClientException
-	 */
-	public List<SystemEvent> getSystemEvents(SystemEventFilter filter) throws ClientException {
-		logger.debug("retrieving log event list");
-		NameValuePair[] params = { new NameValuePair("op", "getSystemEvents"), new NameValuePair("filter", serializer.toXML(filter)) };
-		return (List<SystemEvent>) serializer.fromXML(serverConnection.executePostMethod(EVENT_SERVLET, params));
-	}
-
-	/**
 	 * Clears the system event list.
 	 * 
 	 * @throws ClientException
@@ -609,6 +596,10 @@ public class Client {
 
 	public MessageListHandler getMessageListHandler(MessageObjectFilter filter, int pageSize, boolean newInstance) throws ClientException {
 		return new MessageListHandler(filter, pageSize, (newInstance ? (System.currentTimeMillis() + "") : null), serverConnection);
+	}
+	
+	public SystemEventListHandler getSystemEventListHandler(SystemEventFilter filter, int pageSize, boolean newInstance) throws ClientException {
+		return new SystemEventListHandler(filter, pageSize, (newInstance ? (System.currentTimeMillis() + "") : null), serverConnection);
 	}
 
 	/**

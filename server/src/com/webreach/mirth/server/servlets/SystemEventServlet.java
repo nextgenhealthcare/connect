@@ -47,17 +47,46 @@ public class SystemEventServlet extends MirthServlet {
 				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");
+				String uid = null;
+				boolean useNewTempTable = false;
+				
+				if (request.getParameter("uid") != null && !request.getParameter("uid").equals("")) {
+					uid = request.getParameter("uid");
+					useNewTempTable = true;
+				}
+				else {
+					uid = request.getSession().getId();
+				}
 
-				if (operation.equals("getSystemEvents")) {
+				if (operation.equals("createSystemEventsTempTable")) {
+					String filter = request.getParameter("filter");
+					response.setContentType("text/plain");
+					out.println(systemLogger.createSystemEventsTempTable((SystemEventFilter) serializer.fromXML(filter), uid, useNewTempTable));
+				} else if (operation.equals("removeFilterTables")) {
+					systemLogger.removeFilterTable(uid);
+				} else if (operation.equals("getSystemEventsByPage")) {
+					String page = request.getParameter("page");
+					String pageSize = request.getParameter("pageSize");
+					String maxMessages = request.getParameter("maxSystemEvents");
+					response.setContentType("application/xml");
+					out.print(serializer.toXML(systemLogger.getSystemEventsByPage(Integer.parseInt(page), Integer.parseInt(pageSize), Integer.parseInt(maxMessages), uid)));
+				} else if (operation.equals("getSystemEventsByPageLimit")) {
+					String page = request.getParameter("page");
+					String pageSize = request.getParameter("pageSize");
+					String maxSystemEvents = request.getParameter("maxSystemEvents");
 					String filter = request.getParameter("filter");
 					response.setContentType("application/xml");
-					out.println(serializer.toXML(systemLogger.getSystemEvents((SystemEventFilter) serializer.fromXML(filter))));
+					out.print(serializer.toXML(systemLogger.getSystemEventsByPageLimit(Integer.parseInt(page), Integer.parseInt(pageSize), Integer.parseInt(maxSystemEvents), uid, (SystemEventFilter) serializer.fromXML(filter))));
+				} else if (operation.equals("removeSystemEvents")) {
+					String filter = request.getParameter("filter");
+					systemLogger.removeSystemEvents((SystemEventFilter) serializer.fromXML(filter));
 				} else if (operation.equals("clearSystemEvents")) {
+					String channelId = request.getParameter("data");
 					systemLogger.clearSystemEvents();
 				}
 			} catch (Exception e) {
 				throw new ServletException(e);
 			}
 		}
-	}
+	}	
 }

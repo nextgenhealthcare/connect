@@ -43,17 +43,17 @@ import com.ibatis.sqlmap.client.SqlMapClient;
 import com.ibatis.sqlmap.client.SqlMapException;
 import com.ibatis.sqlmap.engine.impl.ExtendedSqlMapClient;
 import com.ibatis.sqlmap.engine.impl.SqlMapExecutorDelegate;
+import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
-import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.model.MessageObject.Status;
-import com.webreach.mirth.model.converters.ObjectCloner;
-import com.webreach.mirth.model.converters.ObjectClonerException;
-import com.webreach.mirth.model.converters.DICOMSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.builders.ErrorMessageBuilder;
-import com.webreach.mirth.server.util.*;
+import com.webreach.mirth.server.util.DICOMUtil;
+import com.webreach.mirth.server.util.DatabaseUtil;
+import com.webreach.mirth.server.util.SqlConfig;
+import com.webreach.mirth.server.util.VMRouter;
 import com.webreach.mirth.util.Encrypter;
 import com.webreach.mirth.util.EncryptionException;
 import com.webreach.mirth.util.UUIDGenerator;
@@ -98,13 +98,23 @@ public class MessageObjectController {
 
 			// Specify the type of object; in this case we want tables
 			String[] types = { "TABLE" };
-			resultSet = dbmd.getTables(null, null, "MSG_TMP_%", types);
+			String tablePattern = "MSG_TMP_%";
+			resultSet = dbmd.getTables(null, null, tablePattern, types);
+			
+			boolean resultFound = resultSet.next();
+			
+			// Some databases only accept lowercase table names
+			if (!resultFound) {
+				resultSet = dbmd.getTables(null, null, tablePattern.toLowerCase(), types);
+				resultFound = resultSet.next();
+			}
 
-			while (resultSet.next()) {
+			while (resultFound) {
 				// Get the table name
 				String tableName = resultSet.getString(3);
 				// Get the uid and remove its filter tables/indexes/sequences
 				removeFilterTable(tableName.substring(8));
+				resultFound = resultSet.next();
 			}
 
 		} catch (SQLException e) {

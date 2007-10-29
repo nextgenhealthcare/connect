@@ -264,21 +264,6 @@ public class MirthManager {
 	}
 
 	/**
-	 * Returns the system event list.
-	 * 
-	 * @param filter
-	 * @return
-	 * @throws MirthException
-	 */
-	public List<SystemEvent> getSystemEvents(SystemEventFilter filter) throws MirthException {
-		try {
-			return systemLogger.getSystemEvents(filter);
-		} catch (ControllerException e) {
-			throw new MirthException(e);
-		}
-	}
-
-	/**
 	 * Clears the system event list.
 	 * 
 	 * @throws MirthException

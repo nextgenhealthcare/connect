@@ -21,25 +21,79 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<result property="attributes" column="ATTRIBUTES" />
 	</resultMap>
 
-	<select id="getEvent" parameterClass="java.util.Map" resultMap="get-event-result">
-		SELECT *
-		FROM EVENT
+	<sql id="eventFilterCriteria">
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="event">
-				LOWER(EVENT) LIKE LOWER(#event#)
+				LOWER(EVENT) LIKE LOWER('$event$')
 			</isNotNull>
 			<isNotNull prepend="AND" property="level">
-				EVENT_LEVEL = #level#
+				EVENT_LEVEL = '$level$'
 			</isNotNull>
 			<isNotNull prepend="AND" property="startDate">
-				DATE_CREATED <![CDATA[ >= ]]> #startDate#
+				DATE_CREATED <![CDATA[ >= ]]> '$startDate$'
 			</isNotNull>
 			<isNotNull prepend="AND" property="endDate">
-				DATE_CREATED <![CDATA[ <= ]]> #endDate#
+				DATE_CREATED <![CDATA[ <= ]]> '$endDate$'
 			</isNotNull>
 		</dynamic>
-		ORDER BY DATE_CREATED DESC
+	</sql>
+    
+	<select id="getSystemEventsByPage" parameterClass="java.util.Map" resultMap="get-event-result">
+		SELECT
+			EVENT.*
+		FROM
+			EVT_TMP_$uid$ AS TEMP_TABLE,
+			EVENT
+		WHERE
+			TEMP_TABLE.ID = EVENT.ID
+			<dynamic prepend="AND">
+				<isNotNull property="first">
+					<isNotNull property="last">
+						TEMP_TABLE.SEQUENCE_ORDER BETWEEN #first# AND #last#
+					</isNotNull>
+				</isNotNull>
+			</dynamic>
+		ORDER BY TEMP_TABLE.DATE_CREATED DESC
 	</select>
+	
+	<select id="getSystemEventsByPageLimit" parameterClass="java.util.Map" resultMap="get-event-result">
+		SELECT
+			EVENT.*
+		FROM
+			EVENT
+		<include refid="eventFilterCriteria" />
+		ORDER BY DATE_CREATED DESC
+		LIMIT $limit$
+		OFFSET $offset$
+	</select>
+
+	<statement id="dropTempSystemEventsTable" parameterClass="java.lang.String">
+		DROP TABLE EVT_TMP_$uid$
+	</statement>
+
+	<statement id="createTempSystemEventsTable" parameterClass="java.lang.String">
+		CREATE TABLE EVT_TMP_$uid$ (ID INTEGER, SEQUENCE_ORDER INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY, DATE_CREATED TIMESTAMP)
+	</statement>
+
+	<statement id="createTempSystemEventsTableIndex" parameterClass="java.lang.String">
+		CREATE INDEX IDX_EVT_TMP_$uid$ ON EVT_TMP_$uid$ (SEQUENCE_ORDER, ID)
+	</statement>
+
+	<!-- NOTE: The nested SELECT needs an ORDER BY DATE_CREATED, which Derby does not support -->
+	<insert id="populateTempSystemEventsTable" parameterClass="java.util.Map">
+		INSERT INTO EVT_TMP_$uid$ (ID, DATE_CREATED)
+			(SELECT ID, DATE_CREATED
+			FROM EVENT
+			<include refid="eventFilterCriteria" />)
+	</insert>
+	
+	<delete id="deleteTempSystemEventsTable" parameterClass="java.lang.String">
+		DROP TABLE EVT_TMP_$uid$
+	</delete>
+
+	<delete id="deleteTempSystemEventsTableIndex" parameterClass="java.lang.String">
+		DROP INDEX IDX_EVT_TMP_$uid$
+	</delete>
 
 	<insert id="insertEvent" parameterMap="insert-event-param">
 		INSERT INTO

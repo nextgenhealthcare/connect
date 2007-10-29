@@ -42,7 +42,11 @@ public class EventControllerTest extends TestCase {
 	public void testAddEvent() throws ControllerException {
 		SystemEvent sampleEvent = sampleEventList.get(0);
 		eventController.logSystemEvent(sampleEvent);
-		List<SystemEvent> testEventList = eventController.getSystemEvents(new SystemEventFilter());
+		
+		SystemEventFilter testFilter = new SystemEventFilter();
+        eventController.createSystemEventsTempTable(testFilter, "test", false);
+		
+		List<SystemEvent> testEventList = eventController.getSystemEventsByPage(-1, -1, 0, "test");
 
 		Assert.assertEquals(1, testEventList.size());
 	}
@@ -50,15 +54,21 @@ public class EventControllerTest extends TestCase {
 	public void testGetEvent() throws ControllerException {
 		insertSampleEvents();
 		
-		List<SystemEvent> testEventList = eventController.getSystemEvents(new SystemEventFilter());
+		SystemEventFilter testFilter = new SystemEventFilter();
+        eventController.createSystemEventsTempTable(testFilter, "test", false);
+		
+		List<SystemEvent> testEventList = eventController.getSystemEventsByPage(-1, -1, 0, "test");
 		Assert.assertEquals(sampleEventList.size(), testEventList.size());
 	}
 
 	public void testRemoveEvent() throws ControllerException {
 		insertSampleEvents();
 		
+		SystemEventFilter testFilter = new SystemEventFilter();
+        eventController.createSystemEventsTempTable(testFilter, "test", false);
+		
 		eventController.clearSystemEvents();
-		List<SystemEvent> testEventList = eventController.getSystemEvents(new SystemEventFilter());
+		List<SystemEvent> testEventList = eventController.getSystemEventsByPage(-1, -1, 0, "test");
 		Assert.assertTrue(testEventList.isEmpty());
 	}
 

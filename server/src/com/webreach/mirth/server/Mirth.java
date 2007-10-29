@@ -145,6 +145,7 @@ public class Mirth extends Thread {
 
 		// initialize controllers
 		messageObjectController.initialize();
+		systemLogger.initialize();
 		channelStatisticsController.initialize();
 		configurationController.initialize();
 		migrationController.initialize();

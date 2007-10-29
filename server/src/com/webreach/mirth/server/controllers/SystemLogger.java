@@ -26,6 +26,9 @@
 
 package com.webreach.mirth.server.controllers;
 
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -34,8 +37,12 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
+import com.ibatis.sqlmap.client.SqlMapException;
+import com.ibatis.sqlmap.engine.impl.ExtendedSqlMapClient;
+import com.ibatis.sqlmap.engine.impl.SqlMapExecutorDelegate;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.filters.SystemEventFilter;
+import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.server.util.SqlConfig;
 
 public class SystemLogger {
@@ -56,7 +63,49 @@ public class SystemLogger {
 			
 			return instance;
 		}
-	}   
+	} 
+	
+	public void initialize() {
+		removeAllFilterTables();
+	}
+	
+	public void removeAllFilterTables() {
+		Connection conn = null;
+		ResultSet resultSet = null;
+
+		try {
+			conn = sqlMap.getDataSource().getConnection();
+			// Gets the database metadata
+			DatabaseMetaData dbmd = conn.getMetaData();
+
+			// Specify the type of object; in this case we want tables
+			String[] types = { "TABLE" };
+			String tablePattern = "EVT_TMP_%";
+			resultSet = dbmd.getTables(null, null, tablePattern, types);
+			
+			boolean resultFound = resultSet.next();
+			
+			// Some databases only accept lowercase table names
+			if (!resultFound) {
+				resultSet = dbmd.getTables(null, null, tablePattern.toLowerCase(), types);
+				resultFound = resultSet.next();
+			}
+
+			while (resultFound) {
+				// Get the table name
+				String tableName = resultSet.getString(3);
+				// Get the uid and remove its filter tables/indexes/sequences
+				removeFilterTable(tableName.substring(8));
+				resultFound = resultSet.next();
+			}
+
+		} catch (SQLException e) {
+			logger.error(e);
+		} finally {
+			DatabaseUtil.close(resultSet);
+			DatabaseUtil.close(conn);
+		}
+	}
 	
 	/**
 	 * Adds a new system event.
@@ -75,23 +124,6 @@ public class SystemLogger {
 	}
 
 	/**
-	 * Returns a List of all system events.
-	 * 
-	 * @param channelId
-	 * @return
-	 * @throws ControllerException
-	 */
-	public List<SystemEvent> getSystemEvents(SystemEventFilter filter) throws ControllerException {
-		logger.debug("retrieving log event list: " + filter);
-
-		try {
-			return (List<SystemEvent>) sqlMap.queryForList("getEvent", getFilterMap(filter));
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		}
-	}
-
-	/**
 	 * Clears the sysem event list.
 	 * 
 	 */
@@ -105,8 +137,13 @@ public class SystemLogger {
 		}
 	}
 	
-	private Map getFilterMap(SystemEventFilter filter) {
+	private Map getFilterMap(SystemEventFilter filter, String uid) {
 		Map parameterMap = new HashMap();
+		
+		if (uid != null) {
+			parameterMap.put("uid", uid);
+		}
+		
 		parameterMap.put("event", filter.getEvent());
 		parameterMap.put("level", filter.getLevel());
 		
@@ -119,5 +156,121 @@ public class SystemLogger {
 		}
 
 		return parameterMap;
+	}
+
+	public int createSystemEventsTempTable(SystemEventFilter filter, String uid, boolean forceTemp)  throws ControllerException {
+		logger.debug("creating temporary system event table: filter=" + filter.toString());
+
+		if (!forceTemp && statementExists("getSystemEventsByPageLimit")) {
+			return -1;
+		}
+		// If it's not forcing temp tables (export or reprocessing),
+		// then it's reusing the same ones, so remove them.
+		if (!forceTemp) {
+			removeFilterTable(uid);
+		}
+
+		try {
+			if (statementExists("createTempSystemEventsTableSequence")) {
+				sqlMap.update("createTempSystemEventsTableSequence", uid);
+			}
+
+			sqlMap.update("createTempSystemEventsTable", uid);
+			sqlMap.update("createTempSystemEventsTableIndex", uid);
+			return sqlMap.update("populateTempSystemEventsTable", getFilterMap(filter, uid));
+		} catch (SQLException e) {
+			throw new ControllerException(e);
+		}
+	}
+
+	public void removeFilterTable(String uid) {
+		logger.debug("Removing temporary system event table: uid=" + uid);
+		try {
+			if (statementExists("dropTempSystemEventsTableSequence")) {
+				sqlMap.update("dropTempSystemEventsTableSequence", uid);
+			}
+		} catch (SQLException e) {
+			// supress any warnings about the sequence not existing
+			logger.debug(e);
+		}
+		try {
+			if (statementExists("deleteTempSystemEventsTableIndex")) {
+				sqlMap.update("deleteTempSystemEventsTableIndex", uid);
+			}
+		} catch (SQLException e) {
+			// supress any warnings about the index not existing
+			logger.debug(e);
+		}
+		try {
+			sqlMap.update("dropTempSystemEventsTable", uid);
+		} catch (SQLException e) {
+			// supress any warnings about the table not existing
+			logger.debug(e);
+		}		
+	}
+
+	public List<SystemEvent> getSystemEventsByPage(int page, int pageSize, int maxSystemEvents, String uid) throws ControllerException {
+		logger.debug("retrieving system events by page: page=" + page);
+
+		try {
+			Map parameterMap = new HashMap();
+			parameterMap.put("uid", uid);
+
+			if ((page != -1) && (pageSize != -1)) {
+				int last = maxSystemEvents - (page * pageSize);
+				int first = last - pageSize + 1;
+				parameterMap.put("first", first);
+				parameterMap.put("last", last);
+			}
+
+			List<SystemEvent> systemEvents = sqlMap.queryForList("getSystemEventsByPage", parameterMap);
+
+			return systemEvents;
+		} catch (Exception e) {
+			throw new ControllerException(e);
+		}
+	}
+
+	public int removeSystemEvents(SystemEventFilter filter)  throws ControllerException {
+		logger.debug("removing system events: filter=" + filter.toString());
+
+		try {
+			return sqlMap.delete("deleteSystemEvents", getFilterMap(filter, null));
+		} catch (SQLException e) {
+			throw new ControllerException(e);
+		}		
+	}
+
+	public List<SystemEvent> getSystemEventsByPageLimit(int page, int pageSize, int maxSystemEvents, String uid, SystemEventFilter filter) throws ControllerException {
+		logger.debug("retrieving system events by page: page=" + page);
+
+		try {
+			Map parameterMap = new HashMap();
+			parameterMap.put("uid", uid);
+			int offset = page * pageSize;
+
+			parameterMap.put("offset", offset);
+			parameterMap.put("limit", pageSize);
+
+			parameterMap.putAll(getFilterMap(filter, uid));
+
+			List<SystemEvent> systemEvents = sqlMap.queryForList("getSystemEventsByPageLimit", parameterMap);
+
+			return systemEvents;
+		} catch (Exception e) {
+			throw new ControllerException(e);
+		}
+	}
+	
+	private boolean statementExists(String statement) {
+		try {
+			SqlMapExecutorDelegate delegate = ((ExtendedSqlMapClient) sqlMap).getDelegate();
+			delegate.getMappedStatement(statement);
+		} catch (SqlMapException sme) {
+			// The statement does not exist
+			return false;
+		}
+
+		return true;
 	}
 }
