@@ -131,7 +131,8 @@ public class SystemLogger {
 		logger.debug("clearing system event list");
 
 		try {
-			sqlMap.delete("deleteEvent");
+			Map parameterMap = new HashMap();
+			sqlMap.delete("deleteEvent", parameterMap);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
@@ -144,6 +145,7 @@ public class SystemLogger {
 			parameterMap.put("uid", uid);
 		}
 		
+		parameterMap.put("id", filter.getId());
 		parameterMap.put("event", filter.getEvent());
 		parameterMap.put("level", filter.getLevel());
 		
@@ -235,7 +237,7 @@ public class SystemLogger {
 		logger.debug("removing system events: filter=" + filter.toString());
 
 		try {
-			return sqlMap.delete("deleteSystemEvents", getFilterMap(filter, null));
+			return sqlMap.delete("deleteEvent", getFilterMap(filter, null));
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}		

@@ -508,6 +508,18 @@ public class Client {
 		NameValuePair[] params = { new NameValuePair("op", "clearSystemEvents") };
 		serverConnection.executePostMethod(EVENT_SERVLET, params);
 	}
+	
+	/**
+	 * Removes the system events in the filter.
+	 * 
+	 * @param filter
+	 * @throws ClientException
+	 */
+	public void removeSystemEvents(SystemEventFilter filter) throws ClientException {
+		logger.debug("removing system events");
+		NameValuePair[] params = { new NameValuePair("op", "removeSystemEvents"), new NameValuePair("filter", serializer.toXML(filter)) };
+		serverConnection.executePostMethod(EVENT_SERVLET, params);
+	}
 
 	public void removeMessages(MessageObjectFilter filter) throws ClientException {
 		logger.debug("removing messages");

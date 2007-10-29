@@ -37,10 +37,19 @@ import com.webreach.mirth.model.SystemEvent.Level;
  * 
  */
 public class SystemEventFilter {
+	private Integer id;
 	private Level level;
 	private Calendar startDate;
 	private Calendar endDate;
 	private String event;
+	
+	public Integer getId() {
+		return this.id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
 	public String getEvent() {
 		return this.event;
@@ -77,6 +86,7 @@ public class SystemEventFilter {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(this.getClass().getName() + "[");
+		builder.append("id=" + getId() + ", ");
 		builder.append("level=" + getLevel() + ", ");
 		builder.append("startDate=" + String.format("%1$tY-%1$tm-%1$td", getStartDate()) + ", ");
 		builder.append("endDate=" + String.format("%1$tY-%1$tm-%1$td", getEndDate()) + ", ");
