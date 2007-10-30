@@ -6,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringBufferInputStream;
-import java.util.Iterator;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -25,7 +24,6 @@ import com.lowagie.text.html.HtmlParser;
 import com.lowagie.text.pdf.PdfEncryptor;
 import com.lowagie.text.pdf.PdfReader;
 import com.lowagie.text.pdf.PdfWriter;
-import com.lowagie.text.pdf.events.IndexEvents.Entry;
 import com.lowagie.text.rtf.RtfWriter2;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
