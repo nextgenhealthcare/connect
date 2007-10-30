@@ -1151,6 +1151,6 @@ public class Shell {
 	}
 
 	private String formatDate(Calendar date) {
-		return String.format("%1$tY-%1$tm-%1$td 00:00:00", date);
+		return String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS:%1$tL", date);
 	}
 }
