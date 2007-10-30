@@ -6,10 +6,11 @@
 
 package com.webreach.mirth.client.ui;
 
+import java.util.Iterator;
+import java.util.Map;
+
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  *
@@ -39,9 +40,32 @@ public class GlobalScriptsPanel extends javax.swing.JPanel
         }
     }
     
-    public void validateScripts()
+    public void validateCurrentScript()
     {
         scriptPanel.validateCurrentScript();
+    }
+    
+    public String validateAllScripts()
+    {
+    	Map<String, String> scripts = scriptPanel.getScripts();   	
+    	String errors = "";
+    	
+    	Iterator it = scriptPanel.getScripts().entrySet().iterator();
+        while (it.hasNext())
+        {
+            Map.Entry entry = (Map.Entry)it.next();
+            String key = (String) entry.getKey();
+            String value = (String) entry.getValue();
+            
+            String validationMessage = scriptPanel.validateScript(value);
+            if (validationMessage != null)
+        		errors += "Error in global script \"" + key + "\":\n" + validationMessage + "\n\n";
+        }
+        
+        if (errors.equals(""))
+        	errors = null;
+        
+        return errors;        
     }
     
     public void save()

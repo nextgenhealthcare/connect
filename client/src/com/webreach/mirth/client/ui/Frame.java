@@ -805,7 +805,7 @@ public class Frame extends JXFrame
         globalScriptsTasks.setFocusable(false);
 
         addTask("doSaveGlobalScripts","Save Scripts","Save all changes made to all scripts.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")), globalScriptsTasks, globalScriptsPopupMenu);
-        addTask("doValidateGlobalScripts","Validate Script","Validate the currently viewed script.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), globalScriptsTasks, globalScriptsPopupMenu);
+        addTask("doValidateCurrentGlobalScript","Validate Script","Validate the currently viewed script.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), globalScriptsTasks, globalScriptsPopupMenu);
 
         setVisibleTasks(globalScriptsTasks, globalScriptsPopupMenu, 0, 0, false);
         //setVisibleTasks(globalScriptsTasks, globalScriptsPopupMenu, 1, -1, true);
@@ -1540,9 +1540,9 @@ public class Frame extends JXFrame
         worker.execute();
     }
 
-    public void doValidateGlobalScripts()
+    public void doValidateCurrentGlobalScript()
     {
-        globalScriptsPanel.validateScripts();
+        globalScriptsPanel.validateCurrentScript();
     }
 
     public void doValidateChannelScripts()
@@ -1558,6 +1558,12 @@ public class Frame extends JXFrame
         {
             public Void doInBackground()
             {
+            	String validationMessage = globalScriptsPanel.validateAllScripts();
+                if (validationMessage != null)
+                {
+                	alertCustomError(validationMessage, CustomErrorDialog.ERROR_VALIDATING_GLOBAL_SCRIPTS);
+                }
+                
                 globalScriptsPanel.save();
                 return null;
             }
