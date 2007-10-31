@@ -80,7 +80,9 @@ public class RepositoryDialog extends javax.swing.JDialog
     private final String EXTENSION_INSTALL_COLUMN_NAME = "Install";
     private ExtensionUtil pluginUtil = new ExtensionUtil();
     private boolean cancel = false;
-    private ExtensionInfo[] extensionInfo = null;
+    private ExtensionInfo[] displayedExtensionInfo = null;
+    private Map<String, MetaData> extensions = new HashMap<String, MetaData>();
+    
     /**
      * Creates new form ViewContentDialog
      */
@@ -90,6 +92,9 @@ public class RepositoryDialog extends javax.swing.JDialog
         this.parent = parent;
         
         initComponents();
+        extensions.putAll(PlatformUI.MIRTH_FRAME.getPluginMetaData());
+        extensions.putAll(PlatformUI.MIRTH_FRAME.getConnectorMetaData());
+        
         Dimension dlgSize = getPreferredSize();
         Dimension frmSize = PlatformUI.MIRTH_FRAME.getSize();
         Point loc = PlatformUI.MIRTH_FRAME.getLocation();
@@ -166,16 +171,16 @@ public class RepositoryDialog extends javax.swing.JDialog
                 if (e.getClickCount() == 2)
                 {
                     int row = loadedExtensionTable.convertRowIndexToModel(loadedExtensionTable.getSelectedRow());
-                    if (row > -1 && extensionInfo != null)
+                    if (row > -1 && displayedExtensionInfo != null)
                     {
                         
-                        String type = extensionInfo[row].getType();
-                        String name =  extensionInfo[row].getName();
-                        String version =  extensionInfo[row].getVersion();
-                        String mirthVersion =  extensionInfo[row].getMirthVersion();
-                        String author =  extensionInfo[row].getAuthor();
-                        String url =  extensionInfo[row].getUrl();
-                        String description  = extensionInfo[row].getDescription();
+                        String type = displayedExtensionInfo[row].getType();
+                        String name =  displayedExtensionInfo[row].getName();
+                        String version =  displayedExtensionInfo[row].getVersion();
+                        String mirthVersion =  displayedExtensionInfo[row].getMirthVersion();
+                        String author =  displayedExtensionInfo[row].getAuthor();
+                        String url =  displayedExtensionInfo[row].getUrl();
+                        String description  = displayedExtensionInfo[row].getDescription();
                         
                         new ExtensionInfoDialog(name, type, author,mirthVersion, version, url, description);
                     }
@@ -233,22 +238,22 @@ public class RepositoryDialog extends javax.swing.JDialog
                     boolean update = ((Boolean)loadedExtensionTable.getModel().getValueAt(i,INSTALL_COLUMN)).booleanValue();
                     if (update)
                     {
-                        String name = extensionInfo[i].getName();                
+                        String name = displayedExtensionInfo[i].getName();                
                         statusLabel.setText("Downloading extension: " + name);
                         if (cancel)
                         {
                             break;
                         }
                         progressBar.setVisible(true);
-                        File file = pluginUtil.downloadFileToDisk(pluginUtil.getDynamicURL(extensionInfo[i].getDownloadUrl(), extensionInfo[i].getVersion(), extensionInfo[i].getName(), extensionInfo[i].getId()), statusLabel, progressBar);
+                        File file = pluginUtil.downloadFileToDisk(pluginUtil.getDynamicURL(displayedExtensionInfo[i].getDownloadUrl(), displayedExtensionInfo[i].getVersion(), displayedExtensionInfo[i].getName(), displayedExtensionInfo[i].getId()), statusLabel, progressBar);
                         progressBar.setVisible(false);
                         statusLabel.setText("Installing extension: " + name);
                         if (cancel)
                         {
                             break;
                         }
-                        statusLabel.setText("Updating extension: " + extensionInfo[i].getName());
-                        parent.install(extensionInfo[i].getType().toLowerCase() + "s", file);
+                        statusLabel.setText("Updating extension: " + displayedExtensionInfo[i].getName());
+                        parent.install(displayedExtensionInfo[i].getType().toLowerCase() + "s", file);
                         installedExtensions = true;
                     }
                 }
@@ -273,12 +278,13 @@ public class RepositoryDialog extends javax.swing.JDialog
     public void updateLoadedExtensionsTable()
     {
         Object[][] tableData = null;
-        int tableSize = 0;
         ArrayList<String> updateVersion = new ArrayList<String>();
         statusLabel.setText("Retrieving extension list...");
         progressBar.setIndeterminate(true);
         String extensionInfoXML = pluginUtil.getStringFromURL(pluginUtil.getDynamicURL("http://extensions.mirthproject.org/repository/?mirthversion=${mirthVersion}&serverid=${serverid}", "",""));
         ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[]{ExtensionInfo.class});
+        ExtensionInfo[] extensionInfo = null;
+        
         try
         {
             extensionInfo = (ExtensionInfo[]) serializer.fromXML(extensionInfoXML);
@@ -288,32 +294,58 @@ public class RepositoryDialog extends javax.swing.JDialog
             e.printStackTrace();
         }
         
-        if (extensionInfo == null || extensionInfo.length == 0){
+        // Only display extensions for download that are not already isntalled
+        if (extensionInfo != null)
+        {
+        	ArrayList<Object[]> tempTableData = new ArrayList<Object[]>();
+        	ArrayList<ExtensionInfo> tempExtensionInfoList = new ArrayList<ExtensionInfo>();
         	
+	        for (int i = 0; i < extensionInfo.length; i++)
+	        {
+	        	if (!extensions.containsKey(extensionInfo[i].getName()))
+	        	{
+	        		Object[] tempRow = new Object[7];
+	        		tempRow[0] = extensionInfo[i].getType();
+	        		tempRow[1] = extensionInfo[i].getName();
+	        		tempRow[2] = extensionInfo[i].getVersion();
+	        		tempRow[3] = extensionInfo[i].getAuthor();
+		            //tableData[i][4] = extensionInfo[i].getDescription();
+		            // tableData[i][5] = extensionInfo[i].getDescription();
+		            // tableData[i][5] = extensionInfo[i].getUrl();
+	        		tempRow[INSTALL_COLUMN] = Boolean.FALSE;
+	        		
+	        		tempTableData.add(tempRow);
+	        		tempExtensionInfoList.add(extensionInfo[i]);
+	        	}
+	        }
+
+	        tableData = new Object[tempTableData.size()][7];
+	        displayedExtensionInfo = new ExtensionInfo[tempTableData.size()];
+	        
+	        for (int i = 0; i < tempTableData.size(); i++)
+	        {
+	        	tableData[i] = tempTableData.get(i);
+	        	// Create a list of the installed extensions for reference by selected row.
+	        	displayedExtensionInfo[i] = tempExtensionInfoList.get(i);
+	        }
+        }
+        
+        if (extensionInfo == null || extensionInfo.length == 0)
+        {
         	statusLabel.setText("No Extensions Found.");
         	return;
-        }else{
+        }
+        else if (tableData.length == 0)
+        {
+        	statusLabel.setText("No New Extensions Found.");
+        	return;
+        }
+        else
+        {
         	installUpdatesButton.setEnabled(true);
         	statusLabel.setText("Ready to Install Extensions!");
         }
         progressBar.setIndeterminate(false);
-        tableSize = extensionInfo.length;
-        
-        tableData = new Object[tableSize][7];
-        
-        
-        for (int i = 0; i < extensionInfo.length; i++)
-        {
-            tableData[i][0] = extensionInfo[i].getType();
-            tableData[i][1] = extensionInfo[i].getName();
-            tableData[i][2] = extensionInfo[i].getVersion();
-            tableData[i][3] = extensionInfo[i].getAuthor();
-            //tableData[i][4] = extensionInfo[i].getDescription();
-            // tableData[i][5] = extensionInfo[i].getDescription();
-            // tableData[i][5] = extensionInfo[i].getUrl();
-            tableData[i][INSTALL_COLUMN] = Boolean.FALSE;
-        }
-        
         
         if (loadedExtensionTable != null)
         {
