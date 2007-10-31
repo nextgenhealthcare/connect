@@ -402,7 +402,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         viewTasks = new JXTaskPane();
         viewTasks.setTitle("Mirth Views");
         viewTasks.setFocusable(false);
-        viewTasks.add(initActionCallback("accept", ActionFactory.createBoundAction("accept", "Back to Channels", "B"), new ImageIcon(Frame.class.getResource("images/resultset_previous.png"))));
+        viewTasks.add(initActionCallback("accept", ActionFactory.createBoundAction("accept", "Back to Channel", "B"), new ImageIcon(Frame.class.getResource("images/resultset_previous.png"))));
         parent.setNonFocusable(viewTasks);
         transformerTaskPaneContainer.add(viewTasks);
         transformerTasks = new JXTaskPane();

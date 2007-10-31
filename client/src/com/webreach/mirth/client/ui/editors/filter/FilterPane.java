@@ -391,7 +391,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
 
         filterPopupMenu = new JPopupMenu();
 
-        viewTasks.add(initActionCallback("accept", ActionFactory.createBoundAction("accept", "Back to Channels", "B"), new ImageIcon(Frame.class.getResource("images/resultset_previous.png"))));
+        viewTasks.add(initActionCallback("accept", ActionFactory.createBoundAction("accept", "Back to Channel", "B"), new ImageIcon(Frame.class.getResource("images/resultset_previous.png"))));
         parent.setNonFocusable(viewTasks);
         filterTaskPaneContainer.add(viewTasks);
 
