@@ -68,10 +68,27 @@ public class GlobalScriptsPanel extends javax.swing.JPanel
         return errors;        
     }
     
+    public void importAllScripts(Map<String, String> scripts)
+    {
+    	scriptPanel.setScripts(scripts);
+    	parent.enableSave();
+    }
+    
+    public Map<String, String> exportAllScripts()
+    {
+    	return scriptPanel.getScripts();
+    }
+    
     public void save()
     {
+    	String validationMessage = validateAllScripts();
+        if (validationMessage != null)
+        {
+        	parent.alertCustomError(validationMessage, CustomErrorDialog.ERROR_VALIDATING_GLOBAL_SCRIPTS);
+        }
+        
         try
-        {            
+        {
             parent.mirthClient.setGlobalScripts(scriptPanel.getScripts());
         }
         catch(ClientException e)

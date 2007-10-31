@@ -806,9 +806,10 @@ public class Frame extends JXFrame
 
         addTask("doSaveGlobalScripts","Save Scripts","Save all changes made to all scripts.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")), globalScriptsTasks, globalScriptsPopupMenu);
         addTask("doValidateCurrentGlobalScript","Validate Script","Validate the currently viewed script.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), globalScriptsTasks, globalScriptsPopupMenu);
-
+        addTask("doImportGlobalScripts","Import Scripts","Import all global scripts from an XML file.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")), globalScriptsTasks, globalScriptsPopupMenu);
+        addTask("doExportGlobalScripts","Export Scripts","Export all global scripts to an XML file.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), globalScriptsTasks, globalScriptsPopupMenu);
+        
         setVisibleTasks(globalScriptsTasks, globalScriptsPopupMenu, 0, 0, false);
-        //setVisibleTasks(globalScriptsTasks, globalScriptsPopupMenu, 1, -1, true);
         setNonFocusable(globalScriptsTasks);
         taskPaneContainer.add(globalScriptsTasks);
     }
@@ -1544,6 +1545,92 @@ public class Frame extends JXFrame
     {
         globalScriptsPanel.validateCurrentScript();
     }
+    
+    public void doImportGlobalScripts()
+    {
+        JFileChooser importFileChooser = new JFileChooser();
+        importFileChooser.setFileFilter(new MirthFileFilter("XML"));
+
+        File currentDir = new File(userPreferences.get("currentDirectory", ""));
+        if (currentDir.exists())
+            importFileChooser.setCurrentDirectory(currentDir);
+
+        int returnVal = importFileChooser.showOpenDialog(this);
+        File importFile = null;
+
+        if (returnVal == JFileChooser.APPROVE_OPTION)
+        {
+            userPreferences.put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
+            importFile = importFileChooser.getSelectedFile();
+
+            try
+            {
+	            String scriptsXML = FileUtil.read(importFile);
+	
+	            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+	            Map<String, String> importScripts = (Map<String, String>) serializer.fromXML(scriptsXML);
+	            
+	            globalScriptsPanel.importAllScripts(importScripts);
+            }
+            catch (Exception e)
+            {
+            	alertException(e.getStackTrace(),"Invalid scripts file. " + e.getMessage());
+                return;
+            }            
+        }
+    }
+    
+    public void doExportGlobalScripts()
+    {
+    	if (changesHaveBeenMade())
+        {
+            if (alertOption("You must save your global scripts before exporting.  Would you like to save them now?"))
+            {
+            	globalScriptsPanel.save();
+            	disableSave();
+            }
+            else
+                return;
+        }
+    	
+        JFileChooser exportFileChooser = new JFileChooser();
+        exportFileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        exportFileChooser.setFileFilter(new MirthFileFilter("XML"));
+
+        File currentDir = new File(userPreferences.get("currentDirectory", ""));
+        if (currentDir.exists())
+            exportFileChooser.setCurrentDirectory(currentDir);
+
+        int returnVal = exportFileChooser.showSaveDialog(this);
+        File exportFile = null;
+
+        if (returnVal == JFileChooser.APPROVE_OPTION)
+        {
+            userPreferences.put("currentDirectory", exportFileChooser.getCurrentDirectory().getPath());
+            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+            String channelXML = serializer.toXML(globalScriptsPanel.exportAllScripts());
+            exportFile = exportFileChooser.getSelectedFile();
+
+            int length = exportFile.getName().length();
+
+            if (length < 4 || !exportFile.getName().substring(length - 4, length).equals(".xml"))
+                exportFile = new File(exportFile.getAbsolutePath() + ".xml");
+
+            if (exportFile.exists())
+                if (!alertOption("This file already exists.  Would you like to overwrite it?"))
+                    return;
+
+            try
+            {
+                FileUtil.write(exportFile, channelXML, false);
+                alertInformation("The global scripts were written to " + exportFile.getPath() + ".");
+            }
+            catch (IOException ex)
+            {
+                alertError("File could not be written.");
+            }
+        }
+    }
 
     public void doValidateChannelScripts()
     {
@@ -1558,13 +1645,7 @@ public class Frame extends JXFrame
         {
             public Void doInBackground()
             {
-            	String validationMessage = globalScriptsPanel.validateAllScripts();
-                if (validationMessage != null)
-                {
-                	alertCustomError(validationMessage, CustomErrorDialog.ERROR_VALIDATING_GLOBAL_SCRIPTS);
-                }
-                
-                globalScriptsPanel.save();
+            	globalScriptsPanel.save();
                 return null;
             }
 
