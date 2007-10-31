@@ -2398,7 +2398,7 @@ public class Frame extends JXFrame
 
                     do
                     {
-                        channelName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.");
+                        channelName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.", channelName);
                         if (channelName == null)
                             return;
                     } while (!checkChannelName(channelName, importChannel.getId()));
@@ -2585,10 +2585,10 @@ public class Frame extends JXFrame
             alertException(e.getStackTrace(), e.getMessage());
         }
 
-        String channelName = null;
+        String channelName = channel.getName();
         do
         {
-            channelName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.");
+            channelName = JOptionPane.showInputDialog(this, "Please enter a new name for the channel.", channelName);
             if (channelName == null)
                 return;
         } while (!checkChannelName(channelName, channel.getId()));
