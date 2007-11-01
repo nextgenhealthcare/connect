@@ -6,27 +6,46 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.ui.beans.*;
-import com.webreach.mirth.client.ui.editors.BoundPropertiesSheetDialog;
-import com.webreach.mirth.model.MessageObject;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
+import java.util.Iterator;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.prefs.Preferences;
+
+import javax.swing.JFileChooser;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.EDITokenMarker;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
 import org.syntax.jedit.tokenmarker.X12TokenMarker;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
+import com.webreach.mirth.client.ui.beans.EDIProperties;
+import com.webreach.mirth.client.ui.beans.HL7Properties;
+import com.webreach.mirth.client.ui.beans.NCPDPProperties;
+import com.webreach.mirth.client.ui.beans.X12Properties;
+import com.webreach.mirth.client.ui.editors.BoundPropertiesSheetDialog;
+import com.webreach.mirth.client.ui.util.FileUtil;
+import com.webreach.mirth.model.MessageObject;
+
 /**
  *
  * @author  brendanh
  */
-public class TemplatePanel extends javax.swing.JPanel
+public class TemplatePanel extends javax.swing.JPanel implements DropTargetListener
 {
     public final String DEFAULT_TEXT = "Paste a sample message here.";
     
@@ -119,6 +138,73 @@ public class TemplatePanel extends javax.swing.JPanel
             }
             
         });
+        
+        new DropTarget(pasteBox, this);
+    }
+    
+    public void dragEnter(DropTargetDragEvent dtde)
+    {
+        try
+        {
+            Transferable tr = dtde.getTransferable();
+            if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
+            {
+                
+                dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
+                
+                java.util.List fileList = (java.util.List) tr.getTransferData(DataFlavor.javaFileListFlavor);
+                Iterator iterator = fileList.iterator();
+                while (iterator.hasNext())
+                {
+                    iterator.next();
+                }
+            }
+            else
+                dtde.rejectDrag();
+        }
+        catch (Exception e)
+        {
+            dtde.rejectDrag();
+        }
+    }
+    
+    public void dragOver(DropTargetDragEvent dtde)
+    {
+    }
+    
+    public void dropActionChanged(DropTargetDragEvent dtde)
+    {
+    }
+    
+    public void dragExit(DropTargetEvent dte)
+    {
+    }
+    
+    public void drop(DropTargetDropEvent dtde)
+    {
+        try
+        {
+            Transferable tr = dtde.getTransferable();
+            if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
+            {
+                
+                dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
+                
+                java.util.List fileList = (java.util.List) tr.getTransferData(DataFlavor.javaFileListFlavor);
+                
+                File file = (File)fileList.get(0);
+                
+                if (getProtocol().equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DICOM)))
+            		pasteBox.setText(file.getPath());
+            	else
+            		pasteBox.setText(FileUtil.readWithLineFeeds(file));
+
+            }
+        }
+        catch (Exception e)
+        {
+            dtde.rejectDrop();
+        }
     }
     
     public void setDataTypeEnabled(boolean enabled)
@@ -250,6 +336,7 @@ public class TemplatePanel extends javax.swing.JPanel
         dataType = new javax.swing.JComboBox();
         properties = new javax.swing.JButton();
         pasteBox = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
+        openFileButton = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(5, 1, 1, 1), "Message Template", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 51, 51)));
@@ -286,6 +373,17 @@ public class TemplatePanel extends javax.swing.JPanel
             }
         });
 
+        openFileButton.setIcon(new javax.swing.ImageIcon("C:\\workspace\\client\\src\\com\\webreach\\mirth\\client\\ui\\images\\folder_explore.png"));
+        openFileButton.setToolTipText("Open File...");
+        openFileButton.setMargin(new java.awt.Insets(0, 1, 0, 1));
+        openFileButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                openFileButtonActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -293,27 +391,69 @@ public class TemplatePanel extends javax.swing.JPanel
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(pasteBox, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 232, Short.MAX_VALUE)
+                    .add(pasteBox, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 231, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
                         .add(jLabel5)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(dataType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 70, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(dataType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(properties)))
+                        .add(properties)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(openFileButton)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel5)
-                    .add(dataType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(properties))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, properties)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, dataType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, openFileButton))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(pasteBox, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 185, Short.MAX_VALUE)
                 .addContainerGap())
+            .add(layout.createSequentialGroup()
+                .add(4, 4, 4)
+                .add(jLabel5)
+                .add(207, 207, 207))
         );
+
+        layout.linkSize(new java.awt.Component[] {dataType, openFileButton, properties}, org.jdesktop.layout.GroupLayout.VERTICAL);
+
     }// </editor-fold>//GEN-END:initComponents
+
+    private void openFileButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_openFileButtonActionPerformed
+    {//GEN-HEADEREND:event_openFileButtonActionPerformed
+        
+        JFileChooser fileChooser = new JFileChooser();
+
+        File currentDir = new File(Preferences.systemNodeForPackage(Mirth.class).get("currentDirectory", ""));
+        if (currentDir.exists())
+            fileChooser.setCurrentDirectory(currentDir);
+
+        int returnVal = fileChooser.showOpenDialog(PlatformUI.MIRTH_FRAME);
+        File file = null;
+
+        if (returnVal == JFileChooser.APPROVE_OPTION)
+        {
+        	Preferences.systemNodeForPackage(Mirth.class).put("currentDirectory", fileChooser.getCurrentDirectory().getPath());
+            file = fileChooser.getSelectedFile();
+
+            try
+            {
+            	if (getProtocol().equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DICOM)))
+            		pasteBox.setText(file.getPath());
+            	else
+            		pasteBox.setText(FileUtil.readWithLineFeeds(file));
+            }
+            catch (Exception e)
+            {
+            	PlatformUI.MIRTH_FRAME.alertException(e.getStackTrace(),"Invalid template file. " + e.getMessage());
+                return;
+            }            
+        }
+        
+    }//GEN-LAST:event_openFileButtonActionPerformed
     
     private void pasteBoxFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_pasteBoxFocusLost
     {//GEN-HEADEREND:event_pasteBoxFocusLost
@@ -366,6 +506,7 @@ public class TemplatePanel extends javax.swing.JPanel
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox dataType;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JButton openFileButton;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea pasteBox;
     private javax.swing.JButton properties;
     // End of variables declaration//GEN-END:variables

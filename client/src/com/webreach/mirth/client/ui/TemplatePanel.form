@@ -31,13 +31,15 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="pasteBox" alignment="0" pref="232" max="32767" attributes="0"/>
+                  <Component id="pasteBox" alignment="0" pref="231" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="dataType" min="-2" pref="70" max="-2" attributes="0"/>
+                      <Component id="dataType" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="properties" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="openFileButton" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -47,14 +49,19 @@
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel5" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="dataType" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="properties" alignment="3" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="properties" linkSize="1" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="dataType" linkSize="1" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="openFileButton" linkSize="1" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="pasteBox" pref="185" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
+          </Group>
+          <Group type="102" attributes="0">
+              <EmptySpace min="4" pref="4" max="4" attributes="0"/>
+              <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
+              <EmptySpace min="207" pref="207" max="207" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -99,6 +106,20 @@
       <Events>
         <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="pasteBoxFocusGained"/>
         <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="pasteBoxFocusLost"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="openFileButton">
+      <Properties>
+        <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+          <Image iconType="2" name="C:\workspace\client\src\com\webreach\mirth\client\ui\images\folder_explore.png"/>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" value="Open File..."/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 1, 0, 1]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="openFileButtonActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>

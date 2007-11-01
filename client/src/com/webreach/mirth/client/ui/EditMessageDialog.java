@@ -25,13 +25,6 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
-import com.webreach.mirth.client.ui.util.FileUtil;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.MessageObject.Protocol;
-import com.webreach.mirth.model.converters.DocumentSerializer;
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
@@ -45,17 +38,21 @@ import java.awt.dnd.DropTargetListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.prefs.Preferences;
 
 import javax.swing.JFileChooser;
-import javax.swing.JLayeredPane;
-import javax.swing.JRootPane;
+
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.EDITokenMarker;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
 import org.syntax.jedit.tokenmarker.X12TokenMarker;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 import org.w3c.dom.Document;
+
+import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
+import com.webreach.mirth.client.ui.util.FileUtil;
+import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.MessageObject.Protocol;
+import com.webreach.mirth.model.converters.DocumentSerializer;
 
 /** Creates the About Mirth dialog. The content is loaded from about.txt. */
 public class EditMessageDialog extends javax.swing.JDialog implements DropTargetListener
@@ -140,7 +137,6 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
                     File file = (File)iterator.next();
                     
                     messageContent.setText(messageContent.getText() + FileUtil.readWithLineFeeds(file));
-                    parent.setEnabled(true);
                 }
             }
         }
