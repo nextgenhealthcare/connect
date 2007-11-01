@@ -68,7 +68,7 @@ public class FileReaderProperties implements ComponentProperties
         properties.put(FILE_SORT_BY, SORT_BY_DATE);
         properties.put(FILE_TYPE, "0");
         properties.put(CONNECTOR_CHARSET_ENCODING, "DEFAULT_ENCODING");
-        properties.put(FILE_FILTER, "*.*");
+        properties.put(FILE_FILTER, "*");
         properties.put(FILE_PROCESS_BATCH_FILES, "1");
         return properties;
     }
