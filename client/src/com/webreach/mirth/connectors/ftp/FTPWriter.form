@@ -35,58 +35,42 @@
           <Group type="102" attributes="0">
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="URL" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel10" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="FTPUsernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="FTPPasswordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel5" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel6" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel7" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileAgeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="39" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="jLabel10" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="URL" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="FTPPasswordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="FTPUsernameLabel" min="-2" max="-2" attributes="0"/>
-                      </Group>
+                      <Component id="anonymousYes" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="anonymousYes" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="anonymousNo" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="FTPPasswordField" min="-2" pref="125" max="-2" attributes="0"/>
-                          <Component id="FTPURLField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
-                          <Component id="FTPUsernameField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
-                      </Group>
+                      <Component id="anonymousNo" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="FTPPasswordField" min="-2" pref="125" max="-2" attributes="0"/>
+                  <Component id="FTPURLField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
+                  <Component id="FTPUsernameField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
+                  <Component id="outputPatternField" alignment="0" min="-2" pref="173" max="-2" attributes="1"/>
+                  <Component id="ftpContentsTextPane" pref="260" max="32767" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="passiveModeYes" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="passiveModeNo" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
-                      <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
+                      <Component id="fileTypeASCII" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="outputPatternField" min="-2" pref="200" max="-2" attributes="1"/>
+                      <Component id="fileTypeBinary" min="-2" max="-2" attributes="1"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel6" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel7" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="fileAgeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="ftpContentsTextPane" pref="250" max="32767" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="passiveModeYes" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="passiveModeNo" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="fileTypeASCII" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="fileTypeBinary" min="-2" max="-2" attributes="1"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="validateConnectionYes" min="-2" max="-2" attributes="1"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="validateConnectionNo" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                      </Group>
+                      <Component id="validateConnectionYes" min="-2" max="-2" attributes="1"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="validateConnectionNo" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -163,7 +147,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel5">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Output Pattern:"/>
+        <Property name="text" type="java.lang.String" value="File Name:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel6">
