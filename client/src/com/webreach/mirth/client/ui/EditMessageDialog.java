@@ -139,7 +139,7 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
                 {
                     File file = (File)iterator.next();
                     
-                    messageContent.setText(messageContent.getText() + FileUtil.read(file));
+                    messageContent.setText(messageContent.getText() + FileUtil.readWithLineFeeds(file));
                     parent.setEnabled(true);
                 }
             }
@@ -213,26 +213,34 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents()
+    {
         jPanel1 = new javax.swing.JPanel();
         closeButton = new javax.swing.JButton();
         processMessageButton = new javax.swing.JButton();
         messageContent = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
         openFileButton = new javax.swing.JButton();
+        processFileButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Message");
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         closeButton.setText("Close");
-        closeButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        closeButton.setToolTipText("Close this message sender dialog.");
+        closeButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 closeButtonActionPerformed(evt);
             }
         });
 
         processMessageButton.setText("Process Message");
-        processMessageButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        processMessageButton.setToolTipText("Process the message displayed in the editor above.");
+        processMessageButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 processMessageButtonActionPerformed(evt);
             }
         });
@@ -240,9 +248,22 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
         messageContent.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         openFileButton.setText("Open File...");
-        openFileButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        openFileButton.setToolTipText("Open a file into the editor above.");
+        openFileButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 openFileButtonActionPerformed(evt);
+            }
+        });
+
+        processFileButton.setText("Process File...");
+        processFileButton.setToolTipText("Process a file without first loading the contents into the editor.");
+        processFileButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                processFileButtonActionPerformed(evt);
             }
         });
 
@@ -255,6 +276,8 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
                         .add(openFileButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(processFileButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(processMessageButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -271,7 +294,8 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(closeButton)
                     .add(processMessageButton)
-                    .add(openFileButton))
+                    .add(openFileButton)
+                    .add(processFileButton))
                 .addContainerGap())
         );
 
@@ -288,6 +312,34 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void processFileButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_processFileButtonActionPerformed
+    {//GEN-HEADEREND:event_processFileButtonActionPerformed
+        JFileChooser importFileChooser = new JFileChooser();
+                
+        File currentDir = new File(Frame.userPreferences.get("currentDirectory", ""));
+        if (currentDir.exists())
+            importFileChooser.setCurrentDirectory(currentDir);
+        
+        int returnVal = importFileChooser.showOpenDialog(this);
+        File importFile = null;
+        
+        if (returnVal == JFileChooser.APPROVE_OPTION)
+        {
+            Frame.userPreferences.put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
+            importFile = importFileChooser.getSelectedFile();
+            try 
+            {
+            	message.setRawData(FileUtil.read(importFile));
+                parent.processMessage(message);
+                this.dispose();
+            }
+            catch (IOException e)
+            {
+                parent.alertError("Unable to read file.");
+            }
+        }
+    }//GEN-LAST:event_processFileButtonActionPerformed
+
     private void openFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileButtonActionPerformed
 // TODO add your handling code here:
         JFileChooser importFileChooser = new JFileChooser();
@@ -301,13 +353,16 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
         
         if (returnVal == JFileChooser.APPROVE_OPTION)
         {
-        	Frame.userPreferences.put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
+            Frame.userPreferences.put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
             importFile = importFileChooser.getSelectedFile();
-            try {
-				messageContent.setText(FileUtil.read(importFile));
-			} catch (IOException e) {
-				parent.alertError("Unable to read file.");
-			}
+            try 
+            {
+            	messageContent.setText(FileUtil.readWithLineFeeds(importFile));
+            }
+            catch (IOException e)
+            {
+                parent.alertError("Unable to read file.");
+            }
         }
     }//GEN-LAST:event_openFileButtonActionPerformed
     
@@ -328,6 +383,7 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
     private javax.swing.JPanel jPanel1;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea messageContent;
     private javax.swing.JButton openFileButton;
+    private javax.swing.JButton processFileButton;
     private javax.swing.JButton processMessageButton;
     // End of variables declaration//GEN-END:variables
     

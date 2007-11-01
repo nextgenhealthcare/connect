@@ -49,7 +49,7 @@ public class FileUtil
         }
     }
 
-    public static String read(File file) throws IOException
+    public static String readWithLineFeeds(File file) throws IOException
     {
         BufferedReader reader = new BufferedReader(new FileReader(file));
         StringBuilder contents = new StringBuilder();
@@ -69,4 +69,18 @@ public class FileUtil
 
         return contents.toString();
     }
+    
+    public static String read(File file) throws IOException
+    {        
+        StringBuilder fileData = new StringBuilder();
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        char[] buf = new char[1024];
+        int numRead=0;
+        while((numRead=reader.read(buf)) != -1){
+            fileData.append(buf, 0, numRead);
+        }
+        reader.close();
+        return fileData.toString();
+    }
+
 }
