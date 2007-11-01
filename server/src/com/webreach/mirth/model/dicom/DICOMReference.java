@@ -26,7 +26,7 @@ public class DICOMReference {
             }
             catch(NumberFormatException e){
                 //e.printStackTrace();
-                System.out.println("problem getting tag (number format exception: " + key);
+                //System.out.println("problem getting tag (number format exception: " + key);
                 return "";
             }
         }
