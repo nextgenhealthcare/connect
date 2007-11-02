@@ -65,7 +65,6 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="FTPURLField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
                   <Component id="FTPUsernameField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
                   <Component id="FTPPasswordField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
                   <Component id="fileNameFilter" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
@@ -107,6 +106,13 @@
                       <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
                       <Component id="mirthVariableList1" min="-2" max="-2" attributes="0"/>
                   </Group>
+                  <Group type="102" attributes="0">
+                      <Component id="FTPURLField" min="-2" pref="125" max="-2" attributes="1"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="FTPDirectoryField" min="-2" pref="100" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
@@ -118,6 +124,8 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="URL" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="FTPURLField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="FTPDirectoryField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -215,7 +223,7 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="URL">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Host:"/>
+        <Property name="text" type="java.lang.String" value="sftp://"/>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="FTPURLField">
@@ -577,6 +585,13 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTimePicker" name="pollingTime">
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel1">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="/"/>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="FTPDirectoryField">
     </Component>
   </SubComponents>
 </Form>

@@ -29,6 +29,7 @@ import java.util.Properties;
 
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.connectors.ConnectorClass;
+import com.webreach.mirth.connectors.ftp.FTPReaderProperties;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -48,7 +49,7 @@ public class SFTPWriter extends ConnectorClass
     {
         Properties properties = new Properties();
         properties.put(SFTPWriterProperties.DATATYPE, name);
-        properties.put(SFTPWriterProperties.SFTP_ADDRESS, FTPURLField.getText());
+        properties.put(SFTPWriterProperties.SFTP_ADDRESS, FTPURLField.getText() + "/" + FTPDirectoryField.getText());
         properties.put(SFTPWriterProperties.SFTP_USERNAME, FTPUsernameField.getText());
         properties.put(SFTPWriterProperties.SFTP_PASSWORD, new String(FTPPasswordField.getPassword()));
         properties.put(SFTPWriterProperties.SFTP_OUTPUT_PATTERN, outputPatternField.getText());
@@ -65,7 +66,23 @@ public class SFTPWriter extends ConnectorClass
     {
         resetInvalidProperties();
         
-        FTPURLField.setText((String) props.get(SFTPWriterProperties.SFTP_ADDRESS));
+        String FTPURL = (String) props.get(SFTPWriterProperties.SFTP_ADDRESS);
+        int splitIndex = FTPURL.indexOf('/');
+        String FTPHost = "";
+        String FTPDirectory = "";
+        if (splitIndex != -1)
+        {
+        	FTPHost = FTPURL.substring(0, splitIndex);
+        	FTPDirectory = FTPURL.substring(splitIndex + 1);
+        }
+        else
+        {
+        	FTPHost = FTPURL;
+        }
+        
+        FTPURLField.setText(FTPHost);
+        FTPDirectoryField.setText(FTPDirectory);
+        
         FTPUsernameField.setText((String) props.get(SFTPWriterProperties.SFTP_USERNAME));
         FTPPasswordField.setText((String) props.get(SFTPWriterProperties.SFTP_PASSWORD));
         outputPatternField.setText((String) props.get(SFTPWriterProperties.SFTP_OUTPUT_PATTERN));
@@ -86,7 +103,7 @@ public class SFTPWriter extends ConnectorClass
         resetInvalidProperties();
         boolean valid = true;
         
-        if (((String) props.get(SFTPWriterProperties.SFTP_ADDRESS)).length() == 0)
+        if (((String) props.get(SFTPWriterProperties.SFTP_ADDRESS)).length() <= 1)
         {
             valid = false;
             if (highlight)
@@ -165,10 +182,12 @@ public class SFTPWriter extends ConnectorClass
         fileTypeBinary = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         jLabel7 = new javax.swing.JLabel();
         ftpContentsTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
+        jLabel1 = new javax.swing.JLabel();
+        FTPDirectoryField = new com.webreach.mirth.client.ui.components.MirthTextField();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        URL.setText("Host:");
+        URL.setText("sftp://");
 
         jLabel5.setText("File Name:");
 
@@ -197,6 +216,8 @@ public class SFTPWriter extends ConnectorClass
 
         ftpContentsTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
+        jLabel1.setText("/");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -212,7 +233,6 @@ public class SFTPWriter extends ConnectorClass
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(FTPURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(FTPUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(FTPPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(outputPatternField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -220,7 +240,13 @@ public class SFTPWriter extends ConnectorClass
                         .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(ftpContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 253, Short.MAX_VALUE))
+                    .add(ftpContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 299, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(FTPURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jLabel1)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(FTPDirectoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -228,7 +254,9 @@ public class SFTPWriter extends ConnectorClass
             .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(URL)
-                    .add(FTPURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(FTPURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel1)
+                    .add(FTPDirectoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(FTPUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -255,6 +283,7 @@ public class SFTPWriter extends ConnectorClass
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.webreach.mirth.client.ui.components.MirthTextField FTPDirectoryField;
     private com.webreach.mirth.client.ui.components.MirthPasswordField FTPPasswordField;
     private javax.swing.JLabel FTPPasswordLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField FTPURLField;
@@ -268,6 +297,7 @@ public class SFTPWriter extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeASCII;
     private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeBinary;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea ftpContentsTextPane;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel7;
