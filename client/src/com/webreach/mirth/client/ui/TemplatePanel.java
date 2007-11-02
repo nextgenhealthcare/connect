@@ -65,6 +65,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
     public TemplatePanel()
     {
         initComponents();
+        openFileButton.setIcon(UIConstants.FILE_PICKER_ICON);
         
         dataType.setModel(new javax.swing.DefaultComboBoxModel(PlatformUI.MIRTH_FRAME.protocols.values().toArray()));
         
@@ -373,7 +374,6 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             }
         });
 
-        openFileButton.setIcon(new javax.swing.ImageIcon("C:\\workspace\\client\\src\\com\\webreach\\mirth\\client\\ui\\images\\folder_explore.png"));
         openFileButton.setToolTipText("Open File...");
         openFileButton.setMargin(new java.awt.Insets(0, 1, 0, 1));
         openFileButton.addActionListener(new java.awt.event.ActionListener()

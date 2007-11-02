@@ -122,4 +122,7 @@ public class UIConstants
     // for tables
     public static final String ENABLED_STATUS = "Enabled";
     public static final String DISABLED_STATUS = "Disabled";
+    
+    // for message template
+    public static final ImageIcon FILE_PICKER_ICON = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/folder_explore.png"));
 }
