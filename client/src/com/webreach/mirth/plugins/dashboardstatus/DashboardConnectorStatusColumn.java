@@ -27,7 +27,8 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
     private ImageIcon redBullet;
     private ImageIcon blackBullet;
     private Map<String, ImageIcon>  iconMap = new HashMap<String, ImageIcon>();
-	public DashboardConnectorStatusColumn(String name, DashboardPanel parent) {
+
+    public DashboardConnectorStatusColumn(String name, DashboardPanel parent) {
 		super(name, parent);
 		greenBullet = new ImageIcon(Frame.class.getResource("images/bullet_green.png"));
         yellowBullet = new ImageIcon(Frame.class.getResource("images/bullet_yellow.png"));

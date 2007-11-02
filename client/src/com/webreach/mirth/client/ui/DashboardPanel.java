@@ -236,7 +236,7 @@ public class DashboardPanel extends javax.swing.JPanel
         for(DashboardColumnPlugin plugin : loadedColumnPluginsBeforeStatus.values())
         {
             String columnName = plugin.getColumnHeader();
-            statusTable.getColumnExt(columnName).setMaxWidth(plugin.getMaxWidth());;
+            statusTable.getColumnExt(columnName).setMaxWidth(plugin.getMaxWidth());
             statusTable.getColumnExt(columnName).setMinWidth(plugin.getMinWidth());
             statusTable.getColumnExt(columnName).setCellRenderer(plugin.getCellRenderer());
             statusTable.getColumnExt(columnName).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
