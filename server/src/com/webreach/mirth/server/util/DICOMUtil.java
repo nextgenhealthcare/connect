@@ -64,4 +64,22 @@ public class DICOMUtil {
             return dicomString;
         }
     }
+    public static List<Attachment> getMessageAttachments(MessageObject message){
+        if(message.isAttachment()){
+            MessageObjectController mos = MessageObjectController.getInstance();            
+            try {
+                List<Attachment> attachments = null;
+                if(message.getCorrelationId() != null)
+                    attachments = mos.getAttachmentsByMessageId(message.getCorrelationId());
+                else
+                    attachments = mos.getAttachmentsByMessageId(message.getId());
+                return attachments;               
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }            
+        }
+        return null;
+    }
+    
 }
