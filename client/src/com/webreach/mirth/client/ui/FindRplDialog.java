@@ -56,6 +56,11 @@ public class FindRplDialog extends javax.swing.JDialog {
     void find(){
         String text = search_text.getText();
         String search = mirthTextField1.getText();
+        // check for case sensitive
+        if(!mirthCheckBox2.isSelected()){
+            text = text.toLowerCase();
+            search = search.toLowerCase();
+        }
         if(mirthCheckBox1.isSelected()){
             // do regular expression
             Pattern p = Pattern.compile(search);
@@ -69,11 +74,6 @@ public class FindRplDialog extends javax.swing.JDialog {
             }
         }
         else {
-            // check for case sensitive
-            if(!mirthCheckBox2.isSelected()){
-                text = text.toUpperCase();
-                search = search.toUpperCase();
-            }
             int position = text.indexOf(search,search_text.getSelectionEnd());
             if(position > -1){
                 search_text.select(position,position+search.length());
