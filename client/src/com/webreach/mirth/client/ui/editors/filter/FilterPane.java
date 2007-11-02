@@ -933,6 +933,10 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         updating = true;
 
         int row = filterTable.getSelectedRow();
+        
+        if (isValid(row + 1))
+            prepData(row + 1);
+        
         if (isValid(row))
             filterTableModel.removeRow(row);
 
@@ -952,6 +956,17 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         }
 
         updateRuleNumbers();
+    }
+    
+    /**
+     * prepData( int row ) works to move the data in a panel for moves or
+     * deletes
+     */
+    private void prepData(int row)
+    {
+        Map<Object, Object> d = (Map<Object, Object>) filterTableModel.getValueAt(row, RULE_DATA_COL);
+        String type = (String) filterTableModel.getValueAt(row, RULE_TYPE_COL);
+        setPanelData(type, d);
     }
 
     private FilterRulePlugin getPlugin(String name) throws Exception
