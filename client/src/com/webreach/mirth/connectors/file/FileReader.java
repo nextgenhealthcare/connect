@@ -294,7 +294,7 @@ public class FileReader extends ConnectorClass
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        jLabel1.setText("Directory to read:");
+        jLabel1.setText("Directory:");
 
         pollingFrequencyLabel.setText("Polling Frequency (ms):");
 

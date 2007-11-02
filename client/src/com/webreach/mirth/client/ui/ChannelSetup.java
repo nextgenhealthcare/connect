@@ -1163,6 +1163,10 @@ public class ChannelSetup extends javax.swing.JPanel
         	errors = null;
         	channelValidationFailed = false;
         }
+        else
+        {
+        	channelValidationFailed = true;
+        }
         
         return errors;
     }
