@@ -131,6 +131,8 @@ public abstract class InputHandler extends KeyAdapter
     public static final ActionListener INSERT_CHAR = new insert_char();
 
     public static final ActionListener SAVE = new save();
+    
+    public static final ActionListener FIND = new find();
 
     private static Hashtable<String, ActionListener> actions;
 
@@ -1184,4 +1186,12 @@ public abstract class InputHandler extends KeyAdapter
         	PlatformUI.MIRTH_FRAME.doContextSensitiveSave();
         }
     }
+    
+    public static class find implements ActionListener
+    {
+        public void actionPerformed(ActionEvent evt)
+        {
+        	PlatformUI.MIRTH_FRAME.doFind(getTextArea(evt));
+        }
+    }    
 }
