@@ -131,6 +131,7 @@ public class ReferenceListFactory
             variablelistItems.add(new ReferenceListItem("Message Protocol", "The message protocol", "messageObject.getProtocol().toString()", CodeSnippetType.VARIABLE));
             variablelistItems.add(new ReferenceListItem("Channel ID", "The message channel id", "messageObject.getChannelId()", CodeSnippetType.VARIABLE));
             variablelistItems.add(new ReferenceListItem("Delete Segment", "Delete a segment from the message", "delete msg['segment']", CodeSnippetType.FUNCTION));
+            variablelistItems.add(new ReferenceListItem("Attachment List", "Get List of Attachments", "DICOMUtil.getMessageAttachments(messageObject)", CodeSnippetType.FUNCTION));
         }
         
         return variablelistItems;
