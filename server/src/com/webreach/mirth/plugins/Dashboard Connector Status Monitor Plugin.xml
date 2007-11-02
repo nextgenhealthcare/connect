@@ -25,4 +25,10 @@
     <className>com.webreach.mirth.plugins.dashboardstatus.DashboardConnectorStatusColumn</className>
     <mode>CLIENT</mode>
   </extensionPoint>
+  <extensionPoint>
+  	<name>Dashboard Status Panel</name>
+    <type>CLIENT_DASHBOARD_PANE</type>
+    <className>com.webreach.mirth.plugins.dashboardconnectorstatus.DashboardConnectorStatusClient</className>
+    <mode>CLIENT</mode>
+  </extensionPoint>
 </pluginMetaData>
