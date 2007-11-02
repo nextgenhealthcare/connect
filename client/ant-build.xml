@@ -77,6 +77,10 @@
 			<include name="com/webreach/mirth/connectors/jms/**" />
 		</jar>
 		
+		<jar destfile="${dist}/connectors/js-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/connectors/js/**" />
+		</jar>
+		
 		<jar destfile="${dist}/connectors/mllp-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/mllp/**" />
 		</jar>

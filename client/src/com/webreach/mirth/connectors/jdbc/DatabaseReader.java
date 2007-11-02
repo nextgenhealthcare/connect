@@ -331,7 +331,7 @@ public class DatabaseReader extends ConnectorClass
     	if (!checkProperties(props, highlight))
     		error = "Error in the form for connector \"" + getName() + "\".\n\n";
     	
-    	String script = ((String) props.get(DatabaseWriterProperties.DATABASE_JS_SQL_STATEMENT));
+    	String script = ((String) props.get(DatabaseReaderProperties.DATABASE_JS_SQL_STATEMENT));
     	String onUpdateScript = ((String) props.get(DatabaseReaderProperties.DATABASE_JS_ACK));
     	
     	if (script.length() != 0)
