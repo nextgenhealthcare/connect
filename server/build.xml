@@ -162,6 +162,18 @@
 				<exclude name="com/webreach/mirth/connectors/jms/JMSWriterProperties.class" />
 			</fileset>
 		</jar>
+		
+		<jar destfile="${connectors}/js-shared.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/connectors/js/JavaScriptReaderProperties.class" />
+			<include name="com/webreach/mirth/connectors/js/JavaScriptWriterProperties.class" />
+		</jar>
+		<jar destfile="${connectors}/js-server.jar">
+			<fileset dir="${classes}">
+				<include name="com/webreach/mirth/connectors/js/**" />
+				<exclude name="com/webreach/mirth/connectors/js/JavaScriptReaderProperties.class" />
+				<exclude name="com/webreach/mirth/connectors/js/JavaScriptWriterProperties.class" />
+			</fileset>
+		</jar>
 
 		<jar destfile="${connectors}/mllp-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/mllp/LLPListenerProperties.class" />
