@@ -901,6 +901,32 @@ public class ChannelSetup extends javax.swing.JPanel
             try
             {
                 currentChannel = (Channel)ObjectCloner.deepCopy(parent.channels.get(currentChannel.getId()));
+                if (parent.currentContentPage == transformerPane)
+                {
+                    if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX)
+                    {
+                        transformerPane.reload(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getTransformer());
+                    }
+                    
+                    else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX)
+                    {
+                        int destination = getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)));
+                        transformerPane.reload(currentChannel.getDestinationConnectors().get(destination), currentChannel.getDestinationConnectors().get(destination).getTransformer());
+                    }
+                }
+                if (parent.currentContentPage == filterPane)
+                {
+                    if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX)
+                    {
+                        filterPane.reload(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getFilter());
+                    }
+                    
+                    else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX)
+                    {
+                        Connector destination = currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME))));
+                        filterPane.reload(destination, destination.getFilter());
+                    }
+                }
                 updateRevision();
                 updateLastModified();
             }

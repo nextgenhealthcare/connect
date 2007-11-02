@@ -188,6 +188,13 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         
     }
     
+    public void reload(Connector c, Filter f)
+    {
+        connector = c;
+        filter = f;
+        channel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
+    }
+    
     /**
      * load( Filter f )
      */

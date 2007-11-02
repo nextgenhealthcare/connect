@@ -184,7 +184,14 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
         initComponents();
         setBorder(BorderFactory.createEmptyBorder());
     }
-
+    
+    public void reload(Connector c, Transformer t)
+    {
+        connector = c;
+        transformer = t;
+        channel = PlatformUI.MIRTH_FRAME.channelEditPanel.currentChannel;
+    }
+    
     /**
      * load( Transformer t ) now that the components have been initialized...
      */
