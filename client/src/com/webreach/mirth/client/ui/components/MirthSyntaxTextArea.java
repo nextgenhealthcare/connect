@@ -26,6 +26,8 @@
 package com.webreach.mirth.client.ui.components;
 
 import java.awt.event.MouseEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -39,18 +41,10 @@ import org.syntax.jedit.SyntaxDocument;
 
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.actions.CopyAction;
-import com.webreach.mirth.client.ui.actions.CutAction;
-import com.webreach.mirth.client.ui.actions.DeleteAction;
-import com.webreach.mirth.client.ui.actions.PasteAction;
-import com.webreach.mirth.client.ui.actions.RedoAction;
-import com.webreach.mirth.client.ui.actions.SelectAllAction;
-import com.webreach.mirth.client.ui.actions.SnippetAction;
-import com.webreach.mirth.client.ui.actions.UndoAction;
+import com.webreach.mirth.client.ui.actions.*;
 import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
 import com.webreach.mirth.client.ui.panels.reference.ReferenceListItem;
 import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ListType;
-import org.syntax.jedit.JEditTextArea.PopUpHandler;
 
 /**
  * Mirth's implementation of the JTextArea. Adds enabling of the save button in
@@ -76,6 +70,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
     private UndoAction undoAction;
 
     private RedoAction redoAction;
+    private FindAndReplaceAction findReplaceAction;
 
     private JMenu varlist;
 
@@ -104,6 +99,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
         selectAllAction = new SelectAllAction(this);
         undoAction = new UndoAction(this);
         redoAction = new RedoAction(this);
+        findReplaceAction = new FindAndReplaceAction(parent,this);
         popup = new JPopupMenu();
 
         popup.add(undoAction);
@@ -116,6 +112,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
         popup.add(deleteAction);
         popup.addSeparator();
         popup.add(selectAllAction);
+        popup.add(findReplaceAction);
 
         if (showSnippets)
         {
@@ -160,6 +157,8 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
                 menu.getComponent(5).setEnabled(pasteAction.isEnabled());
                 menu.getComponent(7).setEnabled(deleteAction.isEnabled());
                 menu.getComponent(9).setEnabled(selectAllAction.isEnabled());
+                menu.getComponent(10).setEnabled(findReplaceAction.isEnabled());
+
                 if (showSnippets)
                 {
                     menu.getComponent(11).setEnabled(varlist.isEnabled());
@@ -172,13 +171,13 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
         };
 
     }
-    
+
     public MirthSyntaxTextArea(boolean lineNumbers, final boolean showSnippets)
     {
         super(lineNumbers);
         initialize(lineNumbers, showSnippets, ReferenceListFactory.GLOBAL_CONTEXT);
     }
-    
+
     public MirthSyntaxTextArea(boolean lineNumbers, final boolean showSnippets, final int context)
     {
         super(lineNumbers);
@@ -250,7 +249,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
     public void setText(String t)
     {
         boolean visible = parent.changesHaveBeenMade();
-        
+
         // if (t != null)
         // t = t.replaceAll("\r", "\n");
         super.setText(t);
