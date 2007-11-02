@@ -71,6 +71,7 @@ import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.action.ActionFactory;
 import org.jdesktop.swingx.action.ActionManager;
 import org.jdesktop.swingx.action.BoundAction;
+import org.syntax.jedit.JEditTextArea;
 
 import sun.misc.BASE64Decoder;
 
@@ -79,6 +80,7 @@ import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.browsers.event.EventBrowser;
 import com.webreach.mirth.client.ui.browsers.message.MessageBrowser;
 import com.webreach.mirth.client.ui.util.FileUtil;
+import com.webreach.mirth.client.ui.actions.FindAndReplaceAction;
 import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.model.Alert;
 import com.webreach.mirth.model.Channel;
@@ -3081,15 +3083,15 @@ public class Frame extends JXFrame
                     BASE64Decoder decoder = new BASE64Decoder();
                     MessageObject message = messageBrowser.getMessageObjectById(messageId);
                     if(message.isAttachment()){
-                        byte[] rawImage = decoder.decodeBuffer(mirthClient.getDICOMMessage(message));
-                        ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
-                        DICOM dcm = new DICOM(bis);
-                        dcm.run(message.getType());
-                        dcm.show();
-                        if(dcm.getTitle() != null && dcm.getTitle().equals("DICOM")){
-                            pictureOpen = true;
+                            byte[] rawImage = decoder.decodeBuffer(mirthClient.getDICOMMessage(message));
+                            ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
+                            DICOM dcm = new DICOM(bis);
+                            dcm.run(message.getType());
+                            dcm.show();
+                            if(dcm.getTitle() != null && dcm.getTitle().equals("DICOM")){
+                                pictureOpen = true;
+                            }
                         }
-                    }
                     else {
                         alertInformation("This message does not contain a DICOM image.");
                         pictureOpen = true;
@@ -3405,6 +3407,11 @@ public class Frame extends JXFrame
         }else if (currentContentPage == alertPanel){
             doSaveAlerts();
         }
+    }
+
+    public void doFind(JEditTextArea text){
+        FindRplDialog find = new FindRplDialog(this,false,text);
+        find.setVisible(true);
     }
     
     public void doHelp()
