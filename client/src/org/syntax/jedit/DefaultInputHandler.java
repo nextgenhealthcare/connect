@@ -92,6 +92,8 @@ public class DefaultInputHandler extends InputHandler
 
         addKeyBinding("A+S", SAVE);
         addKeyBinding("C+S", SAVE);
+        
+        addKeyBinding("C+F", FIND);
     }
 
     /**
