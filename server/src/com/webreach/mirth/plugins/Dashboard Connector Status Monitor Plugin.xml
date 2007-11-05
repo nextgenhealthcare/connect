@@ -28,7 +28,7 @@
   <extensionPoint>
   	<name>Dashboard Status Panel</name>
     <type>CLIENT_DASHBOARD_PANE</type>
-    <className>com.webreach.mirth.plugins.dashboardconnectorstatus.DashboardConnectorStatusClient</className>
+    <className>com.webreach.mirth.plugins.dashboardstatus.DashboardConnectorStatusClient</className>
     <mode>CLIENT</mode>
   </extensionPoint>
 </pluginMetaData>
