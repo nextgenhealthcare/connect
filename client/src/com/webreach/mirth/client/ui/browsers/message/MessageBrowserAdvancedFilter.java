@@ -6,17 +6,91 @@
 
 package com.webreach.mirth.client.ui.browsers.message;
 
+import com.webreach.mirth.model.MessageObject;
+
 /**
  *
  * @author  chrisr
  */
 public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
-    
+
+    private String connector;
+    private String messageSource;
+    private String messageType;
+    private String containingKeyword;
+    private boolean includeRawMessage;
+    private boolean includeTransformedMessage;
+    private boolean includeEncodedMessage;
+    private String protocol;
+
     /** Creates new form MessageBrowserAdvancedFilter */
-    public MessageBrowserAdvancedFilter(java.awt.Frame parent, boolean modal) {
-        super(parent, modal);
+    public MessageBrowserAdvancedFilter(java.awt.Frame parent, String title, boolean modal) {
+
+        super(parent, title, modal);
+
         initComponents();
+        
+        getContentPane().setBackground(new java.awt.Color(255, 255, 255));
+        setResizable(false);
+
+        String[] protocolValues = new String[MessageObject.Protocol.values().length + 1];
+        protocolValues[0] = "ALL";
+        for (int i = 1; i < protocolValues.length; i++)
+            protocolValues[i] = MessageObject.Protocol.values()[i - 1].toString();
+
+        protocolComboBox.setModel(new javax.swing.DefaultComboBoxModel(protocolValues));
+        
+        reset();
+
     }
+
+
+    public void reset() {
+        connector = "";
+        messageSource = "";
+        messageType = "";
+        containingKeyword = "";
+        includeRawMessage = false;
+        includeTransformedMessage = false;
+        includeEncodedMessage = false;
+        protocol = "";
+
+        connectorField.setText("");
+        messageSourceField.setText("");
+        messageTypeField.setText("");
+        containing.setText("");
+        rawMessageCheckBox.setSelected(false);
+        transformedMessageCheckBox.setSelected(false);
+        encodedMessageCheckBox.setSelected(false);
+        protocolComboBox.setSelectedIndex(0);
+    }
+
+
+    public String getConnector() {
+        return connector;
+    }
+    public String getMessageSource() {
+        return messageSource;
+    }
+    public String getMessageType() {
+        return messageType;
+    }
+    public String getContainingKeyword() {
+        return containingKeyword;
+    }
+    public boolean isIncludeRawMessage() {
+        return includeRawMessage;
+    }
+    public boolean isIncludeTransformedMessage() {
+        return includeTransformedMessage;
+    }
+    public boolean isIncludeEncodedMessage() {
+        return includeEncodedMessage;
+    }
+    public String getProtocol() {
+        return protocol;
+    }
+
     
     /** This method is called from within the constructor to
      * initialize the form.
@@ -37,12 +111,10 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         rawMessageCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
         transformedMessageCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
         encodedMessageCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
-        jLabel5 = new javax.swing.JLabel();
-        statusComboBox = new javax.swing.JComboBox();
         jLabel8 = new javax.swing.JLabel();
         protocolComboBox = new javax.swing.JComboBox();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        advSearchOKButton = new javax.swing.JButton();
+        advSearchCancelButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setBackground(java.awt.Color.white);
@@ -71,18 +143,26 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         encodedMessageCheckBox.setText("Encoded");
         encodedMessageCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        jLabel5.setText("Status:");
-
         jLabel8.setText("Protocol:");
 
         protocolComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        jButton1.setText("OK");
-        jButton1.setMaximumSize(new java.awt.Dimension(65, 23));
-        jButton1.setMinimumSize(new java.awt.Dimension(65, 23));
-        jButton1.setPreferredSize(new java.awt.Dimension(65, 23));
+        advSearchOKButton.setText("OK");
+        advSearchOKButton.setMaximumSize(new java.awt.Dimension(65, 23));
+        advSearchOKButton.setMinimumSize(new java.awt.Dimension(65, 23));
+        advSearchOKButton.setPreferredSize(new java.awt.Dimension(65, 23));
+        advSearchOKButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                advSearchOKButtonActionPerformed(evt);
+            }
+        });
 
-        jButton2.setText("Cancel");
+        advSearchCancelButton.setText("Cancel");
+        advSearchCancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                advSearchCancelButtonActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -90,46 +170,45 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel10)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel10)
+                    .add(jLabel1)
+                    .add(jLabel4))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(messageSourceField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(messageTypeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                        .add(connectorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(layout.createSequentialGroup()
+                                .add(jLabel7)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(messageSourceField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(layout.createSequentialGroup()
+                                .add(jLabel8)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(protocolComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                    .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(advSearchOKButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(layout.createSequentialGroup()
                                 .add(containing, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jLabel9))
-                            .add(connectorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createSequentialGroup()
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                                    .add(jLabel8)
-                                    .add(jLabel5))
+                                .add(jLabel9)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(protocolComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .add(statusComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                            .add(layout.createSequentialGroup()
                                 .add(rawMessageCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(transformedMessageCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(encodedMessageCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(16, Short.MAX_VALUE))
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(295, Short.MAX_VALUE)
-                .add(jButton1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jButton2)
-                .addContainerGap())
+                                .add(transformedMessageCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(advSearchCancelButton)
+                            .add(encodedMessageCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        layout.linkSize(new java.awt.Component[] {advSearchCancelButton, advSearchOKButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
@@ -137,59 +216,87 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel1)
                     .add(connectorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel5)
-                    .add(statusComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(jLabel8)
+                    .add(protocolComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(messageTypeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel4)
+                    .add(messageSourceField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel7))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jLabel10)
                     .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(messageTypeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel4))
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                .add(jLabel9)
+                                .add(rawMessageCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(transformedMessageCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(encodedMessageCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(containing, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel7)
-                            .add(messageSourceField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(jLabel8)
-                        .add(protocolComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel10)
-                    .add(containing, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel9)
-                    .add(rawMessageCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(transformedMessageCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(encodedMessageCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(20, 20, 20)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jButton2)
-                    .add(jButton1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(advSearchOKButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(advSearchCancelButton))))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        layout.linkSize(new java.awt.Component[] {advSearchCancelButton, advSearchOKButton}, org.jdesktop.layout.GroupLayout.VERTICAL);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void advSearchOKButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_advSearchOKButtonActionPerformed
+
+        // "OK" button clicked.  save settings, and exit.
+        
+        if (!connectorField.getText().equals("")) {
+            connector = connectorField.getText();
+        }
+        if (!messageSourceField.getText().equals("")) {
+            messageSource = messageSourceField.getText();
+        }
+        if (!messageTypeField.getText().equals("")) {
+            messageType = messageTypeField.getText();
+        }
+        if (!containing.getText().equals("")) {
+            containingKeyword = containing.getText();
+        }
+
+        if(rawMessageCheckBox.isSelected()) {
+            includeRawMessage = true;
+        }
+        if(transformedMessageCheckBox.isSelected()) {
+            includeTransformedMessage = true;
+        }
+        if(encodedMessageCheckBox.isSelected()) {
+            includeEncodedMessage = true;
+        }
+
+        protocol = (String) protocolComboBox.getSelectedItem();
+
+        setVisible(false);
+        
+    }//GEN-LAST:event_advSearchOKButtonActionPerformed
+
+    private void advSearchCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_advSearchCancelButtonActionPerformed
+
+        // "Cancel" button clicked.  Just exit.
+        setVisible(false);
+        
+    }//GEN-LAST:event_advSearchCancelButtonActionPerformed
     
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new MessageBrowserAdvancedFilter(new javax.swing.JFrame(), true).setVisible(true);
-            }
-        });
-    }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton advSearchCancelButton;
+    private javax.swing.JButton advSearchOKButton;
     private com.webreach.mirth.client.ui.components.MirthTextField connectorField;
     private com.webreach.mirth.client.ui.components.MirthTextField containing;
     private com.webreach.mirth.client.ui.components.MirthCheckBox encodedMessageCheckBox;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
@@ -197,7 +304,6 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
     private com.webreach.mirth.client.ui.components.MirthTextField messageTypeField;
     private javax.swing.JComboBox protocolComboBox;
     private com.webreach.mirth.client.ui.components.MirthCheckBox rawMessageCheckBox;
-    private javax.swing.JComboBox statusComboBox;
     private com.webreach.mirth.client.ui.components.MirthCheckBox transformedMessageCheckBox;
     // End of variables declaration//GEN-END:variables
     
