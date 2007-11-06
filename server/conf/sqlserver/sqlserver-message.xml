@@ -229,5 +229,18 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<delete id="deleteTempMessageTableIndex" parameterClass="java.lang.String">
 		DROP INDEX IDX_MSG_TMP_$uid$
 	</delete>
-	
+
+    <delete id="deleteAttachments" parameterClass="com.webreach.mirth.model.MessageObject">
+        DELETE FROM ATTACHMENT 
+		<dynamic prepend="WHERE">
+			<isNotNull prepend="AND" property="id">
+				MESSAGE_ID=#id#
+			</isNotNull>
+		</dynamic>        
+    </delete>
+    
+    <delete id="deleteUnusedAttachments">
+        DELETE FROM ATTACHMENT WHERE MESSAGE_ID NOT IN (SELECT ID FROM MESSAGE UNION SELECT CORRELATION_ID FROM MESSAGE WHERE CORRELATION_ID IS NOT NULL)
+    </delete>
+    
 </sqlMap>
