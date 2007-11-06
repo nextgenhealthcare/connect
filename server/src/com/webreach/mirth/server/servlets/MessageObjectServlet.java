@@ -113,6 +113,11 @@ public class MessageObjectServlet extends MirthServlet {
                     String message = request.getParameter("message");
                     String dicomMessage = DICOMUtil.getDICOMRawData((MessageObject) serializer.fromXML(message));
                     out.println(dicomMessage);
+                } else if(operation.equals("deleteAttachments")) {
+                    String message = request.getParameter("message");  
+                    messageObjectController.deleteAttachments((MessageObject) serializer.fromXML(message));
+                } else if(operation.equals("deleteUnusedAttachments")) {
+                    messageObjectController.deleteUnusedAttachments(); 
                 }
 			} catch (Exception e) {
 				throw new ServletException(e);
