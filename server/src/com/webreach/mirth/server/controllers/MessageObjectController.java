@@ -341,8 +341,10 @@ public class MessageObjectController {
 		logger.debug("removing messages: filter=" + filter.toString());
 
 		try {
-			return sqlMap.delete("deleteMessage", getFilterMap(filter, null));
-		} catch (SQLException e) {
+			int temp =  sqlMap.delete("deleteMessage", getFilterMap(filter, null));
+            sqlMap.delete("deleteUnusedAttachments");
+            return temp;
+        } catch (SQLException e) {
 			throw new ControllerException(e);
 		}
 	}
@@ -380,7 +382,8 @@ public class MessageObjectController {
 			Map parameterMap = new HashMap();
 			parameterMap.put("channelId", channelId);
 			sqlMap.delete("deleteMessage", parameterMap);
-		} catch (SQLException e) {
+            sqlMap.delete("deleteUnusedAttachments");
+        } catch (SQLException e) {
 			throw new ControllerException(e);
 		}
 	}
@@ -604,4 +607,20 @@ public class MessageObjectController {
             logger.error("could not insert attachment: id=" + attachment.getAttachmentId(), e);
         }        
     }
+    public void deleteAttachments(MessageObject message) {
+        try {
+            sqlMap.delete("deleteAttachments", message);
+        }
+        catch (SQLException e) {
+            logger.error("could not delete attachment: message id=" + message.getId(), e);
+        }           
+    }
+    public void deleteUnusedAttachments() {
+        try {
+            sqlMap.delete("deleteUnusedAttachments");
+        }
+        catch (SQLException e) {
+            logger.error("problem deleting unused attachments", e);
+        }           
+    }    
 }
