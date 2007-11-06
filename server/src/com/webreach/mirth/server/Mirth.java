@@ -301,9 +301,15 @@ public class Mirth extends Thread {
 			listener.setPort(Integer.valueOf(PropertyLoader.getProperty(mirthProperties, "http.port")).intValue());
 			webServer.addListener(listener);
 
+			// Load the context path property and remove the last char if it is a '/'.
+			String contextPath = PropertyLoader.getProperty(mirthProperties, "context.path");
+			if (contextPath.lastIndexOf('/') == (contextPath.length() - 1)) {
+				contextPath = contextPath.substring(0, contextPath.length() - 1);
+			}
+			
 			// Create the lib context
 			HttpContext libContext = new HttpContext();
-			libContext.setContextPath("/client-lib/");
+			libContext.setContextPath(contextPath + "/client-lib/");
 			webServer.addContext(libContext);
 
 			// Serve static content from the lib context
@@ -316,7 +322,7 @@ public class Mirth extends Thread {
 
 			// Create the connectors context
 			HttpContext connectorsContext = new HttpContext();
-			connectorsContext.setContextPath("/connectors/");
+			connectorsContext.setContextPath(contextPath + "/connectors/");
 			webServer.addContext(connectorsContext);
 
 			// Serve static content from the connectors context
@@ -331,7 +337,7 @@ public class Mirth extends Thread {
 
 			// Create the connectors context
 			HttpContext pluginsContext = new HttpContext();
-			pluginsContext.setContextPath("/plugins/");
+			pluginsContext.setContextPath(contextPath + "/plugins/");
 			webServer.addContext(pluginsContext);
 
 			// Serve static content from the connectors context
@@ -341,7 +347,7 @@ public class Mirth extends Thread {
 
 			// Create the public_html context
 			HttpContext publicContext = new HttpContext();
-			publicContext.setContextPath("/");
+			publicContext.setContextPath(contextPath + "/");
 			webServer.addContext(publicContext);
 
 			String publicPath = ConfigurationController.mirthHomeDir + System.getProperty("file.separator") + "public_html";
@@ -351,7 +357,7 @@ public class Mirth extends Thread {
 			// Create a servlet container
 			ServletHandler servlets = new ServletHandler();
 			HttpContext servletContext = new HttpContext();
-			servletContext.setContextPath("/");
+			servletContext.setContextPath(contextPath + "/");
 			servletContext.addHandler(servlets);
 			webServer.addContext(servletContext);
 

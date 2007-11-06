@@ -105,7 +105,13 @@ public class WebStartServlet extends HttpServlet {
 					httpsPort = Integer.valueOf(mirthProperties.getProperty("https.port")).intValue();
 				}
 
-				server = "https://" + serverName + ":" + httpsPort;
+				// Load the context path property and remove the last char if it is a '/'.
+				String contextPathProp = PropertyLoader.getProperty(mirthProperties, "context.path");
+				if (contextPathProp.lastIndexOf('/') == (contextPathProp.length() - 1)) {
+					contextPathProp = contextPathProp.substring(0, contextPathProp.length() - 1);
+				}
+				
+				server = "https://" + serverName + ":" + httpsPort + contextPath;
 			}
 
 			jnlpElement.setAttribute("codebase", codebase);
