@@ -124,7 +124,7 @@ public class DefaultXMLParser extends XMLParser {
      *     is not supported by this parser.
      */
     public Message parseDocument(org.w3c.dom.Document XMLMessage, String version) throws HL7Exception {
-        String messageName = XMLMessage.getDocumentElement().getTagName();
+        String messageName = XMLMessage.getDocumentElement().getLocalName();
         Message message = instantiateMessage(messageName, version, true);
         parse(message, XMLMessage.getDocumentElement());
         return message;
@@ -142,7 +142,7 @@ public class DefaultXMLParser extends XMLParser {
         ArrayList unparsedElementList = new ArrayList();
         for (int i = 0; i < allChildNodes.getLength(); i++) {
             Node node = allChildNodes.item(i);
-            String name = node.getNodeName();
+            String name = node.getLocalName();
             if (node.getNodeType() == Node.ELEMENT_NODE && !unparsedElementList.contains(name)) {
                 unparsedElementList.add(name);                
             }
@@ -164,7 +164,7 @@ public class DefaultXMLParser extends XMLParser {
     //param childIndexName may have an integer on the end if >1 sibling with same name (e.g. NTE2) 
     private void parseReps(Element groupElement, Group groupObject, 
             String messageName, String childName, String childIndexName) throws HL7Exception {
-        
+
         List reps = getChildElementsByTagName(groupElement, makeGroupElementName(messageName, childName));
         log.debug("# of elements matching " 
             + makeGroupElementName(messageName, childName) + ": " + reps.size());
@@ -194,7 +194,7 @@ public class DefaultXMLParser extends XMLParser {
 		else if (theObj instanceof Segment) {
 			parse((Segment) theObj, theElem);
 		}                
-		log.debug("Parsed element: " + theElem.getNodeName());    	
+		log.debug("Parsed element: " + theElem.getLocalName()); 
     }
     
     //includes direct children only
@@ -204,7 +204,7 @@ public class DefaultXMLParser extends XMLParser {
     	
     	for (int i = 0; i < children.getLength(); i++) {
     		Node child = children.item(i);
-    		if (child.getNodeType() == Node.ELEMENT_NODE && child.getNodeName().equals(theName)) {
+    		if (child.getNodeType() == Node.ELEMENT_NODE && child.getLocalName().equals(theName)) {
     			result.add(child);
     		}
     	}

@@ -25,6 +25,9 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashSet;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.util.regex.PatternSyntaxException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -109,11 +112,12 @@ public abstract class XMLParser extends Parser {
         String encoding = null;
 
         //check for a number of expected strings 
-        String[] expected = { "<MSH.1", "<MSH.2", "</MSH>" };
+        String[] expected = { "(?s).*<([0-9a-zA-Z][-\\w]*:)?MSH\\.1.*", "(?s).*<([0-9a-zA-Z][-\\w]*:)?MSH\\.2.*", "(?s).*</([0-9a-zA-Z][-\\w]*:)?MSH>.*" };
         boolean isXML = true;
         for (int i = 0; i < expected.length; i++) {
-            if (message.indexOf(expected[i]) < 0)
+            if (!message.matches(expected[i])) {
                 isXML = false;
+            }
         }
         if (isXML)
             encoding = "XML";
@@ -126,7 +130,7 @@ public abstract class XMLParser extends Parser {
      * by this Parser.
      */
     public boolean supportsEncoding(String encoding) {
-        if (encoding.equals("XML")) {
+        if (encoding != null && encoding.equals("XML")) {
             return true;
         }
         else {
@@ -289,7 +293,7 @@ public abstract class XMLParser extends Parser {
         
         NodeList all = segmentElement.getChildNodes();
         for (int i = 0; i < all.getLength(); i++) {
-            String elementName = all.item(i).getNodeName();
+            String elementName = all.item(i).getLocalName();
             if (all.item(i).getNodeType() == Node.ELEMENT_NODE && !done.contains(elementName)) {
                 done.add(elementName);
                 
@@ -314,7 +318,7 @@ public abstract class XMLParser extends Parser {
     private void parseReps(Segment segmentObject, Element segmentElement, String fieldName, int fieldNum) 
              throws DataTypeException, HL7Exception {
         
-        NodeList reps = segmentElement.getElementsByTagName(fieldName);
+        NodeList reps = segmentElement.getElementsByTagNameNS( "*", fieldName);
         for (int i = 0; i < reps.getLength(); i++) {
             parse(segmentObject.getField(fieldNum, i), (Element) reps.item(i));
         }        
@@ -433,9 +437,9 @@ public abstract class XMLParser extends Parser {
      *                 <code>false</code> otherwise
      */
     protected boolean keepAsOriginal(Node node) {
-        if (node.getNodeName() == null)
+        if (node.getLocalName() == null)
             return false;
-        return concatKeepAsOriginalNodes.indexOf(node.getNodeName()) != -1;
+        return concatKeepAsOriginalNodes.indexOf(node.getLocalName()) != -1;
     }
 
     /** 
@@ -485,7 +489,7 @@ public abstract class XMLParser extends Parser {
             Type[] children = datatypeObject.getComponents();
             for (int i = 0; i < children.length; i++) {
                 NodeList matchingElements =
-                    datatypeElement.getElementsByTagName(makeElementName(datatypeObject, i + 1));
+                    datatypeElement.getElementsByTagNameNS( "*", makeElementName(datatypeObject, i + 1));
                 if (matchingElements.getLength() > 0) {
                     parse(children[i], (Element) matchingElements.item(0)); //components don't repeat - use 1st
                 }
@@ -669,10 +673,32 @@ public abstract class XMLParser extends Parser {
      */
     protected String parseLeaf(String message, String tagName, int startAt) throws HL7Exception {
         String value = null;
-
-        int tagStart = message.indexOf("<" + tagName, startAt);
-        if (tagStart < 0)
-            tagStart = message.indexOf("<" + tagName.toUpperCase(), startAt);
+        
+        int  tagStart = -1;
+        
+        String tagPat   = "\\.";
+        String regex    = "";
+        
+        try {
+            // Replace any dots with an escaped dot in the tagName.
+            String tagRegex = Pattern.compile( tagPat ).matcher( tagName ).replaceAll( "\\." );
+            
+            // Create a regex to match element names, including those that have a namespace prefix
+            regex = "<([0-9a-zA-Z][-\\w]*:)?(" + tagRegex + "|" + tagRegex.toUpperCase() + ")";
+            
+            Matcher matcher = Pattern.compile( regex ).matcher( message );
+                
+            if( matcher.find( startAt ) ) {
+                tagStart = matcher.start();
+            }
+        }
+        catch( PatternSyntaxException pse ) {
+            throw new HL7Exception(
+                    "Invalid RegEx Pattern: \"" + tagPat + "\" or \"" + regex + "\"",
+                    HL7Exception.APPLICATION_INTERNAL_ERROR,
+                    pse);
+        }       
+        
         int valStart = message.indexOf(">", tagStart) + 1;
         int valEnd = message.indexOf("<", valStart);
 
