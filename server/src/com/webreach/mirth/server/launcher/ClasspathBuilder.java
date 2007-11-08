@@ -29,7 +29,6 @@ package com.webreach.mirth.server.launcher;
 import java.io.File;
 import java.io.FileFilter;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilderFactory;

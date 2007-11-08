@@ -13,6 +13,10 @@
  */
 package org.mule.impl.endpoint;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Properties;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mule.MuleManager;
@@ -23,10 +27,6 @@ import org.mule.providers.service.ConnectorServiceDescriptor;
 import org.mule.umo.endpoint.MalformedEndpointException;
 import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.util.PropertiesHelper;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Properties;
 
 /**
  * <code>MuleEndpointURI</code> is used to determine how a message is sent of
@@ -129,8 +129,7 @@ public class MuleEndpointURI implements UMOEndpointURI
         	TemplateValueReplacer replacer = new TemplateValueReplacer();
         	uri = replacer.replaceValuesFromGlobal(uri, false);
         }
-        uri = uri.trim().replaceAll(" ", "%20").replaceAll("\\$", "%24").replaceAll("\\{", "%7B").replaceAll("\\}", "%7D").replaceAll("\\(", "%28").replaceAll("\\)", "%29").replaceAll("#", "%23");
-        
+        uri = uri.trim().replaceAll("%","%25").replaceAll(" ", "%20").replaceAll("\\$", "%24").replaceAll("\\{", "%7B").replaceAll("\\}", "%7D").replaceAll("\\(", "%28").replaceAll("\\)", "%29").replaceAll("#", "%23");
         
         if (!validateUrl(uri)) {
             throw new MalformedEndpointException(uri);
