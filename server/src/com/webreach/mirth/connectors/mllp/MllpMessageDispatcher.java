@@ -398,7 +398,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 	}
 
 	public byte[] getAck(Socket socket, UMOEndpoint endpoint) {
-		int maxTime = endpoint.getRemoteSyncTimeout();
+		int maxTime = connector.getAckTimeout();
 		if (maxTime == 0)
 			return null;
 		try {
@@ -409,7 +409,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 			return result;
 		} catch (SocketTimeoutException e) {
 			// we don't necessarily expect to receive a response here
-			logger.warn("Socket timed out normally while doing a synchronous receive on endpointUri: " + endpoint.getEndpointURI());
+			logger.info("Socket timed out normally while doing a synchronous receive on endpointUri: " + endpoint.getEndpointURI());
 			return null;
 		} catch (Exception ex) {
 			logger.info("Socket error while doing a synchronous receive on endpointUri: " + endpoint.getEndpointURI());
