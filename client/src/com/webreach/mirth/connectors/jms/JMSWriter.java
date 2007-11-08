@@ -169,16 +169,17 @@ public class JMSWriter extends ConnectorClass
         {
             useJNDIYes.setSelected(true);
             useJNDIYesActionPerformed(null);
-            jmsURL.setText((String) props.get(JMSWriterProperties.JMS_URL));
-            jndiInitialFactory.setText((String) props.get(JMSWriterProperties.JMS_INITIAL_FACTORY));
-            connectionFactoryJndi.setText((String) props.get(JMSWriterProperties.JMS_CONNECTION_FACTORY_JNDI));
         }
         else
         {
             useJNDINo.setSelected(true);
             useJNDINoActionPerformed(null);
-            connectionFactoryClass.setText((String) props.get(JMSWriterProperties.JMS_CONNECTION_FACTORY_CLASS));
         }
+        
+        jmsURL.setText((String) props.get(JMSWriterProperties.JMS_URL));
+        jndiInitialFactory.setText((String) props.get(JMSWriterProperties.JMS_INITIAL_FACTORY));
+        connectionFactoryJndi.setText((String) props.get(JMSWriterProperties.JMS_CONNECTION_FACTORY_JNDI));
+        connectionFactoryClass.setText((String) props.get(JMSWriterProperties.JMS_CONNECTION_FACTORY_CLASS));
         
         if(props.get(JMSWriterProperties.JMS_ACK_MODE).equals("0"))
             ackMode.setSelectedItem(TRANSACTED);
