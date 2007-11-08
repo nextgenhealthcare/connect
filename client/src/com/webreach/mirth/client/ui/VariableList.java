@@ -25,22 +25,15 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.ui.util.VariableListUtil;
-import com.webreach.mirth.model.Rule;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import com.webreach.mirth.model.Step;
 import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * A panel that contains the MirthVariableList.
  */
 public class VariableList extends javax.swing.JPanel
 {
-    private final String VAR_PATTERN = "[connector][channel][global][local]Map.put\\(['|\"]([^'|^\"]*)[\"|']";
-
     /** Creates new form VariableList */
     public VariableList()
     {

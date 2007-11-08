@@ -9,19 +9,15 @@
 
 package com.webreach.mirth.client.ui.util;
 
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.Rule;
-import com.webreach.mirth.model.Step;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.webreach.mirth.model.Connector;
+import com.webreach.mirth.model.Rule;
+import com.webreach.mirth.model.Step;
 
 /**
  *
@@ -29,8 +25,8 @@ import java.util.regex.Pattern;
  */
 public class VariableListUtil
 {
-    final static String GLOBAL_AND_CHANNEL_VARIABLE_PATTERN = "(?:(?:(?:channel|global|response)(?:M|m)ap.put)|\\$(?:g|c|r))\\(\\s*['|\"]*([^'|^\"|^\\s]*)[\"|']*";
-    final static String LOCAL_VARIABLE_PATTERN = "(?:(?:(?:channel|global|response|connector)(?:M|m)ap.put)|\\$(?:g|c|r|co))\\(\\s*['|\"]*([^'|^\"|^\\s]*)[\"|']*";
+    final static String GLOBAL_AND_CHANNEL_VARIABLE_PATTERN = "(?:(?:(?:channel|global|response)(?:M|m)ap.put)|\\$(?:g|c|r))\\(\\s*['|\"]([^'|^\"|^\\s]*)[\"|']*";
+    final static String LOCAL_VARIABLE_PATTERN = "(?:(?:(?:channel|global|response|connector)(?:M|m)ap.put)|\\$(?:g|c|r|co))\\(\\s*['|\"]([^'|^\"|^\\s]*)[\"|']*";
     final static int MATCHER_INDEX = 1;
     public static void getStepVariables(Set<String> targetSet, Connector connector, boolean includeLocalVars)
     {
