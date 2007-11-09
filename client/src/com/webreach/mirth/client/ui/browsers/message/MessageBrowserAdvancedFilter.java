@@ -7,6 +7,7 @@
 package com.webreach.mirth.client.ui.browsers.message;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.client.ui.Frame;
 
 /**
  *
@@ -24,9 +25,10 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
     private String protocol;
 
     /** Creates new form MessageBrowserAdvancedFilter */
-    public MessageBrowserAdvancedFilter(java.awt.Frame parent, String title, boolean modal) {
+    public MessageBrowserAdvancedFilter(Frame parent, String title, boolean modal) {
 
         super(parent, title, modal);
+        setLocationRelativeTo(null);        // so that the pop up would show up in the center of the screen.
 
         initComponents();
         
