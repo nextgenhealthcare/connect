@@ -110,7 +110,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	private boolean outputAppend = false;
 	private boolean autoDelete = true;
 	private boolean checkFileAge = false;
-	private String fileFilter = "*.*";
+	private String fileFilter = "*";
 	private long fileAge = 0;
 	private String template = null;
 	private FileOutputStream outputStream = null;
