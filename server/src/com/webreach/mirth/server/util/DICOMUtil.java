@@ -1,37 +1,22 @@
 package com.webreach.mirth.server.util;
 
-import com.webreach.mirth.server.controllers.ControllerException;
-import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.DICOMSerializer;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
-import com.sun.image.codec.jpeg.JPEGEncodeParam;
-import com.sun.image.codec.jpeg.JPEGCodec;
-import javax.imageio.plugins.bmp.BMPImageWriteParam;
-
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Iterator;
-import java.util.HashMap;
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
-import java.awt.*;
-
+import com.webreach.mirth.server.controllers.MessageObjectController;
+import ij.plugin.DICOM;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
-import ij.ImagePlus;
-import ij.IJ;
-import ij.Prefs;
-import ij.io.TiffEncoder;
-import ij.io.FileInfo;
-import ij.io.ImageWriter;
-import ij.plugin.DICOM;
-import ij.plugin.JpegWriter;
-import ij.plugin.BMP_Writer;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -101,8 +86,7 @@ public class DICOMUtil {
         return null;
     }
     
-    public static String convertDICOM(String imageType,MessageObject message, int quality){
-
+    public static String convertDICOM(String imageType,MessageObject message){
             return returnOther(message, imageType);
     }
 
