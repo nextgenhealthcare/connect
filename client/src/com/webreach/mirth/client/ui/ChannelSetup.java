@@ -34,6 +34,7 @@ import java.awt.event.MouseWheelListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -143,10 +144,7 @@ public class ChannelSetup extends javax.swing.JPanel
            
                 if (metaData.getType() == ConnectorMetaData.Type.LISTENER && metaData.isEnabled())
                 {
-                    if (entry.getKey().equals(SOURCE_DEFAULT))
-                        sourceConnectors.add(0, metaData.getName());
-                    else
-                        sourceConnectors.add(metaData.getName());
+                    sourceConnectors.add(metaData.getName());
                     
                     try
                     {
@@ -159,10 +157,7 @@ public class ChannelSetup extends javax.swing.JPanel
                 }
                 if (metaData.getType() == ConnectorMetaData.Type.SENDER && metaData.isEnabled())
                 {
-                    if (entry.getKey().equals(DESTINATION_DEFAULT))
-                        destinationConnectors.add(0, metaData.getName());
-                    else
-                        destinationConnectors.add(metaData.getName());
+                    destinationConnectors.add(metaData.getName());
                     
                     try
                     {
@@ -178,7 +173,9 @@ public class ChannelSetup extends javax.swing.JPanel
             }
         }
         
-       
+        Collections.sort(sourceConnectors);
+        Collections.sort(destinationConnectors);
+        
         channelView.setMaximumSize(new Dimension(450, 3000));
     }
     
@@ -285,7 +282,7 @@ public class ChannelSetup extends javax.swing.JPanel
                 connector.getTransformer().setInboundProtocol(null);
                 connector.getTransformer().setOutboundProtocol(null);
                 connector.setName(getNewDestinationName(tableSize));
-                connector.setTransportName((String) destinationSourceDropdown.getItemAt(0));
+                connector.setTransportName(DESTINATION_DEFAULT);
                 
                 if (connector.isEnabled())
                     tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")), UIConstants.ENABLED_STATUS);
@@ -592,7 +589,7 @@ public class ChannelSetup extends javax.swing.JPanel
         
         Connector sourceConnector = makeNewConnector(false);
         sourceConnector.setName("sourceConnector");
-        sourceConnector.setTransportName((String) sourceSourceDropdown.getItemAt(0));
+        sourceConnector.setTransportName(SOURCE_DEFAULT);
         Transformer sourceTransformer = new Transformer();
         sourceTransformer.setInboundProtocol(Protocol.HL7V2);
         sourceTransformer.setOutboundProtocol(null);
