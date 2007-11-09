@@ -176,7 +176,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 		Map requestVariables = connector.getRequestVariables();
 		if (connector.getMethod().equals("post")) {
 			// We add all the paramerters from the connector to the post
-			PostMethod postMethod = new PostMethod(uri.toString());
+			PostMethod postMethod = new PostMethod(uri.toString());		       
 			if (requestVariables != null && requestVariables.size() > 0){
 				for (Iterator iter = requestVariables.keySet().iterator(); iter.hasNext();) {
 					String key = (String) iter.next();
@@ -212,10 +212,11 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 				}
 			}
 			httpMethod = new GetMethod(urlBuilder.toString());
-
 		} else {
 			throw new Exception("Invalid HTTP Method: " + connector.getMethod());
 		}
+		if (httpMethod!=null) httpMethod.getParams().setCookiePolicy(org.apache.commons.httpclient.cookie.CookiePolicy.IGNORE_COOKIES);
+		
 		/*
 		 * this is not used with Mirth, however it will be helpful if we add
 		 * binary data one day else if (body instanceof HttpMethod) { httpMethod =
@@ -313,8 +314,17 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 			h.setProperty(HttpConnector.HTTP_STATUS_PROPERTY, status);
 			logger.debug("Http response is: " + status);
 			ExceptionPayload ep = null;
+			String fullResponseHeader=(httpMethod.getStatusLine()==null)?"":httpMethod.getStatusLine().toString()+"\r\n";
+			org.apache.commons.httpclient.Header [] responseHeaders=httpMethod.getResponseHeaders();
+			for(int i=0;i<responseHeaders.length;i++){
+				fullResponseHeader+=responseHeaders[i].toString();
+			}
+
+			String fullResponse=fullResponseHeader+httpMethod.getResponseBodyAsString();
+			logger.debug("Full response from HTTP:\r\n"+fullResponse);
+			
 			if (httpMethod.getStatusCode() >= 400) {
-				logger.error(httpMethod.getResponseBodyAsString());
+				logger.error("HTTP Error message. Full Response: \r\n"+fullResponse);
 				String exceptionText = "Http call returned a status of: " + httpMethod.getStatusCode() + " " + httpMethod.getStatusText();
 				ep = new ExceptionPayload(new DispatchException(event.getMessage(), event.getEndpoint(), new Exception(exceptionText)));
 				messageObjectController.setError(messageObject, Constants.ERROR_404, "HTTP Error", ep.getException());
@@ -322,9 +332,14 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 			UMOMessage m = null;
 			// text or binary content?
 			if (httpMethod.getResponseHeader(HttpConstants.HEADER_CONTENT_TYPE) != null && httpMethod.getResponseHeader(HttpConstants.HEADER_CONTENT_TYPE).getValue().startsWith("text/")) {
-				m = new MuleMessage(httpMethod.getResponseBodyAsString(), h);
+				m = new MuleMessage(fullResponseHeader+httpMethod.getResponseBodyAsString(), h);
 			} else {
-				m = new MuleMessage(httpMethod.getResponseBody(), h);
+				byte[] headerBytes=fullResponseHeader.getBytes();
+				byte[] bodyBytes=httpMethod.getResponseBody();
+				byte[] fullResponseBytes = new byte[headerBytes.length+bodyBytes.length];
+				System.arraycopy(headerBytes,0,fullResponseBytes,0,headerBytes.length);
+				System.arraycopy(bodyBytes,0,fullResponseBytes,headerBytes.length,bodyBytes.length);
+				m = new MuleMessage(fullResponseBytes, h);
 			}
 
 			// update the message status to sent
