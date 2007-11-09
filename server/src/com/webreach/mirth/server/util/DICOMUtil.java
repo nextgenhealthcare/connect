@@ -8,6 +8,7 @@ import com.webreach.mirth.model.converters.DICOMSerializer;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;
 import com.sun.image.codec.jpeg.JPEGEncodeParam;
 import com.sun.image.codec.jpeg.JPEGCodec;
+import javax.imageio.plugins.bmp.BMPImageWriteParam;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Iterator;
 import java.util.HashMap;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.awt.*;
 
 import sun.misc.BASE64Decoder;
@@ -33,7 +35,7 @@ import javax.imageio.ImageIO;
 
 /**
  * Created by IntelliJ IDEA.
- * User: dans
+ * User: 
  * Date: Oct 4, 2007
  * Time: 10:42:11 AM
  * To change this template use File | Settings | File Templates.
@@ -108,6 +110,9 @@ public class DICOMUtil {
         }
         else if(imageType != null && imageType.toUpperCase().startsWith("RAW")){
             return saveRaw(message);
+        }
+        else if(imageType != null && imageType.toUpperCase().startsWith("BMP")){
+            return returnAsBMP(message);
         }
         IJ.error("Incorrect message type selected");
         return "";
@@ -258,5 +263,30 @@ public class DICOMUtil {
         return out.toByteArray();
     }
 
-    
+    public static String returnAsBMP(MessageObject message)
+    {
+        String encodedData = getDICOMRawData(message);
+        BASE64Decoder decoder = new BASE64Decoder();
+        BASE64Encoder base64Encoder = new BASE64Encoder();           
+        try {
+            byte[] rawImage = decoder.decodeBuffer(encodedData);
+            ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
+            DICOM dcm = new DICOM(bis);
+            dcm.run(message.getType());
+            int width = dcm.getWidth();
+            int height = dcm.getHeight();
+            BufferedImage   bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+            ByteArrayOutputStream  f  = new ByteArrayOutputStream();
+            Graphics g = bi.createGraphics();
+            g.drawImage(dcm.getImage(), 0, 0, null);
+            g.dispose();            
+
+            ImageIO.write(bi,"bmp",f);
+            return base64Encoder.encode(f.toByteArray());
+        }
+        catch (IOException e) {
+            IJ.error("returnAsBMP", ""+e);
+        }
+        return "";
+    }    
 }
