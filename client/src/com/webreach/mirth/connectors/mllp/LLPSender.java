@@ -28,7 +28,6 @@ package com.webreach.mirth.connectors.mllp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
-import java.util.StringTokenizer;
 
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
@@ -133,8 +132,15 @@ public class LLPSender extends ConnectorClass
         else
             usePersistentQueuesNoRadio.setSelected(true);
 
+        if (((String) props.get(LLPSenderProperties.LLP_ACK_TIMEOUT)).equals("0"))
+            ignoreACKCheckBox.setSelected(true);
+        else
+            ignoreACKCheckBox.setSelected(false);
+        
+        ignoreACKCheckBoxActionPerformed(null);
+        
         ackTimeoutField.setText((String) props.get(LLPSenderProperties.LLP_ACK_TIMEOUT));
-
+        
         template.setText((String) props.get(LLPSenderProperties.LLP_TEMPLATE));
         parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(LLPSenderProperties.CONNECTOR_CHARSET_ENCODING));
 
@@ -318,6 +324,7 @@ public class LLPSender extends ConnectorClass
         URL = new javax.swing.JLabel();
         reconnectInterval = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel1 = new javax.swing.JLabel();
+        ignoreACKCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -405,6 +412,18 @@ public class LLPSender extends ConnectorClass
 
         jLabel1.setText("Reconnect Interval (ms):");
 
+        ignoreACKCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        ignoreACKCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        ignoreACKCheckBox.setText("Ignore ACK");
+        ignoreACKCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        ignoreACKCheckBox.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                ignoreACKCheckBoxActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -439,7 +458,10 @@ public class LLPSender extends ConnectorClass
                                 .add(usePersistentQueuesYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(usePersistentQueuesNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(ackTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                            .add(layout.createSequentialGroup()
+                                .add(ackTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(ignoreACKCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
                     .add(layout.createSequentialGroup()
                         .add(startOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -525,7 +547,8 @@ public class LLPSender extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel19)
-                    .add(ackTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(ackTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(ignoreACKCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel20)
@@ -541,6 +564,19 @@ public class LLPSender extends ConnectorClass
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void ignoreACKCheckBoxActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_ignoreACKCheckBoxActionPerformed
+    {//GEN-HEADEREND:event_ignoreACKCheckBoxActionPerformed
+        if (ignoreACKCheckBox.isSelected())
+        {
+            ackTimeoutField.setText("0");
+            ackTimeoutField.setEnabled(false);
+        }
+        else
+        {
+            ackTimeoutField.setEnabled(true);
+        }
+    }//GEN-LAST:event_ignoreACKCheckBoxActionPerformed
 
     private void charsetEncodingComboboxActionPerformed(java.awt.event.ActionEvent evt)
     {// GEN-FIRST:event_charsetEncodingComboboxActionPerformed
@@ -559,6 +595,7 @@ public class LLPSender extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthRadioButton hex;
     private com.webreach.mirth.client.ui.components.MirthTextField hostAddressField;
     private com.webreach.mirth.client.ui.components.MirthTextField hostPortField;
+    private com.webreach.mirth.client.ui.components.MirthCheckBox ignoreACKCheckBox;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
