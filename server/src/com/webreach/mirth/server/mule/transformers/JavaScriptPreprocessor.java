@@ -25,20 +25,28 @@
 
 package com.webreach.mirth.server.mule.transformers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
+import org.mule.providers.TemplateValueReplacer;
+import org.mule.transformers.AbstractEventAwareTransformer;
 import org.mule.transformers.AbstractTransformer;
+import org.mule.umo.UMOEventContext;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.transformer.TransformerException;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.util.CompiledScriptCache;
+import com.webreach.mirth.server.util.GlobalVariableStore;
+import com.webreach.mirth.server.util.VMRouter;
 
-public class JavaScriptPreprocessor extends AbstractTransformer {
+public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 	private String preprocessingScriptId;
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
 	private ScriptController scriptController = ScriptController.getInstance();
@@ -76,7 +84,7 @@ public class JavaScriptPreprocessor extends AbstractTransformer {
 	}
 
 	@Override
-	public Object doTransform(Object src) throws TransformerException {
+	public Object transform(Object src, UMOEventContext context) throws TransformerException {
 		String message = new String();
 
 		if (src instanceof MessageObject) {
@@ -86,16 +94,24 @@ public class JavaScriptPreprocessor extends AbstractTransformer {
 			message = (String) src;
 		}
 		
-		return doPreprocess(message);
+		return doPreprocess(message, context);
 	}
 
-	public String doPreprocess(String message) throws TransformerException {
+	public String doPreprocess(String message, UMOEventContext muleContext) throws TransformerException {
 		try {
 			Logger scriptLogger = Logger.getLogger("preprocessor");
 			Context context = Context.enter();
 			Scriptable scope = new ImporterTopLevel(context);
 			scope.put("message", scope, message);
 			scope.put("logger", scope, scriptLogger);
+			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
+			scope.put("router", scope, new VMRouter());
+			//scope.put("replacer", scope, new TemplateValueReplacer()); //Probably don't need the overhead of this
+			
+			//Add the contextMap, it contains MuleContext properties
+			Map contextMap = new HashMap();
+			muleContext.getProperties().putAll(contextMap);
+			scope.put("contextMap", scope, contextMap);
 			
             Script globalCompiledScript = compiledScriptCache.getCompiledScript("Preprocessor");
 			Script compiledScript = compiledScriptCache.getCompiledScript(preprocessingScriptId);
@@ -135,4 +151,5 @@ public class JavaScriptPreprocessor extends AbstractTransformer {
 		script.append("doPreprocess()\n");
 		return script.toString();
 	}
+
 }
