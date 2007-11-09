@@ -193,6 +193,7 @@ public class ReferenceListFactory
         }
         variablelistItems.add(new ReferenceListItem("Perform Map Value Replacement", "Returns a string that has been run through Velocity replacer with a map context", "var results = replacer.replaceValues(template, map);", CodeSnippetType.FUNCTION));
         variablelistItems.add(new ReferenceListItem("Format Overpunch NCPDP Number", "Returns number with decimal points and correct sign", "var number = NCPDPUtil.formatNCPDPNumber('number', decimalpoints);", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Convert DICOM into Image File", "Converts and returns JPEG/TIF image from uncompressed DICOM image (imagetype: either TIF,JPEG, or RAW, quality 1-100)", "DICOMUtil.convertDICOM('imagetype',messageObject, 'quality')", CodeSnippetType.FUNCTION));
         return variablelistItems;
     }
     private ArrayList<ReferenceListItem> getDateItems()
