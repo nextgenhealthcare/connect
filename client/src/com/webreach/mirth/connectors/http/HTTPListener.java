@@ -104,7 +104,9 @@ public class HTTPListener extends ConnectorClass
             keepConnectionOpenNoRadio.setSelected(true);
         
         updateResponseDropDown();
-        responseFromTransformer.setSelectedItem((String) props.getProperty(HTTPListenerProperties.HTTP_RESPONSE_VALUE));
+        
+        if (parent.channelEditPanel.synchronousCheckBox.isSelected())
+            responseFromTransformer.setSelectedItem((String) props.getProperty(HTTPListenerProperties.HTTP_RESPONSE_VALUE));
         
         if (((String) props.get(HTTPListenerProperties.HTTP_APPEND_PAYLOAD)).equals(UIConstants.YES_OPTION))
             appendPayloadYesRadio.setSelected(true);
@@ -197,7 +199,7 @@ public class HTTPListener extends ConnectorClass
         listenerPortField = new com.webreach.mirth.client.ui.components.MirthTextField();
         keepConnectionOpenYesRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         keepConnectionOpenNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        jLabel38 = new javax.swing.JLabel();
+        responseFromLabel = new javax.swing.JLabel();
         responseFromTransformer = new com.webreach.mirth.client.ui.components.MirthComboBox();
         appendPayloadYesRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         appendPayloadNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
@@ -229,16 +231,9 @@ public class HTTPListener extends ConnectorClass
         keepConnectionOpenNoRadio.setText("No");
         keepConnectionOpenNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        jLabel38.setText("Respond from:");
+        responseFromLabel.setText("Respond from:");
 
         responseFromTransformer.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        responseFromTransformer.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                responseFromTransformerActionPerformed(evt);
-            }
-        });
 
         appendPayloadYesRadio.setBackground(new java.awt.Color(255, 255, 255));
         appendPayloadYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -274,7 +269,7 @@ public class HTTPListener extends ConnectorClass
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel38)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, responseFromLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel5)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
@@ -323,7 +318,7 @@ public class HTTPListener extends ConnectorClass
                     .add(jLabel5))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel38)
+                    .add(responseFromLabel)
                     .add(responseFromTransformer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
@@ -342,15 +337,6 @@ public class HTTPListener extends ConnectorClass
     {//GEN-HEADEREND:event_payloadURLEncodingComboBoxActionPerformed
 // TODO add your handling code here:
     }//GEN-LAST:event_payloadURLEncodingComboBoxActionPerformed
-
-    private void responseFromTransformerActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_responseFromTransformerActionPerformed
-    {//GEN-HEADEREND:event_responseFromTransformerActionPerformed
-        if (responseFromTransformer.getSelectedIndex() != 0 && !parent.channelEditPanel.synchronousCheckBox.isSelected())
-        {
-            parent.alertInformation("The synchronize source connector setting has been enabled since it is required to use this feature.");
-            parent.channelEditPanel.synchronousCheckBox.setSelected(true);
-        }
-    }//GEN-LAST:event_responseFromTransformerActionPerformed
     
     public void updateResponseDropDown()
     {               
@@ -407,6 +393,18 @@ public class HTTPListener extends ConnectorClass
         else
             responseFromTransformer.setSelectedIndex(0);
         
+        if (!parent.channelEditPanel.synchronousCheckBox.isSelected())
+        {
+            responseFromTransformer.setEnabled(false);
+            responseFromLabel.setEnabled(false);
+            responseFromTransformer.setSelectedIndex(0);
+        }
+        else
+        {
+            responseFromTransformer.setEnabled(true);
+            responseFromLabel.setEnabled(true);
+        }
+        
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
     
@@ -418,7 +416,6 @@ public class HTTPListener extends ConnectorClass
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel38;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
@@ -430,6 +427,7 @@ public class HTTPListener extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthTextField listenerPortField;
     private com.webreach.mirth.client.ui.components.MirthComboBox payloadURLEncodingComboBox;
     private com.webreach.mirth.client.ui.components.MirthTextField receiveTimeoutField;
+    private javax.swing.JLabel responseFromLabel;
     private com.webreach.mirth.client.ui.components.MirthComboBox responseFromTransformer;
     // End of variables declaration//GEN-END:variables
 

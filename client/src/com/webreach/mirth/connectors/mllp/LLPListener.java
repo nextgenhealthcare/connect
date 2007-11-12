@@ -205,7 +205,9 @@ public class LLPListener extends ConnectorClass
         }
         
         updateResponseDropDown();
-        responseFromTransformer.setSelectedItem((String) props.getProperty(LLPListenerProperties.LLP_RESPONSE_VALUE));
+        
+        if (parent.channelEditPanel.synchronousCheckBox.isSelected())
+            responseFromTransformer.setSelectedItem((String) props.getProperty(LLPListenerProperties.LLP_RESPONSE_VALUE));
         
         parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(LLPListenerProperties.CONNECTOR_CHARSET_ENCODING));
 
@@ -592,7 +594,7 @@ public class LLPListener extends ConnectorClass
         sendACKTransformer.setBackground(new java.awt.Color(255, 255, 255));
         sendACKTransformer.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup2.add(sendACKTransformer);
-        sendACKTransformer.setText("Response from");
+        sendACKTransformer.setText("Respond from:");
         sendACKTransformer.setMargin(new java.awt.Insets(0, 0, 0, 0));
         sendACKTransformer.addActionListener(new java.awt.event.ActionListener()
         {
@@ -1008,6 +1010,22 @@ public class LLPListener extends ConnectorClass
         else
             responseFromTransformer.setSelectedIndex(0);
         
+        if (!parent.channelEditPanel.synchronousCheckBox.isSelected())
+        {
+            responseFromTransformer.setEnabled(false);
+            responseFromTransformer.setSelectedIndex(0);
+        }
+        else
+        {
+            responseFromTransformer.setEnabled(true);
+        }
+        
+        // Reset the proper enabled fields if sendACKNo or sendACKYes were selected.
+        if (sendACKYes.isSelected())
+            sendACKYesActionPerformed(null);
+        else if (sendACKNo.isSelected())
+            sendACKNoActionPerformed(null);
+        
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
     
@@ -1063,25 +1081,42 @@ public class LLPListener extends ConnectorClass
 
     private void sendACKYesActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_sendACKYesActionPerformed
     {// GEN-HEADEREND:event_sendACKYesActionPerformed
-        if (evt != null && !parent.channelEditPanel.synchronousCheckBox.isSelected())
-        {
-            parent.alertInformation("The synchronize source connector setting has been enabled since it is required to use this feature.");
-            parent.channelEditPanel.synchronousCheckBox.setSelected(true);
-        }
 
         successACKCode.setEnabled(true);
         successACKMessage.setEnabled(true);
-        errorACKCode.setEnabled(true);
-        errorACKMessage.setEnabled(true);
-        rejectedACKCode.setEnabled(true);
-        rejectedACKMessage.setEnabled(true);
+
+        if (parent.channelEditPanel.synchronousCheckBox.isSelected())
+        {
+            errorACKCode.setEnabled(true);
+            errorACKMessage.setEnabled(true);
+            rejectedACKCode.setEnabled(true);
+            rejectedACKMessage.setEnabled(true);
+        }
+        else
+        {
+            errorACKCode.setEnabled(false);
+            errorACKMessage.setEnabled(false);
+            rejectedACKCode.setEnabled(false);
+            rejectedACKMessage.setEnabled(false);
+        }
 
         successACKCodeLabel.setEnabled(true);
         successACKMessageLabel.setEnabled(true);
-        errorACKCodeLabel.setEnabled(true);
-        errorACKMessageLabel.setEnabled(true);
-        rejectedACKCodeLabel.setEnabled(true);
-        rejectedACKMessageLabel.setEnabled(true);
+        
+        if (parent.channelEditPanel.synchronousCheckBox.isSelected())
+        {
+            errorACKCodeLabel.setEnabled(true);
+            errorACKMessageLabel.setEnabled(true);
+            rejectedACKCodeLabel.setEnabled(true);
+            rejectedACKMessageLabel.setEnabled(true);
+        }
+        else
+        {
+            errorACKCodeLabel.setEnabled(false);
+            errorACKMessageLabel.setEnabled(false);
+            rejectedACKCodeLabel.setEnabled(false);
+            rejectedACKMessageLabel.setEnabled(false);
+        }
 
         ackOnNewConnectionNo.setEnabled(true);
         ackOnNewConnectionYes.setEnabled(true);

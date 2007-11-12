@@ -45,7 +45,7 @@
                   <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel39" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel6" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseFromLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="ackOnNewConnectionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="ackIPLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="ackPortLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -99,7 +99,7 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseFromLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="responseFromTransformer" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -235,9 +235,9 @@
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="ackAddressField">
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel6">
+    <Component class="javax.swing.JLabel" name="responseFromLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Response from Transformer:"/>
+        <Property name="text" type="java.lang.String" value="Respond from:"/>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="responseFromTransformer">
@@ -251,9 +251,6 @@
           </StringArray>
         </Property>
       </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="responseFromTransformerActionPerformed"/>
-      </Events>
     </Component>
   </SubComponents>
 </Form>

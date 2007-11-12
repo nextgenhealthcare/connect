@@ -81,7 +81,10 @@ public class SOAPListener extends ConnectorClass
         port.setText((String) props.getProperty(SOAPListenerProperties.SOAP_PORT));
         serviceName.setText((String) props.getProperty(SOAPListenerProperties.SOAP_SERVICE_NAME));
         updateResponseDropDown();
-        responseFromTransformer.setSelectedItem((String) props.getProperty(SOAPListenerProperties.SOAP_RESPONSE_VALUE));
+        
+        if (parent.channelEditPanel.synchronousCheckBox.isSelected())
+            responseFromTransformer.setSelectedItem((String) props.getProperty(SOAPListenerProperties.SOAP_RESPONSE_VALUE));
+        
         updateWSDL();
     }
 
@@ -165,7 +168,7 @@ public class SOAPListener extends ConnectorClass
         jLabel3 = new javax.swing.JLabel();
         method = new javax.swing.JTextField();
         wsdlURL = new javax.swing.JTextField();
-        jLabel4 = new javax.swing.JLabel();
+        responseFromLabel = new javax.swing.JLabel();
         responseFromTransformer = new com.webreach.mirth.client.ui.components.MirthComboBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
@@ -206,16 +209,9 @@ public class SOAPListener extends ConnectorClass
 
         method.setText("String acceptMessage(String message)");
 
-        jLabel4.setText("Respond from:");
+        responseFromLabel.setText("Respond from:");
 
         responseFromTransformer.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        responseFromTransformer.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                responseFromTransformerActionPerformed(evt);
-            }
-        });
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -224,7 +220,7 @@ public class SOAPListener extends ConnectorClass
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel4)
+                    .add(responseFromLabel)
                     .add(jLabel2)
                     .add(URL)
                     .add(jLabel1)
@@ -264,20 +260,11 @@ public class SOAPListener extends ConnectorClass
                     .add(method, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel4)
+                    .add(responseFromLabel)
                     .add(responseFromTransformer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    private void responseFromTransformerActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_responseFromTransformerActionPerformed
-    {//GEN-HEADEREND:event_responseFromTransformerActionPerformed
-        if (responseFromTransformer.getSelectedIndex() != 0 && !parent.channelEditPanel.synchronousCheckBox.isSelected())
-        {
-            parent.alertInformation("The synchronize source connector setting has been enabled since it is required to use this feature.");
-            parent.channelEditPanel.synchronousCheckBox.setSelected(true);
-        }
-    }//GEN-LAST:event_responseFromTransformerActionPerformed
     
     public void updateResponseDropDown()
     {
@@ -334,6 +321,18 @@ public class SOAPListener extends ConnectorClass
         else
             responseFromTransformer.setSelectedIndex(0);
         
+        if (!parent.channelEditPanel.synchronousCheckBox.isSelected())
+        {
+            responseFromTransformer.setEnabled(false);
+            responseFromLabel.setEnabled(false);
+            responseFromTransformer.setSelectedIndex(0);
+        }
+        else
+        {
+            responseFromTransformer.setEnabled(true);
+            responseFromLabel.setEnabled(true);
+        }
+        
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
     
@@ -359,10 +358,10 @@ public class SOAPListener extends ConnectorClass
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private com.webreach.mirth.client.ui.components.MirthTextField listenerAddress;
     private javax.swing.JTextField method;
     private com.webreach.mirth.client.ui.components.MirthTextField port;
+    private javax.swing.JLabel responseFromLabel;
     private com.webreach.mirth.client.ui.components.MirthComboBox responseFromTransformer;
     private com.webreach.mirth.client.ui.components.MirthTextField serviceName;
     private javax.swing.JTextField wsdlURL;

@@ -100,6 +100,9 @@ public class TCPListener extends ConnectorClass
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
         
         updateResponseDropDown();
+        
+        if (parent.channelEditPanel.synchronousCheckBox.isSelected())
+            responseFromTransformer.setSelectedItem((String) props.getProperty(TCPListenerProperties.TCP_RESPONSE_VALUE));
 
         parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(TCPListenerProperties.CONNECTOR_CHARSET_ENCODING));
 
@@ -225,7 +228,7 @@ public class TCPListener extends ConnectorClass
         ackPortLabel = new javax.swing.JLabel();
         ackPortField = new com.webreach.mirth.client.ui.components.MirthTextField();
         ackAddressField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        jLabel6 = new javax.swing.JLabel();
+        responseFromLabel = new javax.swing.JLabel();
         responseFromTransformer = new com.webreach.mirth.client.ui.components.MirthComboBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
@@ -274,16 +277,9 @@ public class TCPListener extends ConnectorClass
 
         ackPortLabel.setText("Response Port:");
 
-        jLabel6.setText("Response from Transformer:");
+        responseFromLabel.setText("Respond from:");
 
         responseFromTransformer.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        responseFromTransformer.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                responseFromTransformerActionPerformed(evt);
-            }
-        });
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -297,7 +293,7 @@ public class TCPListener extends ConnectorClass
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel39)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, responseFromLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, ackOnNewConnectionLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, ackIPLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, ackPortLabel))
@@ -341,7 +337,7 @@ public class TCPListener extends ConnectorClass
                     .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel6)
+                    .add(responseFromLabel)
                     .add(responseFromTransformer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
@@ -359,15 +355,6 @@ public class TCPListener extends ConnectorClass
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    private void responseFromTransformerActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_responseFromTransformerActionPerformed
-    {//GEN-HEADEREND:event_responseFromTransformerActionPerformed
-        if (responseFromTransformer.getSelectedIndex() != 0 && !parent.channelEditPanel.synchronousCheckBox.isSelected())
-        {
-            parent.alertInformation("The synchronize source connector setting has been enabled since it is required to use this feature.");
-            parent.channelEditPanel.synchronousCheckBox.setSelected(true);
-        }
-    }//GEN-LAST:event_responseFromTransformerActionPerformed
     
     public void updateResponseDropDown()
     {
@@ -423,6 +410,18 @@ public class TCPListener extends ConnectorClass
             responseFromTransformer.setSelectedItem(selectedItem);
         else
             responseFromTransformer.setSelectedIndex(0);
+        
+        if (!parent.channelEditPanel.synchronousCheckBox.isSelected())
+        {
+            responseFromTransformer.setEnabled(false);
+            responseFromLabel.setEnabled(false);
+            responseFromTransformer.setSelectedIndex(0);
+        }
+        else
+        {
+            responseFromTransformer.setEnabled(true);
+            responseFromLabel.setEnabled(true);
+        }
                 
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
@@ -463,11 +462,11 @@ public class TCPListener extends ConnectorClass
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel39;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.ButtonGroup keepConnectionOpenGroup;
     private com.webreach.mirth.client.ui.components.MirthTextField listenerAddressField;
     private com.webreach.mirth.client.ui.components.MirthTextField listenerPortField;
     private com.webreach.mirth.client.ui.components.MirthTextField receiveTimeoutField;
+    private javax.swing.JLabel responseFromLabel;
     private com.webreach.mirth.client.ui.components.MirthComboBox responseFromTransformer;
     // End of variables declaration//GEN-END:variables
 

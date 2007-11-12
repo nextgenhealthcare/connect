@@ -1444,6 +1444,13 @@ public class ChannelSetup extends javax.swing.JPanel
         synchronousCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         synchronousCheckBox.setText("Synchronize channel");
         synchronousCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        synchronousCheckBox.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                synchronousCheckBoxActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -1744,6 +1751,23 @@ public class ChannelSetup extends javax.swing.JPanel
             .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 485, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void synchronousCheckBoxActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_synchronousCheckBoxActionPerformed
+    {//GEN-HEADEREND:event_synchronousCheckBoxActionPerformed
+        if (!synchronousCheckBox.isSelected())
+        {
+            boolean disableSynch = parent.alertOption("Disabling synchronization is not recommended for the following reasons:\n" +
+                    "    1) Destinations are not guaranteed to run in order, so they cannot reference each other.\n" +
+                    "    2) Your source cannot send a response from any of the destinations.\n" +
+                    "    3) Your source connector may be modified to to ensure compatibility with requirement #2.\n" +
+                    "Are you sure you want to disable synchronization of your channel?");
+            
+            if (!disableSynch)
+                synchronousCheckBox.setSelected(true);
+        }
+        
+        sourceConnectorClass.updateResponseDropDown();
+    }//GEN-LAST:event_synchronousCheckBoxActionPerformed
 
     private void scriptsComponentShown(java.awt.event.ComponentEvent evt)//GEN-FIRST:event_scriptsComponentShown
     {//GEN-HEADEREND:event_scriptsComponentShown
