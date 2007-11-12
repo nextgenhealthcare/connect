@@ -24,7 +24,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 
-package com.webreach.mirth.util;
+package com.webreach.mirth.server.util;
 
 import java.util.UUID;
 
