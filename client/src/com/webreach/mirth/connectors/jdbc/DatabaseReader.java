@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -52,7 +53,6 @@ import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.DocumentSerializer;
-import com.webreach.mirth.util.UUIDGenerator;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -339,7 +339,7 @@ public class DatabaseReader extends ConnectorClass
 	    	Context context = Context.enter();
 	        try
 	        {
-	            context.compileString("function rhinoDeployWrapper() {" + script + "}", UUIDGenerator.getUUID(), 1, null);
+	            context.compileString("function rhinoDeployWrapper() {" + script + "}", UUID.randomUUID().toString(), 1, null);
 	        }
 	        catch (EvaluatorException e)
 	        {
@@ -362,7 +362,7 @@ public class DatabaseReader extends ConnectorClass
 	    	Context context = Context.enter();
 	        try
 	        {
-	            context.compileString("function rhinoDeployWrapper() {" + onUpdateScript + "}", UUIDGenerator.getUUID(), 1, null);
+	            context.compileString("function rhinoDeployWrapper() {" + onUpdateScript + "}", UUID.randomUUID().toString(), 1, null);
 	        }
 	        catch (EvaluatorException e)
 	        {

@@ -26,6 +26,7 @@
 package com.webreach.mirth.connectors.js;
 
 import java.util.Properties;
+import java.util.UUID;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
@@ -35,7 +36,6 @@ import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.connectors.ConnectorClass;
-import com.webreach.mirth.util.UUIDGenerator;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -154,7 +154,7 @@ public class JavaScriptReader extends ConnectorClass
 	    	Context context = Context.enter();
 	        try
 	        {
-	            context.compileString("function rhinoDeployWrapper() {" + script + "}", UUIDGenerator.getUUID(), 1, null);
+	            context.compileString("function rhinoDeployWrapper() {" + script + "}", UUID.randomUUID().toString(), 1, null);
 	        }
 	        catch (EvaluatorException e)
 	        {

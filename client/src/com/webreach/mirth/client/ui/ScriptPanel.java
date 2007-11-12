@@ -7,6 +7,7 @@
 package com.webreach.mirth.client.ui;
 
 import java.util.Map;
+import java.util.UUID;
 
 import javax.swing.DefaultComboBoxModel;
 
@@ -14,8 +15,6 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
-
-import com.webreach.mirth.util.UUIDGenerator;
 
 /**
  *
@@ -97,7 +96,7 @@ public class ScriptPanel extends javax.swing.JPanel
         Context context = Context.enter();
         try
         {
-            context.compileString("function rhinoDeployWrapper() {" + script + "}", UUIDGenerator.getUUID(), 1, null);
+            context.compileString("function rhinoDeployWrapper() {" + script + "}", UUID.randomUUID().toString(), 1, null);
         }
         catch (EvaluatorException e)
         {
