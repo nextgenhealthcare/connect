@@ -290,6 +290,12 @@ public class Mirth extends Thread {
 
 			// add HTTPS listener
 			SslListener sslListener = new SslListener();
+			
+			String ciphers = PropertyLoader.getProperty(mirthProperties,"https.ciphers");
+			if (ciphers != null && !ciphers.equals("")) {
+				sslListener.setCipherSuites(ciphers.split(","));
+			}
+			
 			sslListener.setPort(Integer.valueOf(PropertyLoader.getProperty(mirthProperties,"https.port")).intValue());
 			sslListener.setKeystore(ConfigurationController.mirthHomeDir + System.getProperty("file.separator") + PropertyLoader.getProperty(mirthProperties, "https.keystore"));
 			sslListener.setPassword(PropertyLoader.getProperty(mirthProperties, "https.password"));
