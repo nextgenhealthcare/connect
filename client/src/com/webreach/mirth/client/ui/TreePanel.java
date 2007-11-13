@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -117,7 +119,45 @@ public class TreePanel extends javax.swing.JPanel
                 filterActionPerformed();
             }
         });
+    }
 
+    private void recursivelyExpandChildren(MirthTreeNode tn)
+    {
+        tree.expandPath(new TreePath(tn.getPath()));
+        Enumeration<TreeNode> children = tn.children();
+        while (children.hasMoreElements())
+        {
+            MirthTreeNode child = (MirthTreeNode) children.nextElement();
+            if (child.getChildCount() > 0)
+                recursivelyExpandChildren(child);
+            tree.expandPath(new TreePath(child.getPath()));
+        }
+    }
+
+    private void recursivelyCollapseChildren(MirthTreeNode tn)
+    {
+        Enumeration<TreeNode> children = tn.children();
+        while (children.hasMoreElements())
+        {
+            MirthTreeNode child = (MirthTreeNode) children.nextElement();
+            if (child.getChildCount() > 0)
+                recursivelyCollapseChildren(child);
+            tree.collapsePath(new TreePath(child.getPath()));
+        }
+    }
+
+    public void setPrefix(String prefix)
+    {
+        _dropPrefix = prefix;
+    }
+
+    public void setSuffix(String suffix)
+    {
+        _dropSuffix = suffix;
+    }
+    
+    public void setupPopupMenu()
+    {
         popupMenu = new JPopupMenu();
         JMenuItem expandAll = new JMenuItem("Expand");
         expandAll.setIcon(new ImageIcon(this.getClass().getResource("images/add.png")));
@@ -170,43 +210,98 @@ public class TreePanel extends javax.swing.JPanel
         });
         popupMenu.add(collapseAll);
 
-    }
-
-    private void recursivelyExpandChildren(MirthTreeNode tn)
-    {
-        tree.expandPath(new TreePath(tn.getPath()));
-        Enumeration<TreeNode> children = tn.children();
-        while (children.hasMoreElements())
+        popupMenu.addSeparator();
+        
+        if (_dropPrefix.equals(MessageTreePanel.MAPPER_PREFIX))
         {
-            MirthTreeNode child = (MirthTreeNode) children.nextElement();
-            if (child.getChildCount() > 0)
-                recursivelyExpandChildren(child);
-            tree.expandPath(new TreePath(child.getPath()));
-        }
-    }
+            JMenuItem mapNode = new JMenuItem("Map to Variable");
+            mapNode.setIcon(new ImageIcon(this.getClass().getResource("images/book_previous.png")));
+            mapNode.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    TreePath path = tree.getSelectionPath();
+                    if (path == null)
+                        return;
+                    TreeNode tp = (TreeNode) path.getLastPathComponent();
+                    if (tp == null)
+                        return;
 
-    private void recursivelyCollapseChildren(MirthTreeNode tn)
-    {
-        Enumeration<TreeNode> children = tn.children();
-        while (children.hasMoreElements())
+                    String variable = "variable";
+                    StringBuilder sb = new StringBuilder();
+                    sb.insert(0, _dropPrefix);
+                    if(tp.isLeaf()) // if not leaf, need to get the text on that node
+                        tp = tp.getParent();
+
+                    Pattern pattern = Pattern.compile(" (\\(.*\\))");
+                    Matcher matcher = pattern.matcher(tp.toString());
+                    if (matcher.find())
+                    {
+                        variable = matcher.group(1);
+                    }
+                    else
+                    {
+                        variable = tp.toString().replaceAll(" \\(.*\\)", "");
+                    }
+
+                    MapperDropData data = new MapperDropData(variable, tree.constructPath(tp).toString());
+                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addMapper(data.getVariable(), data.getMapping());
+                }
+            });
+            popupMenu.add(mapNode);
+        }
+        else if (_dropPrefix.equals(MessageTreePanel.MESSAGE_BUILDER_PREFIX))
         {
-            MirthTreeNode child = (MirthTreeNode) children.nextElement();
-            if (child.getChildCount() > 0)
-                recursivelyCollapseChildren(child);
-            tree.collapsePath(new TreePath(child.getPath()));
+            JMenuItem mapNode = new JMenuItem("Map Segment");
+            mapNode.setIcon(new ImageIcon(this.getClass().getResource("images/book_previous.png")));
+            mapNode.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    TreePath path = tree.getSelectionPath();
+                    if (path == null)
+                        return;
+                    TreeNode tp = (TreeNode) path.getLastPathComponent();
+                    if (tp == null)
+                        return;
+                    
+                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addMessageBuilder(tree.constructPath(tp).toString(), "");
+                }
+            });
+            popupMenu.add(mapNode);
         }
+        
+        JMenuItem ruleNode = new JMenuItem("Filter Segment");
+        ruleNode.setIcon(new ImageIcon(this.getClass().getResource("images/book_previous.png")));
+        ruleNode.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                TreePath path = tree.getSelectionPath();
+                if (path == null)
+                    return;
+                TreeNode tp = (TreeNode) path.getLastPathComponent();
+                if (tp == null)
+                    return;
+                
+                PlatformUI.MIRTH_FRAME.channelEditPanel.filterPane.addNewRule(tree.constructPath(tp).toString());
+            }
+        });
+        popupMenu.add(ruleNode);
     }
-
-    public void setPrefix(String prefix)
+    
+    public void setFilterView()
     {
-        _dropPrefix = prefix;
+        popupMenu.getComponent(3).setVisible(false);
+        popupMenu.getComponent(4).setVisible(true);
     }
-
-    public void setSuffix(String suffix)
+    
+    public void setTransformerView()
     {
-        _dropSuffix = suffix;
+        popupMenu.getComponent(3).setVisible(true);
+        popupMenu.getComponent(4).setVisible(false);
     }
-
+    
     public void setBorderText(String text)
     {
 

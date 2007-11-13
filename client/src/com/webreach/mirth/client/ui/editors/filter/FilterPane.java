@@ -233,7 +233,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         }
 
         tabTemplatePanel.setDefaultComponent();
-        tabTemplatePanel.hideOutbound();
+        tabTemplatePanel.setFilterView();
         
         int rowCount = filterTableModel.getRowCount();
         // select the first row if there is one

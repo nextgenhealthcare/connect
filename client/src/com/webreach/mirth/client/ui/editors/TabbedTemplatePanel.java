@@ -48,16 +48,22 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         variableListScrollPane.setViewportView(variableTable);      
     }
     
-    public void hideOutbound()
+    public void setFilterView()
     {
         messageTreePanel.hideOutbound();
         messageTemplatePanel.hideOutbound();
+        
+        messageTreePanel.getInboundTreePanel().setFilterView();
+        messageTreePanel.getOutboundTreePanel().setFilterView();
     }
     
-    public void showOutbound()
+    public void setTransformerView()
     {
         messageTreePanel.showOutbound();
         messageTemplatePanel.showOutbound();
+        
+        messageTreePanel.getInboundTreePanel().setTransformerView();
+        messageTreePanel.getOutboundTreePanel().setTransformerView();
     }
     
     public void resizePanes()

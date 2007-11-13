@@ -34,9 +34,11 @@ public class MessageTreePanel extends javax.swing.JPanel
         
         treePanelInbound.setPrefix(MAPPER_PREFIX);
         treePanelInbound.setSuffix(MAPPER_SUFFIX);
+        treePanelInbound.setupPopupMenu();
         
         treePanelOutbound.setPrefix(MESSAGE_BUILDER_PREFIX);
         treePanelOutbound.setSuffix(MESSAGE_BUILDER_SUFFIX);
+        treePanelOutbound.setupPopupMenu();
         
         try
         {

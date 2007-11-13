@@ -228,7 +228,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 
         tabTemplatePanel.setDefaultComponent();
 
-        tabTemplatePanel.showOutbound();
+        tabTemplatePanel.setTransformerView();
 
         // select the first row if there is one
         int rowCount = transformerTableModel.getRowCount();
@@ -368,13 +368,13 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                 {
                     Object transferData = tr.getTransferData(TreeTransferable.MAPPER_DATA_FLAVOR);
                     MapperDropData data = (MapperDropData) transferData;
-                    addNewStep(data.getVariable(), data.getMapping(), MAPPER);
+                    addMapper(data.getVariable(), data.getMapping());
                 }
                 else if(messageBuilderTransferData != null)
                 {
                     Object transferData = tr.getTransferData(TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR);
                     MessageBuilderDropData data = (MessageBuilderDropData) transferData;
-                    addNewStep(data.getMessageSegment(), data.getMapping(), MESSAGE_BUILDER);
+                    addMessageBuilder(data.getMessageSegment(), data.getMapping());
                 }
             }
         }
@@ -947,6 +947,11 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
             parent.alertException(e.getStackTrace(), e.getMessage());
         }
     }
+    
+    public void addMapper(String variable, String mapping)
+    {
+        addNewStep(variable, mapping, MAPPER);
+    }    
     
     public void addMessageBuilder(String segment, String mapping)
     {

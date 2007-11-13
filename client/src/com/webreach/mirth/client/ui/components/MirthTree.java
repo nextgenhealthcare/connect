@@ -281,18 +281,19 @@ public class MirthTree extends JXTree implements DropTargetListener
         
     }
     
-    private StringBuilder constructPath(TreeNode node)
+    public StringBuilder constructPath(TreeNode node)
     {
         StringBuilder sb = new StringBuilder();
         sb.insert(0, prefix);
         
-        TreeNode parent = node.getParent();
+        if(node.isLeaf())
+            node = node.getParent();
                       
         LinkedList<String> nodeQ = new LinkedList<String>();
-        while (parent != null)
+        while (node != null)
         {
-            nodeQ.add(parent.toString().replaceAll(" \\(.*\\)", ""));
-            parent = parent.getParent();
+            nodeQ.add(node.toString().replaceAll(" \\(.*\\)", ""));
+            node = node.getParent();
         }
         if (!nodeQ.isEmpty())
             nodeQ.removeLast();
