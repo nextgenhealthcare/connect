@@ -78,6 +78,13 @@ public class FindRplDialog extends javax.swing.JDialog {
             if(position > -1){
                 search_text.select(position,position+search.length());
             }
+            // if we are at the end. wrap and search from start
+            else {
+                position = text.indexOf(search, 0);
+                if(position > -1){
+                    search_text.select(position,position+search.length());
+                }
+            }
         }
     }
     void replace(){
