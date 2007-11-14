@@ -743,6 +743,17 @@ public class ChannelSetup extends javax.swing.JPanel
     }
     
     /**
+     * Update channels scripts
+     */
+    public void updateScripts()
+    {
+        currentChannel.setPreprocessingScript(scripts.getScripts().get(ScriptPanel.PREPROCESSOR_SCRIPT));
+        currentChannel.setDeployScript(scripts.getScripts().get(ScriptPanel.DEPLOY_SCRIPT));
+        currentChannel.setShutdownScript(scripts.getScripts().get(ScriptPanel.SHUTDOWN_SCRIPT));
+        currentChannel.setPostprocessingScript(scripts.getScripts().get(ScriptPanel.POSTPROCESSOR_SCRIPT));
+    }
+    
+    /**
      * Save all of the current channel information in the editor to the actual
      * channel
      */
@@ -777,10 +788,8 @@ public class ChannelSetup extends javax.swing.JPanel
         currentChannel.setName(summaryNameField.getText());
         currentChannel.setDescription(summaryDescriptionText.getText());
         
-        currentChannel.setPreprocessingScript(scripts.getScripts().get(ScriptPanel.PREPROCESSOR_SCRIPT));
-        currentChannel.setDeployScript(scripts.getScripts().get(ScriptPanel.DEPLOY_SCRIPT));
-        currentChannel.setShutdownScript(scripts.getScripts().get(ScriptPanel.SHUTDOWN_SCRIPT));
-        currentChannel.setPostprocessingScript(scripts.getScripts().get(ScriptPanel.POSTPROCESSOR_SCRIPT));
+        updateScripts();
+        
         setLastModified();
         
         // Set the default protocols if transformers have never been visited
@@ -1833,6 +1842,13 @@ public class ChannelSetup extends javax.swing.JPanel
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 8, false);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 9, 11, true);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 12, 12, false);
+        
+        
+        int connectorIndex = getDestinationConnectorIndex((String) destinationTable.getValueAt(destinationTable.getSelectedRow(), getColumnNumber(DESTINATION_COLUMN_NAME)));
+        Connector destinationConnector = currentChannel.getDestinationConnectors().get(connectorIndex);
+        destinationConnector.setProperties(destinationConnectorClass.getProperties());
+        updateScripts();
+        
         sourceConnectorClass.updateResponseDropDown();
         
         // If validation has failed, then highlight any errors on this form.

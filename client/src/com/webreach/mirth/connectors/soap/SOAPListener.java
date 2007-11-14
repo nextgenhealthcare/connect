@@ -27,9 +27,11 @@ package com.webreach.mirth.connectors.soap;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -274,29 +276,45 @@ public class SOAPListener extends ConnectorClass
         
         Channel channel = parent.channelEditPanel.currentChannel;
         
-        ArrayList<String> variables = new ArrayList<String>();
-        
+        Set<String> variables = new LinkedHashSet<String>();
+
         variables.add("None");
-        
+
         List<Step> stepsToCheck = new ArrayList<Step>();
-        stepsToCheck.addAll(channel.getSourceConnector().getTransformer().getSteps());      
-        
-        for(Connector connector : channel.getDestinationConnectors())
+        stepsToCheck.addAll(channel.getSourceConnector().getTransformer().getSteps());
+
+        List<String> scripts = new ArrayList<String>();
+
+        for (Connector connector : channel.getDestinationConnectors())
         {
+            if (connector.getTransportName().equals("Database Writer"))
+            {
+                if (connector.getProperties().getProperty("useScript").equals(UIConstants.YES_OPTION))
+                {
+                    scripts.add(connector.getProperties().getProperty("script"));
+                }
+
+            }
+            else if (connector.getTransportName().equals("JavaScript Writer"))
+            {
+                scripts.add(connector.getProperties().getProperty("script"));
+            }
+
             variables.add(connector.getName());
             stepsToCheck.addAll(connector.getTransformer().getSteps());
-        }       
-               
+        }
+
+        Pattern pattern = Pattern.compile(RESULT_PATTERN);
+
         int i = 0;
         for (Iterator it = stepsToCheck.iterator(); it.hasNext();)
         {
             Step step = (Step) it.next();
             Map data;
             data = (Map) step.getData();
-            
+
             if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE))
             {
-                Pattern pattern = Pattern.compile(RESULT_PATTERN);
                 Matcher matcher = pattern.matcher(step.getScript());
                 while (matcher.find())
                 {
@@ -306,10 +324,26 @@ public class SOAPListener extends ConnectorClass
             }
             else if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE))
             {
-                if(data.containsKey(UIConstants.IS_GLOBAL))
+                if (data.containsKey(UIConstants.IS_GLOBAL))
                 {
                     if (((String) data.get(UIConstants.IS_GLOBAL)).equalsIgnoreCase(UIConstants.IS_GLOBAL_RESPONSE))
-                        variables.add((String)data.get("Variable"));
+                        variables.add((String) data.get("Variable"));
+                }
+            }
+        }
+
+        scripts.add(channel.getPreprocessingScript());
+        scripts.add(channel.getPostprocessingScript());
+
+        for (String script : scripts)
+        {
+            if (script != null && script.length() > 0)
+            {
+                Matcher matcher = pattern.matcher(script);
+                while (matcher.find())
+                {
+                    String key = matcher.group(1);
+                    variables.add(key);
                 }
             }
         }

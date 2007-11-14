@@ -130,7 +130,7 @@ public class ReferenceListFactory
             variablelistItems.add(new ReferenceListItem("Message ID", "The unique id of the message in Mirth", "messageObject.getId()", CodeSnippetType.VARIABLE));
             variablelistItems.add(new ReferenceListItem("Message Protocol", "The message protocol", "messageObject.getProtocol().toString()", CodeSnippetType.VARIABLE));
             variablelistItems.add(new ReferenceListItem("Channel ID", "The message channel id", "messageObject.getChannelId()", CodeSnippetType.VARIABLE));
-            variablelistItems.add(new ReferenceListItem("Iterate Over Segment", "Iterates a segment that repeats in a message.  Replace SEG with your segment name (i.e. OBX)", "for (seg in msg..SEG)\n{\n\tvar sample_value = seg['SEG.1']['SEG.1.1'];\n}\n", CodeSnippetType.FUNCTION));
+            variablelistItems.add(new ReferenceListItem("Iterate Over Segment", "Iterates a segment that repeats in a message.  Replace SEG with your segment name (i.e. OBX)", "for each (seg in msg..SEG)\n{\n\tvar sample_value = seg['SEG.1']['SEG.1.1'];\n}\n", CodeSnippetType.FUNCTION));
             variablelistItems.add(new ReferenceListItem("Delete Segment", "Delete a segment from the message", "delete msg['segment']", CodeSnippetType.FUNCTION));
             variablelistItems.add(new ReferenceListItem("Attachment List", "Get List of Attachments", "DICOMUtil.getMessageAttachments(messageObject)", CodeSnippetType.FUNCTION));
         }
