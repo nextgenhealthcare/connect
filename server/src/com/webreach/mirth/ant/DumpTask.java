@@ -30,6 +30,8 @@ import org.apache.tools.ant.Project;
 
 import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.core.ListHandlerException;
+import com.webreach.mirth.client.core.SystemEventListHandler;
 import com.webreach.mirth.model.filters.SystemEventFilter;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatistics;
@@ -155,7 +157,6 @@ public class DumpTask extends AbstractMirthTask
 	
 	private void commandDumpEvents() throws ClientException 
 	{
-		/*
 		BufferedWriter writer  = null;
 		
 		connectClient();
@@ -164,19 +165,31 @@ public class DumpTask extends AbstractMirthTask
 			
 			File dumpFile = new File( filename );
 			
-			writer = new BufferedWriter( new FileWriter( dumpFile ) );
+			writer = new BufferedWriter( new FileWriter( dumpFile, false ) );
 			
 			writer.write( "Mirth Event Log Dump: " + (new Date()).toString() + "\n" );
 			writer.write( "Id, Event, Date, Description, Level\n" );
 			
-			List<SystemEvent> events = client.getSystemEvents( new SystemEventFilter() );
-			
-			for( Iterator iter = events.iterator(); iter.hasNext(); ) {
-				SystemEvent event = (SystemEvent)iter.next();
-				writer.write( event.getId() + ", " + event.getEvent() + ", " + formatDate( event.getDate() ) + ", " + event.getDescription() + ", " + event.getLevel() + "\n" );
+			SystemEventListHandler eventListHandler = client.getSystemEventListHandler(new SystemEventFilter(), 20, false);
+			try {
+				List<SystemEvent> events = eventListHandler.getFirstPage();
+				
+				while (events.size() != 0) {
+					for (Iterator iter = events.iterator(); iter.hasNext();) {
+						SystemEvent event = (SystemEvent) iter.next();
+						writer.write(event.getId() + ", " + event.getEvent() + ", " + formatDate(event.getDate()) + ", " + event.getDescription() + ", " + event.getLevel() + "\n");
+					}
+					
+					writer.flush();
+					
+					events = eventListHandler.getNextPage();
+				}
+				
+			} catch (ListHandlerException e1) {
+				e1.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			
-			writer.flush();
 			
 			System.out.println( "Events written to " + filename );
 		} 
@@ -194,7 +207,7 @@ public class DumpTask extends AbstractMirthTask
 		}
 		
 		disconnectClient();
-		*/
+		
 	}
 	
 	
