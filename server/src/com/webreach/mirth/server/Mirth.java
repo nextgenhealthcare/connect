@@ -198,7 +198,7 @@ public class Mirth extends Thread {
 		try {
 			configurationFilePath = configurationController.getLatestConfiguration().getAbsolutePath();
 		} catch (Exception e) {
-			logger.warn("Could not retrieve latest configuration.", e);
+			logger.error("Could not retrieve latest configuration.", e);
 			return;
 		}
 
