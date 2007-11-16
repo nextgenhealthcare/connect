@@ -88,6 +88,7 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
 	private String template;
 	private String redeliveryHandler = DefaultRedeliveryHandler.class.getName();
 	private String channelId;
+	private int frequency = 10000;
 
 	public JmsConnector() {
 		receivers = new ConcurrentHashMap();
@@ -126,10 +127,10 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
 			} else {
 				jmsSupport = new Jms11Support(this, jndiContext, jndiDestinations, forceJndiDestinations);
 			}
-			if ((connectionFactory == null) && (connectionFactoryClass == null)) {
+			if ((connectionFactory == null) && (connectionFactoryClass != null)) {
 				connectionFactory = createConnectionFactory();
 			}
-			if (connectionFactoryProperties != null && !connectionFactoryProperties.isEmpty()) {
+			if (connectionFactory != null && connectionFactoryProperties != null && !connectionFactoryProperties.isEmpty()) {
 				// apply connection factory properties
 				BeanUtils.populateWithoutFail(connectionFactory, connectionFactoryProperties, true);
 			}
@@ -164,19 +165,27 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
 
 	protected ConnectionFactory createConnectionFactory() throws InitialisationException, NamingException {
 
-		Object temp = jndiContext.lookup(connectionFactoryJndiName);
-
-		if (temp instanceof ConnectionFactory) {
-			return (ConnectionFactory) temp;
+		if (connectionFactoryClass != null) {
+			try {
+				return (ConnectionFactory) Class.forName(connectionFactoryClass).newInstance();
+			} catch (Exception e) {
+				throw new InitialisationException(e, this);
+			}
 		} else {
-			throw new InitialisationException(new Message(Messages.JNDI_RESOURCE_X_NOT_FOUND, connectionFactoryJndiName), this);
+			Object temp = jndiContext.lookup(connectionFactoryJndiName);
+
+			if (temp instanceof ConnectionFactory) {
+				return (ConnectionFactory) temp;
+			} else {
+				throw new InitialisationException(new Message(Messages.JNDI_RESOURCE_X_NOT_FOUND, connectionFactoryJndiName), this);
+			}
 		}
 	}
 
 	protected Connection createConnection() throws NamingException, JMSException, InitialisationException {
 		Connection connection = null;
 
-		if (connectionFactoryClass != null) {
+		/*if (connectionFactoryClass != null) {
 			try {
 				connectionFactory = (ConnectionFactory) Class.forName(connectionFactoryClass).newInstance();
 			} catch (Exception e) {
@@ -186,7 +195,7 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
 
 		if (connectionFactory == null) {
 			connectionFactory = createConnectionFactory();
-		}
+		}*/
 		if (connectionFactory != null && connectionFactory instanceof XAConnectionFactory) {
 			if (MuleManager.getInstance().getTransactionManager() != null) {
 				connectionFactory = new ConnectionFactoryWrapper(connectionFactory, MuleManager.getInstance().getTransactionManager());
@@ -587,5 +596,13 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
 
 	public void setTemplate(String template) {
 		this.template = template;
+	}
+
+	public int getFrequency() {
+		return frequency;
+	}
+
+	public void setFrequency(int frequency) {
+		this.frequency = frequency;
 	}
 }

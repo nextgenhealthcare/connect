@@ -178,7 +178,7 @@ public class MessageObjectController {
 					}
 				}
 			}
-			
+
             writeMessageToDatabase(messageObject, checkIfMessageExists);
             if (socket != null){
             	messageObject.getChannelMap().put(RECEIVE_SOCKET, socket);

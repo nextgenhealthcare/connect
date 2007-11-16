@@ -76,6 +76,7 @@ public class ChannelController {
                     Channel updatedChannel = ImportConverter.convertChannelObject(channel);
                     PropertyVerifier.checkChannelProperties(updatedChannel);
                     PropertyVerifier.checkConnectorProperties(updatedChannel, extensionController.getConnectorMetaData());
+                    updatedChannel.setVersion(configurationController.getServerVersion());
                     updateChannel(updatedChannel, true);
                 }
 				if (!statisticsController.checkIfStatisticsExist(channel.getId())) {
