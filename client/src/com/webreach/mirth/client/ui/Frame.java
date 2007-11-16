@@ -2472,12 +2472,13 @@ public class Frame extends JXFrame
         try
         {
             String channelName = importChannel.getName();
-            if (!checkChannelName(channelName, mirthClient.getGuid()))
+            importChannel.setId(mirthClient.getGuid());
+            
+            if (!checkChannelName(channelName, importChannel.getId()))
             {
                 if (!alertOption("Would you like to overwrite the existing channel?  Choose 'No' to create a new channel."))
                 {
                     importChannel.setRevision(0);
-                    importChannel.setId(mirthClient.getGuid());
 
                     do
                     {
