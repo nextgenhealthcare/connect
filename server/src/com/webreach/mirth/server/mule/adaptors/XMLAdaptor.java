@@ -11,7 +11,7 @@ import org.xml.sax.InputSource;
 import com.webreach.mirth.model.MessageObject;
 
 public class XMLAdaptor extends Adaptor {
-	protected void populateMessage() throws AdaptorException {
+	protected void populateMessage(boolean emptyFilterAndTransformer) throws AdaptorException {
 		messageObject.setRawDataProtocol(MessageObject.Protocol.XML);
 		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
 		messageObject.setEncodedDataProtocol(MessageObject.Protocol.XML);

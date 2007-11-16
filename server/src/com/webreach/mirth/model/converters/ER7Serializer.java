@@ -155,7 +155,9 @@ public class ER7Serializer implements IXMLSerializer<String> {
 				// The delimiters below need to come from the XML somehow...the
 				// ER7 handler should take care of it
 				// TODO: Ensure you get these elements from the XML
-				ER7XMLHandler handler = new ER7XMLHandler("\r", "|", "^", "&", "~", "\\");
+				String segmentDelimiter = getXMLValue(source, "<MSH.1>",  "</MSH.1>" );
+				//String fieldDelimiter = 
+				ER7XMLHandler handler = new ER7XMLHandler("\r", segmentDelimiter, "^", "&", "~", "\\");
 				XMLReader xr = XMLReaderFactory.createXMLReader();
 				xr.setContentHandler(handler);
 				xr.setErrorHandler(handler);
@@ -227,21 +229,30 @@ public class ER7Serializer implements IXMLSerializer<String> {
 			}
 			return map;
 		} else {
-			source = toXML(source);
-			String sendingFacility = getXMLValue(source, "<MSH.4.1>", "</MSH.4.1>");
-			String event = getXMLValue(source, "<MSH.9.1>", "</MSH.9.1>");
-			String subType = getXMLValue(source, "<MSH.9.2>", "</MSH.9.2>");
-			if (!subType.equals("")) {
-				event += "-" + subType;
-			}
-			if (event.equals("")) {
-				event = "Unknown";
-			}
-			String version = getXMLValue(source, "<MSH.12.1>", "</MSH.12.1>");
-			map.put("version", version);
-			map.put("type", event);
-			map.put("source", sendingFacility);
-			return map;
+			source = source.trim().replaceAll("\n", "\r");
+	        if(source == null || source.length() < 3)
+	        {
+	            logger.error("Unable to parse, message is null or too short: " + source);
+	            throw new SerializerException("Unable to parse, message is null or too short: " + source);
+	        }
+	        String segmentDelim = "\r";
+	        char fieldDelim = source.charAt(3);
+	        char elementDelim = source.charAt(4);
+	        String mshFields[] = source.trim().split(segmentDelim)[0].split("\\" + fieldDelim);
+	        String event = mshFields[8];
+	        int subTypeLocation = event.indexOf(elementDelim);
+	        if(subTypeLocation > 0)
+	        {
+	            String subType = event.substring(subTypeLocation + 1);
+	            event = event.substring(0, subTypeLocation);
+	            event = event + "-" + subType;
+	        }
+	        if(event.equals(""))
+	            event = "Unknown";
+	        map.put("version", mshFields[3]);
+	        map.put("type", event);
+	        map.put("source", mshFields[3]);
+	        return map;
 		}
 	}
 

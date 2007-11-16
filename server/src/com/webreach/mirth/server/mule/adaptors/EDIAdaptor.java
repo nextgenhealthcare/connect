@@ -7,7 +7,7 @@ import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.model.converters.SerializerFactory;
 
 public class EDIAdaptor extends Adaptor {
-	protected void populateMessage() throws AdaptorException {
+	protected void populateMessage(boolean emptyFilterAndTransformer) throws AdaptorException {
 
 		messageObject.setRawDataProtocol(MessageObject.Protocol.EDI);
 		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);

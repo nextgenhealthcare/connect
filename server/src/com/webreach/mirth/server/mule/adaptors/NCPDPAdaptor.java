@@ -14,7 +14,7 @@ import com.webreach.mirth.model.converters.SerializerFactory;
  * To change this template use File | Settings | File Templates.
  */
 public class NCPDPAdaptor extends Adaptor {
-	protected void populateMessage() throws AdaptorException {
+	protected void populateMessage(boolean emptyFilterAndTransformer) throws AdaptorException {
 
 		messageObject.setRawDataProtocol(MessageObject.Protocol.NCPDP);
 		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);

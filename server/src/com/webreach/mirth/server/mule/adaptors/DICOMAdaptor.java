@@ -19,7 +19,7 @@ import java.util.Iterator;
  * To change this template use File | Settings | File Templates.
  */
 public class DICOMAdaptor extends Adaptor {
-    protected void populateMessage() throws AdaptorException {
+    protected void populateMessage(boolean emptyFilterAndTransformer) throws AdaptorException {
 
         messageObject.setRawDataProtocol(MessageObject.Protocol.DICOM);
         messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);

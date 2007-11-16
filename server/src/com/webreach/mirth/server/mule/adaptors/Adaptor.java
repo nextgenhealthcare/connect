@@ -23,22 +23,23 @@ public abstract class Adaptor {
 	protected Map properties;
 	protected IXMLSerializer<String> serializer;
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-    private ConfigurationController configurationController = ConfigurationController.getInstance();
-    private AlertController alertController = AlertController.getInstance();
-	public MessageObject getMessage(String source, String channelId, boolean encryptData, Map properties) throws AdaptorException {
+	private ConfigurationController configurationController = ConfigurationController.getInstance();
+	private AlertController alertController = AlertController.getInstance();
+
+	public MessageObject getMessage(String source, String channelId, boolean encryptData, Map properties, boolean emptyFilterAndTransformer) throws AdaptorException {
 		this.source = source;
-        this.properties = properties;
-        this.serializer = getSerializer(properties);
+		this.properties = properties;
+		this.serializer = getSerializer(properties);
 		messageObject = new MessageObject();
 		messageObject.setId(UUIDGenerator.getUUID());
-        messageObject.setServerId(configurationController.getServerId());
+		messageObject.setServerId(configurationController.getServerId());
 		messageObject.setChannelId(channelId);
 		messageObject.setDateCreated(Calendar.getInstance());
 		messageObject.setConnectorName("Source");
 		messageObject.setEncrypted(encryptData);
 		messageObject.setRawData(source);
 
-		populateMessage();
+		populateMessage(emptyFilterAndTransformer);
 
 		messageObject.setStatus(MessageObject.Status.RECEIVED);
 		// messageObjectController.updateMessage(messageObject);
@@ -47,16 +48,17 @@ public abstract class Adaptor {
 
 	/**
 	 * Converts a message for destination transformers
-	 * @throws  
+	 * 
+	 * @throws
 	 */
-	public MessageObject convertMessage(MessageObject incomingMessageObject, String connectorName, String channelId, boolean encryptData, Map properties) throws AdaptorException {
-		//The source is the encoded data
+	public MessageObject convertMessage(MessageObject incomingMessageObject, String connectorName, String channelId, boolean encryptData, Map properties, boolean emptyFilterAndTransformer) throws AdaptorException {
+		// The source is the encoded data
 		this.messageObject = messageObjectController.cloneMessageObjectForBroadcast(incomingMessageObject, connectorName);
 		this.source = this.messageObject.getRawData();
-        this.properties = properties;
-        this.serializer = getSerializer(properties);
-		populateMessage();
-		doConvertMessage();
+		this.properties = properties;
+		this.serializer = getSerializer(properties);
+		populateMessage(emptyFilterAndTransformer);
+		doConvertMessage(emptyFilterAndTransformer);
 		this.messageObject.setStatus(MessageObject.Status.RECEIVED);
 		return this.messageObject;
 	}
@@ -67,13 +69,22 @@ public abstract class Adaptor {
 		alertController.sendAlerts(messageObject.getChannelId(), Constants.ERROR_301, "Error adapting message", e);
 		throw new AdaptorException(e);
 	}
-	protected void populateMetadataFromXML(String source) throws SerializerException{
+
+	protected void populateMetadataFromXML(String source) throws SerializerException {
 		Map<String, String> metadata = serializer.getMetadataFromXML(source);
 		messageObject.setType(metadata.get("type"));
 		messageObject.setVersion(metadata.get("version"));
 		messageObject.setSource(metadata.get("source"));
 	}
-	protected MessageObject doConvertMessage() throws AdaptorException {
+
+	protected void populateMetadataFromEncoded(String source) throws SerializerException {
+		Map metadata = serializer.getMetadataFromEncoded(source);
+		messageObject.setType((String) metadata.get("type"));
+		messageObject.setVersion((String) metadata.get("version"));
+		messageObject.setSource((String) metadata.get("source"));
+	}
+
+	protected MessageObject doConvertMessage(boolean emptyFilterAndTransformer) throws AdaptorException {
 		return messageObject;
 	}
 
@@ -81,6 +92,6 @@ public abstract class Adaptor {
 		return new DefaultXMLSerializer();
 	}
 
-	protected abstract void populateMessage() throws AdaptorException;
+	protected abstract void populateMessage(boolean flag) throws AdaptorException;
 
 }
