@@ -1108,13 +1108,12 @@ public class Shell {
 		}
 
 		String channelName = importChannel.getName();
+		importChannel.setId(client.getGuid());
 		
-		if (!checkChannelName(channelName, client.getGuid())) {
+		if (!checkChannelName(channelName, importChannel.getId())) {
 			if (!force) {
-				channelName = client.getGuid();
 				importChannel.setRevision(0);
-                importChannel.setId(channelName);
-                importChannel.setName(channelName);
+                importChannel.setName(importChannel.getId());
 			} else {
         		for (Channel channel : client.getChannel(null)) {
                     if (channel.getName().equalsIgnoreCase(channelName)) {

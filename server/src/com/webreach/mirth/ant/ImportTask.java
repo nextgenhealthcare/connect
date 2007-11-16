@@ -263,10 +263,12 @@ public class ImportTask extends AbstractMirthTask
 		}
 		
 		String channelName = importChannel.getName();
+		importChannel.setId(client.getGuid());
 		
-		if( !checkChannelName( channelName, client.getGuid() ) ) {
+		if( !checkChannelName( channelName, importChannel.getId() ) ) {
 			if( !force ) {
-				throw( new BuildException( "Channel already exists: " + importChannel.getName() ) );
+				importChannel.setRevision(0);
+                importChannel.setName(importChannel.getId());
 			} else {
 				for( Channel channel : client.getChannel( null ) ) {
 					if( channel.getName().equalsIgnoreCase( channelName ) ) {
@@ -285,20 +287,50 @@ public class ImportTask extends AbstractMirthTask
 	
 	public boolean checkChannelName( String name, String id ) throws ClientException 
 	{
-		boolean ret = true;
-		
-		if( name.equals( "" ) ) {
-			ret = false;
-		} else {
-			for( Channel channel : client.getChannel( null ) ) {
-				if( channel.getName().equalsIgnoreCase( name ) && !channel.getId().equals( id ) ) {
-					ret = false;
-					break;
-				}
-			}
-		}
-		
-		return( ret );
+        if (name.equals(""))
+        {
+        	System.out.println("Channel name cannot be empty.");
+            return false;
+        }
+
+        if(name.length() > 40)
+        {
+        	System.out.println("Channel name cannot be longer than 40 characters.");
+            return false;
+        }
+
+        // Following code copied from MirthFieldConstaints, must be the same to check for valid channel names the same way.
+        char[] chars = name.toCharArray();
+        for (char c : chars)
+        {
+            int cVal = (int)c;
+            if ((cVal < 65 || cVal > 90) && (cVal < 97 || cVal > 122) && (cVal != 32) && (cVal != 45) && (cVal != 95))
+            {
+                try
+                {
+                    if (Double.isNaN(Double.parseDouble(c + "")))
+                    {
+                    	System.out.println("Channel name cannot have special characters besides hyphen, underscore, and space.");
+                        return false;
+                    }
+                }
+                catch (Exception e)
+                {
+                	System.out.println("Channel name cannot have special characters besides hyphen, underscore, and space.");
+                    return false;
+                }
+            }
+        }
+
+        for (Channel channel : client.getChannel(null))
+        {
+            if (channel.getName().equalsIgnoreCase(name) && !channel.getId().equals(id))
+            {
+            	System.out.println("Channel \"" + name + "\" already exists.");
+                return false;
+            }
+        }
+        return true;
 	}
 	
 	
