@@ -41,11 +41,10 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
     
     private JPopupMenu rightclickPopup;
 
-    private ImageIcon greenBullet;      //  CONNECTED
+    private ImageIcon greenBullet;      //  CONNECTED and DONE
     private ImageIcon yellowBullet;     //  BUSY
     private ImageIcon redBullet;        //  DISCONNECTED
     private ImageIcon blueBullet;       //  INITIALIZED
-    private ImageIcon blackBullet;      //  DONE
 
     private static final String NO_CHANNEL_SELECTED = "No Channel Selected";
     private String selectedChannel;
@@ -64,7 +63,6 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
         yellowBullet = new ImageIcon(Frame.class.getResource("images/bullet_yellow.png"));
         redBullet = new ImageIcon(Frame.class.getResource("images/bullet_red.png"));
         blueBullet = new ImageIcon(Frame.class.getResource("images/bullet_blue.png"));
-        blackBullet = new ImageIcon(Frame.class.getResource("images/bullet_black.png"));
 
         channelStates.put(NO_CHANNEL_SELECTED, RESUMED);
 
@@ -242,7 +240,7 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
                 tableData[i][2] = channelLogs.get(i)[2];       // Timestamp
                 tableData[i][3] = channelLogs.get(i)[3];       // Connector Info
 
-                // Event State - INITIALIZED (blue), CONNECTED (green), BUSY (yellow), DONE (black), DISCONNECTED (red)
+                // Event State - INITIALIZED (blue), CONNECTED (green), BUSY (yellow), DONE (green), DISCONNECTED (red)
                 if (channelLogs.get(i)[4].equalsIgnoreCase("INITIALIZED"))
                     tableData[i][4] = new CellData(blueBullet, "Initialized");
                 else if (channelLogs.get(i)[4].equalsIgnoreCase("CONNECTED"))
@@ -250,7 +248,7 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
                 else if (channelLogs.get(i)[4].equalsIgnoreCase("BUSY"))
                     tableData[i][4] = new CellData(yellowBullet, "Busy");
                 else if (channelLogs.get(i)[4].equalsIgnoreCase("DONE"))
-                    tableData[i][4] = new CellData(blackBullet, "Done");
+                    tableData[i][4] = new CellData(greenBullet, "Done");
                 else if (channelLogs.get(i)[4].equalsIgnoreCase("DISCONNECTED"))
                     tableData[i][4] = new CellData(redBullet, "Disconnected");
 
