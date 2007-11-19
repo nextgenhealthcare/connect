@@ -44,8 +44,8 @@ import org.w3c.dom.NodeList;
 
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.ConnectorMetaData;
+import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
@@ -68,8 +68,7 @@ public class MuleConfigurationBuilder {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private List<Channel> channels = null;
 	private Map<String, ConnectorMetaData> transports = null;
-	private JavaScriptFilterBuilder filterBuilder = new JavaScriptFilterBuilder();
-	private JavaScriptTransformerBuilder transformerBuilder = new JavaScriptTransformerBuilder();
+	private JavaScriptBuilder scriptBuilder = new JavaScriptBuilder();
 	private ScriptController scriptController = ScriptController.getInstance();
 
 	public MuleConfigurationBuilder(List<Channel> channels, Map<String, ConnectorMetaData> transports) {
@@ -95,17 +94,17 @@ public class MuleConfigurationBuilder {
 
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(muleBootstrapFile);
 			Element muleConfigurationElement = document.getDocumentElement();
-			
+
 			// set the server address
 			Element agentsElement = (Element) muleConfigurationElement.getElementsByTagName("agents").item(0);
 			NodeList agents = (NodeList) agentsElement.getElementsByTagName("agent");
 			String port = PropertyLoader.getProperty(properties, "jmx.port");
-			
+
 			for (int i = 0; i < agents.getLength(); i++) {
 				Element agent = (Element) agents.item(i);
 				Element agentProperties = (Element) agent.getElementsByTagName("properties").item(0);
 				Element propertyElement = document.createElement("property");
-				
+
 				if (agent.getAttribute("name").toLowerCase().equals("rmi")) {
 					propertyElement.setAttribute("name", "serverUri");
 					propertyElement.setAttribute("value", "rmi://localhost:" + port);
@@ -113,16 +112,16 @@ public class MuleConfigurationBuilder {
 					propertyElement.setAttribute("name", "connectorServerUrl");
 					propertyElement.setAttribute("value", "service:jmx:rmi:///jndi/rmi://localhost:" + port + "/server");
 				}
-				
+
 				agentProperties.appendChild(propertyElement);
 			}
-			
+
 			// set the Mule working directory
 			String muleQueue = PropertyLoader.getProperty(properties, "mule.queue");
 			muleQueue = StringUtils.replace(muleQueue, "${mirthHomeDir}", ConfigurationController.mirthHomeDir);
 			Element muleEnvironmentPropertiesElement = (Element) muleConfigurationElement.getElementsByTagName("mule-environment-properties").item(0);
 			muleEnvironmentPropertiesElement.setAttribute("workingDirectory", muleQueue);
-			
+
 			Element modelElement = (Element) muleConfigurationElement.getElementsByTagName("model").item(0);
 
 			// create descriptors
@@ -289,55 +288,60 @@ public class MuleConfigurationBuilder {
 
 			for (ListIterator iterator = channel.getDestinationConnectors().listIterator(); iterator.hasNext();) {
 				Connector connector = (Connector) iterator.next();
-				
-				if (connector.isEnabled()) {	
+
+				if (connector.isEnabled()) {
 					Element endpointElement = document.createElement("endpoint");
 					endpointElement.setAttribute("address", getEndpointUri(connector));
-	
-					// if there are multiple endpoints, make them all synchronous to
+
+					// if there are multiple endpoints, make them all
+					// synchronous to
 					// ensure correct ordering of fired events
 					if (channel.getDestinationConnectors().size() > 0) {
 						endpointElement.setAttribute("synchronous", "true");
 						routerElement.setAttribute("synchronous", "true");
 					}
-	
+
 					// ast: now, a funciont gets the connection reference string
-					// String connectorReference = channel.getId() + "_destination_"
+					// String connectorReference = channel.getId() +
+					// "_destination_"
 					// + String.valueOf(iterator.nextIndex());
 					String connectorReference = getConnectorReferenceForOutputRouter(channel, String.valueOf(iterator.nextIndex()));
-	
+
 					// add the destination connector
 					// ast: changes to get the same name for the connector and
 					String connectorName = getConnectorNameForOutputRouter(connectorReference);
 					addConnector(document, configurationElement, connector, connectorName, channel.getId());
 					endpointElement.setAttribute("connector", connectorName);
-	
+
 					StringBuilder transformers = new StringBuilder();
-	
-					// 1. append the JavaScriptTransformer that does the mappings
+
+					// 1. append the JavaScriptTransformer that does the
+					// mappings
 					addTransformer(document, configurationElement, channel, connector, connectorReference + "_transformer");
 					transformers.append(connectorReference + "_transformer" + " ");
-	
-					// 2. finally, append any transformers needed by the transport
+
+					// 2. finally, append any transformers needed by the
+					// transport
 					// (ie. StringToByteArray)
 					ConnectorMetaData transport = transports.get(connector.getTransportName());
-	
+
 					if (transport.getTransformers() != null) {
-						transformers.append(transport.getTransformers());	
+						transformers.append(transport.getTransformers());
 					}
-	
-					// enable transactions for the outbount router only if it has a
+
+					// enable transactions for the outbount router only if it
+					// has a
 					// JDBC connector
 					if (transport.getProtocol().equals("jdbc")) {
 						enableTransactions = true;
 					}
-	
+
 					// 3. add the transformer sequence as an attribute to the
 					// endpoint if not empty
 					if (!transformers.toString().trim().equals("")) {
 						endpointElement.setAttribute("transformers", transformers.toString().trim());
 					}
-	
+
 					routerElement.appendChild(endpointElement);
 				}
 			}
@@ -399,7 +403,7 @@ public class MuleConfigurationBuilder {
 				TemplateController templateController = TemplateController.getInstance();
 				IXMLSerializer<String> serializer = AdaptorFactory.getAdaptor(transformer.getOutboundProtocol()).getSerializer(transformer.getOutboundProperties());
 				String templateId = UUIDGenerator.getUUID();
-				
+
 				if (transformer.getOutboundTemplate().length() > 0) {
 					templateController.putTemplate(templateId, serializer.toXML(transformer.getOutboundTemplate()));
 				}
@@ -407,17 +411,12 @@ public class MuleConfigurationBuilder {
 				properties.put("templateId", templateId);
 			}
 
-			// put the filter script in the scripts table
-			String filterScriptId = UUIDGenerator.getUUID();
-			scriptController.putScript(filterScriptId, filterBuilder.getScript(connector.getFilter(), channel));
-			properties.put("filterScriptId", filterScriptId);
-
-			// put the transformer script in the scripts table
-			String transformerScriptId = UUIDGenerator.getUUID();
-			scriptController.putScript(transformerScriptId, transformerBuilder.getScript(transformer, channel));
-			properties.put("transformerScriptId", transformerScriptId);
+			// put the script in the scripts table
+			String scriptId = UUIDGenerator.getUUID();
+			scriptController.putScript(scriptId, scriptBuilder.getScript(channel, connector.getFilter(), transformer));
+			properties.put("scriptId", scriptId);
 			properties.put("connectorName", connector.getName());
-			
+
 			Element propertiesElement = getProperties(document, properties, null);
 
 			if (transformer.getInboundProperties() != null && transformer.getInboundProperties().size() > 0) {

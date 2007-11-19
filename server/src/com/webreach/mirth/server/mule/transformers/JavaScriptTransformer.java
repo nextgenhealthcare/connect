@@ -29,7 +29,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
-import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.RhinoException;
 import org.mozilla.javascript.Script;
@@ -40,7 +39,6 @@ import org.mule.umo.UMOEventContext;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.transformer.TransformerException;
 
-import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Connector.Mode;
 import com.webreach.mirth.model.MessageObject.Protocol;
@@ -49,7 +47,6 @@ import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.MirthJavascriptTransformerException;
 import com.webreach.mirth.server.builders.ErrorMessageBuilder;
 import com.webreach.mirth.server.controllers.AlertController;
-import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.ScriptController;
@@ -77,53 +74,12 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	private String connectorName;
 	private boolean encryptData;
 	private boolean removeNamespace;
-	private String transformerScriptId;
-	private String filterScriptId;
+	private String scriptId;
 	private String templateId;
 	private String mode;
 	private String template;
 	private static ScriptableObject sealedSharedScope;
-	private Scriptable currentScope;
 	private boolean emptyFilterAndTransformer;
-
-	public static Context getContext() {
-		Context context = Context.enter();
-
-		if (sealedSharedScope == null) {
-			String importScript = getJavascriptImportScript();
-			sealedSharedScope = new ImporterTopLevel(context);
-			JavaScriptScopeUtil.buildScope(sealedSharedScope);
-			Script script = context.compileString(importScript, UUIDGenerator.getUUID(), 1, null);
-			script.exec(context, sealedSharedScope);
-			sealedSharedScope.sealObject();
-		}
-
-		return context;
-	}
-
-	public static String getJavascriptImportScript() {
-		StringBuilder script = new StringBuilder();
-		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
-		script.append("importPackage(Packages.com.webreach.mirth.model.converters);\n");
-		script.append("regex = new RegExp('');\n");
-		script.append("xml = new XML('');\n");
-		script.append("xmllist = new XMLList();\n");
-		script.append("namespace = new Namespace();\n");
-		script.append("qname = new QName();\n");
-		// ast: Allow ending whitespaces from the input XML
-		script.append("XML.ignoreWhitespace=false;");
-		// ast: Allow ending whitespaces to the output XML
-		script.append("XML.prettyPrinting=false;");
-		return script.toString();
-
-	}
-
-	public Scriptable getScope() {
-		Scriptable scope = getContext().newObject(sealedSharedScope);
-		scope.setPrototype(sealedSharedScope);
-		scope.setParentScope(null);
-		return scope;
-	}
 
 	public String getChannelId() {
 		return this.channelId;
@@ -181,362 +137,12 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		this.removeNamespace = removeNamespace;
 	}
 
-	public String getFilterScriptId() {
-		return this.filterScriptId;
+	public String getScriptId() {
+		return this.scriptId;
 	}
 
-	public void setFilterScriptId(String filterScriptId) {
-		this.filterScriptId = filterScriptId;
-	}
-
-	public String getTransformerScriptId() {
-		return this.transformerScriptId;
-	}
-
-	public void setTransformerScriptId(String transformerScriptId) {
-		this.transformerScriptId = transformerScriptId;
-	}
-
-	public String getTemplateId() {
-		return this.templateId;
-	}
-
-	public void setTemplateId(String templateId) {
-		this.templateId = templateId;
-		// grab the template
-		if (templateId != null) {
-			try {
-				this.template = templateController.getTemplate(templateId);
-			} catch (ControllerException e) {
-				logger.error(errorBuilder.buildErrorMessage(Constants.ERROR_300, null, e));
-			}
-		}
-	}
-
-	@Override
-	public void initialise() throws InitialisationException {
-		Context context = getContext();
-		String currentContext = "Filter";
-		try {
-			// Scripts are not compiled is they are blank or do not exist in the
-			// database. Note that in Oracle, a blank script is the same as a
-			// NULL script.
-			String filterScript = scriptController.getScript(filterScriptId);
-			boolean emptyFilter = true;
-			if ((filterScript != null) && (filterScript.length() > 0)) {
-				emptyFilter = false;
-				String generatedFilterScript = generateFilterScript(filterScript);
-				logger.debug("compiling filter script");
-				Script compiledFilterScript = context.compileString(generatedFilterScript, filterScriptId, 1, null);
-				compiledScriptCache.putCompiledScript(filterScriptId, compiledFilterScript);
-			}
-			currentContext = "Transformer";
-			String transformerScript = scriptController.getScript(transformerScriptId);
-			boolean emptyTransformer = true;
-			if ((transformerScript != null) && (transformerScript.length() > 0)) {
-				emptyTransformer = false;
-				String generatedTransformerScript = generateTransformerScript(transformerScript);
-				logger.debug("compiling transformer script");
-				Script compiledTransformerScript = context.compileString(generatedTransformerScript, transformerScriptId, 1, null);
-				compiledScriptCache.putCompiledScript(transformerScriptId, compiledTransformerScript);
-			}
-			emptyFilterAndTransformer = emptyFilter && emptyTransformer;
-		} catch (Exception e) {
-			if (e instanceof RhinoException) {
-				e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 5, currentContext);
-			}
-			logger.error(errorBuilder.buildErrorMessage(Constants.ERROR_300, null, e));
-			throw new InitialisationException(e, this);
-		}
-	}
-
-	@Override
-	public Object transform(Object source, UMOEventContext context) throws TransformerException {
-		MessageObject messageObject = null;
-		try {
-			Script filterScript = compiledScriptCache.getCompiledScript(filterScriptId);
-			boolean emptyFilter = true;
-			if (filterScript != null) {
-				emptyFilter = false;
-			}
-			Script transformerScript = compiledScriptCache.getCompiledScript(transformerScriptId);
-			boolean emptyTransformer = true;
-			if (transformerScript != null) {
-				emptyTransformer = false;
-			}
-			emptyFilterAndTransformer = emptyFilter && emptyTransformer;
-			// ---- Begin MO checks -----
-			if (this.getMode().equals(Mode.SOURCE.toString())) {
-
-				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(inboundProtocol));
-				messageObject = adaptor.getMessage((String) source, channelId, encryptData, inboundProperties, emptyFilterAndTransformer);
-				// Load properties from the context to the messageObject
-				messageObject.getChannelMap().putAll(context.getProperties());
-
-			} else if (this.getMode().equals(Mode.DESTINATION.toString())) {
-				MessageObject incomingMessageObject = (MessageObject) source;
-				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(inboundProtocol));
-				messageObject = adaptor.convertMessage(incomingMessageObject, this.getConnectorName(), channelId, encryptData, inboundProperties, emptyFilterAndTransformer);
-				messageObject.setEncodedDataProtocol(Protocol.valueOf(this.outboundProtocol));
-			}
-		} catch (Exception e) {
-			alertController.sendAlerts(channelId, Constants.ERROR_301, null, e);
-			throw new TransformerException(this, e);
-		}
-		// ---- End MO checks -----
-
-		boolean messageAccepted = false;
-
-		try {
-			// if the message passes the filter, run the transformation script
-			messageAccepted = evaluateFilterScript(messageObject);
-		} catch (Exception e) {
-			alertController.sendAlerts(channelId, Constants.ERROR_200, null, e);
-			throw new TransformerException(this, e);
-		}
-
-		try {
-			if (messageAccepted) {
-				MessageObject transformedMessageObject = evaluateTransformerScript(messageObject);
-
-				if (this.getMode().equals(Mode.SOURCE.toString())) {
-					// only update on the source - it doesn't matter on each
-					// destination
-					messageObjectController.updateMessage(transformedMessageObject, false);
-				}
-				return transformedMessageObject;
-
-			} else {
-				messageObjectController.setFiltered(messageObject, "Message has been filtered");
-				return messageObject;
-			}
-		} catch (Exception e) {
-			// send alert if the transformation process fails
-			alertController.sendAlerts(channelId, Constants.ERROR_300, null, e);
-			throw new TransformerException(this, e);
-		}
-	}
-
-	private boolean evaluateFilterScript(MessageObject messageObject) throws TransformerException {
-		Logger scriptLogger = Logger.getLogger("filter");
-		if (emptyFilterAndTransformer) {
-			messageObject.setStatus(com.webreach.mirth.model.MessageObject.Status.ACCEPTED);
-			return true;
-		}
-		boolean flag;
-		try {
-
-			Context context = getContext();
-			Scriptable scope = getScope();
-
-			// load variables in JavaScript scope
-			JavaScriptScopeUtil.addMessageObject(scope, messageObject);
-			JavaScriptScopeUtil.addLogger(scope, scriptLogger);
-			JavaScriptScopeUtil.addChannel(scope, channelId);
-			JavaScriptScopeUtil.addGlobalMap(scope);
-			// get the script from the cache and execute it
-			Script compiledScript = compiledScriptCache.getCompiledScript(filterScriptId);
-			Object result = null;
-			boolean messageAccepted;
-
-			if (compiledScript == null) {
-				logger.debug("filter script could not be found in cache");
-				messageAccepted = true;
-			} else {
-				result = compiledScript.exec(context, scope);
-				messageAccepted = ((Boolean) Context.jsToJava(result, java.lang.Boolean.class)).booleanValue();
-			}
-
-			if (messageAccepted) {
-				messageObject.setStatus(MessageObject.Status.ACCEPTED);
-			}
-
-			flag = messageAccepted;
-
-		} catch (Exception e) {
-			if (e instanceof RhinoException) {
-				e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 5, "Filter");
-			}
-			messageObjectController.setError(messageObject, Constants.ERROR_200, "Error evaluating filter", e);
-			throw new TransformerException(this, e);
-		} finally {
-			Context.exit();
-		}
-		Context.exit();
-		return flag;
-	}
-
-	private MessageObject evaluateTransformerScript(MessageObject messageObject) throws TransformerException {
-		Logger scriptLogger = Logger.getLogger(getMode().toLowerCase() + "-transformer");
-		if(emptyFilterAndTransformer)
-		{
-			messageObject.setStatus(com.webreach.mirth.model.MessageObject.Status.TRANSFORMED);
-			return messageObject;
-		}
-		try {
-			
-			Context context = getContext();
-			Scriptable scope = getScope();
-			// load variables in JavaScript scope
-			JavaScriptScopeUtil.addMessageObject(scope, messageObject);
-			JavaScriptScopeUtil.addLogger(scope, scriptLogger);
-			JavaScriptScopeUtil.addChannel(scope, channelId);
-			JavaScriptScopeUtil.addGlobalMap(scope);
-			scope.put("template", scope, template);
-
-			// TODO: have function list provide all serializers - maybe we
-			// import a top level package or create a helper class
-			// TODO: this is going to break backwards compatability
-			// scope.put("serializer", scope,
-			// SerializerFactory.getSerializer(Protocol.valueOf(inboundProtocol),
-			// this.get));
-
-			// get the script from the cache and execute it
-			Script compiledScript = compiledScriptCache.getCompiledScript(transformerScriptId);
-
-			if (compiledScript == null) {
-				logger.debug("transformer script could not be found in cache");
-			} else {
-				compiledScript.exec(context, scope);
-			}
-
-			// TODO: Check logic here
-			Object transformedData;
-			Protocol encodedDataProtocol;
-			Map encodedDataProperties;
-
-			if (template != null && template.length() > 0) {
-				transformedData = scope.get("tmp", scope);
-				encodedDataProtocol = Protocol.valueOf(this.getOutboundProtocol());
-				encodedDataProperties = this.getOutboundProperties();
-			} else {
-				if (this.getInboundProtocol().equals(Protocol.XML.toString()) && !this.getOutboundProtocol().equals(Protocol.XML.toString())) {
-					// we don't have a template and we have XML coming in, let's
-					// convert it
-					transformedData = scope.get("msg", scope);
-					encodedDataProtocol = Protocol.valueOf(this.getOutboundProtocol());
-					encodedDataProperties = this.getOutboundProperties();
-				} else {
-					transformedData = scope.get("msg", scope);
-					encodedDataProtocol = Protocol.valueOf(this.getInboundProtocol());
-					encodedDataProperties = this.getInboundProperties();
-				}
-			}
-
-			if (transformedData != Scriptable.NOT_FOUND) {
-				// set the transformedData to the template
-				// We replace all here because we do not want pretty-printed XML
-				messageObject.setTransformedData(context.toString(transformedData));
-			}
-
-			if ((messageObject.getTransformedData() != null)) {
-				IXMLSerializer<String> serializer = AdaptorFactory.getAdaptor(encodedDataProtocol).getSerializer(encodedDataProperties);
-				messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
-				messageObject.setEncodedDataProtocol(encodedDataProtocol);
-			}
-
-			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
-			return messageObject;
-		} catch (Exception e) {
-			if (e instanceof RhinoException) {
-				e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 5, "Transformer");
-			}
-			messageObjectController.setError(messageObject, Constants.ERROR_300, "Error evaluating transformer", e);
-			throw new TransformerException(this, e);
-		} finally {
-			Context.exit();
-		}
-	}
-
-	private String generateFilterScript(String filterScript) {
-		logger.debug("generating filter script");
-
-		StringBuilder script = new StringBuilder();
-		script.append("default xml namespace = '';\n");
-		script.append("function $(string) { ");
-		script.append("if (connectorMap.containsKey(string)) { return connectorMap.get(string);} else ");
-		script.append("if (channelMap.containsKey(string)) { return channelMap.get(string);} else ");
-		script.append("if (globalMap.containsKey(string)) { return globalMap.get(string);} else ");
-		script.append("{ return ''; }}");
-		script.append("function $g(key, value){");
-		script.append("if (arguments.length == 1){return globalMap.get(key); }");
-		script.append("else if (arguments.length == 2){globalMap.put(key, value); }}");
-		script.append("function $c(key, value){");
-		script.append("if (arguments.length == 1){return channelMap.get(key); }");
-		script.append("else if (arguments.length == 2){channelMap.put(key, value); }}");
-		script.append("function $co(key, value){");
-		script.append("if (arguments.length == 1){return connectorMap.get(key); }");
-		script.append("else if (arguments.length == 2){connectorMap.put(key, value); }}");
-		script.append("function $r(key, value){");
-		script.append("if (arguments.length == 1){return responseMap.get(key); }");
-		script.append("else if (arguments.length == 2){responseMap.put(key, value); }}");
-
-		script.append("function doFilter() {");
-		// ast: Allow ending whitespaces from the input XML
-		script.append("XML.ignoreWhitespace=false;");
-		// ast: Allow ending whitespaces to the output XML
-		script.append("XML.prettyPrinting=false;");
-		if (removeNamespace) {
-			script.append("var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
-		} else {
-			script.append("var newMessage = message;\n");
-		}
-
-		script.append("msg = new XML(newMessage);\n\n\n");
-
-		script.append(filterScript + " }\n");
-		script.append("doFilter()\n");
-		return script.toString();
-	}
-
-	private String generateTransformerScript(String transformerScript) {
-		logger.debug("generator transformer script");
-		StringBuilder script = new StringBuilder();
-		// script used to check for exitence of segment
-		script.append("function validate(mapping, defaultValue, replacement) { var result; if (mapping != undefined) {result = new java.lang.String(mapping.toString());} if ((result == undefined) || (result.length() == 0)) {result = defaultValue;} if (replacement != undefined) { for (i = 0; i < replacement.length; i++) { var entry = replacement[i]; result = result.replaceAll(entry[0],entry[1]); \n} } return result; }");
-		script.append("function $(string) { ");
-		script.append("if (connectorMap.containsKey(string)) { return connectorMap.get(string);} else ");
-		script.append("if (channelMap.containsKey(string)) { return channelMap.get(string);} else ");
-		script.append("if (globalMap.containsKey(string)) { return globalMap.get(string);} else ");
-		script.append("{ return ''; }}");
-		script.append("function $g(key, value){");
-		script.append("if (arguments.length == 1){return globalMap.get(key); }");
-		script.append("else if (arguments.length == 2){globalMap.put(key, value); }}");
-		script.append("function $c(key, value){");
-		script.append("if (arguments.length == 1){return channelMap.get(key); }");
-		script.append("else if (arguments.length == 2){channelMap.put(key, value); }}");
-		script.append("function $co(key, value){");
-		script.append("if (arguments.length == 1){return connectorMap.get(key); }");
-		script.append("else if (arguments.length == 2){connectorMap.put(key, value); }}");
-		script.append("function $r(key, value){");
-		script.append("if (arguments.length == 1){return responseMap.get(key); }");
-		script.append("else if (arguments.length == 2){responseMap.put(key, value); }}");
-		script.append("default xml namespace = '';");
-		script.append("function doTransform() {");
-
-		// turn the template into an E4X XML object
-
-		if (template != null && template.length() > 0) {
-			// We have to remove the namespaces so E4X allows use to use the
-			// msg[''] syntax
-			script.append("var newTemplate = template.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
-			script.append("tmp = new XML(newTemplate);\n");
-		} else {
-			script.append("\n\n");
-		}
-
-		if (removeNamespace) {
-			script.append("var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
-		} else {
-			script.append("var newMessage = message;\n");
-		}
-
-		script.append("msg = new XML(newMessage);\n");
-
-		script.append(transformerScript);
-		script.append(" }");
-		script.append("doTransform()\n");
-		return script.toString();
+	public void setScriptId(String scriptId) {
+		this.scriptId = scriptId;
 	}
 
 	public Map getInboundProperties() {
@@ -555,4 +161,282 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		this.outboundProperties = outboundProperties;
 	}
 
+	public String getTemplateId() {
+		return this.templateId;
+	}
+
+	public void setTemplateId(String templateId) {
+		this.templateId = templateId;
+
+		if (templateId != null) {
+			try {
+				this.template = templateController.getTemplate(templateId);
+			} catch (ControllerException e) {
+				logger.error(errorBuilder.buildErrorMessage(Constants.ERROR_300, null, e));
+			}
+		}
+	}
+
+	public static Context getContext() {
+		Context context = Context.enter();
+
+		if (sealedSharedScope == null) {
+			String importScript = getJavascriptImportScript();
+			sealedSharedScope = new ImporterTopLevel(context);
+			JavaScriptScopeUtil.buildScope(sealedSharedScope);
+			Script script = context.compileString(importScript, UUIDGenerator.getUUID(), 1, null);
+			script.exec(context, sealedSharedScope);
+			sealedSharedScope.sealObject();
+		}
+
+		return context;
+	}
+
+	public static String getJavascriptImportScript() {
+		StringBuilder script = new StringBuilder();
+		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
+		script.append("importPackage(Packages.com.webreach.mirth.model.converters);\n");
+		script.append("regex = new RegExp('');\n");
+		script.append("xml = new XML('');\n");
+		script.append("xmllist = new XMLList();\n");
+		script.append("namespace = new Namespace();\n");
+		script.append("qname = new QName();\n");
+		// ast: Allow ending whitespaces from the input XML
+		script.append("XML.ignoreWhitespace=false;");
+		// ast: Allow ending whitespaces to the output XML
+		script.append("XML.prettyPrinting=false;");
+		return script.toString();
+	}
+
+	public Scriptable getScope() {
+		Scriptable scope = getContext().newObject(sealedSharedScope);
+		scope.setPrototype(sealedSharedScope);
+		scope.setParentScope(null);
+		return scope;
+	}
+
+	@Override
+	public void initialise() throws InitialisationException {
+		Context context = getContext();
+
+		try {
+			// Scripts are not compiled if they are blank or do not exist in the
+			// database. Note that in Oracle, a blank script is the same as a
+			// NULL script.
+			String script = scriptController.getScript(scriptId);
+
+			if ((script != null) && (script.length() > 0)) {
+				String generatedScript = generateScript(script);
+				logger.debug("compiling filter script");
+				Script compiledScript = context.compileString(generatedScript, scriptId, 1, null);
+				compiledScriptCache.putCompiledScript(scriptId, compiledScript);
+			} else {
+				emptyFilterAndTransformer = true;
+			}
+		} catch (Exception e) {
+			if (e instanceof RhinoException) {
+				e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 5, "Filter/Transformer");
+			}
+
+			logger.error(errorBuilder.buildErrorMessage(Constants.ERROR_300, null, e));
+			throw new InitialisationException(e, this);
+		}
+	}
+
+	@Override
+	public Object transform(Object source, UMOEventContext context) throws TransformerException {
+		MessageObject messageObject = null;
+
+		// ---- Begin MO checks -----
+		try {
+			Script script = compiledScriptCache.getCompiledScript(scriptId);
+			emptyFilterAndTransformer = true;
+			
+			if ((script != null)) {
+				emptyFilterAndTransformer = false;
+			}
+			
+			if (this.getMode().equals(Mode.SOURCE.toString())) {
+				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(inboundProtocol));
+				messageObject = adaptor.getMessage((String) source, channelId, encryptData, inboundProperties, emptyFilterAndTransformer);
+				// Load properties from the context to the messageObject
+				messageObject.getChannelMap().putAll(context.getProperties());
+			} else if (this.getMode().equals(Mode.DESTINATION.toString())) {
+				MessageObject incomingMessageObject = (MessageObject) source;
+				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(inboundProtocol));
+				messageObject = adaptor.convertMessage(incomingMessageObject, this.getConnectorName(), channelId, encryptData, inboundProperties, emptyFilterAndTransformer);
+				messageObject.setEncodedDataProtocol(Protocol.valueOf(this.outboundProtocol));
+			}
+		} catch (Exception e) {
+			alertController.sendAlerts(channelId, Constants.ERROR_301, null, e);
+			throw new TransformerException(this, e);
+		}
+		// ---- End MO checks -----
+
+		MessageObject finalMessageObject = evaluateScript(messageObject);
+		boolean messageAccepted = finalMessageObject.getStatus().equals(MessageObject.Status.TRANSFORMED);
+
+		try {
+			if (messageAccepted) {
+				if (this.getMode().equals(Mode.SOURCE.toString())) {
+					// only update on the source - it doesn't matter on each
+					// destination
+					messageObjectController.updateMessage(finalMessageObject, false);
+				}
+
+				return finalMessageObject;
+			} else {
+				messageObjectController.setFiltered(messageObject, "Message has been filtered");
+				return messageObject;
+			}
+		} catch (Exception e) {
+			// send alert if the transformation process fails
+			alertController.sendAlerts(channelId, Constants.ERROR_300, null, e);
+			throw new TransformerException(this, e);
+		}
+	}
+
+	private MessageObject evaluateScript(MessageObject messageObject) throws TransformerException {
+		Logger scriptLogger = Logger.getLogger("filter");
+		String phase = new String();
+
+		try {
+			Context context = getContext();
+			Scriptable scope = getScope();
+
+			// load variables in JavaScript scope
+			JavaScriptScopeUtil.addMessageObject(scope, messageObject);
+			JavaScriptScopeUtil.addLogger(scope, scriptLogger);
+			JavaScriptScopeUtil.addChannel(scope, channelId);
+			JavaScriptScopeUtil.addGlobalMap(scope);
+			scope.put("template", scope, template);
+			scope.put("phase", scope, phase);
+
+			// get the script from the cache and execute it
+			Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
+
+			if (compiledScript == null) {
+				logger.debug("script could not be found in cache");
+			} else {
+				compiledScript.exec(context, scope);
+			}
+
+			if (!messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
+				// TODO: Check logic here
+				Object transformedData;
+				Protocol encodedDataProtocol;
+				Map encodedDataProperties;
+
+				if (template != null && template.length() > 0) {
+					transformedData = scope.get("tmp", scope);
+					encodedDataProtocol = Protocol.valueOf(this.getOutboundProtocol());
+					encodedDataProperties = this.getOutboundProperties();
+				} else {
+					if (this.getInboundProtocol().equals(Protocol.XML.toString()) && !this.getOutboundProtocol().equals(Protocol.XML.toString())) {
+						// we don't have a template and we have XML coming in,
+						// let's convert it
+						transformedData = scope.get("msg", scope);
+						encodedDataProtocol = Protocol.valueOf(this.getOutboundProtocol());
+						encodedDataProperties = this.getOutboundProperties();
+					} else {
+						transformedData = scope.get("msg", scope);
+						encodedDataProtocol = Protocol.valueOf(this.getInboundProtocol());
+						encodedDataProperties = this.getInboundProperties();
+					}
+				}
+
+				if (transformedData != Scriptable.NOT_FOUND) {
+					// set the transformedData to the template We replace all
+					// here because we do not want pretty-printed XML
+					messageObject.setTransformedData(context.toString(transformedData));
+				}
+
+				if ((messageObject.getTransformedData() != null)) {
+					IXMLSerializer<String> serializer = AdaptorFactory.getAdaptor(encodedDataProtocol).getSerializer(encodedDataProperties);
+					messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
+					messageObject.setEncodedDataProtocol(encodedDataProtocol);
+				}
+
+				messageObject.setStatus(MessageObject.Status.TRANSFORMED);
+			}
+
+			return messageObject;
+		} catch (Exception e) {
+			if (e instanceof RhinoException) {
+				e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 5, phase.toUpperCase());
+			}
+
+			if (phase.equals("filter")) {
+				messageObjectController.setError(messageObject, Constants.ERROR_200, "Error evaluating filter", e);
+			} else {
+				messageObjectController.setError(messageObject, Constants.ERROR_300, "Error evaluating transformer", e);
+			}
+
+			throw new TransformerException(this, e);
+		} finally {
+			Context.exit();
+		}
+	}
+
+	private String generateScript(String oldScript) {
+		logger.debug("generating script");
+
+		StringBuilder newScript = new StringBuilder();
+		newScript.append("default xml namespace = '';\n");
+
+		// script used to check for exitence of segment
+		newScript.append("function validate(mapping, defaultValue, replacement) { var result; if (mapping != undefined) { result = new java.lang.String(mapping.toString()); } if ((result == undefined) || (result.length() == 0)) { result = defaultValue; } if (replacement != undefined) { for (i = 0; i < replacement.length; i++) { var entry = replacement[i]; result = result.replaceAll(entry[0],entry[1]); \n} } return result; }");
+
+		newScript.append("function $(string) { ");
+		newScript.append("\tif (connectorMap.containsKey(string)) { return connectorMap.get(string); }");
+		newScript.append("\telse if (channelMap.containsKey(string)) { return channelMap.get(string); }");
+		newScript.append("\telse if (globalMap.containsKey(string)) { return globalMap.get(string); }");
+		newScript.append("\telse { return ''; }");
+		newScript.append("}");
+
+		newScript.append("function $g(key, value) {");
+		newScript.append("\tif (arguments.length == 1) { return globalMap.get(key); }");
+		newScript.append("\telse if (arguments.length == 2) { globalMap.put(key, value); }");
+		newScript.append("}");
+
+		newScript.append("function $c(key, value) {");
+		newScript.append("\tif (arguments.length == 1) { return channelMap.get(key); }");
+		newScript.append("\telse if (arguments.length == 2) { channelMap.put(key, value); }");
+		newScript.append("}");
+
+		newScript.append("function $co(key, value) {");
+		newScript.append("\tif (arguments.length == 1) { return connectorMap.get(key); }");
+		newScript.append("\telse if (arguments.length == 2) { connectorMap.put(key, value); }");
+		newScript.append("}");
+
+		newScript.append("function $r(key, value) {");
+		newScript.append("\tif (arguments.length == 1) { return responseMap.get(key); }");
+		newScript.append("\telse if (arguments.length == 2) { responseMap.put(key, value); }");
+		newScript.append("}");
+
+		// ast: Allow ending whitespaces from the input XML
+		newScript.append("XML.ignoreWhitespace=false;");
+		// ast: Allow ending whitespaces to the output XML
+		newScript.append("XML.prettyPrinting=false;");
+
+		if (removeNamespace) {
+			newScript.append("var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
+		} else {
+			newScript.append("var newMessage = message;\n");
+		}
+
+		newScript.append("msg = new XML(newMessage);\n");
+
+		// turn the template into an E4X XML object
+		if (template != null && template.length() > 0) {
+			// We have to remove the namespaces so E4X allows use to use the
+			// msg[''] syntax
+			newScript.append("var newTemplate = template.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
+			newScript.append("tmp = new XML(newTemplate);\n");
+		}
+
+		newScript.append(oldScript); // has doFilter() and doTransform()
+		newScript.append("if (doFilter() == true) { doTransform(); } else { messageObject.setStatus(Packages.com.webreach.mirth.model.MessageObject.Status.FILTERED); };");
+		return newScript.toString();
+	}
 }
