@@ -7,8 +7,6 @@
 package com.webreach.mirth.client.ui;
 
 import java.awt.Color;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,11 +16,11 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.model.ExtensionPoint;
-import com.webreach.mirth.model.ExtensionPointDefinition;
 import com.webreach.mirth.model.PluginMetaData;
+import com.webreach.mirth.model.ExtensionPointDefinition;
 import com.webreach.mirth.plugins.ClientPanelPlugin;
+import com.webreach.mirth.plugins.DashboardPanelPlugin;
 
 /**
  *
@@ -34,6 +32,7 @@ public class PluginPanel extends javax.swing.JPanel
     private static final String EXTENSION_MANAGER = "Extension Manager";
     Frame parent;
     Map<String, ClientPanelPlugin> loadedPlugins;
+    Map<String, DashboardPanelPlugin> loadedDashboardPanelPlugins;
     
     /** Creates new form PluginPanel */
     public PluginPanel()
@@ -53,6 +52,7 @@ public class PluginPanel extends javax.swing.JPanel
         };
         tabs.addChangeListener(changeListener);
     }
+
     //Extension point for ExtensionPoint.Type.CLIENT_PANEL
     @ExtensionPointDefinition(mode=ExtensionPoint.Mode.CLIENT, type=ExtensionPoint.Type.CLIENT_PANEL)
     public void loadPlugins()
@@ -100,17 +100,18 @@ public class PluginPanel extends javax.swing.JPanel
             }
             catch (Exception e)
             {
-                // TODO Auto-generated catch block
                 parent.alertException(e.getStackTrace(), e.getMessage());
             }
         }
-        
-    
     }
     
     public void stopPlugins()
     {
         for(ClientPanelPlugin plugin : loadedPlugins.values())
+            plugin.stop();
+
+        loadedDashboardPanelPlugins = parent.getDashboardPanelPlugins();
+        for (DashboardPanelPlugin plugin : loadedDashboardPanelPlugins.values())
             plugin.stop();
     }
     

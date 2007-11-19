@@ -99,6 +99,7 @@ import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.model.filters.SystemEventFilter;
 import com.webreach.mirth.model.util.ImportConverter;
 import com.webreach.mirth.util.PropertyVerifier;
+import com.webreach.mirth.plugins.DashboardPanelPlugin;
 
 /**
  * The main conent frame for the Mirth Client Application. Extends JXFrame and
@@ -2043,19 +2044,16 @@ public class Frame extends JXFrame
     public void doCloneDestination()
     {
         channelEditPanel.cloneDestination();
-
     }
 
     public void doEnableDestination()
     {
         channelEditPanel.enableDestination();
-
     }
 
     public void doDisableDestination()
     {
         channelEditPanel.disableDestination();
-
     }
 
     public void doEnableChannel()
@@ -3440,7 +3438,13 @@ public class Frame extends JXFrame
     public Map<String, PluginMetaData> getPluginMetaData() {
         return this.loadedPlugins;
     }
+
     public Map<String, ConnectorMetaData> getConnectorMetaData() {
         return this.loadedConnectors;
     }
+
+    public Map<String, DashboardPanelPlugin> getDashboardPanelPlugins() {
+        return this.dashboardPanel.getLoadedPanelPlugins();
+    }
+    
 }

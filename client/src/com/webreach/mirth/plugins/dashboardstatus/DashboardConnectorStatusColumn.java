@@ -52,19 +52,16 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
 
 	@Override
 	public int getMaxWidth() {
-		// TODO Auto-generated method stub
 		return UIConstants.MAX_WIDTH;
 	}
 
 	@Override
 	public int getMinWidth() {
-		// TODO Auto-generated method stub
 		return 100;
 	}
 
 	@Override
 	public Object getTableData(ChannelStatus status) {
-		// TODO Auto-generated method stub
 		String connectorName = status.getChannelId() + _SOURCE_CONNECTOR;
 		if (currentStates != null && currentStates.containsKey(connectorName)){
 			String[] stateData = currentStates.get(connectorName);
@@ -76,7 +73,6 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
 
 	@Override
 	public boolean showBeforeStatusColumn() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 	
@@ -85,10 +81,9 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
 	public void tableUpdate(List<ChannelStatus> status) {
 		//get states from server
 		try {
-			this.currentStates = (HashMap<String, String[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, GET_STATES, null);
+			currentStates = (HashMap<String, String[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, GET_STATES, null);
 		} catch (ClientException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+            e.printStackTrace();
 		}
 	}
 

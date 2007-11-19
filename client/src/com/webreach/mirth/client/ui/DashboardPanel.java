@@ -215,6 +215,10 @@ public class DashboardPanel extends javax.swing.JPanel
         else
             plugin.update();
     }
+
+    public Map<String, DashboardPanelPlugin> getLoadedPanelPlugins() {
+        return loadedPanelPlugins;
+    }
     
     public synchronized void updateCurrentPluginPanel()
     {

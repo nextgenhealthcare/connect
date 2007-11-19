@@ -25,12 +25,11 @@ public abstract class DashboardPanelPlugin
 {
     private JComponent component = new JPanel();
     private String name;
-    private Frame parent = PlatformUI.MIRTH_FRAME;
+    protected Frame parent = PlatformUI.MIRTH_FRAME;
     
      public DashboardPanelPlugin(String name)
     {
-        this.name = name;
-        
+        this.name = name;        
     }
 
     public void setComponent(JComponent component)
@@ -103,4 +102,10 @@ public abstract class DashboardPanelPlugin
     {
         return parent.mirthClient.invokePluginMethod(name, method, object);
     }
+
+    // used for starting processes in the plugin when the program is started
+    public abstract void start();
+
+    // used for stopping processes in the plugin when the program is exited
+    public abstract void stop();
 }

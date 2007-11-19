@@ -171,9 +171,9 @@ public abstract class ClientPanelPlugin
         parent.mirthClient.setPluginProperties(name, properties);
     }
     
-    // used for starting processes in the plugin when the program is exited
+    // used for starting processes in the plugin when the program is started
     public abstract void start();
-    
+
     // used for stopping processes in the plugin when the program is exited
     public abstract void stop();
     

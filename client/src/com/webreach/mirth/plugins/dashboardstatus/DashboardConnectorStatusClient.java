@@ -15,6 +15,7 @@ import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.core.ClientException;
 
 import java.util.LinkedList;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -23,47 +24,134 @@ import java.util.LinkedList;
 public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
 
     private DashboardConnectorStatusPanel dcsp;
-    private LinkedList<String[]> connectionInfoLogs;
+    private static final String REMOVE_SESSIONID = "removeSessionId";
     private static final String GET_CONNECTION_INFO_LOGS = "getConnectionInfoLogs";
     private static final String SERVER_PLUGIN_NAME = "Dashboard Status Column Server";
+    private static final String NO_CHANNEL_SELECTED = "No Channel Selected";
+    private ConcurrentHashMap<String, LinkedList<String[]>> connectorInfoLogs;
+    private int currentDashboardLogSize;
 
     
     /** Creates a new instance of DashboardConnectorStatusClient */
     public DashboardConnectorStatusClient(String name)
     {
         super(name);
-        dcsp = new DashboardConnectorStatusPanel();
+        connectorInfoLogs = new ConcurrentHashMap<String, LinkedList<String[]>>();
+        dcsp = new DashboardConnectorStatusPanel(this);
+        currentDashboardLogSize = dcsp.getCurrentDashboardLogSize();
         setComponent(dcsp);
+    }
 
+    public void clearLog(String selectedChannel) {
+        if (connectorInfoLogs.containsKey(selectedChannel)) {
+            connectorInfoLogs.remove(selectedChannel);
+        }
+        dcsp.updateTable(null);
+    }
+
+    public void resetLogSize(int newDashboardLogSize, String selectedChannel) {
+
+        // the log size is always set to 1000 on the server.
+        // on the client side, the max size is 999.  whenever that changes, only update the client side logs. the logs on the server will always be intact.
+        // Q. Does this log size affect all the channels? - Yes, it should.
+
+        // update (refresh) log only if the new logsize got smaller.
+        if (newDashboardLogSize < currentDashboardLogSize) {
+            // get the currentChannelLog
+            LinkedList<String[]> newChannelLog = connectorInfoLogs.get(selectedChannel);
+            // if log size got reduced...  remove that much extra LastRows.
+            synchronized(this) {
+                while (newDashboardLogSize < newChannelLog.size()) {
+                    newChannelLog.removeLast();
+                }
+            }
+            dcsp.updateTable(newChannelLog);
+        }
+        
+        // reset currentLogSize.
+        currentDashboardLogSize = newDashboardLogSize;
     }
 
 
     // used for setting actions to be called for updating when there is no status selected
     public void update() {
 
-        // this method is called when no channel is selected.  Display no info.
-        dcsp.updateTable(null);
+        // call the other function with no channel selected (null).
+        update(null);
 
     }
 
        
     // used for setting actions to be called for updating when there is a status selected    
     public void update(ChannelStatus status) {
+        String selectedChannel;
+        if (status == null) {
+            // no channel is selected.
+            selectedChannel = NO_CHANNEL_SELECTED;
+        } else {
+            // channel is selected.
+            selectedChannel = status.getName();
+        }
 
+        // set selectedChannel.
+        dcsp.setSelectedChannel(selectedChannel);
 
-        //get states from server
-		try {
+        // store this log on the client side for later use.
+        // grab the channel's log from the HashMap, if not exist, create one.
+        LinkedList<String[]> channelLog;
+        if (connectorInfoLogs.containsKey(selectedChannel)) {
+            channelLog = connectorInfoLogs.get(selectedChannel);
+        } else {
+            channelLog = new LinkedList<String[]>();
+        }
+                
+        //get states from server only if the client's channel log is not in the paused state.
+        if (!dcsp.isPaused(selectedChannel)) {
+            LinkedList<String[]> connectionInfoLogsReceived = new LinkedList<String[]>();
+            try {
+                if (status == null) {
+                    connectionInfoLogsReceived = (LinkedList<String[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, GET_CONNECTION_INFO_LOGS, null);
+                } else {
+                    connectionInfoLogsReceived = (LinkedList<String[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, GET_CONNECTION_INFO_LOGS, selectedChannel);
+                }
+            } catch (ClientException e) {
+                parent.alertException(e.getStackTrace(), e.getMessage());
+            }
 
-            this.connectionInfoLogs = (LinkedList<String[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, GET_CONNECTION_INFO_LOGS, status.getName());
-
-        } catch (ClientException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+            synchronized(this) {
+                for (int i = connectionInfoLogsReceived.size()-1; i >= 0; i--) {
+                    while (currentDashboardLogSize <= channelLog.size()) {
+                        channelLog.removeLast();
+                    }
+                    channelLog.addFirst(connectionInfoLogsReceived.get(i));
+                }
+            }
+            connectorInfoLogs.put(selectedChannel, channelLog);
+        }
 
         // call updateLogTextArea.
-        dcsp.updateTable(connectionInfoLogs);
+        dcsp.updateTable(channelLog);
+        dcsp.adjustPauseResumeButton(selectedChannel);
 
+    }
+
+    // used for starting processes in the plugin when the program is started
+    public void start() {
+
+    }
+    
+    // used for stopping processes in the plugin when the program is exited
+    public void stop() {
+        // invoke method to remove everything involving this client's sessionId.
+        try {
+            // FYI, method below returns a boolean value.
+            // returned 'true' - sessionId found and removed.
+            // returned 'false' - sessionId not found. - should never be this case.
+            // either way, the sessionId is gone.
+            PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, REMOVE_SESSIONID, null);
+        } catch (ClientException e) {
+            parent.alertException(e.getStackTrace(), e.getMessage());
+        }
     }
 
 }
