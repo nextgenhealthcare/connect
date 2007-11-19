@@ -156,7 +156,7 @@ public class MessagePrunerService implements ServerPlugin, Job
         }
     }
 
-    public Object invoke(String method, Object object)
+    public Object invoke(String method, Object object, String sessionId)
     {
         if(method.equals("getLog"))
         {

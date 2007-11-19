@@ -14,7 +14,7 @@ public interface ServerPlugin
 
     public abstract void stop();
     
-    public abstract Object invoke (String method, Object object);
+    public abstract Object invoke (String method, Object object, String sessionId);
 
     public abstract Properties getDefaultProperties();
 }

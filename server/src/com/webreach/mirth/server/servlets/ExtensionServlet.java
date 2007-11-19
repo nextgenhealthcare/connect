@@ -102,13 +102,14 @@ public class ExtensionServlet extends MirthServlet {
                     String name = request.getParameter("name");
                     String method = request.getParameter("method");
                     Object object =(Object) serializer.fromXML(request.getParameter("object"));
-                    out.println(serializer.toXML(extensionController.invoke(name, method, object)));
+                    String sessionId = request.getSession().getId();
+                    out.println(serializer.toXML(extensionController.invoke(name, method, object, sessionId)));
                 } else if (operation.equals("installExtension")) {
                 	//This is a multi-part method, so we need our parameters from the new map
                     String location = multipartParameters.get("location");
                     extensionController.installExtension(location, multiPartFile);
-                } 
-			} catch (Exception e) {
+                }
+            } catch (Exception e) {
 				throw new ServletException(e);
 			}
 		}

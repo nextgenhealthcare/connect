@@ -2,12 +2,14 @@ package com.webreach.mirth.plugins.dashboardstatus;
 
 import java.net.Socket;
 import java.util.*;
-import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
+import com.webreach.mirth.model.converters.ObjectCloner;
+import com.webreach.mirth.model.converters.ObjectClonerException;
 import com.webreach.mirth.plugins.ServerPlugin;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
@@ -45,20 +47,24 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
 	private static final String DISCONNECTED = "Disconnected";
 	private static final String GET_STATES = "getStates";
     private static final String GET_CONNECTION_INFO_LOGS = "getConnectionInfoLogs";
-	private HashMap<String, String[]> currentStates;
+    private static final String REMOVE_SESSIONID = "removeSessionId";
+    private static final String NO_CHANNEL_SELECTED = "No Channel Selected";
+    private HashMap<String, String[]> currentStates;
 	private HashMap<String, Set<Socket>> socketSets;
-    private HashMap<String, LinkedList<String[]>> connectorInfoLogs;
-    private static final int LOG_SIZE = 250;        // for each channel.
+    private ConcurrentHashMap<String, LinkedList<String[]>> connectorInfoLogs;
+    private LinkedList<String[]> entireConnectorInfoLogs;
+    private ConcurrentHashMap<String, HashMap<String, Long>> lastDisplayedLogIndexBySessionId;    
+    private static final int LOG_SIZE = 1000;        // maximum log size for each channel. and for entire logs.
+    private static long logId = 1;
     
     public void updateStatus(String connectorId, ConnectorType type, Event event, Socket socket) {
 
-        // TODO Auto-generated method stub
 		String stateImage = BLACK;
 		String statusText = UNKNOWN;
 		boolean updateState = false;
-		switch (event){
+		switch (event) {
 			case INITIALIZED:
-				switch (type){
+				switch (type) {
 					case LISTENER:
 						stateImage = YELLOW;
 						statusText = WAITING;
@@ -71,7 +77,7 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
 				updateState = true;
 				break;
 			case CONNECTED:
-				switch (type){
+				switch (type) {
 					case LISTENER:
 						if (socket != null){
 							addConnectionToSocketSet(socket, connectorId);
@@ -90,7 +96,7 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
 				updateState = true;
 				break;
 			case DISCONNECTED:
-				switch (type){
+				switch (type) {
 					case LISTENER:
 						if (socket != null){
 							removeConnectionInSocketSet(socket, connectorId);
@@ -116,7 +122,7 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
 				updateState = true;
 				break;
 			case BUSY:
-				switch (type){
+				switch (type) {
 					case READER:
 						stateImage = GREEN;
 						statusText = READING;
@@ -130,7 +136,7 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
 				}
 				break;
 			case DONE:
-				switch (type){
+				switch (type) {
 					case READER:
 						stateImage = YELLOW;
 						statusText = IDLE;
@@ -159,22 +165,20 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
 
             Timestamp ts = new Timestamp(System.currentTimeMillis());
             SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
-            
+
             String channelName = "";
             String connectorType = type.toString();     // this will be overwritten down below. If not, something's wrong.
             String information = "";
             StringTokenizer st;
-            int destinationIndex = 0;
+            int destinationIndex;
             LinkedList<String[]> channelLog = null;
-            
+
             try
             {
                 List<Channel> channels = channelController.getChannel(null);
                 Connector connector;
 
-                for (Iterator iter = channels.iterator(); iter.hasNext();) {
-
-                    Channel channel = (Channel) iter.next();
+                for (Channel channel : channels) {
 
                     if (connectorId.indexOf(channel.getId()) >= 0) {
                         channelName = channel.getName();
@@ -182,8 +186,6 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
                         // grab the channel's log from the HashMap, if not exist, create one.
                         if (connectorInfoLogs.containsKey(channelName)) {
                             channelLog = connectorInfoLogs.get(channelName);
-                            // remove now-old-outdated log. The new updated log will be put into the HashMap.
-                            connectorInfoLogs.remove(channelName);
                         } else {
                             channelLog = new LinkedList<String[]>();
                         }
@@ -202,7 +204,8 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
                                 break;
                             case WRITER:
                                 st = new StringTokenizer(connectorId, "_");
-                                st.nextToken(); st.nextToken();
+                                st.nextToken();
+                                st.nextToken();
                                 destinationIndex = Integer.valueOf(st.nextToken()) - 1;     // destinationId begins from 1, so subtract by 1 for the arrayIndex.
                                 connector = channel.getDestinationConnectors().get(destinationIndex);
                                 connectorType = "Destination: " + connector.getTransportName() + " - " + connector.getName();
@@ -231,13 +234,7 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
                                     }
                                 } else if (connector.getTransportName().equals(JMSWriterProperties.name)) {
                                     // Destination - JMS Writer.
-
-
-                                    //TO-DO: Need to implement JMS Writer properties.
-//                                    information = "";
-
-
-                                    
+                                    information = "URL: " + JMSWriterProperties.JMS_URL;
                                 } else if (connector.getTransportName().equals(ChannelWriterProperties.name)) {
                                     // Destination - Channel Writer.
                                     information = "Target Channel: " + connector.getProperties().getProperty(ChannelWriterProperties.CHANNEL_NAME);
@@ -254,7 +251,8 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
                                 break;
                             case SENDER:
                                 st = new StringTokenizer(connectorId, "_");
-                                st.nextToken(); st.nextToken();
+                                st.nextToken();
+                                st.nextToken();
                                 destinationIndex = Integer.valueOf(st.nextToken()) - 1;     // destination begins from 1, so for arrayIndex subtract by 1.
                                 connector = channel.getDestinationConnectors().get(destinationIndex);
                                 connectorType = "Destination: " + connector.getTransportName() + " - " + connector.getName();
@@ -269,18 +267,13 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
                                                   "   SMTP Info: " + connector.getProperties().getProperty(EmailSenderProperties.EMAIL_ADDRESS) + ":" + connector.getProperties().getProperty(EmailSenderProperties.EMAIL_PORT);
                                 } else if (connector.getTransportName().equals(TCPSenderProperties.name)) {
                                     // Destination - TCP Sender.
-//                                    information = "Host: " + connector.getProperties().getProperty("host") + ":" + connector.getProperties().getProperty("port");
+                                    // The useful info for TCP Sender - host:port will be taken care of by the socket below.
                                 } else if (connector.getTransportName().equals(LLPSenderProperties.name)) {
                                     // Destination - LLP Sender.
-//                                    information = "Host: " + connector.getProperties().getProperty("host") + ":" + connector.getProperties().getProperty("port");
+                                    // The useful info for LLP Sender - host:port will be taken care of by the socket below.
                                 } else if (connector.getTransportName().equals(SOAPSenderProperties.name)) {
                                     // Destination - SOAP Sender.
-
-
-                                    //TO-DO: Need to implement SOAP Sender properties.
-//                                    information = "";
-
-                                    
+                                    // information = "";
                                 }
                                 break;
                         }
@@ -297,7 +290,7 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
 
                 String listenerIP = socket.getLocalAddress().toString() + ":" + socket.getLocalPort();
                 String senderIP = socket.getInetAddress().toString() + ":" + socket.getPort();
-                
+
                 // If addresses begin with a slash "/", remove it.
                 if (listenerIP.startsWith("/")) {
                     listenerIP = listenerIP.substring(1);
@@ -310,16 +303,27 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
             }
 
             if (channelLog != null) {
-                if (channelLog.size() == LOG_SIZE) {
-                    channelLog.removeLast();
-                }
-                channelLog.addFirst (new String[] { channelName, ft.format(ts), connectorType, event.toString(), information });
 
-                // put the channel log into the HashMap.
-                connectorInfoLogs.put(channelName, channelLog);
+                synchronized(this) {
+                    if (channelLog.size() == LOG_SIZE) {
+                        channelLog.removeLast();
+                    }
+                    channelLog.addFirst(new String[] { String.valueOf(logId), channelName, ft.format(ts), connectorType, event.toString(), information });
+
+                    if (entireConnectorInfoLogs.size() == LOG_SIZE) {
+                        entireConnectorInfoLogs.removeLast();
+                    }
+                    entireConnectorInfoLogs.addFirst(new String[] { String.valueOf(logId), channelName, ft.format(ts), connectorType, event.toString(), information });
+
+                    logId++;
+
+                    // put the channel log into the HashMap.
+                    connectorInfoLogs.put(channelName, channelLog);
+                }
             }
-            
+
             this.currentStates.put(connectorId, new String[]{stateImage, statusText});
+
  
         }
 	}
@@ -358,27 +362,118 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
 	}
 
 	public Properties getDefaultProperties() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public void init(Properties properties) {
-		// TODO Auto-generated method stub
 		initialize();
 	}
 
 	private void initialize() {
 		this.socketSets = new HashMap<String, Set<Socket>>();
 		this.currentStates = new HashMap<String, String[]>();
-        this.connectorInfoLogs = new HashMap<String, LinkedList<String[]>>();
+        this.connectorInfoLogs = new ConcurrentHashMap<String, LinkedList<String[]>>();
+        this.lastDisplayedLogIndexBySessionId = new ConcurrentHashMap<String, HashMap<String, Long>>();
+        this.entireConnectorInfoLogs = new LinkedList<String[]>();
     }
 
-	public Object invoke(String method, Object object) {
+	public synchronized Object invoke(String method, Object object, String sessionId) {
 		if (method.equals(GET_STATES)) {
 			return this.currentStates;
 		} else if (method.equals(GET_CONNECTION_INFO_LOGS)) {
-            return connectorInfoLogs.get(object.toString());
+
+            String channelName;
+            LinkedList<String[]> channelLog;
+
+            if (object == null) {
+                // object is null - no channel is selected.  return the latest entire log entries of all channels combined.  ONLY new entries.
+                channelName = NO_CHANNEL_SELECTED;
+                channelLog = entireConnectorInfoLogs;
+            } else {
+                // object is not null - a channel is selected.  return the latest (LOG_SIZE) of that particular channel.
+                channelName = object.toString();
+                // return only the newly added log entries for the client with matching sessionId.
+                channelLog = connectorInfoLogs.get(channelName);
+            }
+
+            HashMap<String, Long> lastDisplayedLogIdByChannel;
+
+            if (lastDisplayedLogIndexBySessionId.containsKey(sessionId)) {
+
+                // client exist with the sessionId.
+                lastDisplayedLogIdByChannel = lastDisplayedLogIndexBySessionId.get(sessionId);
+
+                if (lastDisplayedLogIdByChannel.containsKey(channelName)) {
+                    // existing channel on an already open client.
+                    // -> only display new log entries.
+                    long lastDisplayedLogId = lastDisplayedLogIdByChannel.get(channelName);
+                    LinkedList<String[]> newChannelLogEntries = new LinkedList<String[]>();
+
+                    // FYI, channelLog.size() will never be larger than LOG_SIZE = 1000.
+                    for (String[] aChannelLog : channelLog) {
+                        if (lastDisplayedLogId < Long.parseLong(aChannelLog[0])) {
+                            newChannelLogEntries.addLast(aChannelLog);
+                        }
+                    }
+
+                    if (newChannelLogEntries.size() > 0) {
+                        // put the lastDisplayedLogId into the HashMap. index 0 is the most recent entry, and index0 of that entry contains the logId.
+                        lastDisplayedLogIdByChannel.put(channelName, Long.parseLong(newChannelLogEntries.get(0)[0]));
+                        lastDisplayedLogIndexBySessionId.put(sessionId, lastDisplayedLogIdByChannel);
+                    }
+
+                    try {
+                        return ObjectCloner.deepCopy(newChannelLogEntries);
+                    } catch (ObjectClonerException oce) {
+                        logger.error("Error: DashboardConnectorStatusMonitor.java", oce);
+                    }
+
+                } else {
+                    // new channel viewing on an already open client.
+                    // -> all log entries are new. display them all.
+                    // put the lastDisplayedLogId into the HashMap.  index0 is the most recent entry, and index0 of that entry object contains the logId.
+                    if (channelLog.size() > 0) {
+                        lastDisplayedLogIdByChannel.put(channelName, Long.parseLong(channelLog.get(0)[0]));
+                        lastDisplayedLogIndexBySessionId.put(sessionId, lastDisplayedLogIdByChannel);
+                    }
+
+                    try {
+                        return ObjectCloner.deepCopy(channelLog);
+                    } catch (ObjectClonerException oce) {
+                        logger.error("Error: DashboardConnectorStatusMonitor.java", oce);
+                    }
+                }
+
+            } else {
+                // brand new client.
+                // thus also new channel viewing.
+                // -> all log entries are new. display them all.
+                lastDisplayedLogIdByChannel = new HashMap<String, Long>();
+                if (channelLog.size() > 0) {
+                    lastDisplayedLogIdByChannel.put(channelName, Long.parseLong(channelLog.get(0)[0]));
+                } else {
+                    // no log exist at all. put the currentLogId-1, which is the very latest logId.
+                    lastDisplayedLogIdByChannel.put(channelName, logId-1);
+                }
+
+                lastDisplayedLogIndexBySessionId.put(sessionId, lastDisplayedLogIdByChannel);
+                try {
+                    return ObjectCloner.deepCopy(channelLog);
+                } catch (ObjectClonerException oce) {
+                    logger.error("Error: DashboardConnectorStatusMonitor.java", oce);
+                }
+            }
+
+        } else if (method.equals(REMOVE_SESSIONID)) {
+            // client shut down, or user logged out -> remove everything involving this sessionId.
+            if (lastDisplayedLogIndexBySessionId.containsKey(sessionId)) {
+                // client exist with the sessionId. remove it.
+                lastDisplayedLogIndexBySessionId.remove(sessionId);
+                return true;    // sessionId found and successfully removed.
+            }
+            return false;   // no sessionId found.
         }
+
         return null;
 	}
 
@@ -387,18 +482,15 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
 	}
 
 	public void start() {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void stop() {
-		// TODO Auto-generated method stub
-		
-	}
+
+    }
 
 	public void update(Properties properties) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 }

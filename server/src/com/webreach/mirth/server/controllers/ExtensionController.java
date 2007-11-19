@@ -153,11 +153,11 @@ public class ExtensionController {
 			plugin.stop();
 	}
 
-	public Object invoke(String name, String method, Object object) {
-		return loadedPlugins.get(name).invoke(method, object);
+	public Object invoke(String name, String method, Object object, String sessionId) {
+		return loadedPlugins.get(name).invoke(method, object, sessionId);
 	}
 
-	public void installExtension(String location, FileItem fileItem) throws ControllerException {
+    public void installExtension(String location, FileItem fileItem) throws ControllerException {
 		if (location.equals("connectors"))
 			location = CONNECTORS_LOCATION;
 		else if (location.equals("plugins"))
