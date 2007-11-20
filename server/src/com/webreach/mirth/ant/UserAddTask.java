@@ -25,21 +25,13 @@
 
 package com.webreach.mirth.ant;
 
-import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.Project;
-
-import com.webreach.mirth.client.core.Client;
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.ChannelStatistics;
-import com.webreach.mirth.model.ChannelStatus;
-import com.webreach.mirth.model.ServerConfiguration;
-import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.model.User;
-import com.webreach.mirth.model.ChannelStatus.State;
-
 import java.util.Iterator;
 import java.util.List;
+
+import org.apache.tools.ant.BuildException;
+
+import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.model.User;
 
 /**
  * an ant task to add a mirth user
