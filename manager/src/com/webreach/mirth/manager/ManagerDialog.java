@@ -40,8 +40,8 @@ public class ManagerDialog extends javax.swing.JDialog
     private static final String DATABASE_SQLSERVER2005 = "sqlserver2005";
     private static final String DATABASE_ORACLE = "oracle";
     
+    public static final String serverPropertiesPath = "conf\\mirth.properties";
     private static final String log4jPropertiesPath = "conf\\log4j.properties";
-    private static final String serverPropertiesPath = "conf\\mirth.properties";
     private static final String serverLogsPath = "logs\\";
     private static final String derbyPropertiesPath = "conf\\derby-SqlMapConfig.properties";
     private static final String postgresPropertiesPath = "conf\\postgres-SqlMapConfig.properties";
@@ -564,7 +564,7 @@ public class ManagerDialog extends javax.swing.JDialog
     {//GEN-HEADEREND:event_restartButtonActionPerformed
         if(checkPropertiesForChanges())
             saveProperties();
-        ManagerController.getInstance().restartMirth();
+        ManagerController.getInstance().restartMirth(serverProperties.getProperty(SERVER_WEBSTART_PORT));
     }//GEN-LAST:event_restartButtonActionPerformed
 
     private void stopButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_stopButtonActionPerformed
@@ -576,7 +576,7 @@ public class ManagerDialog extends javax.swing.JDialog
     {//GEN-HEADEREND:event_startButtonActionPerformed
         if(checkPropertiesForChanges())
             saveProperties();
-        ManagerController.getInstance().startMirth(true);
+        ManagerController.getInstance().startMirth(true, serverProperties.getProperty(SERVER_WEBSTART_PORT));
     }//GEN-LAST:event_startButtonActionPerformed
 
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_closeButtonActionPerformed

@@ -39,7 +39,7 @@
 			<manifest>
 				<attribute name="Manifest-Version" value="1.0" />
 				<attribute name="Main-Class" value="com.webreach.mirth.manager.Manager" />
-				<attribute name="Class-Path" value="lib/jdic.jar lib/swing-layout-1.0.1.jar lib/looks-2.1.1.jar" />
+				<attribute name="Class-Path" value="lib/ conf/ mirth-client-core.jar" />
 			</manifest>
 		</jar>
 

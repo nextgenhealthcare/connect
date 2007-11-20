@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
@@ -24,46 +25,54 @@ import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.swing.JOptionPane;
+
 import org.jdesktop.jdic.desktop.Desktop;
 import org.jdesktop.jdic.desktop.DesktopException;
 
+import com.webreach.mirth.client.core.Client;
+import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.util.PropertyLoader;
+
 /**
- *
+ * 
  * @author brendanh
  */
 public class ManagerController
 {
     private static ManagerController assistantController = null;
-    
+
     private final String serviceName = "Mirth";
     private final String CMD_START = "cmd /c net start \"";
     private final String CMD_STOP = "cmd /c net stop \"";
     private final String CMD_WEBSTART_PREFIX = "cmd /c javaws http://localhost:";
     private final String CMD_WEBSTART_SUFFIX = "/webstart.jnlp";
+    private final String CMD_TEST_JETTY_PREFIX = "https://localhost:";
     private final String CMD_STATUS = "cmd /c net continue \"";
-    
+
     private static final int STATUS_RUNNING = 2191;
     private static final int STATUS_STOPPED = 2184;
-    
+
     private static final String STATUS_CHANGING = "2189";
-    
-    private static final String CMD_QUERY_REGEX = "NET HELPMSG (.*)\\.";  
-    //private final String CMD_QUERY_REGEX = ".*STATE.* :.(.)";
+
+    private static final String CMD_QUERY_REGEX = "NET HELPMSG (.*)\\.";
+
+    // private final String CMD_QUERY_REGEX = ".*STATE.* :.(.)";
     public static ManagerController getInstance()
     {
-        if(assistantController == null)
+        if (assistantController == null)
         {
             assistantController = new ManagerController();
         }
-        
+
         return assistantController;
     }
-    
+
     /*
-     *  Commands to be executed by both the UI and tray
+     * Commands to be executed by both the UI and tray
      */
-    
+
     public int checkMirth()
     {
         Pattern pattern = Pattern.compile(CMD_QUERY_REGEX);
@@ -77,9 +86,9 @@ public class ManagerController
                 while (matcher.find())
                 {
                     key = matcher.group(1);
-                }              
-                
-                if(key.equals(STATUS_CHANGING))
+                }
+
+                if (key.equals(STATUS_CHANGING))
                 {
                     Thread.sleep(100);
                 }
@@ -91,26 +100,75 @@ public class ManagerController
             catch (Exception ex)
             {
             }
-        } 
-        while(key.equals(STATUS_CHANGING));
-        
+        } while (key.equals(STATUS_CHANGING));
+
         return -1;
     }
-    
-    public boolean startMirth(boolean alert)
+
+    public boolean startMirth(boolean alert, String port)
     {
         try
         {
-            if(execCmd(CMD_START + serviceName + "\"", true) != 0)
+            new ServerSocket(Integer.parseInt(port));
+        }
+        catch (NumberFormatException ex)
+        {
+            alertError("Invalid webstart port.");
+            return false;
+        }
+        catch (IOException ex)
+        {
+            alertError("Port already in use: " + port + " \nService cannot be started.");
+            return false;
+        }
+
+        try
+        {
+            if (execCmd(CMD_START + serviceName + "\"", true) != 0)
             {
                 alertError("The Mirth service could not be started.  Please verify that it is installed and not already started.");
                 updateMirthServiceStatus();
             }
             else
             {
-                if(alert)
-                {    
-                    alertInformation("The Mirth service was started successfully.");
+                // Load the context path property and remove the last char
+                // if it is a '/'.
+                Properties serverProperties = getProperties(PlatformUI.MIRTH_PATH + ManagerDialog.serverPropertiesPath);
+                String contextPath = PropertyLoader.getProperty(serverProperties, "context.path");
+                if (contextPath.lastIndexOf('/') == (contextPath.length() - 1))
+                {
+                    contextPath = contextPath.substring(0, contextPath.length() - 1);
+                }
+                Client client = new Client(CMD_TEST_JETTY_PREFIX + 8443 + contextPath);
+                
+                if (alert)
+                {
+                    int retriesLeft = 30;
+                    long waitTime = 1000;
+                    boolean started = false, failed = false;
+
+                    while (!failed && !started && retriesLeft > 0)
+                    {
+                        Thread.sleep(waitTime);
+                        
+                        try
+                        {
+                            if(client.getStatus() == 0)
+                                started = true;
+                        }
+                        catch(ClientException e)
+                        {
+                            
+                        }
+                    }
+                    
+                    if(failed)
+                        alertError("There was a problem with the Mirth server configuration.");
+                    else if(!started)
+                        alertError("The Mirth service could not be started.");
+                    else
+                        alertInformation("The Mirth service was started successfully.");
+                    
                     updateMirthServiceStatus();
                 }
                 return true;
@@ -120,22 +178,22 @@ public class ManagerController
         {
             ex.printStackTrace();
         }
-        
+
         return false;
     }
-    
+
     public boolean stopMirth(boolean alert)
     {
         try
         {
-            if(execCmd(CMD_STOP + serviceName + "\"", true) != 0)
+            if (execCmd(CMD_STOP + serviceName + "\"", true) != 0)
             {
                 alertError("The Mirth service could not be stopped.  Please verify that it is installed and started.");
                 updateMirthServiceStatus();
             }
             else
             {
-                if(alert)
+                if (alert)
                 {
                     alertInformation("The Mirth service was stopped successfully.");
                     updateMirthServiceStatus();
@@ -147,28 +205,28 @@ public class ManagerController
         {
             ex.printStackTrace();
         }
-        
+
         return false;
     }
-    
-    public void restartMirth()
+
+    public void restartMirth(String port)
     {
-        if(stopMirth(false))
+        if (stopMirth(false))
         {
-            if(startMirth(false))
+            if (startMirth(false, port))
             {
                 alertInformation("The Mirth service was restarted successfully.");
                 updateMirthServiceStatus();
             }
         }
     }
-    
+
     public void launchAdministrator(String port)
     {
         try
         {
-        	
-            if(execCmd(CMD_WEBSTART_PREFIX + port + CMD_WEBSTART_SUFFIX + "?time=" + new Date().getTime(), false) != 0)
+
+            if (execCmd(CMD_WEBSTART_PREFIX + port + CMD_WEBSTART_SUFFIX + "?time=" + new Date().getTime(), false) != 0)
             {
                 alertError("The Mirth Administator could not be launched.");
             }
@@ -178,7 +236,7 @@ public class ManagerController
             ex.printStackTrace();
         }
     }
-    
+
     public Properties getProperties(String path)
     {
         Properties properties = new Properties();
@@ -194,7 +252,7 @@ public class ManagerController
         }
         return properties;
     }
-    
+
     public boolean setProperties(Properties properties, String path)
     {
         try
@@ -210,12 +268,12 @@ public class ManagerController
         }
         return false;
     }
-    
+
     public List<String> getLogFiles(String path)
     {
         ArrayList<String> files = new ArrayList<String>();
         File dir = new File(path);
-        
+
         String[] children = dir.list();
         if (children == null)
         {
@@ -223,23 +281,23 @@ public class ManagerController
         }
         else
         {
-            for (int i=0; i<children.length; i++)
+            for (int i = 0; i < children.length; i++)
             {
                 // Get filename of file or directory
                 files.add(children[i]);
             }
         }
-        
+
         return files;
     }
-    
+
     public void openLogFile(String path)
     {
         File file = new File(path);
         try
         {
             Desktop.open(file);
-        } 
+        }
         catch (DesktopException e)
         {
             try
@@ -253,7 +311,7 @@ public class ManagerController
             }
         }
     }
-    
+
     /** A method to compare two properties file to check if they are the same. */
     public boolean compareProps(Properties p1, Properties p2)
     {
@@ -272,40 +330,40 @@ public class ManagerController
         }
         return true;
     }
-    
+
     public void updateMirthServiceStatus()
     {
         int status = checkMirth();
-        
-        switch(status)
+
+        switch (status)
         {
-            case STATUS_STOPPED:
-                ManagerController.getInstance().setEnabledOptions(true,false,false);
-                break;
-            case STATUS_RUNNING:
-                ManagerController.getInstance().setEnabledOptions(false,true,true);
-                break;
-            default:
-                ManagerController.getInstance().setEnabledOptions(false,false,false);
-                break;
+        case STATUS_STOPPED:
+            ManagerController.getInstance().setEnabledOptions(true, false, false);
+            break;
+        case STATUS_RUNNING:
+            ManagerController.getInstance().setEnabledOptions(false, true, true);
+            break;
+        default:
+            ManagerController.getInstance().setEnabledOptions(false, false, false);
+            break;
         }
     }
-    
+
     public void setEnabledOptions(boolean start, boolean stop, boolean restart)
     {
         PlatformUI.MANAGER_DIALOG.setStartButtonActive(start);
         PlatformUI.MANAGER_DIALOG.setStopButtonActive(stop);
         PlatformUI.MANAGER_DIALOG.setRestartButtonActive(restart);
-        
+
         /*
          * For Java 6.0
-         *
-        PlatformUI.MANAGER_TRAY.setStartButtonActive(start);
-        PlatformUI.MANAGER_TRAY.setStopButtonActive(stop);
-        PlatformUI.MANAGER_TRAY.setRestartButtonActive(restart);
+         * 
+         * PlatformUI.MANAGER_TRAY.setStartButtonActive(start);
+         * PlatformUI.MANAGER_TRAY.setStopButtonActive(stop);
+         * PlatformUI.MANAGER_TRAY.setRestartButtonActive(restart);
          */
     }
-    
+
     /**
      * Alerts the user with an error dialog with the passed in 'message'
      */
@@ -313,7 +371,7 @@ public class ManagerController
     {
         JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
-    
+
     /**
      * Alerts the user with an information dialog with the passed in 'message'
      */
@@ -321,7 +379,7 @@ public class ManagerController
     {
         JOptionPane.showMessageDialog(null, message, "Information", JOptionPane.INFORMATION_MESSAGE);
     }
-    
+
     /**
      * Alerts the user with a yes/no option with the passed in 'message'
      */
@@ -333,78 +391,78 @@ public class ManagerController
         else
             return false;
     }
-    
+
     private int execCmd(String cmdLine, boolean waitFor) throws Exception
     {
         Process process = Runtime.getRuntime().exec(cmdLine);
-        
-        if(!waitFor)
+
+        if (!waitFor)
             return 0;
-        
+
         StreamPumper outPumper = new StreamPumper(process.getInputStream(), System.out);
         StreamPumper errPumper = new StreamPumper(process.getErrorStream(), System.err);
-        
+
         outPumper.start();
-        errPumper.start();    
+        errPumper.start();
         process.waitFor();
         outPumper.join();
         errPumper.join();
-        
+
         return process.exitValue();
     }
-    
+
     private String execCmdWithOutput(String cmdLine) throws Exception
     {
         Process process = Runtime.getRuntime().exec(cmdLine);
         StreamPumper outPumper = new StreamPumper(process.getInputStream(), System.out);
         StreamPumper errPumper = new StreamPumper(process.getErrorStream(), System.err);
-        
+
         outPumper.start();
         errPumper.start();
         process.waitFor();
         outPumper.join();
         errPumper.join();
-        
+
         return outPumper.getOutput();
     }
-    
+
     private String execCmdWithErrorOutput(String cmdLine) throws Exception
     {
         Process process = Runtime.getRuntime().exec(cmdLine);
         StreamPumper outPumper = new StreamPumper(process.getInputStream(), System.out);
         StreamPumper errPumper = new StreamPumper(process.getErrorStream(), System.err);
-        
+
         outPumper.start();
         errPumper.start();
         process.waitFor();
         outPumper.join();
         errPumper.join();
-        
+
         return errPumper.getOutput();
     }
-    
+
     private class StreamPumper extends Thread
     {
         private InputStream is;
         private PrintStream os;
-        
+
         private StringBuffer output;
-        
+
         public StreamPumper(InputStream is, PrintStream os)
         {
             this.is = is;
             this.os = os;
-            
+
             output = new StringBuffer();
         }
-        
+
         public void run()
         {
             try
             {
                 BufferedReader br = new BufferedReader(new InputStreamReader(is));
                 String line;
-                
+
                 while ((line = br.readLine()) != null)
                 {
                     output.append(line + "\n");
@@ -417,7 +475,7 @@ public class ManagerController
                 e.printStackTrace();
             }
         }
-        
+
         public String getOutput()
         {
             return output.toString();
