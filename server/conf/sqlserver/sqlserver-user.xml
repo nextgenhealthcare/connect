@@ -69,20 +69,20 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 
 	<!-- Login/Logout Procedures -->
 
-	<update id="loginUser" parameterClass="java.lang.String">
+	<update id="loginUser" parameterClass="java.lang.Integer">
 		UPDATE PERSON
 		SET LOGGED_IN = 1,
 		LAST_LOGIN = GETDATE()
 		WHERE ID = #id#
 	</update>
 
-	<update id="logoutUser" parameterClass="java.lang.String">
+	<update id="logoutUser" parameterClass="java.lang.Integer">
 		UPDATE PERSON
 		SET LOGGED_IN = 0
 		WHERE ID = #id#
 	</update>
 
-	<select id="isUserLoggedIn" parameterClass="java.lang.String" resultClass="java.lang.Boolean">
+	<select id="isUserLoggedIn" parameterClass="java.lang.Integer" resultClass="java.lang.Boolean">
 		SELECT LOGGED_IN
 		FROM PERSON
 		WHERE ID = #id#

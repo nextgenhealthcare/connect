@@ -400,6 +400,7 @@ public class Shell {
 		out.println("importcfg \"path\"\n\tImports configuration specified by <path>\n");
 		out.println("exportcfg \"path\"\n\tExports the configuration to <path>\n");
 		out.println("importscript Deploy|Preprocessor|Postprocessor|Shutdown \"path\"\n\tImports global script specified by <path>\n");
+		out.println("exportscript Deploy|Preprocessor|Postprocessor|Shutdown \"path\"\n\tExports global script specified by <path>\n");
 		out.println("channel start|stop|pause|resume|stats id|\"name\"|*\n\tPerforms specified channel action\n");
 		out.println("channel remove|enable|disable id|\"name\"|*\n\tRemove, enable or disable specified channel\n");
 		out.println("channel list\n\tLists all Channels\n");
@@ -471,7 +472,7 @@ public class Shell {
 		List<User> users = client.getUser(null);
 		for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
 			User user = iter.next();
-			if (user.getId().equalsIgnoreCase(key) || user.getUsername().equalsIgnoreCase(key)) {
+			if (user.getId().toString().equalsIgnoreCase(key) || user.getUsername().equalsIgnoreCase(key)) {
 				client.removeUser(user);
 				out.println("User \"" + user.getUsername() + "\" successfully removed.");
 				return;
@@ -489,7 +490,7 @@ public class Shell {
 		List<User> users = client.getUser(null);
 		for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
 			User user = iter.next();
-			if (user.getId().equalsIgnoreCase(key) || user.getUsername().equalsIgnoreCase(key)) {
+			if (user.getId().toString().equalsIgnoreCase(key) || user.getUsername().equalsIgnoreCase(key)) {
 				client.updateUser(user, newPassword);
 				out.println("User \"" + user.getUsername() + "\" password updated.");
 				return;

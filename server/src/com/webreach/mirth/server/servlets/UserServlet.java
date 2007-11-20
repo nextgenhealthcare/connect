@@ -146,7 +146,7 @@ public class UserServlet extends MirthServlet {
 		HttpSession session = request.getSession();
 
 		// save the session id before removing them from the session
-		String userId = (String) session.getAttribute(SESSION_USER);
+		Integer userId = (Integer) session.getAttribute(SESSION_USER);
 		String sessionId = session.getId();
 		
 		// remove the sessions attributes

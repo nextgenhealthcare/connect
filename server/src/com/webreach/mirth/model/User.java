@@ -32,7 +32,7 @@ import java.util.Calendar;
 import com.webreach.mirth.util.EqualsUtil;
 
 public class User implements Serializable {
-	private String id;
+	private Integer id;
 	private String username;
 	private String email;
 	private String fullName;
@@ -40,11 +40,11 @@ public class User implements Serializable {
 	private String phoneNumber;
 	private Calendar lastLogin;
 	
-	public String getId() {
+	public Integer getId() {
 		return this.id;
 	}
 
-	public void setId(String id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
