@@ -52,6 +52,7 @@
 		</copy>
 		
 		<copy file="${SERVER_HOME}/mirth-client-core.jar" todir="${CLIENT_HOME}/lib"/>
+		<copy file="${SERVER_HOME}/mirth-client-core.jar" todir="${MANAGER_HOME}/lib"/>
 	</target>
 	
 	<target name="create-client" depends="create-extensions">
