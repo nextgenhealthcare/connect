@@ -139,15 +139,15 @@ public class ManagerController
                 {
                     contextPath = contextPath.substring(0, contextPath.length() - 1);
                 }
-                Client client = new Client(CMD_TEST_JETTY_PREFIX + 8443 + contextPath);
+                Client client = new Client(CMD_TEST_JETTY_PREFIX + PropertyLoader.getProperty(serverProperties, "https.port") + contextPath);
                 
                 if (alert)
                 {
                     int retriesLeft = 30;
                     long waitTime = 1000;
-                    boolean started = false, failed = false;
+                    boolean started = false;
 
-                    while (!failed && !started && retriesLeft > 0)
+                    while (!started && retriesLeft > 0)
                     {
                         Thread.sleep(waitTime);
                         
@@ -162,14 +162,10 @@ public class ManagerController
                         }
                     }
                     
-                    if(failed)
-                        alertError("There was a problem with the Mirth server configuration.");
-                    else if(!started)
+                    if(!started)
                         alertError("The Mirth service could not be started.");
                     else
                         alertInformation("The Mirth service was started successfully.");
-                    
-                    updateMirthServiceStatus();
                 }
                 return true;
             }

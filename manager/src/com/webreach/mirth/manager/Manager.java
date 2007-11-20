@@ -1,12 +1,6 @@
 package com.webreach.mirth.manager;
 
-import com.jgoodies.looks.plastic.PlasticLookAndFeel;
-import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
-import java.awt.Color;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.plaf.InsetsUIResource;
-import org.jdesktop.jdic.tray.*;
+import javax.swing.UIManager;
 
 public class Manager
 {
