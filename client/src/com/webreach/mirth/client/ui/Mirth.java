@@ -26,7 +26,6 @@
 package com.webreach.mirth.client.ui;
 
 import java.awt.Color;
-import java.awt.event.ComponentEvent;
 import java.util.prefs.Preferences;
 
 import javax.swing.ImageIcon;
@@ -87,21 +86,6 @@ public class Mirth
 
         PlatformUI.MIRTH_FRAME.setVisible(true);
         
-        PlatformUI.MIRTH_FRAME.addComponentListener(new java.awt.event.ComponentAdapter()
-        {
-            public void componentResized(ComponentEvent e)
-            {
-                Frame tmp = (Frame) e.getSource();
-                if (tmp.getWidth() < UIConstants.MIRTH_WIDTH)
-                {
-                    tmp.setSize(UIConstants.MIRTH_WIDTH, tmp.getHeight());
-                }
-                if (tmp.getHeight() < UIConstants.MIRTH_HEIGHT)
-                {
-                    tmp.setSize(tmp.getWidth(), UIConstants.MIRTH_HEIGHT);
-                }
-            }
-        });
     }
 
     /**
