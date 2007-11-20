@@ -94,7 +94,9 @@
 	<target name="create-dist" depends="create-manager">
 		<copy file="${MANAGER_HOME}/dist/mirth-manager.jar" todir="${SERVER_HOME}/"/>
 		<copy todir="${SERVER_HOME}/lib">
-			<fileset dir="${MANAGER_HOME}/lib"/>
+			<fileset dir="${MANAGER_HOME}/lib">
+				<exclude name="mirth-client.jar" />
+			<fileset/>
 		</copy>
 
 		<ant antfile="${SERVER_HOME}/build.xml" dir="${SERVER_HOME}" target="create-dist">
