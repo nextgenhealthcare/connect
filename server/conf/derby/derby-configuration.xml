@@ -25,8 +25,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<select id="getLatestConfiguration" resultClass="com.webreach.mirth.model.Configuration">
 		SELECT *
 		FROM CONFIGURATION
-		WHERE DATE_CREATED IN
-			(SELECT MAX(DATE_CREATED)
+		WHERE ID IN
+			(SELECT MAX(ID)
 			FROM CONFIGURATION)
 	</select>
 	
@@ -44,8 +44,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	
 	<delete id="deleteLatestConfiguration">
 		DELETE FROM CONFIGURATION
-		WHERE DATE_CREATED IN
-			(SELECT MAX(DATE_CREATED)
+		WHERE ID IN
+			(SELECT MAX(ID)
 			FROM CONFIGURATION)
 	</delete>
 	
