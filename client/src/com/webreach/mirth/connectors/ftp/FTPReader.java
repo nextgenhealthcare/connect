@@ -74,6 +74,7 @@ public class FTPReader extends ConnectorClass
         //common file properties
         properties.put(FTPReaderProperties.FTP_MOVE_TO_PATTERN, moveToPattern.getText());
         properties.put(FTPReaderProperties.FTP_MOVE_TO_DIRECTORY, moveToDirectory.getText().replace('\\', '/'));
+        properties.put(FTPReaderProperties.FTP_MOVE_TO_ERROR_DIRECTORY, errorMoveToDirectory.getText().replace('\\', '/'));
         
         if (deleteAfterReadYes.isSelected())
             properties.put(FTPReaderProperties.FTP_DELETE_AFTER_READ, UIConstants.YES_OPTION);
@@ -168,6 +169,8 @@ public class FTPReader extends ConnectorClass
         //common file properties
         moveToPattern.setText((String) props.get(FTPReaderProperties.FTP_MOVE_TO_PATTERN));
         moveToDirectory.setText((String) props.get(FTPReaderProperties.FTP_MOVE_TO_DIRECTORY));
+        errorMoveToDirectory.setText((String) props.get(FTPReaderProperties.FTP_MOVE_TO_ERROR_DIRECTORY));
+        
         if (((String) props.get(FTPReaderProperties.FTP_DELETE_AFTER_READ)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
             deleteAfterReadYes.setSelected(true);
@@ -374,6 +377,8 @@ public class FTPReader extends ConnectorClass
         pollingTime = new com.webreach.mirth.client.ui.components.MirthTimePicker();
         jLabel1 = new javax.swing.JLabel();
         FTPDirectoryField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        errorMoveToDirectoryLabel = new javax.swing.JLabel();
+        errorMoveToDirectory = new com.webreach.mirth.client.ui.components.MirthTextField();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -605,32 +610,35 @@ public class FTPReader extends ConnectorClass
 
         jLabel1.setText("/");
 
+        errorMoveToDirectoryLabel.setText("Error Move-to Directory:");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel41)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel14)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, fileAgeLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel12)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel11)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, moveToFileLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, moveToDirectoryLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, pollingTimeLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, pollingFrequencyLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel8)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, validateConnectionLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, FTPPasswordLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, FTPUsernameLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel10)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, URL))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel41)
+                    .add(jLabel3)
+                    .add(jLabel14)
+                    .add(jLabel7)
+                    .add(fileAgeLabel)
+                    .add(jLabel12)
+                    .add(jLabel11)
+                    .add(moveToFileLabel)
+                    .add(moveToDirectoryLabel)
+                    .add(pollingTimeLabel)
+                    .add(pollingFrequencyLabel)
+                    .add(jLabel4)
+                    .add(jLabel8)
+                    .add(jLabel6)
+                    .add(validateConnectionLabel)
+                    .add(FTPPasswordLabel)
+                    .add(FTPUsernameLabel)
+                    .add(jLabel10)
+                    .add(URL)
+                    .add(errorMoveToDirectoryLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
@@ -665,7 +673,8 @@ public class FTPReader extends ConnectorClass
                             .add(layout.createSequentialGroup()
                                 .add(checkFileAgeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(checkFileAgeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                .add(checkFileAgeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(errorMoveToDirectory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .add(5, 5, 5)
                         .add(mirthVariableList1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(fileAge, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -746,7 +755,11 @@ public class FTPReader extends ConnectorClass
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(moveToFileLabel)
                             .add(moveToPattern, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .add(6, 6, 6)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(errorMoveToDirectoryLabel)
+                            .add(errorMoveToDirectory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(jLabel11)
                             .add(deleteAfterReadYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -880,6 +893,8 @@ public class FTPReader extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthRadioButton checkFileAgeYes;
     private com.webreach.mirth.client.ui.components.MirthRadioButton deleteAfterReadNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton deleteAfterReadYes;
+    private com.webreach.mirth.client.ui.components.MirthTextField errorMoveToDirectory;
+    private javax.swing.JLabel errorMoveToDirectoryLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField fileAge;
     private javax.swing.JLabel fileAgeLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField fileNameFilter;
