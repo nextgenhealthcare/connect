@@ -169,7 +169,10 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 					UMOMessageAdapter msgAdapter = this.connector.getMessageAdapter(message);
 					UMOMessage umoMessage = new MuleMessage(msgAdapter);
 					UMOMessage retMessage = routeMessage(umoMessage, tx, tx != null || endpoint.isSynchronous());
-					postprocessor.doPostProcess(retMessage.getPayload());
+					if (retMessage != null){
+						//prevents errors if synchronous is not checked
+						postprocessor.doPostProcess(retMessage.getPayload());
+					}
 					if (ackException != null)
 						throw ackException;
 				} catch (ConnectException ce) {

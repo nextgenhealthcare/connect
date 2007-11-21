@@ -100,7 +100,9 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
 		} else {
 			try{
 			UMOMessage msg = new MuleMessage(event.getTransformedMessage(), event.getProperties());
-			postProcessor.doPostProcess(msg.getPayload());
+			if (msg != null){
+				postProcessor.doPostProcess(msg.getPayload());
+			}
 			synchronized (lock) {
 				routeMessage(msg);
 			}
@@ -122,7 +124,9 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
 		monitoringController.updateStatus(componentName, connectorType, Event.BUSY, null);
 		try{
 			UMOMessage umoMessage = routeMessage(new MuleMessage(event.getTransformedMessage(), event.getProperties(), event.getMessage()), event.isSynchronous());
-			postProcessor.doPostProcess(umoMessage.getPayload());
+			if (umoMessage != null){
+				postProcessor.doPostProcess(umoMessage.getPayload());
+			}
 			return umoMessage;
 		}catch (UMOException e){
 			throw e;
@@ -139,7 +143,9 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
 		monitoringController.updateStatus(componentName, connectorType, Event.BUSY, null);
 		try{
 			UMOMessage umoMessage = routeMessage(new MuleMessage(event.getTransformedMessage(), event.getProperties()), true);
-			postProcessor.doPostProcess(umoMessage.getPayload());
+			if (umoMessage != null){
+				postProcessor.doPostProcess(umoMessage.getPayload());
+			}
 			monitoringController.updateStatus(componentName, connectorType, Event.DONE, null);
 		}catch (UMOException e){
 			throw e;

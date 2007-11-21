@@ -124,8 +124,8 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 			sortFiles(files);
 			routingError = false;
 			for (int i = 0; i < files.length; i++) {
-				
-				if (!routingError){
+				//
+				if (!routingError && !files[i].isDirectory()){
 					monitoringController.updateStatus(connector, connectorType, Event.BUSY);
 					processFile(files[i]);
 					monitoringController.updateStatus(connector, connectorType, Event.DONE);
@@ -206,7 +206,9 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 							UMOMessageAdapter batchAdapter = connector.getMessageAdapter(message);
 							batchAdapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
 							UMOMessage umoMessage = routeMessage(new MuleMessage(batchAdapter), endpoint.isSynchronous());
-							postProcessor.doPostProcess(umoMessage.getPayload());
+							if (umoMessage != null){
+								postProcessor.doPostProcess(umoMessage.getPayload());
+							}
 						}
 					} else {
 
@@ -221,7 +223,9 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 						adapter = connector.getMessageAdapter(message);
 						adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
 						UMOMessage umoMessage =	routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
-						postProcessor.doPostProcess(umoMessage.getPayload());
+						if (umoMessage != null){
+							postProcessor.doPostProcess(umoMessage.getPayload());
+						}
 					}
 				} catch (RoutingException e) {
 					logger.error("Unable to route. Stopping Connector: " + StackTracePrinter.stackTraceToString(e));

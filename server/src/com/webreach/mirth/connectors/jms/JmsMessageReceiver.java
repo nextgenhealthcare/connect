@@ -111,7 +111,9 @@ public class JmsMessageReceiver extends AbstractMessageReceiver implements Messa
 
             UMOMessageAdapter adapter = connector.getMessageAdapter(message);
             UMOMessage umoMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
-            postProcessor.doPostProcess(umoMessage.getPayload());
+            if (umoMessage != null){
+				postProcessor.doPostProcess(umoMessage.getPayload());
+			}
         } catch (Exception e) {
         	alertController.sendAlerts(((JmsConnector) connector).getChannelId(), Constants.ERROR_407, null, e);
             handleException(e);

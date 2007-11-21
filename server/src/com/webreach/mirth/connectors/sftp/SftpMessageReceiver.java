@@ -190,7 +190,9 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 					adapter = connector.getMessageAdapter(message.getBytes(connector.getCharsetEncoding()));
 					adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
 					UMOMessage umoMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
-					postProcessor.doPostProcess(umoMessage.getPayload());
+					if (umoMessage != null){
+						postProcessor.doPostProcess(umoMessage.getPayload());
+					}
 				}
 			} else {
 				String message = "";
@@ -203,7 +205,10 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 					adapter = connector.getMessageAdapter(contents);
 				}
 				adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
-				routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
+				UMOMessage umoMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
+				if (umoMessage != null){
+					postProcessor.doPostProcess(umoMessage.getPayload());
+				}
 			}
 			// move the file if needed
 			if (destinationFile != null) {
