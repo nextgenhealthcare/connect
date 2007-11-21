@@ -96,7 +96,7 @@
 		<copy todir="${SERVER_HOME}/lib">
 			<fileset dir="${MANAGER_HOME}/lib">
 				<exclude name="mirth-client.jar" />
-			<fileset/>
+			</fileset>
 		</copy>
 
 		<ant antfile="${SERVER_HOME}/build.xml" dir="${SERVER_HOME}" target="create-dist">
