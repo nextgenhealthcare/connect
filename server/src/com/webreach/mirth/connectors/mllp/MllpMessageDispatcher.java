@@ -329,7 +329,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 			return result;
 		}
 		// If we have reached this point, the conections has been fine
-		manageResponseAck(socket, endpoint, data);
+		result = manageResponseAck(socket, endpoint, data);
 		if (!connector.isKeepSendSocketOpen()) {
 			doDispose(socket);
 		}
@@ -347,14 +347,14 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 		monitoringController.updateStatus(connector, connectorType, Event.DONE, socket);
 	}
 
-	public void manageResponseAck(Socket socket, UMOEndpoint endpoint, MessageObject messageObject) {
+	public boolean manageResponseAck(Socket socket, UMOEndpoint endpoint, MessageObject messageObject) {
 		int maxTime = connector.getAckTimeout();
 		if (maxTime <= 0) { // TODO: Either make a UI setting to "not check for
 			// ACK" or document this
 			// We aren't waiting for an ACK
 			messageObjectController.setSuccess(messageObject, "Message successfully sent");
 
-			return;
+			return true;
 		}
 		byte[] theAck = getAck(socket, endpoint);
 
@@ -362,7 +362,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 			// NACK
 			messageObjectController.setError(messageObject, Constants.ERROR_408, "Timeout waiting for ACK", null);
 			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, "Timeout waiting for ACK", null);
-			return;
+			return false;
 		}
 		try {
 			String ackString = new String(theAck, connector.getCharsetEncoding());
@@ -386,14 +386,16 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 			// NACK
 			messageObjectController.setError(messageObject, Constants.ERROR_408, "ACK message violates LLP protocol", null);
 			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, "ACK message violates LLP protocol", null);
-			return;
+			return true;
 		}
 		ResponseAck rack = new ResponseAck(ackString);
 		if (rack.getTypeOfAck()) {// Ack Ok
 			messageObjectController.setSuccess(messageObject, ackString);
+			return true;
 		} else {
 			messageObjectController.setError(messageObject, Constants.ERROR_408, "NACK sent from receiver: " + rack.getErrorDescription() + ": " + ackString, null);
 			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, "NACK sent from receiver: " + rack.getErrorDescription() + ": " + ackString, null);
+			return true;
 		}
 	}
 
