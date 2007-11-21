@@ -14,9 +14,9 @@ import com.webreach.mirth.client.ui.editors.RuleBuilderPanel;
 import com.webreach.mirth.client.ui.editors.filter.FilterPane;
 import com.webreach.mirth.plugins.FilterRulePlugin;
 
-public class GraphicalRulePlugin extends FilterRulePlugin{
+public class RuleBuilderPlugin extends FilterRulePlugin{
 	private RuleBuilderPanel panel;
-	public GraphicalRulePlugin(String name, FilterPane parent) {
+	public RuleBuilderPlugin(String name, FilterPane parent) {
 		super(name, parent);	
 		panel = new RuleBuilderPanel(parent);
 	}

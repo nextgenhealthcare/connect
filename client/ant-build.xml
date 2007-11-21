@@ -125,8 +125,8 @@
 		<jar destfile="${dist}/plugins/javascript-filter-rule-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/filter/rule/javascript/**" />
 		</jar>
-		<jar destfile="${dist}/plugins/graphical-filter-rule-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/plugins/filter/rule/graphicalrule/**" />
+		<jar destfile="${dist}/plugins/rule-builder-filter-rule-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/plugins/filter/rule/rulebuilder/**" />
 		</jar>
 		
 		<jar destfile="${dist}/plugins/dashboard-status-monitor-server-client.jar" basedir="${classes}">
