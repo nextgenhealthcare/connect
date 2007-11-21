@@ -1,11 +1,31 @@
 package com.webreach.mirth.plugins.dashboardstatus;
 
 import java.net.Socket;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.sql.*;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.log4j.Logger;
+
+import com.webreach.mirth.connectors.doc.DocumentWriterProperties;
+import com.webreach.mirth.connectors.email.EmailSenderProperties;
+import com.webreach.mirth.connectors.file.FileWriterProperties;
+import com.webreach.mirth.connectors.ftp.FTPWriterProperties;
+import com.webreach.mirth.connectors.http.HTTPSenderProperties;
+import com.webreach.mirth.connectors.jdbc.DatabaseWriterProperties;
+import com.webreach.mirth.connectors.jms.JMSWriterProperties;
+import com.webreach.mirth.connectors.mllp.LLPSenderProperties;
+import com.webreach.mirth.connectors.sftp.SFTPWriterProperties;
+import com.webreach.mirth.connectors.soap.SOAPSenderProperties;
+import com.webreach.mirth.connectors.tcp.TCPSenderProperties;
+import com.webreach.mirth.connectors.vm.ChannelWriterProperties;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.converters.ObjectCloner;
@@ -14,19 +34,6 @@ import com.webreach.mirth.plugins.ServerPlugin;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
-import com.webreach.mirth.connectors.ftp.FTPWriterProperties;
-import com.webreach.mirth.connectors.jdbc.DatabaseWriterProperties;
-import com.webreach.mirth.connectors.file.FileWriterProperties;
-import com.webreach.mirth.connectors.sftp.SFTPWriterProperties;
-import com.webreach.mirth.connectors.jms.JMSWriterProperties;
-import com.webreach.mirth.connectors.vm.ChannelWriterProperties;
-import com.webreach.mirth.connectors.doc.DocumentWriterProperties;
-import com.webreach.mirth.connectors.http.HTTPSenderProperties;
-import com.webreach.mirth.connectors.email.EmailSenderProperties;
-import com.webreach.mirth.connectors.tcp.TCPSenderProperties;
-import com.webreach.mirth.connectors.mllp.LLPSenderProperties;
-import com.webreach.mirth.connectors.soap.SOAPSenderProperties;
-import org.apache.log4j.Logger;
 
 public class DashboardConnectorStatusMonitor implements ServerPlugin
 {
