@@ -165,13 +165,12 @@ public class ER7Serializer implements IXMLSerializer<String> {
 				//Our delimiters usually look like this:
 				//<MSH.2>^~\&amp;</MSH.2>
 				//We need to decode XML entities
-				String otherDelimiters = Entities.getInstance().decode(getXMLValue(source, "<MSH.2>",  "</MSH.2>" ));
-				logger.error("HL7 delimiters: " + otherDelimiters);
+				String otherDelimiters = getXMLValue(source, "<MSH.2>",  "</MSH.2>" ).replaceAll("&amp;","&");
 				if (otherDelimiters.length() == 4){
 					fieldDelimiter = otherDelimiters.substring(0,1); //usually ^
-					repetitionDelimiter = otherDelimiters.substring(1,1); //usually ~
-					escapeSequence = otherDelimiters.substring(2,1); //usually \
-					subcomponentDelimiter = otherDelimiters.substring(3, 1); //usually &
+					repetitionDelimiter = otherDelimiters.substring(1,2); //usually ~
+					escapeSequence = otherDelimiters.substring(2,3); //usually \
+					subcomponentDelimiter = otherDelimiters.substring(3, 4); //usually &
 				}
 				//String fieldDelimiter = 
 				ER7XMLHandler handler = new ER7XMLHandler("\r", segmentDelimiter, 
@@ -180,7 +179,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 				xr.setContentHandler(handler);
 				xr.setErrorHandler(handler);
                 //Parse, but first replace all spaces between brackets. This fixes pretty-printed XML we might receive
-				xr.parse(new InputSource(new StringReader(source.replaceAll("</([^>]*)>\\s+<", "</$1><"))));
+				xr.parse(new InputSource(new StringReader(source.replaceAll("\\s*<([^>]*)>\\s*", "<$1>"))));
 				builder.append(handler.getOutput());
 			} catch (Exception e) {
 				String exceptionMessage = e.getClass().getName() + ":" + e.getMessage();

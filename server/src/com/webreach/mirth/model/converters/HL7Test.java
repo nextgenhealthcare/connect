@@ -66,11 +66,21 @@ public class HL7Test {
 		stopwatch.start();
 		ER7Serializer serializer = new ER7Serializer(properties);
 		String xmloutput = xml;
+		String er7 = "";
 		if (xml == null){
 			xmloutput = serializer.toXML(testMessage);
+			er7 = serializer.fromXML(xmloutput);
+			stopwatch.stop();
+		}else{
+			
+			DocumentSerializer docser = new DocumentSerializer();
+			docser.setPreserveSpace(false);
+			Document doc = docser.fromXML(xmloutput);
+			er7 = serializer.fromXML(docser.toXML(doc));
+			stopwatch.stop();
 		}
-		String er7 = serializer.fromXML(xmloutput);
-		stopwatch.stop();
+		
+		
 		//System.out.println(xmloutput);
 		DocumentSerializer docser = new DocumentSerializer();
 		docser.setPreserveSpace(false);
