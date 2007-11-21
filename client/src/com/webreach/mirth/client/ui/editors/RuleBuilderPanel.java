@@ -451,6 +451,7 @@ public class RuleBuilderPanel extends BasePanel
         });
 
         doesNotExist.setBackground(new java.awt.Color(255, 255, 255));
+        buttonGroup1.add(doesNotExist);
         doesNotExist.setText("Does Not Exist");
         doesNotExist.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         doesNotExist.setMargin(new java.awt.Insets(0, 0, 0, 0));
