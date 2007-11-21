@@ -78,6 +78,10 @@ public class JavaScriptTokenMarker extends CTokenMarker
             javaScriptKeywords.add("replacer", Token.KEYWORD3);
             javaScriptKeywords.add("FileUtil", Token.KEYWORD3);
             javaScriptKeywords.add("DateUtil", Token.KEYWORD3);
+            
+            javaScriptKeywords.add("createSegment", Token.KEYWORD3);
+            javaScriptKeywords.add("addAttachment", Token.KEYWORD3);
+            javaScriptKeywords.add("getAttachments", Token.KEYWORD3);
             javaScriptKeywords.add("ABS", Token.KEYWORD3);
 
             javaScriptKeywords.add("ACC", Token.KEYWORD3);

@@ -131,7 +131,9 @@ public class ReferenceListFactory
             variablelistItems.add(new ReferenceListItem("Message Protocol", "The message protocol", "messageObject.getProtocol().toString()", CodeSnippetType.VARIABLE));
             variablelistItems.add(new ReferenceListItem("Channel ID", "The message channel id", "messageObject.getChannelId()", CodeSnippetType.VARIABLE));
             variablelistItems.add(new ReferenceListItem("Iterate Over Segment", "Iterates a segment that repeats in a message.  Replace SEG with your segment name (i.e. OBX)", "for each (seg in msg..SEG)\n{\n\tvar sample_value = seg['SEG.1']['SEG.1.1'];\n}\n", CodeSnippetType.FUNCTION));
-            variablelistItems.add(new ReferenceListItem("Create Segment", "Create a new segment in the message", "createSegment('segment')", CodeSnippetType.FUNCTION));
+            variablelistItems.add(new ReferenceListItem("Create Segment (individual)", "Create a new segment that can be used in any message", "createSegment('segmentName')", CodeSnippetType.FUNCTION));
+            variablelistItems.add(new ReferenceListItem("Create Segment (in message)", "Create a new segment in specified message (msg or tmp)", "createSegment('segmentName', msg)", CodeSnippetType.FUNCTION));
+            variablelistItems.add(new ReferenceListItem("Create Segment (in message, indexed)", "Create a new segment in specified message (msg or tmp) at segment index i", "createSegment('segmentName', msg, i)", CodeSnippetType.FUNCTION));
             variablelistItems.add(new ReferenceListItem("Delete Segment", "Delete a segment from the message", "delete msg['segment']", CodeSnippetType.FUNCTION));
             variablelistItems.add(new ReferenceListItem("Add Attachment", "Add attachment (String or byte[]) to message", "addAttachment(data, type)", CodeSnippetType.FUNCTION));
             variablelistItems.add(new ReferenceListItem("Get Attachments", "Get List of Attachments", "getAttachments()", CodeSnippetType.FUNCTION));
