@@ -40,6 +40,7 @@ public class FileReaderProperties implements ComponentProperties
     public static final String FILE_POLLING_FREQUENCY = "pollingFrequency";
     public static final String FILE_MOVE_TO_PATTERN = "moveToPattern";
     public static final String FILE_MOVE_TO_DIRECTORY = "moveToDirectory";
+    public static final String FILE_MOVE_TO_ERROR_DIRECTORY = "moveToErrorDirectory";
     public static final String FILE_DELETE_AFTER_READ = "autoDelete";
     public static final String FILE_CHECK_FILE_AGE = "checkFileAge";
     public static final String FILE_FILE_AGE = "fileAge";
@@ -62,6 +63,7 @@ public class FileReaderProperties implements ComponentProperties
         properties.put(FILE_POLLING_FREQUENCY, "1000");
         properties.put(FILE_MOVE_TO_PATTERN, "");
         properties.put(FILE_MOVE_TO_DIRECTORY, "");
+        properties.put(FILE_MOVE_TO_ERROR_DIRECTORY, "");
         properties.put(FILE_DELETE_AFTER_READ, "0");
         properties.put(FILE_CHECK_FILE_AGE, "0");
         properties.put(FILE_FILE_AGE, "0");

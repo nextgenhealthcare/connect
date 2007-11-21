@@ -45,6 +45,7 @@ public class FTPReaderProperties implements ComponentProperties
     public static final String FTP_VALIDATE_CONNECTION = "validateConnections";
     public static final String FTP_MOVE_TO_PATTERN = "moveToPattern";
     public static final String FTP_MOVE_TO_DIRECTORY = "moveToDirectory";
+    public static final String FTP_MOVE_TO_ERROR_DIRECTORY = "moveToErrorDirectory";
     public static final String FTP_DELETE_AFTER_READ = "autoDelete";
     public static final String FTP_CHECK_FTP_AGE = "checkFileAge";
     public static final String FTP_FTP_AGE = "fileAge";
@@ -72,6 +73,7 @@ public class FTPReaderProperties implements ComponentProperties
         properties.put(FTP_VALIDATE_CONNECTION, "1");
         properties.put(FTP_MOVE_TO_PATTERN, "");
         properties.put(FTP_MOVE_TO_DIRECTORY, "");
+        properties.put(FTP_MOVE_TO_ERROR_DIRECTORY, "");
         properties.put(FTP_DELETE_AFTER_READ, "0");
         properties.put(FTP_CHECK_FTP_AGE, "0");
         properties.put(FTP_FTP_AGE, "0");
