@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>ADTA42</name>
+    <description>Merge Visit - Visit Number</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>EVN</segment>
+        <group maxOccurs="unbounded">
+            <segment>PID</segment>
+            <segment minOccurs="0">PD1</segment>
+            <segment>MRG</segment>
+            <segment minOccurs="0">PV1</segment>
+        </group>
+    </segments>
+</message>

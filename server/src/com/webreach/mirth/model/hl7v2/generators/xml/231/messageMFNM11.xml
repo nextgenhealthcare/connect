@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>MFNM11</name>
+    <description>Test/Calculated Observations Master File</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MFI</segment>
+        <group maxOccurs="unbounded">
+            <segment>MFE</segment>
+            <group minOccurs="0">
+                <segment>OM6</segment>
+                <segment>OM2</segment>
+            </group>
+        </group>
+    </segments>
+</message>

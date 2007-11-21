@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>QCKQ02</name>
+    <description>Query For Deferred Response -  Acknowledgement (Response B to A)</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MSA</segment>
+        <segment minOccurs="0">ERR</segment>
+        <segment minOccurs="0">QAK</segment>
+    </segments>
+</message>

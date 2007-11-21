@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>SRT</name>
+    <description>Sort Order</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>SRT.1</name>
+            <description>Sort-by Field</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>SRT.2</name>
+            <description>Sequencing</description>
+            <datatype>ID</datatype>
+        </field>
+    </elements>
+</segment>

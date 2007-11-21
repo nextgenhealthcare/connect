@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>MFNM04</name>
+    <description>Master Files Charge Description</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment>MFI</segment>
+        <group maxOccurs="unbounded">
+            <segment>MFE</segment>
+            <segment>CDM</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">PRC</segment>
+        </group>
+    </segments>
+</message>

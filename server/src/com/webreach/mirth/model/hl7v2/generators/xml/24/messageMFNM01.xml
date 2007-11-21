@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>MFNM01</name>
+    <description>Master File not Otherwise Specified (for Backward Compatibility Only)</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MFI</segment>
+        <group maxOccurs="unbounded">
+            <segment>MFE</segment>
+        </group>
+    </segments>
+</message>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>SSUU03</name>
+    <description>Specimen Status Update</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>EQU</segment>
+        <group maxOccurs="unbounded">
+            <segment>SAC</segment>
+            <segment minOccurs="0">OBX</segment>
+        </group>
+        <segment minOccurs="0">ROL</segment>
+    </segments>
+</message>

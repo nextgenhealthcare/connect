@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>RF1</name>
+    <description>Referral Information</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RF1.1</name>
+            <description>Referral Status</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RF1.2</name>
+            <description>Referral Priority</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RF1.3</name>
+            <description>Referral Type</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>RF1.4</name>
+            <description>Referral Disposition</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RF1.5</name>
+            <description>Referral Category</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>RF1.6</name>
+            <description>Originating Referral Identifier</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RF1.7</name>
+            <description>Effective Date</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RF1.8</name>
+            <description>Expiration Date</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RF1.9</name>
+            <description>Process Date</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>RF1.10</name>
+            <description>Referral Reason</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>RF1.11</name>
+            <description>External Referral Identifier</description>
+            <datatype>EI</datatype>
+        </field>
+    </elements>
+</segment>

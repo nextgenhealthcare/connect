@@ -8,23 +8,58 @@ import com.webreach.mirth.model.util.MessageVocabulary;
 
 public class HL7v2Vocabulary extends MessageVocabulary {
 	Map<String, String> vocab = new HashMap<String, String>();
-	private HL7Reference reference = null;
 	private String version;
 	private String type;
-	public HL7v2Vocabulary(String version, String type){
+
+	public HL7v2Vocabulary(String version, String type) {
 		super(version, type);
-		this.version = version;
+		this.version = version.replaceAll("\\.", "");
 		this.type = type;
-		reference = HL7Reference.getInstance();
 	}
 
 	// For now we are going to use the large hashmap
 	// TODO: 1.4.1 - Use hl7 model XML from JAXB to generate vocab in real-time
 	public String getDescription(String elementId) {
-		return reference.getDescription(elementId, version);
+		try {
+			if (elementId.indexOf('.') < 0) {
+				if (elementId.length() < 4) {
+					// we have a segment
+					return Component.getSegmentDescription(version, elementId);
+				} else {
+					// We have a message (ADTA01)
+					return Component.getMessageDescription(version, elementId);
+				}
+
+			} else {
+				String[] parts = elementId.split("\\.");
+				if (parts.length == 3) {
+					// we have a complete node, PID.5.1
+					return Component.getCompositeFieldDescriptionWithSegment(version, elementId, false);
+				} else if (parts.length == 2) {
+					// coule either be a segment or composite
+					// PID.5 or XPN.1
+					// Try segment first then composite
+					String description = "";
+					try {
+						description = Component.getSegmentFieldDescription(version, elementId, false);
+					} catch (Exception e) {
+						description = Component.getCompositeFieldDescription(version, elementId, false);
+					}
+					return description;
+
+				} else {
+					return "";
+				}
+			}
+		} catch (Exception e) {
+			//e.printStackTrace();
+			return "";
+		}
+		// return reference.getDescription(elementId, version);
 	}
-	private void loadData(){
-		
+
+	private void loadData() {
+
 	}
 
 	@Override

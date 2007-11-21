@@ -1,0 +1,14 @@
+package com.webreach.mirth.model.hl7v2.v231.segment;
+import com.webreach.mirth.model.hl7v2.v231.composite.*;
+import com.webreach.mirth.model.hl7v2.*;
+
+public class _OM1 extends Segment {
+	public _OM1(){
+		fields = new Class[]{_NM.class, _CE.class, _ID.class, _ID.class, _CE.class, _TX.class, _CE.class, _ST.class, _ST.class, _ST.class, _ST.class, _ID.class, _CE.class, _CE.class, _ID.class, _CE.class, _XTN.class, _IS.class, _CE.class, _ST.class, _TS.class, _TS.class, _NM.class, _NM.class, _ID.class, _ID.class, _CE.class, _XAD.class, _XTN.class, _IS.class, _CE.class, _TX.class, _CE.class, _CE.class, _TX.class, _CE.class, _TX.class, _CE.class, _TX.class, _ST.class, _TX.class, _CE.class, _CE.class, _TX_CHALLENGE.class, _CE.class, _CE.class, _CE.class};
+		repeats = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		required = new boolean[]{false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+		fieldDescriptions = new String[]{"Sequence Number - Test/Observation Master File", "Producer's Test/Observation ID", "Permitted Data Types", "Specimen Required", "Producer ID", "Observation Description", "Other Test/Observation Ids For the Observation", "Other Names", "Preferred Report Name For the Observation", "Preferred Short Name or Mnemonic For Observation", "Preferred Long Name For the Observation", "Orderability", "Identity of Instrument Used to Perform This Study", "Coded Representation of Method", "Portable", "Observation Producing Department/Section", "Telephone Number of Section", "Nature of Test/Observation", "Report Subheader", "Report Display Order", "Date/Time Stamp For Any Change In Definition For the Observation", "Effective Date/Time of Change", "Typical Turn-around Time", "Processing Time", "Processing Priority", "Reporting Priority", "Outside Site(s) Where Observation May Be Performed", "Address of Outside Site(s)", "Phone Number of Outside Site", "Confidentiality Code", "Observations Required to Interpret the Obs", "Interpretation of Observations", "Contraindications to Observations", "Reflex Tests/Observations", "Rules that Trigger Reflex Testing", "Fixed Canned Message", "Patient Preparation", "Procedure Medication", "Factors that May Effect the Observation", "Test/Observation Performance Schedule", "Description of Test Methods", "Kind of Quantity Observed", "Point Versus Interval", "Challenge Information", "Relationship Modifier", "Target Anatomic Site of Test", "Modality of Imaging Measurement"};
+		description = "General (Fields that Apply to Most Observations)";
+		name = "OM1";
+	}
+}

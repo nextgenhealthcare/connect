@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>QBPQ15</name>
+    <description>Query by Parameter/Display Response</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>QPD</segment>
+        <segment>RCP</segment>
+        <segment minOccurs="0">DSC</segment>
+    </segments>
+</message>

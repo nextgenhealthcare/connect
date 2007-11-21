@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>NCK</name>
+    <description>System Clock</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NCK.1</name>
+            <description>System Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+    </elements>
+</segment>

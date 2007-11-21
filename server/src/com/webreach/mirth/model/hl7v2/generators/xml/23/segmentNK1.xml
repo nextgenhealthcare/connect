@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>NK1</name>
+    <description>Next of Kin/Associated Parties</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>NK1.1</name>
+            <description>Set ID</description>
+            <datatype>SI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.2</name>
+            <description>Name</description>
+            <datatype>XPN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.3</name>
+            <description>Relationship</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.4</name>
+            <description>Address</description>
+            <datatype>XAD</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.5</name>
+            <description>Phone Number</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.6</name>
+            <description>Business Phone Number</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.7</name>
+            <description>Contact Role</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.8</name>
+            <description>Start Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.9</name>
+            <description>End Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.10</name>
+            <description>Next of Kin/Associated Parties Job Title</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.11</name>
+            <description>Next of Kin/Associated Parties Job Code/Class</description>
+            <datatype>JCC</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.12</name>
+            <description>Next of Kin/Associated Parties Employee Number</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.13</name>
+            <description>Organization Name</description>
+            <datatype>XON</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.14</name>
+            <description>Marital Status</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.15</name>
+            <description>Sex</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.16</name>
+            <description>Date/Time of Birth</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.17</name>
+            <description>Living Dependency</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.18</name>
+            <description>Ambulatory Status</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.19</name>
+            <description>Citizenship</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.20</name>
+            <description>Primary Language</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.21</name>
+            <description>Living Arrangement</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.22</name>
+            <description>Publicity Indicator</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.23</name>
+            <description>Protection Indicator</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.24</name>
+            <description>Student Indicator</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.25</name>
+            <description>Religion</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.26</name>
+            <description>Mother’s Maiden Name</description>
+            <datatype>XPN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.27</name>
+            <description>Nationality</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.28</name>
+            <description>Ethnic Group</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.29</name>
+            <description>Contact Reason</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.30</name>
+            <description>Contact Person’s Name</description>
+            <datatype>XPN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.31</name>
+            <description>Contact Person’s Telephone Number</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.32</name>
+            <description>Contact Person’s Address</description>
+            <datatype>XAD</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.33</name>
+            <description>Next of Kin/Associated Party’s Identifiers</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.34</name>
+            <description>Job Status</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.35</name>
+            <description>Race</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.36</name>
+            <description>Handicap</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>NK1.37</name>
+            <description>Contact Person Social Security Number</description>
+            <datatype>ST</datatype>
+        </field>
+    </elements>
+</segment>

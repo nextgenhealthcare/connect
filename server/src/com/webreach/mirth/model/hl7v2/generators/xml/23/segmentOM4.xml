@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>OM4</name>
+    <description>Observations that Require Specimens</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM4.1</name>
+            <description>Sequence Number - Test/ Observation Master File</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM4.2</name>
+            <description>Derived Specimen</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM4.3</name>
+            <description>Container Description</description>
+            <datatype>TX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM4.4</name>
+            <description>Container Volume</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM4.5</name>
+            <description>Container Units</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM4.6</name>
+            <description>Specimen</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM4.7</name>
+            <description>Additive</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM4.8</name>
+            <description>Preparation</description>
+            <datatype>TX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM4.9</name>
+            <description>Special Handling Requirements</description>
+            <datatype>TX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM4.10</name>
+            <description>Normal Collection Volume</description>
+            <datatype>CQ</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM4.11</name>
+            <description>Minimum Collection Volume</description>
+            <datatype>CQ</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM4.12</name>
+            <description>Specimen Requirements</description>
+            <datatype>TX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM4.13</name>
+            <description>Specimen Priorities</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM4.14</name>
+            <description>Specimen Retention Time</description>
+            <datatype>CQ</datatype>
+        </field>
+    </elements>
+</segment>
