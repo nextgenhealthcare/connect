@@ -94,6 +94,7 @@ public class UIConstants
     public static final ImageIcon CLOSED_ICON = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_yellow.png"));
 
     // for Forms
+    public static final String DOES_NOT_EXISTS_OPTION = "3";
     public static final String EXISTS_OPTION = "2";
     public static final String YES_OPTION = "1";
     public static final String NO_OPTION = "0";

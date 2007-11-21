@@ -40,7 +40,7 @@ import com.webreach.mirth.client.ui.components.MirthTable;
  *
  * @author brendanh
  */
-public class GraphicalRulePanel extends BasePanel
+public class RuleBuilderPanel extends BasePanel
 {
     protected String label;
     protected MirthEditorPane parent;
@@ -50,7 +50,7 @@ public class GraphicalRulePanel extends BasePanel
     private int lastIndex = -1;
     
     /** Creates new form MapperPanel */
-    public GraphicalRulePanel(MirthEditorPane p)
+    public RuleBuilderPanel(MirthEditorPane p)
     {
         parent = p;
         initComponents();
@@ -125,6 +125,8 @@ public class GraphicalRulePanel extends BasePanel
             m.put("Equals", UIConstants.NO_OPTION);
         else if(exists.isSelected())
             m.put("Equals", UIConstants.EXISTS_OPTION);
+        else if(doesNotExist.isSelected())
+            m.put("Equals", UIConstants.DOES_NOT_EXISTS_OPTION);
         
         m.put("Values", getValues());
         
@@ -158,6 +160,11 @@ public class GraphicalRulePanel extends BasePanel
             {
                 existsActionPerformed(null);
                 exists.setSelected(true);
+            }
+            else if(((String)data.get("Equals")).equals(UIConstants.DOES_NOT_EXISTS_OPTION))
+            {
+                doesNotExistActionPerformed(null);
+                doesNotExist.setSelected(true);
             }
             
             ArrayList<String> values = (ArrayList<String>) data.get("Values");
@@ -351,6 +358,7 @@ public class GraphicalRulePanel extends BasePanel
         jLabel3 = new javax.swing.JLabel();
         reject = new javax.swing.JRadioButton();
         exists = new javax.swing.JRadioButton();
+        doesNotExist = new javax.swing.JRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Field:");
@@ -442,6 +450,18 @@ public class GraphicalRulePanel extends BasePanel
             }
         });
 
+        doesNotExist.setBackground(new java.awt.Color(255, 255, 255));
+        doesNotExist.setText("Does Not Exist");
+        doesNotExist.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        doesNotExist.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        doesNotExist.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                doesNotExistActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -461,6 +481,8 @@ public class GraphicalRulePanel extends BasePanel
                         .add(reject))
                     .add(layout.createSequentialGroup()
                         .add(exists)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(doesNotExist)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(equals)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -494,7 +516,8 @@ public class GraphicalRulePanel extends BasePanel
                     .add(equals)
                     .add(doesNotEqual)
                     .add(jLabel2)
-                    .add(exists))
+                    .add(exists)
+                    .add(doesNotExist))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
@@ -506,6 +529,16 @@ public class GraphicalRulePanel extends BasePanel
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void doesNotExistActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_doesNotExistActionPerformed
+    {//GEN-HEADEREND:event_doesNotExistActionPerformed
+        valuesScrollPane.setEnabled(false);
+        valuesTable.setEnabled(false);
+        valuesLabel.setEnabled(false);
+        newButton.setEnabled(false);
+        deleteButton.setEnabled(false);
+        parent.modified = true;
+    }//GEN-LAST:event_doesNotExistActionPerformed
     
     private void doesNotEqualActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_doesNotEqualActionPerformed
     {//GEN-HEADEREND:event_doesNotEqualActionPerformed
@@ -570,6 +603,7 @@ public class GraphicalRulePanel extends BasePanel
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.JButton deleteButton;
     private javax.swing.JRadioButton doesNotEqual;
+    private javax.swing.JRadioButton doesNotExist;
     private javax.swing.JRadioButton equals;
     private javax.swing.JRadioButton exists;
     private javax.swing.JTextField fieldTextField;

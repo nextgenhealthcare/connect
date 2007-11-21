@@ -1,4 +1,4 @@
-package com.webreach.mirth.plugins.filter.rule.graphicalrule;
+package com.webreach.mirth.plugins.filter.rule.rulebuilder;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -10,15 +10,15 @@ import org.mozilla.javascript.Script;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.editors.BasePanel;
-import com.webreach.mirth.client.ui.editors.GraphicalRulePanel;
+import com.webreach.mirth.client.ui.editors.RuleBuilderPanel;
 import com.webreach.mirth.client.ui.editors.filter.FilterPane;
 import com.webreach.mirth.plugins.FilterRulePlugin;
 
 public class GraphicalRulePlugin extends FilterRulePlugin{
-	private GraphicalRulePanel panel;
+	private RuleBuilderPanel panel;
 	public GraphicalRulePlugin(String name, FilterPane parent) {
 		super(name, parent);	
-		panel = new GraphicalRulePanel(parent);
+		panel = new RuleBuilderPanel(parent);
 	}
 	@Override
 	public BasePanel getPanel() {
@@ -72,7 +72,11 @@ public class GraphicalRulePlugin extends FilterRulePlugin{
         if(((String)map.get("Equals")).equals(UIConstants.EXISTS_OPTION))
         {
             script.append(field + ".length > 0)\n"); 
-        }        
+        }   
+        else if(((String)map.get("Equals")).equals(UIConstants.DOES_NOT_EXISTS_OPTION))
+        {
+            script.append(field + ".length == 0)\n"); 
+        }       
         else
         {            
             if(((String)map.get("Equals")).equals(UIConstants.YES_OPTION))
