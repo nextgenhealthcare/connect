@@ -109,16 +109,42 @@ public class TreeTransferable implements Transferable
                     StringBuilder sb = new StringBuilder();
                     sb.insert(0, prefix);
                     TreeNode parent = data.getParent();
-                    
+                    String parentName = parent.toString();
                     Pattern pattern = Pattern.compile(" (\\(.*\\))");
-                    Matcher matcher = pattern.matcher(parent.toString());
+                    //if we're at a subnode (PID.5.1) then let's grab the parent's parent
+                    
+                    if (parent.getParent().getParent() != null && (parent.getParent().getParent().getParent() == null || parent.getParent().getParent().getParent().getParent() == null)){
+                    	TreeNode grandParent = parent.getParent();
+                    	if (grandParent != null){
+                    		 Matcher matcher = pattern.matcher(grandParent.toString());
+                             if (matcher.find())
+                             {
+                                 variable = matcher.group(1);
+                             }
+                             else
+                             {
+                                 variable = grandParent.toString().replaceAll(" \\(.*\\)", "");
+                             }
+                    	}
+                    }
+                    
+                    Matcher matcher = pattern.matcher(parentName);
                     if (matcher.find())
                     {
-                        variable = matcher.group(1);
+                    	if (!variable.equals("variable")){
+                    		variable += "_" + matcher.group(1);
+                    	}else{
+                    		variable = matcher.group(1);
+                    	}
                     }
                     else
                     {
-                        variable = parent.toString().replaceAll(" \\(.*\\)", "");
+                    	if (!variable.equals("variable")){
+                    		variable += "_" + parent.toString().replaceAll(" \\(.*\\)", "");
+                    	}else{
+                    		variable = parent.toString().replaceAll(" \\(.*\\)", "");
+                    	}
+                        
                     }
                     
                     return new MapperDropData(variable, constructPath().toString());

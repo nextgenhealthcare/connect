@@ -9,6 +9,7 @@ public abstract class MirthEditorPanePlugin
 {
     protected String name;
     protected MirthEditorPane parent;
+    protected boolean provideOwnStepName = false;
     public MirthEditorPanePlugin(String name, MirthEditorPane parent)
     {
         this.parent = parent;
@@ -43,4 +44,8 @@ public abstract class MirthEditorPanePlugin
     public abstract String getScript(Map<Object, Object> data);
     public abstract void clearData();
     public abstract void initData();
+	public boolean isProvideOwnStepName() {
+		return provideOwnStepName;
+	}
+
 }
