@@ -24,12 +24,12 @@ public class JavaScriptBuilder {
 
 			if (filter.getRules().isEmpty()) {
 				logger.debug("filter is emtpy, setting to accept all messages");
-				builder.append("function doFilter() { phase = 'filter'; return true; }\n");
+				builder.append("function doFilter() { phase = 'filter'; return true; }");
 			} else {
 				// generate the functions
 				for (ListIterator iter = filter.getRules().listIterator(); iter.hasNext();) {
 					Rule rule = (Rule) iter.next();
-					builder.append("function filterRule" + iter.nextIndex() + "() {" + rule.getScript() + "}\n");
+					builder.append("function filterRule" + iter.nextIndex() + "() {" + rule.getScript() + "}");
 				}
 
 				builder.append("function doFilter() { phase = 'filter'; return (");
@@ -52,8 +52,8 @@ public class JavaScriptBuilder {
 			}
 
 			logger.debug("building javascript transformer: step count=" + transformer.getSteps().size());
-
-			builder.append("function doTransform() { phase = 'transformer'\n");
+			//Set the phase and also reset the logger to transformer (it was filter before)
+			builder.append("function doTransform() { phase = 'transformer';logger = Packages.org.apache.log4j.Logger.getLogger(phase);");
 
 			for (Iterator iter = transformer.getSteps().iterator(); iter.hasNext();) {
 				Step step = (Step) iter.next();
