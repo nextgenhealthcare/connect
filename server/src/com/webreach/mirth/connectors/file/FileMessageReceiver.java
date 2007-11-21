@@ -66,27 +66,32 @@ import com.webreach.mirth.server.util.StackTracePrinter;
 public class FileMessageReceiver extends PollingMessageReceiver {
 	private String readDir = null;
 	private String moveDir = null;
+	private String errorDir = null;
 	private File readDirectory = null;
 	private File moveDirectory = null;
+	private File errorDirectory = null;
 	private String moveToPattern = null;
 	private FilenameFilter filenameFilter = null;
 	private boolean routingError = false;
+
 	private AlertController alertController = AlertController.getInstance();
 	private MonitoringController monitoringController = MonitoringController.getInstance();
 	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	private ConnectorType connectorType = ConnectorType.READER;
-	public FileMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, String readDir, String moveDir, String moveToPattern, Long frequency) throws InitialisationException {
+
+	public FileMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, String readDir, String moveDir, String moveToPattern, String errorDir, Long frequency) throws InitialisationException {
 		super(connector, component, endpoint, frequency);
 		this.readDir = replacer.replaceValuesFromGlobal(readDir, true);
 		this.moveDir = replacer.replaceValuesFromGlobal(moveDir, true);
 		this.moveToPattern = replacer.replaceValuesFromGlobal(moveToPattern, true);
-        
-        if(((FileConnector) connector).getPollingType().equals(FileConnector.POLLING_TYPE_TIME))
-            setTime(((FileConnector) connector).getPollingTime());
-        else
-            setFrequency(((FileConnector) connector).getPollingFrequency());
-        
+		this.errorDir = replacer.replaceValuesFromGlobal(errorDir, true);
+
+		if (((FileConnector) connector).getPollingType().equals(FileConnector.POLLING_TYPE_TIME))
+			setTime(((FileConnector) connector).getPollingTime());
+		else
+			setFrequency(((FileConnector) connector).getPollingFrequency());
+
 		filenameFilter = new FilenameWildcardFilter(replacer.replaceValuesFromGlobal(((FileConnector) connector).getFileFilter(), true));
 		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
 	}
@@ -107,6 +112,14 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 				throw new ConnectException(new Message("file", 5), this);
 			}
 		}
+
+		if (errorDir != null) {
+			errorDirectory = Utility.openDirectory((errorDir));
+			if (!(errorDirectory.canRead()) || !errorDirectory.canWrite()) {
+				throw new ConnectException(new Message("file", 5), this);
+			}
+		}
+
 	}
 
 	public void doDisconnect() throws Exception {}
@@ -125,7 +138,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 			routingError = false;
 			for (int i = 0; i < files.length; i++) {
 				//
-				if (!routingError && !files[i].isDirectory()){
+				if (!routingError && !files[i].isDirectory()) {
 					monitoringController.updateStatus(connector, connectorType, Event.BUSY);
 					processFile(files[i]);
 					monitoringController.updateStatus(connector, connectorType, Event.DONE);
@@ -134,7 +147,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 		} catch (Exception e) {
 			alertController.sendAlerts(((FileConnector) connector).getChannelId(), Constants.ERROR_403, null, e);
 			handleException(e);
-		}finally{
+		} finally {
 			monitoringController.updateStatus(connector, connectorType, Event.DONE);
 		}
 	}
@@ -177,11 +190,14 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 		String originalFilename = file.getName();
 		UMOMessageAdapter adapter = connector.getMessageAdapter(file);
 		adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
+
 		if (moveDir != null) {
 			String fileName = file.getName();
+
 			if (moveToPattern != null) {
 				fileName = connector.getFilenameParser().getFilename(adapter, moveToPattern);
 			}
+
 			destinationFile = new File(moveDir, fileName);
 		}
 
@@ -206,7 +222,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 							UMOMessageAdapter batchAdapter = connector.getMessageAdapter(message);
 							batchAdapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
 							UMOMessage umoMessage = routeMessage(new MuleMessage(batchAdapter), endpoint.isSynchronous());
-							if (umoMessage != null){
+							if (umoMessage != null) {
 								postProcessor.doPostProcess(umoMessage.getPayload());
 							}
 						}
@@ -222,21 +238,24 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 						}
 						adapter = connector.getMessageAdapter(message);
 						adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
-						UMOMessage umoMessage =	routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
-						if (umoMessage != null){
+						UMOMessage umoMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
+						if (umoMessage != null) {
 							postProcessor.doPostProcess(umoMessage.getPayload());
 						}
 					}
 				} catch (RoutingException e) {
-					logger.error("Unable to route. Stopping Connector: " + StackTracePrinter.stackTraceToString(e));
-					// connector.stopConnector();
-					// TODO: This was commented out (above). Do we need it?
+					logger.error("Unable to route." + StackTracePrinter.stackTraceToString(e));
 					routingError = true;
+					
+					if (errorDir != null) {
+						logger.error("Moveing file to error directory: " + errorDir);
+						destinationFile = new File(errorDir, file.getName());
+					}
 				} catch (Exception e) {
 					logger.error(e.getMessage());
 					fileProcesedException = new MuleException(new Message(Messages.FAILED_TO_READ_PAYLOAD, file.getName()));
-
 				}
+
 				// move the file if needed
 				if (destinationFile != null) {
 					try {
@@ -246,16 +265,19 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 					}
 
 					resultOfFileMoveOperation = file.renameTo(destinationFile);
+
 					if (!resultOfFileMoveOperation) {
 						throw new MuleException(new Message("file", 4, file.getAbsolutePath(), destinationFile.getAbsolutePath()));
 					}
 				}
+
 				if (connector.isAutoDelete()) {
 					adapter.getPayloadAsBytes();
 
 					// no moveTo directory
 					if (destinationFile == null) {
 						resultOfFileMoveOperation = file.delete();
+
 						if (!resultOfFileMoveOperation) {
 							throw new MuleException(new Message("file", 3, file.getAbsolutePath()));
 						}

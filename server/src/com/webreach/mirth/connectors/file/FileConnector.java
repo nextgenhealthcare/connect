@@ -75,6 +75,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	public static final String PROPERTY_OUTPUT_PATTERN = "outputPattern";
 	public static final String PROPERTY_MOVE_TO_PATTERN = "moveToPattern";
 	public static final String PROPERTY_MOVE_TO_DIRECTORY = "moveToDirectory";
+	public static final String PROPERTY_MOVE_TO_ERROR_DIRECTORY = "moveToErrorDirectory";
 	public static final String PROPERTY_DELETE_ON_READ = "autoDelete";
 	public static final String PROPERTY_DIRECTORY = "directory";
 	public static final String PROPERTY_TEMPLATE = "template";
@@ -105,6 +106,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	private String moveToPattern = null;
 	private String writeToDirectoryName = null;
 	private String moveToDirectoryName = null;
+	private String moveToErrorDirectoryName = null;
 	private String outputPattern = null;
 	private String sortAttribute = SORT_NAME;
 	private boolean outputAppend = false;
@@ -189,7 +191,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 			logger.debug("set polling frequency to: " + polling);
 		}
 		try {
-			receiver = serviceDescriptor.createMessageReceiver(this, component, endpoint, new Object[] { readDir, moveTo, moveToPattern, new Long(polling) });
+			receiver = serviceDescriptor.createMessageReceiver(this, component, endpoint, new Object[] { readDir, moveTo, moveToPattern, moveToErrorDirectoryName, new Long(polling) });
 			return receiver;
 		} catch (Exception e) {
 			throw new InitialisationException(new Message(Messages.FAILED_TO_CREATE_X_WITH_X, "Message Receiver", serviceDescriptor.getMessageReceiver()), e, this);
@@ -265,6 +267,14 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	 */
 	public void setMoveToDirectory(String dir) throws IOException {
 		this.moveToDirectoryName = dir;
+	}
+
+	public String getMoveToErrorDirectory() {
+		return moveToErrorDirectoryName;
+	}
+
+	public void setMoveToErrorDirectory(String dir) {
+		this.moveToErrorDirectoryName = dir;
 	}
 
 	/**
