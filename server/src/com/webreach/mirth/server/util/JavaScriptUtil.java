@@ -170,11 +170,22 @@ public class JavaScriptUtil {
 			builtScript.append("function $r(key, value){");
 			builtScript.append("if (arguments.length == 1){return responseMap.get(key); }");
 			builtScript.append("else if (arguments.length == 2){responseMap.put(key, value); }}");
+			
+			// Helper function to access attachments (returns List<Attachment>)
+			builtScript.append("function getAttachments() {");
+			builtScript.append("return Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().getAttachmentsByMessageId(messageObject.getId());");
+			builtScript.append("}");
+			
+			// Helper function to set attachment
+			builtScript.append("function addAttachment(data, type) {");
+			builtScript.append("var attachment = Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().createAttachment(data, type, messageObject);");
+			builtScript.append("Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().insertAttachment(attachment);}\n");
+			
 		}
 		builtScript.append("function $g(key, value){");
 		builtScript.append("if (arguments.length == 1){return globalMap.get(key); }");
 		builtScript.append("else if (arguments.length == 2){globalMap.put(key, value); }}");
-
+		
 		builtScript.append("function doScript() {\n" + script + " }\n");
 		builtScript.append("doScript()\n");
 		return builtScript.toString();

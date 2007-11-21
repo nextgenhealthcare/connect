@@ -400,32 +400,52 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		newScript.append("function validate(mapping, defaultValue, replacement) { var result; if (mapping != undefined) { result = new java.lang.String(mapping.toString()); } if ((result == undefined) || (result.length() == 0)) { result = defaultValue; } if (replacement != undefined) { for (i = 0; i < replacement.length; i++) { var entry = replacement[i]; result = result.replaceAll(entry[0],entry[1]); \n} } return result; }");
 
 		newScript.append("function $(string) { ");
-		newScript.append("\tif (connectorMap.containsKey(string)) { return connectorMap.get(string); }");
-		newScript.append("\telse if (channelMap.containsKey(string)) { return channelMap.get(string); }");
-		newScript.append("\telse if (globalMap.containsKey(string)) { return globalMap.get(string); }");
-		newScript.append("\telse { return ''; }");
+		newScript.append("if (connectorMap.containsKey(string)) { return connectorMap.get(string); }");
+		newScript.append("else if (channelMap.containsKey(string)) { return channelMap.get(string); }");
+		newScript.append("else if (globalMap.containsKey(string)) { return globalMap.get(string); }");
+		newScript.append("else { return ''; }");
 		newScript.append("}");
 
+		// Helper function to access globalMap
 		newScript.append("function $g(key, value) {");
-		newScript.append("\tif (arguments.length == 1) { return globalMap.get(key); }");
-		newScript.append("\telse if (arguments.length == 2) { globalMap.put(key, value); }");
+		newScript.append("if (arguments.length == 1) { return globalMap.get(key); }");
+		newScript.append("else if (arguments.length == 2) { globalMap.put(key, value); }");
 		newScript.append("}");
-
+		
+		// Helper function to access channelMap
 		newScript.append("function $c(key, value) {");
-		newScript.append("\tif (arguments.length == 1) { return channelMap.get(key); }");
-		newScript.append("\telse if (arguments.length == 2) { channelMap.put(key, value); }");
+		newScript.append("if (arguments.length == 1) { return channelMap.get(key); }");
+		newScript.append("else if (arguments.length == 2) { channelMap.put(key, value); }");
 		newScript.append("}");
-
+		// Helper function to access connectorMap
 		newScript.append("function $co(key, value) {");
-		newScript.append("\tif (arguments.length == 1) { return connectorMap.get(key); }");
-		newScript.append("\telse if (arguments.length == 2) { connectorMap.put(key, value); }");
+		newScript.append("if (arguments.length == 1) { return connectorMap.get(key); }");
+		newScript.append("else if (arguments.length == 2) { connectorMap.put(key, value); }");
 		newScript.append("}");
 
+		// Helper function to access responseMap
 		newScript.append("function $r(key, value) {");
-		newScript.append("\tif (arguments.length == 1) { return responseMap.get(key); }");
-		newScript.append("\telse if (arguments.length == 2) { responseMap.put(key, value); }");
+		newScript.append("if (arguments.length == 1) { return responseMap.get(key); }");
+		newScript.append("else if (arguments.length == 2) { responseMap.put(key, value); }");
 		newScript.append("}");
-
+		
+		// Helper function to create segments
+		newScript.append("function createSegment(name) {");
+		newScript.append("return new XML('<' + name + '></' + name + '>');");
+		newScript.append("}");
+		
+		// TODO: Look into optimizing. Potentially moving p.c.wr.m.s.c.MOC to an outside var
+		
+		// Helper function to get attachments
+		newScript.append("function getAttachments() {");
+		newScript.append("return Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().getAttachmentsByMessageId(messageObject.getId());");
+		newScript.append("}");
+		
+		// Helper function to set attachment
+		newScript.append("function addAttachment(data, type) {");
+		newScript.append("var attachment = Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().createAttachment(data, type, messageObject);");
+		newScript.append("Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().insertAttachment(attachment);}\n");
+		
 		// ast: Allow ending whitespaces from the input XML
 		newScript.append("XML.ignoreWhitespace=false;");
 		// ast: Allow ending whitespaces to the output XML

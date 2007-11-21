@@ -647,4 +647,10 @@ public class MessageObjectController {
         attachment.setType(type);
         return attachment;
     }
+    public Attachment createAttachment(Object data, String type, MessageObject messageObject) throws UnsupportedDataTypeException{
+    	Attachment attachment = createAttachment(data, type);
+    	attachment.setMessageId(messageObject.getId());
+    	return attachment;
+    }
 }
+
