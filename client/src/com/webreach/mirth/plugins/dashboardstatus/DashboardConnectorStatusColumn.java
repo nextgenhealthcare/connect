@@ -83,7 +83,8 @@ public class DashboardConnectorStatusColumn extends DashboardColumnPlugin {
 		try {
 			currentStates = (HashMap<String, String[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, GET_STATES, null);
 		} catch (ClientException e) {
-            e.printStackTrace();
+           // we can safely ignore this
+		   //e.printStackTrace();
 		}
 	}
 
