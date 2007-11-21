@@ -25,6 +25,8 @@
 
 package com.webreach.mirth.server.mule.transformers;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -39,6 +41,7 @@ import org.mule.umo.UMOEventContext;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.transformer.TransformerException;
 
+import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Connector.Mode;
 import com.webreach.mirth.model.MessageObject.Protocol;
@@ -259,6 +262,15 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			if (this.getMode().equals(Mode.SOURCE.toString())) {
 				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(inboundProtocol));
 				messageObject = adaptor.getMessage((String) source, channelId, encryptData, inboundProperties, emptyFilterAndTransformer);
+				
+				// Grab and process our attachments
+				List<Attachment> attachments = (List<Attachment>) context.getProperties().get("attachments");
+				context.getProperties().remove("attachments");
+				for (Iterator iter = attachments.iterator(); iter.hasNext();) {
+					Attachment attachment = (Attachment) iter.next();
+					attachment.setMessageId(messageObject.getId());
+					MessageObjectController.getInstance().insertAttachment(attachment);
+				}
 				// Load properties from the context to the messageObject
 				messageObject.getChannelMap().putAll(context.getProperties());
 			} else if (this.getMode().equals(Mode.DESTINATION.toString())) {

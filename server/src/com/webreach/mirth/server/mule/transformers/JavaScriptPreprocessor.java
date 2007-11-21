@@ -25,7 +25,9 @@
 
 package com.webreach.mirth.server.mule.transformers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -40,6 +42,7 @@ import org.mule.umo.UMOEventContext;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.transformer.TransformerException;
 
+import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.util.CompiledScriptCache;
@@ -102,10 +105,13 @@ public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 			Logger scriptLogger = Logger.getLogger("preprocessor");
 			Context context = Context.enter();
 			Scriptable scope = new ImporterTopLevel(context);
+			List<Attachment> attachments = new ArrayList();
+			muleContext.getProperties().put("attachments", attachments);
 			scope.put("message", scope, message);
 			scope.put("logger", scope, scriptLogger);
 			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
 			scope.put("router", scope, new VMRouter());
+			scope.put("muleContext", scope, muleContext);
 			//scope.put("replacer", scope, new TemplateValueReplacer()); //Probably don't need the overhead of this
 			
 			//Add the contextMap, it contains MuleContext properties
@@ -147,6 +153,10 @@ public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 	public String generatePreprocessingScript(String preprocessingScript) {
 		logger.debug("generating preprocessing script");
 		StringBuilder script = new StringBuilder();
+		// The addAttachment function let's us dynamically put data into attachment table
+		script.append("function addAttachment(data, type) {");
+		script.append("var attachment = Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().createAttachment(data, type);");
+		script.append("muleContext.getProperties().get('attachments').add(attachment);}\n");
 		script.append("function doPreprocess() {" + preprocessingScript + " }\n");
 		script.append("doPreprocess()\n");
 		return script.toString();

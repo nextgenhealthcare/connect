@@ -36,6 +36,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.activation.UnsupportedDataTypeException;
+
 import org.apache.log4j.Logger;
 import org.mule.umo.UMOEvent;
 
@@ -629,4 +631,20 @@ public class MessageObjectController {
             logger.error("problem deleting unused attachments", e);
         }           
     }    
+    public Attachment createAttachment(Object data, String type) throws UnsupportedDataTypeException{
+    	byte[] byteData;
+    	if (data instanceof byte[]){
+    		byteData = (byte[])data;
+    	}else if (data instanceof String){
+    		byteData = ((String)data).getBytes();
+    	}else{
+    		throw new UnsupportedDataTypeException("Attachment can be of type String or byte[]");
+    	}
+        Attachment attachment = new Attachment();
+        attachment.setAttachmentId(UUIDGenerator.getUUID());
+        attachment.setData(byteData);
+        attachment.setSize(byteData.length);
+        attachment.setType(type);
+        return attachment;
+    }
 }
