@@ -15,12 +15,13 @@
  */
 package com.webreach.mirth.connectors.email.transformers;
 
-import javax.activation.DataSource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import javax.activation.DataSource;
 
 public class PlainTextDataSource implements DataSource {
     public static final String CONTENT_TYPE = "text/plain";

@@ -1,10 +1,10 @@
 package com.webreach.mirth.model.converters;
 
+import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
-import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.ncpdp.NCPDPReference;
 

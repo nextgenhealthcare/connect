@@ -13,15 +13,15 @@
  */
 package com.webreach.mirth.connectors.file.filters;
 
+import java.io.File;
+import java.io.FilenameFilter;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mule.routing.filters.WildcardFilter;
 import org.mule.umo.UMOMessage;
 
 import com.webreach.mirth.connectors.file.FileConnector;
-
-import java.io.File;
-import java.io.FilenameFilter;
 
 /**
  * <code>FilenameWildcardFilter</code> Filters the incoming files from the

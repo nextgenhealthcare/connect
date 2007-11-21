@@ -15,23 +15,21 @@
 
 package com.webreach.mirth.connectors.email;
 
-import org.mule.config.i18n.Messages;
-import org.mule.providers.AbstractMessageAdapter;
-import org.mule.umo.MessagingException;
-import org.mule.umo.transformer.TransformerException;
-import org.mule.umo.provider.MessageTypeNotSupportedException;
-
-import javax.mail.Address;
-import javax.mail.Header;
-import javax.mail.Message;
-import javax.mail.Multipart;
-import javax.mail.Part;
-import javax.mail.internet.MimeMultipart;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Enumeration;
+
+import javax.mail.Header;
+import javax.mail.Message;
+import javax.mail.Multipart;
+import javax.mail.Part;
+
+import org.mule.config.i18n.Messages;
+import org.mule.providers.AbstractMessageAdapter;
+import org.mule.umo.MessagingException;
+import org.mule.umo.provider.MessageTypeNotSupportedException;
 
 /**
  * <code>MailMessageAdapter</code> is a wrapper for a javax.mail.Message.

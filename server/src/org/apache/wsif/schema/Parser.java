@@ -24,7 +24,6 @@
 
 package org.apache.wsif.schema;
 
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;

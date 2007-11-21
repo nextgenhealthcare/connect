@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import javax.resource.spi.work.Work;
-
 import org.apache.log4j.Logger;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.PollingMessageReceiver;

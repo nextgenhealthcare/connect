@@ -1,15 +1,15 @@
 package com.webreach.mirth.server.mule.adaptors;
 
-import com.webreach.mirth.model.MessageObject;
+import java.util.Iterator;
+import java.util.Map;
+
 import com.webreach.mirth.model.Attachment;
+import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.converters.DICOMSerializer;
 import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.model.converters.SerializerFactory;
-import com.webreach.mirth.model.converters.DICOMSerializer;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.UUIDGenerator;
-
-import java.util.Map;
-import java.util.Iterator;
 
 /**
  * Created by IntelliJ IDEA.

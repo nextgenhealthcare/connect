@@ -1,7 +1,6 @@
 package com.webreach.mirth.connectors.sftp;
 
 import org.apache.commons.pool.PoolableObjectFactory;
-import org.mule.umo.endpoint.UMOEndpointURI;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;

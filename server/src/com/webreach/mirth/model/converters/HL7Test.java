@@ -1,19 +1,11 @@
 package com.webreach.mirth.model.converters;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Properties;
-
-import org.apache.derby.tools.sysinfo;
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
 
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;

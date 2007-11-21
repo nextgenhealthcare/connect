@@ -38,10 +38,10 @@ import java.util.UUID;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ConfigurationController;

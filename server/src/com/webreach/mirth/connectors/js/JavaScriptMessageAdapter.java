@@ -13,8 +13,6 @@
  */
 package com.webreach.mirth.connectors.js;
 
-import java.util.Map;
-
 import org.mule.providers.AbstractMessageAdapter;
 
 /**

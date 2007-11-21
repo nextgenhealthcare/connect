@@ -14,10 +14,9 @@
 */
 package com.webreach.mirth.connectors.email.transformers;
 
-import org.mule.providers.email.transformers.StringToEmailMessage;
-import org.mule.transformers.simple.SerializableToByteArray;
-import org.mule.umo.UMOEventContext;
-import org.mule.umo.transformer.TransformerException;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Iterator;
 
 import javax.activation.DataHandler;
 import javax.mail.BodyPart;
@@ -25,9 +24,11 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMultipart;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Iterator;
+
+import org.mule.providers.email.transformers.StringToEmailMessage;
+import org.mule.transformers.simple.SerializableToByteArray;
+import org.mule.umo.UMOEventContext;
+import org.mule.umo.transformer.TransformerException;
 
 /**
  * Transforms a javax.mail.Message to a UMOMEssage and supports attachments

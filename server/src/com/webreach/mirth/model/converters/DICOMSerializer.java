@@ -1,25 +1,52 @@
 package com.webreach.mirth.model.converters;
 
-import org.apache.log4j.Logger;
-import org.w3c.dom.*;
-import org.dcm4che2.data.*;
-import org.dcm4che2.io.*;
-import org.xml.sax.InputSource;
-import org.xml.sax.Locator;
-import org.xml.sax.helpers.LocatorImpl;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
-import javax.xml.parsers.*;
-import javax.xml.transform.sax.TransformerHandler;
-import javax.xml.transform.sax.SAXTransformerFactory;
-import javax.xml.transform.stream.StreamResult;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.TransformerFactory;
-import java.util.*;
-import java.io.*;
+import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.sax.TransformerHandler;
+import javax.xml.transform.stream.StreamResult;
+
+import org.apache.log4j.Logger;
+import org.dcm4che2.data.BasicDicomObject;
+import org.dcm4che2.data.DicomElement;
+import org.dcm4che2.data.DicomObject;
+import org.dcm4che2.data.Tag;
+import org.dcm4che2.data.TransferSyntax;
+import org.dcm4che2.data.VR;
+import org.dcm4che2.io.ContentHandlerAdapter;
+import org.dcm4che2.io.DicomInputStream;
+import org.dcm4che2.io.DicomOutputStream;
+import org.dcm4che2.io.SAXWriter;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
 import com.webreach.mirth.model.dicom.DICOMReference;
-import sun.misc.BASE64Encoder;
-import sun.misc.BASE64Decoder;
 
 
 /**

@@ -13,9 +13,9 @@
  */
 package com.webreach.mirth.connectors.email;
 
-import org.mule.umo.provider.UMOConnector;
-
 import javax.mail.Authenticator;
+
+import org.mule.umo.provider.UMOConnector;
 
 /**
  * Implemented by  mail connectors to provide Mule with a Mail authenticator object

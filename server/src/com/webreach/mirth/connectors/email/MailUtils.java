@@ -13,17 +13,20 @@
  */
 package com.webreach.mirth.connectors.email;
 
+import java.util.Properties;
+
+import javax.mail.Address;
+import javax.mail.Authenticator;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.URLName;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mule.config.i18n.Messages;
 import org.mule.util.Utility;
-import org.mule.umo.provider.UMOConnector;
-
-import javax.mail.*;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import java.net.InetAddress;
-import java.util.Properties;
 
 /**
  * Contains javax.mail.Session helpers.

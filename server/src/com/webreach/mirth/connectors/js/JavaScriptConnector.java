@@ -13,31 +13,16 @@
  */
 package com.webreach.mirth.connectors.js;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.util.Hashtable;
 import java.util.Map;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
-
 import org.mozilla.javascript.Script;
-import org.mule.config.i18n.Message;
-import org.mule.config.i18n.Messages;
 import org.mule.providers.AbstractServiceEnabledConnector;
 import org.mule.providers.TemplateValueReplacer;
-import org.mule.transaction.TransactionCoordination;
-import org.mule.umo.TransactionException;
 import org.mule.umo.UMOComponent;
-import org.mule.umo.UMOTransaction;
 import org.mule.umo.endpoint.UMOEndpoint;
-import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOMessageReceiver;
 
-import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.util.CompiledScriptCache;
 

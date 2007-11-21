@@ -15,7 +15,6 @@
  */
 package com.webreach.mirth.connectors.email.transformers;
 
-import javax.activation.DataSource;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -24,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+
+import javax.activation.DataSource;
 
 /**
  * This class implements a typed DataSource from:<br>

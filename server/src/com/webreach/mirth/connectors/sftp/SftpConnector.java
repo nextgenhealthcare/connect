@@ -1,6 +1,5 @@
 package com.webreach.mirth.connectors.sftp;
 
-import java.io.FileOutputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;

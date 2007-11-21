@@ -1,7 +1,6 @@
 package com.webreach.mirth.model.dicom;
 
 import org.dcm4che2.data.ElementDictionary;
-import org.dcm4che2.data.UIDDictionary;
 
 /**
  * Created by IntelliJ IDEA.

@@ -13,13 +13,18 @@
  */
 package com.webreach.mirth.connectors.http.transformers;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.mule.MuleManager;
 import org.mule.config.MuleProperties;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
-import org.mule.impl.MuleMessage;
-import org.mule.impl.RequestContext;
 import org.mule.providers.NullPayload;
+import org.mule.providers.http.HttpConstants;
 import org.mule.transformers.AbstractEventAwareTransformer;
 import org.mule.umo.UMOEventContext;
 import org.mule.umo.UMOMessage;
@@ -30,12 +35,6 @@ import com.webreach.mirth.connectors.http.HttpConnector;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
 import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
-
-import org.mule.providers.http.HttpConstants;
-
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 /**
  * <code>UMOMessageToHttpResponse</code> converts a UMOMEssage into an Http

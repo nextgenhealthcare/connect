@@ -25,6 +25,7 @@
 package org.apache.wsif.schema;
 
 import java.io.Serializable;
+
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;

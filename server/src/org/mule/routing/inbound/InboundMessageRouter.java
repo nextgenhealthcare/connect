@@ -13,8 +13,6 @@
  */
 package org.mule.routing.inbound;
 
-import edu.emory.mathcs.backport.java.util.concurrent.CopyOnWriteArrayList;
-
 import java.util.Iterator;
 import java.util.List;
 
@@ -35,6 +33,8 @@ import org.mule.umo.transformer.TransformerException;
 import org.mule.util.StringMessageHelper;
 
 import com.webreach.mirth.server.util.StackTracePrinter;
+
+import edu.emory.mathcs.backport.java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * <code>InboundMessageRouter</code> is a collection of routers that will be

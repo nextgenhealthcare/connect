@@ -1,22 +1,17 @@
 package com.webreach.mirth.model.converters;
 
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.InputSource;
-import org.xml.sax.helpers.XMLReaderFactory;
-import org.w3c.dom.Document;
-//import org.dcm4che2.tool.dcm2xml.Dcm2Xml;
-//import org.dcm4che2.tool.xml2dcm.Xml2Dcm;
-
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Properties;
 import java.util.List;
-import java.io.*;
+import java.util.Properties;
+
+import org.xml.sax.SAXException;
 
 import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.model.Attachment;
-//import ij.ImageJ;
 
 /**
  * Created by IntelliJ IDEA.

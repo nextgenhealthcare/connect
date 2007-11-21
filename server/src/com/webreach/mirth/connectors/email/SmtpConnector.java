@@ -28,14 +28,8 @@
 
 package com.webreach.mirth.connectors.email;
 
-import org.mule.MuleException;
-import org.mule.config.i18n.Messages;
-import org.mule.providers.AbstractServiceEnabledConnector;
-import org.mule.umo.UMOComponent;
-import org.mule.umo.UMOException;
-import org.mule.umo.endpoint.UMOEndpoint;
-import org.mule.umo.lifecycle.InitialisationException;
-import org.mule.umo.provider.UMOMessageReceiver;
+import java.util.Calendar;
+import java.util.Properties;
 
 import javax.mail.Authenticator;
 import javax.mail.Message;
@@ -46,8 +40,15 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-import java.util.Calendar;
-import java.util.Properties;
+
+import org.mule.MuleException;
+import org.mule.config.i18n.Messages;
+import org.mule.providers.AbstractServiceEnabledConnector;
+import org.mule.umo.UMOComponent;
+import org.mule.umo.UMOException;
+import org.mule.umo.endpoint.UMOEndpoint;
+import org.mule.umo.lifecycle.InitialisationException;
+import org.mule.umo.provider.UMOMessageReceiver;
 
 /**
  * <code>SmtpConnector</code> is used to connect to and send data to an SMTP

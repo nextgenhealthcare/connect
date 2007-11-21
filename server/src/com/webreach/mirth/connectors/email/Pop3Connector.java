@@ -13,12 +13,12 @@
  */
 package com.webreach.mirth.connectors.email;
 
+import javax.mail.Authenticator;
+
 import org.mule.providers.AbstractServiceEnabledConnector;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.provider.UMOMessageReceiver;
-
-import javax.mail.Authenticator;
 
 /**
  * <code>Pop3Connector</code> is used to connect and receive mail from a pop3

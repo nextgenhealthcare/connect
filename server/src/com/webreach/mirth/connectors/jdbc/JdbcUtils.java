@@ -13,16 +13,6 @@
  */
 package com.webreach.mirth.connectors.jdbc;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.dom4j.Node;
-import org.dom4j.io.DOMReader;
-import org.mule.providers.TemplateValueReplacer;
-import org.mule.umo.endpoint.UMOEndpointURI;
-import org.mule.util.TemplateParser;
-
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.server.util.GlobalVariableStore;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -31,6 +21,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.beanutils.BeanUtils;
+import org.dom4j.Node;
+import org.dom4j.io.DOMReader;
+import org.mule.providers.TemplateValueReplacer;
+import org.mule.umo.endpoint.UMOEndpointURI;
+
+import com.webreach.mirth.model.MessageObject;
 
 /**
  * @author <a href="mailto:gnt@codehaus.org">Guillaume Nodet</a>

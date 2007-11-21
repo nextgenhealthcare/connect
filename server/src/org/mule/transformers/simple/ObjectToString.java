@@ -1,9 +1,9 @@
 
 package org.mule.transformers.simple;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Collection;
 
 import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.transformer.TransformerException;

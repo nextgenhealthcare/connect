@@ -13,11 +13,9 @@
  */
 package com.webreach.mirth.connectors.soap;
 
-import java.io.BufferedOutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,8 +26,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.AbstractMessageReceiver;
-import org.mule.providers.http.HttpConnector;
-
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.lifecycle.Callable;
@@ -43,7 +39,6 @@ import com.webreach.mirth.model.MessageObject.Status;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
-import com.webreach.mirth.server.util.StackTracePrinter;
 
 
 /**

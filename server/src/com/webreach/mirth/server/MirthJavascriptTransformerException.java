@@ -1,6 +1,5 @@
 package com.webreach.mirth.server;
 
-import org.mozilla.javascript.EcmaError;
 import org.mozilla.javascript.RhinoException;
 
 import com.webreach.mirth.model.Channel;

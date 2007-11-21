@@ -1,20 +1,15 @@
 package com.webreach.mirth.server.mule.transformers;
 
-import org.apache.log4j.Logger;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ImporterTopLevel;
-import org.mozilla.javascript.Script;
-import org.mozilla.javascript.Scriptable;
-import org.mule.umo.transformer.TransformerException;
+import java.util.HashMap;
 
-import com.webreach.mirth.model.MessageObject;
+import org.apache.log4j.Logger;
+
 import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.controllers.ChannelController;
+import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.CompiledScriptCache;
 import com.webreach.mirth.server.util.JavaScriptUtil;
-import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.controllers.ChannelController;
-
-import java.util.HashMap;
 
 public class JavaScriptPostprocessor {
     private Logger logger = Logger.getLogger(this.getClass());

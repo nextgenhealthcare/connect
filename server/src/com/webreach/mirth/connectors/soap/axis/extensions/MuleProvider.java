@@ -13,6 +13,9 @@
  */
 package com.webreach.mirth.connectors.soap.axis.extensions;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+
 import org.apache.axis.AxisFault;
 import org.apache.axis.Constants;
 import org.apache.axis.MessageContext;
@@ -26,9 +29,6 @@ import com.webreach.mirth.connectors.soap.ServiceProxy;
 import com.webreach.mirth.connectors.soap.ServiceProxy.AxisServiceHandler;
 import com.webreach.mirth.connectors.soap.axis.AxisConnector;
 import com.webreach.mirth.connectors.soap.axis.AxisMessageReceiver;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 
 /**
  * <code>MuleProvider</code> Is an Axis service endpoint that builds services

@@ -14,6 +14,16 @@
  */
 package com.webreach.mirth.connectors.email.transformers;
 
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.internet.MimeMessage;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mule.MuleManager;
@@ -29,15 +39,6 @@ import com.webreach.mirth.connectors.email.MailProperties;
 import com.webreach.mirth.connectors.email.MailUtils;
 import com.webreach.mirth.connectors.email.SmtpConnector;
 import com.webreach.mirth.model.MessageObject;
-
-import javax.mail.Message;
-import javax.mail.Session;
-import javax.mail.internet.MimeMessage;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * <code>StringToEmailMessage</code> will convert a string to a java mail

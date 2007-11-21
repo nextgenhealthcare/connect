@@ -26,13 +26,10 @@ package org.apache.wsif.schema;
 
 import java.io.Serializable;
 import java.util.Hashtable;
+
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-
-import com.ibm.wsdl.util.xml.DOMUtils;
 
 /**
  * A class to represent an &lt;element&gt; element defined within a &lt;sequence&gt; element in a schema

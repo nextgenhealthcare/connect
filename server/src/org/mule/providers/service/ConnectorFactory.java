@@ -13,6 +13,13 @@
  */
 package org.mule.providers.service;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,13 +43,6 @@ import org.mule.util.SpiHelper;
 
 import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.server.controllers.ExtensionController;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * <code>ConnectorFactory</code> can be used for generically creating

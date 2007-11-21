@@ -14,6 +14,8 @@
  */
 package com.webreach.mirth.connectors.vm;
 
+import java.util.List;
+
 import org.mule.MuleException;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
@@ -29,16 +31,11 @@ import org.mule.umo.provider.UMOConnector;
 import org.mule.util.queue.Queue;
 import org.mule.util.queue.QueueSession;
 
-import com.webreach.mirth.connectors.jdbc.JdbcConnector;
-import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
 import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
 import com.webreach.mirth.server.util.VMRegistry;
-
-import java.util.List;
 
 /**
  * <code>VMMessageReceiver</code> is a listener of events from a mule

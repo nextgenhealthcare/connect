@@ -1,13 +1,10 @@
 package com.webreach.mirth.model.dicom;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.util.MessageVocabulary;
-
-import java.util.Map;
-import java.util.HashMap;
-
-import org.dcm4che2.data.UIDDictionary;
-import org.dcm4che2.data.ElementDictionary;
 
 /**
  * Created by IntelliJ IDEA.

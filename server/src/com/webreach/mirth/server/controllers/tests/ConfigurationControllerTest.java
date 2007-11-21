@@ -1,15 +1,8 @@
 package com.webreach.mirth.server.controllers.tests;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.server.controllers.ConfigurationController;
-import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.tools.ScriptRunner;
 
 public class ConfigurationControllerTest extends TestCase {

@@ -14,7 +14,6 @@ import org.apache.log4j.Logger;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.ObjectCloner;
 import com.webreach.mirth.model.util.MessageVocabulary;
-import com.webreach.mirth.server.util.StackTracePrinter;
 
 public class X12Vocabulary extends MessageVocabulary {
 	Map<String, String> vocab;

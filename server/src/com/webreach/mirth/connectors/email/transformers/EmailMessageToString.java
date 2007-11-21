@@ -15,7 +15,6 @@
 
 package com.webreach.mirth.connectors.email.transformers;
 
-import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.internet.MimeMultipart;
 

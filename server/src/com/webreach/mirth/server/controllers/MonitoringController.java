@@ -3,8 +3,8 @@ package com.webreach.mirth.server.controllers;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.log4j.Logger;
-import org.mule.umo.UMOComponent;
 import org.mule.umo.provider.UMOConnector;
 
 import com.webreach.mirth.model.ExtensionPoint;

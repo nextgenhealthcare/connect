@@ -34,8 +34,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.ChannelStatusController;
+import com.webreach.mirth.server.controllers.ControllerException;
 
 public class ChannelStatusServlet extends MirthServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

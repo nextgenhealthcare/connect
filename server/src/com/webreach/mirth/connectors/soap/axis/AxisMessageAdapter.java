@@ -13,6 +13,12 @@
  */
 package com.webreach.mirth.connectors.soap.axis;
 
+import java.util.Iterator;
+
+import javax.activation.DataHandler;
+import javax.xml.soap.SOAPException;
+import javax.xml.soap.SOAPMessage;
+
 import org.apache.axis.MessageContext;
 import org.apache.axis.attachments.AttachmentPart;
 import org.mule.config.i18n.Message;
@@ -21,11 +27,6 @@ import org.mule.providers.soap.axis.MuleSoapHeaders;
 import org.mule.transformers.simple.SerializableToByteArray;
 import org.mule.umo.MessagingException;
 import org.mule.umo.transformer.UMOTransformer;
-
-import javax.activation.DataHandler;
-import javax.xml.soap.SOAPException;
-import javax.xml.soap.SOAPMessage;
-import java.util.Iterator;
 
 /**
  * <code>AxisMessageAdapter</code>

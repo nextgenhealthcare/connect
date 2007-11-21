@@ -14,16 +14,16 @@
  */
 package com.webreach.mirth.connectors.http;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.mule.providers.http.HttpConstants;
 import org.mule.providers.tcp.TcpConnector;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageReceiver;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * <code>HttpConnector</code> provides a way of receiving and sending http

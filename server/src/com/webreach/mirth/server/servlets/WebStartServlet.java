@@ -27,7 +27,6 @@ package com.webreach.mirth.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.List;

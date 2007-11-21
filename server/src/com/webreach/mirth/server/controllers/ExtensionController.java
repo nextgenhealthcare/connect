@@ -38,9 +38,9 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.ConnectorMetaData;
+import com.webreach.mirth.model.ExtensionPoint;
 import com.webreach.mirth.model.ExtensionPointDefinition;
 import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.model.ExtensionPoint;
 import com.webreach.mirth.plugins.ServerPlugin;
 import com.webreach.mirth.server.tools.ClassPathResource;
 import com.webreach.mirth.util.ExtensionUtil;
