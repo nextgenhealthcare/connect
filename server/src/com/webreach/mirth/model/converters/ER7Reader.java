@@ -70,7 +70,7 @@ public class ER7Reader extends SAXParser {
 		String segmentDelim = "\r";
 		String fieldDelim = new String(new char[] { message.charAt(3) }); // Usually
 		// |
-		int nextFieldDelim = message.indexOf(message.charAt(3), 3);
+		int nextFieldDelim = message.indexOf(message.charAt(3), 4);
 		String componentDelim = "^";
 		String repetitionSep = "~";
 		String escapeChar = "\\";

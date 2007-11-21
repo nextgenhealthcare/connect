@@ -22,7 +22,9 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 public class HL7Test {
+
 	public static void main(String[] args) {
+		      
 		String testMessage = "";
 		String testXML = null;
 		try {
@@ -67,24 +69,22 @@ public class HL7Test {
 		if (xml == null){
 			xmloutput = serializer.toXML(testMessage);
 		}
+		String er7 = serializer.fromXML(xmloutput);
+		stopwatch.stop();
 		//System.out.println(xmloutput);
 		DocumentSerializer docser = new DocumentSerializer();
 		docser.setPreserveSpace(false);
 		Document doc = docser.fromXML(xmloutput);
-		XMLReader xr = XMLReaderFactory.createXMLReader();
-		ER7XMLHandler handler = new ER7XMLHandler("\r", "|", "^", "&", "~", "\\");
-		xr.setContentHandler(handler);
-		xr.setErrorHandler(handler);
-		xr.parse(new InputSource(new StringReader(xmloutput)));
-		stopwatch.stop();
 		
-		System.out.println(docser.toXML(doc)); //handler.getOutput());
-		System.out.println(handler.getOutput());
-		if (handler.getOutput().toString().replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim())) {
+		
+		
+		System.out.println(docser.toXML(doc)); 
+		System.out.println(er7);
+		if (er7.replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim())) {
 			System.out.println("Test Successful!");
 		} else {
 			String original = testMessage.replaceAll("\\r\\n", "\r").trim();
-			String newm = handler.getOutput().toString().replace('\n', '\r').trim();
+			String newm = er7.replace('\n', '\r').trim();
 			for (int i = 0; i < original.length(); i++){
 				if (original.charAt(i) == newm.charAt(i)){
 					System.out.print(newm.charAt(i));

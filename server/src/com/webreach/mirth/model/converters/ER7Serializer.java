@@ -39,6 +39,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import com.webreach.mirth.util.Entities;
+
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.parser.DefaultXMLParser;
@@ -155,9 +157,25 @@ public class ER7Serializer implements IXMLSerializer<String> {
 				// The delimiters below need to come from the XML somehow...the
 				// ER7 handler should take care of it
 				// TODO: Ensure you get these elements from the XML
-				String segmentDelimiter = getXMLValue(source, "<MSH.1>",  "</MSH.1>" );
+				String segmentDelimiter = getXMLValue(source, "<MSH.1>",  "</MSH.1>" ); //usually |
+				String fieldDelimiter = "^";
+				String repetitionDelimiter = "~";
+				String escapeSequence = "\\";
+				String subcomponentDelimiter = "&";
+				//Our delimiters usually look like this:
+				//<MSH.2>^~\&amp;</MSH.2>
+				//We need to decode XML entities
+				String otherDelimiters = Entities.getInstance().decode(getXMLValue(source, "<MSH.2>",  "</MSH.2>" ));
+				logger.error("HL7 delimiters: " + otherDelimiters);
+				if (otherDelimiters.length() == 4){
+					fieldDelimiter = otherDelimiters.substring(0,1); //usually ^
+					repetitionDelimiter = otherDelimiters.substring(1,1); //usually ~
+					escapeSequence = otherDelimiters.substring(2,1); //usually \
+					subcomponentDelimiter = otherDelimiters.substring(3, 1); //usually &
+				}
 				//String fieldDelimiter = 
-				ER7XMLHandler handler = new ER7XMLHandler("\r", segmentDelimiter, "^", "&", "~", "\\");
+				ER7XMLHandler handler = new ER7XMLHandler("\r", segmentDelimiter, 
+						fieldDelimiter, subcomponentDelimiter, repetitionDelimiter, escapeSequence);
 				XMLReader xr = XMLReaderFactory.createXMLReader();
 				xr.setContentHandler(handler);
 				xr.setErrorHandler(handler);
