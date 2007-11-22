@@ -123,7 +123,6 @@ public class JEditTextArea extends JComponent {
 
 	private boolean enableLineNumbers = false;
 
-	String newline = "\n";
 
 	/**
 	 * Creates a new JEditTextArea with the default settings.
@@ -980,6 +979,7 @@ public class JEditTextArea extends JComponent {
 	 */
 	public void setText(String text) {
 		try {
+			text = text.replaceAll("\\r\\n", "\n");
 			document.beginCompoundEdit();
 			document.remove(0, document.getLength());
 			document.insertString(0, text, null);
@@ -1327,6 +1327,7 @@ public class JEditTextArea extends JComponent {
 	 *            The replacement text for the selection
 	 */
 	public void setSelectedText(String selectedText) {
+		selectedText = selectedText.replaceAll("\\r\\n", "\n");
 		if (!editable) {
 			throw new InternalError("Text component" + " read only");
 		}
@@ -1633,8 +1634,8 @@ public class JEditTextArea extends JComponent {
 				// if (System.getProperty("os.name").equals(MAC_OS)){
 				//
 
-				selection = selection.replaceAll("\r\n", "\n");
-				selection = selection.replaceAll("\r", "\n");
+				//selection = selection.replaceAll("\r\n", "\n");
+				//selection = selection.replaceAll("\r", "\n");
 				// }
 
 				int repeatCount = inputHandler.getRepeatCount();

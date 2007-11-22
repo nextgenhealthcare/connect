@@ -114,4 +114,26 @@ public class HL7Properties implements Serializable
         this.encodeEntities = encodeEntities;
     }
 
+    /**
+     * Holds value of property convertLFtoCR.
+     */
+    private boolean convertLFtoCR = true;
+
+    /**
+     * Getter for property convertLFtoCR.
+     * @return Value of property convertLFtoCR.
+     */
+    public boolean isConvertLFtoCR()
+    {
+        return this.convertLFtoCR;
+    }
+
+    /**
+     * Setter for property convertLFtoCR.
+     * @param encodeEntities New value of property convertLFtoCR.
+     */
+    public void setConvertLFtoCR(boolean convertLFtoCR)
+    {
+        this.convertLFtoCR = convertLFtoCR;
+    }
 }

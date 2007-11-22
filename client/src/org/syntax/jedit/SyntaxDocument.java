@@ -25,7 +25,7 @@ import org.syntax.jedit.tokenmarker.TokenMarker;
  * @author Slava Pestov
  * @version $Id: SyntaxDocument.java,v 1.14 1999/12/13 03:40:30 sp Exp $
  */
-public class SyntaxDocument extends PlainDocument
+public class SyntaxDocument extends MirthPlainDocument
 {
     /**
      * Returns the token marker that is to be used to split lines of this

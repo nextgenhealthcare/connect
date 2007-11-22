@@ -444,7 +444,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             	if (getProtocol().equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DICOM)))
             		pasteBox.setText(file.getPath());
             	else
-            		pasteBox.setText(FileUtil.readWithLineFeeds(file));
+            		pasteBox.setText(FileUtil.read(file));
             }
             catch (Exception e)
             {

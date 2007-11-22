@@ -365,8 +365,13 @@ public class TreePanel extends javax.swing.JPanel
         type = "";
         String messageDescription = "";
         Protocol protocol = null;
-
-        source = source.replaceAll("\\n", "\r").trim();
+        boolean convertLFtoCR = true;
+        if (protocolProperties != null && protocolProperties.get("convertLFtoCR") != null){
+			convertLFtoCR = Boolean.parseBoolean((String) protocolProperties.get("convertLFtoCR"));
+		}
+        if (convertLFtoCR){
+        	source = source.replaceAll("\\n", "\r").trim();
+        }
         if (source.length() > 0 && !source.equals(ignoreText))
         {
             IXMLSerializer<String> serializer;

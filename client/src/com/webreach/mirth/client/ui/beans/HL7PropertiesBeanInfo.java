@@ -29,20 +29,20 @@ public class HL7PropertiesBeanInfo extends SimpleBeanInfo
     private static final int PROPERTY_handleRepetitions = 1;
     private static final int PROPERTY_useStrictParser = 2;
     private static final int PROPERTY_useStrictValidation = 3;
-
+    private static final int PROPERTY_convertLFtoCR = 4;
     // Property array 
     /*lazy PropertyDescriptor*/
     private static PropertyDescriptor[] getPdescriptor(){
-        PropertyDescriptor[] properties = new PropertyDescriptor[4];
+        PropertyDescriptor[] properties = new PropertyDescriptor[5];
     
         try {
             properties[PROPERTY_encodeEntities] = new PropertyDescriptor ( "encodeEntities", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isEncodeEntities", "setEncodeEntities" ); // NOI18N
             properties[PROPERTY_encodeEntities].setDisplayName ( "Encode Entities" );
-            properties[PROPERTY_encodeEntities].setShortDescription ( "Automatically convert non-standard XML entities to the proper encoding." );
+            properties[PROPERTY_encodeEntities].setShortDescription ( "Automatically convert non-standard XML entities to the proper encoding (applies to Non-Strict Parser only)." );
             properties[PROPERTY_encodeEntities].setBound ( true );
             properties[PROPERTY_handleRepetitions] = new PropertyDescriptor ( "handleRepetitions", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isHandleRepetitions", "setHandleRepetitions" ); // NOI18N
             properties[PROPERTY_handleRepetitions].setDisplayName ( "Handle Repetitions" );
-            properties[PROPERTY_handleRepetitions].setShortDescription ( "Handle repetition characters. Only applicable to non-strict parser." );
+            properties[PROPERTY_handleRepetitions].setShortDescription ( "Handle repetition characters (applies to Non-Strict Parser only)." );
             properties[PROPERTY_handleRepetitions].setBound ( true );
             properties[PROPERTY_useStrictParser] = new PropertyDescriptor ( "useStrictParser", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isUseStrictParser", "setUseStrictParser" ); // NOI18N
             properties[PROPERTY_useStrictParser].setDisplayName ( "Use Strict Parser" );
@@ -52,6 +52,10 @@ public class HL7PropertiesBeanInfo extends SimpleBeanInfo
             properties[PROPERTY_useStrictValidation].setDisplayName ( "Validate in Strict Parser" );
             properties[PROPERTY_useStrictValidation].setShortDescription ( "Validate messages using HL7 specifications (applies to Strict Parser only)." );
             properties[PROPERTY_useStrictValidation].setBound ( true );
+            properties[PROPERTY_convertLFtoCR] = new PropertyDescriptor ( "convertLFtoCR", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isConvertLFtoCR", "setConvertLFtoCR" ); // NOI18N
+            properties[PROPERTY_convertLFtoCR].setDisplayName ( "Convert LF to CR" );
+            properties[PROPERTY_convertLFtoCR].setShortDescription ( "Convert linefeeds (\\n) to carriage returns (\\r) automatically (applies to Non-Strict Parser only)." );
+            properties[PROPERTY_convertLFtoCR].setBound ( true );
         }
         catch(IntrospectionException e) {
             e.printStackTrace();
