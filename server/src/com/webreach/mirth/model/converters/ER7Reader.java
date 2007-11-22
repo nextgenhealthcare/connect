@@ -42,9 +42,10 @@ import com.sun.org.apache.xerces.internal.parsers.SAXParser;
 public class ER7Reader extends SAXParser {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private boolean handleRepetitions = false;
-
-	public ER7Reader(boolean handleRepetitions) {
+	private boolean convertLFtoCR = false;
+	public ER7Reader(boolean handleRepetitions, boolean convertLFtoCR) {
 		this.handleRepetitions = handleRepetitions;
+		this.convertLFtoCR = convertLFtoCR;
 	}
 
 	public void parse(InputSource input) throws SAXException, IOException {
@@ -52,9 +53,16 @@ public class ER7Reader extends SAXParser {
 		BufferedReader in = new BufferedReader(input.getCharacterStream());
 		String nextLine = "";
 		StringBuffer sb = new StringBuffer();
-		while ((nextLine = in.readLine()) != null) {
-			sb.append(nextLine);
-			sb.append("\r"); // TODO: This should be configurable
+		if (convertLFtoCR){
+			while ((nextLine = in.readLine()) != null) {
+				sb.append(nextLine);
+				sb.append("\r"); // TODO: This should be configurable
+			}
+		}else{
+			int c;
+			while ((c = in.read()) != -1){
+				sb.append((char)c);
+			}
 		}
 		String message = sb.toString();
 		message = message.trim();

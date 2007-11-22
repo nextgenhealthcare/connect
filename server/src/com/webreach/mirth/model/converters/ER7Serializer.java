@@ -56,6 +56,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 	private boolean useStrictValidation = false;
 	private boolean handleRepetitions = false;
 	private boolean encodeEntities = true;
+	private boolean convertLFtoCR = true;
 	public ER7Serializer(Map er7Properties) {
 		if (er7Properties != null && er7Properties.get("useStrictParser") != null) {
 			this.useStrictParser = Boolean.parseBoolean((String) er7Properties.get("useStrictParser"));
@@ -68,6 +69,9 @@ public class ER7Serializer implements IXMLSerializer<String> {
 		}
 		if (er7Properties != null && er7Properties.get("encodeEntities") != null){
 			this.encodeEntities = Boolean.parseBoolean((String) er7Properties.get("encodeEntities"));
+		}
+		if (er7Properties != null && er7Properties.get("convertLFtoCR") != null){
+			this.convertLFtoCR = Boolean.parseBoolean((String) er7Properties.get("convertLFtoCR"));
 		}
 		if (useStrictParser) {
 			initializeHapiParser();
@@ -108,7 +112,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 		} else {
 			try {
 
-				ER7Reader er7Reader = new ER7Reader(handleRepetitions);
+				ER7Reader er7Reader = new ER7Reader(handleRepetitions, convertLFtoCR);
 				StringWriter stringWriter = new StringWriter();
 				XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
 				serializer.setEncodeEntities(encodeEntities);
@@ -173,7 +177,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 				}
 				//String fieldDelimiter = 
 				ER7XMLHandler handler = new ER7XMLHandler("\r", segmentDelimiter, 
-						fieldDelimiter, subcomponentDelimiter, repetitionDelimiter, escapeSequence);
+						fieldDelimiter, subcomponentDelimiter, repetitionDelimiter, escapeSequence, encodeEntities);
 				XMLReader xr = XMLReaderFactory.createXMLReader();
 				xr.setContentHandler(handler);
 				xr.setErrorHandler(handler);
@@ -233,7 +237,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 
 		if (useStrictParser) {
 			try {
-				Message message = pipeParser.parse(source.replaceAll("\n", "\r").trim());
+				Message message = pipeParser.parse(source.trim()); //this had a replaceAll("\n", "\r") before 1.7
 				Terser terser = new Terser(message);
 				String sendingFacility = terser.get("/MSH-4-1");
 				String event = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2");
@@ -245,7 +249,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 			}
 			return map;
 		} else {
-			source = source.trim().replaceAll("\n", "\r");
+			source = source.trim(); //this had a replaceAll("\n", "\r") before 1.7
 	        if(source == null || source.length() < 3)
 	        {
 	            logger.error("Unable to parse, message is null or too short: " + source);

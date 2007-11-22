@@ -84,8 +84,9 @@ public class Entities {
 
 	public String encode(char[] text, int start, int length) {
 		StringBuffer buffer = new StringBuffer(length * 2);
-		for (int i = start; i < length; i++) {
+		for (int i = start; i < length + start; i++) {
 			char c = text[i];
+
 			int j = (int) c;
 			if (j < 0x100 && encoderXML[j] != null) {
 				buffer.append(encoderXML[j]); // have a named encoding
@@ -373,5 +374,7 @@ public class Entities {
 		addXML("&apos",39);
 		addXML("&amp", 38);
 		addXML("&quot",34);
+		addXML("&#10", 10);
+		addXML("&#10", 13);
 	}
 }

@@ -31,7 +31,15 @@ public class SerializerFactory {
 		properties.put("handleRepetitions", Boolean.toString(handleRepetitions));
 		return new ER7Serializer(properties);
 	}
-
+	public static ER7Serializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation, boolean handleRepetitions, boolean convertLFtoCR) {
+		Properties properties = new Properties();
+		properties.put("useStrictParser", Boolean.toString(useStrictParser));
+		properties.put("useStrictValidation", Boolean.toString(useStrictValidation));
+		properties.put("handleRepetitions", Boolean.toString(handleRepetitions));
+		properties.put("convertLFtoCR", Boolean.toString(convertLFtoCR));
+		return new ER7Serializer(properties);
+		
+	}
 	public static ER7Serializer getHL7Serializer(boolean useStrictParser, boolean useStrictValidation) {
 		Properties properties = new Properties();
 		properties.put("useStrictParser", Boolean.toString(useStrictParser));

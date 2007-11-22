@@ -17,7 +17,7 @@ public class HL7v2Adaptor extends Adaptor {
 				populateMetadataFromEncoded(source);
 				messageObject.setEncodedData(source);
 			} else {
-				String xmlMessage = serializer.toXML(source.replaceAll("\n", "\r").trim());
+				String xmlMessage = serializer.toXML(source.trim());
 				populateMetadataFromXML(xmlMessage);
 				messageObject.setTransformedData(xmlMessage);
 			}

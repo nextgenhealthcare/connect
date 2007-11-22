@@ -433,7 +433,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		newScript.append("function createSegment(name, message, index) {");
 		newScript.append("if (arguments.length == 1) { return new XML('<' + name + '></' + name + '>'); };");
 		newScript.append("if (arguments.length == 2) { index = 0 };");
-		newScript.append("message[name][index] = new XML('<' + name + '></' + name + '>');  = segment; return message[name][index];");
+		newScript.append("message[name][index] = new XML('<' + name + '></' + name + '>');  return message[name][index];");
 		newScript.append("}");
 		
 		// TODO: Look into optimizing. Potentially moving p.c.wr.m.s.c.MOC to an outside var

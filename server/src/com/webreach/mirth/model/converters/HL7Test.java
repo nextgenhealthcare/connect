@@ -55,6 +55,7 @@ public class HL7Test {
 		Properties properties = new Properties();
 		properties.put("useStrictParser", "false");
 		properties.put("handleRepetitions", "true");
+		properties.put("convertLFtoCR", "false");
 		stopwatch.start();
 		ER7Serializer serializer = new ER7Serializer(properties);
 		String xmloutput = xml;
@@ -82,7 +83,7 @@ public class HL7Test {
 		
 		System.out.println(docser.toXML(doc)); 
 		System.out.println(er7);
-		if (er7.replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim())) {
+		if (er7.trim().equals(testMessage.trim())) {
 			System.out.println("Test Successful!");
 		} else {
 			String original = testMessage.replaceAll("\\r\\n", "\r").trim();
