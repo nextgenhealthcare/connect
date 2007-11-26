@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
 
-<!-- 
-	A sample installation file.
-	Use it as a base for your own installers :-)
-	
-	To compile it :
-	- go in the bin directory where you installed IzPack
-	- call "compile ../sample/install.xml -b ../sample"
--->
-
 <installation version="1.0">
 	<jar src="../installer/lib/ant.jar" stage="both" />
 	<jar src="../installer/lib/ant-launcher.jar" stage="both" />
@@ -43,8 +34,12 @@
 			<author name="Jacob Brauer" email="jacobb@webreachinc.com" />
 			<author name="Brendan Haverlock" email="brendanh@webreachinc.com" />
 			<author name="Chris Lang" email="chrisl@webreachinc.com" />
+			<author name="Christopher Ro" email="chrisr@webreachinc.com" />
+			<author name="Francisco J. Sanchez" email="morenull@gmail.com" />
 			<author name="Dan Svanstedt" email="dans@webreachltd.co.uk" />
 			<author name="Alberto Sáez Torres" email="albersato@gmail.com" />
+			<author name="Greg Ward" email="greg.ward@intelerad.com" />
+			<author name="Andrzej Jan Taramina" email="andrzej@chaeron.com" />
 		</authors>
 		<url>http://www.mirthproject.org/</url>
 	</info>
