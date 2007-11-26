@@ -1,9 +1,4 @@
 /*
- * $Header: /home/projects/mule/scm/mule/providers/email/src/java/org/mule/providers/email/MailUtils.java,v 1.3 2005/10/10 14:00:15 rossmason Exp $
- * $Revision: 1.3 $
- * $Date: 2005/10/10 14:00:15 $
- * ------------------------------------------------------------------------------------------------------
- *
  * Copyright (c) SymphonySoft Limited. All rights reserved.
  * http://www.symphonysoft.com
  *
@@ -11,6 +6,7 @@
  * style license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
  */
+
 package com.webreach.mirth.connectors.email;
 
 import java.util.Properties;

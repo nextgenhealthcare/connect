@@ -1,9 +1,4 @@
 /*
- * $Header: /home/projects/mule/scm/mule/providers/email/src/java/org/mule/providers/email/Pop3Connector.java,v 1.13 2005/10/23 15:29:43 holger Exp $
- * $Revision: 1.13 $
- * $Date: 2005/10/23 15:29:43 $
- * ------------------------------------------------------------------------------------------------------
- *
  * Copyright (c) SymphonySoft Limited. All rights reserved.
  * http://www.symphonysoft.com
  *
@@ -11,6 +6,7 @@
  * style license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
  */
+
 package com.webreach.mirth.connectors.email;
 
 import javax.mail.Authenticator;
