@@ -8,34 +8,34 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.util.CompiledScriptCache;
 import com.webreach.mirth.server.util.JavaScriptUtil;
 
 public class JavaScriptPostprocessor {
-    private Logger logger = Logger.getLogger(this.getClass());
-    private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
-    public void doPostProcess(MessageObject messageObject){
-        JavaScriptUtil.getInstance().executeScript(messageObject.getChannelId() + "_Postprocessor", "postprocessor", messageObject);
-        JavaScriptUtil.getInstance().executeScript("Postprocessor", "postprocessor", messageObject);
-        String channelId = messageObject.getChannelId();
-        HashMap<String, Channel> channelCache = ChannelController.getChannelCache();
-        // Check the cache for the channel
-        if (channelCache != null && channelCache.containsKey(channelId)) {
-            Channel channel = channelCache.get(channelId);
-            if (channel.getProperties().containsKey("store_messages")) {
-                if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
-                    // message is not stored, remove attachment
-                    MessageObjectController.getInstance().deleteAttachments(messageObject);            
-                }
-            }                                                 
-        }
-    }
-    public void doPostProcess(Object object) throws IllegalArgumentException{
-        if (object instanceof MessageObject){
-            doPostProcess((MessageObject)object);
-        }else{
-            logger.error("could not postprocess, object is not of type MessageObject");
-            throw new IllegalArgumentException("Object is not of type MessageObject");
-        }
-    }
+	private Logger logger = Logger.getLogger(this.getClass());
+
+	public void doPostProcess(MessageObject messageObject) {
+		JavaScriptUtil.getInstance().executeScript(messageObject.getChannelId() + "_Postprocessor", "postprocessor", messageObject);
+		JavaScriptUtil.getInstance().executeScript("Postprocessor", "postprocessor", messageObject);
+		String channelId = messageObject.getChannelId();
+		HashMap<String, Channel> channelCache = ChannelController.getChannelCache();
+		// Check the cache for the channel
+		if (channelCache != null && channelCache.containsKey(channelId)) {
+			Channel channel = channelCache.get(channelId);
+			if (channel.getProperties().containsKey("store_messages")) {
+				if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
+					// message is not stored, remove attachment
+					MessageObjectController.getInstance().deleteAttachments(messageObject);
+				}
+			}
+		}
+	}
+
+	public void doPostProcess(Object object) throws IllegalArgumentException {
+		if (object instanceof MessageObject) {
+			doPostProcess((MessageObject) object);
+		} else {
+			logger.error("could not postprocess, object is not of type MessageObject");
+			throw new IllegalArgumentException("Object is not of type MessageObject");
+		}
+	}
 }
