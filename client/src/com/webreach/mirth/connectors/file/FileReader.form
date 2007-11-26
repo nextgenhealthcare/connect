@@ -42,9 +42,9 @@
                   <Component id="jLabel8" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="pollingFrequencyLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="moveToDirectoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="pollingTimeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="moveToFileLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="moveToDirectoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="errorMoveToDirectoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel6" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel7" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -58,49 +58,48 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="fileNameFilter" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
                   <Component id="directoryField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
-                  <Group type="102" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
                       <Component id="pollingIntervalButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="pollingTimeButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="pollingFrequency" min="-2" pref="75" max="-2" attributes="1"/>
-                  <Component id="pollingTime" min="-2" max="-2" attributes="0"/>
-                  <Component id="fileAge" min="-2" pref="75" max="-2" attributes="1"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="fileTypeBinary" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="fileTypeASCII" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="processBatchFilesYes" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="processBatchFilesNo" min="-2" max="-2" attributes="0"/>
-                  </Group>
+                  <Component id="pollingFrequency" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
+                  <Component id="pollingTime" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="moveToDirectory" linkSize="1" alignment="0" pref="250" max="32767" attributes="1"/>
-                          <Component id="moveToPattern" linkSize="1" alignment="0" pref="250" max="32767" attributes="1"/>
+                          <Component id="fileAge" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
                           <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="deleteAfterReadYes" max="32767" attributes="1"/>
-                                  <Component id="checkFileAgeYes" alignment="0" max="32767" attributes="1"/>
+                              <Component id="fileTypeBinary" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="fileTypeASCII" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="processBatchFilesYes" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="processBatchFilesNo" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="sortBy" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
+                          <Component id="charsetEncodingCombobox" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                                  <Component id="deleteAfterReadYes" alignment="1" max="32767" attributes="1"/>
+                                  <Component id="checkFileAgeYes" alignment="1" min="-2" max="-2" attributes="1"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="deleteAfterReadNo" min="-2" max="-2" attributes="0"/>
                                   <Component id="checkFileAgeNo" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="deleteAfterReadNo" alignment="0" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace pref="178" max="32767" attributes="0"/>
                           </Group>
-                          <Component id="errorMoveToDirectory" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
+                          <Component id="moveToPattern" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
+                          <Component id="moveToDirectory" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
+                          <Component id="errorMoveToDirectory" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane2" min="-2" pref="84" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
+                      <Component id="mirthVariableList1" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="sortBy" min="-2" pref="75" max="-2" attributes="1"/>
-                  <Component id="charsetEncodingCombobox" min="-2" pref="125" max="-2" attributes="1"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace pref="92" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -134,24 +133,23 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jScrollPane2" alignment="0" min="-2" pref="84" max="-2" attributes="1"/>
+                  <Component id="mirthVariableList1" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="1" pref="1" max="1" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="moveToDirectoryLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="moveToDirectory" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="moveToFileLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="moveToFileLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="moveToPattern" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="moveToDirectoryLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="errorMoveToDirectoryLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="errorMoveToDirectory" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="errorMoveToDirectoryLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="deleteAfterReadYes" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -163,36 +161,36 @@
                           <Component id="checkFileAgeYes" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="checkFileAgeNo" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="processBatchFilesNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="processBatchFilesYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="processBatchFilesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="jLabel10" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="fileTypeBinary" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="fileTypeASCII" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="fileAgeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="fileAge" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="sortBy" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="encodingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="charsetEncodingCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
                   </Group>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="processBatchFilesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="processBatchFilesNo" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="processBatchFilesYes" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel10" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="fileTypeBinary" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="fileTypeASCII" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="fileAgeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="fileAge" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="sortBy" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="encodingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="charsetEncodingCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace pref="39" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -331,6 +329,24 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkFileAgeNoActionPerformed"/>
       </Events>
     </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthVariableList" name="mirthVariableList1">
+      <Properties>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+            <EtchetBorder/>
+          </Border>
+        </Property>
+        <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
+          <StringArray count="5">
+            <StringItem index="0" value="DATE"/>
+            <StringItem index="1" value="COUNT"/>
+            <StringItem index="2" value="UUID"/>
+            <StringItem index="3" value="SYSTIME"/>
+            <StringItem index="4" value="ORIGINALNAME"/>
+          </StringArray>
+        </Property>
+      </Properties>
+    </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="fileAge">
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel3">
@@ -372,28 +388,6 @@
         <Property name="text" type="java.lang.String" value="Encoding:"/>
       </Properties>
     </Component>
-    <Container class="javax.swing.JScrollPane" name="jScrollPane2">
-      <AuxValues>
-        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-      </AuxValues>
-
-      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-      <SubComponents>
-        <Component class="com.webreach.mirth.client.ui.components.MirthVariableList" name="mirthVariableList1">
-          <Properties>
-            <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
-              <StringArray count="5">
-                <StringItem index="0" value="DATE"/>
-                <StringItem index="1" value="COUNT"/>
-                <StringItem index="2" value="UUID"/>
-                <StringItem index="3" value="SYSTIME"/>
-                <StringItem index="4" value="ORIGINALNAME"/>
-              </StringArray>
-            </Property>
-          </Properties>
-        </Component>
-      </SubComponents>
-    </Container>
     <Component class="javax.swing.JLabel" name="jLabel8">
       <Properties>
         <Property name="text" type="java.lang.String" value="Filename Filter Pattern:"/>
