@@ -397,7 +397,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		newScript.append("default xml namespace = '';\n");
 
 		// script used to check for exitence of segment
-		newScript.append("function validate(mapping, defaultValue, replacement) { var result; if (mapping != undefined) { result = new java.lang.String(mapping.toString()); } if ((result == undefined) || (result.length() == 0)) { result = defaultValue; } if (replacement != undefined) { for (i = 0; i < replacement.length; i++) { var entry = replacement[i]; result = result.replaceAll(entry[0],entry[1]); \n} } return result; }");
+		newScript.append("function validate(mapping, defaultValue, replacement) { var result; if (mapping != undefined) { result = new java.lang.String(mapping.toString()); } if ((result == undefined) || (result.length() == 0)) { result = defaultValue; } if (replacement != undefined) { for (i = 0; i < replacement.length; i++) { var entry = replacement[i]; result = result.replaceAll(entry[0], entry[1]); } } return result; }");
 
 		newScript.append("function $(string) { ");
 		newScript.append("if (connectorMap.containsKey(string)) { return connectorMap.get(string); }");
