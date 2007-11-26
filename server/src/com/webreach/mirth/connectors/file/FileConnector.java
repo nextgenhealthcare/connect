@@ -105,8 +105,8 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	private long pollingFrequency = 0;
 	private String moveToPattern = null;
 	private String writeToDirectoryName = null;
-	private String moveToDirectoryName = null;
-	private String moveToErrorDirectoryName = null;
+	private String moveToDirectory = null;
+	private String moveToErrorDirectory = null;
 	private String outputPattern = null;
 	private String sortAttribute = SORT_NAME;
 	private boolean outputAppend = false;
@@ -159,7 +159,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 		String readDir = endpoint.getEndpointURI().getAddress();
 		long polling = this.pollingFrequency;
 
-		String moveTo = moveToDirectoryName;
+		String moveTo = moveToDirectory;
 		Map props = endpoint.getProperties();
 		if (props != null) {
 			// Override properties on the endpoint for the specific endpoint
@@ -191,7 +191,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 			logger.debug("set polling frequency to: " + polling);
 		}
 		try {
-			receiver = serviceDescriptor.createMessageReceiver(this, component, endpoint, new Object[] { readDir, moveTo, moveToPattern, moveToErrorDirectoryName, new Long(polling) });
+			receiver = serviceDescriptor.createMessageReceiver(this, component, endpoint, new Object[] { readDir, moveTo, moveToPattern, moveToErrorDirectory, new Long(polling) });
 			return receiver;
 		} catch (Exception e) {
 			throw new InitialisationException(new Message(Messages.FAILED_TO_CREATE_X_WITH_X, "Message Receiver", serviceDescriptor.getMessageReceiver()), e, this);
@@ -258,7 +258,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	 * @return Returns the moveToDirectoryName.
 	 */
 	public String getMoveToDirectory() {
-		return moveToDirectoryName;
+		return moveToDirectory;
 	}
 
 	/**
@@ -266,15 +266,15 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	 *            The moveToDirectoryName to set.
 	 */
 	public void setMoveToDirectory(String dir) throws IOException {
-		this.moveToDirectoryName = dir;
+		this.moveToDirectory = dir;
 	}
 
 	public String getMoveToErrorDirectory() {
-		return moveToErrorDirectoryName;
+		return moveToErrorDirectory;
 	}
 
 	public void setMoveToErrorDirectory(String dir) {
-		this.moveToErrorDirectoryName = dir;
+		this.moveToErrorDirectory = dir;
 	}
 
 	/**

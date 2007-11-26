@@ -66,15 +66,16 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 	private MonitoringController monitoringController = MonitoringController.getInstance();
 	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
 	private ConnectorType connectorType = ConnectorType.READER;
+
 	public FtpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, Long frequency) throws InitialisationException {
 		super(connector, component, endpoint, frequency);
 		this.connector = (FtpConnector) connector;
-        
-        if(((FtpConnector)connector).getPollingType().equals(FtpConnector.POLLING_TYPE_TIME))
-            setTime(((FtpConnector) connector).getPollingTime());
-        else
-            setFrequency(((FtpConnector) connector).getPollingFrequency());
-        
+
+		if (((FtpConnector) connector).getPollingType().equals(FtpConnector.POLLING_TYPE_TIME))
+			setTime(((FtpConnector) connector).getPollingTime());
+		else
+			setFrequency(((FtpConnector) connector).getPollingFrequency());
+
 		filenameFilter = new FilenameWildcardFilter(this.connector.getFileFilter());
 		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
 	}
@@ -84,16 +85,16 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 			monitoringController.updateStatus(connector, connectorType, Event.CONNECTED);
 			FTPFile[] files = listFiles();
 			sortFiles(files);
-			
+
 			for (int i = 0; i < files.length; i++) {
-				
+
 				final FTPFile file = files[i];
 				if (!currentFiles.contains(file.getName())) {
-					
+
 					try {
 						monitoringController.updateStatus(connector, connectorType, Event.BUSY);
 						currentFiles.add(file.getName());
-						if (!routingError){
+						if (!routingError) {
 							processFile(file);
 						}
 					} catch (Exception e) {
@@ -108,7 +109,7 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 		} catch (Exception e) {
 			alertController.sendAlerts(((FtpConnector) connector).getChannelId(), Constants.ERROR_405, null, e);
 			handleException(e);
-		} finally{
+		} finally {
 			monitoringController.updateStatus(connector, connectorType, Event.DONE);
 		}
 	}
@@ -175,6 +176,7 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 	protected void processFile(FTPFile file) throws Exception {
 		boolean checkFileAge = connector.isCheckFileAge();
 		String originalFilename = file.getName();
+
 		if (checkFileAge) {
 			long fileAge = connector.getFileAge();
 			long lastMod = file.getTimestamp().getTimeInMillis();
@@ -182,6 +184,7 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 			if ((now - lastMod) < fileAge)
 				return;
 		}
+
 		UMOEndpointURI uri = endpoint.getEndpointURI();
 		UMOMessageAdapter adapter = connector.getMessageAdapter(file);
 		adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
@@ -189,53 +192,69 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 		boolean resultOfFileMoveOperation = false;
 		FTPClient client = null;
 		String moveDir = connector.getMoveToDirectory();
-
+		String errorDir = connector.getMoveToErrorDirectory();
+		
 		try {
-
 			client = connector.getFtp(uri, null);
-			if (moveDir != null) {
 
-				String fileName = file.getName();
+			if (moveDir != null) {
 				if (connector.getMoveToPattern() != null) {
 					destinationFile = connector.getFilenameParser().getFilename(adapter, connector.getMoveToPattern());
 				}
-				// destinationFile = moveDir + "/" + destinationFile;
+
 				destinationFile = destinationFile.replaceAll("//", "/");
 			}
-			if (!client.changeWorkingDirectory(endpoint.getEndpointURI().getPath())) {
-				throw new IOException("Ftp error: " + client.getReplyCode());
-			}
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			if (!client.retrieveFile(file.getName(), baos)) {
-				//this might happen if another thread already processed file
-				throw new IOException("Ftp error: " + client.getReplyCode() + " error retrieving file: " + file.getName() + ". Might be thread race condition.");
-			}
-			byte[] contents = baos.toByteArray();
-			if (connector.isProcessBatchFiles()) {
 
-				List<String> messages = new BatchMessageProcessor().processHL7Messages(new String(contents, connector.getCharsetEncoding()));
-				Exception fileProcesedException = null;
-				for (Iterator iter = messages.iterator(); iter.hasNext() && (fileProcesedException == null);) {
-					String message = (String) iter.next();
-					adapter = connector.getMessageAdapter(message.getBytes(connector.getCharsetEncoding()));
+			try {
+				if (!client.changeWorkingDirectory(endpoint.getEndpointURI().getPath())) {
+					throw new IOException("Ftp error: " + client.getReplyCode());
+				}
+
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+				if (!client.retrieveFile(file.getName(), baos)) {
+					// this might happen if another thread already processed
+					// file
+					throw new IOException("Ftp error: " + client.getReplyCode() + " error retrieving file: " + file.getName() + ". Might be thread race condition.");
+				}
+
+				byte[] contents = baos.toByteArray();
+
+				if (connector.isProcessBatchFiles()) {
+					List<String> messages = new BatchMessageProcessor().processHL7Messages(new String(contents, connector.getCharsetEncoding()));
+					Exception fileProcesedException = null;
+					for (Iterator iter = messages.iterator(); iter.hasNext() && (fileProcesedException == null);) {
+						String message = (String) iter.next();
+						adapter = connector.getMessageAdapter(message.getBytes(connector.getCharsetEncoding()));
+						adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
+						UMOMessage umoMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
+						postProcessor.doPostProcess(umoMessage.getPayload());
+					}
+				} else {
+					String message = "";
+
+					if (connector.isBinary()) {
+						BASE64Encoder encoder = new BASE64Encoder();
+						message = encoder.encode(contents);
+						adapter = connector.getMessageAdapter(message.getBytes());
+					} else {
+						message = new String(contents, connector.getCharsetEncoding());
+						adapter = connector.getMessageAdapter(contents);
+					}
+
 					adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
 					UMOMessage umoMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
 					postProcessor.doPostProcess(umoMessage.getPayload());
 				}
-			} else {
-				String message = "";
-				if (connector.isBinary()) {
-					BASE64Encoder encoder = new BASE64Encoder();
-					message = encoder.encode(contents);
-					adapter = connector.getMessageAdapter(message.getBytes());
-				} else {
-					message = new String(contents, connector.getCharsetEncoding());
-					adapter = connector.getMessageAdapter(contents);
+			} catch (RoutingException e) {
+				logger.error("Unable to route. " + StackTracePrinter.stackTraceToString(e));
+				routingError = true;
+
+				if (errorDir != null) {
+					moveDir = errorDir;
 				}
-				adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
-				UMOMessage umoMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
-				postProcessor.doPostProcess(umoMessage.getPayload());
 			}
+
 			// move the file if needed
 			if (destinationFile != null) {
 				if (!client.changeWorkingDirectory(moveDir)) {
@@ -243,8 +262,10 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 						if (moveDir.startsWith("/")) {
 							moveDir = moveDir.substring(1);
 						}
+
 						String[] dirs = moveDir.split("/");
-						if (dirs.length > 0)
+
+						if (dirs.length > 0) {
 							for (int i = 0; i < dirs.length; i++) {
 								if (!client.changeWorkingDirectory(dirs[i])) {
 									logger.debug("Making directory: " + dirs[i]);
@@ -256,8 +277,10 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 									}
 								}
 							}
+						}
 					}
 				}
+
 				try {
 					client.deleteFile(destinationFile);
 				} catch (Exception e) {
@@ -273,6 +296,7 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 					throw new IOException("Ftp error: " + client.getReplyCode());
 				}
 			}
+
 			if (connector.isAutoDelete()) {
 				adapter.getPayloadAsBytes();
 				// no moveTo directory
@@ -283,11 +307,6 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 					}
 				}
 			}
-		} catch (RoutingException e) {
-			logger.error("Unable to route. Stopping Connector: " + StackTracePrinter.stackTraceToString(e));
-			// connector.stopConnector();
-			// TODO: This was commented out (above). Do we need it?
-			routingError = true;
 		} finally {
 			try {
 				connector.releaseFtp(uri, client, null);
@@ -301,7 +320,6 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 	public void doConnect() throws Exception {
 		FTPClient client = connector.getFtp(getEndpointURI(), null);
 		connector.releaseFtp(getEndpointURI(), client, null);
-
 	}
 
 	public void doDisconnect() throws Exception {

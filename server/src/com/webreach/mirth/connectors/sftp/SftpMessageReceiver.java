@@ -164,6 +164,7 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 		boolean resultOfFileMoveOperation = false;
 		ChannelSftp client = null;
 		String moveDir = connector.getMoveToDirectory();
+		String errorDir = connector.getMoveToErrorDirectory();
 
 		try {
 			client = connector.getClient(uri, null);
@@ -176,38 +177,50 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 
 				destinationFile = destinationFile.replaceAll("//", "/");
 			}
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			client.get(file.getFilename(), baos);
-			byte[] contents = baos.toByteArray();
-			if (connector.isProcessBatchFiles()) {
 
-				List<String> messages = new BatchMessageProcessor().processHL7Messages(new String(contents, connector.getCharsetEncoding()));
-				Exception fileProcesedException = null;
-				for (Iterator iter = messages.iterator(); iter.hasNext() && (fileProcesedException == null);) {
-					String message = (String) iter.next();
-					adapter = connector.getMessageAdapter(message.getBytes(connector.getCharsetEncoding()));
+			try {
+
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				client.get(file.getFilename(), baos);
+				byte[] contents = baos.toByteArray();
+				if (connector.isProcessBatchFiles()) {
+
+					List<String> messages = new BatchMessageProcessor().processHL7Messages(new String(contents, connector.getCharsetEncoding()));
+					Exception fileProcesedException = null;
+					for (Iterator iter = messages.iterator(); iter.hasNext() && (fileProcesedException == null);) {
+						String message = (String) iter.next();
+						adapter = connector.getMessageAdapter(message.getBytes(connector.getCharsetEncoding()));
+						adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
+						UMOMessage umoMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
+						if (umoMessage != null) {
+							postProcessor.doPostProcess(umoMessage.getPayload());
+						}
+					}
+				} else {
+					String message = "";
+					if (connector.isBinary()) {
+						BASE64Encoder encoder = new BASE64Encoder();
+						message = encoder.encode(contents);
+						adapter = connector.getMessageAdapter(message.getBytes());
+					} else {
+						message = new String(contents, connector.getCharsetEncoding());
+						adapter = connector.getMessageAdapter(contents);
+					}
 					adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
 					UMOMessage umoMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
-					if (umoMessage != null){
+					if (umoMessage != null) {
 						postProcessor.doPostProcess(umoMessage.getPayload());
 					}
 				}
-			} else {
-				String message = "";
-				if (connector.isBinary()) {
-					BASE64Encoder encoder = new BASE64Encoder();
-					message = encoder.encode(contents);
-					adapter = connector.getMessageAdapter(message.getBytes());
-				} else {
-					message = new String(contents, connector.getCharsetEncoding());
-					adapter = connector.getMessageAdapter(contents);
-				}
-				adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
-				UMOMessage umoMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
-				if (umoMessage != null){
-					postProcessor.doPostProcess(umoMessage.getPayload());
+			} catch (RoutingException e) {
+				logger.error("Unable to route. " + StackTracePrinter.stackTraceToString(e));
+				routingError = true;
+				
+				if (errorDir != null) {
+					moveDir = errorDir;	
 				}
 			}
+
 			// move the file if needed
 			if (destinationFile != null) {
 				try {
@@ -235,7 +248,7 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 				}
 				client.cd(client.getHome());
 				client.cd(uri.getPath().substring(1) + "/"); // remove the
-																// first slash
+				// first slash
 				client.rename((file.getFilename()).replaceAll("//", "/"), (moveDir + "/" + destinationFile).replaceAll("//", "/"));
 			}
 			if (connector.isAutoDelete()) {
@@ -245,11 +258,6 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 					client.rm(file.getFilename());
 				}
 			}
-		} catch (RoutingException e) {
-			logger.error("Unable to route. Stopping Connector: " + StackTracePrinter.stackTraceToString(e));
-			// connector.stopConnector();
-			// TODO: This was commented out (above). Do we need it?
-			routingError = true;
 		} finally {
 			connector.releaseClient(uri, client, null);
 		}

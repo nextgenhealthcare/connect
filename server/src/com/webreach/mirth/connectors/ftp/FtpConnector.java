@@ -61,6 +61,7 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 	public static final String PROPERTY_FILE_FILTER = "fileFilter";
 	public static final String PROPERTY_MOVE_TO_PATTERN = "moveToPattern";
 	public static final String PROPERTY_MOVE_TO_DIRECTORY = "moveToDirectory";
+	public static final String PROPERTY_MOVE_TO_ERROR_DIRECTORY = "moveToErrorDirectory";
 	public static final String PROPERTY_DELETE_ON_READ = "autoDelete";
 	public static final String PROPERTY_DIRECTORY = "directory";
 	public static final String PROPERTY_SORT_ATTRIBUTE = "sortAttribute";
@@ -95,6 +96,7 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 	private String moveToPattern = null;
 	private String writeToDirectoryName = null;
 	private String moveToDirectory = null;
+	private String moveToErrorDirectory = null;
 	private String sortAttribute = SORT_NAME;
 	private boolean outputAppend = false;
 	private boolean autoDelete = true;
@@ -190,6 +192,14 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 
 	public void setMoveToDirectory(String moveToDirectoryName) {
 		this.moveToDirectory = moveToDirectoryName;
+	}
+
+	public String getMoveToErrorDirectory() {
+		return moveToErrorDirectory;
+	}
+
+	public void setMoveToErrorDirectory(String moveToErrorDirectory) {
+		this.moveToErrorDirectory = moveToErrorDirectory;
 	}
 
 	public String getMoveToPattern() {
