@@ -41,6 +41,11 @@
 			<entry key="mirth.date" type="date" value="today" pattern="MMMM d, yyyy" />
 		</propertyfile>
 
+		<!-- copy xml file for ant task -->
+		<copy todir="${classes}/com/webreach/mirth/ant">
+			<fileset file="${src}/com/webreach/mirth/ant/antlib.xml" />
+		</copy>
+
 		<!-- copy the xml files so they will be included in jar -->
 		<copy todir="${classes}/com/webreach/mirth/model/x12/xml">
 			<fileset dir="${src}/com/webreach/mirth/model/x12/xml" />
@@ -51,14 +56,17 @@
 				<include name="*.xml" />
 			</fileset>
 		</copy>
+
 		<copy todir="${classes}/com/webreach/mirth/plugins">
 			<fileset dir="${src}/com/webreach/mirth/plugins">
 				<include name="*.xml" />
 			</fileset>
 		</copy>
+
 		<replace dir="${classes}/com/webreach/mirth/connectors" token="@mirthversion" value="${version}">
 			<include name="*.xml" />
 		</replace>
+
 		<replace dir="${classes}/com/webreach/mirth/plugins" token="@mirthversion" value="${version}">
 			<include name="*.xml" />
 		</replace>
@@ -162,7 +170,7 @@
 				<exclude name="com/webreach/mirth/connectors/jms/JMSWriterProperties.class" />
 			</fileset>
 		</jar>
-		
+
 		<jar destfile="${connectors}/js-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/js/JavaScriptReaderProperties.class" />
 			<include name="com/webreach/mirth/connectors/js/JavaScriptWriterProperties.class" />
@@ -417,6 +425,11 @@
 				<attribute name="Main-Class" value="com.webreach.mirth.server.launcher.ShellLauncher" />
 				<attribute name="Class-Path" value="lib/log4j-1.2.13.jar conf/ extensions/connectors/" />
 			</manifest>
+		</jar>
+
+		<!-- create the ant task jar -->
+		<jar destfile="${setup}/${mirth-ant.jar}" basedir="${classes}">
+			<include name="com/webreach/mirth/ant/**" />
 		</jar>
 
 		<!-- remove svn folders -->
