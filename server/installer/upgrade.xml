@@ -116,6 +116,12 @@
 	<target name="chmodMirth">
 		<echo>setting permissions on mirth.sh</echo>
 		<chmod perm="ugo+rx" dir="${install.path}" includes="mirth.sh" />
+
+		<echo>setting permissions on mirth-daemon</echo>
+		<chmod perm="ugo+rx" dir="${install.path}" includes="mirth-daemon" />
+
+		<echo>setting permissions on wrapper-x86-32bit</echo>
+		<chmod perm="ugo+rx" dir="${install.path}" includes="wrapper-x86-32bit" />
 	</target>
 
 	<target name="chmodShell">
