@@ -1,9 +1,4 @@
 /*
- * $Header: /home/projects/mule/scm/mule/providers/file/src/java/org/mule/providers/file/FileEndpointBuilder.java,v 1.4 2005/06/03 01:20:31 gnt Exp $
- * $Revision: 1.4 $
- * $Date: 2005/06/03 01:20:31 $
- * ------------------------------------------------------------------------------------------------------
- *
  * Copyright (c) SymphonySoft Limited. All rights reserved.
  * http://www.symphonysoft.com
  *
@@ -11,6 +6,7 @@
  * style license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
  */
+
 package com.webreach.mirth.connectors.file;
 
 import java.net.URI;
