@@ -68,8 +68,8 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 		// "");
 		String targetVar = "";
 		String mappingVar = "";
-		String targetDescription = "";
-		String mappingDescription = "";
+		String targetDescription = "value";
+		String mappingDescription = "value";
 		if (target.startsWith("tmp[")) {
 			targetVar = "(out)";
 			target = target.substring(4);
@@ -79,10 +79,12 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 		}
 		target = target.replaceAll("'", "");
 		target = target.substring(0, target.length() - 1); // get rid of
-															// trailing "]"
+		// trailing "]"
 		String[] targetparts = target.split("]\\[");
 		targetDescription = getVocabDescription(targetDescription, targetparts);
-
+		if (targetDescription.length() == 0){
+			targetDescription = ((String) ((Map<Object, Object>) panel.getData()).get("Variable"));
+		}
 		if (mapping.startsWith("tmp[")) {
 			mappingVar = "(out)";
 			mapping = mapping.substring(4);
@@ -90,14 +92,18 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 			mappingVar = "(in)";
 			mapping = mapping.substring(4);
 		}
-		if (mapping != null && mapping.length() > 0) {
+		if (mapping != null && mapping.length() > 0 && mapping.indexOf("].toString()") > -1) {
+
 			mapping = mapping.substring(0, mapping.indexOf("].toString()")).replaceAll("'", "");
 			String[] mappingparts = mapping.split("]\\[");
 			mappingDescription = getVocabDescription(mappingDescription, mappingparts);
 		} else {
 			mappingDescription = "value";
 		}
-		return name + removeInvalidCharacters(mappingDescription) + " " + mappingVar + " to " + removeInvalidCharacters(targetDescription) + " " + targetVar + "";
+		if (mappingDescription.length() == 0){
+			mappingDescription = "value";
+		}
+		return name + removeInvalidCharacters(mappingDescription) + " to " + removeInvalidCharacters(targetDescription);
 	}
 
 	private String getVocabDescription(String mappingDescription, String[] parts) {
@@ -124,7 +130,9 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 				mappingDescription += " " + Component.getSegmentorCompositeFieldDescription(parts[2], false);
 			}
 		}
-		return mappingDescription;
+		mappingDescription = mappingDescription.trim();
+
+		return mappingDescription.trim();
 	}
 
 	public String removeInvalidCharacters(String source) {
