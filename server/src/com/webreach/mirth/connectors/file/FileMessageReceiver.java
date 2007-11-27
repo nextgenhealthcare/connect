@@ -136,6 +136,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 			// sort files by specified attribute before sorting
 			sortFiles(files);
 			routingError = false;
+			
 			for (int i = 0; i < files.length; i++) {
 				//
 				if (!routingError && !files[i].isDirectory()) {
@@ -245,10 +246,12 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 					}
 				} catch (RoutingException e) {
 					logger.error("Unable to route." + StackTracePrinter.stackTraceToString(e));
+					
+					// routingError is reset to false at the beginning of the poll method
 					routingError = true;
 					
 					if (errorDir != null) {
-						logger.error("Moveing file to error directory: " + errorDir);
+						logger.error("Moving file to error directory: " + errorDir);
 						destinationFile = new File(errorDir, file.getName());
 					}
 				} catch (Exception e) {
@@ -283,19 +286,12 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 						}
 					}
 				}
-				if (fileProcesedException != null)
+				
+				if (fileProcesedException != null) {
 					throw fileProcesedException;
-
+				}
 			}
 		} catch (Exception e) {
-			/*
-			 * boolean resultOfRollbackFileMove = false; if
-			 * (resultOfFileMoveOperation) { resultOfRollbackFileMove =
-			 * rollbackFileMove(destinationFile, file.getAbsolutePath()); }
-			 * Exception ex = new MuleException(new Message("file", 2, file
-			 * .getName(), (resultOfRollbackFileMove ? "successful" :
-			 * "unsuccessful")), e); handleException(ex);
-			 */
 			alertController.sendAlerts(((FileConnector) connector).getChannelId(), Constants.ERROR_403, "", e);
 			handleException(e);
 		}

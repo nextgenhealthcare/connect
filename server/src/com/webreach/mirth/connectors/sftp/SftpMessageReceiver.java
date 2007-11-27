@@ -13,6 +13,9 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
+import org.mule.MuleException;
+import org.mule.config.i18n.Message;
+import org.mule.config.i18n.Messages;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.PollingMessageReceiver;
 import org.mule.umo.UMOComponent;
@@ -67,6 +70,7 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 		try {
 			List files = listFiles();
 			sortFiles(files);
+			routingError = false;
 
 			for (Iterator iter = files.iterator(); iter.hasNext();) {
 				final ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) iter.next();
@@ -178,15 +182,18 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 				destinationFile = destinationFile.replaceAll("//", "/");
 			}
 
+			Exception fileProcesedException = null;
+
 			try {
 
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				client.get(file.getFilename(), baos);
 				byte[] contents = baos.toByteArray();
+				
 				if (connector.isProcessBatchFiles()) {
 
 					List<String> messages = new BatchMessageProcessor().processHL7Messages(new String(contents, connector.getCharsetEncoding()));
-					Exception fileProcesedException = null;
+
 					for (Iterator iter = messages.iterator(); iter.hasNext() && (fileProcesedException == null);) {
 						String message = (String) iter.next();
 						adapter = connector.getMessageAdapter(message.getBytes(connector.getCharsetEncoding()));
@@ -214,11 +221,16 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 				}
 			} catch (RoutingException e) {
 				logger.error("Unable to route. " + StackTracePrinter.stackTraceToString(e));
-				routingError = true;
 				
+				// routingError is reset to false at the beginning of the poll method
+				routingError = true;
+
 				if (errorDir != null) {
-					moveDir = errorDir;	
+					moveDir = errorDir;
 				}
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+				fileProcesedException = new MuleException(new Message(Messages.FAILED_TO_READ_PAYLOAD, file.getFilename()));
 			}
 
 			// move the file if needed
@@ -251,6 +263,7 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 				// first slash
 				client.rename((file.getFilename()).replaceAll("//", "/"), (moveDir + "/" + destinationFile).replaceAll("//", "/"));
 			}
+
 			if (connector.isAutoDelete()) {
 				adapter.getPayloadAsBytes();
 				// no moveTo directory
@@ -258,6 +271,13 @@ public class SftpMessageReceiver extends PollingMessageReceiver {
 					client.rm(file.getFilename());
 				}
 			}
+			
+			if (fileProcesedException != null) {
+				throw fileProcesedException;
+			}
+		} catch (Exception e) {
+			alertController.sendAlerts(((SftpConnector) connector).getChannelId(), Constants.ERROR_409, "", e);
+			handleException(e);
 		} finally {
 			connector.releaseClient(uri, client, null);
 		}

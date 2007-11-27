@@ -29,6 +29,9 @@ import java.util.Set;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
+import org.mule.MuleException;
+import org.mule.config.i18n.Message;
+import org.mule.config.i18n.Messages;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.PollingMessageReceiver;
 import org.mule.umo.UMOComponent;
@@ -85,9 +88,9 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 			monitoringController.updateStatus(connector, connectorType, Event.CONNECTED);
 			FTPFile[] files = listFiles();
 			sortFiles(files);
-
+			routingError = false;
+			
 			for (int i = 0; i < files.length; i++) {
-
 				final FTPFile file = files[i];
 				if (!currentFiles.contains(file.getName())) {
 
@@ -204,7 +207,9 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 
 				destinationFile = destinationFile.replaceAll("//", "/");
 			}
-
+			
+			Exception fileProcesedException = null;
+			
 			try {
 				if (!client.changeWorkingDirectory(endpoint.getEndpointURI().getPath())) {
 					throw new IOException("Ftp error: " + client.getReplyCode());
@@ -222,7 +227,7 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 
 				if (connector.isProcessBatchFiles()) {
 					List<String> messages = new BatchMessageProcessor().processHL7Messages(new String(contents, connector.getCharsetEncoding()));
-					Exception fileProcesedException = null;
+					
 					for (Iterator iter = messages.iterator(); iter.hasNext() && (fileProcesedException == null);) {
 						String message = (String) iter.next();
 						adapter = connector.getMessageAdapter(message.getBytes(connector.getCharsetEncoding()));
@@ -248,11 +253,15 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 				}
 			} catch (RoutingException e) {
 				logger.error("Unable to route. " + StackTracePrinter.stackTraceToString(e));
+				
+				// routingError is reset to false at the beginning of the poll method
 				routingError = true;
-
+				
 				if (errorDir != null) {
 					moveDir = errorDir;
 				}
+			} catch (Exception e) {
+				fileProcesedException = new MuleException(new Message(Messages.FAILED_TO_READ_PAYLOAD, file.getName()));;
 			}
 
 			// move the file if needed
@@ -307,6 +316,13 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 					}
 				}
 			}
+			
+			if (fileProcesedException != null) {
+				throw fileProcesedException;
+			}
+		} catch (Exception e) {
+			alertController.sendAlerts(((FtpConnector) connector).getChannelId(), Constants.ERROR_405, "", e);
+			handleException(e);
 		} finally {
 			try {
 				connector.releaseFtp(uri, client, null);
