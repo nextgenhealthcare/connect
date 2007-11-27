@@ -154,6 +154,8 @@ public class JavaScriptUtil {
 	public String generateScript(String script, boolean includeChannelMap) {
 		StringBuilder builtScript = new StringBuilder();
 
+		builtScript.append("String.prototype.trim = function() { return this.replace(/^\\s+|\\s+$/g,\"\").replace(/^\\t+|\\t+$/g,\"\"); }");
+		
 		builtScript.append("function $(string) { ");
 		if (includeChannelMap) {
 			builtScript.append("if (channelMap.containsKey(string)) { return channelMap.get(string);} else ");

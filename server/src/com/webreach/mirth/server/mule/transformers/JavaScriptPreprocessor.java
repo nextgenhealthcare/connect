@@ -152,6 +152,8 @@ public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 		logger.debug("generating preprocessing script");
 		StringBuilder script = new StringBuilder();
 		// The addAttachment function let's us dynamically put data into attachment table
+		script.append("String.prototype.trim = function() { return this.replace(/^\\s+|\\s+$/g,\"\").replace(/^\\t+|\\t+$/g,\"\"); }");
+		
 		script.append("function addAttachment(data, type) {");
 		script.append("var attachment = Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().createAttachment(data, type);");
 		script.append("muleContext.getProperties().get('attachments').add(attachment);}\n");

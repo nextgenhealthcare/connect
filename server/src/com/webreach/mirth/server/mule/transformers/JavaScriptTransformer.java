@@ -399,6 +399,9 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		// script used to check for exitence of segment
 		newScript.append("function validate(mapping, defaultValue, replacement) { var result; if (mapping != undefined) { result = new java.lang.String(mapping.toString()); } if ((result == undefined) || (result.length() == 0)) { result = defaultValue; } if (replacement != undefined) { for (i = 0; i < replacement.length; i++) { var entry = replacement[i]; result = result.replaceAll(entry[0], entry[1]); } } return result; }");
 
+		// add #trim() function to JS String
+		newScript.append("String.prototype.trim = function() { return this.replace(/^\\s+|\\s+$/g,\"\").replace(/^\\t+|\\t+$/g,\"\"); }");
+		
 		newScript.append("function $(string) { ");
 		newScript.append("if (connectorMap.containsKey(string)) { return connectorMap.get(string); }");
 		newScript.append("else if (channelMap.containsKey(string)) { return channelMap.get(string); }");
