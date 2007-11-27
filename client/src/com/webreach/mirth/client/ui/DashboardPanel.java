@@ -69,6 +69,7 @@ public class DashboardPanel extends javax.swing.JPanel
         loadColumnPlugins();
         split.setBottomComponent(null);
         split.setDividerSize(0);
+        split.setOneTouchExpandable(true);
         loadPanelPlugins();
         greenBullet = new ImageIcon(Frame.class.getResource("images/bullet_green.png"));
         yellowBullet = new ImageIcon(Frame.class.getResource("images/bullet_yellow.png"));
