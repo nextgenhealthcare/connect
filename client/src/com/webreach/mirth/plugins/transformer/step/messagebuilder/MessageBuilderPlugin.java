@@ -103,7 +103,7 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 		if (mappingDescription.length() == 0){
 			mappingDescription = "value";
 		}
-		return name + removeInvalidCharacters(mappingDescription) + " to " + removeInvalidCharacters(targetDescription);
+		return name + " " + mappingVar + " " + removeInvalidCharacters(mappingDescription) + " to " + targetVar + " " + removeInvalidCharacters(targetDescription);
 	}
 
 	private String getVocabDescription(String mappingDescription, String[] parts) {
