@@ -132,7 +132,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
     public static final int NUMBER_OF_COLUMNS = 5;
     public static final String BLANK_TYPE = "";
     public static final String JAVASCRIPT = "JavaScript";
-    public static final String GRAPHICAL_RULE = "Graphical Rule";
+    public static final String RULE_BUILDER = "Rule Builder";
     private String[] comboBoxValues = new String[] { Rule.Operator.AND.toString(), Rule.Operator.OR.toString() };
     private Channel channel;
     private DropTarget dropTarget;
@@ -904,10 +904,10 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
             plugin.clearData();
         }
 
-        if (loadedPlugins.containsKey(GRAPHICAL_RULE))
+        if (loadedPlugins.containsKey(RULE_BUILDER))
         {
-            rule.setType(GRAPHICAL_RULE); // graphical rule type by default, inbound
-            loadedPlugins.get(GRAPHICAL_RULE).initData();
+            rule.setType(RULE_BUILDER); // graphical rule type by default, inbound
+            loadedPlugins.get(RULE_BUILDER).initData();
             Map<Object, Object> data = new HashMap<Object, Object>();
             data.put("Field", mapping);
             data.put("Equals", UIConstants.EXISTS_OPTION);
@@ -917,7 +917,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         }
         else
         {
-            System.out.println("Graphical rule not found");
+            System.out.println("Rule Builder not found");
             rule.setType(loadedPlugins.keySet().iterator().next());
         }
 
