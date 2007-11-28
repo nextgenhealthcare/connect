@@ -979,7 +979,9 @@ public class JEditTextArea extends JComponent {
 	 */
 	public void setText(String text) {
 		try {
-			text = text.replaceAll("\\r\\n", "\n");
+			if (text != null){
+				text = text.replaceAll("\\r\\n", "\n");
+			}
 			document.beginCompoundEdit();
 			document.remove(0, document.getLength());
 			document.insertString(0, text, null);
