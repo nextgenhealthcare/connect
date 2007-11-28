@@ -68,7 +68,7 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 		// "");
 		String targetVar = "";
 		String mappingVar = "";
-		String targetDescription = "value";
+		String targetDescription = "";
 		String mappingDescription = "value";
 		if (target.startsWith("tmp[")) {
 			targetVar = "(out)";
