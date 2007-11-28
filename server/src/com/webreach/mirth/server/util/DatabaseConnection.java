@@ -158,14 +158,14 @@ public class DatabaseConnection {
 	 * @return a count of the number of updated rows.
 	 * @throws SQLException
 	 */
-	public int executeUpdate(String expression, List parameters) throws SQLException {
+	public int executeUpdate(String expression, List<Object> parameters) throws SQLException {
 		PreparedStatement statement = null;
 
 		try {
 			statement = connection.prepareStatement(expression);
 			logger.debug("executing prepared statement:\n" + expression);
 
-			ListIterator iterator = parameters.listIterator();
+			ListIterator<Object> iterator = parameters.listIterator();
 
 			while (iterator.hasNext()) {
 				int index = iterator.nextIndex() + 1;
@@ -197,14 +197,14 @@ public class DatabaseConnection {
 	 * @return a count of the number of updated rows.
 	 * @throws SQLException
 	 */
-	public ResultSet executeQuery(String expression, List parameters) throws SQLException {
+	public ResultSet executeQuery(String expression, List<Object> parameters) throws SQLException {
 		PreparedStatement statement = null;
 
 		try {
 			statement = connection.prepareStatement(expression);
 			logger.debug("executing prepared statement:\n" + expression);
 
-			ListIterator iterator = parameters.listIterator();
+			ListIterator<Object> iterator = parameters.listIterator();
 
 			while (iterator.hasNext()) {
 				int index = iterator.nextIndex() + 1;
@@ -231,14 +231,14 @@ public class DatabaseConnection {
 	 * @return a count of the number of updated rows.
 	 * @throws SQLException
 	 */
-	public CachedRowSet executeCachedQuery(String expression, List parameters) throws SQLException {
+	public CachedRowSet executeCachedQuery(String expression, List<Object> parameters) throws SQLException {
 		PreparedStatement statement = null;
 
 		try {
 			statement = connection.prepareStatement(expression);
 			logger.debug("executing prepared statement:\n" + expression);
 
-			ListIterator iterator = parameters.listIterator();
+			ListIterator<Object> iterator = parameters.listIterator();
 
 			while (iterator.hasNext()) {
 				int index = iterator.nextIndex() + 1;
@@ -341,14 +341,14 @@ public class DatabaseConnection {
 	 * @return a count of the number of updated rows.
 	 * @throws SQLException
 	 */
-	public ResultSet executeUpdateAndGetGeneratedKeys(String expression, List parameters) throws SQLException {
+	public ResultSet executeUpdateAndGetGeneratedKeys(String expression, List<Object> parameters) throws SQLException {
 		PreparedStatement statement = null;
 
 		try {
 			statement = connection.prepareStatement(expression);
 			logger.debug("executing prepared statement:\n" + expression);
 
-			ListIterator iterator = parameters.listIterator();
+			ListIterator<Object> iterator = parameters.listIterator();
 
 			while (iterator.hasNext()) {
 				int index = iterator.nextIndex() + 1;
