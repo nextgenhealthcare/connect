@@ -308,6 +308,30 @@ public class DatabaseConnection {
 	}
 	
 	/**
+	 * Executes an update on the database and returns a ResultSet containing the generated keys.
+	 * 
+	 * @param expression
+	 *            the update query to be executed.
+	 * @return a count of the number of updated rows.
+	 * @throws SQLException
+	 */
+	public ResultSet executeUpdateAndReturnGeneratedKeys(String expression) throws SQLException {
+		Statement statement = null;
+
+		try {
+			statement = connection.createStatement();
+			logger.debug("executing update:\n" + expression);
+			statement.executeUpdate(expression);
+			return statement.getGeneratedKeys();
+		} catch (SQLException e) {
+			throw e;
+		} finally {
+			DatabaseUtil.close(statement);
+		}
+	}
+	
+	
+	/**
 	 * Executes a prepared statement on the database and returns a ResultSet containing the generated keys.
 	 * 
 	 * @param expression
@@ -334,8 +358,7 @@ public class DatabaseConnection {
 			}
 
 			statement.executeUpdate();
-			ResultSet result = statement.getGeneratedKeys();
-			return result;
+			return statement.getGeneratedKeys();
 		} catch (SQLException e) {
 			throw e;
 		} finally {
