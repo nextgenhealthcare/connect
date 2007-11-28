@@ -40,6 +40,7 @@ public class FindRplDialog extends javax.swing.JDialog {
         if(search_text.isEditable()){
             boolean anyRemaining = true;
             search_text.select(0,0);
+            int min =  Integer.MIN_VALUE;
             while(anyRemaining){
                 find();
                 int start = search_text.getSelectionStart();
@@ -50,6 +51,13 @@ public class FindRplDialog extends javax.swing.JDialog {
                 else {
                     anyRemaining = false;
                 }
+                if(start <= min){
+                    break;
+                }
+                else {
+                    min = start;
+                }
+                
             }                           
         }
     }
