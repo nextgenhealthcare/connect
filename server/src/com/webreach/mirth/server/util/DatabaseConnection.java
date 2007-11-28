@@ -306,4 +306,41 @@ public class DatabaseConnection {
 	public void commit() throws SQLException {
 		connection.commit();
 	}
+	
+	/**
+	 * Executes a prepared statement on the database and returns a ResultSet containing the generated keys.
+	 * 
+	 * @param expression
+	 *            the prepared statement to be executed
+	 * @param parameters
+	 *            the parameteres for the prepared statement
+	 * @return a count of the number of updated rows.
+	 * @throws SQLException
+	 */
+	public ResultSet executeUpdateAndGetGeneratedKeys(String expression, List parameters) throws SQLException {
+		PreparedStatement statement = null;
+
+		try {
+			statement = connection.prepareStatement(expression);
+			logger.debug("executing prepared statement:\n" + expression);
+
+			ListIterator iterator = parameters.listIterator();
+
+			while (iterator.hasNext()) {
+				int index = iterator.nextIndex() + 1;
+				Object value = iterator.next();
+				logger.debug("adding parameter: index=" + index + ", value=" + value);
+				statement.setObject(index, value);
+			}
+
+			statement.executeUpdate();
+			ResultSet result = statement.getGeneratedKeys();
+			return result;
+		} catch (SQLException e) {
+			throw e;
+		} finally {
+			DatabaseUtil.close(statement);
+		}
+	}
+
 }
