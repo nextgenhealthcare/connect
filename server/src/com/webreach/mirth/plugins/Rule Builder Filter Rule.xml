@@ -8,7 +8,7 @@
   <description>This plugin provides a Rule Builder type for Mirth filters.</description>
   <enabled>true</enabled>
   <extensionPoint>
-  	<name>Graphical Rule</name>
+  	<name>Rule Builder</name>
     <type>CLIENT_FILTER_RULE</type>
     <className>com.webreach.mirth.plugins.filter.rule.rulebuilder.RuleBuilderPlugin</className>
     <mode>CLIENT</mode>
