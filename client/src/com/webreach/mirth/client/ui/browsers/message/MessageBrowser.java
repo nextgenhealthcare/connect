@@ -821,11 +821,6 @@ public class MessageBrowser extends javax.swing.JPanel
                 if (protocol.equals(MessageObject.Protocol.HL7V2) || protocol.equals(MessageObject.Protocol.NCPDP) || protocol.equals(MessageObject.Protocol.DICOM))
                 {
                     newDoc.setTokenMarker(new HL7TokenMarker());
-                    message = message.replace('\r', '\n');
-                    // HL7 (ER7) encoded messages have \r as end of line
-                    // segments
-                    // The syntax editor box only recognizes \n
-                    // Add \n to make things look normal
                 }
                 else if (protocol.equals(MessageObject.Protocol.XML) || protocol.equals(Protocol.HL7V3))
                 {

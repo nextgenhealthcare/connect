@@ -9,6 +9,8 @@ import org.syntax.jedit.JEditTextArea;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
 
@@ -23,6 +25,7 @@ public class FindRplDialog extends javax.swing.JDialog {
     public FindRplDialog(Frame parent, boolean modal, JEditTextArea textarea) {
         super(parent, modal);
         initComponents();
+        
         search_text = textarea;
         Dimension dlgSize = getPreferredSize();
         Dimension frmSize = parent.getSize();
@@ -34,8 +37,31 @@ public class FindRplDialog extends javax.swing.JDialog {
         else {
             this.disableReplace();
         }
-    }
+        mirthTextField1.addKeyListener(new KeyListener(){
 
+			public void keyPressed(KeyEvent e) {
+				// TODO Auto-generated method stub
+				if (e.getKeyCode() == KeyEvent.VK_ENTER){
+					find();
+				}else if (e.getKeyCode() == KeyEvent.VK_ESCAPE){
+					exit();
+				}
+				
+			}
+
+			public void keyReleased(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}});
+    }
+    void exit(){
+    	this.setVisible(false);
+    }
     void replaceAll(){
         if(search_text.isEditable()){
             boolean anyRemaining = true;
