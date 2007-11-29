@@ -60,7 +60,7 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 	}
 
 	public String getName() {
-		String name = "Assign";
+		String name = "";
 		String target = ((String) ((Map<Object, Object>) panel.getData()).get("Variable"));// .replaceAll("\\.toString\\(\\)",
 		// "");
 		String mapping = ((String) ((Map<Object, Object>) panel.getData()).get("Mapping"));// .replaceAll("\\.toString\\(\\)",
@@ -102,7 +102,9 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 		if (mappingDescription.length() == 0){
 			mappingDescription = ((String) ((Map<Object, Object>) panel.getData()).get("Mapping")).replaceAll("\\.toString\\(\\)","");
 		}
-		return name + " " + mappingVar + " " + removeInvalidCharacters(mappingDescription) + " to " + targetVar + " " + removeInvalidCharacters(targetDescription);
+		//return name + " " + mappingVar + " " + removeInvalidCharacters(mappingDescription) + " to " + targetVar + " " + removeInvalidCharacters(targetDescription);
+		return removeInvalidCharacters(mappingDescription) + " --> " + removeInvalidCharacters(targetDescription);
+		
 	}
 
 	@Override
