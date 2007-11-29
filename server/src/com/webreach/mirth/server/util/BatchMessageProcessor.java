@@ -78,6 +78,12 @@ public class BatchMessageProcessor {
 					message.append(line);
 					message.append((char) endOfRecord);
 				}
+			} else if (line.startsWith("FHS") || line.startsWith("BHS") || line.startsWith("BTS") || line.startsWith("FTS")){
+				//ignore batch headers
+				if (!scanner.hasNext()) {
+					messages.add(message.toString());
+					message = new StringBuilder();
+				}
 			} else {
 				message.append(line);
 				message.append((char) endOfRecord);

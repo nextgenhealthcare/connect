@@ -142,13 +142,9 @@ public class ER7XMLHandler extends DefaultHandler {
 				if (lastElement.length() > 0) {
 					lastFieldId = Integer.parseInt(lastElement.split("\\.")[2]);
 				}
-				int currentFieldId = Integer.parseInt(name.split("\\.")[2]); // get
-																				// the
-																				// third
-																				// part,
-																				// the
-																				// id
-
+				
+				int currentFieldId = Integer.parseInt(name.split("\\.")[2]); 
+				
 				int difference = currentFieldId - lastFieldId;
 
 				for (int i = 1; i < difference; i++) {
@@ -170,7 +166,7 @@ public class ER7XMLHandler extends DefaultHandler {
 		}
 		if (sawMSH1 && (name.equals("MSH.1") || name.equals("BHS.1") || name.equals("FHS.1"))) {
 			inMSH1 = false;
-			sawMSH2 = false;
+			sawMSH1 = false;
 			output.deleteCharAt(output.length() - 1);
 		} else if (currentLocation.equals(Location.SEGMENT)) {
 			output.append(segmentDelim);
