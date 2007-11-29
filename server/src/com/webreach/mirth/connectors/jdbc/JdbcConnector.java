@@ -496,7 +496,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 			}else{
 				if (username.indexOf('$') > -1)
 					username = replacer.replaceValues(username, messageObject);
-				if (password.indexOf('$') > -1)
+				if (password != null && password.indexOf('$') > -1)
 					password = replacer.replaceValues(password, messageObject);
 				URL = replacer.replaceValues(URL, messageObject);
 			}
