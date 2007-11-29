@@ -35,40 +35,37 @@ import com.webreach.mirth.model.Channel;
 
 /**
  * an ant task to clear messages from all mirth channels
- *
+ * 
  * @author andrzej@coalese.com
  */
 
-public class ClearTask extends AbstractMirthTask
-{
-	
-	/* (non-Javadoc)
-   * @see org.apache.tools.ant.Task#execute()
-   */
-	
-	public void executeTask() throws BuildException
-	{
+public class ClearTask extends AbstractMirthTask {
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.tools.ant.Task#execute()
+	 */
+
+	public void executeTask() throws BuildException {
 		try {
 			connectClient();
 			commandClearAll();
 			disconnectClient();
-		} 
-		catch( ClientException e ) {
-			throw( new BuildException( "Mirth client exception caught: " + e.getMessage(), e ) );
-		} 
-	}
-	
-	private void commandClearAll() throws ClientException 
-	{
-		List<Channel> channels = client.getChannel(null);
-		
-		for( Iterator iter = channels.iterator(); iter.hasNext(); ) {
-			Channel channel = (Channel) iter.next();
-			client.clearMessages( channel.getId() );
+		} catch (ClientException e) {
+			throw (new BuildException("Mirth client exception caught: " + e.getMessage(), e));
 		}
-		
-		System.out.println( "Channel Messages Cleared" );
 	}
-	
-	
+
+	private void commandClearAll() throws ClientException {
+		List<Channel> channels = client.getChannel(null);
+
+		for (Iterator iter = channels.iterator(); iter.hasNext();) {
+			Channel channel = (Channel) iter.next();
+			client.clearMessages(channel.getId());
+		}
+
+		System.out.println("Channel Messages Cleared");
+	}
+
 }

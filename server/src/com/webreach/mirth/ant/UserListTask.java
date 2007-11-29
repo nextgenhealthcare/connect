@@ -35,40 +35,37 @@ import com.webreach.mirth.model.User;
 
 /**
  * an ant task to list all mirth users
- *
+ * 
  * @author andrzej@coalese.com
  */
 
-public class UserListTask extends AbstractMirthTask
-{
-	
-	/* (non-Javadoc)
-   * @see org.apache.tools.ant.Task#execute()
-   */
-	
-	public void executeTask() throws BuildException
-	{
+public class UserListTask extends AbstractMirthTask {
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.tools.ant.Task#execute()
+	 */
+
+	public void executeTask() throws BuildException {
 		try {
 			connectClient();
 			commandUserList();
 			disconnectClient();
-		} 
-		catch( ClientException e ) {
-			throw( new BuildException( "Mirth client exception caught: " + e.getMessage(), e ) );
-		} 
-	}
-	
-	private void commandUserList() throws ClientException 
-	{
-		List<User> users = client.getUser( null );
-		
-		System.out.println("ID\tUser\t\tName\t\t\tEmail");
-		
-		for( Iterator<User> iter = users.iterator(); iter.hasNext(); ) {
-			User user = iter.next();
-			System.out.println( user.getId() + "\t\t" + user.getUsername() + "\t\t" + user.getFullName() + "\t\t\t" + user.getEmail() );
+		} catch (ClientException e) {
+			throw (new BuildException("Mirth client exception caught: " + e.getMessage(), e));
 		}
 	}
-	
-	
+
+	private void commandUserList() throws ClientException {
+		List<User> users = client.getUser(null);
+
+		System.out.println("ID\tUser\t\tName\t\t\tEmail");
+
+		for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
+			User user = iter.next();
+			System.out.println(user.getId() + "\t\t" + user.getUsername() + "\t\t" + user.getFullName() + "\t\t\t" + user.getEmail());
+		}
+	}
+
 }

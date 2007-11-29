@@ -35,48 +35,45 @@ import com.webreach.mirth.model.Channel;
 
 /**
  * an ant task to list all mirth channels
- *
+ * 
  * @author andrzej@coalese.com
  */
 
-public class ListTask extends AbstractMirthTask
-{
-	
-	/* (non-Javadoc)
-   * @see org.apache.tools.ant.Task#execute()
-   */
-	
-	public void executeTask() throws BuildException
-	{
+public class ListTask extends AbstractMirthTask {
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.tools.ant.Task#execute()
+	 */
+
+	public void executeTask() throws BuildException {
 		try {
 			connectClient();
 			commandListAll();
 			disconnectClient();
-		} 
-		catch( ClientException e ) {
-			throw( new BuildException( "Mirth client exception caught: " + e.getMessage(), e ) );
-		} 
+		} catch (ClientException e) {
+			throw (new BuildException("Mirth client exception caught: " + e.getMessage(), e));
+		}
 	}
-	
-	private void commandListAll() throws ClientException 
-	{
-		List<Channel> allChannels = client.getChannel( null );
-		
+
+	private void commandListAll() throws ClientException {
+		List<Channel> allChannels = client.getChannel(null);
+
 		System.out.println("ID\t\t\t\t\t\t\t\t\t\tEnabled\t\tName");
-		
+
 		String enable = "";
-		
-		for( Iterator<Channel> iter = allChannels.iterator(); iter.hasNext(); ) {
+
+		for (Iterator<Channel> iter = allChannels.iterator(); iter.hasNext();) {
 			Channel channel = iter.next();
-			if( channel.isEnabled() ) {
+			if (channel.isEnabled()) {
 				enable = "ENABLED";
 			} else {
 				enable = "DISABLED";
 			}
-			
-			System.out.println( channel.getId() + "\t" + enable + "\t\t" + channel.getName() );
+
+			System.out.println(channel.getId() + "\t" + enable + "\t\t" + channel.getName());
 		}
 	}
-	
-	
+
 }

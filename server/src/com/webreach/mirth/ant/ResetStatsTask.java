@@ -35,40 +35,37 @@ import com.webreach.mirth.model.Channel;
 
 /**
  * an ant task to reset stats for all mirth channels
- *
+ * 
  * @author andrzej@coalese.com
  */
 
-public class ResetStatsTask extends AbstractMirthTask
-{
-	
-	/* (non-Javadoc)
-   * @see org.apache.tools.ant.Task#execute()
-   */
-	
-	public void executeTask() throws BuildException
-	{
+public class ResetStatsTask extends AbstractMirthTask {
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.tools.ant.Task#execute()
+	 */
+
+	public void executeTask() throws BuildException {
 		try {
 			connectClient();
 			commandResetStatsAll();
 			disconnectClient();
-		} 
-		catch( ClientException e ) {
-			throw( new BuildException( "Mirth client exception caught: " + e.getMessage(), e ) );
-		} 
-	}
-	
-	private void commandResetStatsAll() throws ClientException 
-	{
-		List<Channel> channels = client.getChannel(null);
-	
-		for( Iterator iter = channels.iterator(); iter.hasNext(); ) {
-			Channel channel = (Channel) iter.next();
-			client.clearStatistics( channel.getId(), true, true, true, true, true );
+		} catch (ClientException e) {
+			throw (new BuildException("Mirth client exception caught: " + e.getMessage(), e));
 		}
-		
-		System.out.println( "Channel Stats Reset" );
 	}
-	
-	
+
+	private void commandResetStatsAll() throws ClientException {
+		List<Channel> channels = client.getChannel(null);
+
+		for (Iterator iter = channels.iterator(); iter.hasNext();) {
+			Channel channel = (Channel) iter.next();
+			client.clearStatistics(channel.getId(), true, true, true, true, true);
+		}
+
+		System.out.println("Channel Stats Reset");
+	}
+
 }

@@ -33,38 +33,35 @@ import com.webreach.mirth.model.ChannelStatus.State;
 
 /**
  * an ant task to pause all mirth channels
- *
+ * 
  * @author andrzej@coalese.com
  */
 
-public class PauseTask extends AbstractMirthTask
-{
-	
-	/* (non-Javadoc)
-   * @see org.apache.tools.ant.Task#execute()
-   */
-	
-	public void executeTask() throws BuildException
-	{
+public class PauseTask extends AbstractMirthTask {
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.tools.ant.Task#execute()
+	 */
+
+	public void executeTask() throws BuildException {
 		try {
 			connectClient();
 			commandPauseAll();
 			disconnectClient();
-		} 
-		catch( ClientException e ) {
-			throw( new BuildException( "Mirth client exception caught: " + e.getMessage(), e ) );
-		} 
-	}
-	
-	private void commandPauseAll() throws ClientException 
-	{
-		for( ChannelStatus channel : client.getChannelStatusList() ) {
-			if( channel.getState().equals( State.STARTED ) ) {
-				client.pauseChannel( channel.getChannelId() );
-				System.out.println( "Channel " + channel.getName() + " Paused" );
-			}			
+		} catch (ClientException e) {
+			throw (new BuildException("Mirth client exception caught: " + e.getMessage(), e));
 		}
 	}
-	
-	
+
+	private void commandPauseAll() throws ClientException {
+		for (ChannelStatus channel : client.getChannelStatusList()) {
+			if (channel.getState().equals(State.STARTED)) {
+				client.pauseChannel(channel.getChannelId());
+				System.out.println("Channel " + channel.getName() + " Paused");
+			}
+		}
+	}
+
 }

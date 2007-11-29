@@ -35,42 +35,38 @@ import com.webreach.mirth.model.ChannelStatus;
 
 /**
  * an ant task to get Mirth server status
- *
+ * 
  * @author andrzej@coalese.com
  */
 
-public class StatusTask extends AbstractMirthTask
-{
-	
-	/* (non-Javadoc)
-   * @see org.apache.tools.ant.Task#execute()
-   */
-	
-	public void executeTask() throws BuildException
-	{
+public class StatusTask extends AbstractMirthTask {
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.tools.ant.Task#execute()
+	 */
+
+	public void executeTask() throws BuildException {
 		try {
 			connectClient();
 			commandStatus();
 			disconnectClient();
-		} 
-		catch( ClientException e ) {
-			throw( new BuildException( "Mirth client exception caught: " + e.getMessage(), e ) );
-		} 
-	}
-	
-	private void commandStatus() throws ClientException 
-	{
-		System.out.println( "ID\t\t\t\t\t\t\t\t\tStatus\t\tEnabled\t\tName" );
-		
-		List<ChannelStatus> channels = client.getChannelStatusList();
-		
-		for( Iterator<ChannelStatus> iter = channels.iterator(); iter.hasNext(); ) {
-			ChannelStatus channel = iter.next();
-			
-			System.out.println( channel.getChannelId() + "\t" + channel.getState().toString() + "\t\t" + getChannelEnabledString( channel ) + "\t\t" + channel.getName() );
+		} catch (ClientException e) {
+			throw (new BuildException("Mirth client exception caught: " + e.getMessage(), e));
 		}
 	}
 
-	
-	
+	private void commandStatus() throws ClientException {
+		System.out.println("ID\t\t\t\t\t\t\t\t\tStatus\t\tEnabled\t\tName");
+
+		List<ChannelStatus> channels = client.getChannelStatusList();
+
+		for (Iterator<ChannelStatus> iter = channels.iterator(); iter.hasNext();) {
+			ChannelStatus channel = iter.next();
+
+			System.out.println(channel.getChannelId() + "\t" + channel.getState().toString() + "\t\t" + getChannelEnabledString(channel) + "\t\t" + channel.getName());
+		}
+	}
+
 }

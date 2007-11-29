@@ -33,43 +33,40 @@ import com.webreach.mirth.model.ChannelStatus.State;
 
 /**
  * an ant task to start all mirth channels
- *
+ * 
  * @author andrzej@coalese.com
  */
 
-public class StartTask extends AbstractMirthTask
-{
-	
-	/* (non-Javadoc)
-   * @see org.apache.tools.ant.Task#execute()
-   */
-	
-	public void executeTask() throws BuildException
-	{
+public class StartTask extends AbstractMirthTask {
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.apache.tools.ant.Task#execute()
+	 */
+
+	public void executeTask() throws BuildException {
 		try {
 			connectClient();
 			commandStartAll();
 			disconnectClient();
-		} 
-		catch( ClientException e ) {
-			throw( new BuildException( "Mirth client exception caught: " + e.getMessage(), e ) );
-		} 
-	}
-	
-	private void commandStartAll() throws ClientException 
-	{
-		for( ChannelStatus channel : client.getChannelStatusList() ) {
-			if( channel.getState().equals( State.STOPPED ) || channel.getState().equals( State.PAUSED ) ) {
-				if( channel.getState().equals( State.PAUSED ) ) {
-					client.resumeChannel( channel.getChannelId() );
-					System.out.println( "Channel " + channel.getName() + " Resumed" );
-				} else {
-					client.startChannel( channel.getChannelId() );
-					System.out.println( "Channel " + channel.getName() + " Started" );
-				}
-			}		
+		} catch (ClientException e) {
+			throw (new BuildException("Mirth client exception caught: " + e.getMessage(), e));
 		}
 	}
-	
-	
+
+	private void commandStartAll() throws ClientException {
+		for (ChannelStatus channel : client.getChannelStatusList()) {
+			if (channel.getState().equals(State.STOPPED) || channel.getState().equals(State.PAUSED)) {
+				if (channel.getState().equals(State.PAUSED)) {
+					client.resumeChannel(channel.getChannelId());
+					System.out.println("Channel " + channel.getName() + " Resumed");
+				} else {
+					client.startChannel(channel.getChannelId());
+					System.out.println("Channel " + channel.getName() + " Started");
+				}
+			}
+		}
+	}
+
 }
