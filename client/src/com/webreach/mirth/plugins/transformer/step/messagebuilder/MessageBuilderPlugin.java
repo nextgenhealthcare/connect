@@ -103,7 +103,7 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 			mappingDescription = ((String) ((Map<Object, Object>) panel.getData()).get("Mapping")).replaceAll("\\.toString\\(\\)","");
 		}
 		//return name + " " + mappingVar + " " + removeInvalidCharacters(mappingDescription) + " to " + targetVar + " " + removeInvalidCharacters(targetDescription);
-		return removeInvalidCharacters(mappingDescription) + " --> " + removeInvalidCharacters(targetDescription);
+		return mappingDescription + " --> " + targetDescription;
 		
 	}
 
