@@ -153,6 +153,9 @@ public class RuleBuilderPlugin extends FilterRulePlugin{
         data.put("Accept", UIConstants.YES_OPTION);
         */
 		Map<Object, Object> map = panel.getData();
+		if (map == null){
+			return "New Rule";
+		}
         String accept =  ((String)map.get("Accept"));
         String name = "";
         String equals = "";
