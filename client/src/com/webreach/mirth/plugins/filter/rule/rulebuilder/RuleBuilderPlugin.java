@@ -199,21 +199,21 @@ public class RuleBuilderPlugin extends FilterRulePlugin{
         String cleanField = field.replaceAll("'", "").replaceAll("\\.toString\\(\\)","");
         cleanField = cleanField.substring(0, cleanField.length() - 1); // get rid of trailing "]"
 		String[] fieldparts = cleanField.split("]\\[");
-		String fieldDescription = getVocabDescription(fieldparts);
+		String fieldDescription = removeInvalidCharacters(getVocabDescription(fieldparts));
 		if (fieldDescription.length() == 0){
 			fieldDescription = field.replaceAll("\\.toString\\(\\)","");
 		}
         ArrayList<String> values = (ArrayList<String>) map.get("Values");
         String valueList = "";
         if (values.isEmpty() || disableValues ){
-        	return name + " message if " + removeInvalidCharacters(fieldDescription) + " " + blankVal;
+        	return name + " message if " + fieldDescription + " " + blankVal;
         }else{
         	for (Iterator iter = values.iterator(); iter.hasNext();) {
 				String value = (String) iter.next();
 				valueList+=value + " or ";
 			}
         	valueList = valueList.substring(0, valueList.length() - 4);
-        	return name + " message if " + removeInvalidCharacters(fieldDescription) + " " + equals + " " + valueList;
+        	return name + " message if " + fieldDescription + " " + equals + " " + valueList;
         }
        }
 	public void updateName(){

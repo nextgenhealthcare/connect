@@ -86,6 +86,8 @@ public abstract class MirthEditorPanePlugin
 		source = source.replaceAll("&", "and");
 		source = source.replaceAll("\\'|\\’|\\(|\\)", "");
 		source = source.replaceAll(" |\\.", "_");
+		source = source.replaceAll("_tostring", "");
+		source = source.replaceAll("_value", "");
 		return source;
 	}
 

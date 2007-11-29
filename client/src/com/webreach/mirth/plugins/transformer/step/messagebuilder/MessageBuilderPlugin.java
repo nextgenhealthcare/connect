@@ -82,7 +82,7 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 		String[] targetparts = target.split("]\\[");
 		targetDescription = getVocabDescription(targetparts);
 		if (targetDescription.length() == 0){
-			targetDescription = ((String) ((Map<Object, Object>) panel.getData()).get("Variable"));
+			targetDescription = ((String) ((Map<Object, Object>) panel.getData()).get("Variable")).replaceAll("\\.toString\\(\\)","");
 		}
 		if (mapping.startsWith("tmp[")) {
 			mappingVar = "outbound";
@@ -100,7 +100,7 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 			mappingDescription = "";
 		}
 		if (mappingDescription.length() == 0){
-			mappingDescription = ((String) ((Map<Object, Object>) panel.getData()).get("Mapping"));
+			mappingDescription = ((String) ((Map<Object, Object>) panel.getData()).get("Mapping")).replaceAll("\\.toString\\(\\)","");
 		}
 		return name + " " + mappingVar + " " + removeInvalidCharacters(mappingDescription) + " to " + targetVar + " " + removeInvalidCharacters(targetDescription);
 	}
