@@ -57,11 +57,12 @@ public class BatchMessageProcessor {
 	}
 
 	private List<String> processHL7Messages(Scanner scanner) {
+		scanner.useDelimiter("\r");
 		ArrayList<String> messages = new ArrayList<String>();
 		StringBuilder message = new StringBuilder();
 		char data[] = { (char) startOfMessage, (char) endOfMessage };
-		while (scanner.hasNextLine()) {
-			String line = scanner.nextLine().replaceAll(new String(data, 0, 1), "").replaceAll(new String(data, 1, 1), "").trim();
+		while (scanner.hasNext()) {
+			String line = scanner.next().replaceAll(new String(data, 0, 1), "").replaceAll(new String(data, 1, 1), "").trim();
 
 			if ((line.length() == 0) || line.equals((char) endOfMessage) || line.startsWith("MSH")) {
 				if (message.length() > 0) {
@@ -69,8 +70,8 @@ public class BatchMessageProcessor {
 					message = new StringBuilder();
 				}
 
-				while ((line.length() == 0) && scanner.hasNextLine()) {
-					line = scanner.nextLine();
+				while ((line.length() == 0) && scanner.hasNext()) {
+					line = scanner.next();
 				}
 
 				if (line.length() > 0) {
@@ -81,7 +82,7 @@ public class BatchMessageProcessor {
 				message.append(line);
 				message.append((char) endOfRecord);
 
-				if (!scanner.hasNextLine()) {
+				if (!scanner.hasNext()) {
 					messages.add(message.toString());
 					message = new StringBuilder();
 				}
