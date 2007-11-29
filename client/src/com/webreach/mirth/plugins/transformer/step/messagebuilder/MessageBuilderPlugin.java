@@ -60,8 +60,7 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 	}
 
 	public String getName() {
-
-		String name = "Assign ";
+		String name = "Assign";
 		String target = ((String) ((Map<Object, Object>) panel.getData()).get("Variable"));// .replaceAll("\\.toString\\(\\)",
 		// "");
 		String mapping = ((String) ((Map<Object, Object>) panel.getData()).get("Mapping"));// .replaceAll("\\.toString\\(\\)",
@@ -69,80 +68,41 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 		String targetVar = "";
 		String mappingVar = "";
 		String targetDescription = "";
-		String mappingDescription = "value";
+		String mappingDescription = "";
 		if (target.startsWith("tmp[")) {
-			targetVar = "(out)";
+			targetVar = "outbound";
 			target = target.substring(4);
 		} else if (target.startsWith("msg[")) {
-			targetVar = "(in)";
+			targetVar = "inbound";
 			target = target.substring(4);
 		}
 		target = target.replaceAll("'", "");
 		target = target.substring(0, target.length() - 1); // get rid of
 		// trailing "]"
 		String[] targetparts = target.split("]\\[");
-		targetDescription = getVocabDescription(targetDescription, targetparts);
+		targetDescription = getVocabDescription(targetparts);
 		if (targetDescription.length() == 0){
 			targetDescription = ((String) ((Map<Object, Object>) panel.getData()).get("Variable"));
 		}
 		if (mapping.startsWith("tmp[")) {
-			mappingVar = "(out)";
+			mappingVar = "outbound";
 			mapping = mapping.substring(4);
 		} else if (mapping.startsWith("msg[")) {
-			mappingVar = "(in)";
+			mappingVar = "inbound";
 			mapping = mapping.substring(4);
 		}
 		if (mapping != null && mapping.length() > 0 && mapping.indexOf("].toString()") > -1) {
 
 			mapping = mapping.substring(0, mapping.indexOf("].toString()")).replaceAll("'", "");
 			String[] mappingparts = mapping.split("]\\[");
-			mappingDescription = getVocabDescription(mappingDescription, mappingparts);
+			mappingDescription = getVocabDescription(mappingparts);
 		} else {
-			mappingDescription = "value";
+			mappingDescription = "";
 		}
 		if (mappingDescription.length() == 0){
-			mappingDescription = "value";
+			mappingDescription = ((String) ((Map<Object, Object>) panel.getData()).get("Mapping"));
 		}
 		return name + " " + mappingVar + " " + removeInvalidCharacters(mappingDescription) + " to " + targetVar + " " + removeInvalidCharacters(targetDescription);
-	}
-
-	private String getVocabDescription(String mappingDescription, String[] parts) {
-		if (parts.length == 1) {
-			// segment
-			// PID
-			mappingDescription = Component.getSegmentDescription(parts[0]);
-		} else if (parts.length == 2) {
-			// segment + field
-			// PID, PID.5
-			String segmentDescription = Component.getSegmentDescription(parts[0]);
-			String fieldDescription = Component.getSegmentorCompositeFieldDescription(parts[1], false);
-			mappingDescription = segmentDescription + " " + fieldDescription;
-		} else if (parts.length == 3) {
-			// segment + field + composite
-			// PID,PID.5,PID.5.1 or PID,PID.5,XPN.1
-			// must check last element
-			mappingDescription = Component.getSegmentorCompositeFieldDescription(parts[1], false);
-			if (parts[2].split("\\.").length > 1) {
-				// PID.5.1 style
-				mappingDescription += " " + Component.getCompositeFieldDescriptionWithSegment(parts[2], false);
-			} else {
-				// XPN.1 style
-				mappingDescription += " " + Component.getSegmentorCompositeFieldDescription(parts[2], false);
-			}
-		}
-		mappingDescription = mappingDescription.trim();
-
-		return mappingDescription.trim();
-	}
-
-	public String removeInvalidCharacters(String source) {
-		source = source.toLowerCase();
-		source = source.replaceAll("\\/", "_or_");
-		source = source.replaceAll(" - ", "_");
-		source = source.replaceAll("&", "and");
-		source = source.replaceAll("\\'|\\’|\\(|\\)", "");
-		source = source.replaceAll(" |\\.", "_");
-		return source;
 	}
 
 	@Override

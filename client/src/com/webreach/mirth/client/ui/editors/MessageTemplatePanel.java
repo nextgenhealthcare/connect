@@ -44,6 +44,7 @@ public class MessageTemplatePanel extends javax.swing.JPanel
         {
             
         }
+        split.setOneTouchExpandable(true);
         
         ((TitledBorder)templatePanelInbound.getBorder()).setTitle("Inbound Message Template");
         ((TitledBorder)templatePanelOutbound.getBorder()).setTitle("Outbound Message Template");
@@ -56,6 +57,7 @@ public class MessageTemplatePanel extends javax.swing.JPanel
     {
         split.setBottomComponent(null);
         split.setDividerSize(0);
+        split.setOneTouchExpandable(false);
     }
     
     public void showOutbound()
@@ -64,6 +66,7 @@ public class MessageTemplatePanel extends javax.swing.JPanel
         split.setDividerSize(6);
         split.setDividerLocation(.5);
         split.setResizeWeight(.5);
+        split.setOneTouchExpandable(true);
     }
     
     public void setInboundTreePanel(TreePanel tree)

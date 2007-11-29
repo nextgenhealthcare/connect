@@ -35,6 +35,8 @@ import org.syntax.jedit.SyntaxDocument;
 import com.webreach.mirth.client.ui.Mirth;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthTable;
+import com.webreach.mirth.client.ui.editors.filter.FilterPane;
+import com.webreach.mirth.plugins.filter.rule.rulebuilder.RuleBuilderPlugin;
 
 /**
  *
@@ -46,13 +48,14 @@ public class RuleBuilderPanel extends BasePanel
     protected MirthEditorPane parent;
     public final int VALUE_COLUMN = 0;
     public final String VALUE_COLUMN_NAME = "Value";
-    
+    private final RuleBuilderPlugin rulePlugin;
     private int lastIndex = -1;
     
     /** Creates new form MapperPanel */
-    public RuleBuilderPanel(MirthEditorPane p)
+    public RuleBuilderPanel(MirthEditorPane p,final RuleBuilderPlugin rulePlugin)
     {
         parent = p;
+        this.rulePlugin = rulePlugin;
         initComponents();
         
         
@@ -60,16 +63,20 @@ public class RuleBuilderPanel extends BasePanel
         {
             public void changedUpdate(DocumentEvent arg0)
             {
+            	parent.modified = true;
+                rulePlugin.updateName();
             }
             
             public void insertUpdate(DocumentEvent arg0)
             {
                 parent.modified = true;
+               rulePlugin.updateName();
             }
             
             public void removeUpdate(DocumentEvent arg0)
             {
                 parent.modified = true;
+                rulePlugin.updateName();
             }
         });
 
@@ -78,6 +85,7 @@ public class RuleBuilderPanel extends BasePanel
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
                 parent.modified = true;
+                rulePlugin.updateName();
             }
         });
         
@@ -86,8 +94,43 @@ public class RuleBuilderPanel extends BasePanel
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
                 parent.modified = true;
+                rulePlugin.updateName();
             }
         });
+        doesNotEqual.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                parent.modified = true;
+                rulePlugin.updateName();
+            }
+        });
+        doesNotExist.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                parent.modified = true;
+
+                rulePlugin.updateName();
+            }
+        });
+        equals.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                parent.modified = true;
+                rulePlugin.updateName();
+            }
+        });
+        exists.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                parent.modified = true;
+                rulePlugin.updateName();
+            }
+        });
+        
         
         valuesScrollPane.addMouseListener(new java.awt.event.MouseAdapter()
         {
@@ -97,6 +140,7 @@ public class RuleBuilderPanel extends BasePanel
             }
         });
         deleteButton.setEnabled(false);
+   
     }
     
     public void updateTable()
@@ -107,7 +151,7 @@ public class RuleBuilderPanel extends BasePanel
             {
                 public void run()
                 {
-                    parent.getTableModel().setValueAt(fieldTextField.getText(), parent.getSelectedRow(), parent.STEP_NAME_COL);
+                    parent.getTableModel().setValueAt(  rulePlugin.getName(), parent.getSelectedRow(), parent.STEP_NAME_COL);
                     parent.updateTaskPane(parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString());
                 }
             });
@@ -223,6 +267,8 @@ public class RuleBuilderPanel extends BasePanel
                 }
                 else
                     deleteButton.setEnabled(false);
+                
+                rulePlugin.updateName();
             }
         });
         
@@ -586,7 +632,7 @@ public class RuleBuilderPanel extends BasePanel
                 else
                     valuesTable.setRowSelectionInterval(lastIndex, lastIndex);
             }
-            
+            rulePlugin.updateName();
             parent.modified = true;
         }
     }//GEN-LAST:event_deleteButtonActionPerformed
@@ -595,6 +641,7 @@ public class RuleBuilderPanel extends BasePanel
     {//GEN-HEADEREND:event_newButtonActionPerformed
         ((DefaultTableModel) valuesTable.getModel()).addRow(new Object[] { "", "" });
         valuesTable.setRowSelectionInterval(valuesTable.getRowCount() - 1, valuesTable.getRowCount() - 1);
+        rulePlugin.updateName();
         parent.modified = true;
     }//GEN-LAST:event_newButtonActionPerformed
     

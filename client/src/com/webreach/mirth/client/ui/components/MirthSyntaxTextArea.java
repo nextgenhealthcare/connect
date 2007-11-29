@@ -31,6 +31,7 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
 import javax.swing.event.DocumentEvent;
@@ -70,8 +71,11 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
     private UndoAction undoAction;
 
     private RedoAction redoAction;
+    
     private FindAndReplaceAction findReplaceAction;
 
+    private ShowLineEndingsAction showLineEndingsAction;
+    
     private JMenu varlist;
 
     private JMenu hl7list;
@@ -91,6 +95,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
         this.setFocusable(true);
         this.showSnippets = showSnippets;
         this.setCaretVisible(false);
+        this.setShowLineEndings(false);
         // Setup menu actions
         cutAction = new CutAction(this);
         copyAction = new CopyAction(this);
@@ -100,6 +105,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
         undoAction = new UndoAction(this);
         redoAction = new RedoAction(this);
         findReplaceAction = new FindAndReplaceAction(parent,this);
+        showLineEndingsAction = new ShowLineEndingsAction(this);
         popup = new JPopupMenu();
 
         popup.add(undoAction);
@@ -113,7 +119,8 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
         popup.addSeparator();
         popup.add(selectAllAction);
         popup.add(findReplaceAction);
-
+        popup.add(new JCheckBoxMenuItem(showLineEndingsAction));
+        
         if (showSnippets)
         {
             varlist = new JMenu("Built-in Variables");
@@ -158,12 +165,17 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
                 menu.getComponent(7).setEnabled(deleteAction.isEnabled());
                 menu.getComponent(9).setEnabled(selectAllAction.isEnabled());
                 menu.getComponent(10).setEnabled(findReplaceAction.isEnabled());
-
+                menu.getComponent(11).setEnabled(showLineEndingsAction.isEnabled());
+                if (isShowLineEndings()){
+                	((JCheckBoxMenuItem)menu.getComponent(11)).setState(true);
+                }else{
+                	((JCheckBoxMenuItem)menu.getComponent(11)).setState(false);
+                }
                 if (showSnippets)
                 {
-                    menu.getComponent(11).setEnabled(varlist.isEnabled());
-                    menu.getComponent(12).setEnabled(funclist.isEnabled());
-                    // menu.getComponent(13).setEnabled(hl7list.isEnabled());
+                    menu.getComponent(12).setEnabled(varlist.isEnabled());
+                    menu.getComponent(13).setEnabled(funclist.isEnabled());
+                    // menu.getComponent(14).setEnabled(hl7list.isEnabled());
                 }
                 menu.show(evt.getComponent(), evt.getX(), evt.getY());
             }
@@ -285,4 +297,6 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
         setSelectedText(text);
 
     }
+
+
 }

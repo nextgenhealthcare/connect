@@ -176,7 +176,10 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         variableListScrollPane.setViewportView(variableTable);
 
         variableSplitPane.setRightComponent(variableListScrollPane);
-
+        variableSplitPane.setDividerSize(6);
+        variableSplitPane.setOneTouchExpandable(true);
+        variableSplitPane.setDividerLocation(.5);
+        variableSplitPane.setResizeWeight(.5);
         org.jdesktop.layout.GroupLayout variableTabLayout = new org.jdesktop.layout.GroupLayout(variableTab);
         variableTab.setLayout(variableTabLayout);
         variableTabLayout.setHorizontalGroup(

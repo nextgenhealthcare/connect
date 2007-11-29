@@ -182,8 +182,24 @@ public class MirthPlainDocument extends AbstractDocument {
 			boolean hasBreaks = false;
 			for (int i = 0; i < length; i++) {
 				char c = s.array[s.offset + i];
-				if (c == '\n' || c == '\r') {
+				//handle both newline and carriage return
+				if (c == '\r') {
+					char nextChar;
+					if (s.array.length > s.offset + i + 1 && i + 1 < length && (nextChar = s.array[s.offset + i + 1]) == '\n'){
+						//check for \r\n
+						int breakOffset = offset + i + 2;
+						added.addElement(createLeafElement(lineMap, null, lastOffset, breakOffset));
+						lastOffset = breakOffset;
+						hasBreaks = true;
+						i++;
+					}else{
+						int breakOffset = offset + i + 1;
+						added.addElement(createLeafElement(lineMap, null, lastOffset, breakOffset));
+						lastOffset = breakOffset;
+						hasBreaks = true;
+					}
 					
+				}else if (c == '\n'){
 					int breakOffset = offset + i + 1;
 					added.addElement(createLeafElement(lineMap, null, lastOffset, breakOffset));
 					lastOffset = breakOffset;

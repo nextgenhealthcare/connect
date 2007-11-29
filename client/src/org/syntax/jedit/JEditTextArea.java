@@ -122,7 +122,8 @@ public class JEditTextArea extends JComponent {
 	public int longestLineSize = 1;
 
 	private boolean enableLineNumbers = false;
-
+	
+	private boolean showLineEndings = false;
 
 	/**
 	 * Creates a new JEditTextArea with the default settings.
@@ -979,9 +980,6 @@ public class JEditTextArea extends JComponent {
 	 */
 	public void setText(String text) {
 		try {
-			if (text != null){
-				text = text.replaceAll("\\r\\n", "\n");
-			}
 			document.beginCompoundEdit();
 			document.remove(0, document.getLength());
 			document.insertString(0, text, null);
@@ -1046,6 +1044,17 @@ public class JEditTextArea extends JComponent {
 		return getText(start, getLineEndOffset(lineIndex) - start - 1);
 	}
 
+	/**
+	 * Returns the text on the specified line.
+	 * 
+	 * @param lineIndex
+	 *            The line
+	 * @return The text, or null if the line is invalid
+	 */
+	public final String getLineTextWithEOL(int lineIndex) {
+		int start = getLineStartOffset(lineIndex);
+		return getText(start, getLineEndOffset(lineIndex) - start);
+	}
 	/**
 	 * Copies the text on the specified line into a segment. If the line is
 	 * invalid, the segment will contain a null string.
@@ -1329,7 +1338,6 @@ public class JEditTextArea extends JComponent {
 	 *            The replacement text for the selection
 	 */
 	public void setSelectedText(String selectedText) {
-		selectedText = selectedText.replaceAll("\\r\\n", "\n");
 		if (!editable) {
 			throw new InternalError("Text component" + " read only");
 		}
@@ -1476,7 +1484,11 @@ public class JEditTextArea extends JComponent {
 
 			if (lsize >= max_size) {
 				longestLine = i;
-				longestLineSize = lsize + 10; // added padding
+				if (showLineEndings){
+					longestLineSize = lsize + 20; // added padding
+				}else{
+					longestLineSize = lsize + 10; // added padding
+				}
 				max_size = lsize;
 			}
 		}
@@ -2289,6 +2301,15 @@ public class JEditTextArea extends JComponent {
 		caretTimer = new Timer(500, new CaretBlinker());
 		caretTimer.setInitialDelay(500);
 		caretTimer.start();
+	}
+
+	public boolean isShowLineEndings() {
+		return showLineEndings;
+	}
+
+	public void setShowLineEndings(boolean showLineEndings) {
+		this.showLineEndings = showLineEndings;
+		painter.setEOLMarkersPainted(showLineEndings);
 	}
 
 }

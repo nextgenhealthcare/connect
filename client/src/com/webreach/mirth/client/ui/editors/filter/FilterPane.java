@@ -119,6 +119,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
     private JSplitPane hSplitPane;
     private JSplitPane vSplitPane;
     private boolean updating; // allow the selection listener to breathe
+    private boolean addingNewRow;
     JXTaskPaneContainer filterTaskPaneContainer;
     JXTaskPane viewTasks;
     JXTaskPane filterTasks;
@@ -843,8 +844,9 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         {
             plugin = getPlugin(rule.getType());
             String ruleName = rule.getName();
-            if (ruleName == null || ruleName.equals(""))
+            if (ruleName == null || ruleName.equals("") || plugin.isProvideOwnStepName())
             {
+            	plugin.setData((Map<Object,Object>)rule.getData());
                 ruleName = plugin.getName();
             }
             tableData[RULE_NAME_COL] = ruleName;
@@ -862,7 +864,13 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
             parent.alertException(e.getStackTrace(), e.getMessage());
         }
     }
-    
+    public void updateName(int row, String name){
+    	if (row > -1 && !addingNewRow){
+    		updating = true;
+    		filterTableModel.setValueAt(name, row, RULE_NAME_COL);
+    		updating = false;
+    	}
+    }
     public Frame getParentFrame()
     {
         return parent;
@@ -882,6 +890,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
     public void addNewRule(String mapping)
     {
         modified = true;
+        addingNewRow = true;
         int rowCount = filterTable.getRowCount();
         Rule rule = new Rule();
 
@@ -907,13 +916,20 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         if (loadedPlugins.containsKey(RULE_BUILDER))
         {
             rule.setType(RULE_BUILDER); // graphical rule type by default, inbound
-            loadedPlugins.get(RULE_BUILDER).initData();
+            FilterRulePlugin plugin = loadedPlugins.get(RULE_BUILDER);
+            plugin.initData();
             Map<Object, Object> data = new HashMap<Object, Object>();
             data.put("Field", mapping);
             data.put("Equals", UIConstants.EXISTS_OPTION);
             data.put("Values", new ArrayList());
             data.put("Accept", UIConstants.YES_OPTION);
             rule.setData(data);
+
+			if (plugin.isProvideOwnStepName()) {
+				plugin.setData(data);
+				rule.setName(plugin.getName());
+				plugin.clearData();
+			}
         }
         else
         {
@@ -921,11 +937,14 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
             rule.setType(loadedPlugins.keySet().iterator().next());
         }
 
+       
+		
         setRowData(rule, rowCount);
         prevSelRow = rowCount;
         updateRuleNumbers();
         filterTable.setRowSelectionInterval(rowCount, rowCount);
         filterTablePane.getViewport().setViewPosition(new Point(0, filterTable.getRowHeight() * rowCount));
+        addingNewRow = false;
     }
 
     /**

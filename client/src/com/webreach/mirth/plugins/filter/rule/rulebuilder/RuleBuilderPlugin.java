@@ -1,6 +1,7 @@
 package com.webreach.mirth.plugins.filter.rule.rulebuilder;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.mozilla.javascript.Context;
@@ -16,9 +17,11 @@ import com.webreach.mirth.plugins.FilterRulePlugin;
 
 public class RuleBuilderPlugin extends FilterRulePlugin{
 	private RuleBuilderPanel panel;
+	private FilterPane parent;
 	public RuleBuilderPlugin(String name, FilterPane parent) {
 		super(name, parent);	
-		panel = new RuleBuilderPanel(parent);
+		this.parent = parent;
+		panel = new RuleBuilderPanel(parent, this);
 	}
 	@Override
 	public BasePanel getPanel() {
@@ -26,7 +29,7 @@ public class RuleBuilderPlugin extends FilterRulePlugin{
 	}
 	@Override
 	public boolean isNameEditable() {
-		return true;
+		return false;
 	}
 
 	@Override
@@ -137,6 +140,80 @@ public class RuleBuilderPlugin extends FilterRulePlugin{
 
 	@Override
 	public String getDisplayName() {
-		return "Graphical Rule";
+		return "Rule Builder";
+	}
+	public boolean isProvideOwnStepName() {
+		return true;
+	}
+	public String getName() {
+		/*
+		data.put("Field", mapping);
+        data.put("Equals", UIConstants.EXISTS_OPTION);
+        data.put("Values", new ArrayList());
+        data.put("Accept", UIConstants.YES_OPTION);
+        */
+		Map<Object, Object> map = panel.getData();
+        String accept =  ((String)map.get("Accept"));
+        String name = "";
+        String equals = "";
+        String blankVal = "";
+        String valueCompound = "or";
+        boolean disableValues = false;
+        if (accept.equals(UIConstants.YES_OPTION)){
+        	name = "Accept";
+        }else{
+        	name = "Reject";
+        }
+        if(((String)map.get("Equals")).equals(UIConstants.EXISTS_OPTION))
+        {
+           equals = "equals";
+           blankVal = "exists";
+           disableValues = true;
+          // valueCompound = "or";
+        }   
+        else if(((String)map.get("Equals")).equals(UIConstants.DOES_NOT_EXISTS_OPTION))
+        {
+            equals = "does not equal";
+            blankVal = "does not exist";
+            disableValues = true;
+            //valueCompound = "and";
+        } 
+        else if(((String)map.get("Equals")).equals(UIConstants.YES_OPTION)){
+        	equals = "equals";
+        	blankVal = "is blank";
+        	disableValues = false;
+        } 
+        else if(((String)map.get("Equals")).equals(UIConstants.NO_OPTION)){
+        	 equals = "does not equal";
+             blankVal = "is not blank";
+             disableValues = false;
+        }
+        
+        String field = (String) map.get("Field");
+        if (field.length() < 1){
+        	return "New Rule";
+        }
+        String cleanField = field.replaceAll("'", "").replaceAll("\\.toString\\(\\)","");
+        cleanField = cleanField.substring(0, cleanField.length() - 1); // get rid of trailing "]"
+		String[] fieldparts = cleanField.split("]\\[");
+		String fieldDescription = getVocabDescription(fieldparts);
+		if (fieldDescription.length() == 0){
+			fieldDescription = field.replaceAll("\\.toString\\(\\)","");
+		}
+        ArrayList<String> values = (ArrayList<String>) map.get("Values");
+        String valueList = "";
+        if (values.isEmpty() || disableValues ){
+        	return name + " message if " + removeInvalidCharacters(fieldDescription) + " " + blankVal;
+        }else{
+        	for (Iterator iter = values.iterator(); iter.hasNext();) {
+				String value = (String) iter.next();
+				valueList+=value + " or ";
+			}
+        	valueList = valueList.substring(0, valueList.length() - 4);
+        	return name + " message if " + removeInvalidCharacters(fieldDescription) + " " + equals + " " + valueList;
+        }
+       }
+	public void updateName(){
+		parent.updateName(parent.getSelectedRow(), getName());
 	}
 }

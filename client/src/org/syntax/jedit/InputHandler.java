@@ -134,6 +134,8 @@ public abstract class InputHandler extends KeyAdapter
     
     public static final ActionListener FIND = new find();
 
+    public static final ActionListener INSERT_CR_BREAK = new insert_cr_break();
+    
     private static Hashtable<String, ActionListener> actions;
 
     static
@@ -1192,6 +1194,21 @@ public abstract class InputHandler extends KeyAdapter
         public void actionPerformed(ActionEvent evt)
         {
         	PlatformUI.MIRTH_FRAME.doFind(getTextArea(evt));
+        }
+    }    
+    public static class insert_cr_break implements ActionListener
+    {
+    	public void actionPerformed(ActionEvent evt)
+        {
+            JEditTextArea textArea = getTextArea(evt);
+
+            if (!textArea.isEditable())
+            {
+                textArea.getToolkit().beep();
+                return;
+            }
+
+            textArea.setSelectedText("\r");
         }
     }    
 }

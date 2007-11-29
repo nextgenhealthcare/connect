@@ -54,12 +54,14 @@ public class MessageTreePanel extends javax.swing.JPanel
         catch (Exception e)
         {
         }
+        split.setOneTouchExpandable(true);
     }
     
     public void hideOutbound()
     {
         split.setBottomComponent(null);
         split.setDividerSize(0);
+        split.setOneTouchExpandable(false);
     }
     
     public void showOutbound()
@@ -68,6 +70,7 @@ public class MessageTreePanel extends javax.swing.JPanel
         split.setDividerSize(6);
         split.setDividerLocation(.5);
         split.setResizeWeight(.5);
+        split.setOneTouchExpandable(true);
     }
     
     public TreePanel getInboundTreePanel()

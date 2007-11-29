@@ -121,7 +121,7 @@ public class TextAreaDefaults
             this.bracketHighlightColor = Color.darkGray;
             this.bracketHighlight = true;
             this.eolMarkerColor = new Color(0x009999);
-            this.eolMarkers = false; // true;
+            this.eolMarkers = true; // true;
             this.paintInvalid = false; // true;
             this.font = new Font("Courier", Font.PLAIN, 12);
 
