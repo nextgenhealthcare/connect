@@ -263,10 +263,10 @@ public class FileReader extends ConnectorClass
         pollingFrequencyLabel = new javax.swing.JLabel();
         directoryField = new com.webreach.mirth.client.ui.components.MirthTextField();
         pollingFrequency = new com.webreach.mirth.client.ui.components.MirthTextField();
-        moveToFileLabel = new javax.swing.JLabel();
+        moveToDirectoryLabel = new javax.swing.JLabel();
         moveToPattern = new com.webreach.mirth.client.ui.components.MirthTextField();
         moveToDirectory = new com.webreach.mirth.client.ui.components.MirthTextField();
-        moveToDirectoryLabel = new javax.swing.JLabel();
+        moveToFileLabel = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         fileAgeLabel = new javax.swing.JLabel();
@@ -302,9 +302,9 @@ public class FileReader extends ConnectorClass
 
         pollingFrequencyLabel.setText("Polling Frequency (ms):");
 
-        moveToFileLabel.setText("Move-to File Name:");
-
         moveToDirectoryLabel.setText("Move-to Directory:");
+
+        moveToFileLabel.setText("Move-to File Name:");
 
         jLabel6.setText("Delete File After Read:");
 
@@ -486,8 +486,8 @@ public class FileReader extends ConnectorClass
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, pollingFrequencyLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, pollingTimeLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, moveToFileLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, moveToDirectoryLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, moveToFileLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, errorMoveToDirectoryLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7)
@@ -563,11 +563,11 @@ public class FileReader extends ConnectorClass
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(moveToDirectory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(moveToFileLabel))
+                            .add(moveToDirectoryLabel))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(moveToPattern, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(moveToDirectoryLabel))
+                            .add(moveToFileLabel))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(errorMoveToDirectory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)

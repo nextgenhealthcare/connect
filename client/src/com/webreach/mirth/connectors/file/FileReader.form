@@ -43,8 +43,8 @@
                   <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="pollingFrequencyLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="pollingTimeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="moveToFileLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="moveToDirectoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="moveToFileLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="errorMoveToDirectoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel6" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel7" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -137,12 +137,12 @@
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="moveToDirectory" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="moveToFileLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="moveToDirectoryLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="moveToPattern" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="moveToDirectoryLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="moveToFileLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
@@ -210,18 +210,18 @@
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="pollingFrequency">
     </Component>
-    <Component class="javax.swing.JLabel" name="moveToFileLabel">
+    <Component class="javax.swing.JLabel" name="moveToDirectoryLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Move-to File Name:"/>
+        <Property name="text" type="java.lang.String" value="Move-to Directory:"/>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="moveToPattern">
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="moveToDirectory">
     </Component>
-    <Component class="javax.swing.JLabel" name="moveToDirectoryLabel">
+    <Component class="javax.swing.JLabel" name="moveToFileLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Move-to Directory:"/>
+        <Property name="text" type="java.lang.String" value="Move-to File Name:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel6">
