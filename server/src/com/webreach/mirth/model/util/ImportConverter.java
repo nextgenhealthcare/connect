@@ -182,19 +182,21 @@ public class ImportConverter {
 			}
 
 			if (minorVersion < 7) {
-				Element lastModified = document.createElement("lastModified");
-				Element time = document.createElement("time");
-				Element timezone = document.createElement("timezone");
-				
-				Calendar calendar = Calendar.getInstance();
-				time.setTextContent(calendar.getTimeInMillis() + "");
-				timezone.setTextContent(calendar.getTimeZone().getDisplayName());
-				
-				lastModified.appendChild(time);
-				lastModified.appendChild(timezone);
-				
-				channelRoot.appendChild(lastModified);
-				
+				if(channelRoot.getElementsByTagName("lastModified").getLength() == 0)
+				{
+					Element lastModified = document.createElement("lastModified");
+					Element time = document.createElement("time");
+					Element timezone = document.createElement("timezone");
+					
+					Calendar calendar = Calendar.getInstance();
+					time.setTextContent(calendar.getTimeInMillis() + "");
+					timezone.setTextContent(calendar.getTimeZone().getDisplayName());
+					
+					lastModified.appendChild(time);
+					lastModified.appendChild(timezone);
+					
+					channelRoot.appendChild(lastModified);
+				}
 				updateFilterFor1_7(document);
 			}
 		}
