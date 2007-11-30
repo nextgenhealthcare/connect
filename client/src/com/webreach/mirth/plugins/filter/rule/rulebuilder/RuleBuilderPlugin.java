@@ -201,8 +201,13 @@ public class RuleBuilderPlugin extends FilterRulePlugin{
 		String[] fieldparts = cleanField.split("]\\[");
 		String fieldDescription = removeInvalidCharacters(getVocabDescription(fieldparts));
 		if (fieldDescription.length() == 0){
-			fieldDescription = field.replaceAll("\\.toString\\(\\)","");
-		}
+			if (fieldparts.length == 0){
+				fieldDescription = field.replaceAll("\\.toString\\(\\)","");
+			}else{
+				fieldDescription = fieldparts[fieldparts.length-1].replaceAll("_", " ");
+				fieldDescription = fieldDescription.substring(0, 1).toUpperCase() + fieldDescription.substring(1);
+			}
+					}
         ArrayList<String> values = (ArrayList<String>) map.get("Values");
         String valueList = "";
         if (values.isEmpty() || disableValues ){
