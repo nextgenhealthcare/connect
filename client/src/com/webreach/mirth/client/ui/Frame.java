@@ -100,6 +100,7 @@ import com.webreach.mirth.model.filters.SystemEventFilter;
 import com.webreach.mirth.model.util.ImportConverter;
 import com.webreach.mirth.util.PropertyVerifier;
 import com.webreach.mirth.plugins.DashboardPanelPlugin;
+import com.webreach.mirth.plugins.AttachmentViewer;
 
 /**
  * The main conent frame for the Mirth Client Application. Extends JXFrame and
@@ -715,7 +716,7 @@ public class Frame extends JXFrame
         addTask("doRemoveAllEvents","Remove All Events","Remove all the System Events.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/table_delete.png")), eventTasks, eventPopupMenu);
         addTask("doRemoveFilteredEvents","Remove Filtered Events","Remove all System Events in the current filter.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/table_delete.png")), eventTasks, eventPopupMenu);
         addTask("doRemoveEvent","Remove Event","Remove the selected Event.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), eventTasks, eventPopupMenu);
-        
+
         setNonFocusable(eventTasks);
         setVisibleTasks(eventTasks, eventPopupMenu, 3, 3, false);
         taskPaneContainer.add(eventTasks);
@@ -741,7 +742,7 @@ public class Frame extends JXFrame
         addTask("doRemoveMessage","Remove Message","Remove the selected Message.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), messageTasks, messagePopupMenu);
         addTask("doReprocessFilteredMessages","Reprocess Filtered Messages","Reprocess all Message Events in the current filter.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png")), messageTasks, messagePopupMenu);
         addTask("doReprocessMessage","Reprocess Message","Reprocess the selected Message.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deploy.png")), messageTasks, messagePopupMenu);
-        addTask("viewImage","View DICOM Image", "View DICOM image","",new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/palette.png")),messageTasks, messagePopupMenu);
+        addTask("viewImage","View Attachment", "View Attachment","",new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/attach.png")),messageTasks, messagePopupMenu);
 
         setNonFocusable(messageTasks);
         setVisibleTasks(messageTasks, messagePopupMenu, 6, -1, false);
@@ -811,7 +812,7 @@ public class Frame extends JXFrame
         addTask("doValidateCurrentGlobalScript","Validate Script","Validate the currently viewed script.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), globalScriptsTasks, globalScriptsPopupMenu);
         addTask("doImportGlobalScripts","Import Scripts","Import all global scripts from an XML file.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")), globalScriptsTasks, globalScriptsPopupMenu);
         addTask("doExportGlobalScripts","Export Scripts","Export all global scripts to an XML file.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), globalScriptsTasks, globalScriptsPopupMenu);
-        
+
         setVisibleTasks(globalScriptsTasks, globalScriptsPopupMenu, 0, 0, false);
         setNonFocusable(globalScriptsTasks);
         taskPaneContainer.add(globalScriptsTasks);
@@ -905,14 +906,14 @@ public class Frame extends JXFrame
     {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
-    
+
     /**
      * Alerts the user with an error dialog with the passed in 'message' and
      * a 'question'.
      */
     public void alertCustomError(String message, String question)
     {
-    	new CustomErrorDialog(message, question);
+        new CustomErrorDialog(message, question);
     }
 
     /**
@@ -925,38 +926,38 @@ public class Frame extends JXFrame
 
         if (message != null)
         {
-	        if (message.indexOf("Unauthorized") != -1 || message.indexOf("reset") != -1)
-	        {
-	            connectionError = true;
-	            if (currentContentPage == dashboardPanel)
-	                su.interruptThread();
-	            alertWarning("Sorry your connection to Mirth has either timed out or there was an error in the connection.  Please login again.");
-	            if (!exportChannelOnError())
-	                return;
-	            this.dispose();
-	            Mirth.main(new String[] { PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION });
-	            return;
-	        }
-	        else if (message.indexOf("Connection refused") != -1)
-	        {
-	            connectionError = true;
-	            if (currentContentPage == dashboardPanel)
-	                su.interruptThread();
-	            alertWarning("The Mirth server " + PlatformUI.SERVER_NAME + " is no longer running.  Please start it and login again.");
-	            if (!exportChannelOnError())
-	                return;
-	            this.dispose();
-	            Mirth.main(new String[] { PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION });
-	            return;
-	        }
+            if (message.indexOf("Unauthorized") != -1 || message.indexOf("reset") != -1)
+            {
+                connectionError = true;
+                if (currentContentPage == dashboardPanel)
+                    su.interruptThread();
+                alertWarning("Sorry your connection to Mirth has either timed out or there was an error in the connection.  Please login again.");
+                if (!exportChannelOnError())
+                    return;
+                this.dispose();
+                Mirth.main(new String[] { PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION });
+                return;
+            }
+            else if (message.indexOf("Connection refused") != -1)
+            {
+                connectionError = true;
+                if (currentContentPage == dashboardPanel)
+                    su.interruptThread();
+                alertWarning("The Mirth server " + PlatformUI.SERVER_NAME + " is no longer running.  Please start it and login again.");
+                if (!exportChannelOnError())
+                    return;
+                this.dispose();
+                Mirth.main(new String[] { PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION });
+                return;
+            }
         }
 
         String stackTrace = message + "\n";
         for (int i = 0; i < strace.length; i++)
             stackTrace += strace[i].toString() + "\n";
-        
+
         logger.error(stackTrace);
-        
+
         new ErrorDialog(stackTrace);
     }
 
@@ -1468,7 +1469,7 @@ public class Frame extends JXFrame
     }
 
     public void doEditChannel()
-    {       
+    {
         if (isEditingChannel)
             return;
         else
@@ -1548,7 +1549,7 @@ public class Frame extends JXFrame
     {
         globalScriptsPanel.validateCurrentScript();
     }
-    
+
     public void doImportGlobalScripts()
     {
         JFileChooser importFileChooser = new JFileChooser();
@@ -1568,34 +1569,34 @@ public class Frame extends JXFrame
 
             try
             {
-	            String scriptsXML = FileUtil.read(importFile);
-	
-	            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-	            Map<String, String> importScripts = (Map<String, String>) serializer.fromXML(scriptsXML);
-	            
-	            globalScriptsPanel.importAllScripts(importScripts);
+                String scriptsXML = FileUtil.read(importFile);
+
+                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                Map<String, String> importScripts = (Map<String, String>) serializer.fromXML(scriptsXML);
+
+                globalScriptsPanel.importAllScripts(importScripts);
             }
             catch (Exception e)
             {
-            	alertException(e.getStackTrace(),"Invalid scripts file. " + e.getMessage());
+                alertException(e.getStackTrace(),"Invalid scripts file. " + e.getMessage());
                 return;
-            }            
+            }
         }
     }
-    
+
     public void doExportGlobalScripts()
     {
-    	if (changesHaveBeenMade())
+        if (changesHaveBeenMade())
         {
             if (alertOption("You must save your global scripts before exporting.  Would you like to save them now?"))
             {
-            	globalScriptsPanel.save();
-            	disableSave();
+                globalScriptsPanel.save();
+                disableSave();
             }
             else
                 return;
         }
-    	
+
         JFileChooser exportFileChooser = new JFileChooser();
         exportFileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         exportFileChooser.setFileFilter(new MirthFileFilter("XML"));
@@ -1648,7 +1649,7 @@ public class Frame extends JXFrame
         {
             public Void doInBackground()
             {
-            	globalScriptsPanel.save();
+                globalScriptsPanel.save();
                 return null;
             }
 
@@ -2064,11 +2065,11 @@ public class Frame extends JXFrame
             alertWarning("Channel no longer exists.");
             return;
         }
-        
+
         String validationMessage = channelEditPanel.checkAllForms(channel);
         if (validationMessage != null)
         {
-        	alertCustomError(validationMessage, CustomErrorDialog.ERROR_ENABLING_CHANNEL);
+            alertCustomError(validationMessage, CustomErrorDialog.ERROR_ENABLING_CHANNEL);
             return;
         }
 
@@ -2776,7 +2777,7 @@ public class Frame extends JXFrame
 
         worker.execute();
     }
-    
+
     public void doRemoveAllMessagesAllChannels()
     {
         if (alertOption("Are you sure you would like to remove all messages and all statistics for all channels?"))
@@ -2819,7 +2820,7 @@ public class Frame extends JXFrame
         }
 
     }
-    
+
     public void clearStatsAllChannels(final boolean deleteReceived, final boolean deleteFiltered, final boolean deleteQueued, final boolean deleteSent, final boolean deleteErrored){
 
             setWorking("Clearing statistics...", true);
@@ -3070,38 +3071,40 @@ public class Frame extends JXFrame
     }
     public void viewImage()
     {
-        setWorking("Opening image...", true);
+        setWorking("Opening attachment...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
             {
-                boolean pictureOpen = false;        
-                String messageId = messageBrowser.getSelectedMessageID();
-                try {
-                    BASE64Decoder decoder = new BASE64Decoder();
-                    MessageObject message = messageBrowser.getMessageObjectById(messageId);
-                    if(message.isAttachment()){
-                            byte[] rawImage = decoder.decodeBuffer(mirthClient.getDICOMMessage(message));
-                            ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
-                            DICOM dcm = new DICOM(bis);
-                            dcm.run(message.getType());
-                            dcm.show();
-                            if(dcm.getTitle() != null && dcm.getTitle().equals("DICOM")){
-                                pictureOpen = true;
-                            }
-                        }
-                    else {
-                        alertInformation("This message does not contain a DICOM image.");
-                        pictureOpen = true;
-                    }
-                }
-                catch(Exception e ){
-                    e.printStackTrace();
-                }
-                if(!pictureOpen){
-                    alertInformation("Only uncompressed DICOM images can be viewed.");                    
-                }
+                //boolean pictureOpen = false;
+                //String messageId = messageBrowser.getSelectedMessageID();
+                messageBrowser.viewAttachment();
+                //AttachmentViewer attachmentViewer = messageBrowser.getAttachmentViewer()
+//                try {
+//                    BASE64Decoder decoder = new BASE64Decoder();
+//                    MessageObject message = messageBrowser.getMessageObjectById(messageId);
+//                    if(message.isAttachment()){
+//                            byte[] rawImage = decoder.decodeBuffer(mirthClient.getDICOMMessage(message));
+//                            ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
+//                            DICOM dcm = new DICOM(bis);
+//                            dcm.run(message.getType());
+//                            dcm.show();
+//                            if(dcm.getTitle() != null && dcm.getTitle().equals("DICOM")){
+//                                pictureOpen = true;
+//                            }
+//                        }
+//                    else {
+//                        alertInformation("This message does not contain a DICOM image.");
+//                        pictureOpen = true;
+//                    }
+//                }
+//                catch(Exception e ){
+//                    e.printStackTrace();
+//                }
+//                if(!pictureOpen){
+//                    alertInformation("Only uncompressed DICOM images can be viewed.");
+//                }
                 setWorking("", false);
                 return null;
             }
@@ -3203,7 +3206,7 @@ public class Frame extends JXFrame
                 public void done()
                 {
                     if(currentContentPage == eventBrowser)
-                    	eventBrowser.refresh();
+                        eventBrowser.refresh();
                     setWorking("", false);
                 }
             };
@@ -3246,7 +3249,7 @@ public class Frame extends JXFrame
             worker.execute();
         }
     }
-    
+
     public void doRefreshSettings()
     {
         if(changesHaveBeenMade())
@@ -3412,7 +3415,7 @@ public class Frame extends JXFrame
         FindRplDialog find = new FindRplDialog(this,false,text);
         find.setVisible(true);
     }
-    
+
     public void doHelp()
     {
         if (currentContentPage == channelEditPanel)
@@ -3445,6 +3448,6 @@ public class Frame extends JXFrame
 
     public Map<String, DashboardPanelPlugin> getDashboardPanelPlugins() {
         return this.dashboardPanel.getLoadedPanelPlugins();
-    }
+}
     
 }
