@@ -16,7 +16,6 @@ import org.mule.util.UUID;
 import org.mule.util.Utility;
 
 import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.server.util.DICOMUtil;
 import com.webreach.mirth.server.util.GlobalVariableStore;
 import com.webreach.mirth.server.util.AttachmentUtil;
 import com.webreach.mirth.util.Entities;
