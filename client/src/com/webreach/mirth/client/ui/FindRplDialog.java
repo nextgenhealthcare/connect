@@ -8,6 +8,7 @@ package com.webreach.mirth.client.ui;
 import org.syntax.jedit.JEditTextArea;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.Vector;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,6 +21,7 @@ import java.awt.event.KeyEvent;
  * @author  dans
  */
 public class FindRplDialog extends javax.swing.JDialog {
+    static MyOwnFocusTraversalPolicy tabPolicy;
 
     /** Creates new form FindRplDialog */
     public FindRplDialog(Frame parent, boolean modal, JEditTextArea textarea) {
@@ -37,6 +39,20 @@ public class FindRplDialog extends javax.swing.JDialog {
         else {
             this.disableReplace();
         }
+
+        // tab order
+        Vector<Component> order = new Vector<Component>(8);
+        order.add(mirthTextField1);
+        order.add(mirthTextField2);
+        order.add(mirthButton1);
+        order.add(mirthButton2);
+        order.add(mirthButton3);
+        order.add(mirthButton4);
+        order.add(mirthCheckBox1);
+        order.add(mirthCheckBox2);
+        tabPolicy = new MyOwnFocusTraversalPolicy(order);
+        setFocusTraversalPolicy(tabPolicy);
+
         mirthTextField1.addKeyListener(new KeyListener(){
 
 			public void keyPressed(KeyEvent e) {
@@ -57,7 +73,7 @@ public class FindRplDialog extends javax.swing.JDialog {
 			public void keyTyped(KeyEvent e) {
 				// TODO Auto-generated method stub
 				
-			}});
+			}});    
     }
     void exit(){
     	this.setVisible(false);
@@ -83,8 +99,8 @@ public class FindRplDialog extends javax.swing.JDialog {
                 else {
                     min = start;
                 }
-                
-            }                           
+
+            }
         }
     }
     void find(){
@@ -110,7 +126,7 @@ public class FindRplDialog extends javax.swing.JDialog {
                 int position = m.start();
                 String group = m.group();
                 if(position > -1){
-                    search_text.select(position,position+group.length());    
+                    search_text.select(position,position+group.length());
                 }
             }
         }
@@ -135,10 +151,10 @@ public class FindRplDialog extends javax.swing.JDialog {
             if(start < end){
                 search_text.setSelectedText(mirthTextField2.getText());
             }
-            find();                     
+            find();
         }
     }
-    
+
     void disableReplace(){
         mirthButton2.hide();
         mirthButton3.hide();
@@ -146,7 +162,7 @@ public class FindRplDialog extends javax.swing.JDialog {
     void enableReplace(){
         mirthButton2.show();
         mirthButton3.show();
-    }    
+    }
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -310,4 +326,37 @@ public class FindRplDialog extends javax.swing.JDialog {
     private com.webreach.mirth.client.ui.components.MirthTextField mirthTextField2;
     // End of variables declaration//GEN-END:variables
    JEditTextArea search_text;
+
+
+    public static class MyOwnFocusTraversalPolicy
+                  extends FocusTraversalPolicy
+    {
+        Vector<Component> order;
+
+        public MyOwnFocusTraversalPolicy(Vector<Component> order) {
+            this.order = new Vector<Component>(order.size());
+            this.order.addAll(order);
+        }
+        public Component getComponentAfter(Container focusCycleRoot, Component aComponent) {
+            int idx = (order.indexOf(aComponent) + 1) % order.size();
+            return order.get(idx);
+        }
+        public Component getComponentBefore(Container focusCycleRoot, Component aComponent) {
+            int idx = order.indexOf(aComponent) - 1;
+            if (idx < 0) {
+                idx = order.size() - 1;
+            }
+            return order.get(idx);
+        }
+        public Component getDefaultComponent(Container focusCycleRoot) {
+            return order.get(0);
+        }
+        public Component getLastComponent(Container focusCycleRoot) {
+            return order.lastElement();
+        }
+        public Component getFirstComponent(Container focusCycleRoot) {
+            return order.get(0);
+        }
+    }
+
 }
