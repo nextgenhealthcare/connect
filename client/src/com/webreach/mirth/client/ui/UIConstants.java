@@ -56,6 +56,9 @@ public class UIConstants
     public static final Color GRID_COLOR = new Color(224, 224, 224);
     public static final int MIN_WIDTH = 75;
     public static final int MAX_WIDTH = 200;
+    public static final int WIDTH_SHORT_MIN = 20;
+    public static final int WIDTH_SHORT_MAX = 50;
+            
     public static final Color HIGHLIGHTER_COLOR = new Color(240, 240, 240);
 
     // background colors
