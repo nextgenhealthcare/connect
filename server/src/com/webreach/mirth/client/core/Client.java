@@ -724,6 +724,11 @@ public class Client {
         NameValuePair[] params = { new NameValuePair("op","getAttachmentsByMessageId"), new NameValuePair("messageId", messageId)};
         return (List<Attachment>) serializer.fromXML(serverConnection.executePostMethod(MESSAGE_SERVLET,params));
     }   
+    public List<Attachment> getAttachmentIdsByMessageId(String messageId) throws ClientException {
+        logger.debug("getting Attachments for message: " + messageId);
+        NameValuePair[] params = { new NameValuePair("op","getAttachmentIdsByMessageId"), new NameValuePair("messageId", messageId)};
+        return (List<Attachment>) serializer.fromXML(serverConnection.executePostMethod(MESSAGE_SERVLET,params));
+    }       
     public void insertAttachment(Attachment attachment) throws ClientException {
         logger.debug("inserting Attachment: " + attachment);
         NameValuePair[] params = { new NameValuePair("op","insertAttachment"), new NameValuePair("attachment", serializer.toXML(attachment))};
