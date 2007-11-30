@@ -50,19 +50,19 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="jPanel1" min="-2" pref="399" max="-2" attributes="1"/>
-                  <EmptySpace max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                   <Component id="jPanel3" max="32767" attributes="0"/>
-                  <EmptySpace max="-2" attributes="0"/>
-              </Group>
-          </Group>
+                          <EmptySpace max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="jPanel3" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jPanel1" alignment="1" min="-2" max="-2" attributes="0"/>
-              </Group>
-          </Group>
+                  </Group>
+                  </Group>
         </DimensionLayout>
       </Layout>
       <SubComponents>
@@ -93,7 +93,7 @@
                               <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="pageSizeField" min="-2" pref="66" max="-2" attributes="0"/>
-                          </Group>
+              </Group>
                           <Group type="102" alignment="1" attributes="0">
                               <Component id="previousPageButton" linkSize="1" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
@@ -111,7 +111,7 @@
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="pageSizeField" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
+              </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="previousPageButton" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -200,12 +200,12 @@
                               <Component id="mirthDatePicker2" min="-2" pref="125" max="-2" attributes="1"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="mirthTimePicker2" linkSize="2" min="-2" pref="93" max="-2" attributes="0"/>
-                          </Group>
                       </Group>
+                  </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="filterButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
-                  </Group>
+              </Group>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
@@ -277,11 +277,11 @@
               </Properties>
             </Component>
             <Component class="com.webreach.mirth.client.ui.components.MirthTimePicker" name="mirthTimePicker1">
-            </Component>
+        </Component>
             <Component class="com.webreach.mirth.client.ui.components.MirthTimePicker" name="mirthTimePicker2">
-            </Component>
-          </SubComponents>
-        </Container>
+        </Component>
+      </SubComponents>
+    </Container>
       </SubComponents>
     </Container>
     <Container class="javax.swing.JSplitPane" name="jSplitPane1">
@@ -525,6 +525,29 @@
                     </Property>
                     <Property name="editable" type="boolean" value="false"/>
                   </Properties>
+                </Component>
+              </SubComponents>
+            </Container>
+            <Container class="javax.swing.JScrollPane" name="attachmentsPane">
+              <AuxValues>
+                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+              </AuxValues>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+                  <JTabbedPaneConstraints tabName="Attachments">
+                    <Property name="tabTitle" type="java.lang.String" value="Attachments"/>
+                  </JTabbedPaneConstraints>
+                </Constraint>
+              </Constraints>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+              <SubComponents>
+                <Component class="com.webreach.mirth.client.ui.components.MirthTable" name="attachmentTable">
+                  <Properties>
+                  </Properties>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="null;"/>
+                  </AuxValues>
                 </Component>
               </SubComponents>
             </Container>

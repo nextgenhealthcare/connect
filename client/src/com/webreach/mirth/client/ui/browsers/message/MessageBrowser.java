@@ -27,18 +27,18 @@ package com.webreach.mirth.client.ui.browsers.message;
 
 import java.awt.Cursor;
 import java.awt.Point;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
 import javax.swing.*;
+import javax.swing.tree.TreePath;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -67,8 +67,9 @@ import com.webreach.mirth.client.ui.ViewContentDialog;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
 import com.webreach.mirth.client.ui.components.MirthTable;
+import com.webreach.mirth.client.ui.components.MirthTreeNode;
 import com.webreach.mirth.client.ui.util.FileUtil;
-import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.*;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
@@ -77,6 +78,9 @@ import com.webreach.mirth.model.util.ImportConverter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.swing.text.DateFormatter;
+import com.webreach.mirth.plugins.DashboardPanelPlugin;
+import com.webreach.mirth.plugins.AttachmentViewer;
+//import com.webreach.mirth.plugins.MessageBrowserPanelPlugin;
 
 /**
  * The message browser panel.
@@ -96,6 +100,9 @@ public class MessageBrowser extends javax.swing.JPanel
     private final String TYPE_COLUMN_NAME = "Type";
     private final String SOURCE_COLUMN_NAME = "Source";
     private final String PROTOCOL_COLUMN_NAME = "Protocol";
+    private final String NUMBER_COLUMN_NAME = "#";
+    private final String ATTACHMENTID_COLUMN_NAME = "Attachment Id";
+            
     private Frame parent;
     private MessageListHandler messageListHandler;
     private List<MessageObject> messageObjectList;
@@ -104,7 +111,8 @@ public class MessageBrowser extends javax.swing.JPanel
     private int currentPage = 0;
     private int pageSize;
     private MessageBrowserAdvancedFilter advSearchFilterPopup;
-
+    private Map<String, AttachmentViewer> loadedPanelPlugins = new HashMap<String, AttachmentViewer>();    
+    private JPopupMenu attachmentPopupMenu;
 
     /**
      * Constructs the new message browser and sets up its default
@@ -116,7 +124,10 @@ public class MessageBrowser extends javax.swing.JPanel
         initComponents();
         makeMessageTable();
         makeMappingsTable();
-
+        loadPanelPlugins();
+        updateAttachmentsTable(null, true);
+        descriptionTabbedPane.remove(attachmentsPane);
+        
         this.addMouseListener(new java.awt.event.MouseAdapter()
         {
             public void mousePressed(java.awt.event.MouseEvent evt)
@@ -124,7 +135,7 @@ public class MessageBrowser extends javax.swing.JPanel
                 if (evt.isPopupTrigger())
                     parent.messagePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
             }
-            
+
             public void mouseReleased(java.awt.event.MouseEvent evt)
             {
                 if (evt.isPopupTrigger())
@@ -158,13 +169,163 @@ public class MessageBrowser extends javax.swing.JPanel
                 deselectRows();
             }
         });
-
-
+        attachmentsPane.addMouseListener(new java.awt.event.MouseAdapter()
+        {
+            public void mouseClicked(java.awt.event.MouseEvent evt)
+            {
+                deselectAttachmentRows();
+            }
+        });
+        attachmentPopupMenu = new JPopupMenu();
+        JMenuItem viewAttach = new JMenuItem("View Attachment");
+        viewAttach.setIcon(new ImageIcon(parent.getClass().getResource("images/attach.png")));
+        viewAttach.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                viewAttachment();
+            }
+        });
+        attachmentPopupMenu.add(viewAttach);
         advSearchFilterPopup = new MessageBrowserAdvancedFilter(parent, "Advanced Search Filter", true);
         advSearchFilterPopup.pack();
         advSearchFilterPopup.setVisible(false);
 
     }
+    
+    public Object[][] updateAttachmentList(MessageObject message){
+        if(message == null) 
+            return null;
+        try {
+            String attachMessId;
+            if(message.getCorrelationId() != null) {
+                attachMessId = message.getCorrelationId();
+            }
+            else {
+                attachMessId = message.getId();
+            }            
+            List<Attachment> attachments = parent.mirthClient.getAttachmentIdsByMessageId(attachMessId);
+            Iterator i = attachments.iterator();
+            ArrayList attachData = new ArrayList();
+            int count = 1;
+            ArrayList<String> types = new ArrayList();
+            // get arraylist of all types
+            while(i.hasNext()){
+                Attachment a = (Attachment) i.next();
+                String type = a.getType();
+                if(!types.contains(type)){
+                    types.add(type);
+                }
+            }
+            Iterator typesIterator = types.iterator();
+            while(typesIterator.hasNext()){
+                String type = (String) typesIterator.next();
+                Iterator attachmentIterator = attachments.iterator();
+                // If handle multiples
+                if(getAttachmentViewer(type) != null && getAttachmentViewer(type).handleMultiple()){
+                    String number = Integer.toString(count);
+                    String attachment_Ids = "";
+                    int j = 0;
+                    while(attachmentIterator.hasNext()){
+                        Attachment a = (Attachment) attachmentIterator.next();
+                        if(type.equals(a.getType())){
+                            if(attachment_Ids.equals("")){
+                                attachment_Ids = a.getAttachmentId();
+                            }
+                            else {
+                                count++;
+                                attachment_Ids = attachment_Ids + ", " + a.getAttachmentId();
+                            }
+                        }
+                    }   
+                    if(!number.equals(Integer.toString(count))){
+                        number = number + " - " + Integer.toString(count);
+                    } 
+                    Object[] rowData = new Object[3];
+                    // add to attach Data
+                    rowData[0] = number;
+                    rowData[1] = type;
+                    rowData[2] = attachment_Ids;
+                    attachData.add(rowData);
+                }
+                // else do them seperate
+                else {
+                    while(attachmentIterator.hasNext()){
+                        Attachment a = (Attachment) attachmentIterator.next();
+                        if(a.getType().equals(type)){
+                            Object[] rowData = new Object[3];
+                            rowData[0] = Integer.toString(count);
+                            rowData[1] = a.getType();
+                            rowData[2] = a.getAttachmentId();
+                            attachData.add(rowData);
+                            count++;
+                        }
+                    }
+                }
+            }
+            Object[][] temp = new Object[attachData.size()][3];
+            Iterator varIter = attachData.iterator();
+            int rowCount = 0;
+            while(varIter.hasNext()){
+                temp[rowCount] = (Object[]) varIter.next();
+                rowCount++;
+            }
+            return temp;
+        }
+        catch(Exception e){
+            e.printStackTrace();    
+        }
+        return null;
+    }
+    
+    
+    // Extension point for ExtensionPoint.Type.CLIENT_DASHBOARD_PANE
+    @ExtensionPointDefinition(mode = ExtensionPoint.Mode.CLIENT, type = ExtensionPoint.Type.ATTACHMENT_VIEWER)
+    public void loadPanelPlugins()
+    {
+        try
+        {
+            Map<String, PluginMetaData> plugins = parent.getPluginMetaData();
+            for (PluginMetaData metaData : plugins.values())
+            {
+                if (metaData.isEnabled())
+                {
+                    for (ExtensionPoint extensionPoint : metaData.getExtensionPoints())
+                    {
+                        try
+                        {
+                            if (extensionPoint.getMode().equals(ExtensionPoint.Mode.CLIENT) && extensionPoint.getType().equals(ExtensionPoint.Type.ATTACHMENT_VIEWER) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0)
+                            {
+                                String pluginName = extensionPoint.getName();
+                                AttachmentViewer attachmentViewer = (AttachmentViewer) Class.forName(extensionPoint.getClassName()).getDeclaredConstructors()[0].newInstance(new Object[]{});
+                                loadedPanelPlugins.put(pluginName, attachmentViewer);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            parent.alertException(e.getStackTrace(), e.getMessage());
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            parent.alertException(e.getStackTrace(), e.getMessage());
+        }
+    }
+    public AttachmentViewer getAttachmentViewer(String type){
+        if(loadedPanelPlugins.size() > 0)
+        {
+            for(AttachmentViewer plugin : loadedPanelPlugins.values())
+            {
+                if(plugin.getViewerType().equals(type)){
+                    return plugin;
+                }
+            }
+        }
+        return null;
+    }    
     
     /**
      * Loads up a clean message browser as if a new one was constructed.
@@ -654,6 +815,76 @@ public class MessageBrowser extends javax.swing.JPanel
         
     }
     
+    public void updateAttachmentsTable(MessageObject currentMessage, boolean cleared)
+    {
+        
+        Object[][] tableData = updateAttachmentList(currentMessage);
+
+        // Create attachment Table if it has not been created yet. 
+        if (attachmentTable != null)
+        {
+            RefreshTableModel model = (RefreshTableModel) attachmentTable.getModel();
+            model.refreshDataVector(tableData);
+        }
+        else
+        {
+            attachmentTable = new MirthTable();
+            attachmentTable.setModel(new RefreshTableModel(tableData, new String[] { NUMBER_COLUMN_NAME, TYPE_COLUMN_NAME, ATTACHMENTID_COLUMN_NAME})
+            {
+                boolean[] canEdit = new boolean[] { false, false, false };
+                public boolean isCellEditable(int rowIndex, int columnIndex)
+                {
+                    return canEdit[columnIndex];
+                }
+            });
+            attachmentTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
+            {
+                public void valueChanged(ListSelectionEvent evt)
+                {
+                    if(attachmentTable != null && attachmentTable.getSelectedRow() != -1){
+                        parent.setVisibleTasks(parent.messageTasks,parent.messagePopupMenu, 9,9,true);
+                    }
+                    else {
+                        parent.setVisibleTasks(parent.messageTasks,parent.messagePopupMenu,9,9,false);
+                    }
+                }
+            }); 
+             // listen for trigger button and double click to edit channel.
+            attachmentTable.addMouseListener(new java.awt.event.MouseAdapter()
+            {
+                public void mousePressed(java.awt.event.MouseEvent evt)
+                {
+                    showAttachmentPopupMenu(evt, true);
+                }
+                
+                public void mouseReleased(java.awt.event.MouseEvent evt)
+                {
+                    showAttachmentPopupMenu(evt, true);
+                }
+                public void mouseClicked(java.awt.event.MouseEvent evt)
+                {
+                    if (evt.getClickCount() >= 2)
+                    {
+                        viewAttachment();// do view
+                        //new ViewContentDialog((String) mirthTable1.getModel().getValueAt(mirthTable1.convertRowIndexToModel(mirthTable1.getSelectedRow()), 2));
+                    }
+                }
+            });    
+            // Set highlighter.
+            HighlighterPipeline highlighter = new HighlighterPipeline();
+            if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
+            {
+                highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
+            }
+            attachmentTable.setHighlighters(highlighter);    
+            attachmentTable.setSelectionMode(0);
+            attachmentTable.getColumnExt(NUMBER_COLUMN_NAME).setMinWidth(UIConstants.WIDTH_SHORT_MIN);
+            attachmentTable.getColumnExt(NUMBER_COLUMN_NAME).setMaxWidth(UIConstants.WIDTH_SHORT_MAX);
+            attachmentTable.getColumnExt(TYPE_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
+            attachmentTable.getColumnExt(TYPE_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+            attachmentsPane.setViewportView(attachmentTable);                
+        }
+    }
     
     private void makeMappingsTable()
     {
@@ -703,6 +934,27 @@ public class MessageBrowser extends javax.swing.JPanel
             parent.messagePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
     }
+
+    /**
+     * Shows the trigger button (right-click) popup menu.
+     */
+    private void showAttachmentPopupMenu(java.awt.event.MouseEvent evt, boolean onTable)
+    {
+        if (evt.isPopupTrigger())
+        {
+            if (onTable)
+            {
+                int row = attachmentTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+                if (row > -1)
+                {
+                    attachmentTable.setRowSelectionInterval(row, row);
+                }
+            }
+            else
+                deselectAttachmentRows();
+            attachmentPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+        }
+    }    
     
     /**
      * Deselects all rows in the table and clears the description information.
@@ -715,6 +967,20 @@ public class MessageBrowser extends javax.swing.JPanel
         {
             messageTable.clearSelection();
             clearDescription();
+        }
+    }
+
+    /**
+     * Deselects all rows in the table and clears the description information.
+     */
+    public void deselectAttachmentRows()
+    {
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 9, 9, false);
+//        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, 7, true);
+        if (attachmentTable != null)
+        {
+            attachmentTable.clearSelection();
+//            clearDescription();
         }
     }
     
@@ -732,6 +998,8 @@ public class MessageBrowser extends javax.swing.JPanel
         ErrorsTextPane.setDocument(new SyntaxDocument());
         ErrorsTextPane.setText("Select a message to view any errors.");
         updateMappingsTable(new String[0][0], true);
+        updateAttachmentsTable(null, true);
+        descriptionTabbedPane.remove(attachmentsPane);
     }
     
     private int getSelectedMessageIndex()
@@ -759,15 +1027,19 @@ public class MessageBrowser extends javax.swing.JPanel
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 
                 MessageObject currentMessage = messageObjectList.get(row);
-                // hide unless it is a DICOM
-                if(!currentMessage.getRawDataProtocol().equals(MessageObject.Protocol.DICOM)){
-                    parent.setVisibleTasks(parent.messageTasks,parent.messagePopupMenu, 9,9,false);
-                }
+
                 setCorrectDocument(RawMessageTextPane, currentMessage.getRawData(), currentMessage.getRawDataProtocol());
                 setCorrectDocument(TransformedMessageTextPane, currentMessage.getTransformedData(), currentMessage.getTransformedDataProtocol());
                 setCorrectDocument(EncodedMessageTextPane, currentMessage.getEncodedData(), currentMessage.getEncodedDataProtocol());
                 setCorrectDocument(ErrorsTextPane, currentMessage.getErrors(), null);
-                
+                if(currentMessage.isAttachment()){
+                    if(descriptionTabbedPane.indexOfTab("Attachments") == -1)
+                        descriptionTabbedPane.addTab("Attachments", attachmentsPane);
+                    updateAttachmentsTable(currentMessage,true);
+                }
+                else {
+                    descriptionTabbedPane.remove(attachmentsPane);
+                }
                 Map connectorMap = currentMessage.getConnectorMap();
                 Map channelMap = currentMessage.getChannelMap();
                 Map responseMap = currentMessage.getResponseMap();
@@ -805,6 +1077,9 @@ public class MessageBrowser extends javax.swing.JPanel
                 
                 updateMappingsTable(tableData, false);
                 
+                if(attachmentTable == null || attachmentTable.getSelectedRow() == -1){
+                    parent.setVisibleTasks(parent.messageTasks,parent.messagePopupMenu, 9,9,false);
+                }                
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             }
         }
@@ -917,6 +1192,8 @@ public class MessageBrowser extends javax.swing.JPanel
         mappingsTable = null;
         ErrorsPanel = new javax.swing.JPanel();
         ErrorsTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
+        attachmentsPane = new javax.swing.JScrollPane();
+        attachmentTable = null;
         messagePane = new javax.swing.JScrollPane();
         messageTable = null;
 
@@ -1068,7 +1345,7 @@ public class MessageBrowser extends javax.swing.JPanel
             .add(filterPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 399, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
@@ -1181,6 +1458,10 @@ public class MessageBrowser extends javax.swing.JPanel
         );
         descriptionTabbedPane.addTab("Errors", ErrorsPanel);
 
+        attachmentsPane.setViewportView(attachmentTable);
+
+        descriptionTabbedPane.addTab("Attachments", attachmentsPane);
+
         jSplitPane1.setRightComponent(descriptionTabbedPane);
 
         messagePane.setViewportView(messageTable);
@@ -1203,6 +1484,30 @@ public class MessageBrowser extends javax.swing.JPanel
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    public void viewAttachment(){
+        int i = attachmentTable.getSelectedRow();
+        //if(attachmentList.getSelectedValue() != null){
+        if(attachmentTable.getValueAt(i,2) != null){
+            String attachId = (String) attachmentTable.getValueAt(i,2);
+            if(attachId.indexOf(",") != -1){
+                attachId = attachId.substring(attachId.indexOf(","));
+            }
+            try {
+                Attachment a = parent.mirthClient.getAttachment(attachId);
+                AttachmentViewer attachmentViewer = getAttachmentViewer(a.getType());
+                if(attachmentViewer != null){
+                    List attachmentList = new ArrayList();
+                    attachmentList.add(a.getAttachmentId());
+                    attachmentViewer.viewAttachments(attachmentList);
+                }                
+                else {
+                    parent.alertInformation("No Attachment Viewer plugin installed for type: " + a.getType());
+                }
+            }
+            catch(Exception e){}
+        }       
+    }
+    
     private void advSearchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_advSearchButtonActionPerformed
 
         // display the advanced search filter pop up window.
@@ -1284,17 +1589,17 @@ public class MessageBrowser extends javax.swing.JPanel
                 parent.alertError("Invalid date.");
                 return;
             }
-            
+
             Calendar startDateCalendar = Calendar.getInstance();
             Calendar endDateCalendar = Calendar.getInstance();
             Calendar startTimeCalendar = Calendar.getInstance();
             Calendar endTimeCalendar = Calendar.getInstance();
-            
+
             startDateCalendar.setTime(startDate);
             endDateCalendar.setTime(endDate);
             startTimeCalendar.setTime(startTimeDate);
             endTimeCalendar.setTime(endTimeDate);
-                    
+
             Calendar startCalendar = Calendar.getInstance();
             Calendar endCalendar = Calendar.getInstance();
             
@@ -1302,10 +1607,10 @@ public class MessageBrowser extends javax.swing.JPanel
             endCalendar.set(endDateCalendar.get(Calendar.YEAR), endDateCalendar.get(Calendar.MONTH), endDateCalendar.get(Calendar.DATE), endTimeCalendar.get(Calendar.HOUR_OF_DAY), endTimeCalendar.get(Calendar.MINUTE), endTimeCalendar.get(Calendar.SECOND));
             
             if (startCalendar.getTimeInMillis() > endCalendar.getTimeInMillis())
-            {
+        {
                 parent.alertError("Start date cannot be after the end date.");
                 return;
-            }
+        }
             
             messageObjectFilter.setStartDate(startCalendar);
             messageObjectFilter.setEndDate(endCalendar);
@@ -1400,6 +1705,8 @@ public class MessageBrowser extends javax.swing.JPanel
     private javax.swing.JPanel TransformedMessagePanel;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea TransformedMessageTextPane;
     private javax.swing.JButton advSearchButton;
+    private com.webreach.mirth.client.ui.components.MirthTable attachmentTable;
+    private javax.swing.JScrollPane attachmentsPane;
     private javax.swing.JTabbedPane descriptionTabbedPane;
     private javax.swing.JButton filterButton;
     private javax.swing.JPanel filterPanel;
@@ -1424,5 +1731,5 @@ public class MessageBrowser extends javax.swing.JPanel
     private javax.swing.JLabel resultsLabel;
     private javax.swing.JComboBox statusComboBox;
     // End of variables declaration//GEN-END:variables
-
+    
 }
