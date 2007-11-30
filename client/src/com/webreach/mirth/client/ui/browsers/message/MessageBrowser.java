@@ -824,7 +824,9 @@ public class MessageBrowser extends javax.swing.JPanel
         if (attachmentTable != null)
         {
             RefreshTableModel model = (RefreshTableModel) attachmentTable.getModel();
-            model.refreshDataVector(tableData);
+            if(tableData != null){
+                model.refreshDataVector(tableData);
+            }
         }
         else
         {
