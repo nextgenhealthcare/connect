@@ -47,6 +47,7 @@ import javax.wsdl.Service;
 import javax.wsdl.extensions.ExtensibilityElement;
 import javax.wsdl.extensions.soap.SOAPAddress;
 import javax.wsdl.extensions.soap.SOAPBody;
+import javax.wsdl.extensions.soap.SOAPHeader;
 import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.wsdl.xml.WSDLLocator;
 import javax.wsdl.xml.WSDLReader;
@@ -260,14 +261,32 @@ public class WebServiceReader {
 									namespace = ((SOAPBody) element).getNamespaceURI();
 									break;
 								}
+							}else if (element instanceof SOAPHeader){
+								//add the header parameter
+								SOAPHeader header = (SOAPHeader)element;
+								String type = header.getPart();
+								
+								WSParameter wsParameter = new WSParameter();
+								wsParameter.setName(header.getMessage().getLocalPart());
+								wsParameter.setType(type);
+								wsParameter.setComplex(false);
+								// If we have a schemaType, we're dealing with a
+								// complex type
+								Object schemaType = schemaTypes.get(type);
+								if (schemaType != null) {
+									wsParameter.setSchemaType((SchemaType) schemaType);
+									wsParameter.setComplex(true);
+									buildParams(schemaTypes, wsParameter);
+								}
+								wsOperation.setHeader(wsParameter);
+								wsOperation.setHeaderNamespace(header.getNamespaceURI());
 							}
 						}
-						wsOperation.setNamespace(namespace);
+						wsOperation.setNamespace(namespace);				
 						Iterator partIterator = bindingOperation.getOperation().getInput().getMessage().getParts().values().iterator();
-
 						while (partIterator.hasNext()) {
 							Part part = (Part) partIterator.next();
-
+							
 							QName typeName = part.getTypeName();
 							if (typeName == null)
 								typeName = part.getElementName();

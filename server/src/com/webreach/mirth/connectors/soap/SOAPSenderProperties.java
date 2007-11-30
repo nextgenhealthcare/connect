@@ -35,10 +35,9 @@ public class SOAPSenderProperties implements ComponentProperties
 { 
     public static final String name = "SOAP Sender";
 
-    public static final String SOAP_ENVELOPE_HEADER = "<?xml version=\"1.0\" encoding=\"utf-16\"?>\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:soapenc=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n";
-    public static final String SOAP_BODY_HEADER = "<soap:Body soap:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\">\n";
-    public static final String SOAP_BODY_FOOTER = "</soap:Body>\n";
+    public static final String SOAP_ENVELOPE_HEADER = "<?xml version=\"1.0\" encoding=\"utf-16\"?>\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:soapenc=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n";
     public static final String SOAP_ENVELOPE_FOOTER = "</soap:Envelope>";
+   
     public static final String DATATYPE = "DataType";
     public static final String SOAP_HOST = "host";
     public static final String SOAP_SERVICE_ENDPOINT = "serviceEndpoint";

@@ -34,7 +34,8 @@ public class WSOperation {
 	private List<WSParameter> parameters;
 	private String soapActionURI;
 	private String namespace;
-
+	private WSParameter header;
+	private String headerNamespace;
 	public WSOperation() {
 		this.parameters = new ArrayList<WSParameter>();
 	}
@@ -69,5 +70,21 @@ public class WSOperation {
 
 	public void setNamespace(String namespace) {
 		this.namespace = namespace;
+	}
+
+	public WSParameter getHeader() {
+		return header;
+	}
+
+	public void setHeader(WSParameter headerParameters) {
+		this.header = headerParameters;
+	}
+
+	public String getHeaderNamespace() {
+		return headerNamespace;
+	}
+
+	public void setHeaderNamespace(String headerNamespace) {
+		this.headerNamespace = headerNamespace;
 	}
 }
