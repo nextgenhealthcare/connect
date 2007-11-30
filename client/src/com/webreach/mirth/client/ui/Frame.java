@@ -25,8 +25,6 @@
 
 package com.webreach.mirth.client.ui;
 
-import ij.plugin.DICOM;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -36,7 +34,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -73,14 +70,11 @@ import org.jdesktop.swingx.action.ActionManager;
 import org.jdesktop.swingx.action.BoundAction;
 import org.syntax.jedit.JEditTextArea;
 
-import sun.misc.BASE64Decoder;
-
 import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.browsers.event.EventBrowser;
 import com.webreach.mirth.client.ui.browsers.message.MessageBrowser;
 import com.webreach.mirth.client.ui.util.FileUtil;
-import com.webreach.mirth.client.ui.actions.FindAndReplaceAction;
 import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.model.Alert;
 import com.webreach.mirth.model.Channel;
@@ -98,9 +92,8 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.model.filters.SystemEventFilter;
 import com.webreach.mirth.model.util.ImportConverter;
-import com.webreach.mirth.util.PropertyVerifier;
 import com.webreach.mirth.plugins.DashboardPanelPlugin;
-import com.webreach.mirth.plugins.AttachmentViewer;
+import com.webreach.mirth.util.PropertyVerifier;
 
 /**
  * The main conent frame for the Mirth Client Application. Extends JXFrame and

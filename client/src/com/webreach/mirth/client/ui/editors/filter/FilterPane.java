@@ -79,8 +79,6 @@ import org.jdesktop.swingx.decorator.HighlighterPipeline;
 
 import com.webreach.mirth.client.ui.CenterCellRenderer;
 import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.MapperDropData;
-import com.webreach.mirth.client.ui.MessageBuilderDropData;
 import com.webreach.mirth.client.ui.Mirth;
 import com.webreach.mirth.client.ui.MirthFileFilter;
 import com.webreach.mirth.client.ui.PlatformUI;
@@ -100,12 +98,10 @@ import com.webreach.mirth.model.ExtensionPointDefinition;
 import com.webreach.mirth.model.Filter;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.Rule;
-import com.webreach.mirth.model.Step;
 import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.util.ImportConverter;
 import com.webreach.mirth.plugins.FilterRulePlugin;
-import com.webreach.mirth.plugins.TransformerStepPlugin;
 
 public class FilterPane extends MirthEditorPane implements DropTargetListener
 {
@@ -138,7 +134,6 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
     private Channel channel;
     private DropTarget dropTarget;
     private Map<String, FilterRulePlugin> loadedPlugins = new HashMap<String, FilterRulePlugin>();
-    private Map<String, FilterRulePlugin> loadedPluginsCopy = new HashMap<String, FilterRulePlugin>();  // A copy of the plugins to use in the background.
     
     /**
      * CONSTRUCTOR
@@ -171,12 +166,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
                         {
                             String pluginName = extensionPoint.getName();
                             Class clazz = Class.forName(extensionPoint.getClassName());
-                            
                             FilterRulePlugin rulePlugin = (FilterRulePlugin) clazz.getDeclaredConstructors()[0].newInstance(new Object[]{pluginName, this});
-                            FilterRulePlugin rulePluginCopy = (FilterRulePlugin) clazz.getDeclaredConstructors()[0].newInstance(new Object[]{pluginName, this});
-                            
                             loadedPlugins.put(rulePlugin.getDisplayName(), rulePlugin);
-                            loadedPluginsCopy.put(rulePluginCopy.getDisplayName(), rulePluginCopy);
                         }
                     }
                     catch (Exception e)
@@ -1011,22 +1002,6 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         }
     }
     
-    private FilterRulePlugin getPluginCopy(String name) throws Exception
-    {
-        FilterRulePlugin plugin = loadedPluginsCopy.get(name);
-        if (plugin == null)
-        {
-            String message = "Unable to find Filter Rule Plugin: " + name;
-            Exception e = new Exception(message);
-            parent.alertError(message);
-            throw new Exception(e);
-        }
-        else
-        {
-            return plugin;
-        }
-    }
-    
     /**
      * void moveRule( int i ) move the selected row i places
      */
@@ -1147,7 +1122,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
     }
 
     /*
-     * Validate the current rule if it has JavaScript
+     * Validate the current rule
      */
     public void doValidate()
     {
@@ -1155,7 +1130,9 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         try
         {
         	FilterRulePlugin rulePlugin = getPlugin(type);
-        	String validationMessage = rulePlugin.doValidate();
+        	int selectedRule = filterTable.getSelectedRow();
+			saveData(selectedRule);
+        	String validationMessage = rulePlugin.doValidate(rulePlugin.getData(selectedRule));
         	
         	if (validationMessage == null)
         		parent.alertInformation("Validation successful.");
@@ -1178,9 +1155,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
     {
     	try
     	{
-    		FilterRulePlugin rulePlugin = getPluginCopy(rule.getType());
-    		rulePlugin.setData((Map)rule.getData());
-			return rulePlugin.doValidate();
+    		FilterRulePlugin rulePlugin = getPlugin(rule.getType());
+			return rulePlugin.doValidate((Map<Object, Object>)rule.getData());
 		}
     	catch (Exception e)
     	{

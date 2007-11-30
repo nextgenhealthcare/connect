@@ -33,7 +33,7 @@ public abstract class MirthEditorPanePlugin
     {
         return null;
     }
-    public String doValidate()
+    public String doValidate(Map<Object, Object> data)
     {
         return null;
     }

@@ -111,12 +111,12 @@ public class RuleBuilderPlugin extends FilterRulePlugin{
         return script.toString();
 	}
     
-    public String doValidate()
+    public String doValidate(Map<Object, Object> data)
     {
         try
         {
             Context context = Context.enter();
-            Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + getScript(panel.getData()) + "}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
+            Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + getScript(data) + "}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
         }
         catch (EvaluatorException e)
         {

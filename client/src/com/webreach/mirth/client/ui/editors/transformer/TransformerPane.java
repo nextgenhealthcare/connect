@@ -132,16 +132,6 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 	public static final int NUMBER_OF_COLUMNS = 4;
 
 	private Map<String, TransformerStepPlugin> loadedPlugins = new HashMap<String, TransformerStepPlugin>();
-	private Map<String, TransformerStepPlugin> loadedPluginsCopy = new HashMap<String, TransformerStepPlugin>(); // A
-																													// copy
-																													// of
-																													// the
-																													// plugins
-																													// to
-																													// use
-																													// in
-																													// the
-																													// background.
 
 	private DropTarget dropTarget;
 
@@ -158,12 +148,8 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 						if (extensionPoint.getMode() == ExtensionPoint.Mode.CLIENT && extensionPoint.getType() == ExtensionPoint.Type.CLIENT_TRANSFORMER_STEP && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0) {
 							String pluginName = extensionPoint.getName();
 							Class clazz = Class.forName(extensionPoint.getClassName());
-
 							TransformerStepPlugin stepPlugin = (TransformerStepPlugin) clazz.getDeclaredConstructors()[0].newInstance(new Object[] { pluginName, this });
-							TransformerStepPlugin stepPluginCopy = (TransformerStepPlugin) clazz.getDeclaredConstructors()[0].newInstance(new Object[] { pluginName, this });
-
 							loadedPlugins.put(stepPlugin.getDisplayName(), stepPlugin);
-							loadedPluginsCopy.put(stepPluginCopy.getDisplayName(), stepPluginCopy);
 						}
 					} catch (Exception e) {
 						parent.alertException(e.getStackTrace(), e.getMessage());
@@ -774,18 +760,6 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 		}
 	}
 
-	private TransformerStepPlugin getPluginCopy(String name) throws Exception {
-		TransformerStepPlugin plugin = loadedPluginsCopy.get(name);
-		if (plugin == null) {
-			String message = "Unable to find Transformer Step Plugin: " + name;
-			Exception e = new Exception(message);
-			parent.alertError(message);
-			throw new Exception(e);
-		} else {
-			return plugin;
-		}
-	}
-
 	/**
 	 * prepData( int row ) works to move the data in a panel for moves or
 	 * deletes
@@ -1032,13 +1006,15 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 	}
 
 	/*
-	 * Validate the current step if it has JavaScript
+	 * Validate the current step
 	 */
 	public void doValidate() {
 		String type = (String) transformerTable.getValueAt(transformerTable.getSelectedRow(), STEP_TYPE_COL);
 		try {
 			TransformerStepPlugin stepPlugin = getPlugin(type);
-			String validationMessage = stepPlugin.doValidate();
+			int selectedStep = transformerTable.getSelectedRow();
+			saveData(selectedStep);
+			String validationMessage = stepPlugin.doValidate(stepPlugin.getData(selectedStep));
 
 			if (validationMessage == null)
 				parent.alertInformation("Validation successful.");
@@ -1057,9 +1033,8 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 	 */
 	public String validateStep(Step step) {
 		try {
-			TransformerStepPlugin stepPlugin = getPluginCopy(step.getType());
-			stepPlugin.setData((Map) step.getData());
-			return stepPlugin.doValidate();
+			TransformerStepPlugin stepPlugin = getPlugin(step.getType());
+			return stepPlugin.doValidate((Map<Object, Object>)step.getData());
 		} catch (Exception e) {
 			parent.alertException(e.getStackTrace(), e.getMessage());
 			return "Exception occurred during validation.";

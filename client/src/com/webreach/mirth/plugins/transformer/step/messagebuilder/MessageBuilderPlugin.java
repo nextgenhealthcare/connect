@@ -6,9 +6,7 @@ import java.util.Map;
 
 import com.webreach.mirth.client.ui.editors.BasePanel;
 import com.webreach.mirth.client.ui.editors.MessageBuilder;
-import com.webreach.mirth.client.ui.editors.MirthEditorPane;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
-import com.webreach.mirth.model.hl7v2.Component;
 import com.webreach.mirth.plugins.TransformerStepPlugin;
 
 public class MessageBuilderPlugin extends TransformerStepPlugin {
