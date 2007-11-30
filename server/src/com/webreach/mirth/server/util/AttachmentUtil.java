@@ -4,7 +4,6 @@ import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.DICOMSerializer;
 import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.util.UUIDGenerator;
 import ij.plugin.DICOM;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
