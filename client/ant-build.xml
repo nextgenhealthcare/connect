@@ -133,6 +133,14 @@
 			<include name="com/webreach/mirth/plugins/dashboardstatus/**" />
 		</jar>
 		
+		<jar destfile="${dist}/plugins/dicom-viewer-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/plugins/dicomviewer/**" />
+		</jar>
+		
+		<jar destfile="${dist}/plugins/pdf-viewer-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/plugins/pdfviewer/**" />
+		</jar>
+		
 		<!-- copy source files -->
 		<copy todir="${dist.source}">
 			<fileset dir="${src}">
