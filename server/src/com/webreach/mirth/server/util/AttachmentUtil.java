@@ -132,20 +132,4 @@ public class AttachmentUtil {
         }
         return "";
     }    
-    
-    public static void storeAttachment(MessageObject message, String attachmentData, String type){
-        String messageId = message.getId();
-        String attachmentId = UUIDGenerator.getUUID();
-        MessageObjectController moc = MessageObjectController.getInstance();
-        message.setAttachment(true);
-        moc.updateMessage(message,true);
-        Attachment attachment = new Attachment();
-        attachment.setData(attachmentData.getBytes());
-        attachment.setMessageId(messageId);
-        attachment.setSize(attachmentData.getBytes().length);
-        attachment.setType(type);
-        attachment.setAttachmentId(attachmentId);
-        moc.insertAttachment(attachment);
-    }
-   
 }
