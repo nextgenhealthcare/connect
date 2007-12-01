@@ -269,6 +269,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				for (Iterator iter = attachments.iterator(); iter.hasNext();) {
 					Attachment attachment = (Attachment) iter.next();
 					attachment.setMessageId(messageObject.getId());
+					messageObject.setAttachment(true);
 					MessageObjectController.getInstance().insertAttachment(attachment);
 				}
 				// Load properties from the context to the messageObject
@@ -448,7 +449,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		
 		// Helper function to set attachment
 		newScript.append("function addAttachment(data, type) {");
-		newScript.append("var attachment = Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().createAttachment(data, type, messageObject);");
+		newScript.append("var attachment = Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().createAttachment(data, type, messageObject);messageObject.setAttachment(true);");
 		newScript.append("Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().insertAttachment(attachment);}\n");
 		
 		// ast: Allow ending whitespaces from the input XML
