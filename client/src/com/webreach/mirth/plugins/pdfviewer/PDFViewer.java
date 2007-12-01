@@ -1,4 +1,4 @@
-package com.webreach.mirth.plugins.attachmentviewer;
+package com.webreach.mirth.plugins.pdfviewer;
 
 import com.webreach.mirth.plugins.AttachmentViewer;
 import com.webreach.mirth.model.MessageObject;
