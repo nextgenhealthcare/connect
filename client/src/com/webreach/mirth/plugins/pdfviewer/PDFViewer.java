@@ -13,13 +13,6 @@ import com.adobe.acrobat.Viewer;
 import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.plugins.AttachmentViewer;
 
-/**
- * Created by IntelliJ IDEA.
- * User: dans
- * Date: Nov 28, 2007
- * Time: 1:51:40 PM
- * To change this template use File | Settings | File Templates.
- */
 public class PDFViewer extends AttachmentViewer {
 
     public String getViewerType(){
