@@ -1,10 +1,9 @@
 package com.webreach.mirth.plugins;
 
-import com.webreach.mirth.model.MessageObject;
+import java.util.List;
+
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;
-
-import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
