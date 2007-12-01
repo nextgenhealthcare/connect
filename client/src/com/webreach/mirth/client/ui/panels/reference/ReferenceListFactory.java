@@ -137,7 +137,6 @@ public class ReferenceListFactory
             variablelistItems.add(new ReferenceListItem("Delete Segment", "Delete a segment from the message", "delete msg['segment']", CodeSnippetType.FUNCTION));
             variablelistItems.add(new ReferenceListItem("Add Attachment", "Add attachment (String or byte[]) to message", "addAttachment(data, type)", CodeSnippetType.FUNCTION));
             variablelistItems.add(new ReferenceListItem("Get Attachments", "Get List of Attachments", "getAttachments()", CodeSnippetType.FUNCTION));
-            
         }
         
         return variablelistItems;
@@ -200,6 +199,7 @@ public class ReferenceListFactory
         variablelistItems.add(new ReferenceListItem("Perform Map Value Replacement", "Returns a string that has been run through Velocity replacer with a map context", "var results = replacer.replaceValues(template, map);", CodeSnippetType.FUNCTION));
         variablelistItems.add(new ReferenceListItem("Format Overpunch NCPDP Number", "Returns number with decimal points and correct sign", "var number = NCPDPUtil.formatNCPDPNumber('number', decimalpoints);", CodeSnippetType.FUNCTION));
         variablelistItems.add(new ReferenceListItem("Convert DICOM into Image File", "Converts and returns JPEG/TIF image from uncompressed DICOM image (imagetype: either TIF,JPEG, BMP, PNG, or RAW)", "AttachmentUtil.convertDICOM('imagetype',messageObject)", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("get DICOM message", "Gets the full DICOM messages with image data", "AttachmentUtil.getDICOMMessage(messageObject)", CodeSnippetType.FUNCTION));
         variablelistItems.add(new ReferenceListItem("Store Attachment in Database", "Store attachment data in mirth database", "AttachmentUtil.storeAttachment(messageObject, 'attachmentData', 'type')", CodeSnippetType.FUNCTION));
         return variablelistItems;
     }
