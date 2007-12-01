@@ -52,7 +52,7 @@ import com.webreach.mirth.model.Response;
 import com.webreach.mirth.model.MessageObject.Status;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.builders.ErrorMessageBuilder;
-import com.webreach.mirth.server.util.AttachmentUtil;
+import com.webreach.mirth.server.util.DICOMUtil;
 import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.server.util.UUIDGenerator;
@@ -418,7 +418,7 @@ public class MessageObjectController {
                                     // get attachment for old message
                                     if(message.isAttachment()){
                                         List attachments = getAttachmentsByMessageId(message.getId());
-                                        String rawData = AttachmentUtil.mergeHeaderAttachments(message, attachments);
+                                        String rawData = DICOMUtil.mergeHeaderAttachments(message, attachments);
                                         message.setRawData(rawData);
                                     }
 									router.routeMessageByChannelId(message.getChannelId(), message.getRawData(), true, true);

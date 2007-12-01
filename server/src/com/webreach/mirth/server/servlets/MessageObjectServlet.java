@@ -38,7 +38,7 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.util.AttachmentUtil;
+import com.webreach.mirth.server.util.DICOMUtil;
 
 public class MessageObjectServlet extends MirthServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -113,7 +113,7 @@ public class MessageObjectServlet extends MirthServlet {
                 } else if(operation.equals("getDICOMMessage")) {
                     //response.setContentType("application/xml");
                     String message = request.getParameter("message");
-                    String dicomMessage = AttachmentUtil.getDICOMRawData((MessageObject) serializer.fromXML(message));
+                    String dicomMessage = DICOMUtil.getDICOMRawData((MessageObject) serializer.fromXML(message));
                     out.println(dicomMessage);
                 } else if(operation.equals("deleteAttachments")) {
                     String message = request.getParameter("message");

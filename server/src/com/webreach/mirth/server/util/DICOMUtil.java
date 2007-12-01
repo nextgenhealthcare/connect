@@ -25,7 +25,7 @@ import java.util.List;
  * Time: 10:42:11 AM
  * To change this template use File | Settings | File Templates.
  */
-public class AttachmentUtil {
+public class DICOMUtil {
     public static String getDICOMRawData(MessageObject message) {
         if(message.isAttachment()){
             MessageObjectController mos = MessageObjectController.getInstance();
