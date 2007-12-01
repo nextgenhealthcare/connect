@@ -151,6 +151,7 @@ public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 	public String generatePreprocessingScript(String preprocessingScript) {
 		logger.debug("generating preprocessing script");
 		StringBuilder script = new StringBuilder();
+		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
 		// The addAttachment function let's us dynamically put data into attachment table
 		script.append("String.prototype.trim = function() { return this.replace(/^\\s+|\\s+$/g,\"\").replace(/^\\t+|\\t+$/g,\"\"); };");
 		
