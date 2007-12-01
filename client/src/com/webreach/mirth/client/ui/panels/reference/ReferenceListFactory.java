@@ -200,7 +200,6 @@ public class ReferenceListFactory
         variablelistItems.add(new ReferenceListItem("Format Overpunch NCPDP Number", "Returns number with decimal points and correct sign", "var number = NCPDPUtil.formatNCPDPNumber('number', decimalpoints);", CodeSnippetType.FUNCTION));
         variablelistItems.add(new ReferenceListItem("Convert DICOM into Image File", "Converts and returns JPEG/TIF image from uncompressed DICOM image (imagetype: either TIF,JPEG, BMP, PNG, or RAW)", "AttachmentUtil.convertDICOM('imagetype',messageObject)", CodeSnippetType.FUNCTION));
         variablelistItems.add(new ReferenceListItem("get DICOM message", "Gets the full DICOM messages with image data", "AttachmentUtil.getDICOMMessage(messageObject)", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Store Attachment in Database", "Store attachment data in mirth database", "AttachmentUtil.storeAttachment(messageObject, 'attachmentData', 'type')", CodeSnippetType.FUNCTION));
         return variablelistItems;
     }
     private ArrayList<ReferenceListItem> getDateItems()
