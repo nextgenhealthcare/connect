@@ -52,6 +52,18 @@ public class AttachmentUtil {
             return message.getRawData();
         }
     }
+    
+    public static byte[] getDICOMMessage(MessageObject message){
+        BASE64Decoder decoder = new BASE64Decoder();
+        try {
+            return decoder.decodeBuffer(getDICOMRawData(message));    
+        }
+        catch (IOException ie){
+            ie.printStackTrace();
+        }
+        return message.getRawData().getBytes();
+    }
+    
     public static String mergeHeaderAttachments(MessageObject message, List attachments) throws IOException{
         ArrayList images = new ArrayList();
         BASE64Decoder decoder = new BASE64Decoder();
