@@ -1,4 +1,4 @@
-<project name="generate" basedir="." default="help">
+<project name="generator" basedir="." default="help">
 	<target name="help">
 		<echo>Mirth Vocabulary Class Generator</echo>
 	</target>

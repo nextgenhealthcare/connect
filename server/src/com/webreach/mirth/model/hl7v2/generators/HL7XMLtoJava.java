@@ -32,6 +32,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+
 //Converts HL7 XML model to usable JAVA model based on template
 public class HL7XMLtoJava {
 	private static final String MESSAGE_TEMPLATE = "Message-template.txt";
@@ -49,12 +50,12 @@ public class HL7XMLtoJava {
 
 			String baseDirectory = args[0];
 			String baseOutputPath = args[1];
-			
-			String[] versions = new String[]{"21", "22", "23", "231", "24", "25"};
-			
-			for (int x = 0; x < versions.length; x++){
+
+			String[] versions = new String[] { "21", "22", "23", "231", "24", "25" };
+
+			for (int x = 0; x < versions.length; x++) {
 				version = versions[x];
-				
+
 				String directory = baseDirectory + "\\" + version;
 				outputPath = baseOutputPath + "\\v" + version + "\\";
 				new File(outputPath).mkdir();
@@ -62,14 +63,14 @@ public class HL7XMLtoJava {
 				new File(outputPath + "segment").mkdir();
 				new File(outputPath + "message").mkdir();
 				File[] files = listFiles(new File(directory));
-		
+
 				for (int i = 0; i < files.length; i++) {
 					if (!files[i].isDirectory()) {
 						String xmlString = readFile(files[i].getAbsolutePath());
 						DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 						DocumentBuilder builder = factory.newDocumentBuilder();
 						Document document = builder.parse(new InputSource(new StringReader(xmlString)));
-						
+
 						if (files[i].getName().startsWith("message")) {
 							ProcessMessage(document, messageTemplate);
 						} else if (files[i].getName().startsWith("segment")) {
@@ -101,7 +102,7 @@ public class HL7XMLtoJava {
 
 		for (int i = 0; i < fieldList.getLength(); i++) {
 			Node node = fieldList.item(i);
- 
+
 			if (node.getNodeName().equals("field")) {
 				String fieldName = ((Element) node).getElementsByTagName("name").item(0).getTextContent();
 
@@ -119,7 +120,7 @@ public class HL7XMLtoJava {
 				}
 				if (nodeMap.getNamedItem("maxOccurs") != null) {
 					String repeatsVal = nodeMap.getNamedItem("maxOccurs").getNodeValue();
-					if (repeatsVal.equals("unbounded")){
+					if (repeatsVal.equals("unbounded")) {
 						repeatsVal = "-1";
 					}
 					repeats += repeatsVal + ", ";
@@ -128,21 +129,21 @@ public class HL7XMLtoJava {
 				}
 			}
 		}
-		System.out.println(name);
-		try{
-		values.put("fields", fields.substring(0, fields.length() - 2));
-		values.put("fieldDescriptions", fieldDescriptions.substring(0, fieldDescriptions.length() - 2));
-		values.put("repeats", repeats.substring(0, repeats.length() - 2));
-		values.put("required", required.substring(0, required.length() - 2));
-		}catch (Exception e) {
-			if (name.equals("ED")){
-				//hack
-				//Encapsulated Data doesn't have any fields...
+		System.out.println(version + " " + name);
+		try {
+			values.put("fields", fields.substring(0, fields.length() - 2));
+			values.put("fieldDescriptions", fieldDescriptions.substring(0, fieldDescriptions.length() - 2));
+			values.put("repeats", repeats.substring(0, repeats.length() - 2));
+			values.put("required", required.substring(0, required.length() - 2));
+		} catch (Exception e) {
+			if (name.equals("ED")) {
+				// hack
+				// Encapsulated Data doesn't have any fields...
 				values.put("fields", "");
 				values.put("fieldDescriptions", "");
 				values.put("repeats", "");
 				values.put("required", "");
-			}else{
+			} else {
 				e.printStackTrace();
 				throw e;
 			}
@@ -190,14 +191,14 @@ public class HL7XMLtoJava {
 				}
 				if (nodeMap.getNamedItem("maxOccurs") != null) {
 					String repeatsVal = nodeMap.getNamedItem("maxOccurs").getNodeValue();
-					if (repeatsVal.equals("unbounded")){
+					if (repeatsVal.equals("unbounded")) {
 						repeatsVal = "-1";
 					}
 					repeats.append(repeatsVal + ", ");
 				} else {
 					repeats.append("0, ");
 				}
-				
+
 			} else if (node.getNodeName().equals("group")) {
 				knownSegments = handleNestedGroups(repeats, required, groups, knownSegments, node, segments);
 			}
@@ -232,7 +233,7 @@ public class HL7XMLtoJava {
 				if (segmentName.equals("")) {
 					continue;
 				}
-				if (segmentName.equals("Hxx")){
+				if (segmentName.equals("Hxx")) {
 					segmentName = "ANY";
 				}
 				knownSegments++;
@@ -244,7 +245,7 @@ public class HL7XMLtoJava {
 				}
 				if (nodeMap.getNamedItem("maxOccurs") != null) {
 					String repeatsVal = nodeMap.getNamedItem("maxOccurs").getNodeValue();
-					if (repeatsVal.equals("unbounded")){
+					if (repeatsVal.equals("unbounded")) {
 						repeatsVal = "-1";
 					}
 					repeats.append(repeatsVal + ", ");
