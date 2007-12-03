@@ -64,17 +64,19 @@ public class HL7XMLtoJava {
 				File[] files = listFiles(new File(directory));
 		
 				for (int i = 0; i < files.length; i++) {
-					String xmlString = readFile(files[i].getAbsolutePath());
-					DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-					DocumentBuilder builder = factory.newDocumentBuilder();
-					Document document = builder.parse(new InputSource(new StringReader(xmlString)));
-					
-					if (files[i].getName().startsWith("message")) {
-						ProcessMessage(document, messageTemplate);
-					} else if (files[i].getName().startsWith("segment")) {
-						ProcessSegment(document, segmentTemplate, false);
-					} else if (files[i].getName().startsWith("composite")) {
-						ProcessSegment(document, compositeTemplate, true);
+					if (!files[i].isDirectory()) {
+						String xmlString = readFile(files[i].getAbsolutePath());
+						DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+						DocumentBuilder builder = factory.newDocumentBuilder();
+						Document document = builder.parse(new InputSource(new StringReader(xmlString)));
+						
+						if (files[i].getName().startsWith("message")) {
+							ProcessMessage(document, messageTemplate);
+						} else if (files[i].getName().startsWith("segment")) {
+							ProcessSegment(document, segmentTemplate, false);
+						} else if (files[i].getName().startsWith("composite")) {
+							ProcessSegment(document, compositeTemplate, true);
+						}
 					}
 				}
 			}
