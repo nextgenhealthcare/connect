@@ -27,21 +27,31 @@ package com.webreach.mirth.client.ui.browsers.message;
 
 import java.awt.Cursor;
 import java.awt.Point;
-import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
-import javax.swing.*;
-import javax.swing.tree.TreePath;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.text.DateFormatter;
 
 import org.jdesktop.swingworker.SwingWorker;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
@@ -67,20 +77,18 @@ import com.webreach.mirth.client.ui.ViewContentDialog;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
 import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.client.ui.components.MirthTreeNode;
 import com.webreach.mirth.client.ui.util.FileUtil;
-import com.webreach.mirth.model.*;
+import com.webreach.mirth.model.Attachment;
+import com.webreach.mirth.model.ExtensionPoint;
+import com.webreach.mirth.model.ExtensionPointDefinition;
+import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.model.util.ImportConverter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import javax.swing.text.DateFormatter;
-import com.webreach.mirth.plugins.DashboardPanelPlugin;
 import com.webreach.mirth.plugins.AttachmentViewer;
-//import com.webreach.mirth.plugins.MessageBrowserPanelPlugin;
 
 /**
  * The message browser panel.
@@ -178,7 +186,7 @@ public class MessageBrowser extends javax.swing.JPanel
         });
         attachmentPopupMenu = new JPopupMenu();
         JMenuItem viewAttach = new JMenuItem("View Attachment");
-        viewAttach.setIcon(new ImageIcon(parent.getClass().getResource("images/attach.png")));
+        viewAttach.setIcon(new ImageIcon(Frame.class.getResource("images/attach.png")));
         viewAttach.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
