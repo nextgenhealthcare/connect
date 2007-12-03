@@ -41,7 +41,7 @@ public class X12PropertiesBeanInfo extends EDIPropertiesBeanInfo
             properties[PROPERTY_elementDelimiter].setDisplayName ( "Element Delimiter" );
             properties[PROPERTY_elementDelimiter].setShortDescription ( "Characters that delimit the elements in the message." );
             properties[PROPERTY_elementDelimiter].setBound ( true );
-            properties[PROPERTY_encodeEntities] = new PropertyDescriptor ( "encodeEntities", com.webreach.mirth.client.ui.beans.X12Properties.class, "getEncodeEntities", "setEncodeEntities" ); // NOI18N
+            properties[PROPERTY_encodeEntities] = new PropertyDescriptor ( "encodeEntities", com.webreach.mirth.client.ui.beans.X12Properties.class, "isEncodeEntities", "setEncodeEntities" ); // NOI18N
             properties[PROPERTY_encodeEntities].setDisplayName ( "Encode Entities" );
             properties[PROPERTY_encodeEntities].setShortDescription ( "Automatically convert non-standard XML entities to the proper encoding." );
             properties[PROPERTY_encodeEntities].setBound ( true );
