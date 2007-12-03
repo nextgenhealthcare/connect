@@ -40,7 +40,7 @@ public class DICOMUtil {
                     return mergeHeaderAttachments(message, attachments);
                 }
                 else {
-                    return "";
+                    return message.getRawData();
                 }
             }
             catch (Exception e){
