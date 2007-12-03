@@ -417,8 +417,7 @@ public class MessageObjectController {
 									MessageObject message = iter.next();
                                     // get attachment for old message
                                     if(message.isAttachment()){
-                                        List attachments = getAttachmentsByMessageId(message.getId());
-                                        String rawData = DICOMUtil.mergeHeaderAttachments(message, attachments);
+                                        String rawData = DICOMUtil.getDICOMRawData(message);
                                         message.setRawData(rawData);
                                     }
 									router.routeMessageByChannelId(message.getChannelId(), message.getRawData(), true, true);
