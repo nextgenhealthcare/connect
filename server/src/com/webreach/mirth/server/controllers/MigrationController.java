@@ -139,7 +139,7 @@ public class MigrationController
         while (oldVersion < newVersion)
         {
             // gets the correct migration script based on dbtype and versions
-            File migrationFile = new File(deltaPath + databaseType + "-" + oldVersion + "-" + newVersion + ".sql");
+            File migrationFile = new File(deltaPath + databaseType + "-" + oldVersion + "-" + oldVersion+1 + ".sql");
             DatabaseUtil.executeScript(migrationFile);
             oldVersion++;
         }
