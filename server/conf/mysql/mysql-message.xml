@@ -121,6 +121,17 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			<isNotNull prepend="AND" property="endDate">
 				DATE_CREATED <![CDATA[ <= ]]> '$endDate$'
 			</isNotNull>
+			<isNotNull property="searchCriteria">
+				<isEqual prepend="AND" compareValue="true" property="searchRawData">
+					RAW_DATA LIKE '%$searchCriteria$%'
+				</isEqual>
+				<isEqual prepend="AND" compareValue="true" property="searchEncodedData">
+					ENCODED_DATA LIKE '%$searchCriteria$%'
+				</isEqual>
+				<isEqual prepend="AND" compareValue="true" property="searchTransformedData">
+					TRANSFORMED_DATA LIKE '%$searchCriteria$%'
+				</isEqual>
+			</isNotNull>
 		</dynamic>
 	</sql>
 	
