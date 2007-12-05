@@ -737,7 +737,7 @@ public class TreePanel extends javax.swing.JPanel
 
     public void setInvalidMessage(String messageType)
     {
-        MirthTreeNode top = new MirthTreeNode("The above message is not valid " + messageType + ".");
+        MirthTreeNode top = new MirthTreeNode("The message template is not valid " + messageType + ".");
         MirthTree tree = new MirthTree(top, _dropPrefix, _dropSuffix);
         treePane.setViewportView(tree);
         revalidate();
