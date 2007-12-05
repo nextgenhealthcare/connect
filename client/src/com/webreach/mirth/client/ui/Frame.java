@@ -919,6 +919,11 @@ public class Frame extends JXFrame
 
         if (message != null)
         {
+            if(message.indexOf("Received close_notify during handshake") != -1)
+            {
+                return;
+            }
+            
             if (message.indexOf("Unauthorized") != -1 || message.indexOf("reset") != -1)
             {
                 connectionError = true;
