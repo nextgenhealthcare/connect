@@ -46,7 +46,14 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
         if (connectorInfoLogs.containsKey(selectedChannel)) {
             connectorInfoLogs.remove(selectedChannel);
         }
-        dcsp.updateTable(null);
+
+        if (selectedChannel.equals(NO_CHANNEL_SELECTED)) {
+            // Add Channel Name column in the UI so that which logs correspond to which channel.
+            dcsp.updateTable(null, false);
+        } else {
+            // No Channel Name column needed.
+            dcsp.updateTable(null, true);
+        }
     }
 
     public void resetLogSize(int newDashboardLogSize, String selectedChannel) {
@@ -65,7 +72,13 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
                     newChannelLog.removeLast();
                 }
             }
-            dcsp.updateTable(newChannelLog);
+            if (selectedChannel.equals(NO_CHANNEL_SELECTED)) {
+                // Add Channel Name column in the UI so that which logs correspond to which channel.
+                dcsp.updateTable(newChannelLog, false);
+            } else {
+                // No Channel Name column needed.
+                dcsp.updateTable(newChannelLog, true);
+            }
         }
         
         // reset currentLogSize.
@@ -130,7 +143,13 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
         }
 
         // call updateLogTextArea.
-        dcsp.updateTable(channelLog);
+        if (selectedChannel.equals(NO_CHANNEL_SELECTED)) {
+            // Add Channel Name column in the UI so that which logs correspond to which channel.
+            dcsp.updateTable(channelLog, false);
+        } else {
+            // No Channel Name column needed.
+            dcsp.updateTable(channelLog, true);
+        }
         dcsp.adjustPauseResumeButton(selectedChannel);
 
     }

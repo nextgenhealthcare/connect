@@ -28,7 +28,7 @@ import javax.swing.*;
 public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
 
     private static final String ID_COLUMN_HEADER = "Id";
-    private static final String CHANNEL_COLUMN_HEADER = "Channel Name";
+    private static final String CHANNEL_COLUMN_HEADER = "Channel";
     private static final String TIME_COLUMN_HEADER = "Timestamp";
     private static final String CONNECTOR_INFO_COLUMN_HEADER = "Connector Info";
     private static final String EVENT_COLUMN_HEADER = "Event";
@@ -87,11 +87,10 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
      */
     public void makeLogTable()
     {
-        updateTable(null);
+        updateTable(null, false);
         logTable.setDoubleBuffered(true);
         logTable.setSelectionMode(0);
         logTable.getColumnExt(ID_COLUMN_HEADER).setVisible(false);
-        logTable.getColumnExt(CHANNEL_COLUMN_HEADER).setVisible(false);
         logTable.getColumnExt(EVENT_COLUMN_HEADER).setCellRenderer(new ImageCellRenderer());
         logTable.packTable(UIConstants.COL_MARGIN);
         logTable.setRowHeight(UIConstants.ROW_HEIGHT);
@@ -226,7 +225,7 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
      * This method won't be called when it's in the PAUSED state.
      * @param channelLogs
      */
-    public synchronized void updateTable(LinkedList<String[]> channelLogs)
+    public synchronized void updateTable(LinkedList<String[]> channelLogs, boolean channelSelected)
     {
         Object[][] tableData;
         if (channelLogs != null)
@@ -235,8 +234,8 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
             for (int i=0; i < channelLogs.size(); i++) {
 
                 tableData[i][0] = channelLogs.get(i)[0];       // Id (hidden)
-                tableData[i][1] = channelLogs.get(i)[1];       // Channel Name (hidden)
-                tableData[i][2] = channelLogs.get(i)[2];       // Timestamp
+                tableData[i][1] = channelLogs.get(i)[2];       // Timestamp
+                tableData[i][2] = channelLogs.get(i)[1];       // Channel Name (hidden when viewing a specific channel)
                 tableData[i][3] = channelLogs.get(i)[3];       // Connector Info
 
                 // Event State - INITIALIZED (blue), CONNECTED (green), BUSY (yellow), DONE (black), DISCONNECTED (red)
@@ -266,8 +265,8 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
         {
             logTable = new MirthTable();
             logTable.setModel(new RefreshTableModel(tableData,
-                                                       new String[] {ID_COLUMN_HEADER, CHANNEL_COLUMN_HEADER,
-                                                                     TIME_COLUMN_HEADER, CONNECTOR_INFO_COLUMN_HEADER,
+                                                       new String[] {ID_COLUMN_HEADER, TIME_COLUMN_HEADER,
+                                                                     CHANNEL_COLUMN_HEADER, CONNECTOR_INFO_COLUMN_HEADER,
                                                                      EVENT_COLUMN_HEADER, INFORMATION_COLUMN_HEADER })
             {
                 boolean[] canEdit = new boolean[] { false, false, false, false, false, false };
@@ -287,7 +286,13 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
             highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
         }
 
-        logTable.setHighlighters(highlighter);        
+        logTable.setHighlighters(highlighter);
+
+        if (channelSelected) {
+            logTable.getColumnExt(CHANNEL_COLUMN_HEADER).setVisible(false);
+        } else {
+            logTable.getColumnExt(CHANNEL_COLUMN_HEADER).setVisible(true);
+        }        
     }
 
 
