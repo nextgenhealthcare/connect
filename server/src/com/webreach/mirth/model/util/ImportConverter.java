@@ -26,7 +26,7 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 
 public class ImportConverter {
 	private static ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-	
+
 	private enum Direction {
 		INBOUND, OUTBOUND
 	}
@@ -40,7 +40,6 @@ public class ImportConverter {
 	}
 
 	public static Channel convertChannelObject(Channel channel) throws Exception {
-		
 		return (Channel) serializer.fromXML(convertChannelString(serializer.toXML(channel)));
 	}
 
@@ -157,44 +156,58 @@ public class ImportConverter {
 				Element destinationConnectorRoot = (Element) document.getDocumentElement().getElementsByTagName("destinationConnectors").item(0);
 				NodeList destinationsConnectors = destinationConnectorRoot.getElementsByTagName("com.webreach.mirth.model.Connector");
 
-				Element enabledSource = document.createElement("enabled");
-				enabledSource.setTextContent("true");
-				sourceConnectorRoot.appendChild(enabledSource);
-
-				for (int i = 0; i < destinationsConnectors.getLength(); i++) {
-					Element destinationConnector = (Element) destinationsConnectors.item(i);
-					Element enabledDestination = document.createElement("enabled");
-					enabledDestination.setTextContent("true");
-					destinationConnector.appendChild(enabledDestination);
+				// Check ROOT node for "enabled" element which is added by
+				// migration automatically. Add it if not found.
+				if (!nodeChildrenContains(channelRoot, "enabled")) {
+					Element enabledSource = document.createElement("enabled");
+					enabledSource.setTextContent("true");
+					sourceConnectorRoot.appendChild(enabledSource);
 				}
 
-				Element deployScript = document.createElement("deployScript");
-				deployScript.setTextContent("// This script executes once when the mule engine is started\n// You only have access to the globalMap here to persist data\nreturn;");
-				channelRoot.appendChild(deployScript);
+				// Check CONNECTOR node for "enabled" element which is added by
+				// migration automatically. Add it if not found.
+				for (int i = 0; i < destinationsConnectors.getLength(); i++) {
+					Element destinationConnector = (Element) destinationsConnectors.item(i);
 
-				Element shutdownScript = document.createElement("shutdownScript");
-				shutdownScript.setTextContent("// This script executes once when the mule engine is stopped\n// You only have access to the globalMap here to persist data\nreturn;");
-				channelRoot.appendChild(shutdownScript);
+					if (!nodeChildrenContains(destinationConnector, "enabled")) {
+						Element enabledDestination = document.createElement("enabled");
+						enabledDestination.setTextContent("true");
+						destinationConnector.appendChild(enabledDestination);
+					}
+				}
 
-				Element postprocessorScript = document.createElement("postprocessingScript");
-				postprocessorScript.setTextContent("// This script executes once after a message has been processed\nreturn;");
-				channelRoot.appendChild(postprocessorScript);
+				if (!nodeChildrenContains(channelRoot, "deployScript")) {
+					Element deployScript = document.createElement("deployScript");
+					deployScript.setTextContent("// This script executes once when the mule engine is started\n// You only have access to the globalMap here to persist data\nreturn;");
+					channelRoot.appendChild(deployScript);
+				}
+
+				if (!nodeChildrenContains(channelRoot, "shutdownScript")) {
+					Element shutdownScript = document.createElement("shutdownScript");
+					shutdownScript.setTextContent("// This script executes once when the mule engine is stopped\n// You only have access to the globalMap here to persist data\nreturn;");
+					channelRoot.appendChild(shutdownScript);
+				}
+
+				if (!nodeChildrenContains(channelRoot, "postprocessingScript")) {
+					Element postprocessorScript = document.createElement("postprocessingScript");
+					postprocessorScript.setTextContent("// This script executes once after a message has been processed\nreturn;");
+					channelRoot.appendChild(postprocessorScript);
+				}
 			}
 
 			if (minorVersion < 7) {
-				if(channelRoot.getElementsByTagName("lastModified").getLength() == 0)
-				{
+				if (!nodeChildrenContains(channelRoot, "lastModified")) {
 					Element lastModified = document.createElement("lastModified");
 					Element time = document.createElement("time");
 					Element timezone = document.createElement("timezone");
-					
+
 					Calendar calendar = Calendar.getInstance();
 					time.setTextContent(calendar.getTimeInMillis() + "");
 					timezone.setTextContent(calendar.getTimeZone().getDisplayName());
-					
+
 					lastModified.appendChild(time);
 					lastModified.appendChild(timezone);
-					
+
 					channelRoot.appendChild(lastModified);
 				}
 				updateFilterFor1_7(document);
@@ -279,13 +292,11 @@ public class ImportConverter {
 			inboundTemplateElement = document.createElement("inboundTemplate");
 		if (transformerRoot.getElementsByTagName("outboundTemplate").getLength() == 0)
 			outboundTemplateElement = document.createElement("outboundTemplate");
-		if (transformerRoot.getElementsByTagName("inboundProtocol").getLength() == 0)
-		{
+		if (transformerRoot.getElementsByTagName("inboundProtocol").getLength() == 0) {
 			inboundProtocolElement = document.createElement("inboundProtocol");
 			inboundProtocolElement.setTextContent(incoming.toString());
 		}
-		if (transformerRoot.getElementsByTagName("outboundProtocol").getLength() == 0)
-		{
+		if (transformerRoot.getElementsByTagName("outboundProtocol").getLength() == 0) {
 			outboundProtocolElement = document.createElement("outboundProtocol");
 			outboundProtocolElement.setTextContent(outgoing.toString());
 		}
@@ -297,7 +308,7 @@ public class ImportConverter {
 				outboundTemplateElement.setTextContent(template);
 			}
 		}
-		
+
 		if (transformerRoot.getElementsByTagName("inboundTemplate").getLength() == 0)
 			transformerRoot.appendChild(inboundTemplateElement);
 		if (transformerRoot.getElementsByTagName("outboundTemplate").getLength() == 0)
@@ -507,5 +518,19 @@ public class ImportConverter {
 			result = result.replace(i, ' ');
 		}
 		return result;
+	}
+
+	private static boolean nodeChildrenContains(Node parent, String elementName) {
+		NodeList children = parent.getChildNodes();
+
+		for (int i = 0; i < children.getLength(); i++) {
+			Node child = children.item(i);
+
+			if (child.getNodeName().equals(elementName)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }
