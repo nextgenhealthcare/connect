@@ -75,7 +75,7 @@ public abstract class PollingMessageReceiver extends AbstractMessageReceiver imp
                         connected.whenTrue(null);
                         try
                         {
-                            if (Calendar.getInstance().get(Calendar.HOUR) == timeCalendar.get(Calendar.HOUR) && Calendar.getInstance().get(Calendar.MINUTE) == timeCalendar.get(Calendar.MINUTE))
+                            if (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) == timeCalendar.get(Calendar.HOUR_OF_DAY) && Calendar.getInstance().get(Calendar.MINUTE) == timeCalendar.get(Calendar.MINUTE))
                             {
                                 if(!workDone)
                                 {
