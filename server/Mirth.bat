@@ -1,2 +1,2 @@
 @ECHO OFF
-java -jar mirth-launcher.jar mirth-launcher.xml
+java -Xmx256m -jar mirth-launcher.jar mirth-launcher.xml
