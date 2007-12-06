@@ -25,9 +25,6 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.ui.util.FileUtil;
-import com.webreach.mirth.model.ServerConfiguration;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -35,10 +32,14 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.prefs.Preferences;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+
+import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
+import com.webreach.mirth.client.ui.util.FileUtil;
+import com.webreach.mirth.model.ServerConfiguration;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 
 /**
  * The main configuration panel.
@@ -469,6 +470,7 @@ public class SettingsPanel extends javax.swing.JPanel
                     {
                         parent.mirthClient.setServerConfiguration(configuration);
                         loadSettings();
+                        parent.alertInformation("Your configuration was successfully restored.");
                     }
                     catch (ClientException e)
                     {
