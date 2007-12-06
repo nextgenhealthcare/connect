@@ -876,7 +876,7 @@ public class MessageBrowser extends javax.swing.JPanel
                     if (evt.getClickCount() >= 2)
                     {
                         viewAttachment();// do view
-                        //new ViewContentDialog((String) mirthTable1.getModel().getValueAt(mirthTable1.convertRowIndexToModel(mirthTable1.getSelectedRow()), 2));
+                        
                     }
                 }
             });    
@@ -1494,28 +1494,25 @@ public class MessageBrowser extends javax.swing.JPanel
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    public void viewAttachment(){
-        int i = attachmentTable.getSelectedRow();
-        //if(attachmentList.getSelectedValue() != null){
-        if(attachmentTable.getValueAt(i,2) != null){
-            String attachId = (String) attachmentTable.getValueAt(i,2);
-            if(attachId.indexOf(",") != -1){
-                attachId = attachId.substring(attachId.indexOf(","));
+    public void viewAttachment(){    
+        String attachId = (String) attachmentTable.getModel().getValueAt(attachmentTable.convertRowIndexToModel(attachmentTable.getSelectedRow()), 2);
+        String attachType = (String) attachmentTable.getModel().getValueAt(attachmentTable.convertRowIndexToModel(attachmentTable.getSelectedRow()), 1);
+        String[] attachmentIds = attachId.split(", ");
+        ArrayList<String> attachmentIdList = new ArrayList<String>();
+        for(int i=0;i<attachmentIds.length;i++){
+            attachmentIdList.add(attachmentIds[i]);    
+        }
+        try {
+            AttachmentViewer attachmentViewer = getAttachmentViewer(attachType);
+            if(attachmentViewer != null){
+                attachmentViewer.viewAttachments(attachmentIdList);
+            }                
+            else {
+                parent.alertInformation("No Attachment Viewer plugin installed for type: " + attachType);
             }
-            try {
-                Attachment a = parent.mirthClient.getAttachment(attachId);
-                AttachmentViewer attachmentViewer = getAttachmentViewer(a.getType());
-                if(attachmentViewer != null){
-                    List attachmentList = new ArrayList();
-                    attachmentList.add(a.getAttachmentId());
-                    attachmentViewer.viewAttachments(attachmentList);
-                }                
-                else {
-                    parent.alertInformation("No Attachment Viewer plugin installed for type: " + a.getType());
-                }
-            }
-            catch(Exception e){}
-        }       
+        }
+        catch(Exception e){}
+       
     }
     
     private void advSearchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_advSearchButtonActionPerformed
