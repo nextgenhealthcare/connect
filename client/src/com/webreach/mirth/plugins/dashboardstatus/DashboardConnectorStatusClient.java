@@ -26,6 +26,7 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
     private DashboardConnectorStatusPanel dcsp;
     private static final String REMOVE_SESSIONID = "removeSessionId";
     private static final String GET_CONNECTION_INFO_LOGS = "getConnectionInfoLogs";
+    private static final String CHANNELS_DEPLOYED = "channelsDeployed";
     private static final String SERVER_PLUGIN_NAME = "Dashboard Status Column Server";
     private static final String NO_CHANNEL_SELECTED = "No Channel Selected";
     private ConcurrentHashMap<String, LinkedList<String[]>> connectorInfoLogs;
@@ -97,6 +98,20 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
        
     // used for setting actions to be called for updating when there is a status selected    
     public void update(ChannelStatus status) {
+
+        boolean channelsDeployed = false;
+        try {
+            channelsDeployed = (Boolean) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, CHANNELS_DEPLOYED, null);
+        } catch (ClientException e) {
+            parent.alertException(e.getStackTrace(), e.getMessage());            
+        }
+
+        if (channelsDeployed) {
+            // clear out all the Dashboard Logs, and reset all the channel states to RESUMED.
+            connectorInfoLogs.clear();
+            dcsp.resetAllChannelStates();
+        }
+
         String selectedChannel;
         if (status == null) {
             // no channel is selected.
@@ -117,7 +132,7 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
         } else {
             channelLog = new LinkedList<String[]>();
         }
-                
+
         //get states from server only if the client's channel log is not in the paused state.
         if (!dcsp.isPaused(selectedChannel)) {
             LinkedList<String[]> connectionInfoLogsReceived = new LinkedList<String[]>();
@@ -163,10 +178,6 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
     public void stop() {
         // invoke method to remove everything involving this client's sessionId.
         try {
-            // FYI, method below returns a boolean value.
-            // returned 'true' - sessionId found and removed.
-            // returned 'false' - sessionId not found. - should never be this case.
-            // either way, the sessionId is gone.
             PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, REMOVE_SESSIONID, null);
         } catch (ClientException e) {
             parent.alertException(e.getStackTrace(), e.getMessage());

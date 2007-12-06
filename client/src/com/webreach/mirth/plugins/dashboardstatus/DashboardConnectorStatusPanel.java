@@ -207,6 +207,10 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
         }
     }
 
+    public void resetAllChannelStates() {
+        channelStates.clear();
+    }
+
     public void adjustPauseResumeButton(String channelName) {
         if (isPaused(channelName)) {
             pauseResume.setIcon(UIConstants.RESUME_LOG_ICON);
