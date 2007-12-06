@@ -73,7 +73,7 @@ public class ScriptPanel extends javax.swing.JPanel
         Context context = Context.enter();
         try
         {
-            context.compileString("function rhinoDeployWrapper() {" + script.getText() + "}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
+            context.compileString("function rhinoWrapper() {" + script.getText() + "\n}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
             sb.append("JavaScript was successfully validated.");
         }
         catch (EvaluatorException e)
@@ -96,7 +96,7 @@ public class ScriptPanel extends javax.swing.JPanel
         Context context = Context.enter();
         try
         {
-            context.compileString("function rhinoDeployWrapper() {" + script + "}", UUID.randomUUID().toString(), 1, null);
+            context.compileString("function rhinoWrapper() {" + script + "\n}", UUID.randomUUID().toString(), 1, null);
         }
         catch (EvaluatorException e)
         {

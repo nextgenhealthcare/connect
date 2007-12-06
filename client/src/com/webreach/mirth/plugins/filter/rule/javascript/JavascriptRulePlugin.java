@@ -70,7 +70,7 @@ public class JavascriptRulePlugin extends FilterRulePlugin
         try
         {
             Context context = Context.enter();
-            Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + getScript(data) + "}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
+            Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + getScript(data) + "\n}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
         }
         catch (EvaluatorException e)
         {

@@ -339,7 +339,7 @@ public class DatabaseReader extends ConnectorClass
 	    	Context context = Context.enter();
 	        try
 	        {
-	            context.compileString("function rhinoDeployWrapper() {" + script + "}", UUID.randomUUID().toString(), 1, null);
+	            context.compileString("function rhinoWrapper() {" + script + "\n}", UUID.randomUUID().toString(), 1, null);
 	        }
 	        catch (EvaluatorException e)
 	        {
@@ -362,7 +362,7 @@ public class DatabaseReader extends ConnectorClass
 	    	Context context = Context.enter();
 	        try
 	        {
-	            context.compileString("function rhinoDeployWrapper() {" + onUpdateScript + "}", UUID.randomUUID().toString(), 1, null);
+	            context.compileString("function rhinoWrapper() {" + onUpdateScript + "\n}", UUID.randomUUID().toString(), 1, null);
 	        }
 	        catch (EvaluatorException e)
 	        {
