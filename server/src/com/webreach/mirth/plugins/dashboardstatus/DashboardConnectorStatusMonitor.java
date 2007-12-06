@@ -55,15 +55,18 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
 	private static final String GET_STATES = "getStates";
     private static final String GET_CONNECTION_INFO_LOGS = "getConnectionInfoLogs";
     private static final String REMOVE_SESSIONID = "removeSessionId";
+    private static final String CHANNELS_DEPLOYED = "channelsDeployed";
     private static final String NO_CHANNEL_SELECTED = "No Channel Selected";
     private HashMap<String, String[]> currentStates;
 	private HashMap<String, Set<Socket>> socketSets;
     private ConcurrentHashMap<String, LinkedList<String[]>> connectorInfoLogs;
     private LinkedList<String[]> entireConnectorInfoLogs;
-    private ConcurrentHashMap<String, HashMap<String, Long>> lastDisplayedLogIndexBySessionId;    
+    private ConcurrentHashMap<String, HashMap<String, Long>> lastDisplayedLogIndexBySessionId = new ConcurrentHashMap<String, HashMap<String, Long>>();
     private static final int LOG_SIZE = 1000;        // maximum log size for each channel. and for entire logs.
     private static long logId = 1;
-    
+    private ConcurrentHashMap<String, Boolean> channelsDeployedFlagForEachClient = new ConcurrentHashMap<String, Boolean>();  // stores channelsJustBeenDeployed Flag for each session (client). this flag is used to signal clients to clear out all the Dashboard Monitoring Logs.
+
+
     public void updateStatus(String connectorId, ConnectorType type, Event event, Socket socket) {
 
 		String stateImage = BLACK;
@@ -380,8 +383,8 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
 		this.socketSets = new HashMap<String, Set<Socket>>();
 		this.currentStates = new HashMap<String, String[]>();
         this.connectorInfoLogs = new ConcurrentHashMap<String, LinkedList<String[]>>();
-        this.lastDisplayedLogIndexBySessionId = new ConcurrentHashMap<String, HashMap<String, Long>>();
         this.entireConnectorInfoLogs = new LinkedList<String[]>();
+        this.channelsDeployedFlagForEachClient.clear();
     }
 
 	public synchronized Object invoke(String method, Object object, String sessionId) {
@@ -471,22 +474,34 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
                 }
             }
 
+        } else if (method.equals(CHANNELS_DEPLOYED)) {
+            
+            if (channelsDeployedFlagForEachClient.containsKey(sessionId)) {
+                // sessionId found. no (re)deploy occurred.
+                return false;
+            } else {
+                // no sessionId found, which means channels have just been (re)deployed - clear out all clients' Dashboard Connector Logs.
+                channelsDeployedFlagForEachClient.put(sessionId, true);
+                return true;
+            }
+
         } else if (method.equals(REMOVE_SESSIONID)) {
             // client shut down, or user logged out -> remove everything involving this sessionId.
             if (lastDisplayedLogIndexBySessionId.containsKey(sessionId)) {
-                // client exist with the sessionId. remove it.
                 lastDisplayedLogIndexBySessionId.remove(sessionId);
-                return true;    // sessionId found and successfully removed.
             }
-            return false;   // no sessionId found.
+            if (channelsDeployedFlagForEachClient.containsKey(sessionId)) {
+                channelsDeployedFlagForEachClient.remove(sessionId);
+            }
+            return null;
         }
 
         return null;
 	}
 
     public void onDeploy() {
-		initialize();
-	}
+		initialize();        
+    }
 
 	public void start() {
 
