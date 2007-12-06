@@ -1496,16 +1496,33 @@ public class MessageBrowser extends javax.swing.JPanel
 
     public void viewAttachment(){    
         String attachId = (String) attachmentTable.getModel().getValueAt(attachmentTable.convertRowIndexToModel(attachmentTable.getSelectedRow()), 2);
-        String attachType = (String) attachmentTable.getModel().getValueAt(attachmentTable.convertRowIndexToModel(attachmentTable.getSelectedRow()), 1);
-        String[] attachmentIds = attachId.split(", ");
-        ArrayList<String> attachmentIdList = new ArrayList<String>();
-        for(int i=0;i<attachmentIds.length;i++){
-            attachmentIdList.add(attachmentIds[i]);    
+        final String attachType = (String) attachmentTable.getModel().getValueAt(attachmentTable.convertRowIndexToModel(attachmentTable.getSelectedRow()), 1);
+        String[] attachmentIdArray = attachId.split(", ");
+        ArrayList<String> attachmentIds = new ArrayList<String>();
+        for(int i=0;i<attachmentIdArray.length;i++){
+        	attachmentIds.add(attachmentIdArray[i]);    
         }
         try {
-            AttachmentViewer attachmentViewer = getAttachmentViewer(attachType);
+            final AttachmentViewer attachmentViewer = getAttachmentViewer(attachType);
+            final ArrayList<String> finalAttachmentIds = attachmentIds;
             if(attachmentViewer != null){
-                attachmentViewer.viewAttachments(attachmentIdList);
+            	
+                parent.setWorking("Loading " + attachType + " viewer...", true);
+                
+                SwingWorker worker = new SwingWorker<Void, Void>()
+                {
+                    public Void doInBackground()
+                    {
+                    	attachmentViewer.viewAttachments(finalAttachmentIds);
+                        return null;
+                    }
+                    
+                    public void done()
+                    {
+                        parent.setWorking("", false);
+                    }
+                };
+                worker.execute();
             }                
             else {
                 parent.alertInformation("No Attachment Viewer plugin installed for type: " + attachType);
