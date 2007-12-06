@@ -53,7 +53,7 @@ public class JavaScriptBuilder {
 
 			logger.debug("building javascript transformer: step count=" + transformer.getSteps().size());
 			//Set the phase and also reset the logger to transformer (it was filter before)
-			builder.append("function doTransform() { phase = 'transformer';logger = Packages.org.apache.log4j.Logger.getLogger(phase);");
+			builder.append("function doTransform() { phase = 'transformer'; logger = Packages.org.apache.log4j.Logger.getLogger(phase);");
 
 			for (Iterator iter = transformer.getSteps().iterator(); iter.hasNext();) {
 				Step step = (Step) iter.next();
