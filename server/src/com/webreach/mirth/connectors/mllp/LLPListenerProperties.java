@@ -98,7 +98,7 @@ public class LLPListenerProperties implements ComponentProperties
         properties.put(LLP_RESPONSE_VALUE, "None");
         properties.put(LLP_WAIT_FOR_END_OF_MESSAGE_CHAR, "0");
         properties.put(LLP_USE_STRICT_LLP, "1");
-        properties.put(LLP_PROCESS_BATCH_FILES, "1");
+        properties.put(LLP_PROCESS_BATCH_FILES, "0");
         properties.put(CONNECTOR_CHARSET_ENCODING, "DEFAULT_ENCODING");
         return properties;
     }

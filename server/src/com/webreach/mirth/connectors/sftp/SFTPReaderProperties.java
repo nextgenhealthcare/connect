@@ -75,7 +75,7 @@ public class SFTPReaderProperties implements ComponentProperties
         properties.put(FTP_TYPE, "0");
         properties.put(CONNECTOR_CHARSET_ENCODING, "DEFAULT_ENCODING");
         properties.put(FTP_FILTER, "*");
-        properties.put(FTP_PROCESS_BATCH_FILES, "1");
+        properties.put(FTP_PROCESS_BATCH_FILES, "0");
         return properties;
     }
 }
