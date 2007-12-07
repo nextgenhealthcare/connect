@@ -46,6 +46,7 @@ public class SOAPSenderProperties implements ComponentProperties
     public static final String SOAP_DEFINITION = "definition";
     public static final String SOAP_DEFAULT_DROPDOWN = "Press Get Methods";
     public static final String SOAP_ENVELOPE = "soapEnvelope";
+    public static final String SOAP_GENERATE_ENVELOPE = "soapGenerateEnvelope";
     public static final String SOAP_ACTION_URI = "soapActionURI";
     public static final String CHANNEL_ID = "replyChannelId";
     public static final String CHANNEL_NAME = "channelName";
@@ -61,6 +62,7 @@ public class SOAPSenderProperties implements ComponentProperties
         properties.put(SOAP_DEFINITION, (String) serializer.toXML(new WSDefinition()));
         properties.put(SOAP_HOST, "axis:?method=Press Get Methods");
         properties.put(SOAP_ENVELOPE, "");
+        properties.put(SOAP_GENERATE_ENVELOPE, "1");
         properties.put(SOAP_ACTION_URI, "");
         properties.put(CHANNEL_ID, "sink");
         properties.put(CHANNEL_NAME, "None");
