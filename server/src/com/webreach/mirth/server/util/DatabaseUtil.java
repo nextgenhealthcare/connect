@@ -106,7 +106,7 @@ public class DatabaseUtil {
             
             Scanner s = new Scanner(script);
             while(s.hasNextLine()) {
-                String statementString = "";
+                StringBuilder sb = new StringBuilder();
                 boolean blankLine = false;
                 
                 while(s.hasNextLine() && !blankLine)
@@ -114,18 +114,19 @@ public class DatabaseUtil {
                     String temp = s.nextLine();
                     
                     if (temp.length() > 0)
-                        statementString += temp + " ";
+                    	sb.append(temp + " ");
                     else
                         blankLine = true;
                 }
                 
-                if(statementString.trim().length() > 0)
-                    statement.addBatch(statementString.trim());
-            }
-            
-            statement.executeBatch();
-            
-            conn.commit();                 
+                String statmentString = sb.toString().trim();
+                if(statmentString.length() > 0)
+                {
+                	statement.execute(statmentString);
+                	conn.commit(); 
+                }
+            }          
+                            
         } catch (Exception e) {
             throw new Exception(e);
         } finally {
