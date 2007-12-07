@@ -107,6 +107,12 @@ public class SOAPSender extends ConnectorClass
     public Properties getProperties()
     {
         Properties properties = new Properties();
+        
+        if (generateEnvelopeYesButton.isSelected())
+            properties.put(SOAPSenderProperties.SOAP_GENERATE_ENVELOPE, UIConstants.YES_OPTION);
+        else
+            properties.put(SOAPSenderProperties.SOAP_GENERATE_ENVELOPE, UIConstants.NO_OPTION);
+        
         properties.put(SOAPSenderProperties.SOAP_ENVELOPE, soapEnvelope.getText());
         properties.put(SOAPSenderProperties.DATATYPE, name);
         //TODO: This won't work for HTTPS. WARNING.
@@ -133,6 +139,18 @@ public class SOAPSender extends ConnectorClass
 
         wsdlUrl.setText((String) props.get(SOAPSenderProperties.SOAP_URL));
         serviceEndpoint.setText((String) props.get(SOAPSenderProperties.SOAP_SERVICE_ENDPOINT));
+        
+        if (((String) props.get(SOAPSenderProperties.SOAP_GENERATE_ENVELOPE)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        {
+            generateEnvelopeYesButton.setSelected(true);
+            generateEnvelopeYesButtonActionPerformed(null);
+        }
+        else
+        {
+            generateEnvelopeNoButton.setSelected(true);
+            generateEnvelopeNoButtonActionPerformed(null);
+        }
+        
         soapEnvelope.setText((String) props.getProperty(SOAPSenderProperties.SOAP_ENVELOPE));
         soapActionURI.setText((String) props.getProperty(SOAPSenderProperties.SOAP_ACTION_URI));
 
@@ -335,11 +353,13 @@ public class SOAPSender extends ConnectorClass
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents() {
+    private void initComponents()
+    {
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
         buttonGroup3 = new javax.swing.ButtonGroup();
         buttonGroup4 = new javax.swing.ButtonGroup();
+        generateEnvelopeButtonGroup = new javax.swing.ButtonGroup();
         URL = new javax.swing.JLabel();
         wsdlUrl = new com.webreach.mirth.client.ui.components.MirthTextField();
         getMethodsButton = new javax.swing.JButton();
@@ -357,20 +377,27 @@ public class SOAPSender extends ConnectorClass
         rebuildEnvelope = new javax.swing.JButton();
         channelNames = new com.webreach.mirth.client.ui.components.MirthComboBox();
         URL1 = new javax.swing.JLabel();
+        generateEnvelopeLabel = new javax.swing.JLabel();
+        generateEnvelopeYesButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        generateEnvelopeNoButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         URL.setText("WSDL URL:");
 
         getMethodsButton.setText("Get Methods");
-        getMethodsButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        getMethodsButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 getMethodsButtonActionPerformed(evt);
             }
         });
 
-        method.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+        method.addItemListener(new java.awt.event.ItemListener()
+        {
+            public void itemStateChanged(java.awt.event.ItemEvent evt)
+            {
                 methodItemStateChanged(evt);
             }
         });
@@ -382,8 +409,10 @@ public class SOAPSender extends ConnectorClass
         soapEnvelope.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         jTree1.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("")));
-        jTree1.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
-            public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
+        jTree1.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener()
+        {
+            public void valueChanged(javax.swing.event.TreeSelectionEvent evt)
+            {
                 jTree1ValueChanged(evt);
             }
         });
@@ -398,8 +427,10 @@ public class SOAPSender extends ConnectorClass
         jLabel4.setText("SOAP Envelope:");
 
         rebuildEnvelope.setText("Rebuild Envelope");
-        rebuildEnvelope.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        rebuildEnvelope.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 rebuildEnvelopeActionPerformed(evt);
             }
         });
@@ -408,6 +439,34 @@ public class SOAPSender extends ConnectorClass
 
         URL1.setText("Send Response to:");
 
+        generateEnvelopeLabel.setText("Generate Envelope:");
+
+        generateEnvelopeYesButton.setBackground(new java.awt.Color(255, 255, 255));
+        generateEnvelopeYesButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        generateEnvelopeButtonGroup.add(generateEnvelopeYesButton);
+        generateEnvelopeYesButton.setText("Yes");
+        generateEnvelopeYesButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        generateEnvelopeYesButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                generateEnvelopeYesButtonActionPerformed(evt);
+            }
+        });
+
+        generateEnvelopeNoButton.setBackground(new java.awt.Color(255, 255, 255));
+        generateEnvelopeNoButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        generateEnvelopeButtonGroup.add(generateEnvelopeNoButton);
+        generateEnvelopeNoButton.setText("No");
+        generateEnvelopeNoButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        generateEnvelopeNoButton.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                generateEnvelopeNoButtonActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -415,6 +474,7 @@ public class SOAPSender extends ConnectorClass
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(generateEnvelopeLabel)
                     .add(URL1)
                     .add(jLabel2)
                     .add(URL)
@@ -441,7 +501,11 @@ public class SOAPSender extends ConnectorClass
                             .add(org.jdesktop.layout.GroupLayout.LEADING, method, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .add(org.jdesktop.layout.GroupLayout.LEADING, channelNames, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(rebuildEnvelope, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 115, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                        .add(rebuildEnvelope, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 115, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(layout.createSequentialGroup()
+                        .add(generateEnvelopeYesButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(generateEnvelopeNoButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -471,14 +535,29 @@ public class SOAPSender extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jScrollPane1, 0, 0, Short.MAX_VALUE)
-                    .add(propertySheetPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE))
+                    .add(propertySheetPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 58, Short.MAX_VALUE))
+                .add(7, 7, 7)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(generateEnvelopeLabel)
+                    .add(generateEnvelopeYesButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(generateEnvelopeNoButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel4)
-                    .add(soapEnvelope, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 61, Short.MAX_VALUE))
+                    .add(soapEnvelope, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 49, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void generateEnvelopeNoButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_generateEnvelopeNoButtonActionPerformed
+    {//GEN-HEADEREND:event_generateEnvelopeNoButtonActionPerformed
+// TODO add your handling code here:
+    }//GEN-LAST:event_generateEnvelopeNoButtonActionPerformed
+
+    private void generateEnvelopeYesButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_generateEnvelopeYesButtonActionPerformed
+    {//GEN-HEADEREND:event_generateEnvelopeYesButtonActionPerformed
+// TODO add your handling code here:
+    }//GEN-LAST:event_generateEnvelopeYesButtonActionPerformed
 
     private void rebuildEnvelopeActionPerformed(java.awt.event.ActionEvent evt)
     {// GEN-FIRST:event_rebuildEnvelopeActionPerformed
@@ -755,6 +834,10 @@ public class SOAPSender extends ConnectorClass
     private javax.swing.ButtonGroup buttonGroup3;
     private javax.swing.ButtonGroup buttonGroup4;
     private com.webreach.mirth.client.ui.components.MirthComboBox channelNames;
+    private javax.swing.ButtonGroup generateEnvelopeButtonGroup;
+    private javax.swing.JLabel generateEnvelopeLabel;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton generateEnvelopeNoButton;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton generateEnvelopeYesButton;
     private javax.swing.JButton getMethodsButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
