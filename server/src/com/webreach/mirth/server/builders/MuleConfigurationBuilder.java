@@ -189,18 +189,21 @@ public class MuleConfigurationBuilder {
 
 		for (ListIterator iterator = channel.getDestinationConnectors().listIterator(); iterator.hasNext();) {
 			Connector connector = (Connector) iterator.next();
-			String usePersistentQueues = connector.getProperties().getProperty("usePersistentQueues");
-
-			if ((usePersistentQueues != null) && (usePersistentQueues.equals("1"))) {
-				if (responseRouterElement == null) {
-					responseRouterElement = document.createElement("response-router");
+			
+			if (connector.isEnabled()) {
+				String usePersistentQueues = connector.getProperties().getProperty("usePersistentQueues");
+	
+				if ((usePersistentQueues != null) && (usePersistentQueues.equals("1"))) {
+					if (responseRouterElement == null) {
+						responseRouterElement = document.createElement("response-router");
+					}
+	
+					Element endpointElement = document.createElement("endpoint");
+					endpointElement.setAttribute("address", getEndpointUri(connector));
+					String connectorName = getConnectorNameForOutputRouter(getConnectorReferenceForOutputRouter(channel, String.valueOf(iterator.nextIndex())));
+					endpointElement.setAttribute("connector", connectorName);
+					responseRouterElement.appendChild(endpointElement);
 				}
-
-				Element endpointElement = document.createElement("endpoint");
-				endpointElement.setAttribute("address", getEndpointUri(connector));
-				String connectorName = getConnectorNameForOutputRouter(getConnectorReferenceForOutputRouter(channel, String.valueOf(iterator.nextIndex())));
-				endpointElement.setAttribute("connector", connectorName);
-				responseRouterElement.appendChild(endpointElement);
 			}
 		}
 
