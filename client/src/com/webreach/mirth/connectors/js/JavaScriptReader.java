@@ -64,7 +64,7 @@ public class JavaScriptReader extends ConnectorClass
     {
         Properties properties = new Properties();
         properties.put(JavaScriptReaderProperties.DATATYPE, name);
-        properties.put(JavaScriptWriterProperties.JAVASCRIPT_HOST, parent.channelEditPanel.currentChannel.getId());
+        properties.put(JavaScriptWriterProperties.JAVASCRIPT_HOST, "sink");
         properties.put(JavaScriptReaderProperties.JAVASCRIPT_SCRIPT, javascriptTextPane.getText());
 
         if (pollingIntervalButton.isSelected())

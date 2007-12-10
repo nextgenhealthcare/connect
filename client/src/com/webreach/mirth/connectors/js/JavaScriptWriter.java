@@ -68,7 +68,7 @@ public class JavaScriptWriter extends ConnectorClass
     {
         Properties properties = new Properties();
         properties.put(JavaScriptWriterProperties.DATATYPE, name);
-        properties.put(JavaScriptWriterProperties.JAVASCRIPT_HOST, parent.channelEditPanel.currentChannel.getId());
+        properties.put(JavaScriptWriterProperties.JAVASCRIPT_HOST, "sink");
         properties.put(JavaScriptWriterProperties.JAVASCRIPT_SCRIPT, javaScriptTextPane.getText());
    
         return properties;
