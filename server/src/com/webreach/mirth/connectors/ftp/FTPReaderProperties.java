@@ -62,7 +62,7 @@ public class FTPReaderProperties implements ComponentProperties
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
-        properties.put(FTP_HOST, "");
+        properties.put(FTP_HOST, "/");
         properties.put(FTP_ANONYMOUS, "1");
         properties.put(FTP_USERNAME, "anonymous");
         properties.put(FTP_PASSWORD, "anonymous");

@@ -45,7 +45,7 @@ public class SFTPWriterProperties implements ComponentProperties
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
-        properties.put(SFTP_ADDRESS, "");
+        properties.put(SFTP_ADDRESS, "/");
         properties.put(SFTP_USERNAME, "");
         properties.put(SFTP_PASSWORD, "");
         properties.put(SFTP_OUTPUT_PATTERN, "");

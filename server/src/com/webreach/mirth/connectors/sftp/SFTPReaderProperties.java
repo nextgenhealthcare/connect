@@ -59,7 +59,7 @@ public class SFTPReaderProperties implements ComponentProperties
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
-        properties.put(FTP_HOST, "");
+        properties.put(FTP_HOST, "/");
         properties.put(FTP_USERNAME, "");
         properties.put(FTP_PASSWORD, "");
         properties.put(FTP_POLLING_TYPE, "interval");

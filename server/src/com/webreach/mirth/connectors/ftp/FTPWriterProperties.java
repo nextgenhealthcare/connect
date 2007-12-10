@@ -48,7 +48,7 @@ public class FTPWriterProperties implements ComponentProperties
     {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
-        properties.put(FTP_URL, "");
+        properties.put(FTP_URL, "/");
         properties.put(FTP_ANONYMOUS, "1");
         properties.put(FTP_USERNAME, "anonymous");
         properties.put(FTP_PASSWORD, "anonymous");
