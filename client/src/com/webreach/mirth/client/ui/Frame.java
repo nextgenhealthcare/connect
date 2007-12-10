@@ -3075,34 +3075,7 @@ public class Frame extends JXFrame
         {
             public Void doInBackground()
             {
-                //boolean pictureOpen = false;
-                //String messageId = messageBrowser.getSelectedMessageID();
                 messageBrowser.viewAttachment();
-                //AttachmentViewer attachmentViewer = messageBrowser.getAttachmentViewer()
-//                try {
-//                    BASE64Decoder decoder = new BASE64Decoder();
-//                    MessageObject message = messageBrowser.getMessageObjectById(messageId);
-//                    if(message.isAttachment()){
-//                            byte[] rawImage = decoder.decodeBuffer(mirthClient.getDICOMMessage(message));
-//                            ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
-//                            DICOM dcm = new DICOM(bis);
-//                            dcm.run(message.getType());
-//                            dcm.show();
-//                            if(dcm.getTitle() != null && dcm.getTitle().equals("DICOM")){
-//                                pictureOpen = true;
-//                            }
-//                        }
-//                    else {
-//                        alertInformation("This message does not contain a DICOM image.");
-//                        pictureOpen = true;
-//                    }
-//                }
-//                catch(Exception e ){
-//                    e.printStackTrace();
-//                }
-//                if(!pictureOpen){
-//                    alertInformation("Only uncompressed DICOM images can be viewed.");
-//                }
                 setWorking("", false);
                 return null;
             }
