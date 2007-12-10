@@ -58,7 +58,7 @@ public class FindRplDialog extends javax.swing.JDialog {
 			public void keyPressed(KeyEvent e) {
 				// TODO Auto-generated method stub
 				if (e.getKeyCode() == KeyEvent.VK_ENTER){
-					find();
+					find(true);
 				}else if (e.getKeyCode() == KeyEvent.VK_ESCAPE){
 					exit();
 				}
@@ -84,7 +84,7 @@ public class FindRplDialog extends javax.swing.JDialog {
             search_text.select(0,0);
             int min =  Integer.MIN_VALUE;
             while(anyRemaining){
-                find();
+                find(false);
                 int start = search_text.getSelectionStart();
                 int end = search_text.getSelectionEnd();
                 if(start < end){
@@ -103,7 +103,17 @@ public class FindRplDialog extends javax.swing.JDialog {
             }
         }
     }
-    void find(){
+    void replace(){
+        if(search_text.isEditable()){
+            find(true);
+            int start = search_text.getSelectionStart();
+            int end = search_text.getSelectionEnd();
+            if(start < end){
+                search_text.setSelectedText(mirthTextField2.getText());
+            }
+        }
+    }    
+    void find(boolean wrapSearch){
         String text = search_text.getText();
         String search = mirthTextField1.getText();
         // check for case sensitive
@@ -137,23 +147,16 @@ public class FindRplDialog extends javax.swing.JDialog {
             }
             // if we are at the end. wrap and search from start
             else {
-                position = text.indexOf(search, 0);
-                if(position > -1){
-                    search_text.select(position,position+search.length());
+                if(wrapSearch){
+                    position = text.indexOf(search, 0);
+                    if(position > -1){
+                        search_text.select(position,position+search.length());
+                    }
                 }
             }
         }
     }
-    void replace(){
-            if(search_text.isEditable()){
-            int start = search_text.getSelectionStart();
-            int end = search_text.getSelectionEnd();
-            if(start < end){
-                search_text.setSelectedText(mirthTextField2.getText());
-            }
-            find();
-        }
-    }
+
 
     void disableReplace(){
         mirthButton2.hide();
@@ -299,7 +302,7 @@ public class FindRplDialog extends javax.swing.JDialog {
     private void mirthButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mirthButton1ActionPerformed
 // TODO add your handling code here:
         // find
-        find();
+        find(true);
     }//GEN-LAST:event_mirthButton1ActionPerformed
 
     /**
