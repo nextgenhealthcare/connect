@@ -279,6 +279,7 @@
 	<target name="create-setup" depends="create-client-lib">
 		<!-- create the setup directory -->
 		<mkdir dir="${setup}" />
+		<mkdir dir="${setup.mirth}" />
 		<mkdir dir="${setup.conf}" />
 		<mkdir dir="${setup.plugins}" />
 		<mkdir dir="${setup.public_html}" />
@@ -333,7 +334,7 @@
 		</propertyfile>
 
 		<!-- copy misc files -->
-		<copy todir="${setup}">
+		<copy todir="${setup.mirth}">
 			<!-- database creation scripts -->
 			<fileset file="${basedir}/derby-database.sql" />
 			<fileset file="${basedir}/postgres-database.sql" />
@@ -376,7 +377,7 @@
 		</copy>
 
 		<!-- create the server jar -->
-		<jar destfile="${setup}/${server.jar}" basedir="${classes}">
+		<jar destfile="${setup.mirth}/${server.jar}" basedir="${classes}">
 			<include name="com/thoughtworks/**" />
 			<include name="com/webreach/mirth/server/**" />
 			<include name="com/webreach/mirth/model/**" />
@@ -397,7 +398,7 @@
 		</jar>
 
 		<!-- create the mirth-launcher jar -->
-		<jar destfile="${setup}/${mirth-launcher.jar}" basedir="${classes}">
+		<jar destfile="${setup.mirth}/${mirth-launcher.jar}" basedir="${classes}">
 			<include name="com/webreach/mirth/server/launcher/**" />
 			<exclude name="com/webreach/mirth/server/launcher/ShellLauncher.class" />
 			<manifest>
@@ -407,7 +408,7 @@
 		</jar>
 
 		<!-- create the shell jar -->
-		<jar destfile="${setup}/shell.jar" basedir="${classes}">
+		<jar destfile="${setup.mirth}/shell.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/server/tools/Shell.class" />
 			<include name="com/webreach/mirth/server/tools/Token.class" />
 			<include name="com/webreach/mirth/server/tools/IntToken.class" />
@@ -418,7 +419,7 @@
 		</jar>
 
 		<!-- create the shell-launcher jar -->
-		<jar destfile="${setup}/${shell-launcher.jar}" basedir="${classes}">
+		<jar destfile="${setup.mirth}/${shell-launcher.jar}" basedir="${classes}">
 			<include name="com/webreach/mirth/server/launcher/**" />
 			<exclude name="com/webreach/mirth/server/launcher/MirthLauncher.class" />
 			<manifest>
@@ -428,20 +429,20 @@
 		</jar>
 
 		<!-- create the ant task jar -->
-		<jar destfile="${setup}/${mirth-ant.jar}" basedir="${classes}">
+		<jar destfile="${setup.mirth}/${mirth-ant.jar}" basedir="${classes}">
 			<include name="com/webreach/mirth/ant/**" />
 		</jar>
 
 		<!-- remove svn folders -->
 		<delete>
-			<fileset dir="${setup}" includes="**/.svn" />
+			<fileset dir="${setup.mirth}" includes="**/.svn" />
 		</delete>
 
 		<!-- re-create the embedded database -->
 		<delete dir="mirthdb" />
 		<java classname="com.webreach.mirth.server.tools.ScriptRunner" fork="true" dir="${basedir}" failonerror="true">
 			<classpath>
-				<pathelement location="${setup}/mirth-server.jar" />
+				<pathelement location="${setup.mirth}/mirth-server.jar" />
 				<pathelement location="${setup.conf}" />
 				<fileset dir="${lib}">
 					<include name="log4j-1.2.13.jar" />
@@ -453,12 +454,12 @@
 		</java>
 
 		<!-- copy the newly created database over -->
-		<copy todir="${setup}/mirthdb">
+		<copy todir="${setup.mirth}/mirthdb">
 			<fileset dir="${basedir}/mirthdb" />
 		</copy>
 
 		<!-- zip the source code -->
-		<!-- zip basedir="${setup.source}" destfile="${setup}/mirth-server-src.zip" / -->
+		<!-- zip basedir="${setup.source}" destfile="${setup.mirth}/mirth-server-src.zip" / -->
 
 		<!-- remove the source code -->
 		<delete dir="${setup.source}" />
@@ -724,7 +725,7 @@
 		<taskdef name="izpack" classpath="${installer.lib}/standalone-compiler.jar" classname="com.izforge.izpack.ant.IzPackTask" />
 		<copy file="${installer}/install.xml" tofile="${installer}/install-tmp.xml" />
 		<replace file="${installer}/install-tmp.xml" token="@version@" value="${version}" />
-		<izpack input="${installer}/install-tmp.xml" output="${dist}/mirth-${version}-setup.jar" basedir="${setup}" />
+		<izpack input="${installer}/install-tmp.xml" output="${dist}/mirth-${version}-setup.jar" basedir="${setup.mirth}" />
 		<delete file="${installer}/install-tmp.xml" />
 
 		<!-- create the win32 installer -->
@@ -762,7 +763,7 @@
 		<!-- create the JBoss service archive -->
 		<mkdir dir="${dist}/mirth.sar" />
 		<copy todir="${dist}/mirth.sar">
-			<fileset dir="${setup}">
+			<fileset dir="${setup.mirth}">
 				<exclude name="InstallMirth-NT.bat" />
 				<exclude name="Mirth Manager.exe" />
 				<exclude name="Mirth.bat" />
