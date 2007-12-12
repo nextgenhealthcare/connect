@@ -202,7 +202,7 @@
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="buttonGroup2"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="Pass"/>
+        <Property name="text" type="java.lang.String" value="Accept"/>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
             <EmptyBorder bottom="0" left="0" right="0" top="0"/>
@@ -226,7 +226,7 @@
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="buttonGroup2"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="Fail"/>
+        <Property name="text" type="java.lang.String" value="Reject"/>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
             <EmptyBorder bottom="0" left="0" right="0" top="0"/>

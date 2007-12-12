@@ -53,7 +53,7 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="channelNames" min="-2" pref="150" max="-2" attributes="0"/>
+                          <Component id="channelNames" min="-2" pref="250" max="-2" attributes="0"/>
                           <Component id="charsetEncodingCombobox" min="-2" max="-2" attributes="0"/>
                           <Group type="102" attributes="0">
                               <Component id="usePersistentQueuesYesRadio" min="-2" max="-2" attributes="0"/>
@@ -79,7 +79,7 @@
                   </Group>
                   <Component id="hostAddressField" alignment="0" min="-2" pref="200" max="-2" attributes="0"/>
                   <Component id="hostPortField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
-                  <Component id="template" pref="200" max="32767" attributes="0"/>
+                  <Component id="template" pref="288" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>

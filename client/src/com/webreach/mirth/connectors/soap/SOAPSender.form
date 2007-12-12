@@ -47,27 +47,24 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="soapEnvelope" pref="330" max="32767" attributes="2"/>
+                  <Component id="soapEnvelope" pref="383" max="32767" attributes="2"/>
                   <Group type="102" alignment="1" attributes="0">
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="soapActionURI" alignment="0" pref="231" max="32767" attributes="2"/>
-                          <Component id="serviceEndpoint" alignment="0" pref="231" max="32767" attributes="2"/>
-                          <Component id="wsdlUrl" alignment="1" pref="231" max="32767" attributes="2"/>
+                          <Component id="soapActionURI" alignment="0" pref="284" max="32767" attributes="2"/>
+                          <Component id="serviceEndpoint" alignment="0" pref="284" max="32767" attributes="2"/>
+                          <Component id="wsdlUrl" alignment="1" pref="284" max="32767" attributes="2"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="getMethodsButton" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="jScrollPane1" pref="153" max="32767" attributes="0"/>
+                      <Component id="jScrollPane1" pref="180" max="32767" attributes="0"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Component id="propertySheetPanel1" pref="171" max="32767" attributes="0"/>
+                      <Component id="propertySheetPanel1" pref="197" max="32767" attributes="0"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                          <Component id="method" alignment="0" max="32767" attributes="1"/>
-                          <Component id="channelNames" alignment="0" pref="153" max="32767" attributes="1"/>
-                      </Group>
+                      <Component id="method" min="-2" pref="150" max="-2" attributes="1"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="rebuildEnvelope" min="-2" pref="115" max="-2" attributes="0"/>
                   </Group>
@@ -76,6 +73,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="generateEnvelopeNoButton" min="-2" max="-2" attributes="0"/>
                   </Group>
+                  <Component id="channelNames" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>

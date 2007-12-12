@@ -1882,7 +1882,7 @@ public class ChannelSetup extends javax.swing.JPanel
             if (sourceConnectorClass.getName() != null && sourceConnectorClass.getName().equals((String) sourceSourceDropdown.getSelectedItem()))
                 return;
             
-            if (!PropertyVerifier.compareProps(sourceConnectorClass.getProperties(), sourceConnectorClass.getDefaults()) || currentChannel.getSourceConnector().getFilter().getRules().size() > 0 || currentChannel.getSourceConnector().getTransformer().getSteps().size() > 0)
+            if (!PropertyVerifier.compareProps(sourceConnectorClass.getProperties(), sourceConnectorClass.getDefaults()))
             {
                 boolean changeType = parent.alertOption("Are you sure you would like to change this connector type and lose all of the current connector data?");
                 if (!changeType)

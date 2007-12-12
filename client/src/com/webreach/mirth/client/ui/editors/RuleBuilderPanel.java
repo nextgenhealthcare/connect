@@ -471,7 +471,7 @@ public class RuleBuilderPanel extends BasePanel
 
         accept.setBackground(new java.awt.Color(255, 255, 255));
         buttonGroup2.add(accept);
-        accept.setText("Pass");
+        accept.setText("Accept");
         accept.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         accept.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
@@ -479,7 +479,7 @@ public class RuleBuilderPanel extends BasePanel
 
         reject.setBackground(new java.awt.Color(255, 255, 255));
         buttonGroup2.add(reject);
-        reject.setText("Fail");
+        reject.setText("Reject");
         reject.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         reject.setMargin(new java.awt.Insets(0, 0, 0, 0));
 

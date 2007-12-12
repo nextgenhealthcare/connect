@@ -56,7 +56,7 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="channelNames" min="-2" pref="150" max="-2" attributes="0"/>
+                          <Component id="channelNames" min="-2" pref="250" max="-2" attributes="0"/>
                           <Component id="charsetEncodingCombobox" min="-2" max="-2" attributes="0"/>
                           <Group type="102" attributes="0">
                               <Component id="usePersistentQueuesYesRadio" min="-2" max="-2" attributes="0"/>
