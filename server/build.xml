@@ -689,12 +689,12 @@
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.extensions}/graphical-filter-rule-${version}.zip">
+		<zip destfile="${dist.extensions}/rule-builder-filter-rule-${version}.zip">
 			<fileset dir="${plugins}">
-				<include name="graphical-filter-rule-client.jar" />
+				<include name="rule-builder-filter-rule-client.jar" />
 			</fileset>
 			<fileset dir="${dist.extensions}">
-				<include name="Graphical Filter Rule.xml" />
+				<include name="Rule Builder Filter Rule.xml" />
 			</fileset>
 		</zip>
 
