@@ -12,10 +12,8 @@ import org.dcm4che2.data.ElementDictionary;
 public class DICOMReference {
     private static DICOMReference instance = null;
     private ElementDictionary elementDictionary = null;
-    //private UIDDictionary uidDictionary = null;
     private DICOMReference(){
         elementDictionary = ElementDictionary.getDictionary();
-       // uidDictionary = UIDDictionary.getDictionary();
     }
     public String getDescription(String key, String version)
     {
@@ -24,8 +22,6 @@ public class DICOMReference {
                 return elementDictionary.nameOf(Integer.decode("0x"+key).intValue());
             }
             catch(NumberFormatException e){
-                //e.printStackTrace();
-                //System.out.println("problem getting tag (number format exception: " + key);
                 return "";
             }
         }
@@ -40,5 +36,4 @@ public class DICOMReference {
             return instance;
         }
     }
-
 }
