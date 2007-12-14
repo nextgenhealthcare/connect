@@ -450,9 +450,11 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		// Helper function to set attachment
 		newScript.append("function addAttachment(data, type) {");
 		newScript.append("var attachment = Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().createAttachment(data, type, messageObject);messageObject.setAttachment(true);");
-		newScript.append("Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().insertAttachment(attachment);}\n");
+		newScript.append("Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().insertAttachment(attachment);\n");
+        newScript.append("return attachment;\n");
+        newScript.append("}\n");
 		
-		// ast: Allow ending whitespaces from the input XML
+        // ast: Allow ending whitespaces from the input XML
 		newScript.append("XML.ignoreWhitespace=false;");
 		// ast: Allow ending whitespaces to the output XML
 		newScript.append("XML.prettyPrinting=false;");
