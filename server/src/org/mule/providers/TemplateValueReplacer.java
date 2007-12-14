@@ -122,6 +122,7 @@ public class TemplateValueReplacer {
 				context.put(channelKeys[i].toString(),channelMap.get(channelKeys[i]));
 			}
             context.put("DICOMMESSAGE", DICOMUtil.getDICOMRawData(messageObject));   
+            context.put("MESSAGEATTACH", DICOMUtil.reAttachMessage(messageObject));
         }
 		Map<String, Object> globalVariables = GlobalVariableStore.getInstance().getVariables();
 		for (Iterator iter = globalVariables.entrySet().iterator(); iter.hasNext();) {
