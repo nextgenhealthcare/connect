@@ -40,6 +40,7 @@ import com.webreach.mirth.client.ui.beans.X12Properties;
 import com.webreach.mirth.client.ui.editors.BoundPropertiesSheetDialog;
 import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.converters.DICOMSerializer;
 
 /**
  *
@@ -48,33 +49,33 @@ import com.webreach.mirth.model.MessageObject;
 public class TemplatePanel extends javax.swing.JPanel implements DropTargetListener
 {
     public final String DEFAULT_TEXT = "Paste a sample message here.";
-    
+
     private SyntaxDocument HL7Doc;
-    
+
     private TreePanel treePanel;
-    
+
     private String currentMessage = "";
-    
+
     private String data;
-    
+
     private Properties dataProperties;
-    
+
     private Timer timer;
-    
-    /** Creates new form MessageTreeTemplate */   
+
+    /** Creates new form MessageTreeTemplate */
     public TemplatePanel()
     {
         initComponents();
         openFileButton.setIcon(UIConstants.FILE_PICKER_ICON);
-        
+
         dataType.setModel(new javax.swing.DefaultComboBoxModel(PlatformUI.MIRTH_FRAME.protocols.values().toArray()));
-        
+
         HL7Doc = new SyntaxDocument();
         HL7Doc.setTokenMarker(new HL7TokenMarker());
         pasteBox.setDocument(HL7Doc);
         //  pasteBox.setPreferredSize(new Dimension(100,100));
         //  pasteBox.setFont(EditorConstants.DEFAULT_FONT);
-        
+
         // handles updating the tree
         pasteBox.getDocument().addDocumentListener(new DocumentListener()
         {
@@ -82,12 +83,12 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             {
                 updateText();
             }
-            
+
             public void insertUpdate(DocumentEvent e)
             {
                 updateText();
             }
-            
+
             public void removeUpdate(DocumentEvent e)
             {
                 updateText();
@@ -95,7 +96,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         });
         pasteBox.addMouseListener(new MouseListener()
         {
-            
+
             public void mouseClicked(MouseEvent e)
             {
                 // TODO Auto-generated method stub
@@ -107,25 +108,25 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                     }
                 }
             }
-            
+
             public void mouseEntered(MouseEvent e)
             {
                 // TODO Auto-generated method stub
-                
+
             }
-            
+
             public void mouseExited(MouseEvent e)
             {
                 // TODO Auto-generated method stub
-                
+
             }
-            
+
             public void mousePressed(MouseEvent e)
             {
                 // TODO Auto-generated method stub
-                
+
             }
-            
+
             public void mouseReleased(MouseEvent e)
             {
                 // TODO Auto-generated method stub
@@ -137,12 +138,12 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                     }
                 }
             }
-            
+
         });
-        
+
         new DropTarget(pasteBox, this);
     }
-    
+
     public void dragEnter(DropTargetDragEvent dtde)
     {
         try
@@ -150,9 +151,9 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             Transferable tr = dtde.getTransferable();
             if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
             {
-                
+
                 dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
-                
+
                 java.util.List fileList = (java.util.List) tr.getTransferData(DataFlavor.javaFileListFlavor);
                 Iterator iterator = fileList.iterator();
                 while (iterator.hasNext())
@@ -168,19 +169,19 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             dtde.rejectDrag();
         }
     }
-    
+
     public void dragOver(DropTargetDragEvent dtde)
     {
     }
-    
+
     public void dropActionChanged(DropTargetDragEvent dtde)
     {
     }
-    
+
     public void dragExit(DropTargetEvent dte)
     {
     }
-    
+
     public void drop(DropTargetDropEvent dtde)
     {
         try
@@ -188,17 +189,19 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             Transferable tr = dtde.getTransferable();
             if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor))
             {
-                
+
                 dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
-                
+
                 java.util.List fileList = (java.util.List) tr.getTransferData(DataFlavor.javaFileListFlavor);
-                
+
                 File file = (File)fileList.get(0);
-                
-                if (getProtocol().equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DICOM)))
-            		pasteBox.setText(file.getPath());
-            	else
-            		pasteBox.setText(FileUtil.readWithLineFeeds(file));
+
+                if (getProtocol().equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DICOM))) {
+                    //pasteBox.setText(file.getPath());
+                    pasteBox.setText(new DICOMSerializer().toXML(file));
+                }
+                else
+                    pasteBox.setText(FileUtil.readWithLineFeeds(file));
 
             }
         }
@@ -207,38 +210,38 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             dtde.rejectDrop();
         }
     }
-    
+
     public void setDataTypeEnabled(boolean enabled)
     {
         dataType.setEnabled(enabled);
     }
-    
+
     public void setTreePanel(TreePanel tree)
     {
         this.treePanel = tree;
     }
-    
+
     private void updateText()
     {
         class UpdateTimer extends TimerTask
         {
-            
+
             @Override
             public void run()
             {
-                
+
                 if (!currentMessage.equals(pasteBox.getText()))
                 {
                     PlatformUI.MIRTH_FRAME.setWorking("Parsing...", true);
-                    
+
                     String message = pasteBox.getText();
                     currentMessage = message;
                     treePanel.setMessage(dataProperties, (String) dataType.getSelectedItem(), message, DEFAULT_TEXT, dataProperties);
                     PlatformUI.MIRTH_FRAME.setWorking("", false);
-                    
+
                 }
             }
-            
+
         }
         if (timer == null)
         {
@@ -253,8 +256,8 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             timer.schedule(new UpdateTimer(), 1000);
         }
     }
-   
-    
+
+
     public String getMessage()
     {
         if (pasteBox.getText().equals(DEFAULT_TEXT))
@@ -262,7 +265,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         else
             return pasteBox.getText().replace('\n', '\r');
     }
-    
+
     public void setMessage(String msg)
     {
         if (msg != null)
@@ -271,21 +274,21 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         pasteBoxFocusLost(null);
         updateText();
     }
-    
+
     public void clearMessage()
     {
         treePanel.clearMessage();
         pasteBoxFocusLost(null);
         updateText();
     }
-    
+
     public void setProtocol(String protocol)
     {
         dataType.setSelectedItem(protocol);
-        
+
         setDocType(protocol);
     }
-    
+
     private void setDocType(String protocol)
     {
         if (protocol.equals("HL7 v2.x"))
@@ -306,17 +309,17 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         }
         pasteBox.setDocument(HL7Doc);
     }
-    
+
     public String getProtocol()
     {
         return (String) dataType.getSelectedItem();
     }
-    
+
     public Properties getDataProperties()
     {
         return dataProperties;
     }
-    
+
     public void setDataProperties(Properties p)
     {
         if (p != null)
@@ -424,7 +427,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
 
     private void openFileButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_openFileButtonActionPerformed
     {//GEN-HEADEREND:event_openFileButtonActionPerformed
-        
+
         JFileChooser fileChooser = new JFileChooser();
 
         File currentDir = new File(Preferences.systemNodeForPackage(Mirth.class).get("currentDirectory", ""));
@@ -436,25 +439,27 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
 
         if (returnVal == JFileChooser.APPROVE_OPTION)
         {
-        	Preferences.systemNodeForPackage(Mirth.class).put("currentDirectory", fileChooser.getCurrentDirectory().getPath());
+            Preferences.systemNodeForPackage(Mirth.class).put("currentDirectory", fileChooser.getCurrentDirectory().getPath());
             file = fileChooser.getSelectedFile();
 
             try
             {
-            	if (getProtocol().equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DICOM)))
-            		pasteBox.setText(file.getPath());
-            	else
-            		pasteBox.setText(FileUtil.read(file));
+                if (getProtocol().equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DICOM))){
+                    //pasteBox.setText(file.getPath());
+                    pasteBox.setText(new DICOMSerializer().toXML(file));
+                }
+                else
+                    pasteBox.setText(FileUtil.read(file));
             }
             catch (Exception e)
             {
-            	PlatformUI.MIRTH_FRAME.alertException(e.getStackTrace(),"Invalid template file. " + e.getMessage());
+                PlatformUI.MIRTH_FRAME.alertException(e.getStackTrace(),"Invalid template file. " + e.getMessage());
                 return;
-            }            
+            }
         }
-        
+
     }//GEN-LAST:event_openFileButtonActionPerformed
-    
+
     private void pasteBoxFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_pasteBoxFocusLost
     {//GEN-HEADEREND:event_pasteBoxFocusLost
         if (pasteBox.getText().length() == 0)
@@ -462,7 +467,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             pasteBox.setText(DEFAULT_TEXT);
         }
     }//GEN-LAST:event_pasteBoxFocusLost
-    
+
     private void pasteBoxFocusGained(java.awt.event.FocusEvent evt)//GEN-FIRST:event_pasteBoxFocusGained
     {//GEN-HEADEREND:event_pasteBoxFocusGained
         if (pasteBox.getText().equals(DEFAULT_TEXT))
@@ -470,7 +475,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             pasteBox.setText("");
         }
     }//GEN-LAST:event_pasteBoxFocusGained
-    
+
     private void propertiesActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_propertiesActionPerformed
     {//GEN-HEADEREND:event_propertiesActionPerformed
         PlatformUI.MIRTH_FRAME.enableSave();
@@ -485,7 +490,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             new BoundPropertiesSheetDialog(dataProperties, new NCPDPProperties());
         updateText();
     }//GEN-LAST:event_propertiesActionPerformed
-    
+
     private void dataTypeActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dataTypeActionPerformed
     {//GEN-HEADEREND:event_dataTypeActionPerformed
         PlatformUI.MIRTH_FRAME.enableSave();
@@ -501,8 +506,8 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         setDocType((String)dataType.getSelectedItem());
         updateText();
     }//GEN-LAST:event_dataTypeActionPerformed
-    
-    
+
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox dataType;
     private javax.swing.JLabel jLabel5;
@@ -510,5 +515,5 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea pasteBox;
     private javax.swing.JButton properties;
     // End of variables declaration//GEN-END:variables
-    
+
 }
