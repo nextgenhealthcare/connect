@@ -59,10 +59,17 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 
 	public String getName() {
 		String name = "Assign";
-		String target = ((String) ((Map<Object, Object>) panel.getData()).get("Variable"));// .replaceAll("\\.toString\\(\\)",
-		// "");
-		String mapping = ((String) ((Map<Object, Object>) panel.getData()).get("Mapping"));// .replaceAll("\\.toString\\(\\)",
-		// "");
+		String target = ((String) ((Map<Object, Object>) panel.getData()).get("Variable"));
+		String mapping = ((String) ((Map<Object, Object>) panel.getData()).get("Mapping"));
+		
+		// If there is no mapping, just use the target for the name.
+		if (mapping.equals(""))
+			return target;
+		
+		// Remove the indexes that are added for multiple segments with the same name.
+		target = target.replaceAll("\\[[^']\\]", "");
+		mapping = mapping.replaceAll("\\[[^']\\]", "");
+		
 		String targetVar = "";
 		String mappingVar = "";
 		String targetDescription = "";
@@ -103,7 +110,7 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 		}
 		if (mappingDescription.length() == 0){
 			String[] mappingParts = mapping.split("]\\[");
-			if (mappingParts.length == 0){
+			if (mappingParts.length == 1){
 				mappingDescription = ((String) ((Map<Object, Object>) panel.getData()).get("Mapping")).replaceAll("\\.toString\\(\\)","");
 			}else{
 				mappingDescription = mappingParts[mappingParts.length-1].replaceAll("_", " ");

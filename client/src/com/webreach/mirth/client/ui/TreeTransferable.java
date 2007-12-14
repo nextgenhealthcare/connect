@@ -27,6 +27,7 @@ package com.webreach.mirth.client.ui;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -171,16 +172,49 @@ public class TreeTransferable implements Transferable
         LinkedList<String> nodeQ = new LinkedList<String>();
         while (parent != null)
         {
-            nodeQ.add(parent.toString().replaceAll(" \\(.*\\)", ""));
+            nodeQ.add("'" + parent.toString().replaceAll(" \\(.*\\)", "") + "'");
+            TreeNode oldParent = parent;
             parent = parent.getParent();
+            
+            // The parent will be null now for the root node
+            if (parent != null)
+            {
+            	Enumeration children = parent.children();
+	            int indexCounter = 0;
+	            int foundIndex = -1;
+	            String nodeName = nodeQ.getLast();
+	            
+	            // Look through all of the children of the new parent to see if there
+	            // are multiple children with the same name.
+	            while (children.hasMoreElements())
+	            {
+	            	TreeNode child = (TreeNode)children.nextElement();
+	            	if (nodeName.equals("'" + child.toString().replaceAll(" \\(.*\\)", "") + "'"))
+	            	{
+	            		if (child != oldParent)
+	            		{
+	            			indexCounter++;
+	            		}
+	            		else
+	            		{
+	            			foundIndex = indexCounter;
+	            			indexCounter++;
+	            		}
+	            	}
+	            }
+	            
+	            // If there were multiple children, add the index to the nodeQ.
+	            if (indexCounter > 1)
+	            	nodeQ.add(nodeQ.size()-1, foundIndex + "");
+            }
         }
+        
         if (!nodeQ.isEmpty())
             nodeQ.removeLast();
-        // if (!nodeQ.isEmpty())
-        // nodeQ.removeLast();
+        
         while (!nodeQ.isEmpty())
         {
-            sb.append("['" + nodeQ.removeLast() + "']");
+            sb.append("[" + nodeQ.removeLast() + "]");
         }
    
         sb.append(suffix);
