@@ -107,7 +107,11 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 				mappingDescription = ((String) ((Map<Object, Object>) panel.getData()).get("Mapping")).replaceAll("\\.toString\\(\\)","");
 			}else{
 				mappingDescription = mappingParts[mappingParts.length-1].replaceAll("_", " ");
-				mappingDescription = mappingDescription.substring(0, 1).toUpperCase() + mappingDescription.substring(1);
+				if (mappingDescription.length() > 0){
+					mappingDescription = mappingDescription.substring(0, 1).toUpperCase() + mappingDescription.substring(1);
+				}else{
+					mappingDescription = "";
+				}
 			}
 			
 		}

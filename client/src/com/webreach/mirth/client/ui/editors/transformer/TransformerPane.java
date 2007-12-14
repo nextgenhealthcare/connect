@@ -826,10 +826,6 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 			step.setScript("");
 			step.setName(variable);
 
-			for (TransformerStepPlugin plugin : loadedPlugins.values()) {
-				plugin.clearData();
-			}
-
 			if (type.equals(MAPPER)) {
 				if (loadedPlugins.containsKey(MAPPER)) {
 					step.setType(MAPPER); // mapper type by default, inbound

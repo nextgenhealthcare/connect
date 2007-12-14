@@ -227,23 +227,50 @@ public class TreePanel extends javax.swing.JPanel
                     if (tp == null)
                         return;
 
-                    String variable = "variable";
+                    
+                	String variable = "variable";
                     StringBuilder sb = new StringBuilder();
                     sb.insert(0, _dropPrefix);
-                    if(tp.isLeaf()) // if not leaf, need to get the text on that node
-                        tp = tp.getParent();
-
+                    TreeNode parent = tp.getParent();
+                    String parentName = parent.toString();
                     Pattern pattern = Pattern.compile(" (\\(.*\\))");
-                    Matcher matcher = pattern.matcher(tp.toString());
+                    //if we're at a subnode (PID.5.1) then let's grab the parent's parent
+                    
+                    if (parent.getParent().getParent() != null && (parent.getParent().getParent().getParent() == null || parent.getParent().getParent().getParent().getParent() == null)){
+                    	TreeNode grandParent = parent.getParent();
+                    	if (grandParent != null){
+                    		 Matcher matcher = pattern.matcher(grandParent.toString());
+                             if (matcher.find())
+                             {
+                                 variable = matcher.group(1);
+                             }
+                             else
+                             {
+                                 variable = grandParent.toString().replaceAll(" \\(.*\\)", "");
+                             }
+                    	}
+                    }
+                    
+                    Matcher matcher = pattern.matcher(parentName);
                     if (matcher.find())
                     {
-                        variable = matcher.group(1);
+                    	if (!variable.equals("variable")){
+                    		variable += "_" + matcher.group(1);
+                    	}else{
+                    		variable = matcher.group(1);
+                    	}
                     }
                     else
                     {
-                        variable = tp.toString().replaceAll(" \\(.*\\)", "");
+                    	if (!variable.equals("variable")){
+                    		variable += "_" + parent.toString().replaceAll(" \\(.*\\)", "");
+                    	}else{
+                    		variable = parent.toString().replaceAll(" \\(.*\\)", "");
+                    	}
+                        
                     }
-
+                	
+             
                     MapperDropData data = new MapperDropData(variable, tree.constructPath(tp).toString());
                     PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addMapper(data.getVariable(), data.getMapping());
                 }
