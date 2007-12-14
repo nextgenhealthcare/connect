@@ -181,8 +181,8 @@ public class JavaScriptUtil {
 			// Helper function to set attachment
 			builtScript.append("function addAttachment(data, type) {");
 			builtScript.append("var attachment = Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().createAttachment(data, type, messageObject);");
-			builtScript.append("Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().insertAttachment(attachment);}\n");
-			
+			builtScript.append("Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().insertAttachment(attachment); \n");
+			builtScript.append("return attachment; }\n");
 		}
 		builtScript.append("function $g(key, value){");
 		builtScript.append("if (arguments.length == 1){return globalMap.get(key); }");
