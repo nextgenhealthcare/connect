@@ -157,8 +157,9 @@ public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 		
 		script.append("function addAttachment(data, type) {");
 		script.append("var attachment = Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().createAttachment(data, type);");
-		script.append("muleContext.getProperties().get('attachments').add(attachment);}\n");
-		script.append("function doPreprocess() {" + preprocessingScript + " }\n");
+		script.append("muleContext.getProperties().get('attachments').add(attachment); \n");
+		script.append("return attachment; }\n");
+        script.append("function doPreprocess() {" + preprocessingScript + " }\n");
 		script.append("doPreprocess()\n");
 		return script.toString();
 	}
