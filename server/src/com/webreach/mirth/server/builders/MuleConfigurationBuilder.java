@@ -42,10 +42,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.ConnectorMetaData;
-import com.webreach.mirth.model.Transformer;
+import com.webreach.mirth.model.*;
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
@@ -408,7 +405,11 @@ public class MuleConfigurationBuilder {
 				String templateId = UUIDGenerator.getUUID();
 
 				if (transformer.getOutboundTemplate().length() > 0) {
-					templateController.putTemplate(templateId, serializer.toXML(transformer.getOutboundTemplate()));
+                    if(transformer.getOutboundProtocol().equals(MessageObject.Protocol.DICOM)) {
+                        templateController.putTemplate(templateId, transformer.getOutboundTemplate());        
+                    }
+                    else 
+                        templateController.putTemplate(templateId, serializer.toXML(transformer.getOutboundTemplate()));
 				}
 
 				properties.put("templateId", templateId);
