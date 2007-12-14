@@ -59,7 +59,6 @@ import com.webreach.mirth.model.dicom.DICOMReference;
 public class DICOMSerializer implements IXMLSerializer<String> {
 	private Logger logger = Logger.getLogger(this.getClass());
     public boolean validationError = false;
-    //private boolean includeGroupLength = false;
     public String rawData;
     public ArrayList pixelData;
     
@@ -67,15 +66,6 @@ public class DICOMSerializer implements IXMLSerializer<String> {
         if (DICOMProperties == null) { 
 			return;
 		}
-//		if (DICOMProperties.get("includeGroupLength") != null) {
-//            String groupLength = convertNonPrintableCharacters((String) DICOMProperties.get("includeGroupLength"));
-//            if(groupLength.equals("false")){
-//                this.includeGroupLength = false;
-//            }
-//            else {
-//                this.includeGroupLength = true;
-//            }
-//        } 
     }
 
 	private String convertNonPrintableCharacters(String delimiter) {
@@ -112,8 +102,8 @@ public class DICOMSerializer implements IXMLSerializer<String> {
                     //System.out.println("tag (value): " + tagAttr.getNodeValue());
                     if(tagAttr != null) {
                         String tag = tagAttr.getNodeValue();
-                        String tagDesc = DICOMReference.getInstance().getDescription(tag,null);
-                        tagDesc = removeInvalidCharXML(tagDesc);
+                        String tagDesc = "tag"+tag; //DICOMReference.getInstance().getDescription(tag,null);
+                        //tagDesc = removeInvalidCharXML(tagDesc);
                         //System.out.println("tag: " + tagDesc);
                         try {
                             if(!tagDesc.equals("?"))  {
@@ -145,8 +135,8 @@ public class DICOMSerializer implements IXMLSerializer<String> {
                                 //System.out.println("tag (value): " + tagAttr.getNodeValue());
                                 if(tagAttr != null) {
                                     String tag = tagAttr.getNodeValue();
-                                    String tagDesc = DICOMReference.getInstance().getDescription(tag,null);
-                                    tagDesc = removeInvalidCharXML(tagDesc);
+                                    String tagDesc = "tag"+tag; //DICOMReference.getInstance().getDescription(tag,null);
+                                    //tagDesc = removeInvalidCharXML(tagDesc);
                                     //System.out.println("tag: " + tagDesc);
                                     try {
                                         if(!tagDesc.equals("?"))  {
@@ -185,20 +175,14 @@ public class DICOMSerializer implements IXMLSerializer<String> {
 	public String toXML(String source)   {        
         try {
             // 1. Decode source
-            byte[] temp = null;
             BASE64Decoder decoder = new BASE64Decoder();
-            temp = decoder.decodeBuffer(source);
-            // 2. put data into a temp file
-            String test = new String(temp);
+            byte[] binarySource = decoder.decodeBuffer(source);
 
-            DicomObject dcmObj = getDicomObjFromByteArray(temp);             
+            DicomObject dcmObj = getDicomObjFromByteArray(binarySource);             
             // read in header and pixel data
             readPixelData(dcmObj);
             readRawDataFromDicomObject(dcmObj);
-            String xmlData = convertToXML(temp);
-            // get Header data
-            rawData = fromXML(xmlData);
-
+            String xmlData = convertToXML(decoder.decodeBuffer(rawData));
             return xmlData;
         } catch (Exception e) {
             e.printStackTrace();
@@ -254,13 +238,14 @@ public class DICOMSerializer implements IXMLSerializer<String> {
                     if(node.getNodeName().equals("attr")){
                         Node tagAttr = node.getAttributes().getNamedItem("tag");
                         String tag = tagAttr.getNodeValue();
-                        String tagDesc = DICOMReference.getInstance().getDescription(tag,null);
-                        tagDesc = removeInvalidCharXML(tagDesc);
+                        String tagDesc = tag; //DICOMReference.getInstance().getDescription(tag,null);
+                        //tagDesc = removeInvalidCharXML(tagDesc);
                         try {
                             if(!tagDesc.equals("?")) 
-                                document.renameNode(node,null,tagDesc);  
+                                document.renameNode(node,null,"tag"+tagDesc);  
                         }
                         catch(DOMException e){
+                            //System.out.println("tagDesc: " + tagDesc);
                             e.printStackTrace();
                         }
                         if(node.getNodeName() != null && node.getNodeName().equals("PixelData")){
