@@ -73,8 +73,17 @@ public class DICOMUtil {
             Attachment attach = (Attachment) i.next();
             byte[] image = decoder.decodeBuffer(new String(attach.getData()));
             images.add(image);
+        }   
+        byte[] headerData;
+        if(message.getRawDataProtocol().equals(MessageObject.Protocol.DICOM)) {
+            headerData = decoder.decodeBuffer(message.getRawData());
         }
-        byte[] headerData = decoder.decodeBuffer(message.getRawData());
+        else if(message.getEncodedDataProtocol().equals(MessageObject.Protocol.DICOM)) {
+            headerData = decoder.decodeBuffer(message.getEncodedData());
+        }
+        else {
+            return "";
+        }
         if(images.size() <= 1){
             byte[] pixelData = (byte[]) images.get(0);
             String dicomString = DICOMSerializer.mergeHeaderPixelData(headerData,pixelData);
@@ -132,4 +141,22 @@ public class DICOMUtil {
         }
         return "";
     }    
+    
+    public static String reAttachMessage(MessageObject message){
+        String messageData = message.getEncodedData();
+        MessageObjectController mos = MessageObjectController.getInstance();
+        try {
+            List<Attachment> list  = mos.getAttachmentsByMessageId(message.getCorrelationId());
+            Iterator<Attachment> a = list.iterator();
+            while(a.hasNext()){
+                Attachment attachment = a.next();
+                messageData = messageData.replaceAll(attachment.getAttachmentId(),new String(attachment.getData()));
+            }
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        return messageData;
+    }
+    
 }
