@@ -417,8 +417,11 @@ public class TreePanel extends javax.swing.JPanel
                 String message;
                 if (protocol.equals(Protocol.DICOM))
                 {
+                    
                     DICOMSerializer dicomSerializer = new DICOMSerializer(protocolProperties);
-                    message = dicomSerializer.toXML(new File(source));
+                    //message = dicomSerializer.toXML(new File(source));
+                    //message = dicomSerializer.toXML(source);
+                    message = source;
                 }
                 else
                 {
@@ -603,7 +606,8 @@ public class TreePanel extends javax.swing.JPanel
             {
                 if (vocabulary instanceof DICOMVocabulary)
                 {
-                    currentNode = new MirthTreeNode(vocabulary.getDescription(el.getAttribute("tag").replaceAll(" ", "")) + " (" + description + ")");
+                    //currentNode = new MirthTreeNode(vocabulary.getDescription(el.getAttribute("tag").replaceAll(" ", "")) + " (" + description + ")");
+                    currentNode = new MirthTreeNode("tag"+el.getAttribute("tag") + " (" + description + ")");
                 }
                 else
                 {
