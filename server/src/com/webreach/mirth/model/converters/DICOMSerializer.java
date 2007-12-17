@@ -172,7 +172,7 @@ public class DICOMSerializer implements IXMLSerializer<String> {
         return new String();
     }
 
-	public String toXML(String source)   {        
+	public String toXML(String source) throws SerializerException  {        
         try {
             // 1. Decode source
             BASE64Decoder decoder = new BASE64Decoder();
@@ -185,9 +185,9 @@ public class DICOMSerializer implements IXMLSerializer<String> {
             String xmlData = convertToXML(decoder.decodeBuffer(rawData));
             return xmlData;
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new SerializerException(e.getMessage());
         }
-		return new String();
+		//return new String();
 	}
     public String toXML(File tempDCMFile) throws SerializerException {
         try {
@@ -195,9 +195,9 @@ public class DICOMSerializer implements IXMLSerializer<String> {
             BASE64Encoder encoder = new BASE64Encoder();
             return toXML(encoder.encode(getBytesFromFile(tempDCMFile)));
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new SerializerException(e.getMessage());
         }
-        return new String();
+        //return new String();
     }
     
     private Map<String, String> getMetadata(String sourceMessage) throws SerializerException {
@@ -226,7 +226,7 @@ public class DICOMSerializer implements IXMLSerializer<String> {
 	public Map<String, String> getMetadataFromXML(String xmlSource) throws SerializerException {
 		return getMetadata(xmlSource);
 	}
-    private String decodeTagNames(String input){
+    private String decodeTagNames(String input) throws SerializerException {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             Document document;
             try {
@@ -256,12 +256,12 @@ public class DICOMSerializer implements IXMLSerializer<String> {
                 return new DocumentSerializer().toXML(document);
             }
             catch(Exception e){
-                e.printStackTrace();
+                throw new SerializerException(e.getMessage());
             }
-        return new String();
+        //return new String();
     }
 
-    private String convertToXML(byte[] temp){
+    private String convertToXML(byte[] temp) throws SerializerException {
       
         StringWriter xmlOutput = new StringWriter();
         BasicDicomObject dicomObject = new BasicDicomObject();
@@ -278,14 +278,14 @@ public class DICOMSerializer implements IXMLSerializer<String> {
                 dis.readDicomObject(dicomObject, -1);
             }
             catch(Exception e){
-                e.printStackTrace();
+                throw new SerializerException(e.getMessage());
             }
             finally {
                 dis.close();
             }
         }
         catch(Exception e){
-            e.printStackTrace();
+            throw new SerializerException(e.getMessage());
         }
         //return xmlOutput.toString();
         return decodeTagNames(xmlOutput.toString());
@@ -355,12 +355,12 @@ public class DICOMSerializer implements IXMLSerializer<String> {
 
     }
     
-    public void readRawDataFromDicomObject(DicomObject dcmObj) {
+    public void readRawDataFromDicomObject(DicomObject dcmObj) throws SerializerException {
         BASE64Encoder encoder = new BASE64Encoder();
         rawData = encoder.encode(readDicomObj(dcmObj));
     }
     
-    public static byte[] readDicomObj(DicomObject dcmObj){
+    public static byte[] readDicomObj(DicomObject dcmObj) throws SerializerException {
         BasicDicomObject bDcmObj = (BasicDicomObject) dcmObj;
         DicomOutputStream dos = null;
         try {
@@ -378,8 +378,7 @@ public class DICOMSerializer implements IXMLSerializer<String> {
             return bos.toByteArray();
         }
         catch (IOException e) {
-            e.printStackTrace();
-            return "".getBytes();
+            throw new SerializerException(e.getMessage());
         }
         finally {
             try {
@@ -391,7 +390,7 @@ public class DICOMSerializer implements IXMLSerializer<String> {
     }
     
     
-    public static String mergeHeaderPixelData(byte[] header, byte[] pixelData){
+    public static String mergeHeaderPixelData(byte[] header, byte[] pixelData) throws SerializerException {
         
         // 1. read in header
         DicomObject dcmObj = getDicomObjFromByteArray(header);
@@ -404,7 +403,7 @@ public class DICOMSerializer implements IXMLSerializer<String> {
         BASE64Encoder encoder = new BASE64Encoder();
         return encoder.encode(temp);  
     }
-    public static String mergeHeaderPixelData(byte[] header, ArrayList images){
+    public static String mergeHeaderPixelData(byte[] header, ArrayList images) throws SerializerException {
         
         // 1. read in header
         DicomObject dcmObj = getDicomObjFromByteArray(header);
@@ -423,7 +422,7 @@ public class DICOMSerializer implements IXMLSerializer<String> {
         BASE64Encoder encoder = new BASE64Encoder();
         return encoder.encode(temp);  
     }    
-    public static DicomObject getDicomObjFromByteArray(byte[] dicomByteArray){
+    public static DicomObject getDicomObjFromByteArray(byte[] dicomByteArray) throws SerializerException {
         // 1. read in header
         DicomObject dcmObj = new BasicDicomObject();
         DicomInputStream din = null;
@@ -432,8 +431,7 @@ public class DICOMSerializer implements IXMLSerializer<String> {
             din.readDicomObject(dcmObj, -1);
         }
         catch (IOException e) {
-            e.printStackTrace();
-            return dcmObj;
+            throw new SerializerException(e.getMessage());
         }
         finally {
             try {
