@@ -93,6 +93,12 @@ public class LLPSender extends ConnectorClass
             properties.put(LLPSenderProperties.LLP_USE_PERSISTENT_QUEUES, UIConstants.NO_OPTION);
 
         properties.put(LLPSenderProperties.LLP_ACK_TIMEOUT, ackTimeoutField.getText());
+        
+        if (processHL7AckYesRadio.isSelected())
+            properties.put(LLPSenderProperties.LLP_HL7_ACK_RESPONSE, UIConstants.YES_OPTION);
+        else
+            properties.put(LLPSenderProperties.LLP_HL7_ACK_RESPONSE, UIConstants.NO_OPTION);
+        
         properties.put(LLPSenderProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
         properties.put(LLPSenderProperties.LLP_TEMPLATE, template.getText());
         properties.put(LLPSenderProperties.CHANNEL_ID, channelList.get((String) channelNames.getSelectedItem()));
@@ -140,6 +146,11 @@ public class LLPSender extends ConnectorClass
         ignoreACKCheckBoxActionPerformed(null);
         
         ackTimeoutField.setText((String) props.get(LLPSenderProperties.LLP_ACK_TIMEOUT));
+
+        if (((String) props.get(LLPSenderProperties.LLP_HL7_ACK_RESPONSE)).equals(UIConstants.YES_OPTION))
+            processHL7AckYesRadio.setSelected(true);
+        else
+            processHL7AckNoRadio.setSelected(true);
         
         template.setText((String) props.get(LLPSenderProperties.LLP_TEMPLATE));
         parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(LLPSenderProperties.CONNECTOR_CHARSET_ENCODING));
@@ -287,6 +298,7 @@ public class LLPSender extends ConnectorClass
         keepConnectionOpenGroup = new javax.swing.ButtonGroup();
         buttonGroup1 = new javax.swing.ButtonGroup();
         usePersistenceQueuesGroup = new javax.swing.ButtonGroup();
+        processHL7AckGroup = new javax.swing.ButtonGroup();
         jLabel13 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
@@ -325,6 +337,9 @@ public class LLPSender extends ConnectorClass
         reconnectInterval = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel1 = new javax.swing.JLabel();
         ignoreACKCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
+        jLabel2 = new javax.swing.JLabel();
+        processHL7AckYesRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        processHL7AckNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -424,6 +439,20 @@ public class LLPSender extends ConnectorClass
             }
         });
 
+        jLabel2.setText("Process HL7 ACK:");
+
+        processHL7AckYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        processHL7AckYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        processHL7AckGroup.add(processHL7AckYesRadio);
+        processHL7AckYesRadio.setText("Yes");
+        processHL7AckYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        processHL7AckNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        processHL7AckNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        processHL7AckGroup.add(processHL7AckNoRadio);
+        processHL7AckNoRadio.setText("No");
+        processHL7AckNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -431,6 +460,7 @@ public class LLPSender extends ConnectorClass
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel2)
                     .add(jLabel18)
                     .add(jLabel17)
                     .add(jLabel16)
@@ -461,7 +491,11 @@ public class LLPSender extends ConnectorClass
                             .add(layout.createSequentialGroup()
                                 .add(ackTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(ignoreACKCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                                .add(ignoreACKCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(layout.createSequentialGroup()
+                                .add(processHL7AckYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(processHL7AckNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
                     .add(layout.createSequentialGroup()
                         .add(startOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -551,6 +585,11 @@ public class LLPSender extends ConnectorClass
                     .add(ignoreACKCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel2)
+                    .add(processHL7AckYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(processHL7AckNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel20)
                     .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -560,7 +599,7 @@ public class LLPSender extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel7)
-                    .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 79, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -607,6 +646,7 @@ public class LLPSender extends ConnectorClass
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel36;
     private javax.swing.JLabel jLabel37;
@@ -616,6 +656,9 @@ public class LLPSender extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenNoRadio;
     private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenYesRadio;
     private com.webreach.mirth.client.ui.components.MirthTextField maximumRetryCountField;
+    private javax.swing.ButtonGroup processHL7AckGroup;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton processHL7AckNoRadio;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton processHL7AckYesRadio;
     private com.webreach.mirth.client.ui.components.MirthTextField reconnectInterval;
     private com.webreach.mirth.client.ui.components.MirthTextField recordSeparatorField;
     private com.webreach.mirth.client.ui.components.MirthTextField segmentEnd;
