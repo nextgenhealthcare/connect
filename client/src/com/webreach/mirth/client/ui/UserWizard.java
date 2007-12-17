@@ -433,7 +433,7 @@ public class UserWizard extends javax.swing.JDialog
      */
     public boolean checkIfAbleToFinish()
     {
-        if (String.valueOf(password1.getPassword()).equals("") || String.valueOf(password2.getPassword()).trim().equals("") || username.getText().trim().equals("") || email.getText().trim().equals(""))
+        if (String.valueOf(password1.getPassword()).equals("") || String.valueOf(password2.getPassword()).trim().equals("") || username.getText().trim().equals(""))
             finishButton.setEnabled(false);
         else
         {
