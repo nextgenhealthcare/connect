@@ -3,6 +3,7 @@ package com.webreach.mirth.server.util;
 import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.DICOMSerializer;
+import com.webreach.mirth.model.converters.SerializerException;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import ij.plugin.DICOM;
 import sun.misc.BASE64Decoder;
@@ -64,7 +65,7 @@ public class DICOMUtil {
         return message.getRawData().getBytes();
     }
     
-    public static String mergeHeaderAttachments(MessageObject message, List attachments) throws IOException{
+    public static String mergeHeaderAttachments(MessageObject message, List attachments) throws IOException, SerializerException {
         ArrayList images = new ArrayList();
         BASE64Decoder decoder = new BASE64Decoder();
         BASE64Encoder encoder = new BASE64Encoder();
@@ -94,7 +95,7 @@ public class DICOMUtil {
             return dicomString;
         }
     }
-    public static List<Attachment> getMessageAttachments(MessageObject message){
+    public static List<Attachment> getMessageAttachments(MessageObject message) throws SerializerException {
         if(message.isAttachment()){
             MessageObjectController mos = MessageObjectController.getInstance();
             try {
@@ -106,7 +107,7 @@ public class DICOMUtil {
                 return attachments;
             }
             catch (Exception e){
-                e.printStackTrace();
+                throw new SerializerException(e.getMessage());
             }
         }
         return null;
