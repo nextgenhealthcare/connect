@@ -50,6 +50,7 @@ public class LLPSenderProperties implements ComponentProperties
     public static final String LLP_TEMPLATE = "template";
     public static final String LLP_USE_PERSISTENT_QUEUES = "usePersistentQueues";
     public static final String LLP_ACK_TIMEOUT = "ackTimeout";
+    public static final String LLP_HL7_ACK_RESPONSE = "hl7AckResponse";
     public static final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
     public static final String CHANNEL_ID = "replyChannelId";
     public static final String CHANNEL_NAME = "channelName";
@@ -73,6 +74,7 @@ public class LLPSenderProperties implements ComponentProperties
         properties.put(LLP_SEGMENT_END, "0x0D");
         properties.put(LLP_USE_PERSISTENT_QUEUES, "0");
         properties.put(LLP_ACK_TIMEOUT, "5000");
+        properties.put(LLP_HL7_ACK_RESPONSE, "1");
         properties.put(CONNECTOR_CHARSET_ENCODING, "DEFAULT_ENCODING");
         properties.put(LLP_TEMPLATE, "${message.encodedData}");
         properties.put(CHANNEL_ID, "sink");
