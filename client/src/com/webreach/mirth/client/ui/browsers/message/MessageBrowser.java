@@ -1087,7 +1087,7 @@ public class MessageBrowser extends javax.swing.JPanel
                 
                 updateMappingsTable(tableData, false);
                 
-                if(attachmentTable == null || attachmentTable.getSelectedRow() == -1){
+                if(attachmentTable == null || attachmentTable.getSelectedRow() == -1 || descriptionTabbedPane.indexOfTab("Attachments") == -1){
                     parent.setVisibleTasks(parent.messageTasks,parent.messagePopupMenu, 9,9,false);
                 }                
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
