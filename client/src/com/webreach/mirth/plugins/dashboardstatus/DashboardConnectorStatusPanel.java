@@ -66,6 +66,7 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
         channelStates.put(NO_CHANNEL_SELECTED, RESUMED);
 
         initComponents();
+        initLayouts();
         
         clearLog.setIcon(UIConstants.CLEAR_LOG_ICON);
         clearLog.setToolTipText("Clear Displayed Log");
@@ -79,6 +80,50 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
         userPreferences = Preferences.systemNodeForPackage(Mirth.class);
         currentDashboardLogSize = userPreferences.getInt("dashboardLogSize", 250);
         logSizeTextField.setText(currentDashboardLogSize + "");
+
+    }
+
+    /*
+        This method overwrites the setting layout part in initComponent generated code by NetBeans, because NetBeans wouldn't support the vertical alignment well enough.
+     */
+    public void initLayouts() {
+
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .add(2, 2, 2)
+                .add(pauseResume, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(2, 2, 2)
+                .add(clearLog, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 336, Short.MAX_VALUE)
+                .add(logSizeText)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(logSizeTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 45, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(2, 2, 2)
+                .add(logSizeChange, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(2, 2, 2))
+            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
+        );
+
+        layout.linkSize(new java.awt.Component[] {clearLog, logSizeChange, pauseResume}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
+        layout.setVerticalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 345, Short.MAX_VALUE)
+                .add(2, 2, 2)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.CENTER)
+                    .add(pauseResume, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(clearLog, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(logSizeChange, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(logSizeTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(logSizeText))
+                .add(2, 2, 2))
+        );
+
+        layout.linkSize(new java.awt.Component[] {clearLog, logSizeChange, pauseResume}, org.jdesktop.layout.GroupLayout.VERTICAL);
 
     }
 
@@ -314,7 +359,6 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
         logSizeText = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         logTable = null;
-        invisibleLabel = new javax.swing.JLabel();
 
         logSizeChange.setBorderPainted(false);
         logSizeChange.setContentAreaFilled(false);
@@ -385,11 +429,6 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
 
         jScrollPane1.setViewportView(logTable);
 
-        invisibleLabel.setMaximumSize(new java.awt.Dimension(28, 28));
-        invisibleLabel.setMinimumSize(new java.awt.Dimension(28, 28));
-        invisibleLabel.setPreferredSize(new java.awt.Dimension(28, 28));
-        invisibleLabel.setRequestFocusEnabled(false);
-
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -399,9 +438,7 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
                 .add(pauseResume, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .add(2, 2, 2)
                 .add(clearLog, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(invisibleLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 304, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 336, Short.MAX_VALUE)
                 .add(logSizeText)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(logSizeTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 45, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -410,19 +447,25 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
                 .add(2, 2, 2))
             .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
         );
+
+        layout.linkSize(new java.awt.Component[] {clearLog, logSizeChange, pauseResume}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 337, Short.MAX_VALUE)
-                .add(0, 0, 0)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 345, Short.MAX_VALUE)
+                .add(2, 2, 2)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.CENTER)
                     .add(pauseResume, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(clearLog, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(logSizeChange, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(logSizeTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(logSizeText)
-                    .add(invisibleLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                    .add(logSizeText))
+                .add(2, 2, 2))
         );
+
+        layout.linkSize(new java.awt.Component[] {clearLog, logSizeChange, pauseResume}, org.jdesktop.layout.GroupLayout.VERTICAL);
+
     }// </editor-fold>//GEN-END:initComponents
 
     private void pauseResumeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pauseResumeActionPerformed
@@ -495,7 +538,6 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton clearLog;
-    private javax.swing.JLabel invisibleLabel;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton logSizeChange;
     private javax.swing.JLabel logSizeText;
