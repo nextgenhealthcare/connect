@@ -60,23 +60,26 @@ public class DICOMSerializer implements IXMLSerializer<String> {
 	private Logger logger = Logger.getLogger(this.getClass());
     public boolean validationError = false;
     public String rawData;
-    public ArrayList pixelData;
-    
+    private ArrayList<String> pixelData;
+
     public DICOMSerializer(Map DICOMProperties){
         if (DICOMProperties == null) { 
-			return;
 		}
     }
 
-	private String convertNonPrintableCharacters(String delimiter) {
+	private static String convertNonPrintableCharacters(String delimiter) {
 		return delimiter.replaceAll("\\\\r", "\r").replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t");
 	}
 
 	public DICOMSerializer() {
 	}
 
-	public String fromXML(String source) throws SerializerException {
-        if(source == null || source.equals("")){
+    public ArrayList<String> getPixelData() {
+        return pixelData;
+    }
+    
+    public String fromXML(String source) throws SerializerException {
+        if(source == null || source.length()==0){
             return "";
         }
         try {
@@ -169,7 +172,7 @@ public class DICOMSerializer implements IXMLSerializer<String> {
             e.printStackTrace();
             throw new SerializerException(e.getMessage());
 		}
-        return new String();
+        return "";
     }
 
 	public String toXML(String source) throws SerializerException  {        
@@ -187,7 +190,6 @@ public class DICOMSerializer implements IXMLSerializer<String> {
         } catch (Exception e) {
             throw new SerializerException(e.getMessage());
         }
-		//return new String();
 	}
     public String toXML(File tempDCMFile) throws SerializerException {
         try {
@@ -197,7 +199,6 @@ public class DICOMSerializer implements IXMLSerializer<String> {
         } catch (Exception e) {
             throw new SerializerException(e.getMessage());
         }
-        //return new String();
     }
     
     private Map<String, String> getMetadata(String sourceMessage) throws SerializerException {
@@ -226,7 +227,7 @@ public class DICOMSerializer implements IXMLSerializer<String> {
 	public Map<String, String> getMetadataFromXML(String xmlSource) throws SerializerException {
 		return getMetadata(xmlSource);
 	}
-    private String decodeTagNames(String input) throws SerializerException {
+    private static String decodeTagNames(String input) throws SerializerException {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             Document document;
             try {
@@ -258,10 +259,9 @@ public class DICOMSerializer implements IXMLSerializer<String> {
             catch(Exception e){
                 throw new SerializerException(e.getMessage());
             }
-        //return new String();
     }
 
-    private String convertToXML(byte[] temp) throws SerializerException {
+    private static String convertToXML(byte[] temp) throws SerializerException {
       
         StringWriter xmlOutput = new StringWriter();
         BasicDicomObject dicomObject = new BasicDicomObject();
@@ -290,7 +290,7 @@ public class DICOMSerializer implements IXMLSerializer<String> {
         //return xmlOutput.toString();
         return decodeTagNames(xmlOutput.toString());
     }
-    public String removeInvalidCharXML(String tag){
+    public static String removeInvalidCharXML(String tag){
         tag = tag.replaceAll(" ", "");
         tag = tag.replaceAll("'", "");
         tag = tag.replaceAll("\\(","");
@@ -382,7 +382,8 @@ public class DICOMSerializer implements IXMLSerializer<String> {
         }
         finally {
             try {
-                dos.close();
+                if(dos != null)
+                    dos.close();
             }
             catch (IOException ignore) {
             }
@@ -403,16 +404,16 @@ public class DICOMSerializer implements IXMLSerializer<String> {
         BASE64Encoder encoder = new BASE64Encoder();
         return encoder.encode(temp);  
     }
-    public static String mergeHeaderPixelData(byte[] header, ArrayList images) throws SerializerException {
+    public static String mergeHeaderPixelData(byte[] header, ArrayList<byte[]> images) throws SerializerException {
         
         // 1. read in header
         DicomObject dcmObj = getDicomObjFromByteArray(header);
         // 2. Add pixel data to DicomObject
         if(images != null && !images.isEmpty()){
             DicomElement dicomElement = dcmObj.putFragments(Tag.PixelData, null, dcmObj.bigEndian(), images.size());
-            Iterator i = images.iterator();
+            Iterator<byte[]> i = images.iterator();
             while(i.hasNext()){
-                byte[] image = (byte[]) i.next();
+                byte[] image = i.next();
                 dicomElement.addFragment(image);
             }
             dcmObj.add(dicomElement);
@@ -435,7 +436,8 @@ public class DICOMSerializer implements IXMLSerializer<String> {
         }
         finally {
             try {
-                din.close();
+                if(din != null)
+                    din.close();
             }
             catch (IOException ignore) {
             }
