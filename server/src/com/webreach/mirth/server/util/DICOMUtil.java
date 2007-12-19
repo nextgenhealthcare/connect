@@ -30,7 +30,6 @@ public class DICOMUtil {
     public static String getDICOMRawData(MessageObject message) {
         if(message.isAttachment()){
             MessageObjectController mos = MessageObjectController.getInstance();
-            ArrayList images = new ArrayList();
             try {
                 List<Attachment> attachments = null;
                 if(message.getCorrelationId() != null)
@@ -65,13 +64,13 @@ public class DICOMUtil {
         return message.getRawData().getBytes();
     }
     
-    public static String mergeHeaderAttachments(MessageObject message, List attachments) throws IOException, SerializerException {
-        ArrayList images = new ArrayList();
+    public static String mergeHeaderAttachments(MessageObject message, List<Attachment> attachments) throws IOException, SerializerException {
+        ArrayList<byte[]> images = new ArrayList();
         BASE64Decoder decoder = new BASE64Decoder();
         BASE64Encoder encoder = new BASE64Encoder();
-        Iterator i = attachments.iterator();
+        Iterator<Attachment> i = attachments.iterator();
         while(i.hasNext()){
-            Attachment attach = (Attachment) i.next();
+            Attachment attach = i.next();
             byte[] image = decoder.decodeBuffer(new String(attach.getData()));
             images.add(image);
         }   
