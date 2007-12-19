@@ -38,16 +38,16 @@ public class DICOMAdaptor extends Adaptor {
                 messageObject.setRawData("");
             // Create attachment
             MessageObjectController moc = MessageObjectController.getInstance();
-            if(dSerializer.pixelData != null && !dSerializer.pixelData.isEmpty()) {
-                Iterator i = dSerializer.pixelData.iterator();
+            if(dSerializer.getPixelData() != null && !dSerializer.getPixelData().isEmpty()) {
+                Iterator<String> i = dSerializer.getPixelData().iterator();
+                Attachment attachment = new Attachment();
+                attachment.setType("DICOM");
+                attachment.setMessageId(messageObject.getId());
                 while(i.hasNext()){
-                    String image = (String) i.next();
-                    Attachment attachment = new Attachment();
+                    String image = i.next();
                     attachment.setAttachmentId(UUIDGenerator.getUUID());
-                    attachment.setMessageId(messageObject.getId());
                     attachment.setData(image.getBytes());
                     attachment.setSize(image.length());
-                    attachment.setType("DICOM");
                     moc.insertAttachment(attachment);
                 }
                 messageObject.setAttachment(true);
