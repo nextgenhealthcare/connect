@@ -28,6 +28,7 @@ import java.util.List;
  */
 public class DICOMUtil {
     public static String getDICOMRawData(MessageObject message) {
+        String mergedMessage;
         if(message.isAttachment()){
             MessageObjectController mos = MessageObjectController.getInstance();
             try {
@@ -37,20 +38,21 @@ public class DICOMUtil {
                 else
                     attachments = mos.getAttachmentsByMessageId(message.getId());
                 if(attachments.get(0).getType().equals("DICOM")){
-                    return mergeHeaderAttachments(message, attachments);
+                    mergedMessage = mergeHeaderAttachments(message, attachments);
                 }
                 else {
-                    return message.getRawData();
+                    mergedMessage = message.getRawData();
                 }
             }
             catch (Exception e){
                 e.printStackTrace();
-                return message.getRawData();
+                mergedMessage = message.getRawData();
             }
         }
         else {
-            return message.getRawData();
+            mergedMessage = message.getRawData();
         }
+        return mergedMessage;
     }
     
     public static byte[] getDICOMMessage(MessageObject message){
@@ -68,9 +70,7 @@ public class DICOMUtil {
         ArrayList<byte[]> images = new ArrayList();
         BASE64Decoder decoder = new BASE64Decoder();
         BASE64Encoder encoder = new BASE64Encoder();
-        Iterator<Attachment> i = attachments.iterator();
-        while(i.hasNext()){
-            Attachment attach = i.next();
+        for(Attachment attach : attachments){
             byte[] image = decoder.decodeBuffer(new String(attach.getData()));
             images.add(image);
         }   
@@ -84,32 +84,24 @@ public class DICOMUtil {
         else {
             return "";
         }
-        if(images.size() <= 1){
-            byte[] pixelData = (byte[]) images.get(0);
-            String dicomString = DICOMSerializer.mergeHeaderPixelData(headerData,pixelData);
-            return dicomString;
-        }
-        else {
-            String dicomString = DICOMSerializer.mergeHeaderPixelData(headerData,images);
-            return dicomString;
-        }
+        return DICOMSerializer.mergeHeaderPixelData(headerData,images);
+
     }
     public static List<Attachment> getMessageAttachments(MessageObject message) throws SerializerException {
+        List<Attachment> attachments = null;
         if(message.isAttachment()){
             MessageObjectController mos = MessageObjectController.getInstance();
             try {
-                List<Attachment> attachments = null;
                 if(message.getCorrelationId() != null)
                     attachments = mos.getAttachmentsByMessageId(message.getCorrelationId());
                 else
                     attachments = mos.getAttachmentsByMessageId(message.getId());
-                return attachments;
             }
             catch (Exception e){
                 throw new SerializerException(e.getMessage());
             }
         }
-        return null;
+        return attachments;
     }
     
     public static String convertDICOM(String imageType,MessageObject message){
@@ -147,9 +139,7 @@ public class DICOMUtil {
         MessageObjectController mos = MessageObjectController.getInstance();
         try {
             List<Attachment> list  = mos.getAttachmentsByMessageId(message.getCorrelationId());
-            Iterator<Attachment> a = list.iterator();
-            while(a.hasNext()){
-                Attachment attachment = a.next();
+            for(Attachment attachment : list){
                 messageData = messageData.replaceAll(attachment.getAttachmentId(),new String(attachment.getData()));
             }
         }
