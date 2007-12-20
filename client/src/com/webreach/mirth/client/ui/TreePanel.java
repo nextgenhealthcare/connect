@@ -396,10 +396,6 @@ public class TreePanel extends javax.swing.JPanel
                 String message;
                 if (protocol.equals(Protocol.DICOM))
                 {
-                    
-                    DICOMSerializer dicomSerializer = new DICOMSerializer(protocolProperties);
-                    //message = dicomSerializer.toXML(new File(source));
-                    //message = dicomSerializer.toXML(source);
                     message = source;
                 }
                 else
@@ -575,6 +571,9 @@ public class TreePanel extends javax.swing.JPanel
             if (vocabulary instanceof DICOMVocabulary)
             {
                 description = vocabulary.getDescription(el.getAttribute("tag"));
+                if(description.equals("?")){
+                    description="";
+                }
             }
             else
             {
@@ -612,7 +611,7 @@ public class TreePanel extends javax.swing.JPanel
             else
             {
                 // Check if we are in the format SEG.1.1
-                if (protocol.equals(Protocol.HL7V3) || protocol.equals(Protocol.XML) || el.getNodeName().matches(".*\\..*\\.."))
+                if (protocol.equals(Protocol.HL7V3) || protocol.equals(Protocol.XML) || el.getNodeName().matches(".*\\..*\\..") || protocol.equals(Protocol.DICOM))
                 {
                     // We already at the last possible child segment, so just
                     // add empty node
