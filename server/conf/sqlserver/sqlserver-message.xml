@@ -80,16 +80,16 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
     <resultMap class="com.webreach.mirth.model.Attachment" id="get-attachment-result">
         <result property="attachmentId" column="ID" />
         <result property="messageId" column="MESSAGE_ID" />
-        <result property="data" column="DATA" />
-        <result property="size" column="SIZE" />
-        <result property="type" column="TYPE" />        
+        <result property="data" column="ATTACHMENT_DATA" />
+        <result property="size" column="ATTACHMENT_SIZE" />
+        <result property="type" column="ATTACHMENT_TYPE" />        
 	</resultMap>
 
     <resultMap class="com.webreach.mirth.model.Attachment" id="get-attachment-result2">
         <result property="attachmentId" column="ID" />
         <result property="messageId" column="MESSAGE_ID" />
-        <result property="size" column="SIZE" />
-        <result property="type" column="TYPE" />        
+        <result property="size" column="ATTACHMENT_SIZE" />
+        <result property="type" column="ATTACHMENT_TYPE" />        
     </resultMap>
 
 	<sql id="messageFilterCriteria">
@@ -142,19 +142,19 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	</select>
 	
     <select id="getAttachmentsByMessageId" parameterClass="java.lang.String" resultMap="get-attachment-result">
-        SELECT ID,MESSAGE_ID, DATA, SIZE, TYPE
+        SELECT ID,MESSAGE_ID, ATTACHMENT_DATA, ATTACHMENT_SIZE, ATTACHMENT_TYPE
         FROM ATTACHMENT
         WHERE MESSAGE_ID = #messageId#
     </select>
 
     <select id="getAttachmentIdsByMessageId" parameterClass="java.lang.String" resultMap="get-attachment-result2">
-        SELECT ID,MESSAGE_ID, SIZE, TYPE
+        SELECT ID,MESSAGE_ID, ATTACHMENT_SIZE, ATTACHMENT_TYPE
         FROM ATTACHMENT
         WHERE MESSAGE_ID = #messageId#
     </select> 
 
     <select id="getAttachment" parameterClass="java.lang.String" resultMap="get-attachment-result">
-        SELECT ID,MESSAGE_ID, DATA, SIZE, TYPE
+        SELECT ID,MESSAGE_ID, ATTACHMENT_DATA, ATTACHMENT_SIZE, ATTACHMENT_TYPE
         FROM ATTACHMENT
         WHERE ID = #attachmentId#
     </select>    
@@ -222,7 +222,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 
     <insert id="insertAttachment" parameterMap="insert-attachment-param">
         INSERT INTO
-        ATTACHMENT (ID, MESSAGE_ID, DATA, SIZE, TYPE)
+        ATTACHMENT (ID, MESSAGE_ID, ATTACHMENT_DATA, ATTACHMENT_SIZE, ATTACHMENT_TYPE)
         VALUES (?, ?, ?, ?, ?)
 	</insert>
 	
