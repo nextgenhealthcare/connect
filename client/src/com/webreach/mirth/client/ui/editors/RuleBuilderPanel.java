@@ -11,12 +11,10 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractCellEditor;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -30,12 +28,10 @@ import javax.swing.table.TableCellEditor;
 
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
-import org.syntax.jedit.SyntaxDocument;
 
 import com.webreach.mirth.client.ui.Mirth;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.client.ui.editors.filter.FilterPane;
 import com.webreach.mirth.plugins.filter.rule.rulebuilder.RuleBuilderPlugin;
 
 /**
@@ -70,7 +66,7 @@ public class RuleBuilderPanel extends BasePanel
             public void insertUpdate(DocumentEvent arg0)
             {
                 parent.modified = true;
-               rulePlugin.updateName();
+                rulePlugin.updateName();
             }
             
             public void removeUpdate(DocumentEvent arg0)
@@ -186,10 +182,10 @@ public class RuleBuilderPanel extends BasePanel
     {
         boolean modified = parent.modified;
         
+        // Must set the text last so that the text field change action is
+        // not called before the new button values are set.
         if (data != null)
-        {
-            fieldTextField.setText((String) data.get("Field"));
-            
+        {            
             if(((String)data.get("Equals")).equals(UIConstants.YES_OPTION))
             {
                 equalsActionPerformed(null);
@@ -221,15 +217,17 @@ public class RuleBuilderPanel extends BasePanel
                 accept.setSelected(true);
             else
                 reject.setSelected(true);
+            
+            fieldTextField.setText((String) data.get("Field"));
         }
         else
         {
-            fieldTextField.setText("");
             equals.setSelected(true);
             ArrayList<String> values = new ArrayList<String>();
             values.add("\"Example Value\"");
             setValues(values);
             accept.setSelected(true);
+            fieldTextField.setText("");
         }
         
         parent.modified = modified;

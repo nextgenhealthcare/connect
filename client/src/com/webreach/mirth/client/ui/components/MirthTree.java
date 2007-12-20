@@ -20,6 +20,8 @@ import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
 import java.util.Enumeration;
 import java.util.LinkedList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
@@ -257,13 +259,13 @@ public class MirthTree extends JXTree implements DropTargetListener
                 Object transferData = tr.getTransferData(TreeTransferable.MAPPER_DATA_FLAVOR);
                 MapperDropData data = (MapperDropData) transferData;
                 
-                parent.channelEditPanel.transformerPane.addMessageBuilder(constructPath(selectedNode).toString(), data.getMapping());
+                parent.channelEditPanel.transformerPane.addMessageBuilder(constructPath(selectedNode, prefix, suffix).toString(), data.getMapping());
             }
             else if (supportedDropFlavor == TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR)
             {
                 Object transferData = tr.getTransferData(TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR);
                 MessageBuilderDropData data = (MessageBuilderDropData) transferData;
-                parent.channelEditPanel.transformerPane.addMessageBuilder(data.getMessageSegment(), constructPath(selectedNode).toString());
+                parent.channelEditPanel.transformerPane.addMessageBuilder(data.getMessageSegment(), constructPath(selectedNode, prefix, suffix).toString());
             }
             else
             {
@@ -283,11 +285,66 @@ public class MirthTree extends JXTree implements DropTargetListener
         
     }
     
-    public StringBuilder constructPath(TreeNode parent)
+    /**
+     * Get the index of a node in relation to other nodes with the same name.
+     * Returns -1 if there isn't an index.
+     * 
+     * @param node
+     * @return
+     */
+    public static int getIndexOfNode(TreeNode node)
+    {
+    	String nodeName = node.toString();
+        TreeNode parent = node.getParent();
+        
+        // The parent will be null for the root node
+        if (parent != null)
+        {
+        	Enumeration children = parent.children();
+            int indexCounter = 0;
+            int foundIndex = -1;
+            
+            // Look through all of the children of the parent to see if there
+            // are multiple children with the same name.
+            while (children.hasMoreElements())
+            {
+            	TreeNode child = (TreeNode)children.nextElement();
+            	if (nodeName.equals(child.toString()))
+            	{
+            		if (child != node)
+            		{
+            			indexCounter++;
+            		}
+            		else
+            		{
+            			foundIndex = indexCounter;
+            			indexCounter++;
+            		}
+            	}
+            }
+            
+            // If there were multiple children, add the index to the nodeQ.
+            if (indexCounter > 1)
+            	return foundIndex;
+        }
+        
+        return -1;
+    }
+    
+    /**
+     * Construct a path for a specific node.
+     * 
+     * @param parent
+     * @param prefix
+     * @param suffix
+     * @return
+     */
+    public static StringBuilder constructPath(TreeNode parent, String prefix, String suffix)
     {
         StringBuilder sb = new StringBuilder();
         sb.insert(0, prefix);
         
+        // Get the parent if the leaf was actually passed in instead of the parent.
         if(parent.isLeaf())
             parent = parent.getParent();
                       
@@ -295,40 +352,12 @@ public class MirthTree extends JXTree implements DropTargetListener
         while (parent != null)
         {
             nodeQ.add("'" + parent.toString().replaceAll(" \\(.*\\)", "") + "'");
-            TreeNode oldParent = parent;
-            parent = parent.getParent();
             
-            // The parent will be null now for the root node
-            if (parent != null)
-            {
-            	Enumeration children = parent.children();
-	            int indexCounter = 0;
-	            int foundIndex = -1;
-	            String nodeName = nodeQ.getLast();
-	            
-	            // Look through all of the children of the new parent to see if there
-	            // are multiple children with the same name.
-	            while (children.hasMoreElements())
-	            {
-	            	TreeNode child = (TreeNode)children.nextElement();
-	            	if (nodeName.equals("'" + child.toString().replaceAll(" \\(.*\\)", "") + "'"))
-	            	{
-	            		if (child != oldParent)
-	            		{
-	            			indexCounter++;
-	            		}
-	            		else
-	            		{
-	            			foundIndex = indexCounter;
-	            			indexCounter++;
-	            		}
-	            	}
-	            }
-	            
-	            // If there were multiple children, add the index to the nodeQ.
-	            if (indexCounter > 1)
-	            	nodeQ.add(nodeQ.size()-1, foundIndex + "");
-            }
+            int parentIndexValue = getIndexOfNode(parent);
+            if (parentIndexValue != -1)
+            	nodeQ.add(nodeQ.size()-1, parentIndexValue + "");
+            
+            parent = parent.getParent();
         }
         
         if (!nodeQ.isEmpty())
@@ -342,5 +371,95 @@ public class MirthTree extends JXTree implements DropTargetListener
         sb.append(suffix);
         
         return sb;
+    }
+    
+    /**
+     * Construct a variable for a specfic node.
+     * 
+     * @param parent
+     * @return
+     */
+    public static String constructVariable(TreeNode parent)
+    {
+    	String variable = "";
+    	
+    	// Get the parent if the leaf was actually passed in instead of the parent.
+        if(parent.isLeaf())
+            parent = parent.getParent();
+    	
+    	// Stop the loop as soon as the parent or grandparent is null,
+    	// because we don't want to include the root node.
+    	while (parent != null && parent.getParent() != null)
+        {
+    		String parentName = parent.toString();
+            Pattern pattern = Pattern.compile(" (\\(.*\\))");
+            Matcher matcher = pattern.matcher(parentName.toString());
+            
+            // Get the index of the parent about to be added.
+            String parentIndex = "";
+            int parentIndexValue = MirthTree.getIndexOfNode(parent);
+            if (parentIndexValue != -1)
+            	parentIndex += parentIndexValue;
+            
+            // If something has already been added, then prepend it with an "_"
+            if (variable.length() != 0)
+            {
+            	variable = "_" + variable;
+            }
+            
+            // Add either the vocab (if there is one) or the name.
+            if (matcher.find())
+            {
+                variable = removeInvalidVariableCharacters(matcher.group(1)) + parentIndex + variable;
+            }
+            else
+            {
+                variable = removeInvalidVariableCharacters(parent.toString().replaceAll(" \\(.*\\)", "")) + parentIndex + variable;
+            }
+            
+            parent = parent.getParent();
+        }
+    	
+    	return variable;
+    }
+    
+    /**
+     * Remove invalid characters for variables and fix capitalization.
+     * 
+     * @param source
+     * @return
+     */
+    private static String removeInvalidVariableCharacters(String source)
+    {
+        source = source.toLowerCase();
+        source = source.replaceAll("\\/", " or ");
+        source = source.replaceAll(" - ", "_");
+        source = source.replaceAll("&", " and ");
+        source = source.replaceAll("\\'|\\’|\\(|\\)", "");
+        
+        while (source.indexOf(' ') != -1 || source.indexOf('.') != -1)
+        {
+        	int index = source.indexOf(' ');
+        	int index2 = source.indexOf('.');
+        	if (index2 != -1 && index2 < index)
+        		index = index2;
+        	source = source.replaceFirst(" |\\.", "");
+        	source = source.substring(0, index) + source.substring(index, index+1).toUpperCase() + source.substring(index+1);
+        }
+        
+//        if (source.equalsIgnoreCase("value"))
+//        	source = "";
+        
+        return source;
+    }
+    
+    public String getPrefix()
+    {
+    	return this.prefix;
+    }
+    
+    public String getSuffix()
+    {
+    	return this.suffix;
     }
 }

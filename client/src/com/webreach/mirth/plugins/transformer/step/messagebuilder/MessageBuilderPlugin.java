@@ -58,17 +58,8 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 	}
 
 	public String getName() {
-		String name = "Assign";
 		String target = ((String) ((Map<Object, Object>) panel.getData()).get("Variable"));
 		String mapping = ((String) ((Map<Object, Object>) panel.getData()).get("Mapping"));
-		
-		// If there is no mapping, just use the target for the name.
-		if (mapping.equals(""))
-			return target;
-		
-		// Remove the indexes that are added for multiple segments with the same name.
-		target = target.replaceAll("\\[[^']\\]", "");
-		mapping = mapping.replaceAll("\\[[^']\\]", "");
 		
 		String targetVar = "";
 		String mappingVar = "";
@@ -81,19 +72,13 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 			targetVar = "(in)";
 			target = target.substring(4);
 		}
-		target = target.replaceAll("'", "");
-		target = target.substring(0, target.length() - 1); // get rid of
-		// trailing "]"
-		String[] targetparts = target.split("]\\[");
-		targetDescription = getVocabDescription(targetparts);
-		if (targetDescription.length() == 0){
-			if (targetparts.length == 0){
-				targetDescription = ((String) ((Map<Object, Object>) panel.getData()).get("Variable")).replaceAll("\\.toString\\(\\)","");
-			}else{
-				targetDescription = targetparts[targetparts.length-1].replaceAll("_", " ");
-				targetDescription = targetDescription.substring(0, 1).toUpperCase() + targetDescription.substring(1);
-			}
-		}
+		
+		// Split up the segments and pass them to the vocab.
+		target = target.substring(0, target.length() - 1); // get rid of trailing "]"
+		String[] targetParts = target.split("]\\[");
+		targetDescription = getVocabDescription(targetParts);
+		
+		
 		if (mapping.startsWith("tmp[")) {
 			mappingVar = "(out)";
 			mapping = mapping.substring(4);
@@ -101,30 +86,19 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 			mappingVar = "(in)";
 			mapping = mapping.substring(4);
 		}
-		if (mapping != null && mapping.length() > 0 && mapping.indexOf("].toString()") > -1) {
-			mapping = mapping.substring(0, mapping.indexOf("].toString()")).replaceAll("'", "");
-			String[] mappingparts = mapping.split("]\\[");
-			mappingDescription = getVocabDescription(mappingparts);
-		} else {
-			mappingDescription = "";
-		}
-		if (mappingDescription.length() == 0){
-			String[] mappingParts = mapping.split("]\\[");
-			if (mappingParts.length == 1){
-				mappingDescription = ((String) ((Map<Object, Object>) panel.getData()).get("Mapping")).replaceAll("\\.toString\\(\\)","");
-			}else{
-				mappingDescription = mappingParts[mappingParts.length-1].replaceAll("_", " ");
-				if (mappingDescription.length() > 0){
-					mappingDescription = mappingDescription.substring(0, 1).toUpperCase() + mappingDescription.substring(1);
-				}else{
-					mappingDescription = "";
-				}
-			}
-			
-		}
-		//return name + " " + mappingVar + " " + mappingDescription + " to " + targetVar + " " + targetDescription;
-		return targetDescription + " " + targetVar + " <-- " + mappingDescription + " " + mappingVar; 
 		
+		// Split up the segments and pass them to the vocab.
+		// If there is no mapping, then just return the target description.
+		String[] mappingParts = null;
+		if (mapping.length() > 0) {
+			mapping = mapping.replaceAll("]\\.toString\\(\\)",""); // get rid of trailing ].toString()
+			mappingParts = mapping.split("]\\[");
+			mappingDescription = getVocabDescription(mappingParts);
+		} else {
+			return targetDescription + " " + targetVar;
+		}
+		
+		return targetDescription + " " + targetVar + " <-- " + mappingDescription + " " + mappingVar; 
 	}
 
 	@Override

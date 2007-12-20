@@ -817,7 +817,6 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         }
         catch (Exception e)
         {
-            // TODO Auto-generated catch block
             parent.alertException(e.getStackTrace(), e.getMessage());
         }
     }
@@ -851,7 +850,6 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         }
         catch (Exception e)
         {
-            // TODO Auto-generated catch block
             parent.alertException(e.getStackTrace(), e.getMessage());
         }
     }
@@ -898,11 +896,6 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         else
             rule.setOperator(Rule.Operator.AND); // AND operator by default
         // elsewhere
-        
-        for (FilterRulePlugin plugin : loadedPlugins.values())
-        {
-            plugin.clearData();
-        }
 
         if (loadedPlugins.containsKey(RULE_BUILDER))
         {

@@ -30,17 +30,4 @@ public class MessageBuilderDropData
     {
         this.messageSegment = messageSegment;
     }
-    
-    public String removeInvalidCharacters(String source)
-    {
-        source = source.toLowerCase();
-        source = source.replaceAll("\\/", "_or_");
-        source = source.replaceAll(" - ", "_");
-        source = source.replaceAll("&", "and");
-        source = source.replaceAll("\\'|\\’|\\.|\\(|\\)|\\[|\\]", "");
-        source = source.replaceAll(" ", "_");
-		source = source.replaceAll("_tostring", "");
-		source = source.replaceAll("_value", "");
-        return source;
-    }
 }

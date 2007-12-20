@@ -16,22 +16,18 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
-import java.io.File;
 import java.io.StringReader;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.TransferHandler;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.xml.parsers.DocumentBuilder;
@@ -227,51 +223,7 @@ public class TreePanel extends javax.swing.JPanel
                     if (tp == null)
                         return;
 
-                    
-                	String variable = "variable";
-                    StringBuilder sb = new StringBuilder();
-                    sb.insert(0, _dropPrefix);
-                    TreeNode parent = tp.getParent();
-                    String parentName = parent.toString();
-                    Pattern pattern = Pattern.compile(" (\\(.*\\))");
-                    //if we're at a subnode (PID.5.1) then let's grab the parent's parent
-                    
-                    if (parent.getParent().getParent() != null && (parent.getParent().getParent().getParent() == null || parent.getParent().getParent().getParent().getParent() == null)){
-                    	TreeNode grandParent = parent.getParent();
-                    	if (grandParent != null){
-                    		 Matcher matcher = pattern.matcher(grandParent.toString());
-                             if (matcher.find())
-                             {
-                                 variable = matcher.group(1);
-                             }
-                             else
-                             {
-                                 variable = grandParent.toString().replaceAll(" \\(.*\\)", "");
-                             }
-                    	}
-                    }
-                    
-                    Matcher matcher = pattern.matcher(parentName);
-                    if (matcher.find())
-                    {
-                    	if (!variable.equals("variable")){
-                    		variable += "_" + matcher.group(1);
-                    	}else{
-                    		variable = matcher.group(1);
-                    	}
-                    }
-                    else
-                    {
-                    	if (!variable.equals("variable")){
-                    		variable += "_" + parent.toString().replaceAll(" \\(.*\\)", "");
-                    	}else{
-                    		variable = parent.toString().replaceAll(" \\(.*\\)", "");
-                    	}
-                        
-                    }
-                	
-             
-                    MapperDropData data = new MapperDropData(variable, tree.constructPath(tp).toString());
+                	MapperDropData data = new MapperDropData(MirthTree.constructVariable(tp), MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString());
                     PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addMapper(data.getVariable(), data.getMapping());
                 }
             });
@@ -292,7 +244,7 @@ public class TreePanel extends javax.swing.JPanel
                     if (tp == null)
                         return;
                     
-                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addMessageBuilder(tree.constructPath(tp).toString(), "");
+                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addMessageBuilder(MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), "");
                 }
             });
             popupMenu.add(mapNode);
@@ -311,7 +263,7 @@ public class TreePanel extends javax.swing.JPanel
                 if (tp == null)
                     return;
                 
-                PlatformUI.MIRTH_FRAME.channelEditPanel.filterPane.addNewRule(tree.constructPath(tp).toString());
+                PlatformUI.MIRTH_FRAME.channelEditPanel.filterPane.addNewRule(MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString());
             }
         });
         popupMenu.add(ruleNode);

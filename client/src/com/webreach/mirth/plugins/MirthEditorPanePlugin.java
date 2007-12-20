@@ -49,46 +49,58 @@ public abstract class MirthEditorPanePlugin
 		return provideOwnStepName;
 	}
 	protected String getVocabDescription(String[] parts) {
+		
 		String mappingDescription = new String();
-		if (parts.length == 1) {
-			// segment
-			// PID
-			mappingDescription = Component.getSegmentDescription(parts[0]);
-		} else if (parts.length == 2) {
-			// segment + field
-			// PID, PID.5
-			String segmentDescription = Component.getSegmentDescription(parts[0]);
-			String fieldDescription = Component.getSegmentorCompositeFieldDescription(parts[1], false);
-			mappingDescription = segmentDescription + " " + fieldDescription;
-		} else if (parts.length == 3) {
-			// segment + field + composite
-			// PID,PID.5,PID.5.1 or PID,PID.5,XPN.1
-			// must check last element
-			mappingDescription = Component.getSegmentorCompositeFieldDescription(parts[1], false);
-			if (parts[2].split("\\.").length > 1) {
-				// PID.5.1 style
-				mappingDescription += " " + Component.getCompositeFieldDescriptionWithSegment(parts[2], false);
+		int currentSegment = 0;
+		
+		// For every part, check if it's an index.
+		// If not, get the correct vocab for the current segment.
+		for (int i = 0; i < parts.length; i++) {
+			
+			if (parts[i].indexOf("'") == -1) {
+				mappingDescription += " [" + parts[i] + "]";
 			} else {
-				// XPN.1 style
-				mappingDescription += " " + Component.getSegmentorCompositeFieldDescription(parts[2], false);
+				String part = parts[i].replaceAll("'", "");
+				String segmentDescription = "";
+				
+				if (currentSegment == 0) {
+					// segment
+					// PID
+					segmentDescription = Component.getSegmentDescription(part);
+				} else if (currentSegment == 1) {
+					// segment + field
+					// PID, PID.5
+					segmentDescription = Component.getSegmentorCompositeFieldDescription(part, false);
+				} else if (currentSegment == 2) {
+					// segment + field + composite
+					// PID,PID.5,PID.5.1 or PID,PID.5,XPN.1
+					// must check last element
+					if (part.split("\\.").length > 1) {
+						// PID.5.1 style
+						segmentDescription = Component.getCompositeFieldDescriptionWithSegment(part, false);
+					} else {
+						// XPN.1 style
+						segmentDescription = Component.getSegmentorCompositeFieldDescription(part, false);
+					}
+				}
+				
+				// If no vocab was found, use the segment name.
+				if (segmentDescription.length() == 0)
+					segmentDescription = part;
+				
+				if (mappingDescription.length() != 0) {
+					mappingDescription += " - ";
+				}
+				
+				mappingDescription += segmentDescription;
+				currentSegment++;
 			}
 		}
-		mappingDescription = mappingDescription.trim();
-
+		
+//		if (mappingDescription.endsWith(" - Value")) {
+//			mappingDescription = mappingDescription.substring(0, mappingDescription.length() - 8);
+//		}
+		
 		return mappingDescription.trim();
 	}
-
-
-	public String removeInvalidCharacters(String source) {
-		source = source.toLowerCase();
-		source = source.replaceAll("\\/", "_or_");
-		source = source.replaceAll(" - ", "_");
-		source = source.replaceAll("&", "and");
-		source = source.replaceAll("\\'|\\’|\\(|\\)", "");
-		source = source.replaceAll(" |\\.", "_");
-		source = source.replaceAll("_tostring", "");
-		source = source.replaceAll("_value", "");
-		return source;
-	}
-
 }
