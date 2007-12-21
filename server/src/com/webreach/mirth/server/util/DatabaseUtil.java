@@ -113,7 +113,7 @@ public class DatabaseUtil {
                 {
                     String temp = s.nextLine();
                     
-                    if (temp.length() > 0)
+                    if (temp.trim().length() > 0)
                     	sb.append(temp + " ");
                     else
                         blankLine = true;
