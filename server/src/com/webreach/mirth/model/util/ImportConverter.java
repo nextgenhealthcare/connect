@@ -155,13 +155,15 @@ public class ImportConverter {
 				Element sourceConnectorRoot = (Element) document.getDocumentElement().getElementsByTagName("sourceConnector").item(0);
 				Element destinationConnectorRoot = (Element) document.getDocumentElement().getElementsByTagName("destinationConnectors").item(0);
 				NodeList destinationsConnectors = destinationConnectorRoot.getElementsByTagName("com.webreach.mirth.model.Connector");
-
-				// Check ROOT node for "enabled" element which is added by
+				
+				// Check SOURCE CONNECTOR node for "enabled" element which is added by
 				// migration automatically. Add it if not found.
-				if (!nodeChildrenContains(channelRoot, "enabled")) {
+				if (!nodeChildrenContains(sourceConnectorRoot, "enabled")) {
 					Element enabledSource = document.createElement("enabled");
 					enabledSource.setTextContent("true");
 					sourceConnectorRoot.appendChild(enabledSource);
+				} else {
+					setBooleanNode(sourceConnectorRoot, "enabled", true);  // set it anyway, in case xstream auto set it to false.
 				}
 
 				// Check CONNECTOR node for "enabled" element which is added by
@@ -173,6 +175,8 @@ public class ImportConverter {
 						Element enabledDestination = document.createElement("enabled");
 						enabledDestination.setTextContent("true");
 						destinationConnector.appendChild(enabledDestination);
+					} else {
+						setBooleanNode(destinationConnector, "enabled", true);  // set it anyway, in case xstream auto set it to false.
 					}
 				}
 
@@ -532,5 +536,17 @@ public class ImportConverter {
 		}
 
 		return false;
+	}
+
+	private static void setBooleanNode(Node parent, String elementName, boolean value) {
+		NodeList children = parent.getChildNodes();
+
+		for (int i = 0; i < children.getLength(); i++) {
+			Node child = children.item(i);
+
+			if (child.getNodeName().equals(elementName)) {
+				child.setTextContent(Boolean.toString(value));
+			}
+		}
 	}
 }
