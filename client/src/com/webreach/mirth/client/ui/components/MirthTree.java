@@ -435,6 +435,7 @@ public class MirthTree extends JXTree implements DropTargetListener
         source = source.replaceAll("\\/", " or ");
         source = source.replaceAll(" - ", "_");
         source = source.replaceAll("&", " and ");
+        source = source.replace("@", "att ");
         source = source.replaceAll("\\'|\\’|\\(|\\)", "");
         
         while (source.indexOf(' ') != -1 || source.indexOf('.') != -1)
