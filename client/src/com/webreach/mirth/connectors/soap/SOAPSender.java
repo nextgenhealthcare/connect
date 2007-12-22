@@ -555,7 +555,9 @@ public class SOAPSender extends ConnectorClass
 
     private void generateEnvelopeYesButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_generateEnvelopeYesButtonActionPerformed
     {//GEN-HEADEREND:event_generateEnvelopeYesButtonActionPerformed
-// TODO add your handling code here:
+    	//Build the envelope when the user selects "yes"
+    	buildSoapEnvelope();
+   
     }//GEN-LAST:event_generateEnvelopeYesButtonActionPerformed
 
     private void rebuildEnvelopeActionPerformed(java.awt.event.ActionEvent evt)
@@ -596,6 +598,10 @@ public class SOAPSender extends ConnectorClass
 
     private void buildSoapEnvelope()
     {
+    	if (generateEnvelopeNoButton.isSelected()){
+    		//If the user has generateEnvelope turned off, then just ignore the request
+    		return;
+    	}
         StringBuilder soapEnvelopeString = new StringBuilder();
         soapEnvelopeString.append(SOAPSenderProperties.SOAP_ENVELOPE_HEADER);
         // TODO: Grab header parameters
