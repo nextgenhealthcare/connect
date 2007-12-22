@@ -440,6 +440,11 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		newScript.append("message[name][index] = new XML('<' + name + '></' + name + '>');  return message[name][index];");
 		newScript.append("}");
 		
+		//Helper function to create segments after specefied field
+		newScript.append("function createSegmentAfter(name, segment) {");
+		newScript.append("segment += new XML('<' + name + '></' + name + '>');");
+		newScript.append("}");
+		
 		// TODO: Look into optimizing. Potentially moving p.c.wr.m.s.c.MOC to an outside var
 		
 		// Helper function to get attachments
