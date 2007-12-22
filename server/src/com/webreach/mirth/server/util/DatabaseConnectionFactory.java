@@ -96,4 +96,9 @@ public class DatabaseConnectionFactory {
 		
 		return DriverManager.getConnection(address, info);
 	}
+	//Initializes the specified Driver. This is used for JS function that can't call
+	// "Class.forName"
+	public static void initializeDriver(String driver) throws Exception {
+		Class.forName(driver);
+	}
 }
