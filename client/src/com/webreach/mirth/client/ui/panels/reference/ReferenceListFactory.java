@@ -134,6 +134,7 @@ public class ReferenceListFactory
             variablelistItems.add(new ReferenceListItem("Create Segment (individual)", "Create a new segment that can be used in any message", "createSegment('segmentName')", CodeSnippetType.FUNCTION));
             variablelistItems.add(new ReferenceListItem("Create Segment (in message)", "Create a new segment in specified message (msg or tmp)", "createSegment('segmentName', msg)", CodeSnippetType.FUNCTION));
             variablelistItems.add(new ReferenceListItem("Create Segment (in message, indexed)", "Create a new segment in specified message (msg or tmp) at segment index i", "createSegment('segmentName', msg, i)", CodeSnippetType.FUNCTION));
+            variablelistItems.add(new ReferenceListItem("Create Segment After Segment", "Create a new segment and insert it after the target segment", "createSegmentAfter('segmentName', target)", CodeSnippetType.FUNCTION));
             variablelistItems.add(new ReferenceListItem("Delete Segment", "Delete a segment from the message", "delete msg['segment']", CodeSnippetType.FUNCTION));
             
         }
