@@ -16,7 +16,7 @@ public class ReferenceListFactory
     
     public enum ListType
     {
-        ALL, CONVERSION, LOGGING_AND_ALERTS, DATABASE, MESSAGE, XML, HL7, MAP, UTILITY, DATE
+        ALL, CONVERSION, LOGGING_AND_ALERTS, DATABASE, UTILITY, DATE, MESSAGE, XML, HL7, MAP
     };
     
     public ArrayList<ReferenceListItem> getVariableListItems(ListType itemName, int context)
@@ -112,6 +112,7 @@ public class ReferenceListFactory
         variablelistItems.add(new ReferenceListItem("MySQL Driver", "String used for MySQL database driver.", "\"com.mysql.jdbc.Driver\"", CodeSnippetType.VARIABLE));
         variablelistItems.add(new ReferenceListItem("SQL Server Driver", "String used for SQL Server database driver.", "\"net.sourceforge.jtds.jdbc.Driver\"", CodeSnippetType.VARIABLE));
         variablelistItems.add(new ReferenceListItem("Oracle Driver", "String used for Oracle database driver.", "\"oracle.jdbc.OracleDriver\"", CodeSnippetType.VARIABLE));
+        variablelistItems.add(new ReferenceListItem("Initialize Driver", "Initialize the specified JDBC driver. (Same as calling Class.forName)", "DatabaseConnectionFactory.initializeDriver('driver');", CodeSnippetType.FUNCTION));
         
         return variablelistItems;
     }
@@ -190,10 +191,10 @@ public class ReferenceListFactory
         variablelistItems.add(new ReferenceListItem("Write Bytes to File", "Write bytes to file", "FileUtil.write('filename', append(true/false), byteData);", CodeSnippetType.FUNCTION));
         variablelistItems.add(new ReferenceListItem("BASE-64 Encode Data", "Encode a byte array to a BASE-64 string", "FileUtil.encode(data);", CodeSnippetType.FUNCTION));
         variablelistItems.add(new ReferenceListItem("Decode BASE-64 Data", "Decode a BASE-64 string to a byte array", "FileUtil.decode(data);", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Route Message to Channel", "Sends the specified data to a different channel", "router.routeMessage(channelName, 'message');", CodeSnippetType.FUNCTION));
+        variablelistItems.add(new ReferenceListItem("Route Message to Channel", "Sends the specified data to a different channel", "router.routeMessage(channelName, 'message', useQueue, synchronized);", CodeSnippetType.FUNCTION));
         if(context >= MESSAGE_CONTEXT)
         {
-            variablelistItems.add(new ReferenceListItem("Route Message to Channel", "Sends the specified data to a different channel", "router.routeMessage(channelName, 'message');", CodeSnippetType.FUNCTION));
-            variablelistItems.add(new ReferenceListItem("Route Message to Channel", "Sends the specified data to a different channel", "router.routeMessage(channelName, 'message', useQueue, synchronized);", CodeSnippetType.FUNCTION));
             variablelistItems.add(new ReferenceListItem("Perform Message Object Value Replacement", "Returns a string that has been run through Velocity replacer with a messageObject context", "var results = replacer.replaceValues(template, messageObject);", CodeSnippetType.FUNCTION));
         }
         variablelistItems.add(new ReferenceListItem("Perform Map Value Replacement", "Returns a string that has been run through Velocity replacer with a map context", "var results = replacer.replaceValues(template, map);", CodeSnippetType.FUNCTION));
