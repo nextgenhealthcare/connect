@@ -362,8 +362,10 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, "Timeout waiting for ACK", null);
 			return false;
 		}
+		String initialAckString = null;
 		try {
 			String ackString = new String(theAck, connector.getCharsetEncoding());
+			initialAckString = ackString;
 			if (connector.getReplyChannelId() != null & !connector.getReplyChannelId().equals("") && !connector.getReplyChannelId().equals("sink")) {
 				// reply back to channel
 				VMRouter router = new VMRouter();
@@ -375,24 +377,30 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, "Error setting encoding: " + connector.getCharsetEncoding(), e);
 		}
 		String ackString = null;
-		try {
-			ackString = processResponseData(theAck);
-		} catch (Throwable t) {
-			logger.error("Error processing the Ack" + t);
-		}
-		if (ackString == null) {
-			// NACK
-			messageObjectController.setError(messageObject, Constants.ERROR_408, "ACK message violates LLP protocol", null);
-			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, "ACK message violates LLP protocol", null);
-			return true;
-		}
-		ResponseAck rack = new ResponseAck(ackString);
-		if (rack.getTypeOfAck()) {// Ack Ok
-			messageObjectController.setSuccess(messageObject, ackString);
-			return true;
-		} else {
-			messageObjectController.setError(messageObject, Constants.ERROR_408, "NACK sent from receiver: " + rack.getErrorDescription() + ": " + ackString, null);
-			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, "NACK sent from receiver: " + rack.getErrorDescription() + ": " + ackString, null);
+		if (connector.isProcessHl7AckResponse()){
+			//If we process ack response, 
+			try {
+				ackString = processResponseData(theAck);
+			} catch (Throwable t) {
+				logger.error("Error processing the Ack" + t);
+			}
+			if (ackString == null) {
+				// NACK
+				messageObjectController.setError(messageObject, Constants.ERROR_408, "ACK message violates LLP protocol", null);
+				alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, "ACK message violates LLP protocol", null);
+				return true;
+			}
+			ResponseAck rack = new ResponseAck(ackString);
+			if (rack.getTypeOfAck()) {// Ack Ok
+				messageObjectController.setSuccess(messageObject, ackString);
+				return true;
+			} else {
+				messageObjectController.setError(messageObject, Constants.ERROR_408, "NACK sent from receiver: " + rack.getErrorDescription() + ": " + ackString, null);
+				alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, "NACK sent from receiver: " + rack.getErrorDescription() + ": " + ackString, null);
+				return true;
+			}
+		}else{
+			messageObjectController.setSuccess(messageObject, initialAckString);
 			return true;
 		}
 	}
