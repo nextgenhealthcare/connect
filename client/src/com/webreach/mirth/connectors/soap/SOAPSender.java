@@ -140,6 +140,12 @@ public class SOAPSender extends ConnectorClass
         wsdlUrl.setText((String) props.get(SOAPSenderProperties.SOAP_URL));
         serviceEndpoint.setText((String) props.get(SOAPSenderProperties.SOAP_SERVICE_ENDPOINT));
         
+        // The model should be set before methods use it.
+        if (props.getProperty(SOAPSenderProperties.SOAP_METHOD) != null)
+        {
+            method.setModel(new javax.swing.DefaultComboBoxModel(new String[] { (String) props.getProperty(SOAPSenderProperties.SOAP_METHOD) }));
+        }
+        
         if (((String) props.get(SOAPSenderProperties.SOAP_GENERATE_ENVELOPE)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
             generateEnvelopeYesButton.setSelected(true);
@@ -153,11 +159,6 @@ public class SOAPSender extends ConnectorClass
         
         soapEnvelope.setText((String) props.getProperty(SOAPSenderProperties.SOAP_ENVELOPE));
         soapActionURI.setText((String) props.getProperty(SOAPSenderProperties.SOAP_ACTION_URI));
-
-        if (props.getProperty(SOAPSenderProperties.SOAP_METHOD) != null)
-        {
-            method.setModel(new javax.swing.DefaultComboBoxModel(new String[] { (String) props.getProperty(SOAPSenderProperties.SOAP_METHOD) }));
-        }
 
         if (props.get(SOAPSenderProperties.SOAP_DEFINITION) != null)
         {
