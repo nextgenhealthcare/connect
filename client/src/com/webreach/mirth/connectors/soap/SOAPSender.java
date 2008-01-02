@@ -604,9 +604,10 @@ public class SOAPSender extends ConnectorClass
     	}
         StringBuilder soapEnvelopeString = new StringBuilder();
         soapEnvelopeString.append(SOAPSenderProperties.SOAP_ENVELOPE_HEADER);
-        // TODO: Grab header parameters
-        
-        WSOperation operation = definition.getOperation(method.getSelectedItem().toString());
+        WSOperation operation = null;
+        if (method.getSelectedItem() != null){
+        	operation = definition.getOperation(method.getSelectedItem().toString());
+        }
         if (operation != null)
         {
             Document document = null;
