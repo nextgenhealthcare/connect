@@ -138,6 +138,8 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	private int maxRetryCount = DEFAULT_RETRY_TIMES;
 	private boolean keepAlive = true;
 	private boolean processBatchFiles = true;
+	
+	private boolean processHl7AckResponse = true;
 	public String getChannelId() {
 		return this.channelId;
 	}
@@ -707,4 +709,11 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 		this.processBatchFiles = processBatchFiles;
 	}
 
+	public boolean isProcessHl7AckResponse() {
+		return processHl7AckResponse;
+	}
+
+	public void setProcessHl7AckResponse(boolean processHl7AckResponse) {
+		this.processHl7AckResponse = processHl7AckResponse;
+	}
 }
