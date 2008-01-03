@@ -145,14 +145,7 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
         logTable.setFocusable(false);
         logTable.setHorizontalScrollEnabled(true);
         logTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
-
-        logTable.getColumnExt(TIME_COLUMN_HEADER).setMinWidth(140);
-        logTable.getColumnExt(TIME_COLUMN_HEADER).setMaxWidth(140);
-        logTable.getColumnExt(EVENT_COLUMN_HEADER).setMinWidth(110);
-        logTable.getColumnExt(EVENT_COLUMN_HEADER).setMaxWidth(110);
-
         createPopupMenu();
-        
         jScrollPane1.setViewportView(logTable);
     }
 
