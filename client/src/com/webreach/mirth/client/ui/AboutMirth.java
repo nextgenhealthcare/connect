@@ -63,7 +63,7 @@ public class AboutMirth extends javax.swing.JDialog
         content.append("Server ID: " + PlatformUI.SERVER_ID + "\n\n");
         
         content.append("Developed by:\nGerald Bortis (geraldb@webreachinc.com)\nChris Lang (chrisl@webreachinc.com)\nBrendan Haverlock (brendanh@webreachinc.com)\nJacob Brauer (jacobb@webreachinc.com)\nFrancisco J. Sanchez (morenull@gmail.com)\nDan Svanstedt (dans@webreachinc.com)\nChristopher Ro (chrisr@webreachinc.com)\nAlberto Sáez Torres (albersato@gmail.com)\nGreg Ward (greg.ward@intelerad.com)\nAndrzej Jan Taramina (andrzej@chaeron.com)\n\n");
-        content.append("(c) Copyright Mirth contributors and others 2007. All rights reserved. Visit http://www.mirthproject.org\n\n");
+        content.append("(c) Copyright Mirth contributors and others 2005-08. All rights reserved. Visit http://www.mirthproject.org\n\n");
         content.append("This product includes software developed by SymphonySoft Limited (http://www.symphonysoft.com) and its contributors.\n\n");
         content.append("This product includes software developed by the Apache Software Foundation (http://www.apache.org/).\n\n");
         content.append("This product includes all or a portion of the HL7 Vocabulary database, or is derived from the HL7 Vocabulary database, subject to a license from Health Level Seven, Inc.\n\n");
