@@ -27,8 +27,8 @@ package com.webreach.mirth.model;
 
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.webreach.mirth.util.EqualsUtil;
 
@@ -66,9 +66,9 @@ public class MessageObject implements Serializable {
 	private Map channelMap;
 
 	public MessageObject() {
-		this.connectorMap = new HashMap();
-		this.responseMap = new HashMap();
-		this.channelMap = new HashMap();
+		this.connectorMap = new ConcurrentHashMap();
+		this.responseMap = new ConcurrentHashMap();
+		this.channelMap = new ConcurrentHashMap();
 		this.status = Status.UNKNOWN;
 	}
 
