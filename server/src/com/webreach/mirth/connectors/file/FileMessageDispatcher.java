@@ -94,8 +94,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 			}
 
 			String template = replacer.replaceValues(connector.getTemplate(), messageObject);
-			File file = Utility.createFile(uri.getAddress() + "/" + filename);
-
+			File file =	Utility.createFile(generateFilename(event, uri.getAddress(), messageObject) + "/" + filename);
 			// ast: change the output method to allow encoding election
 			// if (connector.isOutputAppend())
 			// template+=System.getProperty("line.separator");
