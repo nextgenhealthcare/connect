@@ -99,7 +99,7 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 			}
 
 			String template = replacer.replaceValues(connector.getTemplate(), messageObject);
-			File file = Utility.createFile(endpoint + "/" + filename);
+			File file = Utility.createFile(generateFilename(event, endpoint, messageObject) + "/" + filename);
 			logger.info("Writing document to: " + file.getAbsolutePath());
 			writeDocument(template, file, messageObject);
 
