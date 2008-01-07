@@ -117,11 +117,19 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 	private void writeDocument(String template, File file, MessageObject messageObject) throws Exception {
 		// add tags to the template to create a valid HTML document
 		StringBuilder contents = new StringBuilder();
-		contents.append("<html>");
-		contents.append("<body>");
-		contents.append(template);
-		contents.append("</body>");
-		contents.append("</html>");
+		if (template.lastIndexOf("<html") < 0) {
+			contents.append("<html>");
+			if (template.lastIndexOf("<body") < 0) {
+				contents.append("<body>");
+				contents.append(template);
+				contents.append("</body>");
+			} else {
+				contents.append(template);
+			}
+			contents.append("</html>");
+		} else {
+			contents.append(template);
+		}
 
 		if (connector.getDocumentType().toLowerCase().equals("pdf")) {
 			FileOutputStream renderFos = null;
