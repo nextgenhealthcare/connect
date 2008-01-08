@@ -31,33 +31,24 @@ import com.webreach.mirth.server.util.CompiledScriptCache;
  * @version $Revision: 1.7 $
  */
 public class JavaScriptConnector extends AbstractServiceEnabledConnector {
-	
+
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
 	private ScriptController scriptController = ScriptController.getInstance();
-	
-    public static final String PROPERTY_POLLING_FREQUENCY = "pollingFrequency";
-    
-    public static final String PROPERTY_POLLING_TYPE = "pollingType";
-    public static final String PROPERTY_POLLING_TIME = "pollingTime";
-    
-    public static final String POLLING_TYPE_INTERVAL = "interval";
-    public static final String POLLING_TYPE_TIME = "time";
-    
-    private String pollingType = POLLING_TYPE_INTERVAL;
-    private String pollingTime = "12:00 AM";
+
+	public static final String PROPERTY_POLLING_FREQUENCY = "pollingFrequency";
+
+	public static final String PROPERTY_POLLING_TYPE = "pollingType";
+	public static final String PROPERTY_POLLING_TIME = "pollingTime";
+
+	public static final String POLLING_TYPE_INTERVAL = "interval";
+	public static final String POLLING_TYPE_TIME = "time";
+
+	private String pollingType = POLLING_TYPE_INTERVAL;
+	private String pollingTime = "12:00 AM";
 	private long pollingFrequency = 5000;
-	
+
 	private String scriptId;
 	private String channelId;
-		
-	private TemplateValueReplacer replacer = new TemplateValueReplacer();
-	public String getChannelId() {
-		return this.channelId;
-	}
-
-	public void setChannelId(String channelId) {
-		this.channelId = channelId;
-	}
 
 	// This method gets called when the JDBC connector is initialized. It
 	// compiles the JavaScript and adds it to the cache.
@@ -71,7 +62,7 @@ public class JavaScriptConnector extends AbstractServiceEnabledConnector {
 				String databaseScript = scriptController.getScript(scriptId);
 
 				if (databaseScript != null) {
-					String generatedScript = generateDatabaseScript(databaseScript, false);
+					String generatedScript = generateScript(databaseScript);
 					logger.debug("compiling script");
 					Script compiledScript = context.compileString(generatedScript, scriptId, 1, null);
 					compiledScriptCache.putCompiledScript(scriptId, compiledScript);
@@ -86,7 +77,7 @@ public class JavaScriptConnector extends AbstractServiceEnabledConnector {
 	}
 
 	// Generates the JavaScript based on the script which the user enters
-	private String generateDatabaseScript(String scriptString, boolean ack) {
+	private String generateScript(String scriptString) {
 		logger.debug("generating database script");
 		StringBuilder script = new StringBuilder();
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
@@ -125,30 +116,30 @@ public class JavaScriptConnector extends AbstractServiceEnabledConnector {
 
 	public UMOMessageReceiver createReceiver(UMOComponent component, UMOEndpoint endpoint) throws Exception {
 		String[] params = {};
-        
-        long polling = pollingFrequency;
-        Map props = endpoint.getProperties();
-        if (props != null) {
-            // Override properties on the endpoint for the specific endpoint
-            String tempPolling = (String) props.get(PROPERTY_POLLING_FREQUENCY);
-            if (tempPolling != null) {
-                polling = Long.parseLong(tempPolling);
-            }
-            
-            String pollingType = (String) props.get(PROPERTY_POLLING_TYPE);
-            if (pollingType != null) {
-                setPollingType(pollingType);
-            }
-            String pollingTime = (String) props.get(PROPERTY_POLLING_TIME);
-            if (pollingTime != null) {
-                setPollingTime(pollingTime);
-            }
-        }
-        if (polling <= 0) {
-            polling = 1000;
-        }
-        logger.debug("set polling frequency to: " + polling);
-        
+
+		long polling = pollingFrequency;
+		Map props = endpoint.getProperties();
+		if (props != null) {
+			// Override properties on the endpoint for the specific endpoint
+			String tempPolling = (String) props.get(PROPERTY_POLLING_FREQUENCY);
+			if (tempPolling != null) {
+				polling = Long.parseLong(tempPolling);
+			}
+
+			String pollingType = (String) props.get(PROPERTY_POLLING_TYPE);
+			if (pollingType != null) {
+				setPollingType(pollingType);
+			}
+			String pollingTime = (String) props.get(PROPERTY_POLLING_TIME);
+			if (pollingTime != null) {
+				setPollingTime(pollingTime);
+			}
+		}
+		if (polling <= 0) {
+			polling = 1000;
+		}
+		logger.debug("set polling frequency to: " + polling);
+
 		return getServiceDescriptor().createMessageReceiver(this, component, endpoint, params);
 	}
 
@@ -176,7 +167,6 @@ public class JavaScriptConnector extends AbstractServiceEnabledConnector {
 		this.pollingFrequency = pollingFrequency;
 	}
 
-	
 	public String getScriptId() {
 		return this.scriptId;
 	}
@@ -185,29 +175,33 @@ public class JavaScriptConnector extends AbstractServiceEnabledConnector {
 		this.scriptId = scriptId;
 	}
 
+	public String getChannelId() {
+		return this.channelId;
+	}
+
+	public void setChannelId(String channelId) {
+		this.channelId = channelId;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.mule.providers.TransactionEnabledConnector#getSessionFactory(org.mule.umo.endpoint.UMOEndpoint)
 	 */
 
-    public String getPollingTime()
-    {
-        return pollingTime;
-    }
+	public String getPollingTime() {
+		return pollingTime;
+	}
 
-    public void setPollingTime(String pollingTime)
-    {
-        this.pollingTime = pollingTime;
-    }
+	public void setPollingTime(String pollingTime) {
+		this.pollingTime = pollingTime;
+	}
 
-    public String getPollingType()
-    {
-        return pollingType;
-    }
+	public String getPollingType() {
+		return pollingType;
+	}
 
-    public void setPollingType(String pollingType)
-    {
-        this.pollingType = pollingType;
-    }
+	public void setPollingType(String pollingType) {
+		this.pollingType = pollingType;
+	}
 }

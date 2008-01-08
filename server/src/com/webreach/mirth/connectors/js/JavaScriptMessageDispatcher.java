@@ -65,33 +65,28 @@ public class JavaScriptMessageDispatcher extends AbstractMessageDispatcher {
 		try {
 			Context context = Context.enter();
 			Scriptable scope = new ImporterTopLevel(context);
-
-			// load variables in JavaScript scope
 			JavaScriptScopeUtil.buildScope(scope, messageObject, logger);
-
-			// get the script from the cache and execute it
 			Script compiledScript = compiledScriptCache.getCompiledScript(this.connector.getScriptId());
 
 			if (compiledScript == null) {
 				logger.warn("script could not be found in cache");
-				messageObjectController.setError(messageObject, Constants.ERROR_406, "Script not found in cache", null);
+				messageObjectController.setError(messageObject, Constants.ERROR_414, "Script not found in cache", null);
 			} else {
 				compiledScript.exec(context, scope);
 				String response = "Script execution successful";
-				// the user could write Javascript that sets the response
-				// for this connector
-				// if that's the case, then let's save it
+
 				if (messageObject.getResponseMap().containsKey(messageObject.getConnectorName())) {
 					response = (String) messageObject.getResponseMap().get(messageObject.getConnectorName());
 				}
+				
 				messageObjectController.setSuccess(messageObject, response);
 			}
 
 		} catch (Exception e) {
 			logger.debug("Error dispatching event: " + e.getMessage(), e);
 
-			alertController.sendAlerts(((JavaScriptConnector) connector).getChannelId(), Constants.ERROR_406, "Error writing to database", e);
-			messageObjectController.setError(messageObject, Constants.ERROR_406, "Error writing to database: ", e);
+			alertController.sendAlerts(((JavaScriptConnector) connector).getChannelId(), Constants.ERROR_414, "Error executing JavaScript", e);
+			messageObjectController.setError(messageObject, Constants.ERROR_414, "Error executing JavaScript: ", e);
 			connector.handleException(e);
 		} finally {
 			monitoringController.updateStatus(connector, connectorType, Event.DONE);
@@ -109,7 +104,6 @@ public class JavaScriptMessageDispatcher extends AbstractMessageDispatcher {
 	}
 
 	public Object getDelegateSession() throws UMOException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }
