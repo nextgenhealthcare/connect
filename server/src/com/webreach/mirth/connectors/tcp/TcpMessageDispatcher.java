@@ -40,6 +40,8 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.util.queue.Queue;
 
+import sun.misc.BASE64Decoder;
+
 import com.webreach.mirth.connectors.mllp.MllpConnector;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
@@ -235,7 +237,8 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 	protected void createSocket(Socket socket, InetSocketAddress inetAddress) throws IOException {
 		socket.connect(inetAddress, connector.getReconnectMillisecs());
 	}
-
+	//TODO: Remove these two write methods after 1.7 beta
+	/* Deprecated? 1.7
 	protected void write(Socket socket, byte[] data) throws IOException {
 		TcpProtocol protocol = connector.getTcpProtocol();
 		BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
@@ -250,11 +253,19 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 		protocol.write(bos, data);
 		bos.flush();
 	}
-
+*/
 	protected void write(Socket socket, String data) throws Exception {
+		byte[] buffer = null;
+		//When working with binary data the template has to be base64 encoded
+		if (connector.isBinary()) {
+			BASE64Decoder base64 = new BASE64Decoder();
+			buffer = base64.decodeBuffer(data);
+		} else {
+			buffer = data.getBytes(connector.getCharsetEncoding());
+		}
 		TcpProtocol protocol = connector.getTcpProtocol();
 		BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
-		protocol.write(bos, data.getBytes(connector.getCharsetEncoding()));
+		protocol.write(bos, buffer);
 		bos.flush();
 	}
 

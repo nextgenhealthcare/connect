@@ -49,6 +49,9 @@ import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageAdapter;
 
+import sun.misc.BASE64Encoder;
+import sun.rmi.transport.tcp.TCPConnection;
+
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
 import com.webreach.mirth.server.Constants;
@@ -283,15 +286,21 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 		}
 
 		protected byte[] processData(byte[] data) throws Exception {
-			// TODO: Add option to handle binary data
-			String charset = connector.getCharsetEncoding();
 			if (data == null){
 				return null;
 			}
-			String str_data = new String(data, charset);
+			String str_data;
+			//if we are receiving binary, base64 the bytes
+			if (((TcpConnector)connector).isBinary()) {
+				BASE64Encoder encoder = new BASE64Encoder();
+				str_data = encoder.encode(data);
+			} else {
+				String charset = connector.getCharsetEncoding();
+				str_data = new String(data, charset);
+			}
 			UMOMessage returnMessage = null;
 			OutputStream os;
-			// data = (it.next()).getBytes(charset);
+
 			UMOMessageAdapter adapter = connector.getMessageAdapter(str_data);
 			adapter.setProperty("receiverSocket", socket);
 			os = new ResponseOutputStream(socket.getOutputStream(), socket);
