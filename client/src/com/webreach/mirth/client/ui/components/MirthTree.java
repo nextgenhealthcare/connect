@@ -35,6 +35,7 @@ import com.webreach.mirth.client.ui.MessageBuilderDropData;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.TreeTransferable;
 import com.webreach.mirth.client.ui.editors.MessageTreePanel;
+import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 
 /**
  *
@@ -264,13 +265,13 @@ public class MirthTree extends JXTree implements DropTargetListener
                 Object transferData = tr.getTransferData(TreeTransferable.MAPPER_DATA_FLAVOR);
                 MapperDropData data = (MapperDropData) transferData;
                 
-                parent.channelEditPanel.transformerPane.addMessageBuilder(constructPath(selectedNode, prefix, suffix).toString(), data.getMapping());
+                parent.channelEditPanel.transformerPane.addNewStep(constructMessageBuilderStepName(data.getNode(), selectedNode), constructPath(selectedNode, prefix, suffix).toString(), data.getMapping(), TransformerPane.MESSAGE_BUILDER);
             }
             else if (supportedDropFlavor == TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR)
             {
                 Object transferData = tr.getTransferData(TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR);
                 MessageBuilderDropData data = (MessageBuilderDropData) transferData;
-                parent.channelEditPanel.transformerPane.addMessageBuilder(data.getMessageSegment(), constructPath(selectedNode, prefix, suffix).toString());
+                parent.channelEditPanel.transformerPane.addNewStep(constructMessageBuilderStepName(selectedNode, data.getNode()), data.getMessageSegment(), constructPath(selectedNode, prefix, suffix).toString(), TransformerPane.MESSAGE_BUILDER);
             }
             else
             {
@@ -426,6 +427,54 @@ public class MirthTree extends JXTree implements DropTargetListener
         }
     	
     	return variable;
+    }
+    
+    public static String constructMessageBuilderStepName(TreeNode in, TreeNode out)
+    {    	
+    	if (in != null)
+    		return constructNodeDescription(out) + " (out) <-- " + constructNodeDescription(in) + " (in)";
+    	else
+    		return constructNodeDescription(out) + " (out)";
+    }
+    
+    public static String constructNodeDescription(TreeNode parent)
+    {
+    	String description = "";
+    	
+    	// Get the parent if the leaf was actually passed in instead of the parent.
+        if(parent.isLeaf())
+        	parent = parent.getParent();
+    	
+    	// Stop the loop as soon as the parent or grandparent is null,
+    	// because we don't want to include the root node.
+    	while (parent != null && parent.getParent() != null)
+        {
+    		String parentName = parent.toString();
+            Pattern pattern = Pattern.compile(" (\\(.*\\))");
+            Matcher matcher = pattern.matcher(parentName.toString());
+            
+            // Get the index of the parent about to be added.
+            String parentIndex = "";
+            int parentIndexValue = MirthTree.getIndexOfNode(parent);
+            if (parentIndexValue != -1)
+            	parentIndex = " [" + parentIndexValue + "]";
+            
+            // Add either the vocab (if there is one) or the name.
+            if (matcher.find())
+            {
+            	String matchDescription = matcher.group(1);
+            	matchDescription = matchDescription.substring(1, matchDescription.length() -1);
+            	description = matchDescription + parentIndex + (description.length() == 0? "" : " - ") + description;
+            }
+            else
+            {
+            	description = parent.toString() + parentIndex + (description.length() == 0? "" : " - ") + description;
+            }
+            
+            parent = parent.getParent();
+        }
+    	
+    	return description;
     }
     
     /**

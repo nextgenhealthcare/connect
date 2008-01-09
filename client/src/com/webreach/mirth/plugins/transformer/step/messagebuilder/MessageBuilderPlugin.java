@@ -57,50 +57,6 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 		panel.setData(data);
 	}
 
-	public String getName() {
-		String target = ((String) ((Map<Object, Object>) panel.getData()).get("Variable"));
-		String mapping = ((String) ((Map<Object, Object>) panel.getData()).get("Mapping"));
-		
-		String targetVar = "";
-		String mappingVar = "";
-		String targetDescription = "";
-		String mappingDescription = "";
-		if (target.startsWith("tmp[")) {
-			targetVar = "(out)";
-			target = target.substring(4);
-		} else if (target.startsWith("msg[")) {
-			targetVar = "(in)";
-			target = target.substring(4);
-		}
-		
-		// Split up the segments and pass them to the vocab.
-		target = target.substring(0, target.length() - 1); // get rid of trailing "]"
-		String[] targetParts = target.split("]\\[");
-		targetDescription = getVocabDescription(targetParts);
-		
-		
-		if (mapping.startsWith("tmp[")) {
-			mappingVar = "(out)";
-			mapping = mapping.substring(4);
-		} else if (mapping.startsWith("msg[")) {
-			mappingVar = "(in)";
-			mapping = mapping.substring(4);
-		}
-		
-		// Split up the segments and pass them to the vocab.
-		// If there is no mapping, then just return the target description.
-		String[] mappingParts = null;
-		if (mapping.length() > 0) {
-			mapping = mapping.replaceAll("]\\.toString\\(\\)",""); // get rid of trailing ].toString()
-			mappingParts = mapping.split("]\\[");
-			mappingDescription = getVocabDescription(mappingParts);
-		} else {
-			return targetDescription + " " + targetVar;
-		}
-		
-		return targetDescription + " " + targetVar + " <-- " + mappingDescription + " " + mappingVar; 
-	}
-
 	@Override
 	public void clearData() {
 		panel.setData(null);
@@ -112,10 +68,6 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 		data.put("Mapping", "");
 		data.put("Variable", "");
 		panel.setData(data);
-	}
-
-	public boolean isProvideOwnStepName() {
-		return true;
 	}
 
 	@Override

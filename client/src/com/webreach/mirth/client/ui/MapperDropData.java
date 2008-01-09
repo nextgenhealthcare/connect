@@ -1,14 +1,28 @@
 package com.webreach.mirth.client.ui;
 
+import javax.swing.tree.TreeNode;
+
 public class MapperDropData
 {
+	private TreeNode node;
     private String variable;
     private String mapping;
     
-    public MapperDropData(String variable, String mapping)
+    public MapperDropData(TreeNode node, String variable, String mapping)
     {
+    	setNode(node);
         setVariable(variable);
         setMapping(mapping);
+    }
+    
+    public TreeNode getNode()
+    {
+        return node;
+    }
+
+    public void setNode(TreeNode node)
+    {
+        this.node = node;
     }
 
     public String getMapping()

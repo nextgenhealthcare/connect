@@ -172,31 +172,23 @@ public class RuleBuilderPlugin extends FilterRulePlugin {
 			disableValues = false;
 		}
 
-		String field = (String) map.get("Field");
-		if (field.length() < 1) {
-			return "New Rule";
-		}
-		
-		String cleanField = field;
-		if (cleanField.startsWith("msg["))
-			cleanField = cleanField.substring(4);  // get rid of starting msg[
-		
-		cleanField = cleanField.replaceAll("]\\.toString\\(\\)", ""); // get rid of trailing ].toString()
-		String[] fieldparts = cleanField.split("]\\[");
-		String fieldDescription = getVocabDescription(fieldparts);
-		fieldDescription = "\"" + fieldDescription + "\"";
+		String fieldDescription = "";
+		if (((String)map.get("Field")).equals((String)map.get("OriginalField")))
+			fieldDescription = (String) map.get("Name");
+		else
+			fieldDescription = (String) map.get("Field");
 		
 		ArrayList<String> values = (ArrayList<String>) map.get("Values");
 		String valueList = "";
 		if (values.isEmpty() || disableValues) {
-			return name + " message if " + fieldDescription + " " + blankVal;
+			return name + " message if \"" + fieldDescription + "\" " + blankVal;
 		} else {
 			for (Iterator iter = values.iterator(); iter.hasNext();) {
 				String value = (String) iter.next();
 				valueList += value + " or ";
 			}
 			valueList = valueList.substring(0, valueList.length() - 4);
-			return name + " message if " + fieldDescription + " " + equals + " " + valueList;
+			return name + " message if \"" + fieldDescription + "\" " + equals + " " + valueList;
 		}
 	}
 

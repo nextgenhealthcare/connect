@@ -88,6 +88,7 @@ import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.TreeTransferable;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthComboBoxCellEditor;
+import com.webreach.mirth.client.ui.components.MirthTree;
 import com.webreach.mirth.client.ui.editors.BasePanel;
 import com.webreach.mirth.client.ui.editors.EditorTableCellEditor;
 import com.webreach.mirth.client.ui.editors.MirthEditorPane;
@@ -314,11 +315,11 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 				if (mapperTransferData != null) {
 					Object transferData = tr.getTransferData(TreeTransferable.MAPPER_DATA_FLAVOR);
 					MapperDropData data = (MapperDropData) transferData;
-					addMapper(data.getVariable(), data.getMapping());
+					addNewStep(data.getVariable(), data.getVariable(), data.getMapping(), MAPPER);
 				} else if (messageBuilderTransferData != null) {
 					Object transferData = tr.getTransferData(TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR);
 					MessageBuilderDropData data = (MessageBuilderDropData) transferData;
-					addMessageBuilder(data.getMessageSegment(), data.getMapping());
+					addNewStep(MirthTree.constructMessageBuilderStepName(null, data.getNode()), data.getMessageSegment(), data.getMapping(), MESSAGE_BUILDER);
 				}
 			}
 		} catch (Exception e) {
@@ -797,25 +798,17 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 		}
 	}
 
-	public void addMapper(String variable, String mapping) {
-		addNewStep(variable, mapping, MAPPER);
-	}
-
-	public void addMessageBuilder(String segment, String mapping) {
-		addNewStep(segment, mapping, MESSAGE_BUILDER);
-	}
-
 	/**
 	 * void addNewStep() add a new step to the end of the list
 	 */
 	public void addNewStep() {
-		addNewStep("", "", MAPPER);
+		addNewStep("", "", "", MAPPER);
 	}
 
 	/**
 	 * void addNewStep() add a new step to the end of the list
 	 */
-	public void addNewStep(String variable, String mapping, String type) {
+	public void addNewStep(String name, String variable, String mapping, String type) {
 		saveData(transformerTable.getSelectedRow());
 
 		if (!invalidVar || transformerTable.getRowCount() == 0) {
@@ -824,7 +817,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 			Step step = new Step();
 			step.setSequenceNumber(rowCount);
 			step.setScript("");
-			step.setName(variable);
+			step.setName(name);
 
 			if (type.equals(MAPPER)) {
 				if (loadedPlugins.containsKey(MAPPER)) {

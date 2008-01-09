@@ -46,6 +46,8 @@ public class RuleBuilderPanel extends BasePanel
     public final String VALUE_COLUMN_NAME = "Value";
     private final RuleBuilderPlugin rulePlugin;
     private int lastIndex = -1;
+    private String name = "";
+    private String originalField = "";
     
     /** Creates new form MapperPanel */
     public RuleBuilderPanel(MirthEditorPane p,final RuleBuilderPlugin rulePlugin)
@@ -158,6 +160,8 @@ public class RuleBuilderPanel extends BasePanel
     {
         Map<Object, Object> m = new HashMap<Object, Object>();
         m.put("Field", fieldTextField.getText().trim());
+        m.put("Name", name);
+        m.put("OriginalField", originalField);
         
         if(equals.isSelected())
             m.put("Equals", UIConstants.YES_OPTION);
@@ -218,6 +222,8 @@ public class RuleBuilderPanel extends BasePanel
             else
                 reject.setSelected(true);
             
+            originalField = (String) data.get("OriginalField");
+            name = (String) data.get("Name");
             fieldTextField.setText((String) data.get("Field"));
         }
         else

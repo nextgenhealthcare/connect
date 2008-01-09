@@ -45,9 +45,9 @@ import com.webreach.mirth.client.ui.components.MirthTree;
 import com.webreach.mirth.client.ui.components.MirthTreeNode;
 import com.webreach.mirth.client.ui.components.MirthTree.FilterTreeModel;
 import com.webreach.mirth.client.ui.editors.MessageTreePanel;
+import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.MessageObject.Protocol;
-import com.webreach.mirth.model.converters.DICOMSerializer;
 import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.model.converters.SerializerFactory;
 import com.webreach.mirth.model.dicom.DICOMVocabulary;
@@ -223,8 +223,8 @@ public class TreePanel extends javax.swing.JPanel
                     if (tp == null)
                         return;
 
-                	MapperDropData data = new MapperDropData(MirthTree.constructVariable(tp), MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString());
-                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addMapper(data.getVariable(), data.getMapping());
+                    String variable = MirthTree.constructVariable(tp);
+                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addNewStep(variable, variable, MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), TransformerPane.MAPPER);
                 }
             });
             popupMenu.add(mapNode);
@@ -244,7 +244,7 @@ public class TreePanel extends javax.swing.JPanel
                     if (tp == null)
                         return;
                     
-                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addMessageBuilder(MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), "");
+                    PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addNewStep(MirthTree.constructMessageBuilderStepName(null, tp), MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), "", TransformerPane.MESSAGE_BUILDER);
                 }
             });
             popupMenu.add(mapNode);
@@ -263,7 +263,7 @@ public class TreePanel extends javax.swing.JPanel
                 if (tp == null)
                     return;
                 
-                PlatformUI.MIRTH_FRAME.channelEditPanel.filterPane.addNewRule(MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString());
+                PlatformUI.MIRTH_FRAME.channelEditPanel.filterPane.addNewRule(MirthTree.constructNodeDescription(tp), MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString());
             }
         });
         popupMenu.add(ruleNode);
@@ -679,10 +679,6 @@ public class TreePanel extends javax.swing.JPanel
                         return null;
                     if (!tp.isLeaf())
                         return null;
-                    // String leaf = tp.toString();
-                    // if (leaf.equals(DNDConstants.TASK) ||
-                    // leaf.equals(DNDConstants.TYPE))
-                    // return null;
 
                     if (_dropPrefix.equals(MessageTreePanel.MAPPER_PREFIX))
                         return new TreeTransferable(tp, _dropPrefix, _dropSuffix, TreeTransferable.MAPPER_DATA_FLAVOR);

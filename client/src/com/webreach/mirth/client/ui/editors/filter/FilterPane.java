@@ -86,6 +86,7 @@ import com.webreach.mirth.client.ui.RuleDropData;
 import com.webreach.mirth.client.ui.TreeTransferable;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthComboBoxCellEditor;
+import com.webreach.mirth.client.ui.components.MirthTree;
 import com.webreach.mirth.client.ui.editors.BasePanel;
 import com.webreach.mirth.client.ui.editors.EditorTableCellEditor;
 import com.webreach.mirth.client.ui.editors.MirthEditorPane;
@@ -350,7 +351,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
                 if (transferData instanceof RuleDropData)
                 {
                     RuleDropData data = (RuleDropData) transferData;
-                    addNewRule(data.getMapping());
+                    addNewRule(MirthTree.constructNodeDescription(data.getNode()), data.getMapping());
                 }
             }
         }
@@ -870,13 +871,13 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
      */
     public void addNewRule()
     {
-        addNewRule("");
+        addNewRule("New Rule", "");
     }
     
     /**
      * void addNewRule() add a new rule to the end of the list
      */
-    public void addNewRule(String mapping)
+    public void addNewRule(String name, String mapping)
     {
         modified = true;
         addingNewRow = true;
@@ -887,7 +888,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
 
         rule.setSequenceNumber(rowCount);
         rule.setScript("return true;");
-        rule.setName("New Rule");
+        rule.setName(name);
         rule.setData(null);
 
         if (rowCount == 0)
@@ -907,6 +908,10 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
             data.put("Equals", UIConstants.EXISTS_OPTION);
             data.put("Values", new ArrayList());
             data.put("Accept", UIConstants.YES_OPTION);
+            if (name.equals("New Rule"))
+            	name = "";
+            data.put("Name", name);
+            data.put("OriginalField", mapping);
             rule.setData(data);
 
 			if (plugin.isProvideOwnStepName()) {

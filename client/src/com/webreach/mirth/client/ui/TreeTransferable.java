@@ -105,16 +105,16 @@ public class TreeTransferable implements Transferable
             {
                 if(prefix.equals(MessageTreePanel.MAPPER_PREFIX))
                 {
-                    return new MapperDropData(MirthTree.constructVariable(data.getParent()), MirthTree.constructPath(data.getParent(), prefix, suffix).toString());
+                    return new MapperDropData(data, MirthTree.constructVariable(data.getParent()), MirthTree.constructPath(data.getParent(), prefix, suffix).toString());
                 }
                 else
                 {
-                    return new MessageBuilderDropData(MirthTree.constructPath(data.getParent(), prefix, suffix).toString(), "");
+                    return new MessageBuilderDropData(data, MirthTree.constructPath(data.getParent(), prefix, suffix).toString(), "");
                 }
             }
             if (df == flavors[2])
             {
-                return new RuleDropData(MirthTree.constructPath(data.getParent(), prefix, suffix).toString());
+                return new RuleDropData(data, MirthTree.constructPath(data.getParent(), prefix, suffix).toString());
             }
         }
         return null;
