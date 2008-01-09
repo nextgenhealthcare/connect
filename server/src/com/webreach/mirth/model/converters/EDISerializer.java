@@ -95,7 +95,7 @@ public class EDISerializer implements IXMLSerializer<String> {
 
 	public String toXML(String source) throws SerializerException {
 		try {
-			EDIReader ediReader = new EDIReader("~", "*", ":");
+			EDIReader ediReader = new EDIReader(segmentDelim, elementDelim, subelementDelim);
 			StringWriter stringWriter = new StringWriter();
 			XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
 			serializer.setEncodeEntities(encodeEntities);
