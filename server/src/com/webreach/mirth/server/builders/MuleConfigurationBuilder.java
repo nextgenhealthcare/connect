@@ -62,6 +62,7 @@ import com.webreach.mirth.util.PropertyLoader;
  * 
  */
 public class MuleConfigurationBuilder {
+	private static final String JDBC_TRANSACTION_FACTORY_CLASS = "com.webreach.mirth.connectors.jdbc.JdbcTransactionFactory";
 	private Logger logger = Logger.getLogger(this.getClass());
 	private List<Channel> channels = null;
 	private Map<String, ConnectorMetaData> transports = null;
@@ -355,7 +356,7 @@ public class MuleConfigurationBuilder {
 				String factory = new String();
 
 				if (protocol.equals("jdbc")) {
-					factory = "com.webreach.mirth.server.mule.providers.jdbc.JdbcTransactionFactory";
+					factory = JDBC_TRANSACTION_FACTORY_CLASS;
 				}
 
 				Element transactionElement = document.createElement("transaction");
