@@ -188,7 +188,7 @@ public class JavaScriptUtil {
 		builtScript.append("if (arguments.length == 1){return globalMap.get(key); }");
 		builtScript.append("else if (arguments.length == 2){globalMap.put(key, value); }}");
 		
-		builtScript.append("function doScript() {\n" + script + " }\n");
+		builtScript.append("function doScript() {\n" + script + " \n}\n");
 		builtScript.append("doScript()\n");
 		return builtScript.toString();
 	}
