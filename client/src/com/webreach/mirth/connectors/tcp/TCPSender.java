@@ -81,6 +81,12 @@ public class TCPSender extends ConnectorClass
 
         properties.put(TCPSenderProperties.TCP_ACK_TIMEOUT, ackTimeoutField.getText());
         properties.put(TCPSenderProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
+        
+        if (dataTypeBinary.isSelected())
+            properties.put(TCPSenderProperties.TCP_TYPE, UIConstants.YES_OPTION);
+        else
+            properties.put(TCPSenderProperties.TCP_TYPE, UIConstants.NO_OPTION);
+        
         properties.put(TCPSenderProperties.TCP_TEMPLATE, template.getText());
         properties.put(TCPSenderProperties.CHANNEL_ID, channelList.get((String) channelNames.getSelectedItem()));
         properties.put(TCPSenderProperties.CHANNEL_NAME, (String) channelNames.getSelectedItem());
@@ -121,6 +127,17 @@ public class TCPSender extends ConnectorClass
 
         template.setText((String) props.get(TCPSenderProperties.TCP_TEMPLATE));
         parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(TCPSenderProperties.CONNECTOR_CHARSET_ENCODING));
+        
+        if (((String) props.get(TCPSenderProperties.TCP_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        {
+            dataTypeBinary.setSelected(true);
+            dataTypeBinaryActionPerformed(null);
+        }
+        else
+        {
+            dataTypeASCII.setSelected(true);
+            dataTypeASCIIActionPerformed(null);
+        }
 
         ArrayList<String> channelNameArray = new ArrayList<String>();
         channelList = new HashMap();
@@ -237,6 +254,7 @@ public class TCPSender extends ConnectorClass
         keepConnectionOpenGroup = new javax.swing.ButtonGroup();
         buttonGroup1 = new javax.swing.ButtonGroup();
         usePersistenceQueuesGroup = new javax.swing.ButtonGroup();
+        dataTypeButtonGroup = new javax.swing.ButtonGroup();
         jLabel13 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
@@ -253,7 +271,7 @@ public class TCPSender extends ConnectorClass
         ackTimeoutField = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel19 = new javax.swing.JLabel();
         charsetEncodingCombobox = new com.webreach.mirth.client.ui.components.MirthComboBox();
-        jLabel20 = new javax.swing.JLabel();
+        encodingLabel = new javax.swing.JLabel();
         jLabel36 = new javax.swing.JLabel();
         usePersistentQueuesYesRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         usePersistentQueuesNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
@@ -264,6 +282,9 @@ public class TCPSender extends ConnectorClass
         reconnectInterval = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel1 = new javax.swing.JLabel();
         ignoreACKCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
+        dataTypeASCII = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        dataTypeBinary = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        dataTypeLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -302,7 +323,7 @@ public class TCPSender extends ConnectorClass
             }
         });
 
-        jLabel20.setText("Encoding:");
+        encodingLabel.setText("Encoding:");
 
         jLabel36.setText("Use Persistent Queues:");
 
@@ -341,6 +362,35 @@ public class TCPSender extends ConnectorClass
             }
         });
 
+        dataTypeASCII.setBackground(new java.awt.Color(255, 255, 255));
+        dataTypeASCII.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        dataTypeButtonGroup.add(dataTypeASCII);
+        dataTypeASCII.setSelected(true);
+        dataTypeASCII.setText("ASCII");
+        dataTypeASCII.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        dataTypeASCII.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                dataTypeASCIIActionPerformed(evt);
+            }
+        });
+
+        dataTypeBinary.setBackground(new java.awt.Color(255, 255, 255));
+        dataTypeBinary.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        dataTypeButtonGroup.add(dataTypeBinary);
+        dataTypeBinary.setText("Binary");
+        dataTypeBinary.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        dataTypeBinary.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                dataTypeBinaryActionPerformed(evt);
+            }
+        });
+
+        dataTypeLabel.setText("Data Type:");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -348,6 +398,7 @@ public class TCPSender extends ConnectorClass
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(dataTypeLabel)
                     .add(jLabel18)
                     .add(jLabel17)
                     .add(jLabel16)
@@ -356,7 +407,7 @@ public class TCPSender extends ConnectorClass
                     .add(jLabel8)
                     .add(jLabel36)
                     .add(jLabel19)
-                    .add(jLabel20)
+                    .add(encodingLabel)
                     .add(URL)
                     .add(jLabel7)
                     .add(jLabel1))
@@ -375,7 +426,11 @@ public class TCPSender extends ConnectorClass
                             .add(layout.createSequentialGroup()
                                 .add(ackTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(ignoreACKCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                                .add(ignoreACKCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(layout.createSequentialGroup()
+                                .add(dataTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(dataTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
                     .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(serverTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
@@ -432,8 +487,13 @@ public class TCPSender extends ConnectorClass
                     .add(ignoreACKCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel20)
+                    .add(encodingLabel)
                     .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(dataTypeLabel)
+                    .add(dataTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(dataTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(URL)
@@ -441,10 +501,23 @@ public class TCPSender extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel7)
-                    .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 94, Short.MAX_VALUE))
+                    .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void dataTypeBinaryActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dataTypeBinaryActionPerformed
+    {//GEN-HEADEREND:event_dataTypeBinaryActionPerformed
+        encodingLabel.setEnabled(false);
+        charsetEncodingCombobox.setEnabled(false);
+        charsetEncodingCombobox.setSelectedIndex(0);
+    }//GEN-LAST:event_dataTypeBinaryActionPerformed
+
+    private void dataTypeASCIIActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dataTypeASCIIActionPerformed
+    {//GEN-HEADEREND:event_dataTypeASCIIActionPerformed
+        encodingLabel.setEnabled(true);
+        charsetEncodingCombobox.setEnabled(true);
+    }//GEN-LAST:event_dataTypeASCIIActionPerformed
 
     private void ignoreACKCheckBoxActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_ignoreACKCheckBoxActionPerformed
     {//GEN-HEADEREND:event_ignoreACKCheckBoxActionPerformed
@@ -471,6 +544,11 @@ public class TCPSender extends ConnectorClass
     private javax.swing.ButtonGroup buttonGroup1;
     private com.webreach.mirth.client.ui.components.MirthComboBox channelNames;
     private com.webreach.mirth.client.ui.components.MirthComboBox charsetEncodingCombobox;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton dataTypeASCII;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton dataTypeBinary;
+    private javax.swing.ButtonGroup dataTypeButtonGroup;
+    private javax.swing.JLabel dataTypeLabel;
+    private javax.swing.JLabel encodingLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField hostAddressField;
     private com.webreach.mirth.client.ui.components.MirthTextField hostPortField;
     private com.webreach.mirth.client.ui.components.MirthCheckBox ignoreACKCheckBox;
@@ -481,7 +559,6 @@ public class TCPSender extends ConnectorClass
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
-    private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel36;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;

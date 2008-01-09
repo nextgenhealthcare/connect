@@ -78,6 +78,11 @@ public class TCPListener extends ConnectorClass
 
         // ast:encoding
         properties.put(TCPListenerProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
+        
+        if (dataTypeBinary.isSelected())
+            properties.put(TCPListenerProperties.TCP_TYPE, UIConstants.YES_OPTION);
+        else
+            properties.put(TCPListenerProperties.TCP_TYPE, UIConstants.NO_OPTION);
 
         if (ackOnNewConnectionYes.isSelected())
             properties.put(TCPListenerProperties.TCP_ACK_NEW_CONNECTION, UIConstants.YES_OPTION);
@@ -106,6 +111,17 @@ public class TCPListener extends ConnectorClass
             responseFromTransformer.setSelectedItem((String) props.getProperty(TCPListenerProperties.TCP_RESPONSE_VALUE));
 
         parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(TCPListenerProperties.CONNECTOR_CHARSET_ENCODING));
+        
+        if (((String) props.get(TCPListenerProperties.TCP_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        {
+            dataTypeBinary.setSelected(true);
+            dataTypeBinaryActionPerformed(null);
+        }
+        else
+        {
+            dataTypeASCII.setSelected(true);
+            dataTypeASCIIActionPerformed(null);
+        }
 
         if (((String) props.get(TCPListenerProperties.TCP_ACK_NEW_CONNECTION)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
@@ -212,6 +228,7 @@ public class TCPListener extends ConnectorClass
         buttonGroup3 = new javax.swing.ButtonGroup();
         buttonGroup4 = new javax.swing.ButtonGroup();
         buttonGroup5 = new javax.swing.ButtonGroup();
+        dataTypeButtonGroup = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -221,7 +238,7 @@ public class TCPListener extends ConnectorClass
         listenerPortField = new com.webreach.mirth.client.ui.components.MirthTextField();
         listenerAddressField = new com.webreach.mirth.client.ui.components.MirthTextField();
         charsetEncodingCombobox = new com.webreach.mirth.client.ui.components.MirthComboBox();
-        jLabel39 = new javax.swing.JLabel();
+        encodingLabel = new javax.swing.JLabel();
         ackOnNewConnectionLabel = new javax.swing.JLabel();
         ackOnNewConnectionYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         ackOnNewConnectionNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
@@ -231,6 +248,9 @@ public class TCPListener extends ConnectorClass
         ackAddressField = new com.webreach.mirth.client.ui.components.MirthTextField();
         responseFromLabel = new javax.swing.JLabel();
         responseFromTransformer = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        dataTypeASCII = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        dataTypeBinary = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        dataTypeLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -244,7 +264,7 @@ public class TCPListener extends ConnectorClass
 
         charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "default", "utf-8", "iso-8859-1", "utf-16 (le)", "utf-16 (be)", "utf-16 (bom)", "us-ascii" }));
 
-        jLabel39.setText("Encoding:");
+        encodingLabel.setText("Encoding:");
 
         ackOnNewConnectionLabel.setText("Response on New Connection:");
 
@@ -282,22 +302,52 @@ public class TCPListener extends ConnectorClass
 
         responseFromTransformer.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
+        dataTypeASCII.setBackground(new java.awt.Color(255, 255, 255));
+        dataTypeASCII.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        dataTypeButtonGroup.add(dataTypeASCII);
+        dataTypeASCII.setSelected(true);
+        dataTypeASCII.setText("ASCII");
+        dataTypeASCII.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        dataTypeASCII.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                dataTypeASCIIActionPerformed(evt);
+            }
+        });
+
+        dataTypeBinary.setBackground(new java.awt.Color(255, 255, 255));
+        dataTypeBinary.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        dataTypeButtonGroup.add(dataTypeBinary);
+        dataTypeBinary.setText("Binary");
+        dataTypeBinary.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        dataTypeBinary.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                dataTypeBinaryActionPerformed(evt);
+            }
+        });
+
+        dataTypeLabel.setText("Data Type:");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(10, 10, 10)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel39)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, responseFromLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, ackOnNewConnectionLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, ackIPLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, ackPortLabel))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(dataTypeLabel)
+                    .add(jLabel1)
+                    .add(jLabel2)
+                    .add(jLabel3)
+                    .add(jLabel4)
+                    .add(encodingLabel)
+                    .add(responseFromLabel)
+                    .add(ackOnNewConnectionLabel)
+                    .add(ackIPLabel)
+                    .add(ackPortLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(listenerAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -311,8 +361,12 @@ public class TCPListener extends ConnectorClass
                     .add(layout.createSequentialGroup()
                         .add(ackOnNewConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(ackOnNewConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .add(ackOnNewConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(layout.createSequentialGroup()
+                        .add(dataTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(dataTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(88, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -334,8 +388,13 @@ public class TCPListener extends ConnectorClass
                     .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel39)
+                    .add(encodingLabel)
                     .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(dataTypeLabel)
+                    .add(dataTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(dataTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(responseFromLabel)
@@ -353,9 +412,22 @@ public class TCPListener extends ConnectorClass
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(ackPortLabel)
                     .add(ackPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(108, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void dataTypeBinaryActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dataTypeBinaryActionPerformed
+    {//GEN-HEADEREND:event_dataTypeBinaryActionPerformed
+        encodingLabel.setEnabled(false);
+        charsetEncodingCombobox.setEnabled(false);
+        charsetEncodingCombobox.setSelectedIndex(0);
+    }//GEN-LAST:event_dataTypeBinaryActionPerformed
+
+    private void dataTypeASCIIActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_dataTypeASCIIActionPerformed
+    {//GEN-HEADEREND:event_dataTypeASCIIActionPerformed
+        encodingLabel.setEnabled(true);
+        charsetEncodingCombobox.setEnabled(true);
+    }//GEN-LAST:event_dataTypeASCIIActionPerformed
     
     public void updateResponseDropDown()
     {
@@ -490,10 +562,14 @@ public class TCPListener extends ConnectorClass
     private javax.swing.ButtonGroup buttonGroup4;
     private javax.swing.ButtonGroup buttonGroup5;
     private com.webreach.mirth.client.ui.components.MirthComboBox charsetEncodingCombobox;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton dataTypeASCII;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton dataTypeBinary;
+    private javax.swing.ButtonGroup dataTypeButtonGroup;
+    private javax.swing.JLabel dataTypeLabel;
+    private javax.swing.JLabel encodingLabel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel39;
     private javax.swing.JLabel jLabel4;
     private javax.swing.ButtonGroup keepConnectionOpenGroup;
     private com.webreach.mirth.client.ui.components.MirthTextField listenerAddressField;
