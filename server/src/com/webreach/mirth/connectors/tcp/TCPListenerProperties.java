@@ -44,6 +44,7 @@ public class TCPListenerProperties implements ComponentProperties
     public static final String TCP_ACK_NEW_CONNECTION_PORT = "ackPort";
     public static final String TCP_RESPONSE_VALUE = "responseValue";
     public static final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
+    public static final String TCP_TYPE = "binary";
 
     public Properties getDefaults()
     {
@@ -58,6 +59,7 @@ public class TCPListenerProperties implements ComponentProperties
         properties.put(TCP_ACK_NEW_CONNECTION_PORT, "");
         properties.put(TCP_RESPONSE_VALUE, "None");
         properties.put(CONNECTOR_CHARSET_ENCODING, "DEFAULT_ENCODING");
+        properties.put(TCP_TYPE, "0");
         return properties;
     }
 }

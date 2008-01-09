@@ -48,6 +48,7 @@ public class TCPSenderProperties implements ComponentProperties
     public static final String CHANNEL_ID = "replyChannelId";
     public static final String CHANNEL_NAME = "channelName";
     public static final String TCP_RECONNECT_INTERVAL = "reconnectMillisecs";
+    public static final String TCP_TYPE = "binary";
 
     public Properties getDefaults()
     {
@@ -67,6 +68,7 @@ public class TCPSenderProperties implements ComponentProperties
         properties.put(CHANNEL_ID, "sink");
         properties.put(CHANNEL_NAME, "None");
         properties.put(TCP_RECONNECT_INTERVAL, "10000");
+        properties.put(TCP_TYPE, "0");
         return properties;
     }
 }
