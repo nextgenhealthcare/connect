@@ -430,7 +430,7 @@ public class MirthTree extends JXTree implements DropTargetListener
     }
     
     public static String constructMessageBuilderStepName(TreeNode in, TreeNode out)
-    {    	
+    {
     	if (in != null)
     		return constructNodeDescription(out) + " (out) <-- " + constructNodeDescription(in) + " (in)";
     	else
@@ -464,11 +464,11 @@ public class MirthTree extends JXTree implements DropTargetListener
             {
             	String matchDescription = matcher.group(1);
             	matchDescription = matchDescription.substring(1, matchDescription.length() -1);
-            	description = matchDescription + parentIndex + (description.length() == 0? "" : " - ") + description;
+            	description = matchDescription + parentIndex + (description.length() == 0 ? " (" + parent.toString().replaceAll(" \\(.*\\)", "") + ")" : " - ") + description;
             }
             else
             {
-            	description = parent.toString() + parentIndex + (description.length() == 0? "" : " - ") + description;
+            	description = parent.toString() + parentIndex + (description.length() == 0 ? "" : " - ") + description;
             }
             
             parent = parent.getParent();

@@ -201,7 +201,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                     pasteBox.setText(new DICOMSerializer().toXML(file));
                 }
                 else
-                    pasteBox.setText(FileUtil.readWithLineFeeds(file));
+                    pasteBox.setText(FileUtil.read(file));
 
             }
         }
