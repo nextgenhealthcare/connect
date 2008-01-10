@@ -4,6 +4,8 @@ import com.webreach.mirth.plugins.AttachmentViewer;
 import com.webreach.mirth.model.MessageObject;
 import sun.misc.BASE64Decoder;
 
+import java.awt.Dimension;
+import java.awt.Point;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
@@ -35,6 +37,10 @@ public class DICOMViewer extends AttachmentViewer {
             DICOM dcm = new DICOM(bis);
             dcm.run(message.getType());
             dcm.show();
+			Dimension dlgSize = dcm.getWindow().getSize();
+	        Dimension frmSize = parent.getSize();
+	        Point loc = parent.getLocation();
+	        dcm.getWindow().setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         }
         catch(Exception e ){
             e.printStackTrace();
