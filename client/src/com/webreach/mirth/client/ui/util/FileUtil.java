@@ -28,9 +28,13 @@ package com.webreach.mirth.client.ui.util;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+
+import sun.misc.BASE64Encoder;
 
 public class FileUtil
 {
@@ -49,27 +53,6 @@ public class FileUtil
         }
     }
 
-    public static String readWithLineFeeds(File file) throws IOException
-    {
-        BufferedReader reader = new BufferedReader(new FileReader(file));
-        StringBuilder contents = new StringBuilder();
-        String line = null;
-
-        try
-        {
-            while ((line = reader.readLine()) != null)
-            {
-                contents.append(line + "\n");
-            }
-        }
-        finally
-        {
-            reader.close();
-        }
-
-        return contents.toString();
-    }
-    
     public static String read(File file) throws IOException
     {        
         StringBuilder fileData = new StringBuilder();
@@ -81,6 +64,43 @@ public class FileUtil
         }
         reader.close();
         return fileData.toString();
+    }
+    
+    public static String readBinaryBase64(File file) throws IOException
+    {        
+		InputStream is = new FileInputStream(file);
+
+		// Get the size of the file
+		long length = file.length();
+
+		// You cannot create an array using a long type.
+		// It needs to be an int type.
+		// Before converting to an int type, check
+		// to ensure that file is not larger than Integer.MAX_VALUE.
+		if (length > Integer.MAX_VALUE) {
+			// File is too large
+		}
+
+		// Create the byte array to hold the data
+		byte[] bytes = new byte[(int) length];
+
+		// Read in the bytes
+		int offset = 0;
+		int numRead = 0;
+		while (offset < bytes.length && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
+			offset += numRead;
+		}
+
+		// Ensure all the bytes have been read in
+		if (offset < bytes.length) {
+			throw new IOException("Could not completely read file " + file.getName());
+		}
+
+		// Close the input stream and return bytes
+		is.close();
+		
+		BASE64Encoder encoder = new BASE64Encoder();
+		return encoder.encode(bytes);
     }
 
 }

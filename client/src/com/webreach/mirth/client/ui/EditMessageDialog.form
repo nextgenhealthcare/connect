@@ -45,7 +45,7 @@
                       <Group type="102" alignment="1" attributes="0">
                           <Component id="openFileButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="processFileButton" min="-2" max="-2" attributes="0"/>
+                          <Component id="processBinaryFileButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="processMessageButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
@@ -67,7 +67,7 @@
                       <Component id="closeButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="processMessageButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="openFileButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="processFileButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="processBinaryFileButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
@@ -111,13 +111,13 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="openFileButtonActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JButton" name="processFileButton">
+        <Component class="javax.swing.JButton" name="processBinaryFileButton">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Process File..."/>
+            <Property name="text" type="java.lang.String" value="Process Binary File..."/>
             <Property name="toolTipText" type="java.lang.String" value="Process a file without first loading the contents into the editor."/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="processFileButtonActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="processBinaryFileButtonActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>
