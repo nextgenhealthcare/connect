@@ -11,9 +11,7 @@ public class X12Serializer extends EDISerializer {
 		if (x12Properties == null) {
 			return;
 		}
-		if (x12Properties.get("inferX12Delimiters") != null && ((String) x12Properties.get("inferX12Delimiters")).equals("true")) {
-			this.inferX12Delimiters = true;
-		} else {
+		if (x12Properties.get("inferX12Delimiters") != null && ((String) x12Properties.get("inferX12Delimiters")).equals("false")) {
 			this.inferX12Delimiters = false;
 		}
 	}
@@ -26,6 +24,7 @@ public class X12Serializer extends EDISerializer {
 	public String toXML(String source) throws SerializerException {
 		source = source.replaceAll("\\r\\n", "\n");
 		source = source.replaceAll("\\n\\n", "\n");
+		source = source.replaceAll("\\r", "\\n"); //on Macs we just need to get the EOL to be \n
 		if (this.inferX12Delimiters) {
 			String x12message = source;
 			if (x12message.startsWith("ISA")) {
