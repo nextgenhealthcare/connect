@@ -68,7 +68,8 @@ public class Mirth extends Thread {
 	private Properties mirthProperties = null;
 	private Properties versionProperties = null;
 	private MuleManager muleManager = null;
-	private HttpServer webServer = null;
+	private HttpServer httpServer = null;
+	private HttpServer servletContainer = null;
 	private CommandQueue commandQueue = CommandQueue.getInstance();
 	private SystemLogger systemLogger = SystemLogger.getInstance();
 	private MirthManager manager = new MirthManager();
@@ -286,8 +287,9 @@ public class Mirth extends Thread {
 			// form size to infinite
 			System.setProperty("org.mortbay.http.HttpRequest.maxFormContentSize", "0");
 
-			webServer = new HttpServer();
-
+			httpServer = new HttpServer();
+			servletContainer = new HttpServer();
+			
 			// add HTTPS listener
 			SslListener sslListener = new SslListener();
 			
@@ -300,12 +302,12 @@ public class Mirth extends Thread {
 			sslListener.setKeystore(ConfigurationController.mirthHomeDir + System.getProperty("file.separator") + PropertyLoader.getProperty(mirthProperties, "https.keystore"));
 			sslListener.setPassword(PropertyLoader.getProperty(mirthProperties, "https.password"));
 			sslListener.setKeyPassword(PropertyLoader.getProperty(mirthProperties, "https.keypassword"));
-			webServer.addListener(sslListener);
+			servletContainer.addListener(sslListener);
 
 			// add HTTP listener
 			SocketListener listener = new SocketListener();
 			listener.setPort(Integer.valueOf(PropertyLoader.getProperty(mirthProperties, "http.port")).intValue());
-			webServer.addListener(listener);
+			httpServer.addListener(listener);
 
 			// Load the context path property and remove the last char if it is a '/'.
 			String contextPath = PropertyLoader.getProperty(mirthProperties, "context.path");
@@ -316,7 +318,7 @@ public class Mirth extends Thread {
 			// Create the lib context
 			HttpContext libContext = new HttpContext();
 			libContext.setContextPath(contextPath + "/client-lib/");
-			webServer.addContext(libContext);
+			httpServer.addContext(libContext);
 
 			// Serve static content from the lib context
 			File connectors = new File(ClassPathResource.getResourceURI("connectors"));
@@ -329,7 +331,7 @@ public class Mirth extends Thread {
 			// Create the connectors context
 			HttpContext connectorsContext = new HttpContext();
 			connectorsContext.setContextPath(contextPath + "/connectors/");
-			webServer.addContext(connectorsContext);
+			httpServer.addContext(connectorsContext);
 
 			// Serve static content from the connectors context
 			String connectorsPath = connectors.getPath(); // ConfigurationController.mirthHomeDir
@@ -344,7 +346,7 @@ public class Mirth extends Thread {
 			// Create the connectors context
 			HttpContext pluginsContext = new HttpContext();
 			pluginsContext.setContextPath(contextPath + "/plugins/");
-			webServer.addContext(pluginsContext);
+			httpServer.addContext(pluginsContext);
 
 			// Serve static content from the connectors context
 			String pluginsPath = plugins.getPath();
@@ -354,7 +356,7 @@ public class Mirth extends Thread {
 			// Create the public_html context
 			HttpContext publicContext = new HttpContext();
 			publicContext.setContextPath(contextPath + "/");
-			webServer.addContext(publicContext);
+			httpServer.addContext(publicContext);
 
 			String publicPath = ConfigurationController.mirthHomeDir + System.getProperty("file.separator") + "public_html";
 			publicContext.setResourceBase(publicPath);
@@ -365,7 +367,7 @@ public class Mirth extends Thread {
 			HttpContext servletContext = new HttpContext();
 			servletContext.setContextPath(contextPath + "/");
 			servletContext.addHandler(servlets);
-			webServer.addContext(servletContext);
+			servletContainer.addContext(servletContext);
 
 			// Map a servlet onto the container
 			servlets.addServlet("Alerts", "/alerts", "com.webreach.mirth.server.servlets.AlertServlet");
@@ -385,7 +387,8 @@ public class Mirth extends Thread {
 			servlets.addServlet("Activation", "/activation", "com.webreach.mirth.server.servlets.ActivationServlet");
 
 			// start the web server
-			webServer.start();
+			httpServer.start();
+			servletContainer.start();
 
 			logger.debug("started jetty web server on ports: " + listener.getPort() + ", " + sslListener.getPort());
 		} catch (Exception e) {
@@ -401,7 +404,8 @@ public class Mirth extends Thread {
 		logger.debug("stopping jetty web server");
 
 		try {
-			webServer.stop();
+			httpServer.stop();
+			servletContainer.stop();
 		} catch (Exception e) {
 			logger.warn("Could not stop web server.", e);
 		}
