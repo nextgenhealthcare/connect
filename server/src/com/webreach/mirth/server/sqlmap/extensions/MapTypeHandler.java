@@ -21,7 +21,18 @@ public class MapTypeHandler implements TypeHandlerCallback {
 		// convert the values in the variable map to strings
 		for (Iterator iter = parameterMap.entrySet().iterator(); iter.hasNext();) {
 			Entry entry = (Entry) iter.next();
-			map.put(entry.getKey(), entry.getValue().toString());
+			String keyName = new String();
+			if (entry.getKey() != null){
+				keyName = entry.getKey().toString();
+				String keyValue = new String();
+				if (entry.getValue() == null) {
+					keyValue = "";
+				}
+				else {
+					keyValue = entry.getValue().toString();
+				}
+				map.put(keyName, keyValue);
+			}
 		}
 
 		setter.setString(serializer.toXML(map));

@@ -15,6 +15,8 @@
  */
 package com.webreach.mirth.connectors.soap.axis;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -210,7 +212,11 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 			String uri = "axis:" + replacer.replaceURLValues(event.getEndpoint().getEndpointURI().toString(), messageObject);
 			String serviceEndpoint = "";
 			if (((AxisConnector) connector).getServiceEndpoint() != null && ((AxisConnector) connector).getServiceEndpoint().length() > 0){
-				serviceEndpoint =  replacer.replaceURLValues(((AxisConnector) connector).getServiceEndpoint(), messageObject);
+				try{
+					serviceEndpoint=replacer.replaceURLValues(URLEncoder.encode(((AxisConnector) connector).getServiceEndpoint(),"UTF-8"), messageObject);
+				}catch(UnsupportedEncodingException e){
+					serviceEndpoint=replacer.replaceURLValues(URLEncoder.encode(((AxisConnector) connector).getServiceEndpoint()), messageObject);
+				}
 			}
 			
 			event.getEndpoint().setEndpointURI(new MuleEndpointURI(uri));
