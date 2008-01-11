@@ -344,19 +344,20 @@ public class TreePanel extends javax.swing.JPanel
         type = "";
         String messageDescription = "";
         Protocol protocol = null;
-        boolean convertLFtoCR = true;
-        if (protocolProperties != null && protocolProperties.get("convertLFtoCR") != null){
-			convertLFtoCR = Boolean.parseBoolean((String) protocolProperties.get("convertLFtoCR"));
-		}
-        if (convertLFtoCR){
-        	source = source.replaceAll("\\n", "\r").trim();
-        }
         if (source.length() > 0 && !source.equals(ignoreText))
         {
             IXMLSerializer<String> serializer;
             if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2).equals(messageType))
             {
                 protocol = Protocol.HL7V2;
+                //The \n to \r conversion is ONLY valid for HL7
+                boolean convertLFtoCR = true;
+                if (protocolProperties != null && protocolProperties.get("convertLFtoCR") != null){
+        			convertLFtoCR = Boolean.parseBoolean((String) protocolProperties.get("convertLFtoCR"));
+        		}
+                if (convertLFtoCR){
+                	source = source.replaceAll("\\n", "\r").trim();
+                }
             }
             else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.NCPDP).equals(messageType))
             {

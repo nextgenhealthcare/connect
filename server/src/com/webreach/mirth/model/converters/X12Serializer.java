@@ -22,9 +22,9 @@ public class X12Serializer extends EDISerializer {
 	}
 
 	public String toXML(String source) throws SerializerException {
-		source = source.replaceAll("\\r\\n", "\n");
-		source = source.replaceAll("\\n\\n", "\n");
-		source = source.replaceAll("\\r", "\\n"); //on Macs we just need to get the EOL to be \n
+		//TODO: Investigate this replace all - see if needed with new 1.7 fixes
+		source = source.replaceAll("\\r\\n", "\n").replaceAll("\\n\\n", "\n");
+
 		if (this.inferX12Delimiters) {
 			String x12message = source;
 			if (x12message.startsWith("ISA")) {
