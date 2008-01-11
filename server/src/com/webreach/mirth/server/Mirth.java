@@ -334,12 +334,7 @@ public class Mirth extends Thread {
 			httpServer.addContext(connectorsContext);
 
 			// Serve static content from the connectors context
-			String connectorsPath = connectors.getPath(); // ConfigurationController.mirthHomeDir
-			// +
-			// System.getProperty("file.separator")
-			// + "extensions" +
-			// System.getProperty("file.separator")
-			// + "connectors";
+			String connectorsPath = connectors.getPath();
 			connectorsContext.setResourceBase(connectorsPath);
 			connectorsContext.addHandler(new ResourceHandler());
 
@@ -362,29 +357,34 @@ public class Mirth extends Thread {
 			publicContext.setResourceBase(publicPath);
 			publicContext.addHandler(new ResourceHandler());
 
-			// Create a servlet container
+			// Create a normal servlet container
 			ServletHandler servlets = new ServletHandler();
 			HttpContext servletContext = new HttpContext();
 			servletContext.setContextPath(contextPath + "/");
 			servletContext.addHandler(servlets);
-			servletContainer.addContext(servletContext);
-
-			// Map a servlet onto the container
-			servlets.addServlet("Alerts", "/alerts", "com.webreach.mirth.server.servlets.AlertServlet");
-			servlets.addServlet("Channels", "/channels", "com.webreach.mirth.server.servlets.ChannelServlet");
-			servlets.addServlet("ChannelStatistics", "/channelstatistics", "com.webreach.mirth.server.servlets.ChannelStatisticsServlet");
-			servlets.addServlet("ChannelStatus", "/channelstatus", "com.webreach.mirth.server.servlets.ChannelStatusServlet");
-			servlets.addServlet("Configuration", "/configuration", "com.webreach.mirth.server.servlets.ConfigurationServlet");
-			servlets.addServlet("MessageObject", "/messages", "com.webreach.mirth.server.servlets.MessageObjectServlet");
-			servlets.addServlet("Extensions", "/extensions", "com.webreach.mirth.server.servlets.ExtensionServlet");
-			servlets.addServlet("SystemEvent", "/events", "com.webreach.mirth.server.servlets.SystemEventServlet");
-			servlets.addServlet("Users", "/users", "com.webreach.mirth.server.servlets.UserServlet");
+			httpServer.addContext(servletContext);
 			servlets.addServlet("WebStart", "/webstart.jnlp", "com.webreach.mirth.server.servlets.WebStartServlet");
 			servlets.addServlet("Activation", "/activation.jnlp", "com.webreach.mirth.server.servlets.ActivationServlet");
-
 			// Servlets for backwards compatibility
 			servlets.addServlet("WebStart", "/webstart", "com.webreach.mirth.server.servlets.WebStartServlet");
 			servlets.addServlet("Activation", "/activation", "com.webreach.mirth.server.servlets.ActivationServlet");
+			
+			// Create a secure servlet container
+			ServletHandler secureServlets = new ServletHandler();
+			HttpContext secureServletContext = new HttpContext();
+			secureServletContext.setContextPath(contextPath + "/");
+			secureServletContext.addHandler(secureServlets);
+			servletContainer.addContext(secureServletContext);
+			// Map a servlet onto the container
+			secureServlets.addServlet("Alerts", "/alerts", "com.webreach.mirth.server.servlets.AlertServlet");
+			secureServlets.addServlet("Channels", "/channels", "com.webreach.mirth.server.servlets.ChannelServlet");
+			secureServlets.addServlet("ChannelStatistics", "/channelstatistics", "com.webreach.mirth.server.servlets.ChannelStatisticsServlet");
+			secureServlets.addServlet("ChannelStatus", "/channelstatus", "com.webreach.mirth.server.servlets.ChannelStatusServlet");
+			secureServlets.addServlet("Configuration", "/configuration", "com.webreach.mirth.server.servlets.ConfigurationServlet");
+			secureServlets.addServlet("MessageObject", "/messages", "com.webreach.mirth.server.servlets.MessageObjectServlet");
+			secureServlets.addServlet("Extensions", "/extensions", "com.webreach.mirth.server.servlets.ExtensionServlet");
+			secureServlets.addServlet("SystemEvent", "/events", "com.webreach.mirth.server.servlets.SystemEventServlet");
+			secureServlets.addServlet("Users", "/users", "com.webreach.mirth.server.servlets.UserServlet");
 
 			// start the web server
 			httpServer.start();
