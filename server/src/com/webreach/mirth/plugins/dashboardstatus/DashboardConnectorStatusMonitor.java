@@ -404,6 +404,10 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
                 channelName = object.toString();
                 // return only the newly added log entries for the client with matching sessionId.
                 channelLog = connectorInfoLogs.get(channelName);
+                if (channelLog == null) {
+                    channelLog = new LinkedList<String[]>();
+                    connectorInfoLogs.put(channelName, channelLog);
+                }                
             }
 
             HashMap<String, Long> lastDisplayedLogIdByChannel;
