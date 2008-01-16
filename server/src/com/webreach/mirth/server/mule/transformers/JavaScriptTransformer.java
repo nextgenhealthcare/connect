@@ -254,17 +254,25 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		// ---- Begin MO checks -----
 		try {
 			Script script = compiledScriptCache.getCompiledScript(scriptId);
+			//By setting emptyFilterAndTransformer we skip a lot of unneeded conversions and gain 10x speed
 			emptyFilterAndTransformer = true;
 			
 			//Check the conditions for skipping transformation
 			// 1. Script is empty
 			// 2. Protcols are different
 			// 3. Properties are different on in/out protcols
-			if ((script != null) 
-					|| !this.inboundProtocol.equals(this.outboundProtocol) 
-					|| !this.inboundProperties.equals(this.outboundProperties)) {
+			if (script != null || !this.inboundProtocol.equals(this.outboundProtocol)){
 				emptyFilterAndTransformer = false;
 				//TODO: make sure the properties equality check works with empty filter and transformer
+			}else if (this.inboundProperties != null && this.outboundProperties != null) {
+				// Check for equality if the properties are both non-null
+				if(!this.inboundProperties.equals(this.outboundProperties)){
+					emptyFilterAndTransformer = false;
+				}
+			} else if ((this.inboundProperties == null && this.outboundProperties != null) 
+						|| this.inboundProperties != null && this.outboundProperties == null) {
+				// If either property object is null and the other isn't, run the transformer
+				emptyFilterAndTransformer = false;
 			}
 			
 			if (this.getMode().equals(Mode.SOURCE.toString())) {
