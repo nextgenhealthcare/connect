@@ -314,12 +314,17 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 			h.setProperty(HttpConnector.HTTP_STATUS_PROPERTY, status);
 			logger.debug("Http response is: " + status);
 			ExceptionPayload ep = null;
-			String fullResponseHeader=(httpMethod.getStatusLine()==null)?"":httpMethod.getStatusLine().toString()+"\r\n";
-			org.apache.commons.httpclient.Header [] responseHeaders=httpMethod.getResponseHeaders();
-			for(int i=0;i<responseHeaders.length;i++){
-				fullResponseHeader+=responseHeaders[i].toString();
-			}
+			
+			String fullResponseHeader = "";
 
+			if (!connector.isExcludeHeaders()) {
+				fullResponseHeader = (httpMethod.getStatusLine()==null)?"":httpMethod.getStatusLine().toString()+"\r\n";
+				org.apache.commons.httpclient.Header [] responseHeaders=httpMethod.getResponseHeaders();
+				for(int i=0;i<responseHeaders.length;i++){
+					fullResponseHeader+=responseHeaders[i].toString();
+				}
+			}
+			
 			String fullResponse=fullResponseHeader+httpMethod.getResponseBodyAsString();
 			logger.debug("Full response from HTTP:\r\n"+fullResponse);
 			

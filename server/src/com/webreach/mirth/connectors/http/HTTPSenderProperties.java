@@ -41,6 +41,7 @@ public class HTTPSenderProperties implements ComponentProperties
     public static final String CHANNEL_ID = "replyChannelId";
     public static final String CHANNEL_NAME = "channelName";
     public static final String HTTP_HEADER_PROPERTIES = "headerVariables";
+    public static final String HTTP_EXCLUDE_HEADERS = "excludeHeaders";
     
     public Properties getDefaults()
     {
@@ -51,6 +52,7 @@ public class HTTPSenderProperties implements ComponentProperties
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         properties.put(HTTP_ADDITIONAL_PROPERTIES, serializer.toXML(new Properties()));
         properties.put(HTTP_HEADER_PROPERTIES, serializer.toXML(new Properties()));
+        properties.put(HTTP_EXCLUDE_HEADERS, "0");
         properties.put(CHANNEL_ID, "sink");
         properties.put(CHANNEL_NAME, "None");
         return properties;

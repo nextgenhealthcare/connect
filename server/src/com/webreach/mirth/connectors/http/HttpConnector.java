@@ -71,6 +71,7 @@ public class HttpConnector extends TcpConnector
     public static final String PROPERTY_REPLY_CHANNEL_ID = "replyChannelId";
     public static final String PROPERTY_EXTENDED_PAYLOAD = "extendedPayload";
     public static final String PROPERTY_HEADER_VARIABLES = "headerVariables";
+    public static final String PROPERTY_EXCLUDE_HEADERS = "excludeHeaders"; 
     
     private String proxyHostname = null;
     private int proxyPort = DEFAULT_PORT;
@@ -85,6 +86,7 @@ public class HttpConnector extends TcpConnector
     private String replyChannelId;
     private String channelId;
     private Map headerVariables;
+    private boolean excludeHeaders = false;
     private String payloadEncoding;
     private boolean appendPayload;
     public String getChannelId() {
@@ -236,6 +238,16 @@ public class HttpConnector extends TcpConnector
     public void setKeepAlive(boolean keepAlive)
     {
         this.keepAlive = keepAlive;
+    }
+    
+    public boolean isExcludeHeaders()
+    {
+        return excludeHeaders;
+    }
+
+    public void setExcludeHeaders(boolean excludeHeaders)
+    {
+        this.excludeHeaders = excludeHeaders;
     }
 
     public Map getReceivers() {
