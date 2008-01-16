@@ -1769,7 +1769,7 @@ public class ChannelSetup extends javax.swing.JPanel
                     "    1) Destinations are not guaranteed to run in order, so they cannot reference each other.\n" +
                     "    2) Your source cannot send a response from any of the destinations.\n" +
                     "    3) Your source connector may be modified to to ensure compatibility with requirement #2.\n" +
-                    "    4) Turning off synchronization will disable the post-processor." +
+                    "    4) Turning off synchronization will disable the post-processor.\n" +
                     "Are you sure you want to disable synchronization of your channel?");
             
             if (!disableSynch)
