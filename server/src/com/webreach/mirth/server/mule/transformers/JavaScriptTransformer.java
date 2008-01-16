@@ -28,6 +28,7 @@ package com.webreach.mirth.server.mule.transformers;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
@@ -255,8 +256,15 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			Script script = compiledScriptCache.getCompiledScript(scriptId);
 			emptyFilterAndTransformer = true;
 			
-			if ((script != null)) {
+			//Check the conditions for skipping transformation
+			// 1. Script is empty
+			// 2. Protcols are different
+			// 3. Properties are different on in/out protcols
+			if ((script != null) 
+					|| !this.inboundProtocol.equals(this.outboundProtocol) 
+					|| !this.inboundProperties.equals(this.outboundProperties)) {
 				emptyFilterAndTransformer = false;
+				//TODO: make sure the properties equality check works with empty filter and transformer
 			}
 			
 			if (this.getMode().equals(Mode.SOURCE.toString())) {
@@ -335,7 +343,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			}
 
 			if (!messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
-				// TODO: Check logic here
+
 				Object transformedData;
 				Protocol encodedDataProtocol;
 				Map encodedDataProperties;
@@ -345,9 +353,10 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 					encodedDataProtocol = Protocol.valueOf(this.getOutboundProtocol());
 					encodedDataProperties = this.getOutboundProperties();
 				} else {
-					if (this.getInboundProtocol().equals(Protocol.XML.toString()) && !this.getOutboundProtocol().equals(Protocol.XML.toString())) {
-						// we don't have a template and we have XML coming in,
-						// let's convert it
+					if (!this.getInboundProtocol().equals(this.getOutboundProtocol())) {
+						// we have mismatched protcols and an empty template, so...
+						// take the message (XML) and implicitly convert it to the target format.
+						// if it's invalid xml, so be it, we can't help them.
 						transformedData = scope.get("msg", scope);
 						encodedDataProtocol = Protocol.valueOf(this.getOutboundProtocol());
 						encodedDataProperties = this.getOutboundProperties();
@@ -359,8 +368,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				}
 
 				if (transformedData != Scriptable.NOT_FOUND) {
-					// set the transformedData to the template We replace all
-					// here because we do not want pretty-printed XML
+					// set the transformedData to the template 
 					messageObject.setTransformedData(context.toString(transformedData));
 				}
 
@@ -484,4 +492,5 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		newScript.append("if (doFilter() == true) { doTransform(); } else { messageObject.setStatus(Packages.com.webreach.mirth.model.MessageObject.Status.FILTERED); };");
 		return newScript.toString();
 	}
+	
 }
