@@ -230,10 +230,11 @@ public class ChannelController {
 		ConfigurationController configurationController = ConfigurationController.getInstance();
 		channel.setVersion(configurationController.getServerVersion());
 
-		updateChannelInCache(channel);
+		
 		try {
-			channelCache.put(channel.getId(), channel);
-
+	
+			updateChannelInCache(channel);
+			
 			Channel channelFilter = new Channel();
 			channelFilter.setId(channel.getId());
 
