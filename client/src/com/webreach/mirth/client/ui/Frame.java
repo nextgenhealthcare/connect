@@ -3383,7 +3383,7 @@ public class Frame extends JXFrame
     }
 
     public void doFind(JEditTextArea text){
-        FindRplDialog find = new FindRplDialog(this,false,text);
+        FindRplDialog find = new FindRplDialog(this,true,text);
         find.setVisible(true);
     }
 

@@ -30,7 +30,7 @@ public class FindAndReplaceAction extends AbstractAction
 
     public void actionPerformed(ActionEvent e)
     {
-        find = new FindRplDialog(frame,false,comp);
+        find = new FindRplDialog(frame,true,comp);
         find.setVisible(true);
     }
     public boolean isEnabled()
