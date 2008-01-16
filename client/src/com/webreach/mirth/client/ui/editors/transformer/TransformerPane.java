@@ -1144,6 +1144,14 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 				}
 				if (PlatformUI.MIRTH_FRAME.protocols.get(protocol).equals(tabTemplatePanel.getOutgoingDataType())) {
 					transformer.setOutboundProtocol(protocol);
+                    
+                    if (connector.getMode() == Connector.Mode.SOURCE) {
+                        for(Connector c : channel.getDestinationConnectors())
+                        {
+                            c.getTransformer().setInboundProtocol(protocol);
+                            c.getTransformer().setInboundProperties(tabTemplatePanel.getOutgoingDataProperties());
+                        }
+                    }
 				}
 			}
 
@@ -1152,7 +1160,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 
 			transformer.setInboundProperties(tabTemplatePanel.getIncomingDataProperties());
 			transformer.setOutboundProperties(tabTemplatePanel.getOutgoingDataProperties());
-
+            
 			// reset the task pane and content to channel edit page
 			if (returning) {
 				parent.channelEditPanel.setDestinationVariableList();
