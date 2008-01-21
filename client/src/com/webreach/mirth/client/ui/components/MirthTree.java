@@ -464,6 +464,7 @@ public class MirthTree extends JXTree implements DropTargetListener
             {
             	String matchDescription = matcher.group(1);
             	matchDescription = matchDescription.substring(1, matchDescription.length() -1);
+            	// Also add the segment name for the last node if vocab was used.
             	description = matchDescription + parentIndex + (description.length() == 0 ? " (" + parent.toString().replaceAll(" \\(.*\\)", "") + ")" : " - ") + description;
             }
             else
