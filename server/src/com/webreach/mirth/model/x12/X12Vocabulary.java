@@ -19,7 +19,7 @@ import com.webreach.mirth.model.util.MessageVocabulary;
 
 public class X12Vocabulary extends MessageVocabulary {
 	Map<String, Object> vocab;
-	Logger logger = Logger.getLogger(ObjectCloner.class);
+	Logger logger = Logger.getLogger(X12Vocabulary.class);
 	private static final String JAXB_CONTEXT = "com.webreach.mirth.model.x12";
 	private static final String XML_PATH = "xml";
 	private String version = "";
@@ -40,6 +40,7 @@ public class X12Vocabulary extends MessageVocabulary {
 				return new String();
 			}
 		}
+
 		//The map can contain a Queue or String
 		Object element = vocab.get(elementId);
 		if (element instanceof Queue){
@@ -86,6 +87,7 @@ public class X12Vocabulary extends MessageVocabulary {
 			name = name.substring(0, name.length() - 2) + "." + name.substring(name.length() - 2);
 		}
 		name = name.replace('-', '.');
+
 		//First check the map for an existing entry
 		if (mappings.containsKey(name)){
 			
@@ -98,7 +100,10 @@ public class X12Vocabulary extends MessageVocabulary {
 			}else{
 				//It's a string so create queue
 				Queue<String> queue = new LinkedBlockingQueue<String>();
+				//Add the existing entry to the queue
 				queue.add((String)mappingElement);
+				//Add the new element to the queue
+				queue.add(description);
 				//Add the queue to the map
 				mappings.put(name, queue);
 			}
