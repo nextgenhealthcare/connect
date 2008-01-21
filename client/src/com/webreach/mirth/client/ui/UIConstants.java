@@ -136,4 +136,9 @@ public class UIConstants
     public static final ImageIcon CLEAR_LOG_ICON = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/cross.png"));
     public static final ImageIcon CHANGE_LOGSIZE_ICON = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/tick.png"));
 
+    // for dashboard statistics
+    public static final ImageIcon GREEN_BULLET = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_green.png"));
+    public static final ImageIcon YELLOW_BULLET = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_yellow.png"));
+    public static final ImageIcon RED_BULLET = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_red.png"));
+
 }

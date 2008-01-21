@@ -55,10 +55,7 @@ public class DashboardPanel extends javax.swing.JPanel
     private Map<String, DashboardColumnPlugin> loadedColumnPluginsBeforeStatus = new HashMap<String, DashboardColumnPlugin>();
     private Map<String, DashboardColumnPlugin> loadedColumnPluginsAfterStats = new HashMap<String, DashboardColumnPlugin>();
     private Map<String, DashboardPanelPlugin> loadedPanelPlugins = new HashMap<String, DashboardPanelPlugin>();
-    private ImageIcon greenBullet;
-    private ImageIcon yellowBullet;
-    private ImageIcon redBullet;
-    
+
     /** Creates new form DashboardPanel */
     public DashboardPanel()
     {
@@ -71,9 +68,6 @@ public class DashboardPanel extends javax.swing.JPanel
         split.setDividerSize(0);
         split.setOneTouchExpandable(true);
         loadPanelPlugins();
-        greenBullet = new ImageIcon(Frame.class.getResource("images/bullet_green.png"));
-        yellowBullet = new ImageIcon(Frame.class.getResource("images/bullet_yellow.png"));
-        redBullet = new ImageIcon(Frame.class.getResource("images/bullet_red.png"));
         ChangeListener changeListener = new ChangeListener()
         {
             public void stateChanged(ChangeEvent changeEvent)
@@ -220,6 +214,14 @@ public class DashboardPanel extends javax.swing.JPanel
     public Map<String, DashboardPanelPlugin> getLoadedPanelPlugins() {
         return loadedPanelPlugins;
     }
+
+    public Map<String, DashboardColumnPlugin> getLoadedColumnPluginsBeforeStatus() {
+        return loadedColumnPluginsBeforeStatus;
+    }
+
+    public Map<String, DashboardColumnPlugin> getLoadedColumnPluginsAfterStats() {
+        return loadedColumnPluginsAfterStats;
+    }
     
     public synchronized void updateCurrentPluginPanel()
     {
@@ -232,7 +234,7 @@ public class DashboardPanel extends javax.swing.JPanel
      */
     public void makeStatusTable()
     {
-        updateTable();
+        updateTable(null);
         
         statusTable.setDoubleBuffered(true);
         
@@ -322,67 +324,8 @@ public class DashboardPanel extends javax.swing.JPanel
         });
     }
     
-    public synchronized void updateTable()
+    public synchronized void updateTable(Object[][] tableData)
     {
-        Object[][] tableData = null;
-        
-        if (parent.status != null)
-        {
-        	for (DashboardColumnPlugin plugin : loadedColumnPluginsBeforeStatus.values())
-            {
-                plugin.tableUpdate(parent.status);
-            }
-        	for (DashboardColumnPlugin plugin : loadedColumnPluginsAfterStats.values())
-            {
-                plugin.tableUpdate(parent.status);
-            }
-        	
-            tableData = new Object[parent.status.size()][7 + loadedColumnPluginsAfterStats.size() + loadedColumnPluginsBeforeStatus.size()];
-            for (int i = 0; i < parent.status.size(); i++)
-            {
-                ChannelStatus tempStatus = parent.status.get(i);
-                int statusColumn = 0;
-                try
-                {
-                    ChannelStatistics tempStats = parent.mirthClient.getStatistics(tempStatus.getChannelId());
-                    int j = 0;
-                    for (DashboardColumnPlugin plugin : loadedColumnPluginsBeforeStatus.values())
-                    {
-                    	tableData[i][j] = plugin.getTableData(tempStatus);
-                        j++;
-                    }
-                    statusColumn = j;
-                    j+=2;
-                    tableData[i][j] = tempStats.getReceived();
-                    tableData[i][++j] = tempStats.getFiltered();
-                    tableData[i][++j] = tempStats.getQueued();
-                    tableData[i][++j] = tempStats.getSent();
-                    tableData[i][++j] = tempStats.getError();
-                    j++;
-                    for (DashboardColumnPlugin plugin : loadedColumnPluginsAfterStats.values())
-                    {
-                        tableData[i][j] = plugin.getTableData(tempStatus);
-                        j++;
-                    }
-                }
-                catch (ClientException ex)
-                {
-                    parent.alertException(ex.getStackTrace(), ex.getMessage());
-                }
-                
-                if (tempStatus.getState() == ChannelStatus.State.STARTED)
-                    tableData[i][statusColumn] = new CellData(greenBullet, "Started");
-                else if (tempStatus.getState() == ChannelStatus.State.STOPPED)
-                    tableData[i][statusColumn] = new CellData(redBullet, "Stopped");
-                else if (tempStatus.getState() == ChannelStatus.State.PAUSED)
-                    tableData[i][statusColumn] = new CellData(yellowBullet, "Paused");
-                
-                tableData[i][statusColumn + 1] = tempStatus.getName();
-                
-            }
-            
-        }
-        
         if (statusTable != null)
         {
             lastRow = statusTable.getSelectedRow();

@@ -744,22 +744,7 @@ public class MessageBrowser extends javax.swing.JPanel
                 messageObjectList = null;
                 parent.alertException(e.getStackTrace(), e.getMessage());
             }
-            
-            if (messageObjectList != null)
-            {
-                updateMessageTable(messageObjectList);
-                
-            }
-            else
-            {
-                updateMessageTable(null);
-            }
         }
-        else
-        {
-            updateMessageTable(null);
-        }
-        
     }
     
     private int getNumberOfPages(int pageSize, int messageCount)
@@ -1553,6 +1538,11 @@ public class MessageBrowser extends javax.swing.JPanel
             
             public void done()
             {
+                if (messageListHandler != null) {
+                    updateMessageTable(messageObjectList);
+                } else {
+                    updateMessageTable(null);
+                }
                 parent.setWorking("", false);
             }
         };
@@ -1574,6 +1564,11 @@ public class MessageBrowser extends javax.swing.JPanel
             
             public void done()
             {
+                if (messageListHandler != null) {
+                    updateMessageTable(messageObjectList);
+                } else {
+                    updateMessageTable(null);
+                }
                 parent.setWorking("", false);
             }
         };
@@ -1712,6 +1707,11 @@ public class MessageBrowser extends javax.swing.JPanel
 
             public void done()
             {
+                if (messageListHandler != null) {
+                    updateMessageTable(messageObjectList);
+                } else {
+                    updateMessageTable(null);
+                }
                 parent.setWorking("", false);
             }
         };

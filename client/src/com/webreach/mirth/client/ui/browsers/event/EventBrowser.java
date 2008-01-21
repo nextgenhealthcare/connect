@@ -339,22 +339,7 @@ public class EventBrowser extends javax.swing.JPanel
                 systemEventList = null;
                 parent.alertException(e.getStackTrace(), e.getMessage());
             }
-            
-            if (systemEventList != null)
-            {
-                updateEventTable(systemEventList);
-                
-            }
-            else
-            {
-                updateEventTable(null);
-            }
         }
-        else
-        {
-            updateEventTable(null);
-        }
-        
     }
     
     private int getNumberOfPages(int pageSize, int eventCount)
@@ -705,6 +690,10 @@ public class EventBrowser extends javax.swing.JPanel
             
             public void done()
             {
+                if (systemEventListHandler != null)
+                    updateEventTable(systemEventList);
+                else
+                    updateEventTable(null);
                 parent.setWorking("", false);
             }
         };
@@ -726,6 +715,10 @@ public class EventBrowser extends javax.swing.JPanel
             
             public void done()
             {
+                if (systemEventListHandler != null)
+                    updateEventTable(systemEventList);
+                else
+                    updateEventTable(null);
                 parent.setWorking("", false);
             }
         };
@@ -800,6 +793,11 @@ public class EventBrowser extends javax.swing.JPanel
 
             public void done()
             {
+                if (systemEventListHandler != null)
+                    updateEventTable(systemEventList);
+                else
+                    updateEventTable(null);
+
                 parent.setWorking("", false);
             }
         };

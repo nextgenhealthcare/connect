@@ -25,40 +25,22 @@
 
 package com.webreach.mirth.client.ui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Stack;
-import java.util.prefs.Preferences;
-
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.UIManager;
-import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
-
+import com.webreach.mirth.client.core.Client;
+import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.ui.browsers.event.EventBrowser;
+import com.webreach.mirth.client.ui.browsers.message.MessageBrowser;
+import com.webreach.mirth.client.ui.util.FileUtil;
+import com.webreach.mirth.connectors.ConnectorClass;
+import com.webreach.mirth.model.*;
+import com.webreach.mirth.model.converters.ObjectCloner;
+import com.webreach.mirth.model.converters.ObjectClonerException;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.webreach.mirth.model.filters.MessageObjectFilter;
+import com.webreach.mirth.model.filters.SystemEventFilter;
+import com.webreach.mirth.model.util.ImportConverter;
+import com.webreach.mirth.plugins.DashboardColumnPlugin;
+import com.webreach.mirth.plugins.DashboardPanelPlugin;
+import com.webreach.mirth.util.PropertyVerifier;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingworker.SwingWorker;
 import org.jdesktop.swingx.JXFrame;
@@ -70,30 +52,19 @@ import org.jdesktop.swingx.action.ActionManager;
 import org.jdesktop.swingx.action.BoundAction;
 import org.syntax.jedit.JEditTextArea;
 
-import com.webreach.mirth.client.core.Client;
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.browsers.event.EventBrowser;
-import com.webreach.mirth.client.ui.browsers.message.MessageBrowser;
-import com.webreach.mirth.client.ui.util.FileUtil;
-import com.webreach.mirth.connectors.ConnectorClass;
-import com.webreach.mirth.model.Alert;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.ChannelProperties;
-import com.webreach.mirth.model.ChannelStatus;
-import com.webreach.mirth.model.ChannelSummary;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.ConnectorMetaData;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.model.User;
-import com.webreach.mirth.model.converters.ObjectCloner;
-import com.webreach.mirth.model.converters.ObjectClonerException;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.model.filters.MessageObjectFilter;
-import com.webreach.mirth.model.filters.SystemEventFilter;
-import com.webreach.mirth.model.util.ImportConverter;
-import com.webreach.mirth.plugins.DashboardPanelPlugin;
-import com.webreach.mirth.util.PropertyVerifier;
+import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
+import java.awt.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.List;
+import java.util.prefs.Preferences;
 
 /**
  * The main conent frame for the Mirth Client Application. Extends JXFrame and
@@ -166,6 +137,7 @@ public class Frame extends JXFrame
     public LinkedHashMap<MessageObject.Protocol, String> protocols;
     private Map<String, PluginMetaData> loadedPlugins;
     private Map<String, ConnectorMetaData> loadedConnectors;
+
     public Frame()
     {
         dsb = BorderFactory.createEmptyBorder();
@@ -1822,42 +1794,104 @@ public class Frame extends JXFrame
     public void doRefreshStatuses()
     {
         setWorking("Loading statistics...", true);
+        refreshStatuses();
 
+        // moving SwingWorker into the refreshStatuses() method...
+        // ArrayIndexOutOfBound exception occurs due to updateTable method on the UI executed concurrently on multiple threads in the background.
+        // and they share a global 'parent.status' variable that changes its state between threads.
+        // updateTable() method should be called in done(), not in the background only when the 'status' object is done assesed in the background.  
+    }
+
+    public void refreshStatuses()
+    {
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
+            Object[][] tableData = null;
+
             public Void doInBackground()
             {
-                refreshStatuses();
+                try
+                {
+                    status = mirthClient.getChannelStatusList();
+
+                    if (status != null)
+                    {
+                        Map<String, DashboardColumnPlugin> loadedColumnPluginsBeforeStatus = dashboardPanel.getLoadedColumnPluginsBeforeStatus();
+                        Map<String, DashboardColumnPlugin> loadedColumnPluginsAfterStats = dashboardPanel.getLoadedColumnPluginsAfterStats();
+
+                        for (DashboardColumnPlugin plugin : loadedColumnPluginsBeforeStatus.values())
+                        {
+                            plugin.tableUpdate(status);
+                        }
+                        for (DashboardColumnPlugin plugin : loadedColumnPluginsAfterStats.values())
+                        {
+                            plugin.tableUpdate(status);
+                        }
+
+                        tableData = new Object[status.size()][7 + loadedColumnPluginsAfterStats.size() + loadedColumnPluginsBeforeStatus.size()];
+                        for (int i = 0; i < status.size(); i++)
+                        {
+                            ChannelStatus tempStatus = status.get(i);
+                            int statusColumn = 0;
+                            try
+                            {
+                                ChannelStatistics tempStats = mirthClient.getStatistics(tempStatus.getChannelId());
+                                int j = 0;
+                                for (DashboardColumnPlugin plugin : loadedColumnPluginsBeforeStatus.values())
+                                {
+                                    tableData[i][j] = plugin.getTableData(tempStatus);
+                                    j++;
+                                }
+                                statusColumn = j;
+                                j+=2;
+                                tableData[i][j] = tempStats.getReceived();
+                                tableData[i][++j] = tempStats.getFiltered();
+                                tableData[i][++j] = tempStats.getQueued();
+                                tableData[i][++j] = tempStats.getSent();
+                                tableData[i][++j] = tempStats.getError();
+                                j++;
+                                for (DashboardColumnPlugin plugin : loadedColumnPluginsAfterStats.values())
+                                {
+                                    tableData[i][j] = plugin.getTableData(tempStatus);
+                                    j++;
+                                }
+                            }
+                            catch (ClientException ex)
+                            {
+                                alertException(ex.getStackTrace(), ex.getMessage());
+                            }
+
+                            if (tempStatus.getState() == ChannelStatus.State.STARTED)
+                                tableData[i][statusColumn] = new CellData(UIConstants.GREEN_BULLET, "Started");
+                            else if (tempStatus.getState() == ChannelStatus.State.STOPPED)
+                                tableData[i][statusColumn] = new CellData(UIConstants.RED_BULLET, "Stopped");
+                            else if (tempStatus.getState() == ChannelStatus.State.PAUSED)
+                                tableData[i][statusColumn] = new CellData(UIConstants.YELLOW_BULLET, "Paused");
+
+                            tableData[i][statusColumn + 1] = tempStatus.getName();
+
+                        }
+                    }
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                }
                 return null;
             }
 
             public void done()
             {
                 setWorking("", false);
+                dashboardPanel.updateTable(tableData);
+                dashboardPanel.updateCurrentPluginPanel();
+                if (status.size() > 0)
+                    setVisibleTasks(statusTasks, statusPopupMenu, 1, 3, true);
+                else
+                    setVisibleTasks(statusTasks, statusPopupMenu, 1, 3, false);
             }
         };
-
         worker.execute();
-    }
-
-    public void refreshStatuses()
-    {
-        try
-        {
-            status = mirthClient.getChannelStatusList();
-        }
-        catch (ClientException e)
-        {
-            alertException(e.getStackTrace(), e.getMessage());
-        }
-
-        dashboardPanel.updateTable();
-        dashboardPanel.updateCurrentPluginPanel();
-
-        if (status.size() > 0)
-            setVisibleTasks(statusTasks, statusPopupMenu, 1, 3, true);
-        else
-            setVisibleTasks(statusTasks, statusPopupMenu, 1, 3, false);
     }
 
     public void doStartAll()
