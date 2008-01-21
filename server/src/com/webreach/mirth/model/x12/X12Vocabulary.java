@@ -46,6 +46,9 @@ public class X12Vocabulary extends MessageVocabulary {
 			String description = ((Queue<String>)element).poll();
 			if (description == null){
 				description = new String();
+			}else{
+				//Re-add to the queue to handle looping
+				((Queue<String>)element).add(description);
 			}
 			return description;
 		}else{
