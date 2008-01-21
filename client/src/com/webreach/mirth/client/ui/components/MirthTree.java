@@ -300,7 +300,7 @@ public class MirthTree extends JXTree implements DropTargetListener
      */
     public static int getIndexOfNode(TreeNode node)
     {
-    	String nodeName = node.toString();
+    	String nodeName = node.toString().replaceAll(" \\(.*\\)", "");  // Get the node name without the vocab
         TreeNode parent = node.getParent();
         
         // The parent will be null for the root node
@@ -315,7 +315,7 @@ public class MirthTree extends JXTree implements DropTargetListener
             while (children.hasMoreElements())
             {
             	TreeNode child = (TreeNode)children.nextElement();
-            	if (nodeName.equals(child.toString()))
+            	if (nodeName.equals(child.toString().replaceAll(" \\(.*\\)", "")))
             	{
             		if (child != node)
             		{
