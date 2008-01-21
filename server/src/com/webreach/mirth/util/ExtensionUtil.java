@@ -19,15 +19,20 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.fileupload.FileItem;
 
+import com.webreach.mirth.model.ArchiveMetaData;
 import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.MetaData;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.tools.ClassPathResource;
 import com.webreach.mirth.server.util.FileUtil;
 import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class ExtensionUtil {
+	private static final String PLUGIN_LOCATION = ClassPathResource.getResourceURI("plugins").getPath() + System.getProperty("file.separator");
+	private static String CONNECTORS_LOCATION = ClassPathResource.getResourceURI("connectors").getPath() + System.getProperty("file.separator");
+	
 	public static Map<String, ? extends MetaData> loadExtensionMetaData(String location) throws ControllerException {
 		FileFilter fileFilter = new FileFilter() {
 			public boolean accept(File file) {
@@ -95,12 +100,7 @@ public class ExtensionUtil {
 		// update this to use regular expression to get the client and shared
 		// libraries
 		String uniqueId = UUIDGenerator.getUUID();
-		//append installer temp
-		location = location + "install_temp" + System.getProperty("file.separator");
-		File locationFile = new File(location);
-		if (!locationFile.exists()){
-			locationFile.mkdir();
-		}
+
 		ZipFile zipFile = null;
 		try {
 			File file = File.createTempFile(uniqueId, ".zip");
@@ -110,10 +110,35 @@ public class ExtensionUtil {
 			zipFile = new ZipFile(zipFileLocation);
 
 			Enumeration entries = zipFile.entries();
-
+			//Check if we have archive metadata
+			ZipEntry archiveMetadata = zipFile.getEntry("archive-metadata.xml");
+			if (archiveMetadata != null){
+				ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[] { ArchiveMetaData.class });
+				//read the file from our inputstream
+				String xml = slurp(zipFile.getInputStream(archiveMetadata));
+				//serialize out to the proper type
+				ArchiveMetaData archiveMetadataSerialized = (ArchiveMetaData) serializer.fromXML(xml);
+				if (archiveMetadataSerialized.getType() == ArchiveMetaData.Type.CONNECTOR){
+					location = CONNECTORS_LOCATION;
+				}else if (archiveMetadataSerialized.getType() == ArchiveMetaData.Type.PLUGIN){
+					location = PLUGIN_LOCATION;
+				}else{
+					throw new ControllerException("Unrecognized extension type in archive-metdata.xml");
+				}
+			}else if (location == null){
+				throw new ControllerException("archive-metadata.xml not found in zip archive!");
+			}
+			
+			//append installer temp
+			location = location + "install_temp" + System.getProperty("file.separator");
+			File locationFile = new File(location);
+			if (!locationFile.exists()){
+				locationFile.mkdir();
+			}
+			
 			while (entries.hasMoreElements()) {
 				ZipEntry entry = (ZipEntry) entries.nextElement();
-
+				
 				if (entry.isDirectory()) {
 					// Assume directories are stored parents first then
 					// children.
@@ -148,5 +173,14 @@ public class ExtensionUtil {
 		in.close();
 		out.close();
 	}
+	public static String slurp (InputStream in) throws IOException {
+	    StringBuffer out = new StringBuffer();
+	    byte[] b = new byte[1024];
+	    for (int n; (n = in.read(b)) != -1;) {
+	        out.append(new String(b, 0, n));
+	    }
+	    return out.toString();
+	}
+
 
 }

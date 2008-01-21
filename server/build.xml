@@ -494,6 +494,7 @@
 				<include name="doc-shared.jar" />
 				<include name="doc-server.jar" />
 				<include name="doc-client.jar" />
+				<include name="archive-metadata.xml" />
 			</fileset>
 			<fileset dir="${dist.extensions}">
 				<include name="Document Writer.xml" />
@@ -505,6 +506,7 @@
 				<include name="email-shared.jar" />
 				<include name="email-server.jar" />
 				<include name="email-client.jar" />
+				<include name="archive-metadata.xml" />
 			</fileset>
 			<fileset dir="${dist.extensions}">
 				<include name="Email Sender.xml" />
@@ -516,6 +518,7 @@
 				<include name="file-shared.jar" />
 				<include name="file-server.jar" />
 				<include name="file-client.jar" />
+				<include name="archive-metadata.xml" />
 			</fileset>
 			<fileset dir="${dist.extensions}">
 				<include name="File Writer.xml" />
@@ -528,6 +531,7 @@
 				<include name="ftp-shared.jar" />
 				<include name="ftp-server.jar" />
 				<include name="ftp-client.jar" />
+				<include name="archive-metadata.xml" />
 			</fileset>
 			<fileset dir="${dist.extensions}">
 				<include name="FTP Writer.xml" />
@@ -540,6 +544,7 @@
 				<include name="http-shared.jar" />
 				<include name="http-server.jar" />
 				<include name="http-client.jar" />
+				<include name="archive-metadata.xml" />
 			</fileset>
 			<fileset dir="${dist.extensions}">
 				<include name="HTTP Sender.xml" />
@@ -552,6 +557,7 @@
 				<include name="jdbc-shared.jar" />
 				<include name="jdbc-server.jar" />
 				<include name="jdbc-client.jar" />
+				<include name="archive-metadata.xml" />
 			</fileset>
 			<fileset dir="${dist.extensions}">
 				<include name="Database Reader.xml" />
@@ -564,6 +570,7 @@
 				<include name="jms-shared.jar" />
 				<include name="jms-server.jar" />
 				<include name="jms-client.jar" />
+				<include name="archive-metadata.xml" />
 			</fileset>
 			<fileset dir="${dist.extensions}">
 				<include name="JMS Reader.xml" />
@@ -576,6 +583,7 @@
 				<include name="mllp-shared.jar" />
 				<include name="mllp-server.jar" />
 				<include name="mllp-client.jar" />
+				<include name="archive-metadata.xml" />
 			</fileset>
 			<fileset dir="${dist.extensions}">
 				<include name="LLP Listener.xml" />
@@ -588,6 +596,7 @@
 				<include name="sftp-shared.jar" />
 				<include name="sftp-server.jar" />
 				<include name="sftp-client.jar" />
+				<include name="archive-metadata.xml" />
 			</fileset>
 			<fileset dir="${dist.extensions}">
 				<include name="SFTP Reader.xml" />
@@ -600,6 +609,7 @@
 				<include name="soap-shared.jar" />
 				<include name="soap-server.jar" />
 				<include name="soap-client.jar" />
+				<include name="archive-metadata.xml" />
 			</fileset>
 			<fileset dir="${dist.extensions}">
 				<include name="SOAP Listener.xml" />
@@ -612,6 +622,7 @@
 				<include name="tcp-shared.jar" />
 				<include name="tcp-server.jar" />
 				<include name="tcp-client.jar" />
+				<include name="archive-metadata.xml" />
 			</fileset>
 			<fileset dir="${dist.extensions}">
 				<include name="TCP Listener.xml" />
@@ -624,7 +635,7 @@
 				<include name="vm-shared.jar" />
 				<include name="vm-server.jar" />
 				<include name="vm-client.jar" />
-
+				<include name="archive-metadata.xml" />
 			</fileset>
 			<fileset dir="${dist.extensions}">
 				<include name="Channel Reader.xml" />
@@ -636,6 +647,7 @@
 		<zip destfile="${dist.extensions}/extension-manager-${version}.zip">
 			<fileset dir="${plugins}">
 				<include name="extension-manager-client.jar" />
+				<include name="archive-metadata.xml" />
 			</fileset>
 			<fileset dir="${dist.extensions}">
 				<include name="Extension Manager.xml" />
@@ -646,6 +658,7 @@
 			<fileset dir="${plugins}">
 				<include name="dashboard-status-monitor-server.jar" />
 				<include name="dashboard-status-monitor-client.jar" />
+				<include name="archive-metadata.xml" />
 			</fileset>
 			<fileset dir="${dist.extensions}">
 				<include name="Dashboard Connector Status Monitor Plugin.xml" />
@@ -656,6 +669,7 @@
 			<fileset dir="${plugins}">
 				<include name="message-pruner-client.jar" />
 				<include name="message-pruner-server.jar" />
+				<include name="archive-metadata.xml" />
 			</fileset>
 			<fileset dir="${dist.extensions}">
 				<include name="Message Pruner.xml" />
@@ -665,6 +679,7 @@
 		<zip destfile="${dist.extensions}/javascript-transformer-step-${version}.zip">
 			<fileset dir="${plugins}">
 				<include name="javascript-transformer-step-client.jar" />
+				<include name="archive-metadata.xml" />
 			</fileset>
 			<fileset dir="${dist.extensions}">
 				<include name="Javascript Transformer Step.xml" />
@@ -674,6 +689,7 @@
 		<zip destfile="${dist.extensions}/mapper-transformer-step-${version}.zip">
 			<fileset dir="${plugins}">
 				<include name="mapper-transformer-step-client.jar" />
+				<include name="archive-metadata.xml" />
 			</fileset>
 			<fileset dir="${dist.extensions}">
 				<include name="Mapper Transformer Step.xml" />
@@ -683,6 +699,7 @@
 		<zip destfile="${dist.extensions}/message-builder-transformer-step-${version}.zip">
 			<fileset dir="${plugins}">
 				<include name="message-builder-transformer-step-client.jar" />
+				<include name="archive-metadata.xml" />
 			</fileset>
 			<fileset dir="${dist.extensions}">
 				<include name="Message Builder Transformer Step.xml" />
@@ -692,6 +709,7 @@
 		<zip destfile="${dist.extensions}/rule-builder-filter-rule-${version}.zip">
 			<fileset dir="${plugins}">
 				<include name="rule-builder-filter-rule-client.jar" />
+				<include name="archive-metadata.xml" />
 			</fileset>
 			<fileset dir="${dist.extensions}">
 				<include name="Rule Builder Filter Rule.xml" />
@@ -701,6 +719,7 @@
 		<zip destfile="${dist.extensions}/javascript-filter-rule-${version}.zip">
 			<fileset dir="${plugins}">
 				<include name="javascript-filter-rule-client.jar" />
+				<include name="archive-metadata.xml" />
 			</fileset>
 			<fileset dir="${dist.extensions}">
 				<include name="Javascript Filter Rule.xml" />
