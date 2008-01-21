@@ -169,6 +169,8 @@ public class EDIReader extends SAXParser {
 
 				}
 				if (lastsegElement) {
+					//Set the field id here so we don't get dupe fields like SE.01 and SE.01 when we have SE**~
+					field = fieldID < 10 ? "0" + fieldID : "" + fieldID;
 					contentHandler.startElement("", segmentID + "." + field, "", null);
 					contentHandler.endElement("", segmentID + "." + field, "");
 				}
