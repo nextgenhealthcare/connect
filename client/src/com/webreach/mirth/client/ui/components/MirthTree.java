@@ -496,9 +496,13 @@ public class MirthTree extends JXTree implements DropTargetListener
         {
         	int index = source.indexOf(' ');
         	int index2 = source.indexOf('.');
-        	if (index2 != -1 && index2 < index)
+            // If . before ' ' 
+            if (index2 != -1 && index2 < index)
         		index = index2;
-        	source = source.replaceFirst(" |\\.", "");
+            // if no space ' ' handle .  
+            if(index == -1)
+                index = index2;
+            source = source.replaceFirst(" |\\.", "");
         	source = source.substring(0, index) + source.substring(index, index+1).toUpperCase() + source.substring(index+1);
         }
         
