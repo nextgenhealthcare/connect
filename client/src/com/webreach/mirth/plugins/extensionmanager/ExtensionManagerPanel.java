@@ -649,11 +649,11 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
             private boolean retVal = false;
             public Void doInBackground()
             {
-                String location;
                 
                 try
                 {
-                    retVal = parent.install(location, new File(fileText.getText()));
+                	//we could pass a location instead of null, but the archive-metadata.xml will tell us the type
+                    retVal = parent.install(null, new File(fileText.getText()));
                 }
                 catch (Exception e)
                 {
