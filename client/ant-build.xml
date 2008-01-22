@@ -141,6 +141,14 @@
 			<include name="com/webreach/mirth/plugins/pdfviewer/**" />
 		</jar>
 		
+		<jar destfile="${dist}/plugins/rtf-viewer-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/plugins/rtfviewer/**" />
+		</jar>
+		
+		<jar destfile="${dist}/plugins/image-viewer-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/plugins/imageviewer/**" />
+		</jar>
+		
 		<!-- copy source files -->
 		<copy todir="${dist.source}">
 			<fileset dir="${src}">

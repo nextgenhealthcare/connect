@@ -57,7 +57,7 @@ public class RTFViewer extends AttachmentViewer {
 	        			
 			frame.setVisible(true);
 		} catch (Exception e) {
-			e.printStackTrace();
+			parent.alertException(e.getStackTrace(), e.getMessage());
 		}
     }
 }

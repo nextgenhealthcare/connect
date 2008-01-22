@@ -43,7 +43,7 @@ public class DICOMViewer extends AttachmentViewer {
 	        dcm.getWindow().setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         }
         catch(Exception e ){
-            e.printStackTrace();
+        	parent.alertException(e.getStackTrace(), e.getMessage());
         }
 
     }
