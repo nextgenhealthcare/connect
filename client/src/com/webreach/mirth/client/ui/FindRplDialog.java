@@ -39,7 +39,8 @@ public class FindRplDialog extends javax.swing.JDialog {
         else {
             this.disableReplace();
         }
-
+        // set the initial search field to what is highlighted
+        mirthTextField1.setText(search_text.getSelectedText());
         // tab order
         Vector<Component> order = new Vector<Component>(8);
         order.add(mirthTextField1);
@@ -282,25 +283,21 @@ public class FindRplDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void mirthButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mirthButton4ActionPerformed
-// TODO add your handling code here:
         //close
         setVisible(false);
     }//GEN-LAST:event_mirthButton4ActionPerformed
 
     private void mirthButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mirthButton3ActionPerformed
-// TODO add your handling code here:
         //replace all
         replaceAll();
     }//GEN-LAST:event_mirthButton3ActionPerformed
 
     private void mirthButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mirthButton2ActionPerformed
-// TODO add your handling code here:
         // replace
         replace();
     }//GEN-LAST:event_mirthButton2ActionPerformed
 
     private void mirthButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mirthButton1ActionPerformed
-// TODO add your handling code here:
         // find
         find(true);
     }//GEN-LAST:event_mirthButton1ActionPerformed
@@ -361,5 +358,4 @@ public class FindRplDialog extends javax.swing.JDialog {
             return order.get(0);
         }
     }
-
 }
