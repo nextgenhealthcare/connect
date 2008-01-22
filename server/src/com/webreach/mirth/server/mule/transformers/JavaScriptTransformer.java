@@ -415,7 +415,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 		// script used to check for exitence of segment
 		newScript.append("function validate(mapping, defaultValue, replacement) {");
-		newScript.append("var result = mapping; if ((result == undefined) || (result.length() == 0)) { ");
+		newScript.append("var result = mapping; if ((result == undefined) || (result.toString().length() == 0)) { ");
 		newScript.append("result = defaultValue; } ");
 		newScript.append("if (result != undefined) { ");
 		newScript.append("result = new java.lang.String(result.toString()); } ");
