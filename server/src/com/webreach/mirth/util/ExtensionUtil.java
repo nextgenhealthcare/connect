@@ -30,6 +30,7 @@ import com.webreach.mirth.server.util.FileUtil;
 import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class ExtensionUtil {
+	private static final String ARCHIVE_METADATA_XML = "archive-metadata.xml";
 	private static final String PLUGIN_LOCATION = ClassPathResource.getResourceURI("plugins").getPath() + System.getProperty("file.separator");
 	private static String CONNECTORS_LOCATION = ClassPathResource.getResourceURI("connectors").getPath() + System.getProperty("file.separator");
 	
@@ -124,6 +125,9 @@ public class ExtensionUtil {
 
 					// This is not robust, just for demonstration purposes.
 					(new File(location + entry.getName())).mkdir();
+					continue;
+				}else if (entry.getName().equals(ARCHIVE_METADATA_XML)){
+					//Ignore the archive metadata
 					continue;
 				}
 

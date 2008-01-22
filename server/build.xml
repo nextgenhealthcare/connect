@@ -319,12 +319,16 @@
 
 		<!-- copy connector files -->
 		<copy todir="${setup.connectors}">
-			<fileset dir="${connectors}" />
+			<fileset dir="${connectors}">
+				<exclude name="archive-metadata.xml" />
+			</fileset>
 		</copy>
 
 		<!-- copy plugins files -->
 		<copy todir="${setup.plugins}">
-			<fileset dir="${plugins}" />
+			<fileset dir="${plugins}">
+				<exclude name="archive-metadata.xml" />
+			</fileset>
 		</copy>
 
 		<!-- create version.properties file -->
