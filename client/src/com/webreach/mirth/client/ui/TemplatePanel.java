@@ -462,10 +462,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
 
     private void pasteBoxFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_pasteBoxFocusLost
     {//GEN-HEADEREND:event_pasteBoxFocusLost
-        if (pasteBox.getText().length() == 0)
-        {
-            pasteBox.setText(DEFAULT_TEXT);
-        }
+        
     }//GEN-LAST:event_pasteBoxFocusLost
 
     private void pasteBoxFocusGained(java.awt.event.FocusEvent evt)//GEN-FIRST:event_pasteBoxFocusGained
