@@ -729,7 +729,8 @@
 				<include name="Javascript Filter Rule.xml" />
 			</fileset>
 		</zip>
-
+		<delete file="${plugins}/archive-metadata.xml" />
+		<delete file="${connectors}/archive-metadata.xml" />
 	</target>
 
 	<target name="create-dist" depends="create-extension-zips">
