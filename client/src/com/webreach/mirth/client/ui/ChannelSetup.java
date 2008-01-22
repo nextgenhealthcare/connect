@@ -1893,6 +1893,22 @@ public class ChannelSetup extends javax.swing.JPanel
             }
         }
         
+        if(currentChannel.getSourceConnector().getTransportName().equalsIgnoreCase(DATABASE_READER) || currentChannel.getSourceConnector().getTransportName().equalsIgnoreCase(HTTP_LISTENER))
+        {
+            currentChannel.getSourceConnector().getTransformer().setInboundTemplate("");
+            
+            if (parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundProtocol() == MessageObject.Protocol.XML
+                    && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate() != null
+                    && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate().length() == 0)
+            {
+                List<Connector> list = parent.channelEditPanel.currentChannel.getDestinationConnectors();
+                for (Connector c : list)
+                {
+                    c.getTransformer().setInboundTemplate("");
+                }
+            }   
+        }
+        
         // Get the selected source connector and set it.
         for (int i = 0; i < parent.sourceConnectors.size(); i++)
         {
