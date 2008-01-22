@@ -14,7 +14,6 @@ import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.MetaData;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.server.controllers.ControllerException;
 
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -685,7 +684,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
         				}else if (archiveMetadataSerialized.getType() == ArchiveMetaData.Type.PLUGIN){
         					location = PLUGINS;
         				}else{
-        					throw new ControllerException("Unrecognized extension type in archive-metdata.xml");
+        					throw new ClientException("Unrecognized extension type in archive-metdata.xml");
         				}
         			}else if (location == null){
         				//prompt the user
