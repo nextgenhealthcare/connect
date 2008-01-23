@@ -27,12 +27,25 @@ package com.webreach.mirth.connectors.soap;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.zip.Deflater;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -54,6 +67,9 @@ import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
 import com.l2fprod.common.propertysheet.Property;
 import com.webreach.mirth.client.core.ClientException;
@@ -122,7 +138,15 @@ public class SOAPSender extends ConnectorClass
             properties.put(SOAPSenderProperties.SOAP_METHOD, (String) method.getSelectedItem());
         if (definition == null)
             definition = new WSDefinition();
-        properties.put(SOAPSenderProperties.SOAP_DEFINITION, (String) serializer.toXML(definition));// getParameters());
+        
+        //the definition object can be large, so let's zip it and base64 encode it
+        try{
+	        String encodedDefintion = SOAPSenderProperties.zipAndEncodeDefinition(definition);
+	        properties.put(SOAPSenderProperties.SOAP_DEFINITION, encodedDefintion);// getParameters());
+        }catch (Exception e){
+        	e.printStackTrace();
+        }
+      
         properties.put(SOAPSenderProperties.SOAP_HOST, buildHost());
 
         properties.put(SOAPSenderProperties.SOAP_ACTION_URI, soapActionURI.getText());
@@ -131,12 +155,27 @@ public class SOAPSender extends ConnectorClass
         return properties;
     }
 
+
+
     public void setProperties(Properties props)
     {
         resetInvalidProperties();
-        
-        definition = (WSDefinition) (serializer.fromXML(props.getProperty(SOAPSenderProperties.SOAP_DEFINITION)));
-
+        //decode and decompress our definition
+        String encodedDefinition = props.getProperty(SOAPSenderProperties.SOAP_DEFINITION);
+       
+        try{
+        	if (encodedDefinition != null){
+	        	byte[] byteDefinition = new BASE64Decoder().decodeBuffer(encodedDefinition);
+		        ByteArrayInputStream bais = new ByteArrayInputStream(byteDefinition);
+		        GZIPInputStream gs = new GZIPInputStream(bais);
+		        ObjectInputStream ois = new ObjectInputStream(gs);
+		        definition = (WSDefinition) ois.readObject();
+		        ois.close();
+		        bais.close();
+        	}
+        }catch(Exception e){
+        	e.printStackTrace();
+        }
         wsdlUrl.setText((String) props.get(SOAPSenderProperties.SOAP_URL));
         serviceEndpoint.setText((String) props.get(SOAPSenderProperties.SOAP_SERVICE_ENDPOINT));
         
@@ -220,7 +259,24 @@ public class SOAPSender extends ConnectorClass
         
         return valid;
     }
-    
+
+    private OutputStream convert(String aString)
+    {
+	    //Convert the string to a byte array
+	    byte[] byteArray = aString.getBytes();
+	    //Create a stream of that byte array
+	    ByteArrayOutputStream out = new ByteArrayOutputStream(byteArray.length);
+	    try
+	    {
+		    //Write the data to that stream
+		    out.write(byteArray);
+	    } catch(Exception e)
+	    {
+	    	e.printStackTrace();
+	    }
+	    //Cast to OutputStream and return
+	    return (OutputStream) out;
+    }
     private void resetInvalidProperties()
     {
         method.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
