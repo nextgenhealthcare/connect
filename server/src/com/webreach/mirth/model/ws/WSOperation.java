@@ -26,10 +26,11 @@
 
 package com.webreach.mirth.model.ws;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WSOperation {
+public class WSOperation  implements Serializable {
 	private String name;
 	private List<WSParameter> parameters;
 	private String soapActionURI;

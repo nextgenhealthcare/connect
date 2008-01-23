@@ -26,12 +26,13 @@
 
 package com.webreach.mirth.model.ws;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.wsif.schema.SchemaType;
 
-public class WSDefinition {
+public class WSDefinition implements Serializable {
 	private Map<String, WSOperation> operations;
 	private Map<String, SchemaType> complexTypes;
 	private String serviceEndpointURI;

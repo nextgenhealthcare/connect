@@ -18,11 +18,13 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.webreach.mirth.connectors.soap.SOAPSenderProperties;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.webreach.mirth.model.ws.WSDefinition;
 
 public class ImportConverter {
 	private static ObjectXMLSerializer serializer = new ObjectXMLSerializer();
@@ -213,6 +215,18 @@ public class ImportConverter {
 					lastModified.appendChild(timezone);
 
 					channelRoot.appendChild(lastModified);
+				}
+				NodeList properyNames = channelRoot.getElementsByTagName("property");
+				for (int i = 0; i < properyNames.getLength(); i++) {
+					Node nameAttribute = properyNames.item(i).getAttributes().getNamedItem("name");
+					if (properyNames.item(i).getAttributes().getLength() > 0 && nameAttribute != null) {
+						if (nameAttribute.getNodeValue().equals("definition")) {
+							ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+							WSDefinition definition = (WSDefinition)serializer.fromXML(properyNames.item(i).getTextContent());
+							String encodedDefinition = SOAPSenderProperties.zipAndEncodeDefinition(definition);
+							properyNames.item(i).setTextContent(encodedDefinition);
+						}
+					}
 				}
 				updateFilterFor1_7(document);
 			}

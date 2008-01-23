@@ -25,7 +25,13 @@
 
 package com.webreach.mirth.connectors.soap;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.Properties;
+import java.util.zip.GZIPOutputStream;
+
+import sun.misc.BASE64Encoder;
 
 import com.webreach.mirth.model.ComponentProperties;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
@@ -58,8 +64,12 @@ public class SOAPSenderProperties implements ComponentProperties
         properties.put(SOAP_URL, "");
         properties.put(SOAP_SERVICE_ENDPOINT, "");
         properties.put(SOAP_METHOD, SOAP_DEFAULT_DROPDOWN);
-		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-        properties.put(SOAP_DEFINITION, (String) serializer.toXML(new WSDefinition()));
+        try {
+			properties.put(SOAP_DEFINITION, zipAndEncodeDefinition(new WSDefinition()));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         properties.put(SOAP_HOST, "axis:?method=Press Get Methods");
         properties.put(SOAP_ENVELOPE, "");
         properties.put(SOAP_GENERATE_ENVELOPE, "1");
@@ -68,4 +78,16 @@ public class SOAPSenderProperties implements ComponentProperties
         properties.put(CHANNEL_NAME, "None");
         return properties;
     }
+	public static String zipAndEncodeDefinition(WSDefinition definition) throws IOException {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		GZIPOutputStream gz = new GZIPOutputStream(baos);
+		ObjectOutputStream oos = new ObjectOutputStream(gz);
+		oos.writeObject(definition);
+		oos.flush();
+		oos.close();
+		byte[] compressedDefinition = baos.toByteArray();
+		String encodedDefintion = new BASE64Encoder().encode(compressedDefinition);
+		baos.close();
+		return encodedDefintion;
+	}
 }

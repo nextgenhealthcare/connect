@@ -26,12 +26,13 @@
 
 package com.webreach.mirth.model.ws;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.wsif.schema.SchemaType;
 
-public class WSParameter {
+public class WSParameter  implements Serializable {
 	private String name;
 	private String type;
 	private String value = new String();
