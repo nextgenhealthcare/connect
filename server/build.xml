@@ -727,6 +727,46 @@
 				<include name="Javascript Filter Rule.xml" />
 			</fileset>
 		</zip>
+		
+		<zip destfile="${dist.extensions}/dicom-viewer-${version}.zip">
+			<fileset dir="${plugins}">
+				<include name="dicom-viewer-client.jar" />
+				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
+				<include name="DICOM Viewer.xml" />
+			</fileset>
+		</zip>
+		
+		<zip destfile="${dist.extensions}/pdf-viewer-${version}.zip">
+			<fileset dir="${plugins}">
+				<include name="pdf-viewer-client.jar" />
+				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
+				<include name="PDF Viewer.xml" />
+			</fileset>
+		</zip>
+				
+		<zip destfile="${dist.extensions}/rtf-viewer-${version}.zip">
+			<fileset dir="${plugins}">
+				<include name="rtf-viewer-client.jar" />
+				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
+				<include name="RTF Viewer.xml" />
+			</fileset>
+		</zip>
+		
+		<zip destfile="${dist.extensions}/image-viewer-${version}.zip">
+			<fileset dir="${plugins}">
+				<include name="image-viewer-client.jar" />
+				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
+				<include name="Image Viewer.xml" />
+			</fileset>
+		</zip>
 
 	</target>
 
