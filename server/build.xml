@@ -88,6 +88,7 @@
 		<copy todir="${connectors}">
 			<fileset dir="${classes}/com/webreach/mirth/connectors">
 				<include name="*.xml" />
+				<exclude name="archive-metadata.xml" />
 			</fileset>
 		</copy>
 
@@ -251,6 +252,7 @@
 		<copy todir="${plugins}">
 			<fileset dir="${classes}/com/webreach/mirth/plugins">
 				<include name="*.xml" />
+				<exclude name="archive-metadata.xml" />
 			</fileset>
 		</copy>
 
