@@ -882,6 +882,21 @@ public class Shell {
 	}
 	
 	/**
+     * Checks to see if the passed in channel id already exists
+     */
+    public boolean checkChannelId(String id) throws ClientException 
+    {
+        for (Channel channel : client.getChannel(null))
+        {
+            if (channel.getId().equalsIgnoreCase(id))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+	
+	/**
      * Checks to see if the passed in channel name already exists and is formatted correctly
      */
     public boolean checkChannelName(String name, String id) throws ClientException 
@@ -1109,12 +1124,14 @@ public class Shell {
 		}
 
 		String channelName = importChannel.getName();
-		importChannel.setId(client.getGuid());
+		String tempId = client.getGuid();
 		
+		// Check to see that the channel name doesn't already exist.
 		if (!checkChannelName(channelName, importChannel.getId())) {
 			if (!force) {
 				importChannel.setRevision(0);
-                importChannel.setName(importChannel.getId());
+                importChannel.setName(tempId);
+                importChannel.setId(tempId);
 			} else {
         		for (Channel channel : client.getChannel(null)) {
                     if (channel.getName().equalsIgnoreCase(channelName)) {
@@ -1123,6 +1140,11 @@ public class Shell {
                 }
 			}
 		}
+		// If the channel name didn't already exist, make sure the id doesn't exist either.
+        else if (!checkChannelId(importChannel.getId()))
+        {
+        	importChannel.setId(tempId);
+        }
 		
 		importChannel.setVersion(client.getVersion());
 		client.updateChannel(importChannel, true);
