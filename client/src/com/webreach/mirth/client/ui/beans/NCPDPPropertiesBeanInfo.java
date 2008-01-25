@@ -28,6 +28,7 @@ public class NCPDPPropertiesBeanInfo extends SimpleBeanInfo
     private static final int PROPERTY_fieldDelimiter = 0;
     private static final int PROPERTY_groupDelimiter = 1;
     private static final int PROPERTY_segmentDelimiter = 2;
+    private static final int PROPERTY_useStrictValidation = 3;
 
     // Property array 
     /*lazy PropertyDescriptor*/
@@ -47,6 +48,10 @@ public class NCPDPPropertiesBeanInfo extends SimpleBeanInfo
             properties[PROPERTY_segmentDelimiter].setDisplayName ( "Segment Delimiter" );
             properties[PROPERTY_segmentDelimiter].setShortDescription ( "Characters that delimit the segments in the message." );
             properties[PROPERTY_segmentDelimiter].setBound ( true );
+            properties[PROPERTY_useStrictValidation] = new PropertyDescriptor ( "useStrictValidation", com.webreach.mirth.client.ui.beans.NCPDPProperties.class, "getUseStrictValidation", "setUseStrictValidation" ); // NOI18N
+            properties[PROPERTY_useStrictValidation].setDisplayName ( "Use Strict Validation" );
+            properties[PROPERTY_useStrictValidation].setShortDescription ( "Validates the NCPDP message against a schema." );
+            properties[PROPERTY_useStrictValidation].setBound ( true );
         }
         catch(IntrospectionException e) {
             e.printStackTrace();

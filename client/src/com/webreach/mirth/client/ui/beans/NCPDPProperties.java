@@ -101,6 +101,30 @@ public class NCPDPProperties extends Object implements Serializable
     {
         this.fieldDelimiter = fieldDelimiter;
     }
+    /**
+     * Holds value of property fieldDelimiter.
+     */
+    private boolean useStrictValidation = false;
 
+    /**
+     * Getter for property subelementDelimiter.
+     * 
+     * @return Value of property subelementDelimiter.
+     */
+    public boolean getUseStrictValidation()
+    {
+        return this.useStrictValidation;
+    }
+
+    /**
+     * Setter for property subelementDelimiter.
+     * 
+     * @param useStrictValidation
+     *            New value of property subelementDelimiter.
+     */
+    public void setUseStrictValidation(boolean useStrictValidation)
+    {
+        this.useStrictValidation = useStrictValidation;
+    }
 
 }
