@@ -33,7 +33,7 @@ public class NCPDPPropertiesBeanInfo extends SimpleBeanInfo
     // Property array 
     /*lazy PropertyDescriptor*/
     private static PropertyDescriptor[] getPdescriptor(){
-        PropertyDescriptor[] properties = new PropertyDescriptor[3];
+        PropertyDescriptor[] properties = new PropertyDescriptor[4];
     
         try {
             properties[PROPERTY_fieldDelimiter] = new PropertyDescriptor ( "fieldDelimiter", com.webreach.mirth.client.ui.beans.NCPDPProperties.class, "getFieldDelimiter", "setFieldDelimiter" ); // NOI18N
