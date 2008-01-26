@@ -54,6 +54,11 @@ public class DICOMSerializer implements IXMLSerializer<String> {
     public String rawData;
     private ArrayList<String> pixelData;
 
+	public static Map getDefaultProperties() {
+		Map<String, String> map = new HashMap<String, String>();
+		return map;
+	}
+    
     public DICOMSerializer(Map DICOMProperties){
         if (DICOMProperties == null) { 
 		}

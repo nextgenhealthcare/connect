@@ -5,6 +5,12 @@ import java.util.Map;
 public class X12Serializer extends EDISerializer {
 
 	private boolean inferX12Delimiters = true;
+	
+	public static Map getDefaultProperties() {
+		Map map = EDISerializer.getDefaultProperties();
+		map.put("inferX12Delimiters", "true");
+		return map;
+	}
 
 	public X12Serializer(Map x12Properties) {
 		super(x12Properties);

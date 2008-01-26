@@ -34,7 +34,11 @@ import org.w3c.dom.Document;
 
 public class DefaultXMLSerializer implements IXMLSerializer<String> {
 
-
+	public static Map getDefaultProperties() {
+		Map<String, String> map = new HashMap<String, String>();
+		return map;
+	}
+	
 	public DefaultXMLSerializer() {
 
 	}

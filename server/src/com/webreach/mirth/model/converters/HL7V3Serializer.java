@@ -34,11 +34,15 @@ import org.w3c.dom.Document;
 
 public class HL7V3Serializer implements IXMLSerializer<String> {
 
-
+	public static Map getDefaultProperties() {
+		Map<String, String> map = new HashMap<String, String>();
+		return map;
+	}
+	
 	public HL7V3Serializer() {
 
 	}
-
+	
 	public String toXML(String source) throws SerializerException {
 		return sanitize(source);
 	}

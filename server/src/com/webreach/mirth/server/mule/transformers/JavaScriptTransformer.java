@@ -28,7 +28,6 @@ package com.webreach.mirth.server.mule.transformers;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
@@ -46,6 +45,7 @@ import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Connector.Mode;
 import com.webreach.mirth.model.MessageObject.Protocol;
+import com.webreach.mirth.model.converters.DefaultSerializerPropertiesFactory;
 import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.MirthJavascriptTransformerException;
@@ -260,19 +260,21 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			//Check the conditions for skipping transformation
 			// 1. Script is empty
 			// 2. Protcols are different
-			// 3. Properties are different on in/out protcols
+			// 3. Properties are different than the protocol defaults.
 			if (script != null || !this.inboundProtocol.equals(this.outboundProtocol)){
 				emptyFilterAndTransformer = false;
-				//TODO: make sure the properties equality check works with empty filter and transformer
-			}else if (this.inboundProperties != null && this.outboundProperties != null) {
-				// Check for equality if the properties are both non-null
-				if(!this.inboundProperties.equals(this.outboundProperties)){
+			} else if (this.inboundProperties != null) {
+				// Check to see if the properties are equal to the default properties
+				Map defaultProperties = DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(Protocol.valueOf(inboundProtocol));
+				if (!this.inboundProperties.equals(defaultProperties)) {
 					emptyFilterAndTransformer = false;
 				}
-			} else if ((this.inboundProperties == null && this.outboundProperties != null) 
-						|| this.inboundProperties != null && this.outboundProperties == null) {
-				// If either property object is null and the other isn't, run the transformer
-				emptyFilterAndTransformer = false;
+			} else if (this.outboundProperties != null) {
+				// Check to see if the properties are equal to the default properties
+				Map defaultProperties = DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(Protocol.valueOf(outboundProtocol));
+				if (!this.outboundProperties.equals(defaultProperties)) {
+					emptyFilterAndTransformer = false;
+				}
 			}
 			
 			if (this.getMode().equals(Mode.SOURCE.toString())) {

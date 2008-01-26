@@ -45,6 +45,15 @@ public class EDISerializer implements IXMLSerializer<String> {
 	private String subelementDelim = ":";
 	private boolean encodeEntities = false;
 	
+	public static Map getDefaultProperties() {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("segmentDelimiter", "~");
+		map.put("elementDelimiter", "*");
+		map.put("subelementDelimiter", ":");
+		map.put("encodeEntities", "false");
+		return map;
+	}
+	
 	public EDISerializer(Map ediProperties) {
 		if (ediProperties == null) {
 			return;

@@ -38,8 +38,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import com.webreach.mirth.util.Entities;
-
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.Message;
 import ca.uhn.hl7v2.parser.DefaultXMLParser;
@@ -55,8 +53,19 @@ public class ER7Serializer implements IXMLSerializer<String> {
 	private boolean useStrictParser = false;
 	private boolean useStrictValidation = false;
 	private boolean handleRepetitions = false;
-	private boolean encodeEntities = true;
-	private boolean convertLFtoCR = true;
+	private boolean encodeEntities = false;
+	private boolean convertLFtoCR = false;
+	
+	public static Map getDefaultProperties() {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("useStrictParser", "false");
+		map.put("useStrictValidation", "false");
+		map.put("handleRepetitions", "false");
+		map.put("encodeEntities", "false");
+		map.put("convertLFtoCR", "false");
+		return map;
+	}
+	
 	public ER7Serializer(Map er7Properties) {
 		if (er7Properties != null && er7Properties.get("useStrictParser") != null) {
 			this.useStrictParser = Boolean.parseBoolean((String) er7Properties.get("useStrictParser"));

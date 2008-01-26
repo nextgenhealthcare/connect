@@ -30,6 +30,15 @@ public class NCPDPSerializer  implements IXMLSerializer<String> {
 	private String fieldDelim = "\u001C";
 	private boolean useStrictValidation = false;
     public boolean validationError = false;
+    
+	public static Map getDefaultProperties() {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("segmentDelimiter", "0x1E");
+		map.put("groupDelimiter", "0x1D");
+		map.put("fieldDelimiter", "0x1C");
+		map.put("useStrictValidation", "false");
+		return map;
+	}
 
     public NCPDPSerializer(Map NCPDPProperties){
 		if (NCPDPProperties == null) {
