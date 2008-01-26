@@ -50,7 +50,7 @@ public class ManagerController
     private final String CMD_WEBSTART_SUFFIX = "/webstart.jnlp";
     private final String CMD_TEST_JETTY_PREFIX = "https://localhost:";
     private final String CMD_STATUS = "cmd /c net continue \"";
-
+    private boolean updating = false;
     private static final int STATUS_RUNNING = 2191;
     private static final int STATUS_STOPPED = 2184;
 
@@ -124,10 +124,11 @@ public class ManagerController
 
         try
         {
+            updating = true;
+
             if (execCmd(CMD_START + serviceName + "\"", true) != 0)
             {
                 alertError("The Mirth service could not be started.  Please verify that it is installed and not already started.");
-                updateMirthServiceStatus();
             }
             else
             {
@@ -140,34 +141,38 @@ public class ManagerController
                     contextPath = contextPath.substring(0, contextPath.length() - 1);
                 }
                 Client client = new Client(CMD_TEST_JETTY_PREFIX + PropertyLoader.getProperty(serverProperties, "https.port") + contextPath);
-                
-                if (alert)
-                {
-                    int retriesLeft = 30;
-                    long waitTime = 1000;
-                    boolean started = false;
 
-                    while (!started && retriesLeft > 0)
+                int retriesLeft = 30;
+                long waitTime = 1000;
+                boolean started = false;
+
+                while (!started && retriesLeft > 0)
+                {
+                    Thread.sleep(waitTime);
+
+                    try
                     {
-                        Thread.sleep(waitTime);
-                        
-                        try
-                        {
-                            if(client.getStatus() == 0)
-                                started = true;
-                        }
-                        catch(ClientException e)
-                        {
-                            
-                        }
+                        if (client.getStatus() == 0)
+                            started = true;
                     }
-                    
-                    if(!started)
-                        alertError("The Mirth service could not be started.");
-                    else
-                        alertInformation("The Mirth service was started successfully.");
+                    catch (ClientException e)
+                    {
+
+                    }
                 }
-                return true;
+
+                if (!started)
+                    alertError("The Mirth service could not be started.");
+                else
+                {
+                    if (alert)
+                    {
+                        alertInformation("The Mirth service was started successfully.");
+                        updating = false;
+                        updateMirthServiceStatus();
+                    }
+                    return true;
+                }
             }
         }
         catch (Exception ex)
@@ -175,6 +180,8 @@ public class ManagerController
             ex.printStackTrace();
         }
 
+        updating = false;
+        updateMirthServiceStatus();
         return false;
     }
 
@@ -182,16 +189,17 @@ public class ManagerController
     {
         try
         {
+            updating = true;
             if (execCmd(CMD_STOP + serviceName + "\"", true) != 0)
             {
                 alertError("The Mirth service could not be stopped.  Please verify that it is installed and started.");
-                updateMirthServiceStatus();
             }
             else
             {
                 if (alert)
                 {
                     alertInformation("The Mirth service was stopped successfully.");
+                    updating = false;
                     updateMirthServiceStatus();
                 }
                 return true;
@@ -202,6 +210,8 @@ public class ManagerController
             ex.printStackTrace();
         }
 
+        updating = false;
+        updateMirthServiceStatus();
         return false;
     }
 
@@ -212,6 +222,7 @@ public class ManagerController
             if (startMirth(false, port))
             {
                 alertInformation("The Mirth service was restarted successfully.");
+                updating = false;
                 updateMirthServiceStatus();
             }
         }
@@ -330,27 +341,28 @@ public class ManagerController
     public void updateMirthServiceStatus()
     {
         int status = checkMirth();
-
+        if (updating)
+            return;
         switch (status)
         {
         case STATUS_STOPPED:
-            ManagerController.getInstance().setEnabledOptions(true, false, false);
+            ManagerController.getInstance().setEnabledOptions(true, false, false, false);
             break;
         case STATUS_RUNNING:
-            ManagerController.getInstance().setEnabledOptions(false, true, true);
+            ManagerController.getInstance().setEnabledOptions(false, true, true, true);
             break;
         default:
-            ManagerController.getInstance().setEnabledOptions(false, false, false);
+            ManagerController.getInstance().setEnabledOptions(false, false, false, false);
             break;
         }
     }
 
-    public void setEnabledOptions(boolean start, boolean stop, boolean restart)
+    public void setEnabledOptions(boolean start, boolean stop, boolean restart, boolean launch)
     {
         PlatformUI.MANAGER_DIALOG.setStartButtonActive(start);
         PlatformUI.MANAGER_DIALOG.setStopButtonActive(stop);
         PlatformUI.MANAGER_DIALOG.setRestartButtonActive(restart);
-
+        PlatformUI.MANAGER_DIALOG.setLaunchButtonActive(launch);
         /*
          * For Java 6.0
          * 

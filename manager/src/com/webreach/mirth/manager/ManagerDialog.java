@@ -628,6 +628,7 @@ public class ManagerDialog extends javax.swing.JDialog
         setStartButtonActive(false);
         setStopButtonActive(false);
         setRestartButtonActive(false);
+        setLaunchButtonActive(false);
     }
 
     public void setStartButtonActive(boolean active)
@@ -643,6 +644,11 @@ public class ManagerDialog extends javax.swing.JDialog
     public void setRestartButtonActive(boolean active)
     {
         restartButton.setEnabled(active);
+    }
+    
+    public void setLaunchButtonActive(boolean active)
+    {
+        launchButton.setEnabled(active);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
