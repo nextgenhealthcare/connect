@@ -154,6 +154,8 @@ public class ManagerController
                     {
                         if (client.getStatus() == 0)
                             started = true;
+                        else
+                            retriesLeft--;
                     }
                     catch (ClientException e)
                     {
