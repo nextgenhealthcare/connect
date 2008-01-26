@@ -1426,6 +1426,13 @@ public class ChannelSetup extends javax.swing.JPanel
         });
 
         incomingProtocol.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        incomingProtocol.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                incomingProtocolActionPerformed(evt);
+            }
+        });
 
         storeFiltered.setBackground(new java.awt.Color(255, 255, 255));
         storeFiltered.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -1760,6 +1767,13 @@ public class ChannelSetup extends javax.swing.JPanel
             .add(channelView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 485, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void incomingProtocolActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_incomingProtocolActionPerformed
+    {//GEN-HEADEREND:event_incomingProtocolActionPerformed
+    	// If a new protocol is being selected for the current channel, reset the inbound properties.
+    	if (!PlatformUI.MIRTH_FRAME.protocols.get(currentChannel.getSourceConnector().getTransformer().getInboundProtocol()).equals((String)incomingProtocol.getSelectedItem()))
+    		currentChannel.getSourceConnector().getTransformer().setInboundProperties(null);
+    }//GEN-LAST:event_incomingProtocolActionPerformed
 
     private void synchronousCheckBoxActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_synchronousCheckBoxActionPerformed
     {//GEN-HEADEREND:event_synchronousCheckBoxActionPerformed

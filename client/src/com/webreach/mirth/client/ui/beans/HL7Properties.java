@@ -50,7 +50,7 @@ public class HL7Properties implements Serializable
     /**
      * Holds value of property useStrictValidation.
      */
-    private boolean useStrictValidation;
+    private boolean useStrictValidation = false;
 
     /**
      * Getter for property useStrictValidation.
@@ -71,7 +71,7 @@ public class HL7Properties implements Serializable
     /**
      * Holds value of property handleRepetitions.
      */
-    private boolean handleRepetitions;
+    private boolean handleRepetitions = false;
 
     /**
      * Getter for property handleRepetitions.
@@ -94,7 +94,7 @@ public class HL7Properties implements Serializable
     /**
      * Holds value of property encodeEntities.
      */
-    private boolean encodeEntities = true;
+    private boolean encodeEntities = false;
 
     /**
      * Getter for property encodeEntities.
@@ -117,7 +117,7 @@ public class HL7Properties implements Serializable
     /**
      * Holds value of property convertLFtoCR.
      */
-    private boolean convertLFtoCR = true;
+    private boolean convertLFtoCR = false;
 
     /**
      * Getter for property convertLFtoCR.
