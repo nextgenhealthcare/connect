@@ -107,9 +107,11 @@ public class ManagerController
 
     public boolean startMirth(boolean alert, String port)
     {
+        ServerSocket socket = null;
         try
         {
-            new ServerSocket(Integer.parseInt(port));
+            socket = new ServerSocket(Integer.parseInt(port));
+
         }
         catch (NumberFormatException ex)
         {
@@ -120,6 +122,20 @@ public class ManagerController
         {
             alertError("Port already in use: " + port + " \nService cannot be started.");
             return false;
+        }
+        finally
+        {
+            if (socket != null)
+            {
+                try
+                {
+                    socket.close();
+                }
+                catch (IOException e)
+                {
+                }
+
+            }
         }
 
         try
@@ -149,13 +165,12 @@ public class ManagerController
                 while (!started && retriesLeft > 0)
                 {
                     Thread.sleep(waitTime);
+                    retriesLeft--;
 
                     try
                     {
                         if (client.getStatus() == 0)
                             started = true;
-                        else
-                            retriesLeft--;
                     }
                     catch (ClientException e)
                     {
