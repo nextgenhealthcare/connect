@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>DLN</name>
+    <description>Driver's License Number</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>DLN.1</name>
+            <description>Driver´s License Number</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>DLN.2</name>
+            <description>Issuing State, Province, Country</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>DLN.3</name>
+            <description>Expiration Date</description>
+            <datatype>DT</datatype>
+        </field>
+    </elements>
+</segment>

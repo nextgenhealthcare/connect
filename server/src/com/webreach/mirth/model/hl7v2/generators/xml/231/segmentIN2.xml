@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>IN2</name>
+    <description>Insurance Additional Information</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.1</name>
+            <description>Insured’s Employee ID</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.2</name>
+            <description>Insured’s Social Security Number</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.3</name>
+            <description>Insured’s Employer’s Name and ID</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.4</name>
+            <description>Employer Information Data</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.5</name>
+            <description>Mail Claim Party</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.6</name>
+            <description>Medicare Health Ins Card Number</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.7</name>
+            <description>Medicaid Case Name</description>
+            <datatype>XPN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.8</name>
+            <description>Medicaid Case Number</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.9</name>
+            <description>Military Sponsor Name</description>
+            <datatype>XPN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.10</name>
+            <description>Military ID Number</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.11</name>
+            <description>Dependent of Military Recipient</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.12</name>
+            <description>Military Organization</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.13</name>
+            <description>Military Station</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.14</name>
+            <description>Military Service</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.15</name>
+            <description>Military Rank/Grade</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.16</name>
+            <description>Military Status</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.17</name>
+            <description>Military Retire Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.18</name>
+            <description>Military Non-avail Cert On File</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.19</name>
+            <description>Baby Coverage</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.20</name>
+            <description>Combine Baby Bill</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.21</name>
+            <description>Blood Deductible</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.22</name>
+            <description>Special Coverage Approval Name</description>
+            <datatype>XPN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.23</name>
+            <description>Special Coverage Approval Title</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.24</name>
+            <description>Non-covered Insurance Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.25</name>
+            <description>Payor ID</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.26</name>
+            <description>Payor Subscriber ID</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.27</name>
+            <description>Eligibility Source</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.28</name>
+            <description>Room Coverage Type/Amount</description>
+            <datatype>RMC</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.29</name>
+            <description>Policy Type/Amount</description>
+            <datatype>PTA</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.30</name>
+            <description>Daily Deductible</description>
+            <datatype>DDI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.31</name>
+            <description>Living Dependency</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.32</name>
+            <description>Ambulatory Status</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.33</name>
+            <description>Citizenship</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.34</name>
+            <description>Primary Language</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.35</name>
+            <description>Living Arrangement</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.36</name>
+            <description>Publicity Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.37</name>
+            <description>Protection Indicator</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.38</name>
+            <description>Student Indicator</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.39</name>
+            <description>Religion</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.40</name>
+            <description>Mother’s Maiden Name</description>
+            <datatype>XPN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.41</name>
+            <description>Nationality</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.42</name>
+            <description>Ethnic Group</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.43</name>
+            <description>Marital Status</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.44</name>
+            <description>Insured’s Employment Start Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.45</name>
+            <description>Employment Stop Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.46</name>
+            <description>Job Title</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.47</name>
+            <description>Job Code/Class</description>
+            <datatype>JCC</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.48</name>
+            <description>Job Status</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.49</name>
+            <description>Employer Contact Person Name</description>
+            <datatype>XPN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.50</name>
+            <description>Employer Contact Person Phone Number</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.51</name>
+            <description>Employer Contact Reason</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.52</name>
+            <description>Insured’s Contact Person’s Name</description>
+            <datatype>XPN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.53</name>
+            <description>Insured’s Contact Person Phone Number</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.54</name>
+            <description>Insured’s Contact Person Reason</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.55</name>
+            <description>Relationship to the Patient Start Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.56</name>
+            <description>Relationship to the Patient Stop Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.57</name>
+            <description>Insurance Co. Contact Reason</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.58</name>
+            <description>Insurance Co Contact Phone Number</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.59</name>
+            <description>Policy Scope</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.60</name>
+            <description>Policy Source</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.61</name>
+            <description>Patient Member Number</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.62</name>
+            <description>Guarantor’s Relationship to Insured</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.63</name>
+            <description>Insured’s Phone Number - Home</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.64</name>
+            <description>Insured’s Employer Phone Number</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.65</name>
+            <description>Military Handicapped Program</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.66</name>
+            <description>Suspend Flag</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.67</name>
+            <description>Copay Limit Flag</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.68</name>
+            <description>Stoploss Limit Flag</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.69</name>
+            <description>Insured Organization Name and ID</description>
+            <datatype>XON</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.70</name>
+            <description>Insured Employer Organization Name and ID</description>
+            <datatype>XON</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.71</name>
+            <description>Race</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IN2.72</name>
+            <description>HCFA Patient’s Relationship to Insured</description>
+            <datatype>CE</datatype>
+        </field>
+    </elements>
+</segment>

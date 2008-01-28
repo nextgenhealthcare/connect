@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>PCB</name>
+    <description>Board Certification Segment</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PCB.1</name>
+            <description>Issuer</description>
+            <datatype>XON</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCB.2</name>
+            <description>External ID</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCB.3</name>
+            <description>Board Certification</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PCB.4</name>
+            <description>Certificate Number</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCB.5</name>
+            <description>Original Effective Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCB.6</name>
+            <description>Expiration Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCB.7</name>
+            <description>Last Re-certification Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCB.8</name>
+            <description>Is not Specialty</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCB.9</name>
+            <description>Is Eligible</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCB.10</name>
+            <description>Is Certified</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCB.11</name>
+            <description>Board Taken Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCB.12</name>
+            <description>Board Scheduled Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCB.13</name>
+            <description>Comment</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PCB.14</name>
+            <description>Revised By</description>
+            <datatype>PPN</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PCB.15</name>
+            <description>Standing</description>
+            <datatype>IS</datatype>
+        </field>
+    </elements>
+</segment>

@@ -1,0 +1,13 @@
+<jnlp href="activation.jnlp">
+   <information>
+      <title>Activation</title>
+      <vendor>Sun Microsystems, Inc.</vendor>
+   </information>
+   <security>
+      <all-permissions/>
+   </security>
+   <resources>
+      <jar download="eager" href="client-lib/activation.jar" />
+   </resources>
+   <component-desc/>
+</jnlp>

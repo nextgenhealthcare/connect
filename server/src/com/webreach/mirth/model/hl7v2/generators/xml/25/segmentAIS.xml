@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>AIS</name>
+    <description>Appointment Information</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>AIS.1</name>
+            <description>Set ID</description>
+            <datatype>SI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIS.2</name>
+            <description>Segment Action Code</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>AIS.3</name>
+            <description>Universal Service Identifier</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIS.4</name>
+            <description>Start Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIS.5</name>
+            <description>Start Date/Time Offset</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIS.6</name>
+            <description>Start Date/Time Offset Units</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIS.7</name>
+            <description>Duration</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIS.8</name>
+            <description>Duration Units</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIS.9</name>
+            <description>Allow Substitution Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>AIS.10</name>
+            <description>Filler Status Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>AIS.11</name>
+            <description>Placer Supplemental Service Information</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>AIS.12</name>
+            <description>Filler Supplemental Service Information</description>
+            <datatype>CE</datatype>
+        </field>
+    </elements>
+</segment>

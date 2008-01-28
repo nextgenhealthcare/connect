@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>QPD</name>
+    <description>Query Parameter Definition</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>QPD.1</name>
+            <description>Message Query Name</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QPD.2</name>
+            <description>Query Tag</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QPD.3</name>
+            <description>User Parameters (in Successive Fields)</description>
+            <datatype>ST</datatype>
+        </field>
+    </elements>
+</segment>

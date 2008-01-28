@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>CNN</name>
+    <description>Composite ID Number and Name Simplified</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CNN.1</name>
+            <description>ID Number</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CNN.2</name>
+            <description>Family Name</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CNN.3</name>
+            <description>Given Name</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CNN.4</name>
+            <description>Second and Further Given Names or Initials Thereof</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CNN.5</name>
+            <description>Suffix</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CNN.6</name>
+            <description>Prefix</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CNN.7</name>
+            <description>Degree</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CNN.8</name>
+            <description>Source Table</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CNN.9</name>
+            <description>Assigning Authority - Namespace ID</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CNN.10</name>
+            <description>Assigning Authority - Universal ID</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CNN.11</name>
+            <description>Assigning Authority - Universal ID Type</description>
+            <datatype>ID</datatype>
+        </field>
+    </elements>
+</segment>

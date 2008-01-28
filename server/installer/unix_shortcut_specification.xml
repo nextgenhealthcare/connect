@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+
+<shortcuts>
+	<skipIfNotSupported/>
+	<programGroup defaultName="$APP_NAME" location="applications" />
+  
+	<shortcut
+	name="$APP_NAME Server"
+	target="$INSTALL_PATH/mirth.sh" 
+	commandLine=""
+	type="Application"
+	encoding="UTF-8"
+	workingDirectory="$INSTALL_PATH"
+	description="Start the $APP_NAME Server"
+	initialState="normal"
+	programGroup="yes"
+	desktop="yes"
+	applications="no"
+	startMenu="no"
+	startup="no"
+	terminal="true">
+	<createForPack name="Core" />
+	</shortcut>
+  
+	<shortcut
+	name="$APP_NAME Shell"
+	target="$INSTALL_PATH/shell.sh" 
+	commandLine=""
+	type="Application"
+	encoding="UTF-8"
+	workingDirectory="$INSTALL_PATH"
+	description="Start $APP_NAME Shell"
+	initialState="normal"
+	programGroup="yes"
+	desktop="no"
+	applications="no"
+	startMenu="no"
+	startup="no"
+	terminal="true">
+	<createForPack name="Shell" />
+	</shortcut>
+  
+	<shortcut
+	name="Uninstaller"
+	target="java"     
+	commandLine="-jar &quot;$INSTALL_PATH/Uninstaller/uninstaller.jar&quot;"
+	type="Application"
+	encoding="UTF-8"
+	workingDirectory=""
+	description="Mirth uninstaller"
+	programGroup="yes"
+	desktop="no"
+	applications="no"
+	startMenu="no"
+	startup="no">
+	<createForPack name="Core" />
+	</shortcut> 
+</shortcuts>

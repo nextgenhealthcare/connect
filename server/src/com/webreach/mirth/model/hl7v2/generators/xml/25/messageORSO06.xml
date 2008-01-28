@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>ORSO06</name>
+    <description>Stock Requisition Acknowledgment</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MSA</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">ERR</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+        <group minOccurs="0">
+            <group minOccurs="0">
+                <segment>PID</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            </group>
+            <group maxOccurs="unbounded">
+                <segment>ORC</segment>
+                <group maxOccurs="unbounded" minOccurs="0">
+                    <segment>TQ1</segment>
+                    <segment minOccurs="0" maxOccurs="unbounded">TQ2</segment>
+                </group>
+                <segment>RQD</segment>
+                <segment minOccurs="0">RQ1</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            </group>
+        </group>
+    </segments>
+</message>
