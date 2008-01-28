@@ -229,6 +229,7 @@ public class ImportConverter {
 					}
 				}
 				updateFilterFor1_7(document);
+				updateTransformerFor1_7(document);
 			}
 		}
 
@@ -274,6 +275,7 @@ public class ImportConverter {
 
 		updateTransformerFor1_4(document, transformerRoot, incoming, outgoing);
 		updateTransformerFor1_5(document);
+		updateTransformerFor1_7(document);
 
 		DocumentSerializer docSerializer = new DocumentSerializer();
 		transformerXML = docSerializer.toXML(document);
@@ -468,6 +470,99 @@ public class ImportConverter {
 				dataElement.appendChild(entryElement);
 
 				rule.appendChild(dataElement);
+			}
+		}
+	}
+	
+	private static void updateTransformerFor1_7(Document document) {
+		Element inboundPropertiesElement, outboundPropertiesElement;
+		
+		NodeList transformers = document.getElementsByTagName("transformer");
+
+		for (int i = 0; i < transformers.getLength(); i++) {
+			Element transformerRoot = (Element) transformers.item(i);
+
+			if (transformerRoot.getElementsByTagName("inboundProtocol").item(0).getTextContent().equals("HL7V2")) {
+				if (transformerRoot.getElementsByTagName("inboundProperties").getLength() != 0) {
+					
+					inboundPropertiesElement = (Element)document.getElementsByTagName("inboundProperties").item(0);
+					
+					Element convertLFtoCRProperty = document.createElement("property");
+					convertLFtoCRProperty.setAttribute("name", "convertLFtoCR");
+					convertLFtoCRProperty.setTextContent("true");
+					
+					inboundPropertiesElement.appendChild(convertLFtoCRProperty);
+				} else {
+					inboundPropertiesElement = document.createElement("inboundProperties");
+					
+					Element convertLFtoCRProperty = document.createElement("property");
+					convertLFtoCRProperty.setAttribute("name", "convertLFtoCR");
+					convertLFtoCRProperty.setTextContent("true");
+					
+					Element encodeEntitiesProperty = document.createElement("property");
+					encodeEntitiesProperty.setAttribute("name", "encodeEntities");
+					encodeEntitiesProperty.setTextContent("true");
+					
+					Element handleRepetitionsProperty = document.createElement("property");
+					handleRepetitionsProperty.setAttribute("name", "handleRepetitions");
+					handleRepetitionsProperty.setTextContent("false");
+
+					Element useStrictValidationProperty = document.createElement("property");
+					useStrictValidationProperty.setAttribute("name", "useStrictValidation");
+					useStrictValidationProperty.setTextContent("false");
+
+					Element useStrictParserProperty = document.createElement("property");
+					useStrictParserProperty.setAttribute("name", "useStrictParser");
+					useStrictParserProperty.setTextContent("false");
+					
+					inboundPropertiesElement.appendChild(convertLFtoCRProperty);
+					inboundPropertiesElement.appendChild(encodeEntitiesProperty);
+					inboundPropertiesElement.appendChild(handleRepetitionsProperty);
+					inboundPropertiesElement.appendChild(useStrictValidationProperty);
+					inboundPropertiesElement.appendChild(useStrictParserProperty);
+
+					transformerRoot.appendChild(inboundPropertiesElement);
+				}
+				
+				if (transformerRoot.getElementsByTagName("outboundProperties").getLength() != 0) {
+					outboundPropertiesElement = (Element)document.getElementsByTagName("outboundProperties").item(0);
+					
+					Element convertLFtoCRProperty = document.createElement("property");
+					convertLFtoCRProperty.setAttribute("name", "convertLFtoCR");
+					convertLFtoCRProperty.setTextContent("true");
+					
+					outboundPropertiesElement.appendChild(convertLFtoCRProperty);
+				} else {
+					outboundPropertiesElement = document.createElement("outboundProperties");
+
+					Element convertLFtoCRProperty = document.createElement("property");
+					convertLFtoCRProperty.setAttribute("name", "convertLFtoCR");
+					convertLFtoCRProperty.setTextContent("true");
+					
+					Element encodeEntitiesProperty = document.createElement("property");
+					encodeEntitiesProperty.setAttribute("name", "encodeEntities");
+					encodeEntitiesProperty.setTextContent("true");
+					
+					Element handleRepetitionsProperty = document.createElement("property");
+					handleRepetitionsProperty.setAttribute("name", "handleRepetitions");
+					handleRepetitionsProperty.setTextContent("false");
+
+					Element useStrictValidationProperty = document.createElement("property");
+					useStrictValidationProperty.setAttribute("name", "useStrictValidation");
+					useStrictValidationProperty.setTextContent("false");
+
+					Element useStrictParserProperty = document.createElement("property");
+					useStrictParserProperty.setAttribute("name", "useStrictParser");
+					useStrictParserProperty.setTextContent("false");
+					
+					outboundPropertiesElement.appendChild(convertLFtoCRProperty);
+					outboundPropertiesElement.appendChild(encodeEntitiesProperty);
+					outboundPropertiesElement.appendChild(handleRepetitionsProperty);
+					outboundPropertiesElement.appendChild(useStrictValidationProperty);
+					outboundPropertiesElement.appendChild(useStrictParserProperty);
+
+					transformerRoot.appendChild(outboundPropertiesElement);
+				}
 			}
 		}
 	}
