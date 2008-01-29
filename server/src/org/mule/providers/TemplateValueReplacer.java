@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.tools.VelocityFormatter;
+import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.tools.generic.DateTool;
 import org.mule.util.UUID;
 import org.mule.util.Utility;
@@ -38,6 +39,8 @@ public class TemplateValueReplacer {
 		StringWriter writer = new StringWriter();
 
 		try {
+			// disable the logging
+			Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
 			Velocity.init();
 			Velocity.evaluate(context, writer, "LOG", template);
 		} catch (Exception e) {
