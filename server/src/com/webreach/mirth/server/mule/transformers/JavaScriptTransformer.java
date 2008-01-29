@@ -278,7 +278,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			}
 			// hack to get around cr/lf conversion issue see MIRTH-739
 			if (emptyFilterAndTransformer){
-				boolean convertLFtoCR = false;
+				boolean convertLFtoCR = true;
 				if (this.inboundProperties!=null && this.inboundProperties.get("convertLFtoCR") != null){
 					convertLFtoCR = Boolean.parseBoolean((String) inboundProperties.get("convertLFtoCR"));
 				}else if (this.outboundProperties!=null && this.outboundProperties.get("convertLFtoCR") != null){
