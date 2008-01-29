@@ -356,7 +356,7 @@ public class TreePanel extends javax.swing.JPanel
         			convertLFtoCR = Boolean.parseBoolean((String) protocolProperties.get("convertLFtoCR"));
         		}
                 if (convertLFtoCR){
-                	source = source.replaceAll("\\n", "\r").trim();
+                	source = source.replaceAll("\\n", "\r").replaceAll("\\r\\r", "\r").trim();
                 }
             }
             else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.NCPDP).equals(messageType))
