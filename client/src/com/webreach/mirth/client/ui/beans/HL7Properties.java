@@ -117,7 +117,7 @@ public class HL7Properties implements Serializable
     /**
      * Holds value of property convertLFtoCR.
      */
-    private boolean convertLFtoCR = false;
+    private boolean convertLFtoCR = true;
 
     /**
      * Getter for property convertLFtoCR.
