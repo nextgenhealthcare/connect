@@ -54,7 +54,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 	private boolean useStrictValidation = false;
 	private boolean handleRepetitions = false;
 	private boolean encodeEntities = false;
-	private boolean convertLFtoCR = false;
+	private boolean convertLFtoCR = true;
 	
 	public static Map getDefaultProperties() {
 		Map<String, String> map = new HashMap<String, String>();
