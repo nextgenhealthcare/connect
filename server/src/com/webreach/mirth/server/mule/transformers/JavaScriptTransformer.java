@@ -285,7 +285,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 					convertLFtoCR = Boolean.parseBoolean((String) outboundProperties.get("convertLFtoCR"));
 				}
 				if (convertLFtoCR){
-					source = ((String)source).replaceAll("\\n", "\r");
+					source = ((String)source).replaceAll("\\n", "\r").replaceAll("\\r\\r", "\r");
 				}
 			}
 			if (this.getMode().equals(Mode.SOURCE.toString())) {
