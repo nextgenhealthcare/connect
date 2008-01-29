@@ -276,7 +276,18 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 					emptyFilterAndTransformer = false;
 				}
 			}
-			
+			// hack to get around cr/lf conversion issue see MIRTH-739
+			if (emptyFilterAndTransformer){
+				boolean convertLFtoCR = false;
+				if (this.inboundProperties!=null && this.inboundProperties.get("convertLFtoCR") != null){
+					convertLFtoCR = Boolean.parseBoolean((String) inboundProperties.get("convertLFtoCR"));
+				}else if (this.outboundProperties!=null && this.outboundProperties.get("convertLFtoCR") != null){
+					convertLFtoCR = Boolean.parseBoolean((String) outboundProperties.get("convertLFtoCR"));
+				}
+				if (convertLFtoCR){
+					source = ((String)source).replaceAll("\\n", "\r");
+				}
+			}
 			if (this.getMode().equals(Mode.SOURCE.toString())) {
 				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(inboundProtocol));
 				messageObject = adaptor.getMessage((String) source, channelId, encryptData, inboundProperties, emptyFilterAndTransformer);
