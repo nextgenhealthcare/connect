@@ -49,6 +49,7 @@
 		<jar download="eager" href="client-lib/swing-layout-1.0.1.jar" />
 		<jar download="eager" href="client-lib/swingworker-0.8.0.jar" />
 		<jar download="eager" href="client-lib/swingx-0.8.0.jar" />
+		<jar download="eager" href="client-lib/wizard.jar" />
 		<jar download="eager" href="client-lib/wsdl4j.jar" />
 		<jar download="eager" href="client-lib/wsif.jar" />
 		<jar download="eager" href="client-lib/xercesImpl.jar" />
