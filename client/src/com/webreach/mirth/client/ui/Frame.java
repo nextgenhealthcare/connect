@@ -1435,7 +1435,13 @@ public class Frame extends JXFrame
             alertError("You must have at least one source connector and one destination connector installed.");
             return;
         }
-
+        
+        // The channel wizard will call createNewChannel() or create a channel from a wizard.
+        new ChannelWizard();
+    }
+    
+    public void createNewChannel()
+    {
         Channel channel = new Channel();
 
         try
@@ -1452,7 +1458,7 @@ public class Frame extends JXFrame
         channel.getProperties().setProperty("initialState", "Started");
         setupChannel(channel);
     }
-
+    
     public void doEditChannel()
     {
         if (isEditingChannel)
