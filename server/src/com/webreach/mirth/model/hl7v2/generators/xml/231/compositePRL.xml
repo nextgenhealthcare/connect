@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>PRL</name>
+    <description>Parent Result Link</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRL.1</name>
+            <description>OBX-3 Observation Identifier of Parent Result</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRL.2</name>
+            <description>OBX-4 Sub-id of Parent Result</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRL.3</name>
+            <description>Part of OBX-5 Observation Result From Parent</description>
+            <datatype>TX</datatype>
+        </field>
+    </elements>
+</segment>

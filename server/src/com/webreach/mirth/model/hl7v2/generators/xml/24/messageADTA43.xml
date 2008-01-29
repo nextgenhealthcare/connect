@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>ADTA43</name>
+    <description>Move Patient Information - Internal ID</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>EVN</segment>
+        <group maxOccurs="unbounded">
+            <segment>PID</segment>
+            <segment minOccurs="0">PD1</segment>
+            <segment>MRG</segment>
+        </group>
+    </segments>
+</message>

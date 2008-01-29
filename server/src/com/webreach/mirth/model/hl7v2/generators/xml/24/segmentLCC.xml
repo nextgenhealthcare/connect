@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>LCC</name>
+    <description>Location Charge Code</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>LCC.1</name>
+            <description>Primary Key Value</description>
+            <datatype>PL</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>LCC.2</name>
+            <description>Location Department</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LCC.3</name>
+            <description>Accommodation Type</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>LCC.4</name>
+            <description>Charge Code</description>
+            <datatype>CE</datatype>
+        </field>
+    </elements>
+</segment>

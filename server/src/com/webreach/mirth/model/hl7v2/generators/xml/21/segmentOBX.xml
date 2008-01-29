@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>OBX</name>
+    <description>Observation/Result</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.1</name>
+            <description>Set ID</description>
+            <datatype>SI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.2</name>
+            <description>Value Type</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>OBX.3</name>
+            <description>Observation Identifier</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.4</name>
+            <description>Observation Sub-ID</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>OBX.5</name>
+            <description>Observation Results</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.6</name>
+            <description>Units</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.7</name>
+            <description>Reference Range</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="5">
+            <name>OBX.8</name>
+            <description>Abnormal Flags</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.9</name>
+            <description>Probability</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.10</name>
+            <description>Nature of Abnormal Test</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.11</name>
+            <description>Observ Result Status</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.12</name>
+            <description>Date Last Normal Value</description>
+            <datatype>TS</datatype>
+        </field>
+    </elements>
+</segment>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>UN</name>
+    <description>Unused</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UN.1</name>
+            <description>Value</description>
+            <datatype>String</datatype>
+        </field>
+    </elements>
+</segment>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>CE</name>
+    <description>Coded Element</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CE.1</name>
+            <description>Identifier (ST)</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CE.2</name>
+            <description>Text</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CE.3</name>
+            <description>Name of Coding System</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CE.4</name>
+            <description>Alternate Identifier (ST)</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CE.5</name>
+            <description>Alternate Text</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CE.6</name>
+            <description>Name of Alternate Coding System</description>
+            <datatype>IS</datatype>
+        </field>
+    </elements>
+</segment>

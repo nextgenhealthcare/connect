@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>STI</name>
+    <description>Study Information Segment</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="unbounded">
+            <name>STI.1</name>
+            <description>Subject ID (internal)</description>
+            <datatype>XON</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>STI.2</name>
+            <description>Definition ID (internal)</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="unbounded">
+            <name>STI.3</name>
+            <description>Location ID (Internal)</description>
+            <datatype>XON</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STI.4</name>
+            <description>Dates</description>
+            <datatype>DR</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>STI.5</name>
+            <description>Address</description>
+            <datatype>XAD</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>STI.6</name>
+            <description>Phone</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>STI.7</name>
+            <description>Fax</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>STI.8</name>
+            <description>Email</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STI.9</name>
+            <description>Comment</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STI.10</name>
+            <description>Standing ID</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STI.11</name>
+            <description>Complete ID</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STI.12</name>
+            <description>Revised By</description>
+            <datatype>PPN</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>STI.13</name>
+            <description>TransCode</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>STI.14</name>
+            <description>Performed By</description>
+            <datatype>IS</datatype>
+        </field>
+    </elements>
+</segment>

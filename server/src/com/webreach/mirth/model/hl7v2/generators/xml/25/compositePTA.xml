@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>PTA</name>
+    <description>Policy Type and Amount</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PTA.1</name>
+            <description>Policy Type</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PTA.2</name>
+            <description>Amount Class</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PTA.3</name>
+            <description>Money or Percentage Quantity</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PTA.4</name>
+            <description>Money or Percentage</description>
+            <datatype>MOP</datatype>
+        </field>
+    </elements>
+</segment>

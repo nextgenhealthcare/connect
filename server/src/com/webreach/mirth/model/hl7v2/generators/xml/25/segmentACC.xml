@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>ACC</name>
+    <description>Accident</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ACC.1</name>
+            <description>Accident Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ACC.2</name>
+            <description>Accident Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ACC.3</name>
+            <description>Accident Location</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ACC.4</name>
+            <description>Auto Accident State</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ACC.5</name>
+            <description>Accident Job Related Indicator</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ACC.6</name>
+            <description>Accident Death Indicator</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ACC.7</name>
+            <description>Entered By</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ACC.8</name>
+            <description>Accident Description</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ACC.9</name>
+            <description>Brought In By</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ACC.10</name>
+            <description>Police Notified Indicator</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ACC.11</name>
+            <description>Accident Address</description>
+            <datatype>XAD</datatype>
+        </field>
+    </elements>
+</segment>
