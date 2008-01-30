@@ -277,19 +277,20 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				}
 			}
 			// hack to get around cr/lf conversion issue see MIRTH-739
+			boolean convertLFtoCR = true;
 			if (emptyFilterAndTransformer){
-				boolean convertLFtoCR = true;
+				
 				if (this.inboundProperties!=null && this.inboundProperties.get("convertLFtoCR") != null){
 					convertLFtoCR = Boolean.parseBoolean((String) inboundProperties.get("convertLFtoCR"));
 				}else if (this.outboundProperties!=null && this.outboundProperties.get("convertLFtoCR") != null){
 					convertLFtoCR = Boolean.parseBoolean((String) outboundProperties.get("convertLFtoCR"));
 				}
-				if (convertLFtoCR){
-					source = ((String)source).replaceAll("\\n", "\r").replaceAll("\\r\\r", "\r");
-				}
 			}
 			if (this.getMode().equals(Mode.SOURCE.toString())) {
 				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(inboundProtocol));
+				if (convertLFtoCR){
+					source = ((String)source).replaceAll("\\n", "\r").replaceAll("\\r\\r", "\r");
+				}
 				messageObject = adaptor.getMessage((String) source, channelId, encryptData, inboundProperties, emptyFilterAndTransformer);
 				
 				// Grab and process our attachments
@@ -305,6 +306,9 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				messageObject.getChannelMap().putAll(context.getProperties());
 			} else if (this.getMode().equals(Mode.DESTINATION.toString())) {
 				MessageObject incomingMessageObject = (MessageObject) source;
+				if (convertLFtoCR){
+					incomingMessageObject.setEncodedData(incomingMessageObject.getEncodedData().replaceAll("\\n", "\r").replaceAll("\\r\\r", "\r"));
+				}
 				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(inboundProtocol));
 				messageObject = adaptor.convertMessage(incomingMessageObject, this.getConnectorName(), channelId, encryptData, inboundProperties, emptyFilterAndTransformer);
 				messageObject.setEncodedDataProtocol(Protocol.valueOf(this.outboundProtocol));
