@@ -482,10 +482,32 @@ public class ImportConverter {
 		for (int i = 0; i < transformers.getLength(); i++) {
 			Element transformerRoot = (Element) transformers.item(i);
 
+			// Update the inbound protocol properties.
 			if (transformerRoot.getElementsByTagName("inboundProtocol").item(0).getTextContent().equals("HL7V2")) {
 				if (transformerRoot.getElementsByTagName("inboundProperties").getLength() != 0) {
 					
-					inboundPropertiesElement = (Element)document.getElementsByTagName("inboundProperties").item(0);
+					inboundPropertiesElement = (Element)transformerRoot.getElementsByTagName("inboundProperties").item(0);
+					
+					// Find out if encodeEntities already exists.  If it was 1.5 it won't.
+					boolean hasEncodeEntities = false;
+					NodeList properyNames = inboundPropertiesElement.getElementsByTagName("property");
+					for (int j = 0; j < properyNames.getLength(); j++) {
+						Node nameAttribute = properyNames.item(j).getAttributes().getNamedItem("name");
+						if (properyNames.item(j).getAttributes().getLength() > 0 && nameAttribute != null) {
+							if (nameAttribute.getNodeValue().equals("encodeEntities")) {
+								hasEncodeEntities = true;
+							}
+						}
+					}
+					
+					// Add encodeEntities if it doesn't exist.
+					if (!hasEncodeEntities) {
+						Element encodeEntities = document.createElement("property");
+						encodeEntities.setAttribute("name", "encodeEntities");
+						encodeEntities.setTextContent("true");
+					
+						inboundPropertiesElement.appendChild(encodeEntities);
+					}
 					
 					Element convertLFtoCRProperty = document.createElement("property");
 					convertLFtoCRProperty.setAttribute("name", "convertLFtoCR");
@@ -523,9 +545,33 @@ public class ImportConverter {
 
 					transformerRoot.appendChild(inboundPropertiesElement);
 				}
-				
+			}
+			
+			// Update the outbound protocol properties.
+			if (transformerRoot.getElementsByTagName("outboundProtocol").item(0).getTextContent().equals("HL7V2")) {
 				if (transformerRoot.getElementsByTagName("outboundProperties").getLength() != 0) {
-					outboundPropertiesElement = (Element)document.getElementsByTagName("outboundProperties").item(0);
+					outboundPropertiesElement = (Element)transformerRoot.getElementsByTagName("outboundProperties").item(0);
+					
+					// Find out if encodeEntities already exists.  If it was 1.5 it won't.
+					boolean hasEncodeEntities = false;
+					NodeList properyNames = outboundPropertiesElement.getElementsByTagName("property");
+					for (int j = 0; j < properyNames.getLength(); j++) {
+						Node nameAttribute = properyNames.item(j).getAttributes().getNamedItem("name");
+						if (properyNames.item(j).getAttributes().getLength() > 0 && nameAttribute != null) {
+							if (nameAttribute.getNodeValue().equals("encodeEntities")) {
+								hasEncodeEntities = true;
+							}
+						}
+					}
+					
+					// Add encodeEntities if it doesn't exist.
+					if (!hasEncodeEntities) {
+						Element encodeEntities = document.createElement("property");
+						encodeEntities.setAttribute("name", "encodeEntities");
+						encodeEntities.setTextContent("true");
+					
+						outboundPropertiesElement.appendChild(encodeEntities);
+					}
 					
 					Element convertLFtoCRProperty = document.createElement("property");
 					convertLFtoCRProperty.setAttribute("name", "convertLFtoCR");
