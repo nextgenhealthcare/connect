@@ -338,24 +338,9 @@ public class ChannelWizard extends javax.swing.JDialog
             }
 
             public void done()
-            {
-            	if (channel != null)
-            	{
-                    try
-                    {
-                        channel.setId(parent.mirthClient.getGuid());
-                    }
-                    catch (ClientException e)
-                    {
-                        parent.alertException(e.getStackTrace(), e.getMessage());
-                    }
-
-                    channel.setName("");
-                    channel.setEnabled(true);
-                    channel.getProperties().setProperty("initialState", "Started");
-                    parent.setupChannel(channel);
-            	}
-            	
+            { 
+                parent.editChannel(channel);
+                parent.enableSave();
                 parent.setWorking("", false);
             }
         };
