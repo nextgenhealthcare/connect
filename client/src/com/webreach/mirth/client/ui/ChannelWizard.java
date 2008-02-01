@@ -33,7 +33,6 @@ import java.util.TreeSet;
 
 import org.jdesktop.swingworker.SwingWorker;
 
-import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ExtensionPoint;
 import com.webreach.mirth.model.ExtensionPointDefinition;
@@ -339,8 +338,11 @@ public class ChannelWizard extends javax.swing.JDialog
 
             public void done()
             { 
-                parent.editChannel(channel);
-                parent.enableSave();
+            	if (channel != null)
+            	{
+	                parent.editChannel(channel);
+	                parent.enableSave();
+            	}
                 parent.setWorking("", false);
             }
         };
