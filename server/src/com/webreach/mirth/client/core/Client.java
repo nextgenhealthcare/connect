@@ -39,6 +39,7 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatistics;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.ChannelSummary;
+import com.webreach.mirth.model.CodeTemplate;
 import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.MessageObject;
@@ -63,6 +64,7 @@ public class Client {
 	public final static String MESSAGE_SERVLET = "/messages";
 	public final static String EVENT_SERVLET = "/events";
 	public final static String ALERT_SERVLET = "/alerts";
+	public final static String TEMPLATE_SERVLET = "/codetemplates";
     public final static String EXTENSION_SERVLET = "/extensions";
 
 	/**
@@ -353,18 +355,6 @@ public class Client {
 	}
 
 	/**
-	 * Updates a specified alert.
-	 * 
-	 * @param alert
-	 * @throws ClientException
-	 */
-	public synchronized void updateAlert(Alert alert) throws ClientException {
-		logger.debug("updating alert: " + alert);
-		NameValuePair[] params = { new NameValuePair("op", "updateAlert"), new NameValuePair("alert", serializer.toXML(alert)) };
-		serverConnection.executePostMethod(ALERT_SERVLET, params);
-	}
-
-	/**
 	 * Updates a list of alerts.
 	 * 
 	 * @param alert
@@ -388,6 +378,42 @@ public class Client {
 		serverConnection.executePostMethod(ALERT_SERVLET, params);
 	}
 
+	/**
+	 * Returns a List of all code templates.
+	 * 
+	 * @return
+	 * @throws ClientException
+	 */
+	public List<CodeTemplate> getCodeTemplate(CodeTemplate codeTemplate) throws ClientException {
+		logger.debug("getting code template: " + codeTemplate);
+		NameValuePair[] params = { new NameValuePair("op", "getCodeTemplate"), new NameValuePair("codeTemplate", serializer.toXML(codeTemplate)) };
+		return (List<CodeTemplate>) serializer.fromXML(serverConnection.executePostMethod(TEMPLATE_SERVLET, params));
+	}
+
+	/**
+	 * Updates a list of code templates.
+	 * 
+	 * @param code template
+	 * @throws ClientException
+	 */
+	public synchronized void updateCodeTemplates(List<CodeTemplate> codeTemplates) throws ClientException {
+		logger.debug("updating code templates: " + codeTemplates);
+		NameValuePair[] params = { new NameValuePair("op", "updateCodeTemplates"), new NameValuePair("codeTemplates", serializer.toXML(codeTemplates)) };
+		serverConnection.executePostMethod(TEMPLATE_SERVLET, params);
+	}
+
+	/**
+	 * Removes the code template with the specified id.
+	 * 
+	 * @param code templateId
+	 * @throws ClientException
+	 */
+	public synchronized void removeCodeTemplate(CodeTemplate codeTemplate) throws ClientException {
+		logger.debug("removing code template: " + codeTemplate);
+		NameValuePair[] params = { new NameValuePair("op", "removeCodeTemplate"), new NameValuePair("codeTemplate", serializer.toXML(codeTemplate)) };
+		serverConnection.executePostMethod(TEMPLATE_SERVLET, params);
+	}
+	
 	/**
 	 * Returns a Properties object with all server configuration properties.
 	 * 
