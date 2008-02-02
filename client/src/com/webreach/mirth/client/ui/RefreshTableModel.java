@@ -49,21 +49,26 @@ public class RefreshTableModel extends DefaultTableModel
         super(data, columnNames);
     }
 
-    /*
-     * 
-     */
+    public Object getValueAt(int row, int col) {
+        if(dataVector.size()>0)
+            return ((Vector)dataVector.get(row)).get(col);
+        else
+            return null;
+    }
+    
     public void refreshDataVector(Vector data)
     {
-        /*
-         * if(dataVector != null && dataVector.size() > 0)
-         * fireTableRowsDeleted(0, dataVector.size() - 1);
-         * 
-         * if(data.size() > 0) fireTableRowsInserted(0, data.size() - 1);
-         */
-
+        if (dataVector != null && dataVector.size() > 0)
+            fireTableRowsDeleted(0, dataVector.size() - 1);
+        
         dataVector = data;
+            
+        if (data.size() > 0)
+            fireTableRowsInserted(0, data.size() - 1);
+        
+        /*dataVector = data;
 
-        fireTableDataChanged();
+        fireTableDataChanged();*/
     }
 
     public void refreshDataVector(Object[][] data)

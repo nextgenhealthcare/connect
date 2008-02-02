@@ -25,22 +25,40 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.core.Client;
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.browsers.event.EventBrowser;
-import com.webreach.mirth.client.ui.browsers.message.MessageBrowser;
-import com.webreach.mirth.client.ui.util.FileUtil;
-import com.webreach.mirth.connectors.ConnectorClass;
-import com.webreach.mirth.model.*;
-import com.webreach.mirth.model.converters.ObjectCloner;
-import com.webreach.mirth.model.converters.ObjectClonerException;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.model.filters.MessageObjectFilter;
-import com.webreach.mirth.model.filters.SystemEventFilter;
-import com.webreach.mirth.model.util.ImportConverter;
-import com.webreach.mirth.plugins.DashboardColumnPlugin;
-import com.webreach.mirth.plugins.DashboardPanelPlugin;
-import com.webreach.mirth.util.PropertyVerifier;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Stack;
+import java.util.prefs.Preferences;
+
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.border.LineBorder;
+
 import org.apache.log4j.Logger;
 import org.jdesktop.swingworker.SwingWorker;
 import org.jdesktop.swingx.JXFrame;
@@ -52,19 +70,34 @@ import org.jdesktop.swingx.action.ActionManager;
 import org.jdesktop.swingx.action.BoundAction;
 import org.syntax.jedit.JEditTextArea;
 
-import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
-import java.awt.*;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-import java.util.List;
-import java.util.prefs.Preferences;
+import com.webreach.mirth.client.core.Client;
+import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.ui.browsers.event.EventBrowser;
+import com.webreach.mirth.client.ui.browsers.message.MessageBrowser;
+import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
+import com.webreach.mirth.client.ui.util.FileUtil;
+import com.webreach.mirth.connectors.ConnectorClass;
+import com.webreach.mirth.model.Alert;
+import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.ChannelProperties;
+import com.webreach.mirth.model.ChannelStatistics;
+import com.webreach.mirth.model.ChannelStatus;
+import com.webreach.mirth.model.ChannelSummary;
+import com.webreach.mirth.model.CodeTemplate;
+import com.webreach.mirth.model.Connector;
+import com.webreach.mirth.model.ConnectorMetaData;
+import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.PluginMetaData;
+import com.webreach.mirth.model.User;
+import com.webreach.mirth.model.converters.ObjectCloner;
+import com.webreach.mirth.model.converters.ObjectClonerException;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.webreach.mirth.model.filters.MessageObjectFilter;
+import com.webreach.mirth.model.filters.SystemEventFilter;
+import com.webreach.mirth.model.util.ImportConverter;
+import com.webreach.mirth.plugins.DashboardColumnPlugin;
+import com.webreach.mirth.plugins.DashboardPanelPlugin;
+import com.webreach.mirth.util.PropertyVerifier;
 
 /**
  * The main conent frame for the Mirth Client Application. Extends JXFrame and
@@ -82,6 +115,7 @@ public class Frame extends JXFrame
     public EventBrowser eventBrowser = null;
     public MessageBrowser messageBrowser = null;
     public AlertPanel alertPanel = null;
+    public CodeTemplatePanel codeTemplatePanel = null;
     public GlobalScriptsPanel globalScriptsPanel = null;
     public PluginPanel pluginPanel = null;
     public JXTaskPaneContainer taskPaneContainer;
@@ -89,6 +123,7 @@ public class Frame extends JXFrame
     public Map<String, Channel> channels = null;
     public List<User> users = null;
     public List<Alert> alerts = null;
+    public List<CodeTemplate> codeTemplates = null;
     public ActionManager manager = ActionManager.getInstance();
     public JPanel contentPanel;
     public BorderLayout borderLayout1 = new BorderLayout();
@@ -118,6 +153,8 @@ public class Frame extends JXFrame
     public JPopupMenu userPopupMenu;
     public JXTaskPane alertTasks;
     public JPopupMenu alertPopupMenu;
+    public JXTaskPane codeTemplateTasks;
+    public JPopupMenu codeTemplatePopupMenu;
     public JXTaskPane globalScriptsTasks;
     public JPopupMenu globalScriptsPopupMenu;
     public JXTitledPanel rightContainer;
@@ -314,6 +351,7 @@ public class Frame extends JXFrame
     {
 
         this.mirthClient = mirthClient;
+        refreshCodeTemplates();
         login.setStatus("Loading plugins...");
         loadPlugins();
         login.setStatus("Loading preferences...");
@@ -526,6 +564,7 @@ public class Frame extends JXFrame
         createUserPane();
         createAlertPane();
         createGlobalScriptsPane();
+        createCodeTemplatePane();
         createOtherPane();
     }
 
@@ -571,6 +610,32 @@ public class Frame extends JXFrame
         setVisibleTasks(settingsTasks, settingsPopupMenu, 1, 1, false);
         taskPaneContainer.add(settingsTasks);
     }
+    
+    /**
+     * Creates the tempalte task pane.
+     */
+    private void createAlertPane()
+    {
+        // Create Alert Edit Tasks Pane
+        alertTasks = new JXTaskPane();
+        alertPopupMenu = new JPopupMenu();
+        alertTasks.setTitle("Alert Tasks");
+        alertTasks.setFocusable(false);
+
+        addTask("doRefreshAlerts","Refresh","Refresh the list of alerts.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), alertTasks, alertPopupMenu);
+        addTask("doSaveAlerts","Save Alerts","Save all changes made to all alerts.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")), alertTasks, alertPopupMenu);
+        addTask("doNewAlert","New Alert","Create a new alert.","N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alert_add.png")), alertTasks, alertPopupMenu);
+        addTask("doDeleteAlert","Delete Alert","Delete the currently selected alert.","L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alert_delete.png")), alertTasks, alertPopupMenu);
+        addTask("doEnableAlert","Enable Alert","Enable the currently selected alert.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")), alertTasks, alertPopupMenu);
+        addTask("doDisableAlert", "Disable Alert","Disable the currently selected alert.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")) , alertTasks, alertPopupMenu);
+
+        setVisibleTasks(alertTasks, alertPopupMenu, 0, 0, false);
+        setVisibleTasks(alertTasks, alertPopupMenu, 1, 1, false);
+        setVisibleTasks(alertTasks, alertPopupMenu, 2, 2, true);
+        setVisibleTasks(alertTasks, alertPopupMenu, 3, 5, false);
+        setNonFocusable(alertTasks);
+        taskPaneContainer.add(alertTasks);
+    }
 
     /**
      * Creates the channel task pane.
@@ -586,6 +651,7 @@ public class Frame extends JXFrame
         addTask("doRefreshChannels","Refresh","Refresh the list of channels.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), channelTasks, channelPopupMenu);
         addTask("doDeployAll","Deploy All","Deploy all currently enabled channels.","A", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png")), channelTasks, channelPopupMenu);
         addTask("doEditGlobalScripts","Edit Global Scripts","Edit scripts that are not channel specific.","G", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_edit.png")), channelTasks, channelPopupMenu);
+        addTask("doEditCodeTemplates","Edit Code Templates","Create and manage templates to be used in JavaScript throughout Mirth.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_edit.png")), channelTasks, channelPopupMenu);
         addTask("doNewChannel","New Channel","Create a new channel.","N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_add.png")), channelTasks, channelPopupMenu);
         addTask("doImport","Import Channel","Import a channel from an XML file.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")), channelTasks, channelPopupMenu);
         addTask("doExportAll","Export All Channels","Export all of the channels to XML files.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), channelTasks, channelPopupMenu);
@@ -598,7 +664,7 @@ public class Frame extends JXFrame
 
         setNonFocusable(channelTasks);
         setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, false);
-        setVisibleTasks(channelTasks, channelPopupMenu, 6, -1, false);
+        setVisibleTasks(channelTasks, channelPopupMenu, 7, -1, false);
         taskPaneContainer.add(channelTasks);
     }
 
@@ -737,29 +803,27 @@ public class Frame extends JXFrame
     }
 
     /**
-     * Creates the channel edit task pane.
+     * Creates the codeTemplate task pane.
      */
-    private void createAlertPane()
+    private void createCodeTemplatePane()
     {
-        // Create Alert Edit Tasks Pane
-        alertTasks = new JXTaskPane();
-        alertPopupMenu = new JPopupMenu();
-        alertTasks.setTitle("Alert Tasks");
-        alertTasks.setFocusable(false);
+        // Create CodeTemplate Edit Tasks Pane
+        codeTemplateTasks = new JXTaskPane();
+        codeTemplatePopupMenu = new JPopupMenu();
+        codeTemplateTasks.setTitle("CodeTemplate Tasks");
+        codeTemplateTasks.setFocusable(false);
 
-        addTask("doRefreshAlerts","Refresh","Refresh the list of alerts.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), alertTasks, alertPopupMenu);
-        addTask("doSaveAlerts","Save Alerts","Save all changes made to all alerts.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")), alertTasks, alertPopupMenu);
-        addTask("doNewAlert","New Alert","Create a new alert.","N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alert_add.png")), alertTasks, alertPopupMenu);
-        addTask("doDeleteAlert","Delete Alert","Delete the currently selected alert.","L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alert_delete.png")), alertTasks, alertPopupMenu);
-        addTask("doEnableAlert","Enable Alert","Enable the currently selected alert.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")), alertTasks, alertPopupMenu);
-        addTask("doDisableAlert", "Disable Alert","Disable the currently selected alert.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")) , alertTasks, alertPopupMenu);
+        addTask("doRefreshCodeTemplates","Refresh","Refresh the list of codeTemplates.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), codeTemplateTasks, codeTemplatePopupMenu);
+        addTask("doSaveCodeTemplates","Save CodeTemplates","Save all changes made to all codeTemplates.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")), codeTemplateTasks, codeTemplatePopupMenu);
+        addTask("doNewCodeTemplate","New CodeTemplate","Create a new codeTemplate.","N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alert_add.png")), codeTemplateTasks, codeTemplatePopupMenu);
+        addTask("doDeleteCodeTemplate","Delete CodeTemplate","Delete the currently selected codeTemplate.","L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alert_delete.png")), codeTemplateTasks, codeTemplatePopupMenu);
 
-        setVisibleTasks(alertTasks, alertPopupMenu, 0, 0, false);
-        setVisibleTasks(alertTasks, alertPopupMenu, 1, 1, false);
-        setVisibleTasks(alertTasks, alertPopupMenu, 2, 2, true);
-        setVisibleTasks(alertTasks, alertPopupMenu, 3, 5, false);
-        setNonFocusable(alertTasks);
-        taskPaneContainer.add(alertTasks);
+        setVisibleTasks(codeTemplateTasks, codeTemplatePopupMenu, 0, 0, false);
+        setVisibleTasks(codeTemplateTasks, codeTemplatePopupMenu, 1, 1, false);
+        setVisibleTasks(codeTemplateTasks, codeTemplatePopupMenu, 2, 2, true);
+        setVisibleTasks(codeTemplateTasks, codeTemplatePopupMenu, 3, 3, false);
+        setNonFocusable(codeTemplateTasks);
+        taskPaneContainer.add(codeTemplateTasks);
     }
 
     /**
@@ -1046,6 +1110,15 @@ public class Frame extends JXFrame
             else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION)
                 return false;
         }
+        else if (codeTemplatePanel != null && currentContentPage == codeTemplatePanel && codeTemplateTasks.getContentPane().getComponent(1).isVisible())
+        {
+            int option = JOptionPane.showConfirmDialog(this, "Would you like to save the code templates?");
+
+            if (option == JOptionPane.YES_OPTION)
+                doSaveCodeTemplates();
+            else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION)
+                return false;
+        }
 
         disableSave();
         return true;
@@ -1192,6 +1265,8 @@ public class Frame extends JXFrame
             alertTasks.getContentPane().getComponent(1).setVisible(true);
         else if (globalScriptsPanel != null && currentContentPage == globalScriptsPanel)
             globalScriptsTasks.getContentPane().getComponent(0).setVisible(true);
+        else if (codeTemplatePanel != null && currentContentPage == codeTemplatePanel)
+            codeTemplateTasks.getContentPane().getComponent(1).setVisible(true);
     }
 
     /**
@@ -1211,6 +1286,8 @@ public class Frame extends JXFrame
             alertTasks.getContentPane().getComponent(1).setVisible(false);
         else if (globalScriptsPanel != null && currentContentPage == globalScriptsPanel)
             globalScriptsTasks.getContentPane().getComponent(0).setVisible(false);
+        else if (codeTemplatePanel != null && currentContentPage == codeTemplatePanel)
+            codeTemplateTasks.getContentPane().getComponent(1).setVisible(false);
     }
 
     // ////////////////////////////////////////////////////////////
@@ -1295,7 +1372,7 @@ public class Frame extends JXFrame
     {
         if (settingsPanel == null)
             settingsPanel = new SettingsPanel();
-
+                
         if (!confirmLeave())
             return;
 
@@ -1535,6 +1612,38 @@ public class Frame extends JXFrame
 
         worker.execute();
     }
+    
+    public void doEditCodeTemplates()
+    {
+
+        if (codeTemplatePanel == null)
+            codeTemplatePanel = new CodeTemplatePanel();
+
+        setWorking("Loading code templates...", true);
+
+        SwingWorker worker = new SwingWorker<Void, Void>()
+        {
+            public Void doInBackground()
+            {
+                refreshCodeTemplates();
+                return null;
+            }
+
+            public void done()
+            {
+                codeTemplatePanel.updateCodeTemplateTable(false);
+                setPanelName("Code Templates");
+                setCurrentContentPage(codeTemplatePanel);
+                codeTemplatePanel.setDefaultCodeTemplate();
+                setFocus(codeTemplateTasks);
+                disableSave();
+                setWorking("", false);
+            }
+        };
+
+        worker.execute();
+        
+    }
 
     public void doValidateCurrentGlobalScript()
     {
@@ -1737,12 +1846,12 @@ public class Frame extends JXFrame
                 if (channels.size() > 0)
                 {
                     setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, true);
-                    setVisibleTasks(channelTasks, channelPopupMenu, 5, 5, true);
+                    setVisibleTasks(channelTasks, channelPopupMenu, 6, 6, true);
                 }
                 else
                 {
                     setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, false);
-                    setVisibleTasks(channelTasks, channelPopupMenu, 5, 5, false);
+                    setVisibleTasks(channelTasks, channelPopupMenu, 6, 6, false);
                 }
 
                 // as long as the channel was not deleted
@@ -2375,6 +2484,8 @@ public class Frame extends JXFrame
             return alertTasks.getContentPane().getComponent(1).isVisible();
         else if (globalScriptsPanel != null && currentContentPage == globalScriptsPanel)
             return globalScriptsTasks.getContentPane().getComponent(0).isVisible();
+        else if (codeTemplatePanel != null && currentContentPage == codeTemplatePanel)
+            return codeTemplateTasks.getContentPane().getComponent(1).isVisible();
         else
             return false;
     }
@@ -3400,6 +3511,81 @@ public class Frame extends JXFrame
         alertPanel.disableAlert();
     }
 
+    public void doRefreshCodeTemplates()
+    {
+        setWorking("Loading code templates...", true);
+
+        SwingWorker worker = new SwingWorker<Void, Void>()
+        {
+            public Void doInBackground()
+            {
+                refreshCodeTemplates();
+                return null;
+            }
+
+            public void done()
+            {
+                codeTemplatePanel.updateCodeTemplateTable(false);
+                setWorking("", false);
+            }
+        };
+
+        worker.execute();
+    }
+
+    public void refreshCodeTemplates()
+    {
+        try
+        {
+            codeTemplates = mirthClient.getCodeTemplate(null);
+        }
+        catch (ClientException e)
+        {
+            alertException(e.getStackTrace(), e.getMessage());
+        }
+    }
+
+    public void doSaveCodeTemplates()
+    {
+        setWorking("Saving codeTemplates...", true);
+
+        SwingWorker worker = new SwingWorker<Void, Void>()
+        {
+            public Void doInBackground()
+            {
+                try
+                {
+                    codeTemplatePanel.saveCodeTemplate();
+                    mirthClient.updateCodeTemplates(codeTemplates);
+                    ReferenceListFactory.getInstance().updateUserTemplates();
+                }
+                catch (ClientException e)
+                {
+                    alertException(e.getStackTrace(), e.getMessage());
+                }
+                return null;
+            }
+
+            public void done()
+            {
+                disableSave();
+                setWorking("", false);
+            }
+        };
+
+        worker.execute();
+    }
+
+    public void doDeleteCodeTemplate()
+    {
+        codeTemplatePanel.deleteCodeTemplate();
+    }
+
+    public void doNewCodeTemplate()
+    {
+        codeTemplatePanel.addCodeTemplate();
+    }
+    
     public boolean exportChannelOnError()
     {
         if (channelEditPanel != null && (channelEditTasks.getContentPane().getComponent(0).isVisible() || (channelEditPanel.transformerPane != null && channelEditPanel.transformerPane.modified) || (channelEditPanel.filterPane != null && channelEditPanel.filterPane.modified)))

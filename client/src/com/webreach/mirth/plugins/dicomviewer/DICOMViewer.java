@@ -20,6 +20,11 @@ import ij.plugin.DICOM;
  */
 public class DICOMViewer extends AttachmentViewer {
 
+    public DICOMViewer (String name)
+    {
+        super(name);
+    }
+    
     public String getViewerType(){
         return "DICOM";
     }

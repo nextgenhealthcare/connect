@@ -21,15 +21,13 @@ import javax.swing.JPanel;
  *
  * @author brendanh
  */
-public abstract class DashboardPanelPlugin
+public abstract class DashboardPanelPlugin extends ClientPlugin
 {
     private JComponent component = new JPanel();
-    private String name;
-    protected Frame parent = PlatformUI.MIRTH_FRAME;
     
-     public DashboardPanelPlugin(String name)
+    public DashboardPanelPlugin(String name)
     {
-        this.name = name;        
+        super(name);       
     }
 
     public void setComponent(JComponent component)
@@ -41,12 +39,7 @@ public abstract class DashboardPanelPlugin
     {
         return component;
     }
-    
-    public String getName()
-    {
-        return name;
-    }
-        
+            
     public void alertException(StackTraceElement[] strace, String message)
     {
         parent.alertException(strace, message);

@@ -12,11 +12,10 @@ import java.util.Set;
 import org.syntax.jedit.SyntaxDocument;
 
 import com.webreach.mirth.client.ui.FunctionList;
-import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.TreePanel;
 import com.webreach.mirth.client.ui.VariableListHandler;
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
 import com.webreach.mirth.client.ui.panels.reference.VariableReferenceTable;
+import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ContextType;
 
 /**
  * 
@@ -159,7 +158,7 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
         tabPanel = new javax.swing.JTabbedPane();
         variableTab = new javax.swing.JPanel();
         variableSplitPane = new javax.swing.JSplitPane();
-        functionList = new FunctionList(ReferenceListFactory.MESSAGE_CONTEXT);
+        functionList = new FunctionList(ContextType.MESSAGE_CONTEXT.getContext());
         variableListScrollPane = new javax.swing.JScrollPane();
         variableTable = new com.webreach.mirth.client.ui.panels.reference.VariableReferenceTable();
         treeTab = new javax.swing.JPanel();

@@ -11,6 +11,7 @@ import java.util.Map;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
+import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ContextType;
 
 /**
  *
@@ -105,7 +106,7 @@ public class GlobalScriptsPanel extends javax.swing.JPanel
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents()
     {
-        scriptPanel = new ScriptPanel(ReferenceListFactory.GLOBAL_CONTEXT);
+        scriptPanel = new ScriptPanel(ContextType.GLOBAL_CONTEXT.getContext());
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);

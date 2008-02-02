@@ -6,12 +6,18 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ListType;
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListPanel;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map.Entry;
+
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
+
+import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
+import com.webreach.mirth.client.ui.panels.reference.ReferenceListPanel;
+import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ListType;
+import com.webreach.mirth.model.CodeTemplate;
 
 /**
  *
@@ -20,6 +26,7 @@ import javax.swing.JPanel;
 public class FunctionList extends javax.swing.JPanel
 {
     private LinkedHashMap<String, JPanel> panels;
+    private int context;
     
     public FunctionList()
     {
@@ -29,19 +36,44 @@ public class FunctionList extends javax.swing.JPanel
     /** Creates new form FunctionList */
     public FunctionList(int context)
     {
+        this.context = context;
         initComponents();
         panels = new LinkedHashMap<String, JPanel>();
-        ReferenceListFactory builder = new ReferenceListFactory();
-        addPanel(new ReferenceListPanel("All", builder.getVariableListItems(ListType.ALL, context)), "All");
-        addPanel(new ReferenceListPanel("Utility Functions", builder.getVariableListItems(ListType.UTILITY, context)), "Utility Functions");
-        addPanel(new ReferenceListPanel("Date Functions", builder.getVariableListItems(ListType.DATE, context)), "Date Functions");
-        addPanel(new ReferenceListPanel("Conversion Functions", builder.getVariableListItems(ListType.CONVERSION, context)), "Conversion Functions");
-        addPanel(new ReferenceListPanel("Logging and Alerts", builder.getVariableListItems(ListType.LOGGING_AND_ALERTS, context)), "Logging and Alerts");
-        addPanel(new ReferenceListPanel("Database Functions", builder.getVariableListItems(ListType.DATABASE, context)), "Database Functions");
-        if(context >= ReferenceListFactory.MESSAGE_CONTEXT)
-            addPanel(new ReferenceListPanel("Message Functions", builder.getVariableListItems(ListType.MESSAGE, context)), "Message Functions");
-        addPanel(new ReferenceListPanel("Map Functions", builder.getVariableListItems(ListType.MAP, context)), "Map Functions");
+        setup();
+    }
+    
+    public void setup()
+    {
+        ReferenceListFactory builder = ReferenceListFactory.getInstance();
+
+        LinkedHashMap<String, ArrayList<CodeTemplate>> references = builder.getReferences();
+        Iterator i = references.entrySet().iterator();
+        addPanel(new ReferenceListPanel(ListType.ALL.getValue(), builder.getVariableListItems(ListType.ALL.getValue(), context)), "All");
+        
+        while (i.hasNext())
+        {
+            Entry entry = (Entry) i.next();
+            String key = (String) entry.getKey();
+            references.get(entry.getKey());
+            ArrayList<CodeTemplate> items = builder.getVariableListItems(key, context);
+            
+            if(items != null && items.size() > 0)
+                addPanel(new ReferenceListPanel(key, items), key);
+        }
+        
+        updateUserTemplates();
+                
         setReferencePanel();
+    }
+    
+    public void updateUserTemplates()
+    {
+        ReferenceListFactory builder = ReferenceListFactory.getInstance();
+        
+        if(builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_VARIABLES, context).size() > 0)
+            addPanel(new ReferenceListPanel(ReferenceListFactory.USER_TEMPLATE_VARIABLES, builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_VARIABLES, context)), ReferenceListFactory.USER_TEMPLATE_VARIABLES);
+        if(builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS, context).size() > 0)
+            addPanel(new ReferenceListPanel(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS, builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS, context)), ReferenceListFactory.USER_TEMPLATE_FUNCTIONS);
     }
     
     public void setReferencePanel()
@@ -51,17 +83,25 @@ public class FunctionList extends javax.swing.JPanel
     
     public void addPanel(JPanel panel, String name)
     {
-        panels.put(name, panel);
-
-        String[] items = new String[panels.keySet().size()];
-        int i = 0;
-        for (String s : panels.keySet())
+        if(panels.get(name) != null)
         {
-            items[i] = s;
-            i++;
+            panels.put(name, panel);
+            return;
         }
-
-        variableReferenceDropDown.setModel(new DefaultComboBoxModel(items));
+        else
+        {
+            panels.put(name, panel);
+            
+            String[] items = new String[panels.keySet().size()];
+            int i = 0;
+            for (String s : panels.keySet())
+            {
+                items[i] = s;
+                i++;
+            }
+    
+            variableReferenceDropDown.setModel(new DefaultComboBoxModel(items));
+        }
     }
     
     /** This method is called from within the constructor to
@@ -111,11 +151,11 @@ public class FunctionList extends javax.swing.JPanel
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void variableReferenceDropDownActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_variableReferenceDropDownActionPerformed
-    {//GEN-HEADEREND:event_variableReferenceDropDownActionPerformed
+    private void variableReferenceDropDownActionPerformed(java.awt.event.ActionEvent evt)                                                          
+    {                                                                   
+        updateUserTemplates();   
         variableScrollPane.setViewportView((panels.get((String) variableReferenceDropDown.getSelectedItem())));
-    }//GEN-LAST:event_variableReferenceDropDownActionPerformed
-    
+    }                                                         
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;

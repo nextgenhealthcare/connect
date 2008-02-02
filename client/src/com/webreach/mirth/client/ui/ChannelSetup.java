@@ -60,7 +60,7 @@ import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.client.ui.editors.filter.FilterPane;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
+import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ContextType;
 import com.webreach.mirth.client.ui.util.VariableListUtil;
 import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.connectors.jdbc.DatabaseWriterProperties;
@@ -1330,7 +1330,7 @@ public class ChannelSetup extends javax.swing.JPanel
         destinationConnectorClass = new com.webreach.mirth.connectors.ConnectorClass();
         destinationTablePane = new javax.swing.JScrollPane();
         destinationTable = new com.webreach.mirth.client.ui.components.MirthTable();
-        scripts = new ScriptPanel(ReferenceListFactory.CHANNEL_CONTEXT);
+        scripts = new ScriptPanel(ContextType.CHANNEL_CONTEXT.getContext());
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         channelView.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));

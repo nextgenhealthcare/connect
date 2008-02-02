@@ -12,13 +12,13 @@ import com.webreach.mirth.client.ui.PlatformUI;
  * Time: 1:46:27 PM
  * To change this template use File | Settings | File Templates.
  */
-public abstract class AttachmentViewer {
-    public Frame parent = PlatformUI.MIRTH_FRAME;
+public abstract class AttachmentViewer extends ClientPlugin {
 
     public abstract String getViewerType();
     public abstract void viewAttachments(List attachmentIds);
     public abstract boolean handleMultiple();
-
-    public AttachmentViewer(){
+   
+    public AttachmentViewer(String name){
+        super(name);
     }
 }

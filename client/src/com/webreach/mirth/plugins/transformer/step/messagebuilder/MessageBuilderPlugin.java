@@ -12,6 +12,11 @@ import com.webreach.mirth.plugins.TransformerStepPlugin;
 public class MessageBuilderPlugin extends TransformerStepPlugin {
 	private MessageBuilder panel;
 
+    public MessageBuilderPlugin (String name)
+    {
+        super(name);
+    }
+    
 	public MessageBuilderPlugin(String name, TransformerPane parent) {
 		super(name, parent);
 		panel = new MessageBuilder(parent);

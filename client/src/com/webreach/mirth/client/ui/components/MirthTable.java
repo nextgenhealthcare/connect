@@ -63,10 +63,14 @@ public class MirthTable extends JXTable
 
     public Class getColumnClass(int column)
     {
-        if (getValueAt(0, column) != null && getRowCount() >= 0 && column >= 0 && column < getColumnCount())
-            return getValueAt(0, column).getClass();
-        else
+        try{
+            if (getRowCount() >= 0 && column >= 0 && column < getColumnCount() && getValueAt(0, column) != null)
+                return getValueAt(0, column).getClass();
+            else
+                return Object.class;
+        }catch (Exception e){
             return Object.class;
+        }
     }
 
     /**

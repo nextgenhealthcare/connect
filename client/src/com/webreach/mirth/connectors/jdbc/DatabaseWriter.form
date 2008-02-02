@@ -50,7 +50,7 @@
                           </Group>
                           <Component id="databasePasswordField" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
                       </Group>
-                      <EmptySpace pref="62" max="32767" attributes="0"/>
+                      <EmptySpace pref="46" max="32767" attributes="0"/>
                       <Component id="generateConnection" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -218,7 +218,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="generateConnection">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Insert Connection"/>
+        <Property name="text" type="java.lang.String" value="Generate Connection"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateConnectionActionPerformed"/>

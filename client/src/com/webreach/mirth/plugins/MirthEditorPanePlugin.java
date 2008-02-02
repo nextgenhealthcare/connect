@@ -4,17 +4,21 @@ import java.util.Map;
 
 import com.webreach.mirth.client.ui.editors.BasePanel;
 import com.webreach.mirth.client.ui.editors.MirthEditorPane;
-import com.webreach.mirth.model.hl7v2.Component;
 
-public abstract class MirthEditorPanePlugin
+public abstract class MirthEditorPanePlugin extends ClientPlugin
 {
-    protected String name;
     protected MirthEditorPane parent;
     protected boolean provideOwnStepName = false;
+    
+    public MirthEditorPanePlugin (String name)
+    {
+        super(name);
+    }
+    
     public MirthEditorPanePlugin(String name, MirthEditorPane parent)
     {
+        super(name);
         this.parent = parent;
-        this.name = name;
     }
     public String getPluginName()
     {

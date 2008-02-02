@@ -21,7 +21,11 @@ import com.webreach.mirth.plugins.AttachmentViewer;
 public class ImageViewer extends AttachmentViewer {
 
 	private BufferedImage image;
-
+	
+     public ImageViewer(String name) {
+            super(name);
+    }
+    
 	public String getViewerType() {
 		return "Image";
 	}

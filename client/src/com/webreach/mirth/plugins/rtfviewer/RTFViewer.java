@@ -18,6 +18,12 @@ import java.io.ByteArrayInputStream;
  * To change this template use File | Settings | File Templates.
  */
 public class RTFViewer extends AttachmentViewer {
+    
+    public RTFViewer(String name)
+    {
+        super(name);
+    }
+
     @Override
     public String getViewerType(){
         return "RTF";

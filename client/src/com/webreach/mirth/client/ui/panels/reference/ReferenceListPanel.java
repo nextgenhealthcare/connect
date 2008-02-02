@@ -8,6 +8,8 @@ package com.webreach.mirth.client.ui.panels.reference;
 
 import java.util.ArrayList;
 
+import com.webreach.mirth.model.CodeTemplate;
+
 /**
  * 
  * @author brendanh
@@ -18,7 +20,7 @@ public class ReferenceListPanel extends javax.swing.JPanel
     /**
      * Creates new form ReferenceListPanel
      */
-    public ReferenceListPanel(String title, ArrayList<ReferenceListItem> items)
+    public ReferenceListPanel(String title, ArrayList<CodeTemplate> items)
     {
         initComponents();
         variableReferenceTable = new VariableReferenceTable(title, items);

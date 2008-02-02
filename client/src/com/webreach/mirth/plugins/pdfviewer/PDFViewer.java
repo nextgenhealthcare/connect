@@ -13,16 +13,26 @@ import com.adobe.acrobat.Viewer;
 import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.plugins.AttachmentViewer;
 
-public class PDFViewer extends AttachmentViewer {
+public class PDFViewer extends AttachmentViewer
+{
+    public PDFViewer(String name)
+    {
+        super(name);
+    }
 
-    public String getViewerType(){
+    public String getViewerType()
+    {
         return "PDF";
     }
-    public boolean handleMultiple(){
+
+    public boolean handleMultiple()
+    {
         return false;
     }
-    public void viewAttachments(List attachmentIds){
-    // do viewing code
+
+    public void viewAttachments(List attachmentIds)
+    {
+        // do viewing code
 
     	Frame frame = new Frame("PDF Viewer");
 		

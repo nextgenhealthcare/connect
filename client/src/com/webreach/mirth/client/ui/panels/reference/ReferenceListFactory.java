@@ -1,218 +1,354 @@
 package com.webreach.mirth.client.ui.panels.reference;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-import com.webreach.mirth.client.ui.CodeSnippetType;
-import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.client.ui.Frame;
+import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.connectors.ConnectorClass;
+import com.webreach.mirth.model.CodeTemplate;
+import com.webreach.mirth.model.ConnectorMetaData;
+import com.webreach.mirth.model.ExtensionPoint;
+import com.webreach.mirth.model.PluginMetaData;
+import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
+import com.webreach.mirth.plugins.ClientPlugin;
 
 public class ReferenceListFactory
-{
-    public static final int GLOBAL_CONTEXT = 0;
-    public static final int CHANNEL_CONTEXT = 1;
-    public static final int MESSAGE_CONTEXT = 2;
-    
-    private int context;
+{       
+    public enum ContextType
+    {
+        GLOBAL_CONTEXT("Global", 0), CHANNEL_CONTEXT("Channel", 1), MESSAGE_CONTEXT("Message", 2);
+
+        private String value;
+        private int context;
+        
+        ContextType(String value, int context)
+        {
+            this.value = value;
+            this.context = context;
+        }
+
+        public String getValue()
+        {
+            return value;
+        }
+        
+        public int getContext()
+        {
+            return context;
+        }
+    }
     
     public enum ListType
     {
-        ALL, CONVERSION, LOGGING_AND_ALERTS, DATABASE, UTILITY, DATE, MESSAGE, XML, HL7, MAP
-    };
-    
-    public ArrayList<ReferenceListItem> getVariableListItems(ListType itemName, int context)
-    {
-        this.context = context;
-        
-        switch (itemName)
+        ALL("All"), CONVERSION("Conversion Functions"), LOGGING_AND_ALERTS("Logging and Alerts"), DATABASE("Database Functions"), UTILITY("Utility Functions"), DATE("Date Functions"), MESSAGE("Message Functions"), MAP("Map Functions");
+
+        private String value;
+
+        ListType(String value)
         {
-            case ALL:
-                return getAllItems();
-            case CONVERSION:
-                return getConversionItems();
-            case LOGGING_AND_ALERTS:
-                return getLoggingAndAlertsItems();
-            case DATABASE:
-                return getDatabaseItems();
-            case MESSAGE:
-                return getMessageItems();
-                // case XML:
-                //     return getXMLItems();
-                //  case HL7:
-                //      return getHL7Items();
-            case MAP:
-                return getMapItems();
-            case UTILITY:
-                return getUtilityItems();
-            case DATE:
-                return getDateItems();
+            this.value = value;
         }
-        return null;
+
+        public String getValue()
+        {
+            return value;
+        }
     }
     
-    private ArrayList<ReferenceListItem> getAllItems()
+    public static final String USER_TEMPLATE_VARIABLES = "User Defined Variables";
+    public static final String USER_TEMPLATE_FUNCTIONS = "User Defined Functions";
+    
+    private Frame parent = PlatformUI.MIRTH_FRAME;
+    private static ReferenceListFactory instance;
+    private LinkedHashMap<String, ArrayList<CodeTemplate>> references;
+
+    public ReferenceListFactory()
     {
-        ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
-        variablelistItems.addAll(getUtilityItems());
-        variablelistItems.addAll(getDateItems());
-        variablelistItems.addAll(getConversionItems());
-        variablelistItems.addAll(getLoggingAndAlertsItems());
-        variablelistItems.addAll(getDatabaseItems());
-        variablelistItems.addAll(getMessageItems());
-        //  variablelistItems.addAll(getXMLItems());
-        //  variablelistItems.addAll(getHL7Items());
+        references = new LinkedHashMap<String, ArrayList<CodeTemplate>>();
+        setup();
+    }
+
+    public static ReferenceListFactory getInstance()
+    {
+        synchronized (ReferenceListFactory.class)
+        {
+            if (instance == null)
+            {
+                instance = new ReferenceListFactory();
+            }
+
+            return instance;
+        }
+    }
+
+    public LinkedHashMap<String, ArrayList<CodeTemplate>> getReferences()
+    {
+        return references;
+    }
+
+    public void setup()
+    {
+        references.put(ListType.CONVERSION.getValue(), setupConversionItems());
+        references.put(ListType.DATABASE.getValue(), setupDatabaseItems());
+        references.put(ListType.LOGGING_AND_ALERTS.getValue(), setupLoggingAndAlertsItems());
+        references.put(ListType.MESSAGE.getValue(), setupMessageItems());
+        references.put(ListType.MAP.getValue(), setupMapItems());
+        references.put(ListType.UTILITY.getValue(), setupUtilityItems());
+        references.put(ListType.DATE.getValue(), setupDateItems());
+
+        Map<String, ConnectorMetaData> connectors = parent.getConnectorMetaData();
+        for (ConnectorMetaData metaData : connectors.values())
+        {
+            if (metaData.isEnabled())
+            {
+                try
+                {
+                    String pluginName = metaData.getName();
+                    ArrayList<CodeTemplate> items = ((ConnectorClass) Class.forName(metaData.getClientClassName()).newInstance()).getReferenceItems();
+                    if(items.size() > 0)
+                        references.put(pluginName + " Functions", items);
+                }
+                catch (Exception e)
+                {
+                    parent.alertException(e.getStackTrace(), e.getMessage());
+                }
+            }
+        }
+
+        Map<String, PluginMetaData> plugins = parent.getPluginMetaData();
+        for (PluginMetaData metaData : plugins.values())
+        {
+            if (metaData.isEnabled())
+            {
+                for (ExtensionPoint extensionPoint : metaData.getExtensionPoints())
+                {
+                    try
+                    {
+                        if (extensionPoint.getMode().equals(ExtensionPoint.Mode.CLIENT) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0)
+                        {
+                            String pluginName = extensionPoint.getName();
+                            ArrayList<CodeTemplate> items = ((ClientPlugin)Class.forName(extensionPoint.getClassName()).getDeclaredConstructor(new Class[]{String.class}).newInstance(new Object[]{pluginName})).getReferenceItems();
+                            if(items.size() > 0)
+                                references.put(pluginName + " Functions", items);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        parent.alertException(e.getStackTrace(), e.getMessage());
+                    }
+                }
+            }
+        }
         
-        variablelistItems.addAll(getMapItems());
-        
-        return variablelistItems;
+        updateUserTemplates();
     }
     
-    private ArrayList<ReferenceListItem> getConversionItems()
+    public void updateUserTemplates()
     {
-        ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
+        ArrayList<CodeTemplate> variables = new ArrayList<CodeTemplate>();
+        ArrayList<CodeTemplate> functions = new ArrayList<CodeTemplate>();
         
-        variablelistItems.add(new ReferenceListItem("Convert HL7 to XML", "Converts an encoded HL7 string to XML", "SerializerFactory.getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions).toXML(message);\ndefault xml namespace = new Namespace('urn:hl7-org:v2xml');\n", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Convert XML to HL7", "Converts an XML string to HL7", "SerializerFactory.getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions).fromXML(message);", CodeSnippetType.FUNCTION));
+        for(CodeTemplate template : parent.codeTemplates)
+        {
+            if(template.getType() == CodeSnippetType.VARIABLE)
+            {
+                variables.add(template);
+            }
+            
+            if(template.getType() == CodeSnippetType.FUNCTION)
+            {
+                functions.add(template);
+            }
+        }
         
-        variablelistItems.add(new ReferenceListItem("Convert X12 to XML", "Converts an encoded X12 string to XML", "SerializerFactory.getX12Serializer(inferDelimiters).toXML(message);\ndefault xml namespace = new Namespace('urn:mirthproject-org:x12:xml');\n", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Convert XML to X12", "Converts an XML string to X12", "SerializerFactory.getX12Serializer(inferDelimiters).fromXML(message);", CodeSnippetType.FUNCTION));
+        if(variables.size() > 0)
+            references.put(USER_TEMPLATE_VARIABLES, variables);
+        if(functions.size() > 0)
+            references.put(USER_TEMPLATE_FUNCTIONS, functions);
+    }
+    
+    public ArrayList<CodeTemplate> getVariableListItems(String itemName, int context)
+    {
+        if (itemName == ListType.ALL.getValue())
+        {
+            return getAllItems(context);
+        }
+        else
+        {
+            return getItems(itemName, context);
+        }
+    }
+
+    private ArrayList<CodeTemplate> getItems(String reference, int context)
+    {
+        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
         
-        variablelistItems.add(new ReferenceListItem("Convert EDI to XML", "Converts an encoded EDI string to XML", "SerializerFactory.getEDISerializer(segmentDelim, elementDelim, subelementDelim).toXML(message);\ndefault xml namespace = new Namespace('urn:mirthproject-org:edi:xml');\n", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Convert XML to EDI", "Converts an XML string to EDI", "SerializerFactory.getEDISerializer(segmentDelim, elementDelim, subelementDelim).fromXML(message);", CodeSnippetType.FUNCTION));
+        if(references.get(reference) == null)
+            return new ArrayList<CodeTemplate>();
         
-        variablelistItems.add(new ReferenceListItem("Convert NCPDP to XML", "Converts an encoded NCPDP string to XML", "SerializerFactory.getNCPDPSerializer(segmentDelim, groupDelim, elementDelim).toXML(message);\ndefault xml namespace = new Namespace('urn:mirthproject-org:ncpdp:xml');\n", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Convert XML to NCPDP", "Converts an XML string to NCPDP", "SerializerFactory.getNCPDPSerializer(segmentDelim, groupDelim, elementDelim).fromXML(message);", CodeSnippetType.FUNCTION));
+        for (CodeTemplate item : references.get(reference))
+        {
+            if (context >= item.getScope())
+            {
+                variablelistItems.add(item);
+            }
+        }
 
         return variablelistItems;
     }
-    
-    private ArrayList<ReferenceListItem> getLoggingAndAlertsItems()
+
+    private ArrayList<CodeTemplate> getAllItems(int context)
     {
-        ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
-        variablelistItems.add(new ReferenceListItem("Log an Info Statement", "Outputs the message to the system info log.", "logger.info('message');", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Log an Error Statement", "Outputs the message to the system error log.", "logger.error('message');", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Send an Email", "Sends an alert email using the alert SMTP properties.", "var smtpConn = SMTPConnectionFactory.createSMTPConnection();\nsmtpConn.send('to', 'cc', 'from', 'subject', 'body');", CodeSnippetType.FUNCTION));
-        if(context >= CHANNEL_CONTEXT)
-            variablelistItems.add(new ReferenceListItem("Trigger an Alert", "Trigger a custom alert for the current channel.", "alerts.sendAlert('message');", CodeSnippetType.FUNCTION));
-        
-        return variablelistItems;
-    }
-    
-    private ArrayList<ReferenceListItem> getDatabaseItems()
-    {
-        ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
-        variablelistItems.add(new ReferenceListItem("Perform Database Query", "Performs a database query and returns the rowset.", "var dbConn = DatabaseConnectionFactory.createDatabaseConnection('driver', 'address', 'username', 'password');\nvar result = dbConn.executeCachedQuery('expression');\ndbConn.close();", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Perform Parameterized Database Query", "Performs a database query with a (Java) list of parameters.", "var dbConn = DatabaseConnectionFactory.createDatabaseConnection('driver', 'address', 'username', 'password');\nvar result = dbConn.executeCachedQuery('expression', paramList);\ndbConn.close();", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Perform Database Update", "Performs a database update.", "var dbConn = DatabaseConnectionFactory.createDatabaseConnection('driver', 'address', 'username', 'password');\nvar result = dbConn.executeUpdate('expression');\ndbConn.close();", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Perform Parameterized Database Update", "Performs a database update with a (Java) list of parameters.", "var dbConn = DatabaseConnectionFactory.createDatabaseConnection('driver', 'address', 'username', 'password');\nvar result = dbConn.executeUpdate('expression', paramList);\ndbConn.close();", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Postgres Connection Template", "String template for Postgres database connection.", "\"jdbc:postgresql://host:port/dbname\"", CodeSnippetType.VARIABLE));
-        variablelistItems.add(new ReferenceListItem("MySQL Connection Template", "String template for MySQL database connection.", "\"jdbc:mysql://host:port/dbname\"", CodeSnippetType.VARIABLE));
-        variablelistItems.add(new ReferenceListItem("SQL Server Connection Template", "String template for SQL Server database connection.", "\"jdbc:jtds:sqlserver://host:port/dbname\"", CodeSnippetType.VARIABLE));
-        variablelistItems.add(new ReferenceListItem("Oracle Connection Template", "String template for Oracle database connection.", "\"jdbc:oracle:thin:@host:port:dbname\"", CodeSnippetType.VARIABLE));
-        variablelistItems.add(new ReferenceListItem("Postgres Driver", "String used for Postgres database driver.", "\"org.postgresql.Driver\"", CodeSnippetType.VARIABLE));
-        variablelistItems.add(new ReferenceListItem("MySQL Driver", "String used for MySQL database driver.", "\"com.mysql.jdbc.Driver\"", CodeSnippetType.VARIABLE));
-        variablelistItems.add(new ReferenceListItem("SQL Server Driver", "String used for SQL Server database driver.", "\"net.sourceforge.jtds.jdbc.Driver\"", CodeSnippetType.VARIABLE));
-        variablelistItems.add(new ReferenceListItem("Oracle Driver", "String used for Oracle database driver.", "\"oracle.jdbc.OracleDriver\"", CodeSnippetType.VARIABLE));
-        variablelistItems.add(new ReferenceListItem("Initialize Driver", "Initialize the specified JDBC driver. (Same as calling Class.forName)", "DatabaseConnectionFactory.initializeDriver('driver');", CodeSnippetType.FUNCTION));
-        
-        return variablelistItems;
-    }
-    
-    private ArrayList<ReferenceListItem> getMessageItems()
-    {
-        ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
-        
-        if(context >= MESSAGE_CONTEXT)
+        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+
+        for (ArrayList<CodeTemplate> items : references.values())
         {
-            variablelistItems.add(new ReferenceListItem("Incoming Message", "The original message received.", "messageObject.getRawData()", CodeSnippetType.VARIABLE));
-            variablelistItems.add(new ReferenceListItem("Incoming Message (XML)", "The original message as XML", "msg", CodeSnippetType.VARIABLE));
-            variablelistItems.add(new ReferenceListItem("Message Type", "The message type", "messageObject.getType()", CodeSnippetType.VARIABLE));
-            variablelistItems.add(new ReferenceListItem("Message Source", "The message source (sending facility)", "messageObject.getSource()", CodeSnippetType.VARIABLE));
-            variablelistItems.add(new ReferenceListItem("Message Version", "The message version", "messageObject.getVersion()", CodeSnippetType.VARIABLE));
-            variablelistItems.add(new ReferenceListItem("Message ID", "The unique id of the message in Mirth", "messageObject.getId()", CodeSnippetType.VARIABLE));
-            variablelistItems.add(new ReferenceListItem("Message Protocol", "The message protocol", "messageObject.getProtocol().toString()", CodeSnippetType.VARIABLE));
-            variablelistItems.add(new ReferenceListItem("Channel ID", "The message channel id", "messageObject.getChannelId()", CodeSnippetType.VARIABLE));
-            variablelistItems.add(new ReferenceListItem("Iterate Over Segment", "Iterates a segment that repeats in a message.  Replace SEG with your segment name (i.e. OBX)", "for each (seg in msg..SEG)\n{\n\tvar sample_value = seg['SEG.1']['SEG.1.1'];\n}\n", CodeSnippetType.FUNCTION));
-            variablelistItems.add(new ReferenceListItem("Create Segment (individual)", "Create a new segment that can be used in any message", "createSegment('segmentName')", CodeSnippetType.FUNCTION));
-            variablelistItems.add(new ReferenceListItem("Create Segment (in message)", "Create a new segment in specified message (msg or tmp)", "createSegment('segmentName', msg)", CodeSnippetType.FUNCTION));
-            variablelistItems.add(new ReferenceListItem("Create Segment (in message, indexed)", "Create a new segment in specified message (msg or tmp) at segment index i", "createSegment('segmentName', msg, i)", CodeSnippetType.FUNCTION));
-            variablelistItems.add(new ReferenceListItem("Create Segment After Segment", "Create a new segment and insert it after the target segment", "createSegmentAfter('segmentName', target)", CodeSnippetType.FUNCTION));
-            variablelistItems.add(new ReferenceListItem("Delete Segment", "Delete a segment from the message", "delete msg['segment']", CodeSnippetType.FUNCTION));
-            
+            for (CodeTemplate item : items)
+            {
+                if (context >= item.getScope())
+                {
+                    variablelistItems.add(item);
+                }
+            }
         }
-        
+
         return variablelistItems;
     }
-    
-/* FOR FUTURE USE
-    private ArrayList<ReferenceListItem> getXMLItems()
+
+    private ArrayList<CodeTemplate> setupConversionItems()
     {
-        ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
- 
+        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+
+        variablelistItems.add(new CodeTemplate("Convert HL7 to XML", "Converts an encoded HL7 string to XML", "SerializerFactory.getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions).toXML(message);\ndefault xml namespace = new Namespace('urn:hl7-org:v2xml');\n", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Convert XML to HL7", "Converts an XML string to HL7", "SerializerFactory.getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions).fromXML(message);", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+
+        variablelistItems.add(new CodeTemplate("Convert X12 to XML", "Converts an encoded X12 string to XML", "SerializerFactory.getX12Serializer(inferDelimiters).toXML(message);\ndefault xml namespace = new Namespace('urn:mirthproject-org:x12:xml');\n", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Convert XML to X12", "Converts an XML string to X12", "SerializerFactory.getX12Serializer(inferDelimiters).fromXML(message);", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+
+        variablelistItems.add(new CodeTemplate("Convert EDI to XML", "Converts an encoded EDI string to XML", "SerializerFactory.getEDISerializer(segmentDelim, elementDelim, subelementDelim).toXML(message);\ndefault xml namespace = new Namespace('urn:mirthproject-org:edi:xml');\n", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Convert XML to EDI", "Converts an XML string to EDI", "SerializerFactory.getEDISerializer(segmentDelim, elementDelim, subelementDelim).fromXML(message);", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+
+        variablelistItems.add(new CodeTemplate("Convert NCPDP to XML", "Converts an encoded NCPDP string to XML", "SerializerFactory.getNCPDPSerializer(segmentDelim, groupDelim, elementDelim).toXML(message);\ndefault xml namespace = new Namespace('urn:mirthproject-org:ncpdp:xml');\n", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Convert XML to NCPDP", "Converts an XML string to NCPDP", "SerializerFactory.getNCPDPSerializer(segmentDelim, groupDelim, elementDelim).fromXML(message);", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+
         return variablelistItems;
     }
- 
-    private ArrayList<ReferenceListItem> getHL7Items()
+
+    private ArrayList<CodeTemplate> setupLoggingAndAlertsItems()
     {
-        ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
- 
+        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+        variablelistItems.add(new CodeTemplate("Log an Info Statement", "Outputs the message to the system info log.", "logger.info('message');", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Log an Error Statement", "Outputs the message to the system error log.", "logger.error('message');", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Send an Email", "Sends an alert email using the alert SMTP properties.", "var smtpConn = SMTPConnectionFactory.createSMTPConnection();\nsmtpConn.send('to', 'cc', 'from', 'subject', 'body');", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Trigger an Alert", "Trigger a custom alert for the current channel.", "alerts.sendAlert('message');", CodeSnippetType.FUNCTION, ContextType.CHANNEL_CONTEXT.getContext()));
+
         return variablelistItems;
     }
- */
-    
-    private ArrayList<ReferenceListItem> getMapItems()
+
+    private ArrayList<CodeTemplate> setupDatabaseItems()
     {
-        ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
-        variablelistItems.add(new ReferenceListItem("Lookup Value in All Maps", "Returns the value of the key if it exists in any map.", "$('key')", CodeSnippetType.VARIABLE));
-        variablelistItems.add(new ReferenceListItem("Get Global Variable Map", "The variable map that persists values between channels.", "globalMap.get('')", CodeSnippetType.VARIABLE));
-        variablelistItems.add(new ReferenceListItem("Put Global Variable Map", "The variable map that persists values between channels.", "globalMap.put(key,'')", CodeSnippetType.VARIABLE));
-        if(context >= MESSAGE_CONTEXT)
-        {
-            variablelistItems.add(new ReferenceListItem("Get Connector Variable Map", "The variable map that will be sent to the connector.", "connectorMap.get('')", CodeSnippetType.VARIABLE));
-            variablelistItems.add(new ReferenceListItem("Put Connector Variable Map", "The variable map that will be sent to the connector.", "connectorMap.put(key,'')", CodeSnippetType.VARIABLE));
-            variablelistItems.add(new ReferenceListItem("Get Channel Variable Map", "The variable map that can be used anywhere in the channel.", "channelMap.get('')", CodeSnippetType.VARIABLE));
-            variablelistItems.add(new ReferenceListItem("Put Channel Variable Map", "The variable map that can be used anywhere in the channel.", "channelMap.put(key,'')", CodeSnippetType.VARIABLE));
-            variablelistItems.add(new ReferenceListItem("Get Response Variable Map", "The variable map that stores responses.", "responseMap.get('')", CodeSnippetType.VARIABLE));
-            variablelistItems.add(new ReferenceListItem("Put Success Response Variable Map", "The variable map that stores responses.", "responseMap.put(connector, ResponseFactory.getSuccessResponse('message'))", CodeSnippetType.VARIABLE));
-            variablelistItems.add(new ReferenceListItem("Put Error Response Variable", "The variable map that stores responses.", "responseMap.put(connector, ResponseFactory.getFailureResponse('message'))", CodeSnippetType.VARIABLE));
-        }
-        
+        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+        variablelistItems.add(new CodeTemplate("Perform Database Query", "Performs a database query and returns the rowset.", "var dbConn = DatabaseConnectionFactory.createDatabaseConnection('driver', 'address', 'username', 'password');\nvar result = dbConn.executeCachedQuery('expression');\ndbConn.close();", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Perform Parameterized Database Query", "Performs a database query with a (Java) list of parameters.", "var dbConn = DatabaseConnectionFactory.createDatabaseConnection('driver', 'address', 'username', 'password');\nvar result = dbConn.executeCachedQuery('expression', paramList);\ndbConn.close();", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Perform Database Update", "Performs a database update.", "var dbConn = DatabaseConnectionFactory.createDatabaseConnection('driver', 'address', 'username', 'password');\nvar result = dbConn.executeUpdate('expression');\ndbConn.close();", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Perform Parameterized Database Update", "Performs a database update with a (Java) list of parameters.", "var dbConn = DatabaseConnectionFactory.createDatabaseConnection('driver', 'address', 'username', 'password');\nvar result = dbConn.executeUpdate('expression', paramList);\ndbConn.close();", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Postgres Connection Template", "String template for Postgres database connection.", "\"jdbc:postgresql://host:port/dbname\"", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("MySQL Connection Template", "String template for MySQL database connection.", "\"jdbc:mysql://host:port/dbname\"", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("SQL Server Connection Template", "String template for SQL Server database connection.", "\"jdbc:jtds:sqlserver://host:port/dbname\"", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Oracle Connection Template", "String template for Oracle database connection.", "\"jdbc:oracle:thin:@host:port:dbname\"", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Postgres Driver", "String used for Postgres database driver.", "\"org.postgresql.Driver\"", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("MySQL Driver", "String used for MySQL database driver.", "\"com.mysql.jdbc.Driver\"", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("SQL Server Driver", "String used for SQL Server database driver.", "\"net.sourceforge.jtds.jdbc.Driver\"", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Oracle Driver", "String used for Oracle database driver.", "\"oracle.jdbc.OracleDriver\"", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Initialize Driver", "Initialize the specified JDBC driver. (Same as calling Class.forName)", "DatabaseConnectionFactory.initializeDriver('driver');", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+
         return variablelistItems;
     }
-    
-    private ArrayList<ReferenceListItem> getUtilityItems()
+
+    private ArrayList<CodeTemplate> setupMessageItems()
     {
-        ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
-        variablelistItems.add(new ReferenceListItem("Use Java Class", "Access any Java class in the current classpath", "var object = Packages.[fully-qualified name];", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Generate Unique ID", "Generate a Universally Unique Identifier", "var uuid = UUIDGenerator.getUUID();", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Call System Function", "Execute a command on server system. Must have proper security enabled.", "java.lang.Runtime.getRuntime().exec(\"system_command\");", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Read File As String", "Read file contents into string", "var contents = FileUtil.read('filename');", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Read File As Bytes", "Read file contents into byte array", "var contents = FileUtil.readBytes('filename');", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Write String to File", "Write string to file", "FileUtil.write('filename', append(true/false), stringData);", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Write Bytes to File", "Write bytes to file", "FileUtil.write('filename', append(true/false), byteData);", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("BASE-64 Encode Data", "Encode a byte array to a BASE-64 string", "FileUtil.encode(data);", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Decode BASE-64 Data", "Decode a BASE-64 string to a byte array", "FileUtil.decode(data);", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Route Message to Channel", "Sends the specified data to a different channel", "router.routeMessage(channelName, 'message');", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Route Message to Channel", "Sends the specified data to a different channel", "router.routeMessage(channelName, 'message', useQueue, synchronized);", CodeSnippetType.FUNCTION));
-        if(context >= MESSAGE_CONTEXT)
-        {
-            variablelistItems.add(new ReferenceListItem("Perform Message Object Value Replacement", "Returns a string that has been run through Velocity replacer with a messageObject context", "var results = replacer.replaceValues(template, messageObject);", CodeSnippetType.FUNCTION));
-        }
-        variablelistItems.add(new ReferenceListItem("Perform Map Value Replacement", "Returns a string that has been run through Velocity replacer with a map context", "var results = replacer.replaceValues(template, map);", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Format Overpunch NCPDP Number", "Returns number with decimal points and correct sign", "var number = NCPDPUtil.formatNCPDPNumber('number', decimalpoints);", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Convert DICOM into Image File", "Converts and returns JPEG/TIF image from uncompressed DICOM image (imagetype: either TIF,JPEG, BMP, PNG, or RAW)", "DICOMUtil.convertDICOM('imagetype',messageObject)", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Get DICOM message", "Gets the full DICOM messages with image data", "DICOMUtil.getDICOMMessage(messageObject)", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Add Attachment", "Add attachment (String or byte[]) to message", "addAttachment(data, type)", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Get Attachments", "Get List of Attachments", "getAttachments()", CodeSnippetType.FUNCTION));
+        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+
+        variablelistItems.add(new CodeTemplate("Incoming Message", "The original message received.", "messageObject.getRawData()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Incoming Message (XML)", "The original message as XML", "msg", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Message Type", "The message type", "messageObject.getType()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Message Source", "The message source (sending facility)", "messageObject.getSource()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Message Version", "The message version", "messageObject.getVersion()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Message ID", "The unique id of the message in Mirth", "messageObject.getId()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Message Protocol", "The message protocol", "messageObject.getProtocol().toString()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Channel ID", "The message channel id", "messageObject.getChannelId()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Iterate Over Segment", "Iterates a segment that repeats in a message.  Replace SEG with your segment name (i.e. OBX)", "for each (seg in msg..SEG)\n{\n\tvar sample_value = seg['SEG.1']['SEG.1.1'];\n}\n", CodeSnippetType.FUNCTION, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Create Segment (individual)", "Create a new segment that can be used in any message", "createSegment('segmentName')", CodeSnippetType.FUNCTION, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Create Segment (in message)", "Create a new segment in specified message (msg or tmp)", "createSegment('segmentName', msg)", CodeSnippetType.FUNCTION, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Create Segment (in message, indexed)", "Create a new segment in specified message (msg or tmp) at segment index i", "createSegment('segmentName', msg, i)", CodeSnippetType.FUNCTION, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Create Segment After Segment", "Create a new segment and insert it after the target segment", "createSegmentAfter('segmentName', target)", CodeSnippetType.FUNCTION, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Delete Segment", "Delete a segment from the message", "delete msg['segment']", CodeSnippetType.FUNCTION, ContextType.MESSAGE_CONTEXT.getContext()));
+
         return variablelistItems;
     }
-    private ArrayList<ReferenceListItem> getDateItems()
+
+    private ArrayList<CodeTemplate> setupMapItems()
     {
-        ArrayList<ReferenceListItem> variablelistItems = new ArrayList<ReferenceListItem>();
-        variablelistItems.add(new ReferenceListItem("Get Date Object From Pattern", "Parse a date according to specified pattern", "var date = DateUtil.getDate(pattern, date);", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Format Date Object", "Formats a date object based on specified format", "var dateString = DateUtil.formatDate(pattern, date);", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Convert Date String", "Parse a date and return a newly formatted date", "var datestring = DateUtil.convertDate(inpattern, outpattern, date);", CodeSnippetType.FUNCTION));
-        variablelistItems.add(new ReferenceListItem("Get Current Date", "Returns the current date/time in specified format", "var dateString = DateUtil.getCurrentDate(pattern);", CodeSnippetType.FUNCTION));
-        
+        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+        variablelistItems.add(new CodeTemplate("Lookup Value in All Maps", "Returns the value of the key if it exists in any map.", "$('key')", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Get Global Variable Map", "The variable map that persists values between channels.", "globalMap.get('')", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Put Global Variable Map", "The variable map that persists values between channels.", "globalMap.put(key,'')", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Get Connector Variable Map", "The variable map that will be sent to the connector.", "connectorMap.get('')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Put Connector Variable Map", "The variable map that will be sent to the connector.", "connectorMap.put(key,'')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Get Channel Variable Map", "The variable map that can be used anywhere in the channel.", "channelMap.get('')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Put Channel Variable Map", "The variable map that can be used anywhere in the channel.", "channelMap.put(key,'')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Get Response Variable Map", "The variable map that stores responses.", "responseMap.get('')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Put Success Response Variable Map", "The variable map that stores responses.", "responseMap.put(connector, ResponseFactory.getSuccessResponse('message'))", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Put Error Response Variable", "The variable map that stores responses.", "responseMap.put(connector, ResponseFactory.getFailureResponse('message'))", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+
+        return variablelistItems;
+    }
+
+    private ArrayList<CodeTemplate> setupUtilityItems()
+    {
+        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+        variablelistItems.add(new CodeTemplate("Use Java Class", "Access any Java class in the current classpath", "var object = Packages.[fully-qualified name];", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Generate Unique ID", "Generate a Universally Unique Identifier", "var uuid = UUIDGenerator.getUUID();", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Call System Function", "Execute a command on server system. Must have proper security enabled.", "java.lang.Runtime.getRuntime().exec(\"system_command\");", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Read File As String", "Read file contents into string", "var contents = FileUtil.read('filename');", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Read File As Bytes", "Read file contents into byte array", "var contents = FileUtil.readBytes('filename');", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Write String to File", "Write string to file", "FileUtil.write('filename', append(true/false), stringData);", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Write Bytes to File", "Write bytes to file", "FileUtil.write('filename', append(true/false), byteData);", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("BASE-64 Encode Data", "Encode a byte array to a BASE-64 string", "FileUtil.encode(data);", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Decode BASE-64 Data", "Decode a BASE-64 string to a byte array", "FileUtil.decode(data);", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Route Message to Channel", "Sends the specified data to a different channel", "router.routeMessage(channelName, 'message');", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Route Message to Channel", "Sends the specified data to a different channel", "router.routeMessage(channelName, 'message', useQueue, synchronized);", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Perform Message Object Value Replacement", "Returns a string that has been run through Velocity replacer with a messageObject context", "var results = replacer.replaceValues(template, messageObject);", CodeSnippetType.FUNCTION, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Perform Map Value Replacement", "Returns a string that has been run through Velocity replacer with a map context", "var results = replacer.replaceValues(template, map);", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Format Overpunch NCPDP Number", "Returns number with decimal points and correct sign", "var number = NCPDPUtil.formatNCPDPNumber('number', decimalpoints);", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Convert DICOM into Image File", "Converts and returns JPEG/TIF image from uncompressed DICOM image (imagetype: either TIF,JPEG, BMP, PNG, or RAW)", "DICOMUtil.convertDICOM('imagetype',messageObject)", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Get DICOM message", "Gets the full DICOM messages with image data", "DICOMUtil.getDICOMMessage(messageObject)", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Add Attachment", "Add attachment (String or byte[]) to message", "addAttachment(data, type)", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Get Attachments", "Get List of Attachments", "getAttachments()", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        return variablelistItems;
+    }
+
+    private ArrayList<CodeTemplate> setupDateItems()
+    {
+        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+        variablelistItems.add(new CodeTemplate("Get Date Object From Pattern", "Parse a date according to specified pattern", "var date = DateUtil.getDate(pattern, date);", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Format Date Object", "Formats a date object based on specified format", "var dateString = DateUtil.formatDate(pattern, date);", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Convert Date String", "Parse a date and return a newly formatted date", "var datestring = DateUtil.convertDate(inpattern, outpattern, date);", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Get Current Date", "Returns the current date/time in specified format", "var dateString = DateUtil.getCurrentDate(pattern);", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+
+        return variablelistItems;
+    }
+
+    private ArrayList<CodeTemplate> setupPlugin()
+    {
+        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
+        variablelistItems.add(new CodeTemplate("Get Date Object From Pattern", "Parse a date according to specified pattern", "var date = DateUtil.getDate(pattern, date);", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Format Date Object", "Formats a date object based on specified format", "var dateString = DateUtil.formatDate(pattern, date);", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Convert Date String", "Parse a date and return a newly formatted date", "var datestring = DateUtil.convertDate(inpattern, outpattern, date);", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Get Current Date", "Returns the current date/time in specified format", "var dateString = DateUtil.getCurrentDate(pattern);", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+
         return variablelistItems;
     }
 }

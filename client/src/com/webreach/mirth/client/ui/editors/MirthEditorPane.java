@@ -75,7 +75,7 @@ public class MirthEditorPane extends JPanel
     {
         super();
         this.setBorder(BorderFactory.createEmptyBorder());
-        ReferenceListFactory builder = new ReferenceListFactory();
+        ReferenceListFactory builder = ReferenceListFactory.getInstance();
         tabTemplatePanel = new TabbedTemplatePanel(this);
         tabTemplatePanel.setBorder(BorderFactory.createEmptyBorder());
         refPanel = new JPanel();

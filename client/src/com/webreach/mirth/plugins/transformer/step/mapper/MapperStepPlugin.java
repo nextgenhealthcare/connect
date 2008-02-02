@@ -12,7 +12,13 @@ import com.webreach.mirth.plugins.TransformerStepPlugin;
 
 public class MapperStepPlugin extends TransformerStepPlugin{
 	private MapperPanel panel;
-	public MapperStepPlugin(String name, TransformerPane parent) {
+	
+    public MapperStepPlugin (String name)
+    {
+        super(name);
+    }
+    
+    public MapperStepPlugin(String name, TransformerPane parent) {
 		super(name, parent);	
 		panel = new MapperPanel(parent);
 	}

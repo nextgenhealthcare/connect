@@ -69,7 +69,7 @@
                                           <Component id="readOnUpdateYes" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace max="-2" attributes="0"/>
                                           <Component id="readOnUpdateNo" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace pref="70" max="32767" attributes="0"/>
+                                          <EmptySpace pref="54" max="32767" attributes="0"/>
                                           <Component id="insertUpdateConnections" min="-2" max="-2" attributes="0"/>
                                       </Group>
                                       <Component id="databaseUpdateSQLTextPane" alignment="1" pref="261" max="32767" attributes="0"/>
@@ -91,7 +91,7 @@
                               <Component id="pollingFrequency" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
                               <Component id="pollingTime" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace pref="161" max="32767" attributes="0"/>
+                          <EmptySpace pref="145" max="32767" attributes="0"/>
                           <Component id="generateConnection" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -375,7 +375,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="generateConnection">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Insert Connection"/>
+        <Property name="text" type="java.lang.String" value="Generate Connection"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateConnectionActionPerformed"/>
@@ -383,7 +383,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="insertUpdateConnections">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Insert Connection"/>
+        <Property name="text" type="java.lang.String" value="Generate Connection"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="insertUpdateConnectionsActionPerformed"/>

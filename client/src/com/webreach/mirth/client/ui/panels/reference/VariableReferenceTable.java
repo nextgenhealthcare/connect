@@ -36,6 +36,7 @@ import javax.swing.table.DefaultTableModel;
 
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.util.VariableListUtil;
+import com.webreach.mirth.model.CodeTemplate;
 import com.webreach.mirth.model.Rule;
 import com.webreach.mirth.model.Step;
 import java.util.LinkedHashSet;
@@ -44,7 +45,7 @@ public class VariableReferenceTable extends ReferenceTable
 {
     private Object[] tooltip;
 
-    private ArrayList<ReferenceListItem> _listItems;
+    private ArrayList<CodeTemplate> _listItems;
 
     private String headerName = "blank";
 
@@ -66,23 +67,23 @@ public class VariableReferenceTable extends ReferenceTable
         makeTable(headerName, data, tooltip);
     }
 
-    public VariableReferenceTable(String headerName, ArrayList<ReferenceListItem> listItems)
+    public VariableReferenceTable(String headerName, ArrayList<CodeTemplate> listItems)
     {
         this._listItems = listItems;
         makeTable(headerName, listItems);
     }
 
-    private void makeTable(String headerName, ArrayList<ReferenceListItem> listItems)
+    private void makeTable(String headerName, ArrayList<CodeTemplate> listItems)
     {
         if (listItems == null)
             return;
         Object[] tooltips = new String[listItems.size()];
         Object[] names = new String[listItems.size()];
-        Iterator<ReferenceListItem> listItemIterator = listItems.iterator();
+        Iterator<CodeTemplate> listItemIterator = listItems.iterator();
         int i = 0;
         while (listItemIterator.hasNext())
         {
-            ReferenceListItem listItem = listItemIterator.next();
+            CodeTemplate listItem = listItemIterator.next();
             names[i] = listItem.getName();
             tooltips[i] = listItem.getTooltip();
             i++;

@@ -26,8 +26,6 @@
 package com.webreach.mirth.client.ui.components;
 
 import java.awt.event.MouseEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -42,10 +40,20 @@ import org.syntax.jedit.SyntaxDocument;
 
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.actions.*;
+import com.webreach.mirth.client.ui.actions.CopyAction;
+import com.webreach.mirth.client.ui.actions.CutAction;
+import com.webreach.mirth.client.ui.actions.DeleteAction;
+import com.webreach.mirth.client.ui.actions.FindAndReplaceAction;
+import com.webreach.mirth.client.ui.actions.PasteAction;
+import com.webreach.mirth.client.ui.actions.RedoAction;
+import com.webreach.mirth.client.ui.actions.SelectAllAction;
+import com.webreach.mirth.client.ui.actions.ShowLineEndingsAction;
+import com.webreach.mirth.client.ui.actions.SnippetAction;
+import com.webreach.mirth.client.ui.actions.UndoAction;
 import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListItem;
+import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ContextType;
 import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ListType;
+import com.webreach.mirth.model.CodeTemplate;
 
 /**
  * Mirth's implementation of the JTextArea. Adds enabling of the save button in
@@ -86,7 +94,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
 
     public MirthSyntaxTextArea()
     {
-        initialize(false, false, ReferenceListFactory.GLOBAL_CONTEXT);
+        initialize(false, false, ContextType.GLOBAL_CONTEXT.getContext());
     }
 
     private void initialize(boolean lineNumbers, final boolean showSnippets, final int context)
@@ -126,20 +134,17 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
             varlist = new JMenu("Built-in Variables");
             hl7list = new JMenu("HL7 Helpers");
             funclist = new JMenu("Built-in Functions");
-            ReferenceListFactory functionBuilder = new ReferenceListFactory();
-            ArrayList<ReferenceListItem> jshelpers = functionBuilder.getVariableListItems(ListType.ALL, context);
-            Iterator<ReferenceListItem> it = jshelpers.iterator();
+            ReferenceListFactory functionBuilder = ReferenceListFactory.getInstance();
+            ArrayList<CodeTemplate> jshelpers = functionBuilder.getVariableListItems(ListType.ALL.getValue(), context);
+            Iterator<CodeTemplate> it = jshelpers.iterator();
 
             while (it.hasNext())
             {
-                ReferenceListItem item = it.next();
+                CodeTemplate item = it.next();
                 switch (item.getType())
                 {
                 case FUNCTION:
                     funclist.add(new SnippetAction(this, item.getName(), item.getCode()));
-                    break;
-                case HL7HELPER:
-                    hl7list.add(new SnippetAction(this, item.getName(), item.getCode()));
                     break;
                 case VARIABLE:
                     varlist.add(new SnippetAction(this, item.getName(), item.getCode()));
@@ -187,7 +192,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
     public MirthSyntaxTextArea(boolean lineNumbers, final boolean showSnippets)
     {
         super(lineNumbers);
-        initialize(lineNumbers, showSnippets, ReferenceListFactory.GLOBAL_CONTEXT);
+        initialize(lineNumbers, showSnippets, ContextType.GLOBAL_CONTEXT.getContext());
     }
 
     public MirthSyntaxTextArea(boolean lineNumbers, final boolean showSnippets, final int context)

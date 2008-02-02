@@ -305,7 +305,7 @@ public class MessageBrowser extends javax.swing.JPanel
                             if (extensionPoint.getMode().equals(ExtensionPoint.Mode.CLIENT) && extensionPoint.getType().equals(ExtensionPoint.Type.ATTACHMENT_VIEWER) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0)
                             {
                                 String pluginName = extensionPoint.getName();
-                                AttachmentViewer attachmentViewer = (AttachmentViewer) Class.forName(extensionPoint.getClassName()).getDeclaredConstructors()[0].newInstance(new Object[]{});
+                                AttachmentViewer attachmentViewer = (AttachmentViewer) Class.forName(extensionPoint.getClassName()).getDeclaredConstructors()[0].newInstance(new Object[]{pluginName});
                                 loadedPanelPlugins.put(pluginName, attachmentViewer);
                             }
                         }

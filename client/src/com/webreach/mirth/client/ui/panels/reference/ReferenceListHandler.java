@@ -33,18 +33,19 @@ import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
 import com.webreach.mirth.client.ui.VariableTransferable;
+import com.webreach.mirth.model.CodeTemplate;
 
 public class ReferenceListHandler extends TransferHandler
 {
-    private ArrayList<ReferenceListItem> listItems;
+    private ArrayList<CodeTemplate> listItems;
 
-    public ReferenceListHandler(ArrayList<ReferenceListItem> listItems)
+    public ReferenceListHandler(ArrayList<CodeTemplate> listItems)
     {
         super();
         this.listItems = listItems;
     }
 
-    public void setListItems(ArrayList<ReferenceListItem> listItems)
+    public void setListItems(ArrayList<CodeTemplate> listItems)
     {
         this.listItems = listItems;
     }

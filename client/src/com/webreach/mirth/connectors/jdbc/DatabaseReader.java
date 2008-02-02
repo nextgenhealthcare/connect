@@ -589,7 +589,7 @@ public class DatabaseReader extends ConnectorClass
             }
         });
 
-        generateConnection.setText("Insert Connection");
+        generateConnection.setText("Generate Connection");
         generateConnection.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -598,7 +598,7 @@ public class DatabaseReader extends ConnectorClass
             }
         });
 
-        insertUpdateConnections.setText("Insert Connection");
+        insertUpdateConnections.setText("Generate Connection");
         insertUpdateConnections.addActionListener(new java.awt.event.ActionListener()
         {
             public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -677,7 +677,7 @@ public class DatabaseReader extends ConnectorClass
                                             .add(readOnUpdateYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                             .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                             .add(readOnUpdateNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 70, Short.MAX_VALUE)
+                                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 54, Short.MAX_VALUE)
                                             .add(insertUpdateConnections))
                                         .add(databaseUpdateSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 261, Short.MAX_VALUE))
                                     .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -692,7 +692,7 @@ public class DatabaseReader extends ConnectorClass
                                     .add(useJavaScriptNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                                 .add(pollingFrequency, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .add(pollingTime, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 161, Short.MAX_VALUE)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 145, Short.MAX_VALUE)
                             .add(generateConnection)
                             .addContainerGap()))))
         );

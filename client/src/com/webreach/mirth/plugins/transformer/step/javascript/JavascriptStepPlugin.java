@@ -12,14 +12,20 @@ import com.webreach.mirth.client.ui.editors.BasePanel;
 import com.webreach.mirth.client.ui.editors.ScriptPanel;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
+import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ContextType;
 import com.webreach.mirth.plugins.TransformerStepPlugin;
 
 public class JavascriptStepPlugin extends TransformerStepPlugin {
 	private ScriptPanel panel;
 
+    public JavascriptStepPlugin (String name)
+    {
+        super(name);
+    }
+    
 	public JavascriptStepPlugin(String name, TransformerPane parent) {
 		super(name, parent);
-		panel = new ScriptPanel(parent, new JavaScriptTokenMarker(), ReferenceListFactory.MESSAGE_CONTEXT);
+		panel = new ScriptPanel(parent, new JavaScriptTokenMarker(), ContextType.MESSAGE_CONTEXT.getContext());
 	}
 
 	@Override

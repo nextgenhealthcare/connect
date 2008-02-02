@@ -12,16 +12,22 @@ import com.webreach.mirth.client.ui.editors.BasePanel;
 import com.webreach.mirth.client.ui.editors.ScriptPanel;
 import com.webreach.mirth.client.ui.editors.filter.FilterPane;
 import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
+import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ContextType;
 import com.webreach.mirth.plugins.FilterRulePlugin;
 
 public class JavascriptRulePlugin extends FilterRulePlugin
 {
     private ScriptPanel panel;
 
+    public JavascriptRulePlugin(String name)
+    {
+        super(name);
+    }
+
     public JavascriptRulePlugin(String name, FilterPane parent)
     {
         super(name, parent);
-        panel = new ScriptPanel(parent, new JavaScriptTokenMarker(), ReferenceListFactory.MESSAGE_CONTEXT);
+        panel = new ScriptPanel(parent, new JavaScriptTokenMarker(), ContextType.MESSAGE_CONTEXT.getContext());
     }
 
     @Override
@@ -78,7 +84,7 @@ public class JavascriptRulePlugin extends FilterRulePlugin
         }
         catch (Exception e)
         {
-        	return "Unknown error occurred during validation.";
+            return "Unknown error occurred during validation.";
         }
         finally
         {

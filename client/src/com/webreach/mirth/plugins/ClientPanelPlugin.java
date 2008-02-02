@@ -31,13 +31,11 @@ import com.webreach.mirth.client.ui.PlatformUI;
  *
  * @author brendanh
  */
-public abstract class ClientPanelPlugin
+public abstract class ClientPanelPlugin extends ClientPlugin
 {
     private JComponent component = new JPanel();
     private JXTaskPane pane = new JXTaskPane();
     private JPopupMenu menu = new JPopupMenu();
-    private Frame parent = PlatformUI.MIRTH_FRAME;
-    private String name;
     
     public ClientPanelPlugin(String name)
     {
@@ -74,11 +72,6 @@ public abstract class ClientPanelPlugin
     public JPopupMenu getPopupMenu()
     {
         return menu;
-    }
-    
-    public String getName()
-    {
-        return name;
     }
     
     public Object invoke(String method, Object object) throws ClientException

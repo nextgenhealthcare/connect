@@ -25,10 +25,12 @@
 
 package com.webreach.mirth.connectors;
 
+import java.util.ArrayList;
 import java.util.Properties;
 
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.model.CodeTemplate;
 
 /**
  * Used to extend from for all of the Connectors. Each method is re-implemented
@@ -53,6 +55,11 @@ public class ConnectorClass extends javax.swing.JPanel
     public String getName()
     {
         return name;
+    }
+    
+    public ArrayList<CodeTemplate> getReferenceItems()
+    {
+        return new ArrayList<CodeTemplate>();
     }
 
     /**
