@@ -474,7 +474,8 @@
 
 	<target name="create-extension-zips" depends="create-setup">
 		<delete dir="${dist.extensions}" />
-		<mkdir dir="${dist.extensions}" />
+		<mkdir dir="${dist.connectors}" />
+		<mkdir dir="${dist.plugins}" />
 
 		<copy todir="${dist.extensions}">
 			<fileset dir="${src}/com/webreach/mirth/connectors">
