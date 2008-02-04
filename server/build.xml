@@ -632,7 +632,7 @@
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.extensions}/vm-${version}.zip">
+		<zip destfile="${dist.connectors}/vm-${version}.zip">
 			<fileset dir="${connectors}">
 				<include name="vm-shared.jar" />
 				<include name="vm-server.jar" />
@@ -667,7 +667,7 @@
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.extensions}/message-pruner-${version}.zip">
+		<zip destfile="${dist.plugins}/message-pruner-${version}.zip">
 			<fileset dir="${plugins}">
 				<include name="message-pruner-client.jar" />
 				<include name="message-pruner-server.jar" />
@@ -688,7 +688,7 @@
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.extensions}/mapper-transformer-step-${version}.zip">
+		<zip destfile="${dist.plugins}/mapper-transformer-step-${version}.zip">
 			<fileset dir="${plugins}">
 				<include name="mapper-transformer-step-client.jar" />
 				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
@@ -708,7 +708,7 @@
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.extensions}/rule-builder-filter-rule-${version}.zip">
+		<zip destfile="${dist.plugins}/rule-builder-filter-rule-${version}.zip">
 			<fileset dir="${plugins}">
 				<include name="rule-builder-filter-rule-client.jar" />
 				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
@@ -738,7 +738,7 @@
 			</fileset>
 		</zip>
 		
-		<zip destfile="${dist.extensions}/pdf-viewer-${version}.zip">
+		<zip destfile="${dist.plugins}/pdf-viewer-${version}.zip">
 			<fileset dir="${plugins}">
 				<include name="pdf-viewer-client.jar" />
 				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
