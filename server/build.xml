@@ -473,7 +473,6 @@
 	</target>
 
 	<target name="create-extension-zips" depends="create-setup">
-
 		<delete dir="${dist.extensions}" />
 		<mkdir dir="${dist.extensions}" />
 
@@ -491,7 +490,7 @@
 			<include name="*.xml" />
 		</replace>
 
-		<zip destfile="${dist.extensions}/doc-${version}.zip">
+		<zip destfile="${dist.connectors}/doc-${version}.zip">
 			<fileset dir="${connectors}">
 				<include name="doc-shared.jar" />
 				<include name="doc-server.jar" />
@@ -503,7 +502,7 @@
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.extensions}/email-${version}.zip">
+		<zip destfile="${dist.connectors}/email-${version}.zip">
 			<fileset dir="${connectors}">
 				<include name="email-shared.jar" />
 				<include name="email-server.jar" />
@@ -515,7 +514,7 @@
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.extensions}/file-${version}.zip">
+		<zip destfile="${dist.connectors}/file-${version}.zip">
 			<fileset dir="${connectors}">
 				<include name="file-shared.jar" />
 				<include name="file-server.jar" />
@@ -528,7 +527,7 @@
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.extensions}/ftp-${version}.zip">
+		<zip destfile="${dist.connectors}/ftp-${version}.zip">
 			<fileset dir="${connectors}">
 				<include name="ftp-shared.jar" />
 				<include name="ftp-server.jar" />
@@ -541,7 +540,7 @@
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.extensions}/http-${version}.zip">
+		<zip destfile="${dist.connectors}/http-${version}.zip">
 			<fileset dir="${connectors}">
 				<include name="http-shared.jar" />
 				<include name="http-server.jar" />
@@ -554,7 +553,7 @@
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.extensions}/jdbc-${version}.zip">
+		<zip destfile="${dist.connectors}/jdbc-${version}.zip">
 			<fileset dir="${connectors}">
 				<include name="jdbc-shared.jar" />
 				<include name="jdbc-server.jar" />
@@ -567,7 +566,7 @@
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.extensions}/jms-${version}.zip">
+		<zip destfile="${dist.connectors}/jms-${version}.zip">
 			<fileset dir="${connectors}">
 				<include name="jms-shared.jar" />
 				<include name="jms-server.jar" />
@@ -593,7 +592,7 @@
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.extensions}/sftp-${version}.zip">
+		<zip destfile="${dist.connectors}/sftp-${version}.zip">
 			<fileset dir="${connectors}">
 				<include name="sftp-shared.jar" />
 				<include name="sftp-server.jar" />
@@ -606,7 +605,7 @@
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.extensions}/soap-${version}.zip">
+		<zip destfile="${dist.connectors}/soap-${version}.zip">
 			<fileset dir="${connectors}">
 				<include name="soap-shared.jar" />
 				<include name="soap-server.jar" />
@@ -619,7 +618,7 @@
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.extensions}/tcp-${version}.zip">
+		<zip destfile="${dist.connectors}/tcp-${version}.zip">
 			<fileset dir="${connectors}">
 				<include name="tcp-shared.jar" />
 				<include name="tcp-server.jar" />
@@ -646,7 +645,7 @@
 		</zip>
 
 
-		<zip destfile="${dist.extensions}/extension-manager-${version}.zip">
+		<zip destfile="${dist.plugins}/extension-manager-${version}.zip">
 			<fileset dir="${plugins}">
 				<include name="extension-manager-client.jar" />
 				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
@@ -656,7 +655,7 @@
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.extensions}/dashboard-status-monitor-${version}.zip">
+		<zip destfile="${dist.plugins}/dashboard-status-monitor-${version}.zip">
 			<fileset dir="${plugins}">
 				<include name="dashboard-status-monitor-server.jar" />
 				<include name="dashboard-status-monitor-client.jar" />
@@ -678,7 +677,7 @@
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.extensions}/javascript-transformer-step-${version}.zip">
+		<zip destfile="${dist.plugins}/javascript-transformer-step-${version}.zip">
 			<fileset dir="${plugins}">
 				<include name="javascript-transformer-step-client.jar" />
 				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
@@ -698,7 +697,7 @@
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.extensions}/message-builder-transformer-step-${version}.zip">
+		<zip destfile="${dist.plugins}/message-builder-transformer-step-${version}.zip">
 			<fileset dir="${plugins}">
 				<include name="message-builder-transformer-step-client.jar" />
 				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
@@ -718,7 +717,7 @@
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.extensions}/javascript-filter-rule-${version}.zip">
+		<zip destfile="${dist.plugins}/javascript-filter-rule-${version}.zip">
 			<fileset dir="${plugins}">
 				<include name="javascript-filter-rule-client.jar" />
 				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
@@ -728,7 +727,7 @@
 			</fileset>
 		</zip>
 		
-		<zip destfile="${dist.extensions}/dicom-viewer-${version}.zip">
+		<zip destfile="${dist.plugins}/dicom-viewer-${version}.zip">
 			<fileset dir="${plugins}">
 				<include name="dicom-viewer-client.jar" />
 				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
@@ -748,7 +747,7 @@
 			</fileset>
 		</zip>
 				
-		<zip destfile="${dist.extensions}/rtf-viewer-${version}.zip">
+		<zip destfile="${dist.plugins}/rtf-viewer-${version}.zip">
 			<fileset dir="${plugins}">
 				<include name="rtf-viewer-client.jar" />
 				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
@@ -758,7 +757,7 @@
 			</fileset>
 		</zip>
 		
-		<zip destfile="${dist.extensions}/image-viewer-${version}.zip">
+		<zip destfile="${dist.plugins}/image-viewer-${version}.zip">
 			<fileset dir="${plugins}">
 				<include name="image-viewer-client.jar" />
 				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
@@ -768,6 +767,10 @@
 			</fileset>
 		</zip>
 
+		<!-- remove extension XML meta-data files -->
+		<delete>
+			<fileset dir="${dist.extensions}" includes="*.xml" />
+		</delete>
 	</target>
 
 	<target name="create-dist" depends="create-extension-zips">
