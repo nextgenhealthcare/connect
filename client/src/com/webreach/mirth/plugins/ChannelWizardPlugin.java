@@ -14,13 +14,15 @@ import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.Connector.Mode;
 import com.webreach.mirth.model.MessageObject.Protocol;
 
-public abstract class ChannelWizardPlugin {
+public abstract class ChannelWizardPlugin extends ClientPlugin {
 	
 	private Frame parent = PlatformUI.MIRTH_FRAME;
 	
     public abstract Channel runWizard();
     
-    public ChannelWizardPlugin() {
+    public ChannelWizardPlugin(String name)
+    {
+        super(name);
     }
     
     public void alertException(StackTraceElement[] strace, String message)
