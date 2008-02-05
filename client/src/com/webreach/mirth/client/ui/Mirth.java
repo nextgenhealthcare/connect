@@ -26,8 +26,10 @@
 package com.webreach.mirth.client.ui;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.util.prefs.Preferences;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -196,6 +198,11 @@ public class Mirth
                 UIManager.put("List.font", UIConstants.TEXTFIELD_PLAIN_FONT);
                 UIManager.put("TaskPane.titleBackgroundGradientStart", new Color(0xffffff));
                 UIManager.put("TaskPane.titleBackgroundGradientEnd", new Color(0xffffff));
+                try {
+        			UIManager.put("wizard.sidebar.image", ImageIO.read(com.webreach.mirth.client.ui.Frame.class.getResource("images/wizardsidebar.png")));
+        		} catch (IOException e) {
+        			e.printStackTrace();
+        		}
                 PlatformUI.BACKGROUND_IMAGE = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/header.jpg"));
                 login = new LoginPanel(server, version, username, password);
             }

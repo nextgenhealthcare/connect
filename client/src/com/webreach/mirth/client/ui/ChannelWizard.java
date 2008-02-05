@@ -110,7 +110,7 @@ public class ChannelWizard extends javax.swing.JDialog
                             if (extensionPoint.getMode().equals(ExtensionPoint.Mode.CLIENT) && extensionPoint.getType().equals(ExtensionPoint.Type.CLIENT_CHANNEL_WIZARD) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0)
                             {
                                 String pluginName = extensionPoint.getName();
-                                ChannelWizardPlugin wizardPlugin = (ChannelWizardPlugin) Class.forName(extensionPoint.getClassName()).getDeclaredConstructors()[0].newInstance(new Object[]{});
+                                ChannelWizardPlugin wizardPlugin = (ChannelWizardPlugin) Class.forName(extensionPoint.getClassName()).getDeclaredConstructors()[0].newInstance(new Object[]{pluginName});
                                 loadedWizardPlugins.put(pluginName, wizardPlugin);
                             }
                         }
