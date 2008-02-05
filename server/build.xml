@@ -580,7 +580,7 @@
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.extensions}/mllp-${version}.zip">
+		<zip destfile="${dist.connectors}/mllp-${version}.zip">
 			<fileset dir="${connectors}">
 				<include name="mllp-shared.jar" />
 				<include name="mllp-server.jar" />
