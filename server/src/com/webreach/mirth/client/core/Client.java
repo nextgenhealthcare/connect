@@ -618,6 +618,18 @@ public class Client {
         serverConnection.executePostMethod(EXTENSION_SERVLET, params);
     }
     
+    /**
+     * True if an extension is installed and enabled, else return false
+     * 
+     * @return
+     * @throws ClientException
+     */
+    public boolean isExtensionEnabled(String extensionName) throws ClientException {
+        logger.debug("checking if " + extensionName + " is installed/enabled");
+        NameValuePair[] params = { new NameValuePair("op", "isExtensionEnabled"), new NameValuePair("name", extensionName) };
+        return Boolean.valueOf(serverConnection.executePostMethod(EXTENSION_SERVLET, params)).booleanValue();
+    }
+    
 	/**
 	 * Clears the message list for the channel with the specified id.
 	 * 

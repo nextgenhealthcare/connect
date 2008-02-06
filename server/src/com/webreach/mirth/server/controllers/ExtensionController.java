@@ -109,15 +109,15 @@ public class ExtensionController {
 
 							try {
 								properties = getPluginProperties(pluginName);
-								if (properties == null){
+								if (properties == null) {
 									properties = serverPlugin.getDefaultProperties();
-									if (properties != null){
+									if (properties != null) {
 										setPluginProperties(pluginName, properties);
 									}
 								}
 							} catch (Exception e) {
 								properties = serverPlugin.getDefaultProperties();
-								if (properties == null){
+								if (properties == null) {
 									properties = new Properties();
 								}
 								setPluginProperties(pluginName, properties);
@@ -132,6 +132,19 @@ public class ExtensionController {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public boolean isExtensionEnabled(String name) {
+		for (PluginMetaData plugin : plugins.values()) {
+			if(plugin.isEnabled() && plugin.getName().equals(name))
+				return true;
+		}
+		for (ConnectorMetaData connector : connectors.values()) {
+			if(connector.isEnabled() && connector.getName().equals(name))
+				return true;
+		}
+		
+		return false;
 	}
 
 	public void startPlugins() {
@@ -157,7 +170,7 @@ public class ExtensionController {
 		return loadedPlugins.get(name).invoke(method, object, sessionId);
 	}
 
-    public void installExtension(String location, FileItem fileItem) throws ControllerException {
+	public void installExtension(String location, FileItem fileItem) throws ControllerException {
 		if (location.equals("connectors"))
 			location = CONNECTORS_LOCATION;
 		else if (location.equals("plugins"))
@@ -196,7 +209,7 @@ public class ExtensionController {
 
 		try {
 			File propertiesFile = new File(PLUGIN_LOCATION + pluginName + PLUGIN_FILE_SUFFIX);
-			if (!propertiesFile.exists()){
+			if (!propertiesFile.exists()) {
 				return null;
 			}
 			fileInputStream = new FileInputStream(propertiesFile);
@@ -225,15 +238,15 @@ public class ExtensionController {
 		logger.debug("loading connector metadata");
 		this.connectors = (Map<String, ConnectorMetaData>) ExtensionUtil.loadExtensionMetaData(CONNECTORS_LOCATION);
 		this.protocols = new HashMap<String, ConnectorMetaData>();
-		
+
 		for (ConnectorMetaData connectorMetaData : this.connectors.values()) {
 			String protocol = connectorMetaData.getProtocol();
-			if (protocol.indexOf(':') > -1){
+			if (protocol.indexOf(':') > -1) {
 				String[] protocolStrings = protocol.split(":");
-				for (int i = 0; i < protocolStrings.length; i++){
+				for (int i = 0; i < protocolStrings.length; i++) {
 					protocols.put(protocolStrings[i], connectorMetaData);
 				}
-			}else{
+			} else {
 				protocols.put(connectorMetaData.getProtocol(), connectorMetaData);
 			}
 		}

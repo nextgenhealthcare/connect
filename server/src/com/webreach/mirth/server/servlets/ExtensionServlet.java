@@ -98,7 +98,10 @@ public class ExtensionServlet extends MirthServlet {
                 } else if (operation.equals("setConnectorMetaData")) {
                     Map<String, ConnectorMetaData> metaData = (Map<String, ConnectorMetaData>) serializer.fromXML(request.getParameter("metaData"),new Class[]{ConnectorMetaData.class});
                     extensionController.saveConnectorMetaData(metaData);
-                } else if (operation.equals("invoke")) {
+                } else if (operation.equals("isExtensionEnabled")) {
+                    String extensionName= request.getParameter("name");
+                    out.println(extensionController.isExtensionEnabled(extensionName));
+                }else if (operation.equals("invoke")) {
                     String name = request.getParameter("name");
                     String method = request.getParameter("method");
                     Object object =(Object) serializer.fromXML(request.getParameter("object"));
