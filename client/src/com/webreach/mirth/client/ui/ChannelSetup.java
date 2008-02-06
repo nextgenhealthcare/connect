@@ -156,12 +156,16 @@ public class ChannelSetup extends javax.swing.JPanel
                     }
                 }
                 if (metaData.getType() == ConnectorMetaData.Type.SENDER && metaData.isEnabled())
-                {
-                    destinationConnectors.add(metaData.getName());
-                    
+                {                    
                     try
                     {
-                        parent.destinationConnectors.add((ConnectorClass) Class.forName(metaData.getClientClassName()).newInstance());
+                        if(!(metaData.getName().equals("IHE Sender") && !parent.mirthClient.isExtensionEnabled("IHE Configuration")))
+                        {
+                            destinationConnectors.add(metaData.getName());
+                            parent.destinationConnectors.add((ConnectorClass) Class.forName(metaData.getClientClassName()).newInstance());
+                        }
+                        else
+                            parent.alertError("Cannot load IHE Sender connector because required IHE Configuration plugin is not installed or enabled");
                     }
                     catch (Exception e)
                     {

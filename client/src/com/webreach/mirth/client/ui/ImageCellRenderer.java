@@ -46,12 +46,11 @@ public class ImageCellRenderer extends DefaultTableCellRenderer
             setBackground(table.getBackground());
         }
         CellData data = (CellData) value;
-        if (data != null)
-        {
-            setText(data.getText());
 
-            setIcon(data.getIcon());
-        }
+        setText(data.getText());
+
+        setIcon(data.getIcon());
+
         return this;
     }
 }

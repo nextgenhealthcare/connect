@@ -1550,33 +1550,8 @@ public class Frame extends JXFrame
             try
             {
                 Channel channel = channelPanel.getSelectedChannel();
-                Connector source = channel.getSourceConnector();
-                List<Connector> destinations = channel.getDestinationConnectors();
-
-                boolean missingSourceConnector = true, missingDestinationConnector = true;
-                boolean allDesintionConnectorsFound = true;
-
-                for(int i = 0; i < sourceConnectors.size(); i++)
-                    if(source.getTransportName().equals(sourceConnectors.get(i).getName()))
-                        missingSourceConnector = false;
-
-                for(int i = 0; i < destinations.size(); i++)
-                {
-                    for(int j = 0; j < destinationConnectors.size(); j++)
-                    {
-                        if(destinations.get(i).getTransportName().equals(destinationConnectors.get(j).getName()))
-                        {
-                            missingDestinationConnector = false;
-                        }
-                    }
-
-                    if(missingDestinationConnector)
-                        allDesintionConnectorsFound = false;
-                }
-
-                if(missingSourceConnector || !allDesintionConnectorsFound)
-                    alertError("Your Mirth installation is missing required connectors for this channel.");
-                else
+                
+                if(checkInstalledConnectors(channel))
                     editChannel((Channel) ObjectCloner.deepCopy(channel));
             }
             catch (ObjectClonerException e)
@@ -1585,6 +1560,57 @@ public class Frame extends JXFrame
             }
         }
         isEditingChannel = false;
+    }
+    
+    public boolean checkInstalledConnectors(Channel channel)
+    {
+        Connector source = channel.getSourceConnector();
+        List<Connector> destinations = channel.getDestinationConnectors();
+        ArrayList<String> missingConnectors = new ArrayList<String>();
+        
+        boolean missingSourceConnector = true, missingDestinationConnector;
+        boolean allDesintionConnectorsFound = true;
+
+        for(int i = 0; i < sourceConnectors.size(); i++)
+        {
+            if(source.getTransportName().equals(sourceConnectors.get(i).getName()))
+                missingSourceConnector = false;
+        }
+        
+        if(missingSourceConnector)
+            missingConnectors.add(source.getTransportName());
+
+        for(int i = 0; i < destinations.size(); i++)
+        {
+            missingDestinationConnector = true;
+            
+            for(int j = 0; j < destinationConnectors.size(); j++)
+            {
+                if(destinations.get(i).getTransportName().equals(destinationConnectors.get(j).getName()))
+                {
+                    missingDestinationConnector = false;
+                }
+            }
+
+            if(missingDestinationConnector)
+            {
+                missingConnectors.add(destinations.get(i).getTransportName());
+                allDesintionConnectorsFound = false;
+            }
+        }
+
+        if(missingSourceConnector || !allDesintionConnectorsFound)
+        {
+            String errorText = "Your Mirth installation is missing required connectors for this channel:\n";
+            for(String s : missingConnectors)
+                errorText += s + "\n";
+            alertError(errorText);
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
 
     public void doEditGlobalScripts()
@@ -2683,8 +2709,11 @@ public class Frame extends JXFrame
         {
             if(showAlerts)
             {
-                editChannel(importChannel);
-                channelEditTasks.getContentPane().getComponent(0).setVisible(true);
+                if(checkInstalledConnectors(importChannel))
+                {
+                    editChannel(importChannel);
+                    channelEditTasks.getContentPane().getComponent(0).setVisible(true);
+                }
             }
             else
             {
