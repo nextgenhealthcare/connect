@@ -85,8 +85,8 @@ public class JavaScriptMessageDispatcher extends AbstractMessageDispatcher {
 		} catch (Exception e) {
 			logger.debug("Error dispatching event: " + e.getMessage(), e);
 
-			alertController.sendAlerts(((JavaScriptConnector) connector).getChannelId(), Constants.ERROR_414, "Error executing JavaScript", e);
-			messageObjectController.setError(messageObject, Constants.ERROR_414, "Error executing JavaScript: ", e);
+			alertController.sendAlerts(((JavaScriptConnector) connector).getChannelId(), Constants.ERROR_414, "Error executing script", e);
+			messageObjectController.setError(messageObject, Constants.ERROR_414, "Error executing script: ", e);
 			connector.handleException(e);
 		} finally {
 			monitoringController.updateStatus(connector, connectorType, Event.DONE);
