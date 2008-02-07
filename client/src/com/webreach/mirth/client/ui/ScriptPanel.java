@@ -59,6 +59,7 @@ public class ScriptPanel extends javax.swing.JPanel
         this.loadedScripts = scripts;
         selectedItem = null;
         scriptListActionPerformed(null);
+        functionList1.setDefaultDropDownValue();
     }
     
     public Map<String, String> getScripts()

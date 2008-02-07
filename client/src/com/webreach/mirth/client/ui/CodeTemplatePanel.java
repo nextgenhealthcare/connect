@@ -107,7 +107,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
         templateTable.setRowSelectionAllowed(true);
         templateTable.setRowHeight(UIConstants.ROW_HEIGHT);
         templateTable.setFocusable(false);
-        templateTable.setSortable(true);
+        templateTable.setSortable(false);
         templateTable.setOpaque(true);
         templateTable.setDragEnabled(false);
 
@@ -143,23 +143,20 @@ public class CodeTemplatePanel extends javax.swing.JPanel
                         saveCodeTemplate();
                     }
                     
-                    if(lastTemplateRow != templateTable.getSelectedRow())
+                    if (!loadCodeTemplate())
                     {
-                        if (!loadCodeTemplate())
-                        {
-                            int rowCount = templateTable.getRowCount();
-                            if (rowCount > 0 && lastTemplateRow == rowCount)
-                                templateTable.setRowSelectionInterval(lastTemplateRow - 1, lastTemplateRow - 1);
-                            else if (lastTemplateRow != -1 && lastTemplateRow < rowCount)
-                                templateTable.setRowSelectionInterval(lastTemplateRow, lastTemplateRow);
-    
-                            lastTemplateRow = templateTable.getSelectedRow();
-                        }
-                        else
-                        {
-                            lastTemplateRow = templateTable.getSelectedRow();
-                        }
+                        int rowCount = templateTable.getRowCount();
+                        if (rowCount > 0 && lastTemplateRow == rowCount)
+                            templateTable.setRowSelectionInterval(lastTemplateRow - 1, lastTemplateRow - 1);
+                        else if (lastTemplateRow != -1 && lastTemplateRow < rowCount)
+                            templateTable.setRowSelectionInterval(lastTemplateRow, lastTemplateRow);
+
+                        lastTemplateRow = templateTable.getSelectedRow();
                     }
+                    else
+                    {
+                        lastTemplateRow = templateTable.getSelectedRow();
+                    }                   
 
                     checkVisibleTemplateTasks();
                 }
@@ -492,19 +489,14 @@ public class CodeTemplatePanel extends javax.swing.JPanel
 
         stopCodeTemplateEditing();
         parent.codeTemplates.remove(getCodeTemplateIndex());
+
         updateCodeTemplateTable(false);
         parent.enableSave();
-        
-        if (parent.codeTemplates.size() == 0)
-            resetBlankPane();
-        else if (lastTemplateRow == templateTable.getRowCount())
-            templateTable.setRowSelectionInterval(lastTemplateRow - 1, lastTemplateRow - 1);
-        else
-            templateTable.setRowSelectionInterval(lastTemplateRow, lastTemplateRow);
-        
+       
         isDeleting = false;
 
-        
+        if (parent.codeTemplates.size() == 0)
+            resetBlankPane();
     }
 
     /** Clears the selection in the table and sets the tasks appropriately */

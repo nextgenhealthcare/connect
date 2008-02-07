@@ -163,14 +163,14 @@ public class ReferenceListFactory
             }
         }
         
-        if(variables.size() > 0)
-            references.put(USER_TEMPLATE_VARIABLES, variables);
-        if(functions.size() > 0)
-            references.put(USER_TEMPLATE_FUNCTIONS, functions);
+        references.put(USER_TEMPLATE_VARIABLES, variables);
+        references.put(USER_TEMPLATE_FUNCTIONS, functions);
     }
     
     public ArrayList<CodeTemplate> getVariableListItems(String itemName, int context)
     {
+        updateUserTemplates();
+        
         if (itemName == ListType.ALL.getValue())
         {
             return getAllItems(context);

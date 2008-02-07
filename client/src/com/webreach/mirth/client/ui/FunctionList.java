@@ -63,45 +63,59 @@ public class FunctionList extends javax.swing.JPanel
         
         updateUserTemplates();
                 
-        setReferencePanel();
+        setDefaultDropDownValue();
     }
     
     public void updateUserTemplates()
     {
         ReferenceListFactory builder = ReferenceListFactory.getInstance();
         
-        if(builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_VARIABLES, context).size() > 0)
-            addPanel(new ReferenceListPanel(ReferenceListFactory.USER_TEMPLATE_VARIABLES, builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_VARIABLES, context)), ReferenceListFactory.USER_TEMPLATE_VARIABLES);
-        if(builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS, context).size() > 0)
-            addPanel(new ReferenceListPanel(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS, builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS, context)), ReferenceListFactory.USER_TEMPLATE_FUNCTIONS);
+        ArrayList<CodeTemplate> variableListItems = builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_VARIABLES, context);
+        if(variableListItems.size() > 0)
+            addPanel(new ReferenceListPanel(ReferenceListFactory.USER_TEMPLATE_VARIABLES, variableListItems), ReferenceListFactory.USER_TEMPLATE_VARIABLES);
+        else if(panels.get(ReferenceListFactory.USER_TEMPLATE_VARIABLES) != null)
+        {
+            panels.remove(ReferenceListFactory.USER_TEMPLATE_VARIABLES);
+        }
+        
+        ArrayList<CodeTemplate> functionListItems = builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS, context);        
+        if(functionListItems.size() > 0)
+            addPanel(new ReferenceListPanel(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS, functionListItems), ReferenceListFactory.USER_TEMPLATE_FUNCTIONS);
+        else if(panels.get(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS) != null)
+        {
+            panels.remove(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS);
+        }
+        
+        updateDropDown();
     }
     
-    public void setReferencePanel()
+    public void setDefaultDropDownValue()
     {
         variableReferenceDropDownActionPerformed(null);
+        variableReferenceDropDown.setSelectedItem(ListType.ALL.getValue());
     }
     
     public void addPanel(JPanel panel, String name)
     {
-        if(panels.get(name) != null)
-        {
-            panels.put(name, panel);
-            return;
-        }
-        else
-        {
-            panels.put(name, panel);
-            
-            String[] items = new String[panels.keySet().size()];
-            int i = 0;
-            for (String s : panels.keySet())
-            {
-                items[i] = s;
-                i++;
-            }
+        panels.put(name, panel);
+    }
     
-            variableReferenceDropDown.setModel(new DefaultComboBoxModel(items));
+    public void updateDropDown()
+    {
+        String[] items = new String[panels.keySet().size()];
+        int i = 0;
+        for (String s : panels.keySet())
+        {
+            items[i] = s;
+            i++;
         }
+        
+        Object selectedItem = variableReferenceDropDown.getSelectedItem();
+        
+        variableReferenceDropDown.setModel(new DefaultComboBoxModel(items));
+        
+        if(selectedItem != null)
+            variableReferenceDropDown.setSelectedItem(selectedItem);
     }
     
     /** This method is called from within the constructor to

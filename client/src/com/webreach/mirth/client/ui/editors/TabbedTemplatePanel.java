@@ -144,6 +144,7 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
     public void setDefaultComponent()
     {
         tabPanel.setSelectedIndex(0);
+        functionList.setDefaultDropDownValue();
     }
 
     /**
