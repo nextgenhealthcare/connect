@@ -285,7 +285,6 @@ public class ReferenceListFactory
         variablelistItems.add(new CodeTemplate("Create Segment (in message, indexed)", "Create a new segment in specified message (msg or tmp) at segment index i", "createSegment('segmentName', msg, i)", CodeSnippetType.FUNCTION, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Create Segment After Segment", "Create a new segment and insert it after the target segment", "createSegmentAfter('segmentName', target)", CodeSnippetType.FUNCTION, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Delete Segment", "Delete a segment from the message", "delete msg['segment']", CodeSnippetType.FUNCTION, ContextType.MESSAGE_CONTEXT.getContext()));
-
         return variablelistItems;
     }
 
@@ -327,6 +326,8 @@ public class ReferenceListFactory
         variablelistItems.add(new CodeTemplate("Get DICOM message", "Gets the full DICOM messages with image data", "DICOMUtil.getDICOMMessage(messageObject)", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Add Attachment", "Add attachment (String or byte[]) to message", "addAttachment(data, type)", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Get Attachments", "Get List of Attachments", "getAttachments()", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Strip Namespaces", "Remove namespaces from an XML string", "var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n", CodeSnippetType.FUNCTION, ContextType.GLOBAL_CONTEXT.getContext()));
+        
         return variablelistItems;
     }
 
