@@ -101,6 +101,11 @@ public class JavaScriptWriter extends ConnectorClass
         return valid;
     }
     
+    public String[] getDragAndDropCharacters(Properties props)
+    {
+        return new String[]{"$('", "')"};
+    }
+    
     private void resetInvalidProperties()
     {
         javaScriptTextPane.setBackground(null);

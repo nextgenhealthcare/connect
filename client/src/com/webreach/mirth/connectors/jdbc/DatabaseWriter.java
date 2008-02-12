@@ -182,6 +182,14 @@ public class DatabaseWriter extends ConnectorClass
         return valid;
     }
     
+    public String[] getDragAndDropCharacters(Properties props)
+    {
+        if(((String)props.get(DatabaseWriterProperties.DATABASE_USE_JS)).equals(UIConstants.YES_OPTION))
+            return new String[]{"$('", "')"};
+        else
+            return new String[]{"${", "}"};
+    }
+    
     private void resetInvalidProperties()
     {
         databaseURLField.setBackground(null);

@@ -101,6 +101,11 @@ public class ConnectorClass extends javax.swing.JPanel
     	return true;
     }
     
+    public String[] getDragAndDropCharacters(Properties props)
+    {
+        return new String[]{"${", "}"};
+    }
+    
     /**
      * Runs any custom validation that has been created on the channel.
      * Returns null if successful, and a String error message otherwise.

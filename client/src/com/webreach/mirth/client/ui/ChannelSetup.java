@@ -2039,25 +2039,7 @@ public class ChannelSetup extends javax.swing.JPanel
             destinationConnector.setProperties(destinationConnectorClass.getProperties());
         }
         
-        // set db writer to have different suffix and prefix for drag and drop for js
-        try
-        {
-            if(destinationConnectorClass.getName().equals(DatabaseWriterProperties.name))
-            {
-                if(destinationConnectorClass.getProperties().getProperty(DatabaseWriterProperties.DATABASE_USE_JS).equalsIgnoreCase(UIConstants.YES_OPTION))
-                {
-                    destinationVariableList.setPrefixAndSuffix("$(", ")");
-                }
-            }
-            else
-            {
-                destinationVariableList.setPrefixAndSuffix("${", "}");
-            }
-        }
-        catch(Exception e)
-        {
-            destinationVariableList.setPrefixAndSuffix("${", "}");
-        }
+        destinationVariableList.setPrefixAndSuffix(destinationConnectorClass.getDragAndDropCharacters(destinationConnector.getProperties())[0], destinationConnectorClass.getDragAndDropCharacters(destinationConnector.getProperties())[1]);
         
         // Set the transport name of the destination connector and set it in the
         // list.
