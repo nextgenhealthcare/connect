@@ -245,9 +245,16 @@ public class WebServiceReader {
 
 				while (bindingOperationIter.hasNext()) {
 					BindingOperation bindingOperation = (BindingOperation) bindingOperationIter.next();
-					Object concreteOperation = bindingOperation.getExtensibilityElements().get(0);
-					// wsDefinition.setServiceEndpoint(soapOperation.getSoapActionURI());
-					if (concreteOperation instanceof SOAPOperation) {
+					List extensibilityElements = bindingOperation.getExtensibilityElements();
+					Object concreteOperation = null;
+					for (Object element : extensibilityElements)
+					{
+						if (element instanceof SOAPOperation){
+							concreteOperation = element;
+						}
+					}
+
+					if (concreteOperation != null && concreteOperation instanceof SOAPOperation) {
 						WSOperation wsOperation = new WSOperation();
 						SOAPOperation soapOperation = (SOAPOperation) concreteOperation;
 						wsOperation.setSoapActionURI(soapOperation.getSoapActionURI());
