@@ -37,6 +37,8 @@ import javax.swing.event.ListSelectionListener;
 
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
+import org.syntax.jedit.SyntaxDocument;
+import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.components.MirthTable;
@@ -57,7 +59,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
     private final String TEMPLATE_DESCRIPTION_COLUMN_NAME = "Description";
     private final JPanel blankPanel;
     private boolean updating = false;
-    
+    private SyntaxDocument jsMappingDoc;
     /**
      * Creates the Channel Editor panel. Calls initComponents() and sets up the
      * model, dropdowns, and mouse listeners.
@@ -90,6 +92,11 @@ public class CodeTemplatePanel extends javax.swing.JPanel
         type.setModel(new javax.swing.DefaultComboBoxModel(typeNames));
         
         makeCodeTemplateTable();
+        
+        jsMappingDoc = new SyntaxDocument();
+        jsMappingDoc.setTokenMarker(new JavaScriptTokenMarker());
+        
+        template.setDocument(jsMappingDoc);
     }
 
     /**
