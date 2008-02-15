@@ -1,8 +1,8 @@
 package com.webreach.mirth.model;
 
 import java.io.Serializable;
+import java.util.UUID;
 
-import com.webreach.mirth.server.util.UUIDGenerator;
 import com.webreach.mirth.util.EqualsUtil;
 
 public class CodeTemplate implements Serializable {
@@ -32,7 +32,7 @@ public class CodeTemplate implements Serializable {
 	}
 
 	public CodeTemplate(String name, String tooltip, String code, CodeSnippetType type, int scope) {
-		this.id = UUIDGenerator.getUUID();
+		this.id = UUID.randomUUID().toString();
 		this.name = name;
 		this.tooltip = tooltip;
 		this.code = code;
