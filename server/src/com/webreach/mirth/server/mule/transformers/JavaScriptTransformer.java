@@ -296,11 +296,15 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				// Grab and process our attachments
 				List<Attachment> attachments = (List<Attachment>) context.getProperties().get("attachments");
 				context.getProperties().remove("attachments");
-				for (Iterator iter = attachments.iterator(); iter.hasNext();) {
-					Attachment attachment = (Attachment) iter.next();
-					attachment.setMessageId(messageObject.getId());
-					messageObject.setAttachment(true);
-					MessageObjectController.getInstance().insertAttachment(attachment);
+				
+				if(attachments != null)
+				{
+					for (Iterator iter = attachments.iterator(); iter.hasNext();) {
+						Attachment attachment = (Attachment) iter.next();
+						attachment.setMessageId(messageObject.getId());
+						messageObject.setAttachment(true);
+						MessageObjectController.getInstance().insertAttachment(attachment);
+					}
 				}
 				// Load properties from the context to the messageObject
 				messageObject.getChannelMap().putAll(context.getProperties());
