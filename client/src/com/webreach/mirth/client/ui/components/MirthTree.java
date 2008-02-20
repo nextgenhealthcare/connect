@@ -491,8 +491,20 @@ public class MirthTree extends JXTree implements DropTargetListener
         source = source.replaceAll(" - ", "_");
         source = source.replaceAll("&", " and ");
         source = source.replace("@", "att ");
-        source = source.replaceAll("\\'|\\’|\\(|\\)", "");
+        source = source.replaceAll("[^a-zA-Z0-9_\\s]", "");	// get rid of everything not a letter, number, underscore, or space
         
+        // Trim all whitespace and '.' from the variable
+        source = source.trim();
+        while (source.charAt(source.length() - 1) == '.' || source.charAt(0) == '.')
+        {
+        	if (source.charAt(source.length() - 1) == '.')
+            	source = source.substring(0, source.length() - 1);
+            if (source.charAt(0) == '.')
+            	source = source.substring(1);
+            source = source.trim();        	
+        }
+        
+        // camelCase the variable while removing spaces and periods.
         while (source.indexOf(' ') != -1 || source.indexOf('.') != -1)
         {
         	int index = source.indexOf(' ');
