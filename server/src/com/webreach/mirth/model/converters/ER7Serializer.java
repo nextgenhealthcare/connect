@@ -53,7 +53,6 @@ public class ER7Serializer implements IXMLSerializer<String> {
 	private boolean useStrictParser = false;
 	private boolean useStrictValidation = false;
 	private boolean handleRepetitions = false;
-	private boolean encodeEntities = false;
 	private boolean convertLFtoCR = true;
 	
 	public static Map getDefaultProperties() {
@@ -61,8 +60,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 		map.put("useStrictParser", "false");
 		map.put("useStrictValidation", "false");
 		map.put("handleRepetitions", "false");
-		map.put("encodeEntities", "false");
-		map.put("convertLFtoCR", "false");
+		map.put("convertLFtoCR", "true");
 		return map;
 	}
 	
@@ -75,9 +73,6 @@ public class ER7Serializer implements IXMLSerializer<String> {
 		}
 		if (er7Properties != null && er7Properties.get("handleRepetitions") != null) {
 			this.handleRepetitions = Boolean.parseBoolean((String) er7Properties.get("handleRepetitions"));
-		}
-		if (er7Properties != null && er7Properties.get("encodeEntities") != null){
-			this.encodeEntities = Boolean.parseBoolean((String) er7Properties.get("encodeEntities"));
 		}
 		if (er7Properties != null && er7Properties.get("convertLFtoCR") != null){
 			this.convertLFtoCR = Boolean.parseBoolean((String) er7Properties.get("convertLFtoCR"));
@@ -124,7 +119,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 				ER7Reader er7Reader = new ER7Reader(handleRepetitions, convertLFtoCR);
 				StringWriter stringWriter = new StringWriter();
 				XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
-				serializer.setEncodeEntities(encodeEntities);
+				serializer.setEncodeEntities(true);
 				ByteArrayOutputStream os = new ByteArrayOutputStream();
 				try {
 					er7Reader.setContentHandler(serializer);
@@ -133,12 +128,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				//Allow non entity encoded messages to work
-				if (encodeEntities){
-					builder.append(os.toString());
-				}else{
-					builder.append(os.toString().replaceAll("&","&amp;"));
-				}
+				builder.append(os.toString());
 				
 			} catch (Exception e) {
 				String exceptionMessage = e.getClass().getName() + ":" + e.getMessage();
@@ -186,7 +176,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 				}
 				//String fieldDelimiter = 
 				ER7XMLHandler handler = new ER7XMLHandler("\r", segmentDelimiter, 
-						fieldDelimiter, subcomponentDelimiter, repetitionDelimiter, escapeSequence, encodeEntities);
+						fieldDelimiter, subcomponentDelimiter, repetitionDelimiter, escapeSequence, true);
 				XMLReader xr = XMLReaderFactory.createXMLReader();
 				xr.setContentHandler(handler);
 				xr.setErrorHandler(handler);

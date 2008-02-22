@@ -231,6 +231,10 @@ public class ImportConverter {
 				updateFilterFor1_7(document);
 				updateTransformerFor1_7(document);
 			}
+			
+			if (minorVersion < 8) {
+				updateTransformerFor1_8(document);
+			}
 		}
 
 		DocumentSerializer docSerializer = new DocumentSerializer();
@@ -276,6 +280,7 @@ public class ImportConverter {
 		updateTransformerFor1_4(document, transformerRoot, incoming, outgoing);
 		updateTransformerFor1_5(document);
 		updateTransformerFor1_7(document);
+		updateTransformerFor1_8(document);
 
 		DocumentSerializer docSerializer = new DocumentSerializer();
 		transformerXML = docSerializer.toXML(document);
@@ -490,10 +495,10 @@ public class ImportConverter {
 					
 					// Find out if encodeEntities already exists.  If it was 1.5 it won't.
 					boolean hasEncodeEntities = false;
-					NodeList properyNames = inboundPropertiesElement.getElementsByTagName("property");
-					for (int j = 0; j < properyNames.getLength(); j++) {
-						Node nameAttribute = properyNames.item(j).getAttributes().getNamedItem("name");
-						if (properyNames.item(j).getAttributes().getLength() > 0 && nameAttribute != null) {
+					NodeList propertyNames = inboundPropertiesElement.getElementsByTagName("property");
+					for (int j = 0; j < propertyNames.getLength(); j++) {
+						Node nameAttribute = propertyNames.item(j).getAttributes().getNamedItem("name");
+						if (propertyNames.item(j).getAttributes().getLength() > 0 && nameAttribute != null) {
 							if (nameAttribute.getNodeValue().equals("encodeEntities")) {
 								hasEncodeEntities = true;
 							}
@@ -554,10 +559,10 @@ public class ImportConverter {
 					
 					// Find out if encodeEntities already exists.  If it was 1.5 it won't.
 					boolean hasEncodeEntities = false;
-					NodeList properyNames = outboundPropertiesElement.getElementsByTagName("property");
-					for (int j = 0; j < properyNames.getLength(); j++) {
-						Node nameAttribute = properyNames.item(j).getAttributes().getNamedItem("name");
-						if (properyNames.item(j).getAttributes().getLength() > 0 && nameAttribute != null) {
+					NodeList propertyNames = outboundPropertiesElement.getElementsByTagName("property");
+					for (int j = 0; j < propertyNames.getLength(); j++) {
+						Node nameAttribute = propertyNames.item(j).getAttributes().getNamedItem("name");
+						if (propertyNames.item(j).getAttributes().getLength() > 0 && nameAttribute != null) {
 							if (nameAttribute.getNodeValue().equals("encodeEntities")) {
 								hasEncodeEntities = true;
 							}
@@ -608,6 +613,52 @@ public class ImportConverter {
 					outboundPropertiesElement.appendChild(useStrictParserProperty);
 
 					transformerRoot.appendChild(outboundPropertiesElement);
+				}
+			}
+		}
+	}
+	
+	private static void updateTransformerFor1_8(Document document) {
+		Element inboundPropertiesElement, outboundPropertiesElement;
+		
+		NodeList transformers = document.getElementsByTagName("transformer");
+
+		for (int i = 0; i < transformers.getLength(); i++) {
+			Element transformerRoot = (Element) transformers.item(i);
+
+			// Update the inbound protocol properties.
+			if (transformerRoot.getElementsByTagName("inboundProtocol").item(0).getTextContent().equals("HL7V2") || transformerRoot.getElementsByTagName("inboundProtocol").item(0).getTextContent().equals("EDI")) {
+				if (transformerRoot.getElementsByTagName("inboundProperties").getLength() != 0) {
+					inboundPropertiesElement = (Element)transformerRoot.getElementsByTagName("inboundProperties").item(0);
+					
+					// Remove encode entities if it exists.
+					NodeList propertyNames = inboundPropertiesElement.getElementsByTagName("property");
+					for (int j = 0; j < propertyNames.getLength(); j++) {
+						Node nameAttribute = propertyNames.item(j).getAttributes().getNamedItem("name");
+						if (propertyNames.item(j).getAttributes().getLength() > 0 && nameAttribute != null) {
+							if (nameAttribute.getNodeValue().equals("encodeEntities")) {
+								inboundPropertiesElement.removeChild(propertyNames.item(j));
+							}
+						}
+					}
+				}
+			}
+			
+			// Update the outbound protocol properties.
+			if (transformerRoot.getElementsByTagName("outboundProtocol").item(0).getTextContent().equals("HL7V2") || transformerRoot.getElementsByTagName("outboundProtocol").item(0).getTextContent().equals("EDI")) {
+				if (transformerRoot.getElementsByTagName("outboundProperties").getLength() != 0) {
+					outboundPropertiesElement = (Element)transformerRoot.getElementsByTagName("outboundProperties").item(0);
+					
+					// Remove encode entities if it exists.
+					NodeList propertyNames = outboundPropertiesElement.getElementsByTagName("property");
+					for (int j = 0; j < propertyNames.getLength(); j++) {
+						Node nameAttribute = propertyNames.item(j).getAttributes().getNamedItem("name");
+						if (propertyNames.item(j).getAttributes().getLength() > 0 && nameAttribute != null) {
+							if (nameAttribute.getNodeValue().equals("encodeEntities")) {
+								outboundPropertiesElement.removeChild(propertyNames.item(j));
+							}
+						}
+					}
 				}
 			}
 		}

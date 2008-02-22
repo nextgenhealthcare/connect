@@ -43,14 +43,12 @@ public class EDISerializer implements IXMLSerializer<String> {
 	private String segmentDelim = "~";
 	private String elementDelim = "*";
 	private String subelementDelim = ":";
-	private boolean encodeEntities = false;
 	
 	public static Map getDefaultProperties() {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("segmentDelimiter", "~");
 		map.put("elementDelimiter", "*");
 		map.put("subelementDelimiter", ":");
-		map.put("encodeEntities", "false");
 		return map;
 	}
 	
@@ -67,9 +65,6 @@ public class EDISerializer implements IXMLSerializer<String> {
 		}
 		if (ediProperties.get("subelementDelimiter") != null) {
 			this.subelementDelim = convertNonPrintableCharacters((String) ediProperties.get("subelementDelimiter"));
-		}
-		if (ediProperties.get("encodeEntities") != null) {
-			this.encodeEntities = Boolean.parseBoolean((String) ediProperties.get("encodeEntities"));
 		}
 		return;
 	}
@@ -107,7 +102,7 @@ public class EDISerializer implements IXMLSerializer<String> {
 			EDIReader ediReader = new EDIReader(segmentDelim, elementDelim, subelementDelim);
 			StringWriter stringWriter = new StringWriter();
 			XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
-			serializer.setEncodeEntities(encodeEntities);
+			serializer.setEncodeEntities(true);
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
 			try {
 				ediReader.setContentHandler(serializer);
@@ -198,14 +193,6 @@ public class EDISerializer implements IXMLSerializer<String> {
 	public Map<String, String> getMetadataFromXML(String xmlSource) throws SerializerException {
 		return getMetadata(xmlSource);
 		// TODO: Make this actually use a helper string parser
-	}
-
-	public boolean isEncodeEntities() {
-		return encodeEntities;
-	}
-
-	public void setEncodeEntities(boolean encodeEntities) {
-		this.encodeEntities = encodeEntities;
 	}
 
 }
