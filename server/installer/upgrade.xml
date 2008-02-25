@@ -75,6 +75,7 @@
 						<propertyfile file="${install.path}/conf/install.tmp.properties">
 							<entry key="do.upgrade" value="true" />
 						</propertyfile>
+						
 						<echo>creating temp database properties</echo>
 						<property file="${install.path}/conf/${database}-SqlMapConfig.properties" />
 						<propertyfile file="${install.path}/conf/database.tmp.properties">
@@ -83,6 +84,15 @@
 							<entry key="username.tmp" value="${username}" />
 							<entry key="password.tmp" value="${password}" />
 						</propertyfile>
+						
+						<echo>creating temp mirth properties</echo>
+						<propertyfile file="${install.path}/conf/mirth.tmp.properties">
+							<entry key="http.port" value="${http.port}" />
+							<entry key="https.port" value="${https.port}" />
+							<entry key="jmx.port" value="${jmx.port}" />
+							<entry key="jmx.password" value="${jmx.password}" />
+						</propertyfile>
+
 					</else>
 				</if>
 			</then>
@@ -99,9 +109,17 @@
 			<then>
 				<echo>performing restore of configuration properties</echo>
 				<property file="${install.path}/conf/database.tmp.properties" />
+				<property file="${install.path}/conf/mirth.tmp.properties" />
+				
+				<echo>updating mirth properties</echo>
 				<propertyfile file="${install.path}/conf/mirth.properties">
 					<entry key="database" value="${database.tmp}" />
+					<entry key="http.port" value="${http.port}" />
+					<entry key="https.port" value="${https.port}" />
+					<entry key="jmx.port" value="${jmx.port}" />
+					<entry key="jmx.password" value="${jmx.password}" />
 				</propertyfile>
+				
 				<echo>updating database properties: ${database.tmp}</echo>
 				<propertyfile file="${install.path}/conf/${database.tmp}-SqlMapConfig.properties">
 					<entry key="database" value="${database.tmp}" />

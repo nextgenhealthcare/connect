@@ -109,6 +109,16 @@ public class MuleConfigurationBuilder {
 				} else if (agent.getAttribute("name").toLowerCase().equals("jmx")) {
 					propertyElement.setAttribute("name", "connectorServerUrl");
 					propertyElement.setAttribute("value", "service:jmx:rmi:///jndi/rmi://localhost:" + port + "/server");
+					
+					// add JMX credentials
+					String jmxPassword = PropertyLoader.getProperty(properties, "jmx.password");
+					Element credentialsMapElement = document.createElement("map");
+					credentialsMapElement.setAttribute("name", "credentials");
+					Element credentialsPropertyElement = document.createElement("property");
+					credentialsPropertyElement.setAttribute("name", "admin");
+					credentialsPropertyElement.setAttribute("value", jmxPassword);
+					credentialsMapElement.appendChild(credentialsPropertyElement);
+					agentProperties.appendChild(credentialsMapElement);
 				}
 
 				agentProperties.appendChild(propertyElement);
