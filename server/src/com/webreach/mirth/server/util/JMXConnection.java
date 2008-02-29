@@ -27,6 +27,7 @@
 package com.webreach.mirth.server.util;
 
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Set;
 
 import javax.management.MBeanServerConnection;
@@ -49,10 +50,10 @@ public class JMXConnection {
 	private MBeanServerConnection jmxConnection;
 	private String domain;
 
-	public JMXConnection(String address, String domain) throws Exception {
+	public JMXConnection(String address, String domain, Map environment) throws Exception {
 		this.domain = domain;
 		JMXServiceURL url = new JMXServiceURL(address);
-		jmxConnector = JMXConnectorFactory.connect(url);
+		jmxConnector = JMXConnectorFactory.connect(url, environment);
 		jmxConnection = jmxConnector.getMBeanServerConnection();
 	}
 
