@@ -233,7 +233,9 @@ public class ImportConverter {
 			}
 			
 			if (minorVersion < 8) {
-				updateTransformerFor1_8(document);
+				if (minorVersion < 7 || (minorVersion == 7 && patchVersion < 1)) {  // Run for all version prior to 1.7.1
+					updateTransformerFor1_7_1(document);	
+				}
 			}
 		}
 
@@ -280,7 +282,7 @@ public class ImportConverter {
 		updateTransformerFor1_4(document, transformerRoot, incoming, outgoing);
 		updateTransformerFor1_5(document);
 		updateTransformerFor1_7(document);
-		updateTransformerFor1_8(document);
+		updateTransformerFor1_7_1(document);
 
 		DocumentSerializer docSerializer = new DocumentSerializer();
 		transformerXML = docSerializer.toXML(document);
@@ -618,7 +620,7 @@ public class ImportConverter {
 		}
 	}
 	
-	private static void updateTransformerFor1_8(Document document) {
+	private static void updateTransformerFor1_7_1(Document document) {
 		Element inboundPropertiesElement, outboundPropertiesElement;
 		
 		NodeList transformers = document.getElementsByTagName("transformer");
