@@ -185,7 +185,7 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
 	protected Connection createConnection() throws NamingException, JMSException, InitialisationException {
 		Connection connection = null;
 
-		/*if (connectionFactoryClass != null) {
+		if (connectionFactoryClass != null) {
 			try {
 				connectionFactory = (ConnectionFactory) Class.forName(connectionFactoryClass).newInstance();
 			} catch (Exception e) {
@@ -195,7 +195,8 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
 
 		if (connectionFactory == null) {
 			connectionFactory = createConnectionFactory();
-		}*/
+		}
+		
 		if (connectionFactory != null && connectionFactory instanceof XAConnectionFactory) {
 			if (MuleManager.getInstance().getTransactionManager() != null) {
 				connectionFactory = new ConnectionFactoryWrapper(connectionFactory, MuleManager.getInstance().getTransactionManager());
