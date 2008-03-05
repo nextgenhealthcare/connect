@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.util;
 
 import java.util.Hashtable;
@@ -87,7 +86,7 @@ public class JMXConnection {
 		logger.debug("getting mbean names");
 		return jmxConnection.queryNames(null, null);
 	}
-	
+
 	public void close() {
 		try {
 			if (jmxConnector != null) {
@@ -99,14 +98,13 @@ public class JMXConnection {
 			logger.warn(e.getMessage());
 		}
 	}
-	
+
 	private ObjectName getObjectName(Hashtable properties) throws Exception {
 		ObjectName objectName = null;
 		if (properties == null) {
-			objectName = (ObjectName)jmxConnection.queryNames(new ObjectName(domain), null).toArray()[0];
-		}
-		else {
-			objectName = new ObjectName(domain, properties);		
+			objectName = (ObjectName) jmxConnection.queryNames(new ObjectName(domain), null).toArray()[0];
+		} else {
+			objectName = new ObjectName(domain, properties);
 		}
 		return objectName;
 	}
