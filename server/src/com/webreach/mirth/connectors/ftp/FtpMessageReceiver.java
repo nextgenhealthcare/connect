@@ -158,7 +158,7 @@ public class FtpMessageReceiver extends PollingMessageReceiver {
 			}
 			List v = new ArrayList();
 			for (int i = 0; i < files.length; i++) {
-				if (files[i].isFile()) {
+				if ((files[i] != null) && files[i].isFile()) {
 					if (filenameFilter == null || filenameFilter.accept(null, files[i].getName())) {
 						v.add(files[i]);
 					}
