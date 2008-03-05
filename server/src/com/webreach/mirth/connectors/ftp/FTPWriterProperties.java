@@ -54,7 +54,7 @@ public class FTPWriterProperties implements ComponentProperties
         properties.put(FTP_PASSWORD, "anonymous");
         properties.put(FTP_OUTPUT_PATTERN, "");
         properties.put(FTP_PASSIVE_MODE, "1");
-        properties.put(FTP_FILE_TYPE, "1");
+        properties.put(FTP_FILE_TYPE, "0");
         properties.put(FTP_VALIDATE_CONNECTION, "1");
         properties.put(FTP_CONTENTS, "");
         return properties;
