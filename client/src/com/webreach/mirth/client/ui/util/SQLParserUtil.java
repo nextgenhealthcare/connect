@@ -41,7 +41,7 @@ public class SQLParserUtil
 
     private String[] keywords = { "INTO", "DISTINCT", "UNIQUE", "FIRST", "MIDDLE", "SKIP", "LIMIT" };
 
-    private final String SQL_PATTERN = "[s|S][e|E][l|L][e|E][c|C][t|T].*[f|F][r|R][o|O][m|M]";
+    private final String SQL_PATTERN = "[s|S][e|E][l|L][e|E][c|C][t|T].*[f|F][r|R][o|O][m|M][\\s]";
 
     String _sqlStatement = "";
 
@@ -72,7 +72,7 @@ public class SQLParserUtil
             while (matcher.find())
             {
                 String key = matcher.group();
-                int fromClause = key.toUpperCase().indexOf("FROM");
+                int fromClause = key.toUpperCase().indexOf(" FROM ");
 
                 if (fromClause > 0)
                 {
