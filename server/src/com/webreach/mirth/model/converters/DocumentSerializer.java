@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.model.converters;
 
 import java.io.ByteArrayOutputStream;
@@ -39,19 +38,20 @@ import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-public class DocumentSerializer implements IXMLSerializer<Document>{
+public class DocumentSerializer implements IXMLSerializer<Document> {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private String[] cDataElements = null;
 	private boolean preserveSpace;
+
 	public DocumentSerializer() {
 		this.preserveSpace = true;
 	}
-	
+
 	public DocumentSerializer(String[] cDataElements) {
 		this.cDataElements = cDataElements;
 		this.preserveSpace = true;
 	}
-	
+
 	public boolean isPreserveSpace() {
 		return this.preserveSpace;
 	}
@@ -70,7 +70,7 @@ public class DocumentSerializer implements IXMLSerializer<Document>{
 		of.setOmitXMLDeclaration(false);
 		of.setIndenting(true);
 		of.setPreserveSpace(preserveSpace);
-		of.setLineSeparator("\r\n");
+		of.setLineSeparator(System.getProperty("line.separator"));
 
 		StringWriter stringWriter = new StringWriter();
 		XMLSerializer serializer = new XMLSerializer(stringWriter, of);
@@ -88,13 +88,13 @@ public class DocumentSerializer implements IXMLSerializer<Document>{
 
 	public Document fromXML(String source) {
 		Document document = null;
-		
+
 		try {
 			document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(source)));
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
-		
+
 		return document;
 	}
 
