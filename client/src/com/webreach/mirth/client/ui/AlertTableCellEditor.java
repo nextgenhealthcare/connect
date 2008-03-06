@@ -37,6 +37,7 @@ import javax.swing.JTextField;
 import javax.swing.table.TableCellEditor;
 
 import com.webreach.mirth.model.Alert;
+import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 
 /**
  * A table cell editor for the destination table.
@@ -52,6 +53,7 @@ public class AlertTableCellEditor extends AbstractCellEditor implements TableCel
     {
         super();
         this.parent = PlatformUI.MIRTH_FRAME;
+        ((JTextField) component).setDocument(new MirthFieldConstraints(40));    // set the character limit to 40.
     }
 
     /**
