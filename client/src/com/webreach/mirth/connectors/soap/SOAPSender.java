@@ -204,6 +204,19 @@ public class SOAPSender extends ConnectorClass
             WSOperation operation = definition.getOperation((String) props.getProperty(SOAPSenderProperties.SOAP_METHOD));
             if (operation != null)
                 setupTable(operation);
+            else {
+                // dans: added for bug MIRTH-743
+                jTree1 = new javax.swing.JTree();                
+                jTree1.setModel(new DefaultTreeModel(new DefaultMutableTreeNode("")));
+                jTree1.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener()
+                {
+                    public void valueChanged(javax.swing.event.TreeSelectionEvent evt)
+                    {
+                        jTree1ValueChanged(evt);
+                    }
+                });
+                jScrollPane1.setViewportView(jTree1);
+            }
 
         }
         else{
