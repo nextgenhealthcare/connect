@@ -334,6 +334,8 @@ public class LoginPanel extends javax.swing.JFrame
     private void loginButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_loginButtonActionPerformed
     {// GEN-HEADEREND:event_loginButtonActionPerformed
         errorPane.setVisible(false);
+        
+        final LoginPanel thisPanel = this;
 
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
@@ -345,7 +347,7 @@ public class LoginPanel extends javax.swing.JFrame
                     {
                         setStatus("Authenticated...");
                         new Mirth(client);
-                        closeButtonActionPerformed(null);
+                        thisPanel.dispose();
                     }
                     else
                     {
@@ -381,6 +383,7 @@ public class LoginPanel extends javax.swing.JFrame
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_closeButtonActionPerformed
     {// GEN-HEADEREND:event_closeButtonActionPerformed
         this.dispose();
+        System.exit(0);
     }// GEN-LAST:event_closeButtonActionPerformed
 
     private boolean login()
