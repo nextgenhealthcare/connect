@@ -1099,7 +1099,7 @@ public class MessageBrowser extends javax.swing.JPanel
                    
                         try
                         {
-                            Document doc = serializer.fromXML(message.trim());
+                            Document doc = serializer.fromXML(message);
                             message = serializer.toXML(doc);
                         }
                         catch(Exception e)
