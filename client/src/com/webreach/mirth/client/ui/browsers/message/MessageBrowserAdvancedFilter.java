@@ -9,31 +9,37 @@ package com.webreach.mirth.client.ui.browsers.message;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.client.ui.Frame;
 
+import java.awt.*;
+
 /**
  *
  * @author  chrisr
  */
 public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
 
-    private String connector;
-    private String messageSource;
-    private String messageType;
-    private String containingKeyword;
-    private boolean includeRawMessage;
-    private boolean includeTransformedMessage;
-    private boolean includeEncodedMessage;
-    private String protocol;
+    private String connector = "";
+    private String messageSource = "";
+    private String messageType = "";
+    private String containingKeyword = "";
+    private boolean includeRawMessage = false;
+    private boolean includeTransformedMessage = false;
+    private boolean includeEncodedMessage = false;
+    private String protocol = "ALL";
 
     /** Creates new form MessageBrowserAdvancedFilter */
     public MessageBrowserAdvancedFilter(Frame parent, String title, boolean modal) {
 
         super(parent, title, modal);
-        setLocationRelativeTo(null);        // so that the pop up would show up in the center of the screen.
+
+        pack();
+        Dimension dlgSize = getPreferredSize();
+        Dimension frmSize = parent.getSize();
+        Point loc = parent.getLocation();
+        setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+        setResizable(false);
 
         initComponents();
-        
         getContentPane().setBackground(new java.awt.Color(255, 255, 255));
-        setResizable(false);
 
         String[] protocolValues = new String[MessageObject.Protocol.values().length + 1];
         protocolValues[0] = "ALL";
@@ -55,16 +61,57 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         includeRawMessage = false;
         includeTransformedMessage = false;
         includeEncodedMessage = false;
-        protocol = "";
+        protocol = "ALL";
 
-        connectorField.setText("");
-        messageSourceField.setText("");
-        messageTypeField.setText("");
-        containing.setText("");
-        rawMessageCheckBox.setSelected(false);
-        transformedMessageCheckBox.setSelected(false);
-        encodedMessageCheckBox.setSelected(false);
+        connectorField.setText(connector);
+        messageSourceField.setText(messageSource);
+        messageTypeField.setText(messageType);
+        containing.setText(containingKeyword);
+        rawMessageCheckBox.setSelected(includeRawMessage);
+        transformedMessageCheckBox.setSelected(includeTransformedMessage);
+        encodedMessageCheckBox.setSelected(includeEncodedMessage);
         protocolComboBox.setSelectedIndex(0);
+    }
+
+    public void setFieldValues(String connector, String messageSource, String messageType, String containingKeyword,
+                               boolean includeRawMessage, boolean includeTransformedMessage, boolean includeEncodedMessage,
+                               String protocol) {
+
+        this.connector = connector;
+        this.messageSource = messageSource;
+        this.messageType = messageType;
+        this.containingKeyword = containingKeyword;
+        this.includeRawMessage = includeRawMessage;
+        this.includeTransformedMessage = includeTransformedMessage;
+        this.includeEncodedMessage = includeEncodedMessage;
+        this.protocol = protocol;
+
+        connectorField.setText(this.connector);
+        messageSourceField.setText(this.messageSource);
+        messageTypeField.setText(this.messageType);
+        containing.setText(this.containingKeyword);
+        rawMessageCheckBox.setSelected(this.includeRawMessage);
+        transformedMessageCheckBox.setSelected(this.includeTransformedMessage);
+        encodedMessageCheckBox.setSelected(this.includeEncodedMessage);
+
+        if (this.protocol.equals("ALL")) {
+            protocolComboBox.setSelectedIndex(0);
+        } else if (this.protocol.equals("HL7V2")) {
+            protocolComboBox.setSelectedIndex(1);
+        } else if (this.protocol.equals("X12")) {
+            protocolComboBox.setSelectedIndex(2);
+        } else if (this.protocol.equals("XML")) {
+            protocolComboBox.setSelectedIndex(3);
+        } else if (this.protocol.equals("HL7V3")) {
+            protocolComboBox.setSelectedIndex(4);
+        } else if (this.protocol.equals("EDI")) {
+            protocolComboBox.setSelectedIndex(5);
+        } else if (this.protocol.equals("NCPDP")) {
+            protocolComboBox.setSelectedIndex(6);
+        } else if (this.protocol.equals("DICOM")) {
+            protocolComboBox.setSelectedIndex(7);
+        }
+
     }
 
 
@@ -254,17 +301,9 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         messageSource = messageSourceField.getText();
         messageType = messageTypeField.getText();
         containingKeyword = containing.getText();
-
-        if(rawMessageCheckBox.isSelected()) {
-            includeRawMessage = true;
-        }
-        if(transformedMessageCheckBox.isSelected()) {
-            includeTransformedMessage = true;
-        }
-        if(encodedMessageCheckBox.isSelected()) {
-            includeEncodedMessage = true;
-        }
-
+        includeRawMessage = rawMessageCheckBox.isSelected();
+        includeTransformedMessage = transformedMessageCheckBox.isSelected();
+        includeEncodedMessage = encodedMessageCheckBox.isSelected();
         protocol = (String) protocolComboBox.getSelectedItem();
 
         setVisible(false);

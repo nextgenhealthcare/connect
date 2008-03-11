@@ -195,10 +195,9 @@ public class MessageBrowser extends javax.swing.JPanel
             }
         });
         attachmentPopupMenu.add(viewAttach);
-        advSearchFilterPopup = new MessageBrowserAdvancedFilter(parent, "Advanced Search Filter", true);
-        advSearchFilterPopup.pack();
-        advSearchFilterPopup.setVisible(false);
 
+        advSearchFilterPopup = new MessageBrowserAdvancedFilter(parent, "Advanced Search Filter", true);
+        advSearchFilterPopup.setVisible(false);
     }
     
     public Object[][] updateAttachmentList(MessageObject message){
@@ -1520,6 +1519,18 @@ public class MessageBrowser extends javax.swing.JPanel
     private void advSearchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_advSearchButtonActionPerformed
 
         // display the advanced search filter pop up window.
+        String connector = advSearchFilterPopup.getConnector();
+        String messageSource = advSearchFilterPopup.getMessageSource();
+        String messageType = advSearchFilterPopup.getMessageType();
+        String containingKeyword = advSearchFilterPopup.getContainingKeyword();
+        boolean includeRawMessage = advSearchFilterPopup.isIncludeRawMessage();
+        boolean includeTransformedMessage = advSearchFilterPopup.isIncludeTransformedMessage();
+        boolean includeEncodedMessage = advSearchFilterPopup.isIncludeEncodedMessage();
+        String protocol = advSearchFilterPopup.getProtocol();
+
+        advSearchFilterPopup = new MessageBrowserAdvancedFilter(parent, "Advanced Search Filter", true);
+        advSearchFilterPopup.setFieldValues(connector, messageSource, messageType, containingKeyword, includeRawMessage, includeTransformedMessage, includeEncodedMessage, protocol);
+        
         advSearchFilterPopup.setVisible(true);
         
     }//GEN-LAST:event_advSearchButtonActionPerformed
