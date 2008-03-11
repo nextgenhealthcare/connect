@@ -20,14 +20,14 @@ public class XMLAdaptor extends Adaptor {
 		DocumentBuilder docBuilder;
 		try {
 			docBuilder = docFactory.newDocumentBuilder();
-			Document xmlDoc = docBuilder.parse(new InputSource(new StringReader(source.trim())));  // Get rid of special characters or spaces surrounding the XML.
+			Document xmlDoc = docBuilder.parse(new InputSource(new StringReader(source)));
 			messageObject.setSource(new String());
 			messageObject.setType(xmlDoc.getDocumentElement().getNodeName());
 			messageObject.setVersion("1.0");
 		} catch (Exception e) {
 			handleException(e);
 		}
-		messageObject.setTransformedData(source.trim());  // Get rid of special characters or spaces surrounding the XML.
+		messageObject.setTransformedData(source);
 		
 	}
 }

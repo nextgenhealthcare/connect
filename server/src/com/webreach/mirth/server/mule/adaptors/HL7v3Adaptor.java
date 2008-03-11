@@ -16,18 +16,18 @@ public class HL7v3Adaptor extends Adaptor {
 		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
 		messageObject.setEncodedDataProtocol(MessageObject.Protocol.HL7V3);
 		messageObject.setType("XML");
-		messageObject.setTransformedData(source.trim());
+		messageObject.setTransformedData(source);
 		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docBuilder;
 
 		try {
 			docBuilder = docFactory.newDocumentBuilder();
-			Document xmlDoc = docBuilder.parse(new InputSource(new StringReader(source.trim())));  // Get rid of special characters or spaces surrounding the XML.
+			Document xmlDoc = docBuilder.parse(new InputSource(new StringReader(source)));
 			messageObject.setSource(new String());
 			messageObject.setType(xmlDoc.getDocumentElement().getNodeName());
 			messageObject.setVersion("3.0");
 		} catch (Exception e) {
-			handleException(e);  // Get rid of special characters or spaces surrounding the XML.
+			handleException(e);
 		}
 	}
 }
