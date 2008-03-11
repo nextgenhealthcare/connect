@@ -22,12 +22,12 @@ public class HL7v3Adaptor extends Adaptor {
 
 		try {
 			docBuilder = docFactory.newDocumentBuilder();
-			Document xmlDoc = docBuilder.parse(new InputSource(new StringReader(source.trim())));
+			Document xmlDoc = docBuilder.parse(new InputSource(new StringReader(source.trim())));  // Get rid of special characters or spaces surrounding the XML.
 			messageObject.setSource(new String());
 			messageObject.setType(xmlDoc.getDocumentElement().getNodeName());
 			messageObject.setVersion("3.0");
 		} catch (Exception e) {
-			handleException(e);
+			handleException(e);  // Get rid of special characters or spaces surrounding the XML.
 		}
 	}
 }
