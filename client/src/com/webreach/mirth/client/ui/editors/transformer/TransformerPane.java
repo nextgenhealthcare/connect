@@ -158,6 +158,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                                 if (parameters.length == 2) {
                                     TransformerStepPlugin stepPlugin = (TransformerStepPlugin) constructors[i].newInstance(new Object[] { pluginName, this });
                                     loadedPlugins.put(stepPlugin.getDisplayName(), stepPlugin);
+                                    i = constructors.length;
                                 }
                             }
 						}

@@ -176,6 +176,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
                                 if (parameters.length == 2) {
                                     FilterRulePlugin rulePlugin = (FilterRulePlugin) constructors[i].newInstance(new Object[]{pluginName, this});
                                     loadedPlugins.put(rulePlugin.getDisplayName(), rulePlugin);
+                                    i = constructors.length;
                                 }
                             }
                         }
