@@ -30,6 +30,7 @@ import java.awt.Point;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeSet;
+import java.lang.reflect.Constructor;
 
 import org.jdesktop.swingworker.SwingWorker;
 
@@ -110,8 +111,18 @@ public class ChannelWizard extends javax.swing.JDialog
                             if (extensionPoint.getMode().equals(ExtensionPoint.Mode.CLIENT) && extensionPoint.getType().equals(ExtensionPoint.Type.CLIENT_CHANNEL_WIZARD) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0)
                             {
                                 String pluginName = extensionPoint.getName();
-                                ChannelWizardPlugin wizardPlugin = (ChannelWizardPlugin) Class.forName(extensionPoint.getClassName()).getDeclaredConstructors()[0].newInstance(new Object[]{pluginName});
-                                loadedWizardPlugins.put(pluginName, wizardPlugin);
+                                Class clazz = Class.forName(extensionPoint.getClassName());
+                                Constructor[] constructors = clazz.getDeclaredConstructors();
+                                for (int i=0; i < constructors.length; i++) {
+                                    Class parameters[];
+                                    parameters = constructors[i].getParameterTypes();
+                                    // load plugin if the number of parameters is 1.
+                                    if (parameters.length == 1) {
+                                        ChannelWizardPlugin wizardPlugin = (ChannelWizardPlugin) constructors[i].newInstance(new Object[] { pluginName });
+                                        loadedWizardPlugins.put(pluginName, wizardPlugin);
+                                        i = constructors.length;
+                                    }
+                                }
                             }
                         }
                         catch (Exception e)

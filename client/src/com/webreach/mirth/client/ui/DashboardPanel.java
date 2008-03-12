@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
+import java.lang.reflect.Constructor;
 
 import javax.swing.ImageIcon;
 import javax.swing.JTabbedPane;
@@ -119,13 +120,24 @@ public class DashboardPanel extends javax.swing.JPanel
                             if (extensionPoint.getMode().equals(ExtensionPoint.Mode.CLIENT) && extensionPoint.getType().equals(ExtensionPoint.Type.CLIENT_DASHBOARD_COLUMN) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0)
                             {
                                 String pluginName = extensionPoint.getName();
-                                DashboardColumnPlugin columnPlugin = (DashboardColumnPlugin) Class.forName(extensionPoint.getClassName()).getDeclaredConstructors()[0].newInstance(new Object[]{pluginName, this});
-                                if (columnPlugin.showBeforeStatusColumn()){
-                                	loadedColumnPluginsBeforeStatus.put(columnPlugin.getColumnHeader(), columnPlugin);
-                                }else{
-                                	loadedColumnPluginsAfterStats.put(columnPlugin.getColumnHeader(), columnPlugin);
+                                Class clazz = Class.forName(extensionPoint.getClassName());
+                                Constructor[] constructors = clazz.getDeclaredConstructors();
+                                for (int i=0; i < constructors.length; i++) {
+                                    Class parameters[];
+                                    parameters = constructors[i].getParameterTypes();
+                                    // load plugin if the number of parameters is 2.
+                                    if (parameters.length == 2) {
+
+                                        DashboardColumnPlugin columnPlugin = (DashboardColumnPlugin) constructors[i].newInstance(new Object[] { pluginName, this });
+                                        if (columnPlugin.showBeforeStatusColumn()){
+                                            loadedColumnPluginsBeforeStatus.put(columnPlugin.getColumnHeader(), columnPlugin);
+                                        } else {
+                                            loadedColumnPluginsAfterStats.put(columnPlugin.getColumnHeader(), columnPlugin);
+                                        }
+                                        i = constructors.length;
+
+                                    }
                                 }
-                                
                             }
                         }
                         catch (Exception e)
@@ -160,8 +172,20 @@ public class DashboardPanel extends javax.swing.JPanel
                             if (extensionPoint.getMode().equals(ExtensionPoint.Mode.CLIENT) && extensionPoint.getType().equals(ExtensionPoint.Type.CLIENT_DASHBOARD_PANE) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0)
                             {
                                 String pluginName = extensionPoint.getName();
-                                DashboardPanelPlugin panelPlugin = (DashboardPanelPlugin) Class.forName(extensionPoint.getClassName()).getDeclaredConstructors()[0].newInstance(new Object[]{pluginName});
-                                loadedPanelPlugins.put(pluginName, panelPlugin);
+                                Class clazz = Class.forName(extensionPoint.getClassName());
+                                Constructor[] constructors = clazz.getDeclaredConstructors();
+                                for (int i=0; i < constructors.length; i++) {
+                                    Class parameters[];
+                                    parameters = constructors[i].getParameterTypes();
+                                    // load plugin if the number of parameters is 1.
+                                    if (parameters.length == 1) {
+
+                                        DashboardPanelPlugin panelPlugin = (DashboardPanelPlugin) constructors[i].newInstance(new Object[] { pluginName });
+                                        loadedPanelPlugins.put(pluginName, panelPlugin);
+                                        i = constructors.length;
+
+                                    }
+                                }
                             }
                         }
                         catch (Exception e)

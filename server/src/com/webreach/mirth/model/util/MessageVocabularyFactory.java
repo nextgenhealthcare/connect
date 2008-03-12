@@ -2,6 +2,7 @@ package com.webreach.mirth.model.util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.lang.reflect.Constructor;
 
 import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.client.core.ClientException;
@@ -58,19 +59,38 @@ public class MessageVocabularyFactory {
 	public MessageVocabulary getVocabulary(Protocol protocol, String version, String type) {
 		
 		Class<? extends MessageVocabulary> vocabulary = loadedPlugins.get(protocol);
-		MessageVocabulary vocab;
-		if (vocabulary != null){
+		MessageVocabulary vocab = null;
+		if (vocabulary != null) {
 			try {
-				vocab = (MessageVocabulary)vocabulary.getDeclaredConstructors()[0].newInstance(new Object[] {version, type});
-			} catch (Exception e) {
+                
+                Constructor[] constructors = vocabulary.getDeclaredConstructors();
+                for (int i=0; i < constructors.length; i++) {
+                    Class parameters[];
+                    parameters = constructors[i].getParameterTypes();
+                    // load plugin if the number of parameters is 2.
+                    if (parameters.length == 2) {
+                        vocab = (MessageVocabulary) constructors[i].newInstance(new Object[] { version, type });
+                        i = constructors.length;
+                    }
+                }
+
+                if (vocab != null) {
+                    return vocab;
+                } else {
+                    // it should never come here.
+                    return new DefaultVocabulary(version, type);
+                }
+
+            } catch (Exception e) {
 				e.printStackTrace();
 				return new DefaultVocabulary(version, type);
-			} 
-		}else{
-			vocab = new DefaultVocabulary(version, type);
+			}
+
+        } else {
+			return new DefaultVocabulary(version, type);
 		}
-		return vocab;
-	}
+        
+    }
 
 	// Extension point for ExtensionPoint.Type.CLIENT_VOCABULARY
 	@ExtensionPointDefinition(mode = ExtensionPoint.Mode.CLIENT, type = ExtensionPoint.Type.CLIENT_VOCABULARY)

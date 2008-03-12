@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
+import java.lang.reflect.Constructor;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -304,8 +305,19 @@ public class MessageBrowser extends javax.swing.JPanel
                             if (extensionPoint.getMode().equals(ExtensionPoint.Mode.CLIENT) && extensionPoint.getType().equals(ExtensionPoint.Type.ATTACHMENT_VIEWER) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0)
                             {
                                 String pluginName = extensionPoint.getName();
-                                AttachmentViewer attachmentViewer = (AttachmentViewer) Class.forName(extensionPoint.getClassName()).getDeclaredConstructors()[0].newInstance(new Object[]{pluginName});
-                                loadedPanelPlugins.put(pluginName, attachmentViewer);
+                                Class clazz = Class.forName(extensionPoint.getClassName());
+                                Constructor[] constructors = clazz.getDeclaredConstructors();
+                                for (int i=0; i < constructors.length; i++) {
+                                    Class parameters[];
+                                    parameters = constructors[i].getParameterTypes();
+                                    // load plugin if the number of parameters is 1.
+                                    if (parameters.length == 1) {
+
+                                        AttachmentViewer attachmentViewer = (AttachmentViewer) constructors[i].newInstance(new Object[] { pluginName });
+                                        loadedPanelPlugins.put(pluginName, attachmentViewer);
+                                        i = constructors.length;
+                                    }
+                                }
                             }
                         }
                         catch (Exception e)

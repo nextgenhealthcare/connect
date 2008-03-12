@@ -27,6 +27,7 @@
 package com.webreach.mirth.server.launcher;
 
 import java.net.URLClassLoader;
+import java.lang.reflect.Constructor;
 
 public class ShellLauncher {
 	public static void main(String[] args) {
@@ -40,8 +41,18 @@ public class ShellLauncher {
                 String[] newArgs = new String[args.length -1];
                 for(int i = 1; i < args.length; i++)
                     newArgs[i-1] = args[i];
-                
-                shellClass.getDeclaredConstructors()[0].newInstance(new Object[]{newArgs});
+
+                Constructor[] constructors = shellClass.getDeclaredConstructors();
+                for (int i=0; i < constructors.length; i++) {
+                    Class parameters[];
+                    parameters = constructors[i].getParameterTypes();
+                    // load plugin if the number of parameters is 1.
+                    if (parameters.length == 1) {
+                        constructors[i].newInstance(new Object[] {newArgs});
+                        i = constructors.length;
+                    }
+                }
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
