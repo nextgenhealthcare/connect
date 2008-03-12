@@ -92,8 +92,8 @@ public class ChannelSetup extends javax.swing.JPanel
     private final String DATA_TYPE_KEY = "DataType";
     public Channel currentChannel;
     public String lastIndex = "";
-    public TransformerPane transformerPane;
-    public FilterPane filterPane;
+    public TransformerPane transformerPane = new TransformerPane();
+    public FilterPane filterPane = new FilterPane();
     private Frame parent;
     private boolean isDeleting = false;
     private boolean loadingChannel = false;
@@ -111,10 +111,7 @@ public class ChannelSetup extends javax.swing.JPanel
         this.parent = PlatformUI.MIRTH_FRAME;
 
         initComponents();
-        
-        transformerPane = new TransformerPane();
-        filterPane = new FilterPane();
-        
+
         numDays.setDocument(new MirthFieldConstraints(3, false, false, true));
         summaryNameField.setDocument(new MirthFieldConstraints(40, false, true, true));
         

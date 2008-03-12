@@ -54,6 +54,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.prefs.Preferences;
+import java.lang.reflect.Constructor;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -167,8 +168,16 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
                         {
                             String pluginName = extensionPoint.getName();
                             Class clazz = Class.forName(extensionPoint.getClassName());
-                            FilterRulePlugin rulePlugin = (FilterRulePlugin) clazz.getDeclaredConstructors()[0].newInstance(new Object[]{pluginName, this});
-                            loadedPlugins.put(rulePlugin.getDisplayName(), rulePlugin);
+                            Constructor[] constructors = clazz.getDeclaredConstructors();
+                            for (int i=0; i < constructors.length; i++) {
+                                Class parameters[];
+                                parameters = constructors[i].getParameterTypes();
+                                // load plugin if the number of parameters is 2.
+                                if (parameters.length == 2) {
+                                    FilterRulePlugin rulePlugin = (FilterRulePlugin) constructors[i].newInstance(new Object[]{pluginName, this});
+                                    loadedPlugins.put(rulePlugin.getDisplayName(), rulePlugin);
+                                }
+                            }
                         }
                     }
                     catch (Exception e)
@@ -1146,7 +1155,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
     /**
      * Run a specific rule's validator.
      * 
-     * @param step
+     * @param
      * @return
      */
     public String validateRule(Rule rule)
