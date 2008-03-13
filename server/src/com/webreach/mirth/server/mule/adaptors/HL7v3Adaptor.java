@@ -16,6 +16,7 @@ public class HL7v3Adaptor extends Adaptor {
 		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
 		messageObject.setEncodedDataProtocol(MessageObject.Protocol.HL7V3);
 		messageObject.setType("XML");
+		source = source.trim();
 		messageObject.setTransformedData(source);
 		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docBuilder;
