@@ -13,11 +13,12 @@ public class HL7v2Adaptor extends Adaptor {
 		messageObject.setTransformedDataProtocol(com.webreach.mirth.model.MessageObject.Protocol.XML);
 		messageObject.setEncodedDataProtocol(com.webreach.mirth.model.MessageObject.Protocol.HL7V2);
 		try {
+			source = source.trim();
 			if (emptyFilterAndTransformer) {
 				populateMetadataFromEncoded(source);
 				messageObject.setEncodedData(source);
 			} else {
-				String xmlMessage = serializer.toXML(source.trim());
+				String xmlMessage = serializer.toXML(source);
 				populateMetadataFromXML(xmlMessage);
 				messageObject.setTransformedData(xmlMessage);
 			}
