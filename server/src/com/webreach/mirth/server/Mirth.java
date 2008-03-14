@@ -85,6 +85,7 @@ public class Mirth extends Thread {
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
 		mirth.run();
+		System.exit(0);
 	}
 
 	public MirthManager getManager() {

@@ -285,9 +285,7 @@ public class ConfigurationController {
 			// restart the mule engine which will grab the latest configuration
 			// from the database
 
-			CommandQueue queue = CommandQueue.getInstance();
-			queue.addCommand(new Command(Command.Operation.RESTART_ENGINE));
-
+			CommandQueue.getInstance().addCommand(new Command(Command.Operation.RESTART_ENGINE));
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		}
@@ -705,5 +703,9 @@ public class ConfigurationController {
 
 	public void setEngineStarting(boolean isEngineStarting) {
 		this.isEngineStarting = isEngineStarting;
+	}
+	
+	public void shutdown() {
+		CommandQueue.getInstance().addCommand(new Command(Command.Operation.SHUTDOWN_SERVER));
 	}
 }

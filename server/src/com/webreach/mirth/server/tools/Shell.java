@@ -242,6 +242,8 @@ public class Shell {
                     commandStatus(arguments);
 				} else if (arg1 == Token.EXPORT) {
                     commandExport(arguments);
+				} else if (arg1 == Token.SHUTDOWN) {
+					commandShutdown(arguments);
 				} else if (arg1 == Token.CHANNEL) {
 					String syntax = "invalid number of arguments. Syntax is: channel start|stop|pause|resume|stats|remove|enable|disable <id|name>, channel rename <id|name> newname, or channel list|stats";
 					if (arguments.length < 2) {
@@ -411,6 +413,7 @@ public class Shell {
 		out.println("user add username \"password\" \"name\" \"email\"\n\tAdds the specified user\n");
 		out.println("user remove id|username\n\tRemoves the specified user\n");
 		out.println("user changepw id|username \"newpassword\"\n\tChanges the specified user's password\n");
+		out.println("shutdown\n\tShuts down the server\n");
 		out.println("quit\n\tQuits Mirth Shell");
 	}
 
@@ -879,6 +882,10 @@ public class Shell {
 				out.println("Channel '" + oldName + "' renamed to '" + channel.getName() + "'");
 			}
 		}
+	}
+	
+	private void commandShutdown(Token[] arguments) throws ClientException {
+		client.shutdown();
 	}
 	
 	/**
