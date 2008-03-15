@@ -25,6 +25,8 @@
 
 package com.webreach.mirth.server.util;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
@@ -34,12 +36,17 @@ import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
+import com.webreach.mirth.model.CodeTemplate;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
 import com.webreach.mirth.server.MirthJavascriptTransformerException;
+import com.webreach.mirth.server.controllers.CodeTemplateController;
+import com.webreach.mirth.server.controllers.ControllerException;
 
 public class JavaScriptUtil {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
+	private CodeTemplateController codeTemplateController = CodeTemplateController.getInstance();
 	private static ScriptableObject sealedSharedScope;
 
 	// singleton pattern
@@ -117,12 +124,12 @@ public class JavaScriptUtil {
 			logger.debug("executing " + scriptType + " script. id=" + scriptId);
 			compiledScript.exec(context, scope);
 		} catch (Exception e) {
-			if (e instanceof RhinoException){
+			if (e instanceof RhinoException) {
 				String connectorName = null;
-				if (messageObject != null){
+				if (messageObject != null) {
 					connectorName = messageObject.getConnectorName();
 				}
-				e = new MirthJavascriptTransformerException((RhinoException)e, channelId, connectorName, 1, scriptType);
+				e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 1, scriptType);
 			}
 			logger.error("failure to execute: " + scriptType + " script. id=" + scriptId, e);
 		} finally {
@@ -139,13 +146,13 @@ public class JavaScriptUtil {
 			Script compiledScript = context.compileString(generatedScript, scriptId, 1, null);
 			compiledScriptCache.putCompiledScript(scriptId, compiledScript);
 		} catch (EvaluatorException e) {
-			if (e instanceof RhinoException){
-				MirthJavascriptTransformerException mjte = new MirthJavascriptTransformerException((RhinoException)e, null, null, 1, scriptId);
+			if (e instanceof RhinoException) {
+				MirthJavascriptTransformerException mjte = new MirthJavascriptTransformerException((RhinoException) e, null, null, 1, scriptId);
 				throw new Exception(mjte);
-			}else{
+			} else {
 				throw new Exception(e);
 			}
-			
+
 		} finally {
 			Context.exit();
 		}
@@ -155,7 +162,7 @@ public class JavaScriptUtil {
 		StringBuilder builtScript = new StringBuilder();
 
 		builtScript.append("String.prototype.trim = function() { return this.replace(/^\\s+|\\s+$/g,\"\").replace(/^\\t+|\\t+$/g,\"\"); };");
-		
+
 		builtScript.append("function $(string) { ");
 		if (includeChannelMap) {
 			builtScript.append("if (channelMap.containsKey(string)) { return channelMap.get(string);} else ");
@@ -172,12 +179,12 @@ public class JavaScriptUtil {
 			builtScript.append("function $r(key, value){");
 			builtScript.append("if (arguments.length == 1){return responseMap.get(key); }");
 			builtScript.append("else if (arguments.length == 2){responseMap.put(key, value); }}");
-			
+
 			// Helper function to access attachments (returns List<Attachment>)
 			builtScript.append("function getAttachments() {");
 			builtScript.append("return Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().getAttachmentsByMessageId(messageObject.getId());");
 			builtScript.append("}");
-			
+
 			// Helper function to set attachment
 			builtScript.append("function addAttachment(data, type) {");
 			builtScript.append("var attachment = Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().createAttachment(data, type, messageObject);");
@@ -187,7 +194,22 @@ public class JavaScriptUtil {
 		builtScript.append("function $g(key, value){");
 		builtScript.append("if (arguments.length == 1){return globalMap.get(key); }");
 		builtScript.append("else if (arguments.length == 2){globalMap.put(key, value); }}");
-		
+
+		try {
+			List<CodeTemplate> templates = codeTemplateController.getCodeTemplate(null);
+			for (CodeTemplate template : templates) {
+				if (template.getType() == CodeSnippetType.FUNCTION) {
+					if (template.getScope() == CodeTemplate.ContextType.GLOBAL_CONTEXT.getContext()) {
+						builtScript.append(template.getCode());
+					} else if (includeChannelMap && template.getScope() == CodeTemplate.ContextType.CHANNEL_CONTEXT.getContext()) {
+						builtScript.append(template.getCode());
+					}
+				}
+			}
+		} catch (ControllerException e) {
+			logger.error("Could not get user functions.", e);
+		}
+
 		builtScript.append("function doScript() {\n" + script + " \n}\n");
 		builtScript.append("doScript()\n");
 		return builtScript.toString();

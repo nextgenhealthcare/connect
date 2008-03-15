@@ -7,7 +7,7 @@ import com.webreach.mirth.util.EqualsUtil;
 
 public class CodeTemplate implements Serializable {
 	public enum CodeSnippetType {
-		FUNCTION("Function"), VARIABLE("Variable");
+		CODE("Code"), VARIABLE("Variable"), FUNCTION("Function");
 
 		private String value;
 
@@ -19,6 +19,30 @@ public class CodeTemplate implements Serializable {
 			return value;
 		}
 	}
+	
+	public enum ContextType
+    {
+        GLOBAL_CONTEXT("Global", 0), CHANNEL_CONTEXT("Channel", 1), MESSAGE_CONTEXT("Message", 2);
+
+        private String value;
+        private int context;
+        
+        ContextType(String value, int context)
+        {
+            this.value = value;
+            this.context = context;
+        }
+
+        public String getValue()
+        {
+            return value;
+        }
+        
+        public int getContext()
+        {
+            return context;
+        }
+    }
 
 	private String id;
 	private String name;

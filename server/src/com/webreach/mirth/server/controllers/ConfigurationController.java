@@ -57,10 +57,12 @@ import org.w3c.dom.Element;
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatus;
+import com.webreach.mirth.model.CodeTemplate;
 import com.webreach.mirth.model.Configuration;
 import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.ServerConfiguration;
 import com.webreach.mirth.model.SystemEvent;
+import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.util.ImportConverter;
 import com.webreach.mirth.server.Command;
@@ -101,7 +103,8 @@ public class ConfigurationController {
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
 	private boolean isEngineStarting = true;
-
+	
+	private JavaScriptUtil javaScriptUtil = JavaScriptUtil.getInstance();
 	private ExtensionController extensionController = ExtensionController.getInstance();
 	private ScriptController scriptController = ScriptController.getInstance();
 
@@ -301,47 +304,47 @@ public class ConfigurationController {
 			Entry entry = (Entry) i.next();
 			if (entry.getKey().toString().equals(PREPROCESSOR)) {
 				if (!globalScripts.get(PREPROCESSOR).equals(GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT) && !globalScripts.get(PREPROCESSOR).equals("")) {
-					JavaScriptUtil.getInstance().compileScript(PREPROCESSOR, globalScripts.get(PREPROCESSOR), false);
+					javaScriptUtil.compileScript(PREPROCESSOR, globalScripts.get(PREPROCESSOR), false);
 					logger.debug("adding global preprocessor");
 				} else {
 					logger.debug("removing global preprocessor");
-					JavaScriptUtil.getInstance().removeScriptFromCache(PREPROCESSOR);
+					javaScriptUtil.removeScriptFromCache(PREPROCESSOR);
 				}
 			} else if (entry.getKey().toString().equals(POSTPROCESSOR)) {
 				if (!globalScripts.get(POSTPROCESSOR).equals(GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT) && !globalScripts.get(POSTPROCESSOR).equals("")) {
-					JavaScriptUtil.getInstance().compileScript(POSTPROCESSOR, globalScripts.get(POSTPROCESSOR), false);
+					javaScriptUtil.compileScript(POSTPROCESSOR, globalScripts.get(POSTPROCESSOR), false);
 					logger.debug("adding global postprocessor");
 				} else {
 					logger.debug("removing global postprocessor");
-					JavaScriptUtil.getInstance().removeScriptFromCache(POSTPROCESSOR);
+					javaScriptUtil.removeScriptFromCache(POSTPROCESSOR);
 				}
 			} else {
 				if (!globalScripts.get(entry.getKey()).equals("")) {
-					JavaScriptUtil.getInstance().compileScript((String) entry.getKey(), globalScripts.get(entry.getKey()), false);
+					javaScriptUtil.compileScript((String) entry.getKey(), globalScripts.get(entry.getKey()), false);
 					logger.debug("adding " + entry.getKey());
 				} else {
 					logger.debug("remvoing " + entry.getKey());
-					JavaScriptUtil.getInstance().removeScriptFromCache((String) entry.getKey());
+					javaScriptUtil.removeScriptFromCache((String) entry.getKey());
 				}
 			}
 		}
 
 		for (Channel channel : channels) {
 			if (channel.isEnabled()) {
-				JavaScriptUtil.getInstance().compileScript(channel.getId() + "_Deploy", channel.getDeployScript(), false);
-				JavaScriptUtil.getInstance().compileScript(channel.getId() + "_Shutdown", channel.getShutdownScript(), false);
+				javaScriptUtil.compileScript(channel.getId() + "_Deploy", channel.getDeployScript(), false);
+				javaScriptUtil.compileScript(channel.getId() + "_Shutdown", channel.getShutdownScript(), false);
 				// only compile and run post processor if its not the default
 				if (!channel.getPostprocessingScript().equals(CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT) && !channel.getPostprocessingScript().equals("")) {
-					JavaScriptUtil.getInstance().compileScript(channel.getId() + "_Postprocessor", channel.getPostprocessingScript(), true);
+					javaScriptUtil.compileScript(channel.getId() + "_Postprocessor", channel.getPostprocessingScript(), true);
 					logger.debug("adding " + channel.getId() + "_Postprocessor");
 				} else {
 					logger.debug("removing " + channel.getId() + "_Postprocessor");
-					JavaScriptUtil.getInstance().removeScriptFromCache(channel.getId() + "_Postprocessor");
+					javaScriptUtil.removeScriptFromCache(channel.getId() + "_Postprocessor");
 				}
 			} else {
-				JavaScriptUtil.getInstance().removeScriptFromCache(channel.getId() + "_Deploy");
-				JavaScriptUtil.getInstance().removeScriptFromCache(channel.getId() + "_Shutdown");
-				JavaScriptUtil.getInstance().removeScriptFromCache(channel.getId() + "_Postprocessor");
+				javaScriptUtil.removeScriptFromCache(channel.getId() + "_Deploy");
+				javaScriptUtil.removeScriptFromCache(channel.getId() + "_Shutdown");
+				javaScriptUtil.removeScriptFromCache(channel.getId() + "_Postprocessor");
 			}
 		}
 	}
@@ -349,14 +352,14 @@ public class ConfigurationController {
 	public void executeChannelDeployScripts(List<Channel> channels) {
 		for (Channel channel : channels) {
 			String scriptType = DEPLOY;
-			JavaScriptUtil.getInstance().executeScript(channel.getId() + "_" + scriptType, scriptType, channel.getId());
+			javaScriptUtil.executeScript(channel.getId() + "_" + scriptType, scriptType, channel.getId());
 		}
 	}
 
 	public void executeChannelShutdownScripts(List<Channel> channels) {
 		for (Channel channel : channels) {
 			String scriptType = SHUTDOWN;
-			JavaScriptUtil.getInstance().executeScript(channel.getId() + "_" + scriptType, scriptType, channel.getId());
+			javaScriptUtil.executeScript(channel.getId() + "_" + scriptType, scriptType, channel.getId());
 		}
 	}
 
@@ -369,7 +372,7 @@ public class ConfigurationController {
 	}
 
 	public void executeGlobalScript(String scriptType) {
-		JavaScriptUtil.getInstance().executeScript(scriptType, scriptType, "");
+		javaScriptUtil.executeScript(scriptType, scriptType, "");
 	}
 
 	public Map<String, String> getGlobalScripts() throws ControllerException {

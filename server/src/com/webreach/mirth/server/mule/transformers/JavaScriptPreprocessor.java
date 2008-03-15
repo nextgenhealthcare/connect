@@ -41,7 +41,11 @@ import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.transformer.TransformerException;
 
 import com.webreach.mirth.model.Attachment;
+import com.webreach.mirth.model.CodeTemplate;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
+import com.webreach.mirth.server.controllers.CodeTemplateController;
+import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.util.CompiledScriptCache;
 import com.webreach.mirth.server.util.GlobalVariableStore;
@@ -51,7 +55,8 @@ public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 	private String preprocessingScriptId;
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
 	private ScriptController scriptController = ScriptController.getInstance();
-
+	private CodeTemplateController codeTemplateController = CodeTemplateController.getInstance();
+	
 	public String getPreprocessingScriptId() {
 		return this.preprocessingScriptId;
 	}
@@ -159,7 +164,21 @@ public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 		script.append("var attachment = Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().createAttachment(data, type);");
 		script.append("muleContext.getProperties().get('attachments').add(attachment); \n");
 		script.append("return attachment; }\n");
-        script.append("function doPreprocess() {" + preprocessingScript + " }\n");
+		
+		try {
+			List<CodeTemplate> templates = codeTemplateController.getCodeTemplate(null);
+			for (CodeTemplate template : templates) {
+				if (template.getType() == CodeSnippetType.FUNCTION) {
+					if (template.getScope() == CodeTemplate.ContextType.GLOBAL_CONTEXT.getContext() || template.getScope() == CodeTemplate.ContextType.CHANNEL_CONTEXT.getContext()) {
+						script.append(template.getCode());
+					} 
+				}
+			}
+		} catch (ControllerException e) {
+			logger.error("Could not get user functions.", e);
+		}
+		
+        script.append("function doPreprocess() {" + preprocessingScript + " \n}\n");
 		script.append("doPreprocess()\n");
 		return script.toString();
 	}

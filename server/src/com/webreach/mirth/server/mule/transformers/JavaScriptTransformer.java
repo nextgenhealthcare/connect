@@ -42,7 +42,9 @@ import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.transformer.TransformerException;
 
 import com.webreach.mirth.model.Attachment;
+import com.webreach.mirth.model.CodeTemplate;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
 import com.webreach.mirth.model.Connector.Mode;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.DefaultSerializerPropertiesFactory;
@@ -51,6 +53,7 @@ import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.MirthJavascriptTransformerException;
 import com.webreach.mirth.server.builders.ErrorMessageBuilder;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.CodeTemplateController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.ScriptController;
@@ -68,6 +71,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	private TemplateController templateController = TemplateController.getInstance();
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
 	private ScriptController scriptController = ScriptController.getInstance();
+	private CodeTemplateController codeTemplateController = CodeTemplateController.getInstance();
 	private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
 
 	private String inboundProtocol;
@@ -254,23 +258,26 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		// ---- Begin MO checks -----
 		try {
 			Script script = compiledScriptCache.getCompiledScript(scriptId);
-			//By setting emptyFilterAndTransformer we skip a lot of unneeded conversions and gain 10x speed
+			// By setting emptyFilterAndTransformer we skip a lot of unneeded
+			// conversions and gain 10x speed
 			emptyFilterAndTransformer = true;
-			
-			//Check the conditions for skipping transformation
+
+			// Check the conditions for skipping transformation
 			// 1. Script is empty
 			// 2. Protcols are different
 			// 3. Properties are different than the protocol defaults.
-			if (script != null || !this.inboundProtocol.equals(this.outboundProtocol)){
+			if (script != null || !this.inboundProtocol.equals(this.outboundProtocol)) {
 				emptyFilterAndTransformer = false;
 			} else if (this.inboundProperties != null) {
-				// Check to see if the properties are equal to the default properties
+				// Check to see if the properties are equal to the default
+				// properties
 				Map defaultProperties = DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(Protocol.valueOf(inboundProtocol));
 				if (!this.inboundProperties.equals(defaultProperties)) {
 					emptyFilterAndTransformer = false;
 				}
 			} else if (this.outboundProperties != null) {
-				// Check to see if the properties are equal to the default properties
+				// Check to see if the properties are equal to the default
+				// properties
 				Map defaultProperties = DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(Protocol.valueOf(outboundProtocol));
 				if (!this.outboundProperties.equals(defaultProperties)) {
 					emptyFilterAndTransformer = false;
@@ -278,27 +285,26 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			}
 			// hack to get around cr/lf conversion issue see MIRTH-739
 			boolean convertLFtoCR = true;
-			if (emptyFilterAndTransformer){
-				
-				if (this.inboundProperties!=null && this.inboundProperties.get("convertLFtoCR") != null){
+			if (emptyFilterAndTransformer) {
+
+				if (this.inboundProperties != null && this.inboundProperties.get("convertLFtoCR") != null) {
 					convertLFtoCR = Boolean.parseBoolean((String) inboundProperties.get("convertLFtoCR"));
-				}else if (this.outboundProperties!=null && this.outboundProperties.get("convertLFtoCR") != null){
+				} else if (this.outboundProperties != null && this.outboundProperties.get("convertLFtoCR") != null) {
 					convertLFtoCR = Boolean.parseBoolean((String) outboundProperties.get("convertLFtoCR"));
 				}
 			}
 			if (this.getMode().equals(Mode.SOURCE.toString())) {
 				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(inboundProtocol));
-				if (convertLFtoCR){
-					source = ((String)source).replaceAll("\\n", "\r").replaceAll("\\r\\r", "\r");
+				if (convertLFtoCR) {
+					source = ((String) source).replaceAll("\\n", "\r").replaceAll("\\r\\r", "\r");
 				}
 				messageObject = adaptor.getMessage((String) source, channelId, encryptData, inboundProperties, emptyFilterAndTransformer);
-				
+
 				// Grab and process our attachments
 				List<Attachment> attachments = (List<Attachment>) context.getProperties().get("attachments");
 				context.getProperties().remove("attachments");
-				
-				if(attachments != null)
-				{
+
+				if (attachments != null) {
 					for (Iterator iter = attachments.iterator(); iter.hasNext();) {
 						Attachment attachment = (Attachment) iter.next();
 						attachment.setMessageId(messageObject.getId());
@@ -310,7 +316,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				messageObject.getChannelMap().putAll(context.getProperties());
 			} else if (this.getMode().equals(Mode.DESTINATION.toString())) {
 				MessageObject incomingMessageObject = (MessageObject) source;
-				if (convertLFtoCR){
+				if (convertLFtoCR) {
 					incomingMessageObject.setEncodedData(incomingMessageObject.getEncodedData().replaceAll("\\n", "\r").replaceAll("\\r\\r", "\r"));
 				}
 				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(inboundProtocol));
@@ -383,8 +389,10 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 					encodedDataProperties = this.getOutboundProperties();
 				} else {
 					if (!this.getInboundProtocol().equals(this.getOutboundProtocol())) {
-						// we have mismatched protcols and an empty template, so...
-						// take the message (XML) and implicitly convert it to the target format.
+						// we have mismatched protcols and an empty template,
+						// so...
+						// take the message (XML) and implicitly convert it to
+						// the target format.
 						// if it's invalid xml, so be it, we can't help them.
 						transformedData = scope.get("msg", scope);
 						encodedDataProtocol = Protocol.valueOf(this.getOutboundProtocol());
@@ -397,7 +405,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				}
 
 				if (transformedData != Scriptable.NOT_FOUND) {
-					// set the transformedData to the template 
+					// set the transformedData to the template
 					messageObject.setTransformedData(context.toString(transformedData));
 				}
 
@@ -446,7 +454,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 		// add #trim() function to JS String
 		newScript.append("String.prototype.trim = function() { return this.replace(/^\\s+|\\s+$/g,\"\").replace(/^\\t+|\\t+$/g,\"\"); };");
-		
+
 		newScript.append("function $(string) { ");
 		newScript.append("if (connectorMap.containsKey(string)) { return connectorMap.get(string); }");
 		newScript.append("else if (channelMap.containsKey(string)) { return channelMap.get(string); }");
@@ -459,7 +467,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		newScript.append("if (arguments.length == 1) { return globalMap.get(key); }");
 		newScript.append("else if (arguments.length == 2) { globalMap.put(key, value); }");
 		newScript.append("}");
-		
+
 		// Helper function to access channelMap
 		newScript.append("function $c(key, value) {");
 		newScript.append("if (arguments.length == 1) { return channelMap.get(key); }");
@@ -476,34 +484,35 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		newScript.append("if (arguments.length == 1) { return responseMap.get(key); }");
 		newScript.append("else if (arguments.length == 2) { responseMap.put(key, value); }");
 		newScript.append("}");
-		
+
 		// Helper function to create segments
 		newScript.append("function createSegment(name, message, index) {");
 		newScript.append("if (arguments.length == 1) { return new XML('<' + name + '></' + name + '>'); };");
 		newScript.append("if (arguments.length == 2) { index = 0 };");
 		newScript.append("message[name][index] = new XML('<' + name + '></' + name + '>');  return message[name][index];");
 		newScript.append("}");
-		
-		//Helper function to create segments after specefied field
+
+		// Helper function to create segments after specefied field
 		newScript.append("function createSegmentAfter(name, segment) {");
 		newScript.append("segment += new XML('<' + name + '></' + name + '>');");
 		newScript.append("}");
-		
-		// TODO: Look into optimizing. Potentially moving p.c.wr.m.s.c.MOC to an outside var
-		
+
+		// TODO: Look into optimizing. Potentially moving p.c.wr.m.s.c.MOC to an
+		// outside var
+
 		// Helper function to get attachments
 		newScript.append("function getAttachments() {");
 		newScript.append("return Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().getAttachmentsByMessageId(messageObject.getId());");
 		newScript.append("}");
-		
+
 		// Helper function to set attachment
 		newScript.append("function addAttachment(data, type) {");
 		newScript.append("var attachment = Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().createAttachment(data, type, messageObject);messageObject.setAttachment(true);");
 		newScript.append("Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().insertAttachment(attachment);\n");
-        newScript.append("return attachment;\n");
-        newScript.append("}\n");
-		
-        // ast: Allow ending whitespaces from the input XML
+		newScript.append("return attachment;\n");
+		newScript.append("}\n");
+
+		// ast: Allow ending whitespaces from the input XML
 		newScript.append("XML.ignoreWhitespace=false;");
 		// ast: Allow ending whitespaces to the output XML
 		newScript.append("XML.prettyPrinting=false;");
@@ -524,9 +533,20 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			newScript.append("tmp = new XML(newTemplate);\n");
 		}
 
+		try {
+			List<CodeTemplate> templates = codeTemplateController.getCodeTemplate(null);
+			for (CodeTemplate template : templates) {
+				if (template.getType() == CodeSnippetType.FUNCTION) {
+					newScript.append(template.getCode());
+				}
+			}
+		} catch (ControllerException e) {
+			logger.error("Could not get user functions.", e);
+		}
+
 		newScript.append(oldScript); // has doFilter() and doTransform()
 		newScript.append("if (doFilter() == true) { doTransform(); } else { messageObject.setStatus(Packages.com.webreach.mirth.model.MessageObject.Status.FILTERED); };");
 		return newScript.toString();
 	}
-	
+
 }
