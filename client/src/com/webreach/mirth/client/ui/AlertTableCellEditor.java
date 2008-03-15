@@ -36,8 +36,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.TableCellEditor;
 
-import com.webreach.mirth.model.Alert;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
+import com.webreach.mirth.model.Alert;
 
 /**
  * A table cell editor for the destination table.

@@ -51,9 +51,9 @@ import com.webreach.mirth.client.ui.actions.ShowLineEndingsAction;
 import com.webreach.mirth.client.ui.actions.SnippetAction;
 import com.webreach.mirth.client.ui.actions.UndoAction;
 import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ContextType;
 import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ListType;
 import com.webreach.mirth.model.CodeTemplate;
+import com.webreach.mirth.model.CodeTemplate.ContextType;
 
 /**
  * Mirth's implementation of the JTextArea. Adds enabling of the save button in

@@ -78,6 +78,14 @@ public class FunctionList extends javax.swing.JPanel
             panels.remove(ReferenceListFactory.USER_TEMPLATE_VARIABLES);
         }
         
+        ArrayList<CodeTemplate> codeListItems = builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_CODE, context);        
+        if(codeListItems.size() > 0)
+            addPanel(new ReferenceListPanel(ReferenceListFactory.USER_TEMPLATE_CODE, codeListItems), ReferenceListFactory.USER_TEMPLATE_CODE);
+        else if(panels.get(ReferenceListFactory.USER_TEMPLATE_CODE) != null)
+        {
+            panels.remove(ReferenceListFactory.USER_TEMPLATE_CODE);
+        }
+        
         ArrayList<CodeTemplate> functionListItems = builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS, context);        
         if(functionListItems.size() > 0)
             addPanel(new ReferenceListPanel(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS, functionListItems), ReferenceListFactory.USER_TEMPLATE_FUNCTIONS);

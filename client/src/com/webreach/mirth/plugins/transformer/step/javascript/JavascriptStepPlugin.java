@@ -11,8 +11,7 @@ import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.editors.BasePanel;
 import com.webreach.mirth.client.ui.editors.ScriptPanel;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ContextType;
+import com.webreach.mirth.model.CodeTemplate.ContextType;
 import com.webreach.mirth.plugins.TransformerStepPlugin;
 
 public class JavascriptStepPlugin extends TransformerStepPlugin {

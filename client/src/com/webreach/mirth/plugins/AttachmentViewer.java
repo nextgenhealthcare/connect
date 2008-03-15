@@ -2,9 +2,6 @@ package com.webreach.mirth.plugins;
 
 import java.util.List;
 
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.PlatformUI;
-
 /**
  * Created by IntelliJ IDEA.
  * User: dans

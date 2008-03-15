@@ -25,13 +25,13 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.core.VersionMismatchException;
 import javax.swing.ImageIcon;
 
 import org.jdesktop.swingx.util.SwingWorker;
 
 import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.core.VersionMismatchException;
 import com.webreach.mirth.model.Channel;
 
 /** Creates the new channel wizard dialog */

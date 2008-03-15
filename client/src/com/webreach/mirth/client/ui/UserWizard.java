@@ -25,10 +25,11 @@
 
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
-import com.webreach.mirth.model.User;
 import java.awt.Dimension;
 import java.awt.Point;
+
+import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
+import com.webreach.mirth.model.User;
 
 /**
  * A wizard for creating a new user or editing a current user

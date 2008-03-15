@@ -15,7 +15,7 @@ import com.webreach.mirth.client.ui.FunctionList;
 import com.webreach.mirth.client.ui.TreePanel;
 import com.webreach.mirth.client.ui.VariableListHandler;
 import com.webreach.mirth.client.ui.panels.reference.VariableReferenceTable;
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ContextType;
+import com.webreach.mirth.model.CodeTemplate.ContextType;
 
 /**
  * 

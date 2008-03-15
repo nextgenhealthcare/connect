@@ -27,10 +27,10 @@ package com.webreach.mirth.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeSet;
-import java.lang.reflect.Constructor;
 
 import org.jdesktop.swingworker.SwingWorker;
 

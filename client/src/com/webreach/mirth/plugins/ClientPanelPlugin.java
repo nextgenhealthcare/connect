@@ -24,8 +24,6 @@ import org.jdesktop.swingx.action.ActionFactory;
 import org.jdesktop.swingx.action.BoundAction;
 
 import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.PlatformUI;
 
 /**
  *

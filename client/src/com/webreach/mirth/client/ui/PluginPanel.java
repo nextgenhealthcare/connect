@@ -7,9 +7,9 @@
 package com.webreach.mirth.client.ui;
 
 import java.awt.Color;
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
-import java.lang.reflect.Constructor;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -18,8 +18,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import com.webreach.mirth.model.ExtensionPoint;
-import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.ExtensionPointDefinition;
+import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.plugins.ClientPanelPlugin;
 import com.webreach.mirth.plugins.DashboardPanelPlugin;
 

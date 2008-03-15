@@ -1,14 +1,10 @@
 package com.webreach.mirth.plugins;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.table.TableCellRenderer;
 
 import com.webreach.mirth.client.ui.DashboardPanel;
-import com.webreach.mirth.client.ui.editors.BasePanel;
-import com.webreach.mirth.client.ui.editors.MirthEditorPane;
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.model.ChannelStatus;
 
 public abstract class DashboardColumnPlugin extends ClientPlugin

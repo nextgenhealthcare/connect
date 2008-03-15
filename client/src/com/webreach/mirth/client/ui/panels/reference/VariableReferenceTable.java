@@ -48,7 +48,7 @@ public class VariableReferenceTable extends ReferenceTable
     private ArrayList<CodeTemplate> _listItems;
 
     private String headerName = "blank";
-
+    
     public VariableReferenceTable()
     {
         super();

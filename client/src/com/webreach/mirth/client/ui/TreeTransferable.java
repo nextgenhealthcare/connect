@@ -27,8 +27,6 @@ package com.webreach.mirth.client.ui;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.tree.TreeNode;
 

@@ -12,34 +12,11 @@ import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.ExtensionPoint;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
+import com.webreach.mirth.model.CodeTemplate.ContextType;
 import com.webreach.mirth.plugins.ClientPlugin;
 
 public class ReferenceListFactory
-{       
-    public enum ContextType
-    {
-        GLOBAL_CONTEXT("Global", 0), CHANNEL_CONTEXT("Channel", 1), MESSAGE_CONTEXT("Message", 2);
-
-        private String value;
-        private int context;
-        
-        ContextType(String value, int context)
-        {
-            this.value = value;
-            this.context = context;
-        }
-
-        public String getValue()
-        {
-            return value;
-        }
-        
-        public int getContext()
-        {
-            return context;
-        }
-    }
-    
+{          
     public enum ListType
     {
         ALL("All"), CONVERSION("Conversion Functions"), LOGGING_AND_ALERTS("Logging and Alerts"), DATABASE("Database Functions"), UTILITY("Utility Functions"), DATE("Date Functions"), MESSAGE("Message Functions"), MAP("Map Functions");
@@ -58,6 +35,7 @@ public class ReferenceListFactory
     }
     
     public static final String USER_TEMPLATE_VARIABLES = "User Defined Variables";
+    public static final String USER_TEMPLATE_CODE = "User Defined Code";
     public static final String USER_TEMPLATE_FUNCTIONS = "User Defined Functions";
     
     private Frame parent = PlatformUI.MIRTH_FRAME;
@@ -149,7 +127,7 @@ public class ReferenceListFactory
     {
         ArrayList<CodeTemplate> variables = new ArrayList<CodeTemplate>();
         ArrayList<CodeTemplate> functions = new ArrayList<CodeTemplate>();
-        
+        ArrayList<CodeTemplate> code = new ArrayList<CodeTemplate>();
         for(CodeTemplate template : parent.codeTemplates)
         {
             if(template.getType() == CodeSnippetType.VARIABLE)
@@ -161,9 +139,15 @@ public class ReferenceListFactory
             {
                 functions.add(template);
             }
+            
+            if(template.getType() == CodeSnippetType.CODE)
+            {
+                code.add(template);
+            }
         }
         
         references.put(USER_TEMPLATE_VARIABLES, variables);
+        references.put(USER_TEMPLATE_CODE, code);
         references.put(USER_TEMPLATE_FUNCTIONS, functions);
     }
     

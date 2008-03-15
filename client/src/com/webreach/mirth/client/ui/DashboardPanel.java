@@ -9,13 +9,12 @@ package com.webreach.mirth.client.ui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
-import java.lang.reflect.Constructor;
 
-import javax.swing.ImageIcon;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -28,10 +27,7 @@ import org.jdesktop.swingx.decorator.ConditionalHighlighter;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
 
-import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.model.ChannelStatistics;
-import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.ExtensionPoint;
 import com.webreach.mirth.model.ExtensionPointDefinition;
 import com.webreach.mirth.model.PluginMetaData;

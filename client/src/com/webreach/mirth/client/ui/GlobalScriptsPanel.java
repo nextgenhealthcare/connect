@@ -10,8 +10,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ContextType;
+import com.webreach.mirth.model.CodeTemplate.ContextType;
 
 /**
  *

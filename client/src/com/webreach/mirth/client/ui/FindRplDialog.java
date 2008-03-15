@@ -5,15 +5,18 @@
  */
 
 package com.webreach.mirth.client.ui;
-import org.syntax.jedit.JEditTextArea;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-import java.util.Vector;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyListener;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.FocusTraversalPolicy;
+import java.awt.Point;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.syntax.jedit.JEditTextArea;
 
 
 /**

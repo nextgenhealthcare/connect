@@ -30,22 +30,22 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.prefs.Preferences;
 
-import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EvaluatorException;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ContextType;
 import com.webreach.mirth.model.CodeTemplate;
 import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
+import com.webreach.mirth.model.CodeTemplate.ContextType;
 
 /** The template editor panel. */
 public class CodeTemplatePanel extends javax.swing.JPanel
@@ -147,7 +147,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
                 {
                     if (lastTemplateRow != -1 && lastTemplateRow != templateTable.getSelectedRow() && lastTemplateRow < templateTable.getRowCount() && !isDeleting)
                     {
-                        saveCodeTemplate();
+                        saveCodeTemplate();        
                     }
                     
                     if (!loadCodeTemplate())
@@ -300,14 +300,44 @@ public class CodeTemplatePanel extends javax.swing.JPanel
         if (addNew)
         {
             templateTable.setRowSelectionInterval(templateTable.getRowCount() - 1, templateTable.getRowCount() - 1);
-        } else
-        {
-           // templateTable.setRowSelectionInterval(lastTemplateRow, lastTemplateRow);
-        }
-
+        } 
+        
         lastTemplateRow = templateTable.getSelectedRow();
     }
-
+    
+    public void validateCodeTemplate()
+    {
+        validateCodeTemplate(template.getText(), true, null);
+    }
+    
+    public boolean validateCodeTemplate(String script, boolean alertOnSuccess, String name)
+    {
+        boolean passed = false;
+        StringBuilder sb = new StringBuilder();
+        Context context = Context.enter();
+        try
+        {
+            context.compileString("function rhinoWrapper() {" + script + "\n}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
+            sb.append("JavaScript was successfully validated.");
+            passed = true;
+        }
+        catch (EvaluatorException e)
+        {
+            sb.append("Error on line " + e.lineNumber() + ": " + e.getMessage());
+            if(name != null)
+                sb.append(" on template named: " + name + ".");
+        }
+        catch (Exception e)
+        {
+            sb.append("Unknown error occurred during validation.");
+        }
+        
+        Context.exit();
+        if(alertOnSuccess || !alertOnSuccess && !passed)
+            PlatformUI.MIRTH_FRAME.alertInformation(sb.toString());
+        return passed;
+    }
+    
     public void setDefaultCodeTemplate()
     {
         lastTemplateRow = -1;
@@ -332,11 +362,19 @@ public class CodeTemplatePanel extends javax.swing.JPanel
 
         if (selected == UIConstants.ERROR_CONSTANT)
         {
-            parent.setVisibleTasks(parent.codeTemplateTasks, parent.codeTemplatePopupMenu, 3, 5, false);
+            parent.setVisibleTasks(parent.codeTemplateTasks, parent.codeTemplatePopupMenu, 3, 4, false);
         }
         else
         {
             parent.setVisibleTasks(parent.codeTemplateTasks, parent.codeTemplatePopupMenu, 3, 3, true);
+            if(parent.codeTemplates.get(selected).getType() == CodeSnippetType.FUNCTION)
+            {
+                parent.setVisibleTasks(parent.codeTemplateTasks, parent.codeTemplatePopupMenu, 4, 4, true);
+            }
+            else
+            {
+                parent.setVisibleTasks(parent.codeTemplateTasks, parent.codeTemplatePopupMenu, 4, 4, false);
+            }
         }
     }
 
@@ -378,7 +416,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
         int index = getCodeTemplateIndex(lastTemplateRow);
 
         boolean changed = parent.codeTemplateTasks.getContentPane().getComponent(1).isVisible();
-
+               
         CodeTemplate current = parent.codeTemplates.get(index);
 
         stopCodeTemplateEditing();        
@@ -397,7 +435,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
         
         current.setTooltip(description.getText());
         current.setCode(template.getText());
-
+               
         parent.codeTemplateTasks.getContentPane().getComponent(1).setVisible(changed);
 
         return true;
@@ -651,6 +689,17 @@ public class CodeTemplatePanel extends javax.swing.JPanel
             return;
         
         updating = true;
+        if(((String)type.getSelectedItem()).equals(CodeSnippetType.FUNCTION.getValue()))
+        {
+            templateLabel.setText("Function:");
+            parent.setVisibleTasks(parent.codeTemplateTasks, parent.codeTemplatePopupMenu, 4, 4, true);
+        }
+        else
+        {
+            templateLabel.setText("Template:");
+            parent.setVisibleTasks(parent.codeTemplateTasks, parent.codeTemplatePopupMenu, 4, 4, false);
+        }    
+        
         if(getSelectedCodeTemplateIndex() != UIConstants.ERROR_CONSTANT)
             templateTable.setValueAt((String)type.getSelectedItem(), getSelectedCodeTemplateIndex(), templateTable.getColumnNumber(TEMPLATE_TYPE_COLUMN_NAME));
         updating = false;

@@ -9,13 +9,13 @@
 
 package com.webreach.mirth.plugins;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.model.ChannelStatus;
 import java.util.Properties;
+
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+
+import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.model.ChannelStatus;
 
 /**
  *

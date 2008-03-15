@@ -89,6 +89,7 @@ import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.User;
+import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
 import com.webreach.mirth.model.converters.ObjectCloner;
 import com.webreach.mirth.model.converters.ObjectClonerException;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
@@ -815,13 +816,13 @@ public class Frame extends JXFrame
 
         addTask("doRefreshCodeTemplates","Refresh","Refresh the list of codeTemplates.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), codeTemplateTasks, codeTemplatePopupMenu);
         addTask("doSaveCodeTemplates","Save CodeTemplates","Save all changes made to all codeTemplates.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")), codeTemplateTasks, codeTemplatePopupMenu);
-        addTask("doNewCodeTemplate","New CodeTemplate","Create a new codeTemplate.","N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alert_add.png")), codeTemplateTasks, codeTemplatePopupMenu);
-        addTask("doDeleteCodeTemplate","Delete CodeTemplate","Delete the currently selected codeTemplate.","L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alert_delete.png")), codeTemplateTasks, codeTemplatePopupMenu);
-
-        setVisibleTasks(codeTemplateTasks, codeTemplatePopupMenu, 0, 0, false);
-        setVisibleTasks(codeTemplateTasks, codeTemplatePopupMenu, 1, 1, false);
+        addTask("doNewCodeTemplate","New CodeTemplate","Create a new codeTemplate.","N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/add.png")), codeTemplateTasks, codeTemplatePopupMenu);
+        addTask("doDeleteCodeTemplate","Delete CodeTemplate","Delete the currently selected codeTemplate.","L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), codeTemplateTasks, codeTemplatePopupMenu);
+        addTask("doValidateCodeTemplate", "Validate Script", "Validate the currently viewed script.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), codeTemplateTasks, codeTemplatePopupMenu);
+        
+        setVisibleTasks(codeTemplateTasks, codeTemplatePopupMenu, 0, 1, false);
         setVisibleTasks(codeTemplateTasks, codeTemplatePopupMenu, 2, 2, true);
-        setVisibleTasks(codeTemplateTasks, codeTemplatePopupMenu, 3, 3, false);
+        setVisibleTasks(codeTemplateTasks, codeTemplatePopupMenu, 3, 4, false);
         setNonFocusable(codeTemplateTasks);
         taskPaneContainer.add(codeTemplateTasks);
     }
@@ -1115,7 +1116,10 @@ public class Frame extends JXFrame
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the code templates?");
 
             if (option == JOptionPane.YES_OPTION)
-                doSaveCodeTemplates();
+            {
+                if(!saveCodeTemplates())
+                    return false;
+            }
             else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION)
                 return false;
         }
@@ -3582,34 +3586,55 @@ public class Frame extends JXFrame
         {
             public Void doInBackground()
             {
-                try
-                {
-                    codeTemplatePanel.saveCodeTemplate();
-                    mirthClient.updateCodeTemplates(codeTemplates);
-                    ReferenceListFactory.getInstance().updateUserTemplates();
-                }
-                catch (ClientException e)
-                {
-                    alertException(e.getStackTrace(), e.getMessage());
-                }
+                saveCodeTemplates();
                 return null;
             }
 
             public void done()
             {
-                disableSave();
                 setWorking("", false);
             }
         };
 
         worker.execute();
     }
-
+    
+    public boolean saveCodeTemplates()
+    {
+        try
+        {
+            codeTemplatePanel.saveCodeTemplate();
+            
+            for(CodeTemplate template : codeTemplates)
+            {
+                if(template.getType() == CodeSnippetType.FUNCTION)
+                {
+                    if(!codeTemplatePanel.validateCodeTemplate(template.getCode(), false, template.getName()))
+                        return false;
+                }
+            }
+            mirthClient.updateCodeTemplates(codeTemplates);
+            ReferenceListFactory.getInstance().updateUserTemplates();
+            disableSave();
+        }
+        catch (ClientException e)
+        {
+            alertException(e.getStackTrace(), e.getMessage());
+            return false;
+        }
+        return true;
+    }
+    
     public void doDeleteCodeTemplate()
     {
         codeTemplatePanel.deleteCodeTemplate();
     }
-
+    
+    public void doValidateCodeTemplate()
+    {
+        codeTemplatePanel.validateCodeTemplate();
+    }
+    
     public void doNewCodeTemplate()
     {
         codeTemplatePanel.addCodeTemplate();
