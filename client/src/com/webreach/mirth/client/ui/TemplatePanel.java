@@ -225,11 +225,9 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
     {
         class UpdateTimer extends TimerTask
         {
-
             @Override
             public void run()
             {
-
                 if (!currentMessage.equals(pasteBox.getText()))
                 {
                     PlatformUI.MIRTH_FRAME.setWorking("Parsing...", true);
@@ -239,9 +237,10 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                     treePanel.setMessage(dataProperties, (String) dataType.getSelectedItem(), message, DEFAULT_TEXT, dataProperties);
                     PlatformUI.MIRTH_FRAME.setWorking("", false);
 
+                } else {
+                    treePanel.clearMessage();
                 }
             }
-
         }
         if (timer == null)
         {
