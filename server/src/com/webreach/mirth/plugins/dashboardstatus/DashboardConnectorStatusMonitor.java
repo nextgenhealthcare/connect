@@ -179,121 +179,112 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
             String channelName = "";
             String connectorType = type.toString();     // this will be overwritten down below. If not, something's wrong.
             String information = "";
-            StringTokenizer st;
+
+            // check 'connectorId' - contains destination_1_connector, etc.
+            // connectorId consists of id_source_connector for sources, and id_destination_x_connector for destinations.
+            // i.e. tokenCount will be 3 for sources and 4 for destinations.
+            // Note that READER and LISTENER are sources, and WRITER and SENDER are destinations.
+            StringTokenizer st = new StringTokenizer(connectorId, "_");
+            String channelId = st.nextToken();
             int destinationIndex;
+
             LinkedList<String[]> channelLog = null;
 
-            try
-            {
-                List<Channel> channels = channelController.getChannel(null);
+            HashMap<String, Channel> channelsFromCache = ChannelController.getChannelCache();    // HashMap(ChannelID, Channel)
+
+            if (channelsFromCache.containsKey(channelId)) { //  redundant check as the channelId MUST exist in the channelCache. but just for a safety measure...
+
+                Channel channel = channelsFromCache.get(channelId);
+
+                channelName = channel.getName();
+
+                // grab the channel's log from the HashMap, if not exist, create one.
+                if (connectorInfoLogs.containsKey(channelName)) {
+                    channelLog = connectorInfoLogs.get(channelName);
+                } else {
+                    channelLog = new LinkedList<String[]>();
+                }
+
                 Connector connector;
 
-                for (Channel channel : channels) {
+                switch (type) {
+                    case READER:
+                        connectorType = "Source: " + channel.getSourceConnector().getTransportName() + "  (" + channel.getSourceConnector().getTransformer().getInboundProtocol().toString() + " -> " + channel.getSourceConnector().getTransformer().getOutboundProtocol().toString() + ")";
+                        break;
+                    case LISTENER:
+                        connectorType = "Source: " + channel.getSourceConnector().getTransportName() + "  (" + channel.getSourceConnector().getTransformer().getInboundProtocol().toString() + " -> " + channel.getSourceConnector().getTransformer().getOutboundProtocol().toString() + ")";
+                        break;
+                    case WRITER:
+                        st.nextToken();
+                        destinationIndex = Integer.valueOf(st.nextToken()) - 1;     // destinationId begins from 1, so subtract by 1 for the arrayIndex.
+                        connector = channel.getDestinationConnectors().get(destinationIndex);
+                        connectorType = "Destination: " + connector.getTransportName() + " - " + connector.getName();
 
-                    if (connectorId.indexOf(channel.getId()) >= 0) {
-                        channelName = channel.getName();
-
-                        // grab the channel's log from the HashMap, if not exist, create one.
-                        if (connectorInfoLogs.containsKey(channelName)) {
-                            channelLog = connectorInfoLogs.get(channelName);
-                        } else {
-                            channelLog = new LinkedList<String[]>();
+                        if (connector.getTransportName().equals(FileWriterProperties.name)) {
+                            // Destination - File Writer.
+                            information = "Result written to: " + connector.getProperties().getProperty(FileWriterProperties.FILE_DIRECTORY) + "/" + connector.getProperties().getProperty(FileWriterProperties.FILE_NAME);
+                        } else if (connector.getTransportName().equals(DatabaseWriterProperties.name)) {
+                            // Destination - Database Writer.
+                            information = "URL: " + connector.getProperties().getProperty(DatabaseWriterProperties.DATABASE_URL);
+                        } else if (connector.getTransportName().equals(FTPWriterProperties.name)) {
+                            // Destination - FTP Writer.
+                            information = "Result written to: " + connector.getProperties().getProperty(FTPWriterProperties.FTP_URL) + "/" + connector.getProperties().getProperty(FTPWriterProperties.FTP_OUTPUT_PATTERN);
+                            if (connector.getProperties().getProperty(FTPWriterProperties.FTP_FILE_TYPE).equals("0")) {
+                                information += "   File Type: ASCII";
+                            } else {
+                                information += "   File Type: Binary";
+                            }
+                        } else if (connector.getTransportName().equals(SFTPWriterProperties.name)) {
+                            // Destination - SFTP Writer.
+                            information = "Result written to: " + connector.getProperties().getProperty(SFTPWriterProperties.SFTP_ADDRESS) + "/" + connector.getProperties().getProperty(SFTPWriterProperties.SFTP_OUTPUT_PATTERN);
+                            if (connector.getProperties().getProperty(SFTPWriterProperties.SFTP_BINARY).equals("0")) {
+                                information += "   File Type: ASCII";
+                            } else {
+                                information += "   File Type: Binary";
+                            }
+                        } else if (connector.getTransportName().equals(JMSWriterProperties.name)) {
+                            // Destination - JMS Writer.
+                            information = "URL: " + JMSWriterProperties.JMS_URL;
+                        } else if (connector.getTransportName().equals(ChannelWriterProperties.name)) {
+                            // Destination - Channel Writer.
+                            information = "Target Channel: " + connector.getProperties().getProperty(ChannelWriterProperties.CHANNEL_NAME);
+                        } else if (connector.getTransportName().equals(DocumentWriterProperties.name)) {
+                            // Destination - Document Writer.
+                            if (connector.getProperties().getProperty(DocumentWriterProperties.DOCUMENT_PASSWORD_PROTECTED).equals("0")) {
+                                information = connector.getProperties().getProperty(DocumentWriterProperties.DOCUMENT_TYPE) + " Document Type Result written to: " +
+                                              connector.getProperties().getProperty(DocumentWriterProperties.FILE_DIRECTORY) + "/" + connector.getProperties().getProperty(DocumentWriterProperties.FILE_NAME);
+                            } else {
+                                information = "Encrypted " + connector.getProperties().getProperty(DocumentWriterProperties.DOCUMENT_TYPE) + " Document Type Result written to: " +
+                                              connector.getProperties().getProperty(DocumentWriterProperties.FILE_DIRECTORY) + "/" + connector.getProperties().getProperty(DocumentWriterProperties.FILE_NAME);
+                            }
                         }
+                        break;
+                    case SENDER:
+                        st.nextToken();
+                        destinationIndex = Integer.valueOf(st.nextToken()) - 1;     // destinationId begins from 1, so subtract by 1 for the arrayIndex.                        
+                        connector = channel.getDestinationConnectors().get(destinationIndex);
+                        connectorType = "Destination: " + connector.getTransportName() + " - " + connector.getName();
 
-                        // check 'connectorId' - contains destination_1_connector, etc.
-                        // connectorId consists of id_source_connector for sources, and id_destination_x_connector for destinations.
-                        // i.e. tokenCount will be 3 for sources and 4 for destinations.
-                        // Note that READER and LISTENER are sources, and WRITER and SENDER are destinations.
-
-                        switch (type) {
-                            case READER:
-                                connectorType = "Source: " + channel.getSourceConnector().getTransportName() + "  (" + channel.getSourceConnector().getTransformer().getInboundProtocol().toString() + " -> " + channel.getSourceConnector().getTransformer().getOutboundProtocol().toString() + ")";
-                                break;
-                            case LISTENER:
-                                connectorType = "Source: " + channel.getSourceConnector().getTransportName() + "  (" + channel.getSourceConnector().getTransformer().getInboundProtocol().toString() + " -> " + channel.getSourceConnector().getTransformer().getOutboundProtocol().toString() + ")";
-                                break;
-                            case WRITER:
-                                st = new StringTokenizer(connectorId, "_");
-                                st.nextToken();
-                                st.nextToken();
-                                destinationIndex = Integer.valueOf(st.nextToken()) - 1;     // destinationId begins from 1, so subtract by 1 for the arrayIndex.
-                                connector = channel.getDestinationConnectors().get(destinationIndex);
-                                connectorType = "Destination: " + connector.getTransportName() + " - " + connector.getName();
-
-                                if (connector.getTransportName().equals(FileWriterProperties.name)) {
-                                    // Destination - File Writer.
-                                    information = "Result written to: " + connector.getProperties().getProperty(FileWriterProperties.FILE_DIRECTORY) + "/" + connector.getProperties().getProperty(FileWriterProperties.FILE_NAME);
-                                } else if (connector.getTransportName().equals(DatabaseWriterProperties.name)) {
-                                    // Destination - Database Writer.
-                                    information = "URL: " + connector.getProperties().getProperty(DatabaseWriterProperties.DATABASE_URL);
-                                } else if (connector.getTransportName().equals(FTPWriterProperties.name)) {
-                                    // Destination - FTP Writer.
-                                    information = "Result written to: " + connector.getProperties().getProperty(FTPWriterProperties.FTP_URL) + "/" + connector.getProperties().getProperty(FTPWriterProperties.FTP_OUTPUT_PATTERN);
-                                    if (connector.getProperties().getProperty(FTPWriterProperties.FTP_FILE_TYPE).equals("0")) {
-                                        information += "   File Type: ASCII";
-                                    } else {
-                                        information += "   File Type: Binary";
-                                    }
-                                } else if (connector.getTransportName().equals(SFTPWriterProperties.name)) {
-                                    // Destination - SFTP Writer.
-                                    information = "Result written to: " + connector.getProperties().getProperty(SFTPWriterProperties.SFTP_ADDRESS) + "/" + connector.getProperties().getProperty(SFTPWriterProperties.SFTP_OUTPUT_PATTERN);
-                                    if (connector.getProperties().getProperty(SFTPWriterProperties.SFTP_BINARY).equals("0")) {
-                                        information += "   File Type: ASCII";
-                                    } else {
-                                        information += "   File Type: Binary";
-                                    }
-                                } else if (connector.getTransportName().equals(JMSWriterProperties.name)) {
-                                    // Destination - JMS Writer.
-                                    information = "URL: " + JMSWriterProperties.JMS_URL;
-                                } else if (connector.getTransportName().equals(ChannelWriterProperties.name)) {
-                                    // Destination - Channel Writer.
-                                    information = "Target Channel: " + connector.getProperties().getProperty(ChannelWriterProperties.CHANNEL_NAME);
-                                } else if (connector.getTransportName().equals(DocumentWriterProperties.name)) {
-                                    // Destination - Document Writer.
-                                    if (connector.getProperties().getProperty(DocumentWriterProperties.DOCUMENT_PASSWORD_PROTECTED).equals("0")) {
-                                        information = connector.getProperties().getProperty(DocumentWriterProperties.DOCUMENT_TYPE) + " Document Type Result written to: " +
-                                                      connector.getProperties().getProperty(DocumentWriterProperties.FILE_DIRECTORY) + "/" + connector.getProperties().getProperty(DocumentWriterProperties.FILE_NAME);
-                                    } else {
-                                        information = "Encrypted " + connector.getProperties().getProperty(DocumentWriterProperties.DOCUMENT_TYPE) + " Document Type Result written to: " +
-                                                      connector.getProperties().getProperty(DocumentWriterProperties.FILE_DIRECTORY) + "/" + connector.getProperties().getProperty(DocumentWriterProperties.FILE_NAME);
-                                    }
-                                }
-                                break;
-                            case SENDER:
-                                st = new StringTokenizer(connectorId, "_");
-                                st.nextToken();
-                                st.nextToken();
-                                destinationIndex = Integer.valueOf(st.nextToken()) - 1;     // destination begins from 1, so for arrayIndex subtract by 1.
-                                connector = channel.getDestinationConnectors().get(destinationIndex);
-                                connectorType = "Destination: " + connector.getTransportName() + " - " + connector.getName();
-
-                                if (connector.getTransportName().equals(HTTPSenderProperties.name)) {
-                                    // Destination - HTTP Sender.
-                                    information = "Host: " + connector.getProperties().getProperty(HTTPSenderProperties.HTTP_URL) + "   Method: " + connector.getProperties().getProperty(HTTPSenderProperties.HTTP_METHOD);
-                                } else if (connector.getTransportName().equals(EmailSenderProperties.name)) {
-                                    // Destination - Email Sender.
-                                    information = "From: " + connector.getProperties().getProperty(EmailSenderProperties.EMAIL_FROM) +
-                                                  "   To: " + connector.getProperties().getProperty(EmailSenderProperties.EMAIL_TO) +
-                                                  "   SMTP Info: " + connector.getProperties().getProperty(EmailSenderProperties.EMAIL_ADDRESS) + ":" + connector.getProperties().getProperty(EmailSenderProperties.EMAIL_PORT);
-                                } else if (connector.getTransportName().equals(TCPSenderProperties.name)) {
-                                    // Destination - TCP Sender.
-                                    // The useful info for TCP Sender - host:port will be taken care of by the socket below.
-                                } else if (connector.getTransportName().equals(LLPSenderProperties.name)) {
-                                    // Destination - LLP Sender.
-                                    // The useful info for LLP Sender - host:port will be taken care of by the socket below.
-                                } else if (connector.getTransportName().equals(SOAPSenderProperties.name)) {
-                                    // Destination - SOAP Sender.
-                                    // information = "";
-                                }
-                                break;
+                        if (connector.getTransportName().equals(HTTPSenderProperties.name)) {
+                            // Destination - HTTP Sender.
+                            information = "Host: " + connector.getProperties().getProperty(HTTPSenderProperties.HTTP_URL) + "   Method: " + connector.getProperties().getProperty(HTTPSenderProperties.HTTP_METHOD);
+                        } else if (connector.getTransportName().equals(EmailSenderProperties.name)) {
+                            // Destination - Email Sender.
+                            information = "From: " + connector.getProperties().getProperty(EmailSenderProperties.EMAIL_FROM) +
+                                          "   To: " + connector.getProperties().getProperty(EmailSenderProperties.EMAIL_TO) +
+                                          "   SMTP Info: " + connector.getProperties().getProperty(EmailSenderProperties.EMAIL_ADDRESS) + ":" + connector.getProperties().getProperty(EmailSenderProperties.EMAIL_PORT);
+                        } else if (connector.getTransportName().equals(TCPSenderProperties.name)) {
+                            // Destination - TCP Sender.
+                            // The useful info for TCP Sender - host:port will be taken care of by the socket below.
+                        } else if (connector.getTransportName().equals(LLPSenderProperties.name)) {
+                            // Destination - LLP Sender.
+                            // The useful info for LLP Sender - host:port will be taken care of by the socket below.
+                        } else if (connector.getTransportName().equals(SOAPSenderProperties.name)) {
+                            // Destination - SOAP Sender.
+                            // information = "";
                         }
-                        break;      // break out of the for-loop.
-                    }
+                        break;
                 }
-            }
-            catch (Exception e)
-            {
-                logger.error("Error: DashboardConnectorStatusMonitor.java", e);
             }
 
             if (socket != null) {
@@ -333,8 +324,6 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
             }
 
             this.currentStates.put(connectorId, new String[]{stateImage, statusText});
-
- 
         }
 	}
 
