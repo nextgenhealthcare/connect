@@ -5,7 +5,7 @@
   <mirthVersion>1.7.1</mirthVersion>
   <updateUrl><![CDATA[http://extensions.mirthproject.org/updates/?mirthversion=${mirthVersion}&version=${version}&name=${name}&serverid=${serverid}]]></updateUrl>
   <url>http://extensions.mirthproject.org</url>
-  <description>This connector allows Mirth to write files to a FTP server.</description>
+  <description>This connector allows Mirth to write files to a local or network file system. A velocity template is available to dynamically generate files.</description>
   <clientClassName>com.webreach.mirth.connectors.file.FileWriter</clientClassName>
   <serverClassName>com.webreach.mirth.connectors.file.FileConnector</serverClassName>
   <sharedClassName>com.webreach.mirth.connectors.file.FileWriterProperties</sharedClassName>
