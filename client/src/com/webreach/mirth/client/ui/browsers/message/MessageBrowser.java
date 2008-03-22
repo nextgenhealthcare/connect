@@ -439,6 +439,7 @@ public class MessageBrowser extends javax.swing.JPanel
                             
                         try
                         {
+                            importMessage.setId(parent.mirthClient.getGuid());
                             parent.mirthClient.importMessage(importMessage);
                         }
                         catch (Exception e)

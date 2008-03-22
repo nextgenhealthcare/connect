@@ -1662,6 +1662,7 @@ public class Frame extends JXFrame
             public void done()
             {
                 codeTemplatePanel.updateCodeTemplateTable(false);
+                setBold(viewPane, UIConstants.ERROR_CONSTANT);
                 setPanelName("Code Templates");
                 setCurrentContentPage(codeTemplatePanel);
                 codeTemplatePanel.setDefaultCodeTemplate();

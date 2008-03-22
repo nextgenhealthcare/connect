@@ -149,6 +149,9 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
                 case VARIABLE:
                     varlist.add(new SnippetAction(this, item.getName(), item.getCode()));
                     break;
+                case CODE:
+                    funclist.add(new SnippetAction(this, item.getName(), item.getCode()));
+                    break;    
                 }
             }
             popup.addSeparator();
