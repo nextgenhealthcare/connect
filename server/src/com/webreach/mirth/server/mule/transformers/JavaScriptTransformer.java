@@ -444,10 +444,10 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 		// script used to check for exitence of segment
 		newScript.append("function validate(mapping, defaultValue, replacement) {");
-		newScript.append("var result = mapping; if (result != undefined) { ");
-		newScript.append("result = new java.lang.String(result.toString()); } ");
+		newScript.append("var result = mapping;");
 		newScript.append("if ((result == undefined) || (result.toString().length == 0)) { ");
-		newScript.append("if (defaultValue != undefined) {result = new java.lang.String(defaultValue.toString()); }} ");
+		newScript.append("if (defaultValue == undefined) { defaultValue = ''} result = defaultValue; } ");
+		newScript.append("result = new java.lang.String(result.toString()); ");
 		newScript.append("if (replacement != undefined) {");
 		newScript.append("for (i = 0; i < replacement.length; i++) { ");
 		newScript.append("var entry = replacement[i]; result = result.replaceAll(entry[0], entry[1]); } } return result; }");
