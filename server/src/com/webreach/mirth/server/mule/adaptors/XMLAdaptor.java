@@ -16,7 +16,6 @@ public class XMLAdaptor extends Adaptor {
 		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
 		messageObject.setEncodedDataProtocol(MessageObject.Protocol.XML);
 		messageObject.setType("XML");
-		source = source.trim();
 		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docBuilder;
 		try {
