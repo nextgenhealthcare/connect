@@ -26,6 +26,8 @@
 package com.webreach.mirth.server;
 
 import java.io.File;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -175,6 +177,19 @@ public class Mirth extends Thread {
 		// stats table
 		stopWebServer();
 		extensionController.stopPlugins();
+        // shutdown derby
+        boolean gotSQLExc = false;
+       	try {
+       	   DriverManager.getConnection("jdbc:derby:;shutdown=true");
+       	} catch (SQLException se)  {
+       	   if ( se != null && se.getSQLState() != null && se.getSQLState().equals("XJ015") ) {
+       	      gotSQLExc = true;
+       	   }
+       	}
+       	if (gotSQLExc) {
+       	   System.out.println("Database shut down normally");
+       	}		
+		channelStatisticsController.shutdown(); 
 		running = false;
 	}
 

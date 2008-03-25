@@ -51,6 +51,7 @@ public class ChannelStatisticsController {
 	private boolean statsChanged = false;
 	private ConfigurationController configurationController = ConfigurationController.getInstance();
 	private static ChannelStatisticsController instance = null;
+	private static boolean running = true;
 
 	private ChannelStatisticsController() {
 		
@@ -65,11 +66,14 @@ public class ChannelStatisticsController {
 			return instance;
 		}
 	}
-
+	public void shutdown() {
+		running = false;
+	}
 	private class StatisticsUpdater implements Runnable {
 		public void run() {
 			try {
-				while (true) {
+				running = true;
+				while (running) {
 					Thread.sleep(1000);
 					updateAllStatistics();
 				}
