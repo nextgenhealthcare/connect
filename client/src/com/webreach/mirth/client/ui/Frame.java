@@ -88,6 +88,7 @@ import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.PluginMetaData;
+import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
 import com.webreach.mirth.model.converters.ObjectCloner;
@@ -109,8 +110,8 @@ public class Frame extends JXFrame
     private Logger logger = Logger.getLogger(this.getClass());
     public Client mirthClient;
     public DashboardPanel dashboardPanel = null;
-    public ChannelPanel channelPanel  = null;
-    public SettingsPanel settingsPanel  = null;
+    public ChannelPanel channelPanel = null;
+    public SettingsPanel settingsPanel = null;
     public UserPanel userPanel = null;
     public ChannelSetup channelEditPanel = null;
     public EventBrowser eventBrowser = null;
@@ -242,9 +243,9 @@ public class Frame extends JXFrame
     }
 
     /**
-     * Prepares the list of the encodings.  This method is called from the
-     * Frame class.
-     *
+     * Prepares the list of the encodings. This method is called from the Frame
+     * class.
+     * 
      */
     public void setCharsetEncodings()
     {
@@ -269,7 +270,7 @@ public class Frame extends JXFrame
 
     /**
      * Creates all the items in the combo box for the connectors.
-     *
+     * 
      * This method is called from each connector.
      */
     public void setupCharsetEncodingForConnector(javax.swing.JComboBox charsetEncodingCombobox)
@@ -291,8 +292,8 @@ public class Frame extends JXFrame
     }
 
     /**
-     * Sets the combobox for the string previously selected.  If the server can't
-     * support the encoding, the default one is selected.  This method is called
+     * Sets the combobox for the string previously selected. If the server can't
+     * support the encoding, the default one is selected. This method is called
      * from each connector.
      */
     public void setPreviousSelectedEncodingForConnector(javax.swing.JComboBox charsetEncodingCombobox, String selectedCharset)
@@ -329,7 +330,7 @@ public class Frame extends JXFrame
 
     /**
      * Get the strings which identifies the encoding selected by the user.
-     *
+     * 
      * This method is called from each connector.
      */
     public String getSelectedEncodingForConnector(javax.swing.JComboBox charsetEncodingCombobox)
@@ -387,7 +388,7 @@ public class Frame extends JXFrame
             PlatformUI.SERVER_VERSION = mirthClient.getVersion();
             PlatformUI.BUILD_DATE = mirthClient.getBuildDate();
         }
-        catch(ClientException e)
+        catch (ClientException e)
         {
             alertError("Could not get server information.");
         }
@@ -405,23 +406,25 @@ public class Frame extends JXFrame
 
         // DEBUGGING THE UIDefaults:
         /*
-         UIDefaults uiDefaults = UIManager.getDefaults();
-         Enumeration enum1 = uiDefaults.keys();
-         while (enum1.hasMoreElements()) {
-             Object key = enum1.nextElement();
-             Object val = uiDefaults.get(key);
-             if(key.toString().indexOf("ComboBox") != -1)
-                System.out.println("UIManager.put(\"" + key.toString() + "\",\"" + (null != val ? val.toString() : "(null)") + "\");");
-         }*/
+         * UIDefaults uiDefaults = UIManager.getDefaults(); Enumeration enum1 =
+         * uiDefaults.keys(); while (enum1.hasMoreElements()) { Object key =
+         * enum1.nextElement(); Object val = uiDefaults.get(key);
+         * if(key.toString().indexOf("ComboBox") != -1)
+         * System.out.println("UIManager.put(\"" + key.toString() + "\",\"" +
+         * (null != val ? val.toString() : "(null)") + "\");"); }
+         */
 
     }
 
     public void loadPlugins()
     {
-        try {
+        try
+        {
             loadedPlugins = mirthClient.getPluginMetaData();
             loadedConnectors = mirthClient.getConnectorMetaData();
-        } catch (ClientException e) {
+        }
+        catch (ClientException e)
+        {
             alertException(e.getStackTrace(), "Unable to load plugins");
         }
         pluginPanel = new PluginPanel();
@@ -468,12 +471,12 @@ public class Frame extends JXFrame
         {
             String text = displayText;
 
-            if(working)
+            if (working)
                 workingStack.push(statusBar.getText());
-            else if(workingStack.size() > 0)
+            else if (workingStack.size() > 0)
                 text = workingStack.pop();
 
-            if(workingStack.size() > 0)
+            if (workingStack.size() > 0)
                 statusBar.setWorking(true);
             else
                 statusBar.setWorking(false);
@@ -579,13 +582,13 @@ public class Frame extends JXFrame
         viewPane.setTitle("Mirth");
         viewPane.setFocusable(false);
 
-        addTask("doShowDashboard","Dashboard","Contains information about your currently deployed channels.","D", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/status.png")), viewPane, null);
-        addTask("doShowChannel","Channels","Contains various operations to perform on your channels.","C", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel.png")), viewPane, null);
-        addTask("doShowUsers","Users","Contains information on users.","U", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/admin.png")), viewPane, null);
-        addTask("doShowSettings","Settings","Contains local and system settings.","S", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/settings.png")), viewPane, null);
-        addTask("doShowAlerts","Alerts","Contains alert settings.","A", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alerts.png")), viewPane, null);
-        addTask("doShowEvents","Events","Show the event logs for the system.","E", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/logs.png")), viewPane, null);
-        addTask("doShowPlugins","Plugins","Show the plugins loaded for the system.","P", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/plugin.png")), viewPane, null);
+        addTask("doShowDashboard", "Dashboard", "Contains information about your currently deployed channels.", "D", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/status.png")), viewPane, null);
+        addTask("doShowChannel", "Channels", "Contains various operations to perform on your channels.", "C", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel.png")), viewPane, null);
+        addTask("doShowUsers", "Users", "Contains information on users.", "U", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/admin.png")), viewPane, null);
+        addTask("doShowSettings", "Settings", "Contains local and system settings.", "S", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/settings.png")), viewPane, null);
+        addTask("doShowAlerts", "Alerts", "Contains alert settings.", "A", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alerts.png")), viewPane, null);
+        addTask("doShowEvents", "Events", "Show the event logs for the system.", "E", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/logs.png")), viewPane, null);
+        addTask("doShowPlugins", "Plugins", "Show the plugins loaded for the system.", "P", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/plugin.png")), viewPane, null);
 
         setNonFocusable(viewPane);
         taskPaneContainer.add(viewPane);
@@ -603,15 +606,15 @@ public class Frame extends JXFrame
         settingsTasks.setTitle("Settings Tasks");
         settingsTasks.setFocusable(false);
 
-        addTask("doRefreshSettings","Refresh","Refresh settings.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), settingsTasks, settingsPopupMenu);
-        addTask("doSaveSettings","Save Settings","Save settings.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")), settingsTasks, settingsPopupMenu);
+        addTask("doRefreshSettings", "Refresh", "Refresh settings.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), settingsTasks, settingsPopupMenu);
+        addTask("doSaveSettings", "Save Settings", "Save settings.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")), settingsTasks, settingsPopupMenu);
 
         setNonFocusable(settingsTasks);
         setVisibleTasks(settingsTasks, settingsPopupMenu, 0, 0, true);
         setVisibleTasks(settingsTasks, settingsPopupMenu, 1, 1, false);
         taskPaneContainer.add(settingsTasks);
     }
-    
+
     /**
      * Creates the tempalte task pane.
      */
@@ -623,17 +626,19 @@ public class Frame extends JXFrame
         alertTasks.setTitle("Alert Tasks");
         alertTasks.setFocusable(false);
 
-        addTask("doRefreshAlerts","Refresh","Refresh the list of alerts.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), alertTasks, alertPopupMenu);
-        addTask("doSaveAlerts","Save Alerts","Save all changes made to all alerts.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")), alertTasks, alertPopupMenu);
-        addTask("doNewAlert","New Alert","Create a new alert.","N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alert_add.png")), alertTasks, alertPopupMenu);
-        addTask("doDeleteAlert","Delete Alert","Delete the currently selected alert.","L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alert_delete.png")), alertTasks, alertPopupMenu);
-        addTask("doEnableAlert","Enable Alert","Enable the currently selected alert.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")), alertTasks, alertPopupMenu);
-        addTask("doDisableAlert", "Disable Alert","Disable the currently selected alert.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")) , alertTasks, alertPopupMenu);
+        addTask("doRefreshAlerts", "Refresh", "Refresh the list of alerts.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), alertTasks, alertPopupMenu);
+        addTask("doSaveAlerts", "Save Alerts", "Save all changes made to all alerts.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")), alertTasks, alertPopupMenu);
+        addTask("doNewAlert", "New Alert", "Create a new alert.", "N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alert_add.png")), alertTasks, alertPopupMenu);
+        addTask("doImportAlerts", "Import Alerts", "Import list of alerts from an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")), alertTasks, alertPopupMenu);
+        addTask("doExportAlerts", "Export Alerts", "Export the list of alerts to an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), alertTasks, alertPopupMenu);
+        addTask("doDeleteAlert", "Delete Alert", "Delete the currently selected alert.", "L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alert_delete.png")), alertTasks, alertPopupMenu);
+        addTask("doEnableAlert", "Enable Alert", "Enable the currently selected alert.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")), alertTasks, alertPopupMenu);
+        addTask("doDisableAlert", "Disable Alert", "Disable the currently selected alert.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")), alertTasks, alertPopupMenu);
 
         setVisibleTasks(alertTasks, alertPopupMenu, 0, 0, false);
         setVisibleTasks(alertTasks, alertPopupMenu, 1, 1, false);
-        setVisibleTasks(alertTasks, alertPopupMenu, 2, 2, true);
-        setVisibleTasks(alertTasks, alertPopupMenu, 3, 5, false);
+        setVisibleTasks(alertTasks, alertPopupMenu, 2, 4, true);
+        setVisibleTasks(alertTasks, alertPopupMenu, 5, 7, false);
         setNonFocusable(alertTasks);
         taskPaneContainer.add(alertTasks);
     }
@@ -649,19 +654,19 @@ public class Frame extends JXFrame
         channelTasks.setTitle("Channel Tasks");
         channelTasks.setFocusable(false);
 
-        addTask("doRefreshChannels","Refresh","Refresh the list of channels.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), channelTasks, channelPopupMenu);
-        addTask("doDeployAll","Deploy All","Deploy all currently enabled channels.","A", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png")), channelTasks, channelPopupMenu);
-        addTask("doEditGlobalScripts","Edit Global Scripts","Edit scripts that are not channel specific.","G", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_edit.png")), channelTasks, channelPopupMenu);
-        addTask("doEditCodeTemplates","Edit Code Templates","Create and manage templates to be used in JavaScript throughout Mirth.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_edit.png")), channelTasks, channelPopupMenu);
-        addTask("doNewChannel","New Channel","Create a new channel.","N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_add.png")), channelTasks, channelPopupMenu);
-        addTask("doImport","Import Channel","Import a channel from an XML file.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")), channelTasks, channelPopupMenu);
-        addTask("doExportAll","Export All Channels","Export all of the channels to XML files.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), channelTasks, channelPopupMenu);
-        addTask("doExport","Export Channel","Export the currently selected channel to an XML file.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), channelTasks, channelPopupMenu);
-        addTask("doCloneChannel","Clone Channel","Clone the currently selected channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/clone.png")), channelTasks, channelPopupMenu);
-        addTask("doEditChannel","Edit Channel","Edit the currently selected channel.","I", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_edit.png")), channelTasks, channelPopupMenu);
-        addTask("doDeleteChannel","Delete Channel","Delete the currently selected channel.","L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_delete.png")), channelTasks, channelPopupMenu);
-        addTask("doEnableChannel","Enable Channel","Enable the currently selected channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")), channelTasks, channelPopupMenu);
-        addTask("doDisableChannel","Disable Channel","Disable the currently selected channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")), channelTasks, channelPopupMenu);
+        addTask("doRefreshChannels", "Refresh", "Refresh the list of channels.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), channelTasks, channelPopupMenu);
+        addTask("doDeployAll", "Deploy All", "Deploy all currently enabled channels.", "A", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png")), channelTasks, channelPopupMenu);
+        addTask("doEditGlobalScripts", "Edit Global Scripts", "Edit scripts that are not channel specific.", "G", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_edit.png")), channelTasks, channelPopupMenu);
+        addTask("doEditCodeTemplates", "Edit Code Templates", "Create and manage templates to be used in JavaScript throughout Mirth.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_edit.png")), channelTasks, channelPopupMenu);
+        addTask("doNewChannel", "New Channel", "Create a new channel.", "N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_add.png")), channelTasks, channelPopupMenu);
+        addTask("doImport", "Import Channel", "Import a channel from an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")), channelTasks, channelPopupMenu);
+        addTask("doExportAll", "Export All Channels", "Export all of the channels to XML files.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), channelTasks, channelPopupMenu);
+        addTask("doExport", "Export Channel", "Export the currently selected channel to an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), channelTasks, channelPopupMenu);
+        addTask("doCloneChannel", "Clone Channel", "Clone the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/clone.png")), channelTasks, channelPopupMenu);
+        addTask("doEditChannel", "Edit Channel", "Edit the currently selected channel.", "I", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_edit.png")), channelTasks, channelPopupMenu);
+        addTask("doDeleteChannel", "Delete Channel", "Delete the currently selected channel.", "L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_delete.png")), channelTasks, channelPopupMenu);
+        addTask("doEnableChannel", "Enable Channel", "Enable the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")), channelTasks, channelPopupMenu);
+        addTask("doDisableChannel", "Disable Channel", "Disable the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")), channelTasks, channelPopupMenu);
 
         setNonFocusable(channelTasks);
         setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, false);
@@ -680,19 +685,19 @@ public class Frame extends JXFrame
         channelEditTasks.setTitle("Channel Tasks");
         channelEditTasks.setFocusable(false);
 
-        addTask("doSaveChannel","Save Changes","Save all changes made to this channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doValidate","Validate Connector","Validate the currently visible connector.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doNewDestination","New Destination","Create a new destination.","N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/add.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doDeleteDestination","Delete Destination","Delete the currently selected destination.","L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doCloneDestination","Clone Destination","Clones the currently selected destination.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/clone.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doEnableDestination","Enable Destination","Enable the currently selected destination.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doDisableDestination","Disable Destination","Disable the currently selected destination.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doMoveDestinationUp","Move Dest. Up","Move the currently selected destination up.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_up.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doMoveDestinationDown","Move Dest. Down","Move the currently selected destination down.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_down.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doEditFilter","Edit Filter","Edit the filter for the currently selected destination.","F", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/edit.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doEditTransformer","Edit Transformer","Edit the transformer for the currently selected destination.","T", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/edit.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doExport","Export Channel","Export the currently selected channel to an XML file.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doValidateChannelScripts","Validate Script","Validate the currently viewed script.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doSaveChannel", "Save Changes", "Save all changes made to this channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doValidate", "Validate Connector", "Validate the currently visible connector.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doNewDestination", "New Destination", "Create a new destination.", "N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/add.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doDeleteDestination", "Delete Destination", "Delete the currently selected destination.", "L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doCloneDestination", "Clone Destination", "Clones the currently selected destination.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/clone.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doEnableDestination", "Enable Destination", "Enable the currently selected destination.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doDisableDestination", "Disable Destination", "Disable the currently selected destination.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doMoveDestinationUp", "Move Dest. Up", "Move the currently selected destination up.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_up.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doMoveDestinationDown", "Move Dest. Down", "Move the currently selected destination down.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_down.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doEditFilter", "Edit Filter", "Edit the filter for the currently selected destination.", "F", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/edit.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doEditTransformer", "Edit Transformer", "Edit the transformer for the currently selected destination.", "T", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/edit.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doExport", "Export Channel", "Export the currently selected channel to an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doValidateChannelScripts", "Validate Script", "Validate the currently viewed script.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), channelEditTasks, channelEditPopupMenu);
 
         setNonFocusable(channelEditTasks);
         setVisibleTasks(channelEditTasks, channelEditPopupMenu, 0, 10, false);
@@ -711,22 +716,24 @@ public class Frame extends JXFrame
         statusTasks.setTitle("Status Tasks");
         statusTasks.setFocusable(false);
 
-        addTask("doRefreshStatuses","Refresh","Refresh the list of statuses.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), statusTasks, statusPopupMenu);
-        addTask("doStartAll","Start All Channels","Start all channels that are currently deployed.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start1.png")), statusTasks, statusPopupMenu);
-        addTask("doStopAll","Stop All Channels","Stop all channels that are currently deployed.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop1.png")), statusTasks, statusPopupMenu);
-        addTask("doRemoveAllMessagesAllChannels","Reset All Channels","Remove all messages and statistics in all channels.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), statusTasks, statusPopupMenu);
+        addTask("doRefreshStatuses", "Refresh", "Refresh the list of statuses.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), statusTasks, statusPopupMenu);
+        addTask("doStartAll", "Start All Channels", "Start all channels that are currently deployed.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start1.png")), statusTasks, statusPopupMenu);
+        addTask("doStopAll", "Stop All Channels", "Stop all channels that are currently deployed.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop1.png")), statusTasks, statusPopupMenu);
+        addTask("doRemoveAllMessagesAllChannels", "Reset All Channels", "Remove all messages and statistics in all channels.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), statusTasks, statusPopupMenu);
 
-
-        addTask("doSendMessage","Send Message","Send messages to the currently selected channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_go.png")), statusTasks, statusPopupMenu);
-        addTask("doShowMessages","View Messages","Show the messages for the currently selected channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/messages2.png")), statusTasks, statusPopupMenu);
-        addTask("doRemoveAllMessages","Remove All Messages","Remove all Messages in this channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_delete.png")), statusTasks, statusPopupMenu);
+        addTask("doSendMessage", "Send Message", "Send messages to the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_go.png")), statusTasks, statusPopupMenu);
+        addTask("doShowMessages", "View Messages", "Show the messages for the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/messages2.png")), statusTasks, statusPopupMenu);
+        addTask("doRemoveAllMessages", "Remove All Messages", "Remove all Messages in this channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_delete.png")), statusTasks, statusPopupMenu);
         //
-        addTask("doClearStats","Clear Statistics","Reset the statistics for this channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/chart_curve_delete.png")), statusTasks, statusPopupMenu);
-        //addTask("doClearStatsAllChannels","Clear Stats in All Channels","Reset the statistics for all channels.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/chart_curve_delete.png")), statusTasks, statusPopupMenu);
+        addTask("doClearStats", "Clear Statistics", "Reset the statistics for this channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/chart_curve_delete.png")), statusTasks, statusPopupMenu);
+        // addTask("doClearStatsAllChannels","Clear Stats in All
+        // Channels","Reset the statistics for all channels.","", new
+        // ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/chart_curve_delete.png")),
+        // statusTasks, statusPopupMenu);
 
-        addTask("doStart","Start Channel","Start the currently selected channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")), statusTasks, statusPopupMenu);
-        addTask("doPause","Pause Channel","Pause the currently selected channel.","",new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/pause.png")) , statusTasks, statusPopupMenu);
-        addTask("doStop","Stop Channel","Stop the currently selected channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")), statusTasks, statusPopupMenu);
+        addTask("doStart", "Start Channel", "Start the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")), statusTasks, statusPopupMenu);
+        addTask("doPause", "Pause Channel", "Pause the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/pause.png")), statusTasks, statusPopupMenu);
+        addTask("doStop", "Stop Channel", "Stop the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")), statusTasks, statusPopupMenu);
 
         setNonFocusable(statusTasks);
         setVisibleTasks(statusTasks, statusPopupMenu, 4, -1, false);
@@ -744,10 +751,10 @@ public class Frame extends JXFrame
         eventTasks.setTitle("Event Tasks");
         eventTasks.setFocusable(false);
 
-        addTask("doRefreshEvents","Refresh","Refresh the list of events with the given filter.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), eventTasks, eventPopupMenu);
-        addTask("doRemoveAllEvents","Remove All Events","Remove all the System Events.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/table_delete.png")), eventTasks, eventPopupMenu);
-        addTask("doRemoveFilteredEvents","Remove Filtered Events","Remove all System Events in the current filter.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/table_delete.png")), eventTasks, eventPopupMenu);
-        addTask("doRemoveEvent","Remove Event","Remove the selected Event.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), eventTasks, eventPopupMenu);
+        addTask("doRefreshEvents", "Refresh", "Refresh the list of events with the given filter.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), eventTasks, eventPopupMenu);
+        addTask("doRemoveAllEvents", "Remove All Events", "Remove all the System Events.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/table_delete.png")), eventTasks, eventPopupMenu);
+        addTask("doRemoveFilteredEvents", "Remove Filtered Events", "Remove all System Events in the current filter.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/table_delete.png")), eventTasks, eventPopupMenu);
+        addTask("doRemoveEvent", "Remove Event", "Remove the selected Event.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), eventTasks, eventPopupMenu);
 
         setNonFocusable(eventTasks);
         setVisibleTasks(eventTasks, eventPopupMenu, 3, 3, false);
@@ -765,16 +772,16 @@ public class Frame extends JXFrame
         messageTasks.setTitle("Message Tasks");
         messageTasks.setFocusable(false);
 
-        addTask("doRefreshMessages","Refresh","Refresh the list of messages with the given filter.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), messageTasks, messagePopupMenu);
-        addTask("doSendMessage","Send Message","Send a message to the channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_go.png")), messageTasks, messagePopupMenu);
-        addTask("doImportMessages","Import Messages","Import messages from a file.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")), messageTasks, messagePopupMenu);
-        addTask("doExportMessages","Export Filtered Messages","Export all currently viewed messages.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), messageTasks, messagePopupMenu);
-        addTask("doRemoveAllMessages","Remove All Messages","Remove all Message Events in this channel.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_delete.png")), messageTasks, messagePopupMenu);
-        addTask("doRemoveFilteredMessages","Remove Filtered Messages","Remove all Message Events in the current filter.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_delete.png")), messageTasks, messagePopupMenu);
-        addTask("doRemoveMessage","Remove Message","Remove the selected Message.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), messageTasks, messagePopupMenu);
-        addTask("doReprocessFilteredMessages","Reprocess Filtered Messages","Reprocess all Message Events in the current filter.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png")), messageTasks, messagePopupMenu);
-        addTask("doReprocessMessage","Reprocess Message","Reprocess the selected Message.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deploy.png")), messageTasks, messagePopupMenu);
-        addTask("viewImage","View Attachment", "View Attachment","",new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/attach.png")),messageTasks, messagePopupMenu);
+        addTask("doRefreshMessages", "Refresh", "Refresh the list of messages with the given filter.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), messageTasks, messagePopupMenu);
+        addTask("doSendMessage", "Send Message", "Send a message to the channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_go.png")), messageTasks, messagePopupMenu);
+        addTask("doImportMessages", "Import Messages", "Import messages from a file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")), messageTasks, messagePopupMenu);
+        addTask("doExportMessages", "Export Filtered Messages", "Export all currently viewed messages.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), messageTasks, messagePopupMenu);
+        addTask("doRemoveAllMessages", "Remove All Messages", "Remove all Message Events in this channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_delete.png")), messageTasks, messagePopupMenu);
+        addTask("doRemoveFilteredMessages", "Remove Filtered Messages", "Remove all Message Events in the current filter.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_delete.png")), messageTasks, messagePopupMenu);
+        addTask("doRemoveMessage", "Remove Message", "Remove the selected Message.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), messageTasks, messagePopupMenu);
+        addTask("doReprocessFilteredMessages", "Reprocess Filtered Messages", "Reprocess all Message Events in the current filter.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png")), messageTasks, messagePopupMenu);
+        addTask("doReprocessMessage", "Reprocess Message", "Reprocess the selected Message.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deploy.png")), messageTasks, messagePopupMenu);
+        addTask("viewImage", "View Attachment", "View Attachment", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/attach.png")), messageTasks, messagePopupMenu);
 
         setNonFocusable(messageTasks);
         setVisibleTasks(messageTasks, messagePopupMenu, 6, -1, false);
@@ -793,10 +800,10 @@ public class Frame extends JXFrame
         userTasks.setTitle("User Tasks");
         userTasks.setFocusable(false);
 
-        addTask("doRefreshUser","Refresh","Refresh the list of users.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), userTasks, userPopupMenu);
-        addTask("doNewUser","New User","Create a new user.","N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user_add.png")), userTasks, userPopupMenu);
-        addTask("doEditUser","Edit User","Edit the currently selected user.","I", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user_edit.png")), userTasks, userPopupMenu);
-        addTask("doDeleteUser","Delete User","Delete the currently selected user.","L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user_delete.png")), userTasks, userPopupMenu);
+        addTask("doRefreshUser", "Refresh", "Refresh the list of users.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), userTasks, userPopupMenu);
+        addTask("doNewUser", "New User", "Create a new user.", "N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user_add.png")), userTasks, userPopupMenu);
+        addTask("doEditUser", "Edit User", "Edit the currently selected user.", "I", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user_edit.png")), userTasks, userPopupMenu);
+        addTask("doDeleteUser", "Delete User", "Delete the currently selected user.", "L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user_delete.png")), userTasks, userPopupMenu);
 
         setNonFocusable(userTasks);
         setVisibleTasks(userTasks, userPopupMenu, 2, -1, false);
@@ -814,15 +821,17 @@ public class Frame extends JXFrame
         codeTemplateTasks.setTitle("CodeTemplate Tasks");
         codeTemplateTasks.setFocusable(false);
 
-        addTask("doRefreshCodeTemplates","Refresh","Refresh the list of codeTemplates.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), codeTemplateTasks, codeTemplatePopupMenu);
-        addTask("doSaveCodeTemplates","Save CodeTemplates","Save all changes made to all codeTemplates.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")), codeTemplateTasks, codeTemplatePopupMenu);
-        addTask("doNewCodeTemplate","New CodeTemplate","Create a new codeTemplate.","N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/add.png")), codeTemplateTasks, codeTemplatePopupMenu);
-        addTask("doDeleteCodeTemplate","Delete CodeTemplate","Delete the currently selected codeTemplate.","L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), codeTemplateTasks, codeTemplatePopupMenu);
+        addTask("doRefreshCodeTemplates", "Refresh", "Refresh the list of codeTemplates.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), codeTemplateTasks, codeTemplatePopupMenu);
+        addTask("doSaveCodeTemplates", "Save CodeTemplates", "Save all changes made to all codeTemplates.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")), codeTemplateTasks, codeTemplatePopupMenu);
+        addTask("doNewCodeTemplate", "New CodeTemplate", "Create a new codeTemplate.", "N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/add.png")), codeTemplateTasks, codeTemplatePopupMenu);
+        addTask("doImportCodeTemplates", "Import Code Templates", "Import list of code templates from an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")), codeTemplateTasks, codeTemplatePopupMenu);
+        addTask("doExportCodeTemplates", "Export Code Templates", "Export the list of code templates to an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), codeTemplateTasks, codeTemplatePopupMenu);
+        addTask("doDeleteCodeTemplate", "Delete CodeTemplate", "Delete the currently selected codeTemplate.", "L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), codeTemplateTasks, codeTemplatePopupMenu);
         addTask("doValidateCodeTemplate", "Validate Script", "Validate the currently viewed script.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), codeTemplateTasks, codeTemplatePopupMenu);
-        
+
         setVisibleTasks(codeTemplateTasks, codeTemplatePopupMenu, 0, 1, false);
-        setVisibleTasks(codeTemplateTasks, codeTemplatePopupMenu, 2, 2, true);
-        setVisibleTasks(codeTemplateTasks, codeTemplatePopupMenu, 3, 4, false);
+        setVisibleTasks(codeTemplateTasks, codeTemplatePopupMenu, 2, 4, true);
+        setVisibleTasks(codeTemplateTasks, codeTemplatePopupMenu, 5, 6, false);
         setNonFocusable(codeTemplateTasks);
         taskPaneContainer.add(codeTemplateTasks);
     }
@@ -838,10 +847,10 @@ public class Frame extends JXFrame
         globalScriptsTasks.setTitle("Script Tasks");
         globalScriptsTasks.setFocusable(false);
 
-        addTask("doSaveGlobalScripts","Save Scripts","Save all changes made to all scripts.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")), globalScriptsTasks, globalScriptsPopupMenu);
-        addTask("doValidateCurrentGlobalScript","Validate Script","Validate the currently viewed script.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), globalScriptsTasks, globalScriptsPopupMenu);
-        addTask("doImportGlobalScripts","Import Scripts","Import all global scripts from an XML file.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")), globalScriptsTasks, globalScriptsPopupMenu);
-        addTask("doExportGlobalScripts","Export Scripts","Export all global scripts to an XML file.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), globalScriptsTasks, globalScriptsPopupMenu);
+        addTask("doSaveGlobalScripts", "Save Scripts", "Save all changes made to all scripts.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")), globalScriptsTasks, globalScriptsPopupMenu);
+        addTask("doValidateCurrentGlobalScript", "Validate Script", "Validate the currently viewed script.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), globalScriptsTasks, globalScriptsPopupMenu);
+        addTask("doImportGlobalScripts", "Import Scripts", "Import all global scripts from an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")), globalScriptsTasks, globalScriptsPopupMenu);
+        addTask("doExportGlobalScripts", "Export Scripts", "Export all global scripts to an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), globalScriptsTasks, globalScriptsPopupMenu);
 
         setVisibleTasks(globalScriptsTasks, globalScriptsPopupMenu, 0, 0, false);
         setNonFocusable(globalScriptsTasks);
@@ -857,10 +866,10 @@ public class Frame extends JXFrame
         otherPane = new JXTaskPane();
         otherPane.setTitle("Other");
         otherPane.setFocusable(false);
-        addTask("doHelp","Help on this topic","Open browser for help on this topic.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/help.png")),otherPane,null);
-        addTask("goToAbout","About Mirth","View the about page for Mirth.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/about.png")),otherPane,null);
-        addTask("goToMirth","Visit MirthProject.org","View Mirth's homepage.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/home.png")),otherPane,null);
-        addTask("doLogout","Logout","Logout and return to the login screen.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/disconnect.png")),otherPane,null);
+        addTask("doHelp", "Help on this topic", "Open browser for help on this topic.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/help.png")), otherPane, null);
+        addTask("goToAbout", "About Mirth", "View the about page for Mirth.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/about.png")), otherPane, null);
+        addTask("goToMirth", "Visit MirthProject.org", "View Mirth's homepage.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/home.png")), otherPane, null);
+        addTask("doLogout", "Logout", "Logout and return to the login screen.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/disconnect.png")), otherPane, null);
         setNonFocusable(otherPane);
         taskPaneContainer.add(otherPane);
         otherPane.setVisible(true);
@@ -885,7 +894,7 @@ public class Frame extends JXFrame
         boundAction.registerCallback(this, callbackMethod);
 
         pane.add(boundAction);
-        if(menu != null)
+        if (menu != null)
             menu.add(boundAction);
     }
 
@@ -938,8 +947,8 @@ public class Frame extends JXFrame
     }
 
     /**
-     * Alerts the user with an error dialog with the passed in 'message' and
-     * a 'question'.
+     * Alerts the user with an error dialog with the passed in 'message' and a
+     * 'question'.
      */
     public void alertCustomError(String message, String question)
     {
@@ -956,11 +965,11 @@ public class Frame extends JXFrame
 
         if (message != null)
         {
-            if(message.indexOf("Received close_notify during handshake") != -1)
+            if (message.indexOf("Received close_notify during handshake") != -1)
             {
                 return;
             }
-            
+
             if (message.indexOf("Unauthorized") != -1 || message.indexOf("reset") != -1)
             {
                 connectionError = true;
@@ -997,8 +1006,8 @@ public class Frame extends JXFrame
     }
 
     /*
-    * Send the message to MirthProject.org
-    */
+     * Send the message to MirthProject.org
+     */
     public void sendError(String message)
     {
         mirthClient.submitError(message);
@@ -1022,12 +1031,12 @@ public class Frame extends JXFrame
     public void setFocus(JXTaskPane pane)
     {
         // ignore the first and last components
-        for(int i = 1; i < taskPaneContainer.getComponentCount()-1; i++)
+        for (int i = 1; i < taskPaneContainer.getComponentCount() - 1; i++)
         {
             taskPaneContainer.getComponent(i).setVisible(false);
         }
 
-        if(pane != null)
+        if (pane != null)
             pane.setVisible(true);
     }
 
@@ -1117,7 +1126,7 @@ public class Frame extends JXFrame
 
             if (option == JOptionPane.YES_OPTION)
             {
-                if(!saveCodeTemplates())
+                if (!saveCodeTemplates())
                     return false;
             }
             else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION)
@@ -1200,7 +1209,7 @@ public class Frame extends JXFrame
         }
         return true;
     }
-    
+
     /**
      * Checks to see if the passed in channel name already exists
      */
@@ -1212,17 +1221,18 @@ public class Frame extends JXFrame
             return false;
         }
 
-        if(name.length() > 40)
+        if (name.length() > 40)
         {
             alertWarning("Channel name cannot be longer than 40 characters.");
             return false;
         }
 
-        // Following code copied from MirthFieldConstaints, must be the same to check for valid channel names the same way.
+        // Following code copied from MirthFieldConstaints, must be the same to
+        // check for valid channel names the same way.
         char[] chars = name.toCharArray();
         for (char c : chars)
         {
-            int cVal = (int)c;
+            int cVal = (int) c;
             if ((cVal < 65 || cVal > 90) && (cVal < 97 || cVal > 122) && (cVal != 32) && (cVal != 45) && (cVal != 95))
             {
                 try
@@ -1376,7 +1386,7 @@ public class Frame extends JXFrame
     {
         if (settingsPanel == null)
             settingsPanel = new SettingsPanel();
-                
+
         if (!confirmLeave())
             return;
 
@@ -1487,7 +1497,7 @@ public class Frame extends JXFrame
 
         try
         {
-               mirthClient.logout();
+            mirthClient.logout();
             this.dispose();
             Mirth.main(new String[] { PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION });
         }
@@ -1516,11 +1526,12 @@ public class Frame extends JXFrame
             alertError("You must have at least one source connector and one destination connector installed.");
             return;
         }
-        
-        // The channel wizard will call createNewChannel() or create a channel from a wizard.
+
+        // The channel wizard will call createNewChannel() or create a channel
+        // from a wizard.
         new ChannelWizard();
     }
-    
+
     public void createNewChannel()
     {
         Channel channel = new Channel();
@@ -1539,7 +1550,7 @@ public class Frame extends JXFrame
         channel.getProperties().setProperty("initialState", "Started");
         setupChannel(channel);
     }
-    
+
     public void doEditChannel()
     {
         if (isEditingChannel)
@@ -1554,8 +1565,8 @@ public class Frame extends JXFrame
             try
             {
                 Channel channel = channelPanel.getSelectedChannel();
-                
-                if(checkInstalledConnectors(channel))
+
+                if (checkInstalledConnectors(channel))
                     editChannel((Channel) ObjectCloner.deepCopy(channel));
             }
             catch (ObjectClonerException e)
@@ -1565,48 +1576,48 @@ public class Frame extends JXFrame
         }
         isEditingChannel = false;
     }
-    
+
     public boolean checkInstalledConnectors(Channel channel)
     {
         Connector source = channel.getSourceConnector();
         List<Connector> destinations = channel.getDestinationConnectors();
         ArrayList<String> missingConnectors = new ArrayList<String>();
-        
+
         boolean missingSourceConnector = true, missingDestinationConnector;
         boolean allDesintionConnectorsFound = true;
 
-        for(int i = 0; i < sourceConnectors.size(); i++)
+        for (int i = 0; i < sourceConnectors.size(); i++)
         {
-            if(source.getTransportName().equals(sourceConnectors.get(i).getName()))
+            if (source.getTransportName().equals(sourceConnectors.get(i).getName()))
                 missingSourceConnector = false;
         }
-        
-        if(missingSourceConnector)
+
+        if (missingSourceConnector)
             missingConnectors.add(source.getTransportName());
 
-        for(int i = 0; i < destinations.size(); i++)
+        for (int i = 0; i < destinations.size(); i++)
         {
             missingDestinationConnector = true;
-            
-            for(int j = 0; j < destinationConnectors.size(); j++)
+
+            for (int j = 0; j < destinationConnectors.size(); j++)
             {
-                if(destinations.get(i).getTransportName().equals(destinationConnectors.get(j).getName()))
+                if (destinations.get(i).getTransportName().equals(destinationConnectors.get(j).getName()))
                 {
                     missingDestinationConnector = false;
                 }
             }
 
-            if(missingDestinationConnector)
+            if (missingDestinationConnector)
             {
                 missingConnectors.add(destinations.get(i).getTransportName());
                 allDesintionConnectorsFound = false;
             }
         }
 
-        if(missingSourceConnector || !allDesintionConnectorsFound)
+        if (missingSourceConnector || !allDesintionConnectorsFound)
         {
             String errorText = "Your Mirth installation is missing required connectors for this channel:\n";
-            for(String s : missingConnectors)
+            for (String s : missingConnectors)
                 errorText += s + "\n";
             alertError(errorText);
             return false;
@@ -1621,7 +1632,6 @@ public class Frame extends JXFrame
     {
         if (globalScriptsPanel == null)
             globalScriptsPanel = new GlobalScriptsPanel();
-
 
         setWorking("Loading global scripts...", true);
 
@@ -1642,7 +1652,7 @@ public class Frame extends JXFrame
 
         worker.execute();
     }
-    
+
     public void doEditCodeTemplates()
     {
 
@@ -1673,7 +1683,7 @@ public class Frame extends JXFrame
         };
 
         worker.execute();
-        
+
     }
 
     public void doValidateCurrentGlobalScript()
@@ -1709,7 +1719,7 @@ public class Frame extends JXFrame
             }
             catch (Exception e)
             {
-                alertException(e.getStackTrace(),"Invalid scripts file. " + e.getMessage());
+                alertException(e.getStackTrace(), "Invalid scripts file. " + e.getMessage());
                 return;
             }
         }
@@ -1958,9 +1968,13 @@ public class Frame extends JXFrame
         refreshStatuses();
 
         // moving SwingWorker into the refreshStatuses() method...
-        // ArrayIndexOutOfBound exception occurs due to updateTable method on the UI executed concurrently on multiple threads in the background.
-        // and they share a global 'parent.status' variable that changes its state between threads.
-        // updateTable() method should be called in done(), not in the background only when the 'status' object is done assesed in the background.  
+        // ArrayIndexOutOfBound exception occurs due to updateTable method on
+        // the UI executed concurrently on multiple threads in the background.
+        // and they share a global 'parent.status' variable that changes its
+        // state between threads.
+        // updateTable() method should be called in done(), not in the
+        // background only when the 'status' object is done assesed in the
+        // background.
     }
 
     public void refreshStatuses()
@@ -2004,7 +2018,7 @@ public class Frame extends JXFrame
                                     j++;
                                 }
                                 statusColumn = j;
-                                j+=2;
+                                j += 2;
                                 tableData[i][j] = tempStats.getReceived();
                                 tableData[i][++j] = tempStats.getFiltered();
                                 tableData[i][++j] = tempStats.getQueued();
@@ -2400,7 +2414,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                setWorking("",false);
+                setWorking("", false);
             }
         };
 
@@ -2623,8 +2637,8 @@ public class Frame extends JXFrame
         }
         catch (Exception e1)
         {
-            if(showAlerts)
-                alertException(e1.getStackTrace(),"Invalid channel file. " + e1.getMessage());
+            if (showAlerts)
+                alertException(e1.getStackTrace(), "Invalid channel file. " + e1.getMessage());
         }
 
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
@@ -2636,8 +2650,8 @@ public class Frame extends JXFrame
         }
         catch (Exception e)
         {
-            if(showAlerts)
-                alertException(e.getStackTrace(),"Invalid channel file. " + e.getMessage());
+            if (showAlerts)
+                alertException(e.getStackTrace(), "Invalid channel file. " + e.getMessage());
             return;
         }
 
@@ -2645,7 +2659,7 @@ public class Frame extends JXFrame
          * Checks to see if the passed in channel version is current, and
          * prompts the user if it is not.
          */
-        if(showAlerts)
+        if (showAlerts)
         {
             int option;
 
@@ -2659,7 +2673,7 @@ public class Frame extends JXFrame
                 option = JOptionPane.showConfirmDialog(this, "The channel being imported is from Mirth version " + importChannel.getVersion() + ". You are using Mirth version " + PlatformUI.SERVER_VERSION + ".\nSome channel properties may not be the same.  Would you like to automatically convert the properties?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION);
             }
 
-            if(option != JOptionPane.YES_OPTION)
+            if (option != JOptionPane.YES_OPTION)
                 return;
         }
 
@@ -2667,7 +2681,7 @@ public class Frame extends JXFrame
         {
             String channelName = importChannel.getName();
             String tempId = mirthClient.getGuid();
-            
+
             // Check to see that the channel name doesn't already exist.
             if (!checkChannelName(channelName, tempId))
             {
@@ -2696,10 +2710,11 @@ public class Frame extends JXFrame
                     }
                 }
             }
-            // If the channel name didn't already exist, make sure the id doesn't exist either.
+            // If the channel name didn't already exist, make sure the id
+            // doesn't exist either.
             else if (!checkChannelId(importChannel.getId()))
             {
-            	importChannel.setId(tempId);
+                importChannel.setId(tempId);
             }
 
             importChannel.setVersion(mirthClient.getVersion());
@@ -2712,9 +2727,9 @@ public class Frame extends JXFrame
 
         try
         {
-            if(showAlerts)
+            if (showAlerts)
             {
-                if(checkInstalledConnectors(importChannel))
+                if (checkInstalledConnectors(importChannel))
                 {
                     editChannel(importChannel);
                     channelEditTasks.getContentPane().getComponent(0).setVisible(true);
@@ -2732,7 +2747,7 @@ public class Frame extends JXFrame
         {
             channels.remove(importChannel.getId());
 
-            if(showAlerts)
+            if (showAlerts)
             {
                 alertError("Channel had an unknown problem. Channel import aborted.");
                 channelEditPanel = new ChannelSetup();
@@ -2744,7 +2759,7 @@ public class Frame extends JXFrame
 
     public boolean doExport()
     {
-        if (channelEditTasks.getContentPane().getComponent(0).isVisible())
+        if (changesHaveBeenMade())
         {
             if (alertOption("This channel has been modified. You must save the channel changes before you can export. Would you like to save them now?"))
             {
@@ -2754,7 +2769,7 @@ public class Frame extends JXFrame
             else
                 return false;
 
-            channelEditTasks.getContentPane().getComponent(0).setVisible(false);
+            disableSave();
         }
 
         Channel channel;
@@ -2917,7 +2932,7 @@ public class Frame extends JXFrame
 
             Channel channel = channels.get(status.get(dashboardPanel.getSelectedStatus()).getChannelId());
 
-            if(channel == null)
+            if (channel == null)
             {
                 alertError("Channel no longer exists!");
                 return;
@@ -2995,14 +3010,14 @@ public class Frame extends JXFrame
                 {
                     for (int i = 0; i < status.size(); i++)
                     {
-                         try
-                         {
-                             mirthClient.clearMessages(status.get(i).getChannelId());
-                         }
-                         catch (ClientException e)
-                         {
-                             alertException(e.getStackTrace(), e.getMessage());
-                         }
+                        try
+                        {
+                            mirthClient.clearMessages(status.get(i).getChannelId());
+                        }
+                        catch (ClientException e)
+                        {
+                            alertException(e.getStackTrace(), e.getMessage());
+                        }
 
                     }
                     setWorking("", false);
@@ -3017,7 +3032,6 @@ public class Frame extends JXFrame
                 {
                     doRefreshStatuses();
 
-
                 }
             };
 
@@ -3026,40 +3040,42 @@ public class Frame extends JXFrame
 
     }
 
-    public void clearStatsAllChannels(final boolean deleteReceived, final boolean deleteFiltered, final boolean deleteQueued, final boolean deleteSent, final boolean deleteErrored){
+    public void clearStatsAllChannels(final boolean deleteReceived, final boolean deleteFiltered, final boolean deleteQueued, final boolean deleteSent, final boolean deleteErrored)
+    {
 
-            setWorking("Clearing statistics...", true);
+        setWorking("Clearing statistics...", true);
 
-            SwingWorker worker = new SwingWorker<Void, Void>()
+        SwingWorker worker = new SwingWorker<Void, Void>()
+        {
+            public Void doInBackground()
             {
-                public Void doInBackground()
+
+                for (int i = 0; i < status.size(); i++)
                 {
-
-                    for (int i = 0; i < status.size(); i++)
+                    try
                     {
-                         try
-                         {
-                             mirthClient.clearStatistics(status.get(i).getChannelId(), deleteReceived, deleteFiltered, deleteQueued, deleteSent, deleteErrored);
-                         }
-                         catch (ClientException e)
-                         {
-                             alertException(e.getStackTrace(), e.getMessage());
-                         }
-
+                        mirthClient.clearStatistics(status.get(i).getChannelId(), deleteReceived, deleteFiltered, deleteQueued, deleteSent, deleteErrored);
+                    }
+                    catch (ClientException e)
+                    {
+                        alertException(e.getStackTrace(), e.getMessage());
                     }
 
-                    return null;
                 }
 
-                public void done()
-                {
-                    doRefreshStatuses();
-                    setWorking("", false);
-                }
-            };
+                return null;
+            }
 
-            worker.execute();
+            public void done()
+            {
+                doRefreshStatuses();
+                setWorking("", false);
+            }
+        };
+
+        worker.execute();
     }
+
     public void doRemoveAllMessages()
     {
         if (alertOption("Are you sure you would like to remove all messages in this channel?"))
@@ -3084,13 +3100,13 @@ public class Frame extends JXFrame
 
                 public void done()
                 {
-                    if(currentContentPage == dashboardPanel)
+                    if (currentContentPage == dashboardPanel)
                     {
-                        if(alertOption("Would you also like to clear all statistics?"))
+                        if (alertOption("Would you also like to clear all statistics?"))
                             clearStats(dashboardPanel.getSelectedStatus(), true, true, true, true, true);
                         doRefreshStatuses();
                     }
-                    else if(currentContentPage == messageBrowser)
+                    else if (currentContentPage == messageBrowser)
                         messageBrowser.refresh();
                     setWorking("", false);
                 }
@@ -3104,17 +3120,19 @@ public class Frame extends JXFrame
     {
         int selectedStatus = dashboardPanel.getSelectedStatus();
 
-        if(selectedStatus != -1)
+        if (selectedStatus != -1)
             new DeleteStatisticsDialog(selectedStatus, false);
         else
             dashboardPanel.deselectRows();
     }
+
     public void doClearStatsAllChannels()
     {
 
-         new DeleteStatisticsDialog(-1, true);
+        new DeleteStatisticsDialog(-1, true);
 
     }
+
     public void clearStats(final int statusToClear, final boolean deleteReceived, final boolean deleteFiltered, final boolean deleteQueued, final boolean deleteSent, final boolean deleteErrored)
     {
         setWorking("Clearing statistics...", true);
@@ -3167,9 +3185,9 @@ public class Frame extends JXFrame
 
                 public void done()
                 {
-                    if(currentContentPage == dashboardPanel)
+                    if (currentContentPage == dashboardPanel)
                         doRefreshStatuses();
-                    else if(currentContentPage == messageBrowser)
+                    else if (currentContentPage == messageBrowser)
                         messageBrowser.refresh();
                     setWorking("", false);
                 }
@@ -3204,9 +3222,9 @@ public class Frame extends JXFrame
 
                 public void done()
                 {
-                    if(currentContentPage == dashboardPanel)
+                    if (currentContentPage == dashboardPanel)
                         doRefreshStatuses();
-                    else if(currentContentPage == messageBrowser)
+                    else if (currentContentPage == messageBrowser)
                         messageBrowser.refresh();
                     setWorking("", false);
                 }
@@ -3274,6 +3292,7 @@ public class Frame extends JXFrame
 
         worker.execute();
     }
+
     public void viewImage()
     {
         setWorking("Opening attachment...", true);
@@ -3294,6 +3313,7 @@ public class Frame extends JXFrame
         };
         worker.execute();
     }
+
     public void processMessage(final MessageObject message)
     {
         setWorking("Processing message...", true);
@@ -3383,7 +3403,7 @@ public class Frame extends JXFrame
 
                 public void done()
                 {
-                    if(currentContentPage == eventBrowser)
+                    if (currentContentPage == eventBrowser)
                         eventBrowser.refresh();
                     setWorking("", false);
                 }
@@ -3418,7 +3438,7 @@ public class Frame extends JXFrame
 
                 public void done()
                 {
-                    if(currentContentPage == eventBrowser)
+                    if (currentContentPage == eventBrowser)
                         eventBrowser.refresh();
                     setWorking("", false);
                 }
@@ -3430,9 +3450,9 @@ public class Frame extends JXFrame
 
     public void doRefreshSettings()
     {
-        if(changesHaveBeenMade())
+        if (changesHaveBeenMade())
         {
-            if(!alertOption("Are you sure you would like to reload the settings from the server and lose your changes?"))
+            if (!alertOption("Are you sure you would like to reload the settings from the server and lose your changes?"))
                 return;
             else
                 disableSave();
@@ -3502,7 +3522,7 @@ public class Frame extends JXFrame
                 try
                 {
                     Properties serverProperties = mirthClient.getServerProperties();
-                    if(!(serverProperties.getProperty("smtp.host") != null && ((String)serverProperties.getProperty("smtp.host")).length() > 0) || !(serverProperties.getProperty("smtp.port") != null && ((String)serverProperties.getProperty("smtp.port")).length() > 0))
+                    if (!(serverProperties.getProperty("smtp.host") != null && ((String) serverProperties.getProperty("smtp.host")).length() > 0) || !(serverProperties.getProperty("smtp.port") != null && ((String) serverProperties.getProperty("smtp.port")).length() > 0))
                         alertWarning("The SMTP server on the settings page is not specified or is incomplete.  An SMTP server is required to send alerts.");
 
                     alertPanel.saveAlert();
@@ -3544,6 +3564,91 @@ public class Frame extends JXFrame
     {
         alertPanel.disableAlert();
     }
+    
+    public void doExportAlerts()
+    {
+        if (changesHaveBeenMade())
+        {
+            if (alertOption("Would you like to save the changes made to the alerts?"))
+                alertPanel.saveAlert();
+            else
+                return;
+        }
+
+        JFileChooser exportFileChooser = new JFileChooser();
+        exportFileChooser.setFileFilter(new MirthFileFilter("XML"));
+
+        File currentDir = new File(Preferences.systemNodeForPackage(Mirth.class).get("currentDirectory", ""));
+        if (currentDir.exists())
+            exportFileChooser.setCurrentDirectory(currentDir);
+
+        int returnVal = exportFileChooser.showSaveDialog(this);
+        File exportFile = null;
+
+        if (returnVal == JFileChooser.APPROVE_OPTION)
+        {
+            Preferences.systemNodeForPackage(Mirth.class).put("currentDirectory", exportFileChooser.getCurrentDirectory().getPath());
+            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+            String alertXML = serializer.toXML(alerts);
+            exportFile = exportFileChooser.getSelectedFile();
+
+            int length = exportFile.getName().length();
+
+            if (length < 4 || !exportFile.getName().substring(length - 4, length).equals(".xml"))
+                exportFile = new File(exportFile.getAbsolutePath() + ".xml");
+
+            if (exportFile.exists())
+                if (!alertOption("This file already exists.  Would you like to overwrite it?"))
+                    return;
+
+            try
+            {
+                FileUtil.write(exportFile, alertXML, false);
+                alertInformation("All alerts were written to " + exportFile.getPath() + ".");
+            }
+            catch (IOException ex)
+            {
+                alertError("File could not be written.");
+            }
+        }
+    }
+
+    public void doImportAlerts()
+    {
+        JFileChooser importFileChooser = new JFileChooser();
+        importFileChooser.setFileFilter(new MirthFileFilter("XML"));
+
+        File currentDir = new File(Preferences.systemNodeForPackage(Mirth.class).get("currentDirectory", ""));
+        if (currentDir.exists())
+            importFileChooser.setCurrentDirectory(currentDir);
+
+        int returnVal = importFileChooser.showOpenDialog(this);
+        File importFile = null;
+
+        if (returnVal == JFileChooser.APPROVE_OPTION)
+        {
+            Preferences.systemNodeForPackage(Mirth.class).put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
+            importFile = importFileChooser.getSelectedFile();
+            try
+            {
+                String alertXML = FileUtil.read(importFile);
+                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                alerts = (List<Alert>) serializer.fromXML(alertXML);
+                
+                alertInformation("All alerts imported sucessfully.");
+                
+                enableSave();
+                alertPanel.loadAlert();
+                alertPanel.updateAlertTable(false);
+                
+            }
+            catch (Exception e)
+            {
+                alertError("Invalid alert file.");
+            }
+        }
+    }
+
 
     public void doRefreshCodeTemplates()
     {
@@ -3599,18 +3704,18 @@ public class Frame extends JXFrame
 
         worker.execute();
     }
-    
+
     public boolean saveCodeTemplates()
     {
         try
         {
             codeTemplatePanel.saveCodeTemplate();
-            
-            for(CodeTemplate template : codeTemplates)
+
+            for (CodeTemplate template : codeTemplates)
             {
-                if(template.getType() == CodeSnippetType.FUNCTION)
+                if (template.getType() == CodeSnippetType.FUNCTION)
                 {
-                    if(!codeTemplatePanel.validateCodeTemplate(template.getCode(), false, template.getName()))
+                    if (!codeTemplatePanel.validateCodeTemplate(template.getCode(), false, template.getName()))
                         return false;
                 }
             }
@@ -3625,22 +3730,105 @@ public class Frame extends JXFrame
         }
         return true;
     }
-    
+
     public void doDeleteCodeTemplate()
     {
         codeTemplatePanel.deleteCodeTemplate();
     }
-    
+
     public void doValidateCodeTemplate()
     {
         codeTemplatePanel.validateCodeTemplate();
     }
-    
+
     public void doNewCodeTemplate()
     {
         codeTemplatePanel.addCodeTemplate();
     }
-    
+
+    public void doExportCodeTemplates()
+    {
+        if (changesHaveBeenMade())
+        {
+            if (alertOption("Would you like to save the changes made to the code templates?"))
+                codeTemplatePanel.saveCodeTemplate();
+            else
+                return;
+        }
+
+        JFileChooser exportFileChooser = new JFileChooser();
+        exportFileChooser.setFileFilter(new MirthFileFilter("XML"));
+
+        File currentDir = new File(Preferences.systemNodeForPackage(Mirth.class).get("currentDirectory", ""));
+        if (currentDir.exists())
+            exportFileChooser.setCurrentDirectory(currentDir);
+
+        int returnVal = exportFileChooser.showSaveDialog(this);
+        File exportFile = null;
+
+        if (returnVal == JFileChooser.APPROVE_OPTION)
+        {
+            Preferences.systemNodeForPackage(Mirth.class).put("currentDirectory", exportFileChooser.getCurrentDirectory().getPath());
+            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+            String codeTemplateXML = serializer.toXML(codeTemplates);
+            exportFile = exportFileChooser.getSelectedFile();
+
+            int length = exportFile.getName().length();
+
+            if (length < 4 || !exportFile.getName().substring(length - 4, length).equals(".xml"))
+                exportFile = new File(exportFile.getAbsolutePath() + ".xml");
+
+            if (exportFile.exists())
+                if (!alertOption("This file already exists.  Would you like to overwrite it?"))
+                    return;
+
+            try
+            {
+                FileUtil.write(exportFile, codeTemplateXML, false);
+                alertInformation("All Code templates were written to " + exportFile.getPath() + ".");
+            }
+            catch (IOException ex)
+            {
+                alertError("File could not be written.");
+            }
+        }
+    }
+
+    public void doImportCodeTemplates()
+    {
+        JFileChooser importFileChooser = new JFileChooser();
+        importFileChooser.setFileFilter(new MirthFileFilter("XML"));
+
+        File currentDir = new File(Preferences.systemNodeForPackage(Mirth.class).get("currentDirectory", ""));
+        if (currentDir.exists())
+            importFileChooser.setCurrentDirectory(currentDir);
+
+        int returnVal = importFileChooser.showOpenDialog(this);
+        File importFile = null;
+
+        if (returnVal == JFileChooser.APPROVE_OPTION)
+        {
+            Preferences.systemNodeForPackage(Mirth.class).put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
+            importFile = importFileChooser.getSelectedFile();
+            try
+            {
+                String codeTemplatesXML = FileUtil.read(importFile);
+                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                codeTemplates = (List<CodeTemplate>) serializer.fromXML(codeTemplatesXML);
+                
+                alertInformation("All code templates imported sucessfully.");
+                
+                enableSave();
+                codeTemplatePanel.loadCodeTemplate();
+                codeTemplatePanel.updateCodeTemplateTable(false);
+            }
+            catch (Exception e)
+            {
+                alertError("Invalid code template file.");
+            }
+        }
+    }
+
     public boolean exportChannelOnError()
     {
         if (channelEditPanel != null && (channelEditTasks.getContentPane().getComponent(0).isVisible() || (channelEditPanel.transformerPane != null && channelEditPanel.transformerPane.modified) || (channelEditPanel.filterPane != null && channelEditPanel.filterPane.modified)))
@@ -3667,26 +3855,39 @@ public class Frame extends JXFrame
         return true;
     }
 
-    public void doContextSensitiveSave(){
-        if (currentContentPage == channelEditPanel){
+    public void doContextSensitiveSave()
+    {
+        if (currentContentPage == channelEditPanel)
+        {
             doSaveChannel();
-        }else if(currentContentPage == channelEditPanel.filterPane){
-            //channelEditPanel.filterPane.accept(false);
+        }
+        else if (currentContentPage == channelEditPanel.filterPane)
+        {
+            // channelEditPanel.filterPane.accept(false);
             doSaveChannel();
-        }else if(currentContentPage == channelEditPanel.transformerPane){
-            //channelEditPanel.transformerPane.accept(false);
+        }
+        else if (currentContentPage == channelEditPanel.transformerPane)
+        {
+            // channelEditPanel.transformerPane.accept(false);
             doSaveChannel();
-        }else if(currentContentPage == globalScriptsPanel){
+        }
+        else if (currentContentPage == globalScriptsPanel)
+        {
             doSaveGlobalScripts();
-        }else if(currentContentPage == settingsPanel){
+        }
+        else if (currentContentPage == settingsPanel)
+        {
             doSaveSettings();
-        }else if (currentContentPage == alertPanel){
+        }
+        else if (currentContentPage == alertPanel)
+        {
             doSaveAlerts();
         }
     }
 
-    public void doFind(JEditTextArea text){
-        FindRplDialog find = new FindRplDialog(this,true,text);
+    public void doFind(JEditTextArea text)
+    {
+        FindRplDialog find = new FindRplDialog(this, true, text);
         find.setVisible(true);
     }
 
@@ -3712,16 +3913,19 @@ public class Frame extends JXFrame
             BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION);
     }
 
-    public Map<String, PluginMetaData> getPluginMetaData() {
+    public Map<String, PluginMetaData> getPluginMetaData()
+    {
         return this.loadedPlugins;
     }
 
-    public Map<String, ConnectorMetaData> getConnectorMetaData() {
+    public Map<String, ConnectorMetaData> getConnectorMetaData()
+    {
         return this.loadedConnectors;
     }
 
-    public Map<String, DashboardPanelPlugin> getDashboardPanelPlugins() {
+    public Map<String, DashboardPanelPlugin> getDashboardPanelPlugins()
+    {
         return this.dashboardPanel.getLoadedPanelPlugins();
-}
-    
+    }
+
 }

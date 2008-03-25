@@ -302,21 +302,21 @@ public class AlertPanel extends javax.swing.JPanel
 
         if (selected == UIConstants.ERROR_CONSTANT)
         {
-            parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 3, 5, false);
+            parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 5, 6, false);
         }
         else
         {
-            parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 3, 3, true);
+            parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 5, 5, true);
 
             if (parent.alerts.get(selected).isEnabled())
             {
-                parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 4, 4, false);
-                parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 5, 5, true);
+                parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 6, 6, false);
+                parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 7, 7, true);
             }
             else
             {
-                parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 4, 4, true);
-                parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 5, 5, false);
+                parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 6, 6, true);
+                parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 7, 7, false);
             }
         }
     }
@@ -802,7 +802,7 @@ public class AlertPanel extends javax.swing.JPanel
     public void deselectAlertRows()
     {
         alertTable.clearSelection();
-        parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 3, 5, false);
+        parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 5, 7, false);
         resetBlankPane();
     }
 

@@ -40,6 +40,7 @@ import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.model.ServerConfiguration;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.webreach.mirth.model.util.ImportConverter;
 
 /**
  * The main configuration panel.
@@ -466,7 +467,7 @@ public class SettingsPanel extends javax.swing.JPanel
             try
             {
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-                ServerConfiguration configuration = (ServerConfiguration) serializer.fromXML(backupXML);
+                ServerConfiguration configuration = ImportConverter.convertServerConfiguration(backupXML);
                 
                 if (parent.alertOption("Import configuration from " + configuration.getDate() + "?\nWARNING: This will overwrite all current channels, alerts, and server properties."))
                 {

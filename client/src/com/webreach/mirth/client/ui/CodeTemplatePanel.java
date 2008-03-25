@@ -362,18 +362,18 @@ public class CodeTemplatePanel extends javax.swing.JPanel
 
         if (selected == UIConstants.ERROR_CONSTANT)
         {
-            parent.setVisibleTasks(parent.codeTemplateTasks, parent.codeTemplatePopupMenu, 3, 4, false);
+            parent.setVisibleTasks(parent.codeTemplateTasks, parent.codeTemplatePopupMenu, 5, 6, false);
         }
         else
         {
-            parent.setVisibleTasks(parent.codeTemplateTasks, parent.codeTemplatePopupMenu, 3, 3, true);
+            parent.setVisibleTasks(parent.codeTemplateTasks, parent.codeTemplatePopupMenu, 5, 5, true);
             if(parent.codeTemplates.get(selected).getType() == CodeSnippetType.FUNCTION)
             {
-                parent.setVisibleTasks(parent.codeTemplateTasks, parent.codeTemplatePopupMenu, 4, 4, true);
+                parent.setVisibleTasks(parent.codeTemplateTasks, parent.codeTemplatePopupMenu, 6, 6, true);
             }
             else
             {
-                parent.setVisibleTasks(parent.codeTemplateTasks, parent.codeTemplatePopupMenu, 4, 4, false);
+                parent.setVisibleTasks(parent.codeTemplateTasks, parent.codeTemplatePopupMenu, 6, 6, false);
             }
         }
     }
@@ -548,7 +548,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
     public void deselectCodeTemplateRows()
     {
         templateTable.clearSelection();
-        parent.setVisibleTasks(parent.codeTemplateTasks, parent.codeTemplatePopupMenu, 3, 5, false);
+        parent.setVisibleTasks(parent.codeTemplateTasks, parent.codeTemplatePopupMenu, 5, 6, false);
         resetBlankPane();
     }
 
@@ -692,12 +692,12 @@ public class CodeTemplatePanel extends javax.swing.JPanel
         if(((String)type.getSelectedItem()).equals(CodeSnippetType.FUNCTION.getValue()))
         {
             templateLabel.setText("Function:");
-            parent.setVisibleTasks(parent.codeTemplateTasks, parent.codeTemplatePopupMenu, 4, 4, true);
+            parent.setVisibleTasks(parent.codeTemplateTasks, parent.codeTemplatePopupMenu, 6, 6, true);
         }
         else
         {
             templateLabel.setText("Template:");
-            parent.setVisibleTasks(parent.codeTemplateTasks, parent.codeTemplatePopupMenu, 4, 4, false);
+            parent.setVisibleTasks(parent.codeTemplateTasks, parent.codeTemplatePopupMenu, 6, 6, false);
         }    
         
         if(getSelectedCodeTemplateIndex() != UIConstants.ERROR_CONSTANT)
