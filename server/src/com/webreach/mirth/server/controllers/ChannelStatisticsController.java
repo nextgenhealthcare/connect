@@ -54,25 +54,28 @@ public class ChannelStatisticsController {
 	private static boolean running = true;
 
 	private ChannelStatisticsController() {
-		
+
 	}
-	
+
 	public static ChannelStatisticsController getInstance() {
 		synchronized (ChannelStatisticsController.class) {
 			if (instance == null) {
 				instance = new ChannelStatisticsController();
 			}
-			
+
 			return instance;
 		}
 	}
+
 	public void shutdown() {
 		running = false;
 	}
+
 	private class StatisticsUpdater implements Runnable {
 		public void run() {
 			try {
 				running = true;
+
 				while (running) {
 					Thread.sleep(1000);
 					updateAllStatistics();
@@ -174,6 +177,7 @@ public class ChannelStatisticsController {
 			statsChanged = true;
 		}
 	}
+
 	private void updateStatistics(String channelId) {
 		try {
 			sqlMap.update("updateStatistics", statsCache.getCache().get(channelId));

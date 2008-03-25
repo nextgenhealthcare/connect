@@ -177,19 +177,8 @@ public class Mirth extends Thread {
 		// stats table
 		stopWebServer();
 		extensionController.stopPlugins();
-        // shutdown derby
-        boolean gotSQLExc = false;
-       	try {
-       	   DriverManager.getConnection("jdbc:derby:;shutdown=true");
-       	} catch (SQLException se)  {
-       	   if ( se != null && se.getSQLState() != null && se.getSQLState().equals("XJ015") ) {
-       	      gotSQLExc = true;
-       	   }
-       	}
-       	if (gotSQLExc) {
-       	   System.out.println("Database shut down normally");
-       	}		
-		channelStatisticsController.shutdown(); 
+		channelStatisticsController.shutdown();
+		stopDatabase();
 		running = false;
 	}
 
@@ -305,16 +294,16 @@ public class Mirth extends Thread {
 
 			httpServer = new HttpServer();
 			servletContainer = new HttpServer();
-			
+
 			// add HTTPS listener
 			SslListener sslListener = new SslListener();
-			
-			String ciphers = PropertyLoader.getProperty(mirthProperties,"https.ciphers");
+
+			String ciphers = PropertyLoader.getProperty(mirthProperties, "https.ciphers");
 			if (ciphers != null && !ciphers.equals("")) {
 				sslListener.setCipherSuites(ciphers.split(","));
 			}
-			
-			sslListener.setPort(Integer.valueOf(PropertyLoader.getProperty(mirthProperties,"https.port")).intValue());
+
+			sslListener.setPort(Integer.valueOf(PropertyLoader.getProperty(mirthProperties, "https.port")).intValue());
 			sslListener.setKeystore(ConfigurationController.mirthHomeDir + System.getProperty("file.separator") + PropertyLoader.getProperty(mirthProperties, "https.keystore"));
 			sslListener.setPassword(PropertyLoader.getProperty(mirthProperties, "https.password"));
 			sslListener.setKeyPassword(PropertyLoader.getProperty(mirthProperties, "https.keypassword"));
@@ -325,12 +314,13 @@ public class Mirth extends Thread {
 			listener.setPort(Integer.valueOf(PropertyLoader.getProperty(mirthProperties, "http.port")).intValue());
 			httpServer.addListener(listener);
 
-			// Load the context path property and remove the last char if it is a '/'.
+			// Load the context path property and remove the last char if it is
+			// a '/'.
 			String contextPath = PropertyLoader.getProperty(mirthProperties, "context.path");
 			if (contextPath.lastIndexOf('/') == (contextPath.length() - 1)) {
 				contextPath = contextPath.substring(0, contextPath.length() - 1);
 			}
-			
+
 			// Create the lib context
 			HttpContext libContext = new HttpContext();
 			libContext.setContextPath(contextPath + "/client-lib/");
@@ -384,7 +374,7 @@ public class Mirth extends Thread {
 			// Servlets for backwards compatibility
 			servlets.addServlet("WebStart", "/webstart", "com.webreach.mirth.server.servlets.WebStartServlet");
 			servlets.addServlet("Activation", "/activation", "com.webreach.mirth.server.servlets.ActivationServlet");
-			
+
 			// Create a secure servlet container
 			ServletHandler secureServlets = new ServletHandler();
 			HttpContext secureServletContext = new HttpContext();
@@ -425,6 +415,26 @@ public class Mirth extends Thread {
 			servletContainer.stop();
 		} catch (Exception e) {
 			logger.warn("Could not stop web server.", e);
+		}
+	}
+
+	private void stopDatabase() {
+		String database = PropertyLoader.getProperty(mirthProperties, "database");
+		
+		if (database.equals("derby")) {
+			boolean gotException = false;
+			
+			try {
+				DriverManager.getConnection("jdbc:derby:;shutdown=true");
+			} catch (SQLException sqle) {
+				if (sqle != null && sqle.getSQLState() != null && sqle.getSQLState().equals("XJ015")) {
+					gotException = true;
+				}
+			}
+
+			if (gotException) {
+				System.out.println("Database shut down normally.");
+			}
 		}
 	}
 
