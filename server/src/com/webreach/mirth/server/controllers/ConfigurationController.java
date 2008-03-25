@@ -103,7 +103,7 @@ public class ConfigurationController {
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
 	private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
 	private boolean isEngineStarting = true;
-	
+
 	private JavaScriptUtil javaScriptUtil = JavaScriptUtil.getInstance();
 	private ExtensionController extensionController = ExtensionController.getInstance();
 	private ScriptController scriptController = ScriptController.getInstance();
@@ -279,8 +279,7 @@ public class ConfigurationController {
 			MuleConfigurationBuilder builder = new MuleConfigurationBuilder(channels, extensionController.getConnectorMetaData());
 			// add the newly generated configuration to the database
 			addConfiguration(builder.getConfiguration());
-			
-			
+
 			// update the storeMessages reference
 			channelController.updateChannelCache(channels);
 
@@ -663,11 +662,13 @@ public class ConfigurationController {
 		ChannelController channelController = ChannelController.getInstance();
 		AlertController alertController = AlertController.getInstance();
 		UserController userController = UserController.getInstance();
-
+		CodeTemplateController codeTemplateController = CodeTemplateController.getInstance();
+		
 		ServerConfiguration serverConfiguration = new ServerConfiguration();
 		serverConfiguration.setChannels(channelController.getChannel(null));
 		serverConfiguration.setAlerts(alertController.getAlert(null));
 		serverConfiguration.setUsers(userController.getUser(null));
+		serverConfiguration.setCodeTempaltes(codeTemplateController.getCodeTemplate(null));
 		serverConfiguration.setProperties(getServerProperties());
 		serverConfiguration.setGlobalScripts(getGlobalScripts());
 		return serverConfiguration;
@@ -676,28 +677,36 @@ public class ConfigurationController {
 	public void setServerConfiguration(ServerConfiguration serverConfiguration) throws ControllerException {
 		ChannelController channelController = ChannelController.getInstance();
 		AlertController alertController = AlertController.getInstance();
-
-		channelController.removeChannel(null);
-		alertController.removeAlert(null);
-
+		UserController userController = UserController.getInstance();
+		CodeTemplateController codeTemplateController = CodeTemplateController.getInstance();
+		
 		setServerProperties(serverConfiguration.getProperties());
 
-		for (Channel channel : serverConfiguration.getChannels()) {
-			if (!channel.getVersion().equals(getServerVersion())) {
-				Channel updatedChannel;
-				try {
-					updatedChannel = ImportConverter.convertChannelObject(channel);
-					PropertyVerifier.checkChannelProperties(updatedChannel);
-					PropertyVerifier.checkConnectorProperties(updatedChannel, extensionController.getConnectorMetaData());
+		if (serverConfiguration.getChannels() != null) {
+			channelController.removeChannel(null);
 
-				} catch (Exception e) {
-					logger.error("Unable to convert channel: " + e.getStackTrace());
-				}
+			for (Channel channel : serverConfiguration.getChannels()) {
+				PropertyVerifier.checkChannelProperties(channel);
+				PropertyVerifier.checkConnectorProperties(channel, extensionController.getConnectorMetaData());
+				channelController.updateChannel(channel, true);
 			}
-			channelController.updateChannel(channel, true);
 		}
-		alertController.updateAlerts(serverConfiguration.getAlerts());
-		setGlobalScripts(serverConfiguration.getGlobalScripts());
+
+		if (serverConfiguration.getAlerts() != null) {
+			alertController.removeAlert(null);
+			alertController.updateAlerts(serverConfiguration.getAlerts());
+		}
+		
+		if(serverConfiguration.getCodeTemplates() != null)
+		{
+			codeTemplateController.removeCodeTemplate(null);
+			codeTemplateController.updateCodeTemplates(serverConfiguration.getCodeTemplates());
+		}
+		
+		if(serverConfiguration.getGlobalScripts() != null)
+		{
+			setGlobalScripts(serverConfiguration.getGlobalScripts());
+		}
 	}
 
 	public boolean isEngineStarting() {
@@ -707,7 +716,7 @@ public class ConfigurationController {
 	public void setEngineStarting(boolean isEngineStarting) {
 		this.isEngineStarting = isEngineStarting;
 	}
-	
+
 	public void shutdown() {
 		CommandQueue.getInstance().addCommand(new Command(Command.Operation.SHUTDOWN_SERVER));
 	}

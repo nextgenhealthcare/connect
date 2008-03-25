@@ -5,11 +5,19 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -21,6 +29,7 @@ import org.xml.sax.SAXException;
 import com.webreach.mirth.connectors.soap.SOAPSenderProperties;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
+import com.webreach.mirth.model.ServerConfiguration;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
@@ -40,7 +49,41 @@ public class ImportConverter {
 	public static String convertMessage(String message) throws Exception {
 		return message;
 	}
+	
+	public static ServerConfiguration convertServerConfiguration(String serverConfiguration) throws Exception
+	{
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		Document document;
+		DocumentBuilder builder;
 
+		builder = factory.newDocumentBuilder();
+		document = builder.parse(new InputSource(new StringReader(serverConfiguration)));
+		Element channelsRoot = (Element) document.getElementsByTagName("channels").item(0);
+		NodeList channels = document.getElementsByTagName("com.webreach.mirth.model.Channel");
+		List<Channel> channelList = new ArrayList<Channel>();
+		int length = channels.getLength();
+		
+		for(int i = 0; i < length; i++)
+		{
+			Element channel = (Element) channels.item(0);
+			
+			TransformerFactory tf = TransformerFactory.newInstance();
+			Transformer trans = tf.newTransformer();
+			trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+			StringWriter sw = new StringWriter();
+			trans.transform(new DOMSource(channel), new StreamResult(sw));
+			String channelDocXML = sw.toString();
+						
+			channelList.add((Channel)serializer.fromXML(convertChannelString(channelDocXML)));
+
+			channelsRoot.removeChild(channel);
+		}
+				
+		ServerConfiguration config = (ServerConfiguration) serializer.fromXML(serverConfiguration);
+		config.setChannels(channelList);
+		return config;
+	}
+	
 	public static Channel convertChannelObject(Channel channel) throws Exception {
 		return (Channel) serializer.fromXML(convertChannelString(serializer.toXML(channel)));
 	}

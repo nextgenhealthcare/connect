@@ -7,11 +7,13 @@ import java.util.Properties;
 
 public class ServerConfiguration implements Serializable {
 	private String date;
-	private List<Channel> channels;
-	private List<User> users;
-	private List<Alert> alerts;
-	private Properties properties;
-	private Map<String, String> globalScripts;
+	private List<Channel> channels = null;
+	private List<User> users = null;
+	private List<Alert> alerts = null;
+	private List<CodeTemplate> codeTemplates = null;
+	private Properties properties = null;
+	private Map<String, String> globalScripts = null;
+	
 	public List<Alert> getAlerts() {
 		return this.alerts;
 	}
@@ -52,6 +54,14 @@ public class ServerConfiguration implements Serializable {
 		this.date = date;
 	}
 
+	public List<CodeTemplate> getCodeTemplates() {
+		return this.codeTemplates;
+	}
+
+	public void setCodeTempaltes(List<CodeTemplate> codeTemplates) {
+		this.codeTemplates = codeTemplates;
+	}
+	
 	public Map<String, String> getGlobalScripts() {
 		return globalScripts;
 	}
