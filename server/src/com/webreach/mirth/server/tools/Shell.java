@@ -886,6 +886,7 @@ public class Shell {
 	
 	private void commandShutdown(Token[] arguments) throws ClientException {
 		client.shutdown();
+		throw new QuitShell();
 	}
 	
 	/**
