@@ -686,6 +686,17 @@ public class ImportConverter {
 							}
 						}
 					}
+					
+					// Override convertLFtoCR and set it to "true".
+					propertyNames = inboundPropertiesElement.getElementsByTagName("property");
+					for (int j = 0; j < propertyNames.getLength(); j++) {
+						Node nameAttribute = propertyNames.item(j).getAttributes().getNamedItem("name");
+						if (propertyNames.item(j).getAttributes().getLength() > 0 && nameAttribute != null) {
+							if (nameAttribute.getNodeValue().equals("convertLFtoCR")) {
+								propertyNames.item(j).setTextContent("true");
+							}
+						}
+					}
 				}
 			}
 			
@@ -701,6 +712,17 @@ public class ImportConverter {
 						if (propertyNames.item(j).getAttributes().getLength() > 0 && nameAttribute != null) {
 							if (nameAttribute.getNodeValue().equals("encodeEntities")) {
 								outboundPropertiesElement.removeChild(propertyNames.item(j));
+							}
+						}
+					}
+					
+					// Override convertLFtoCR and set it to "true".
+					propertyNames = outboundPropertiesElement.getElementsByTagName("property");
+					for (int j = 0; j < propertyNames.getLength(); j++) {
+						Node nameAttribute = propertyNames.item(j).getAttributes().getNamedItem("name");
+						if (propertyNames.item(j).getAttributes().getLength() > 0 && nameAttribute != null) {
+							if (nameAttribute.getNodeValue().equals("convertLFtoCR")) {
+								propertyNames.item(j).setTextContent("true");
 							}
 						}
 					}
