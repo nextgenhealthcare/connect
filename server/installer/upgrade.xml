@@ -72,10 +72,6 @@
 					<equals arg1="${database}" arg2="derby" />
 					<then />
 					<else>
-						<propertyfile file="${install.path}/conf/install.tmp.properties">
-							<entry key="do.upgrade" value="true" />
-						</propertyfile>
-						
 						<echo>creating temp database properties</echo>
 						<property file="${install.path}/conf/${database}-SqlMapConfig.properties" />
 						<propertyfile file="${install.path}/conf/database.tmp.properties">
@@ -84,17 +80,24 @@
 							<entry key="username.tmp" value="${username}" />
 							<entry key="password.tmp" value="${password}" />
 						</propertyfile>
-						
-						<echo>creating temp mirth properties</echo>
-						<propertyfile file="${install.path}/conf/mirth.tmp.properties">
-							<entry key="http.port" value="${http.port}" />
-							<entry key="https.port" value="${https.port}" />
-							<entry key="jmx.port" value="${jmx.port}" />
-							<entry key="jmx.password" value="${jmx.password}" />
+						<echo>setting db upgrade flag to true</echo>
+						<propertyfile file="${install.path}/conf/install.tmp.properties">
+							<entry key="db.upgrade" value="true" />
 						</propertyfile>
-
 					</else>
 				</if>
+
+				<echo>creating temp mirth properties</echo>
+				<propertyfile file="${install.path}/conf/mirth.tmp.properties">
+					<entry key="http.port.tmp" value="${http.port}" />
+					<entry key="https.port.tmp" value="${https.port}" />
+					<entry key="jmx.port.tmp" value="${jmx.port}" />
+				</propertyfile>
+
+				<echo>setting mirth upgrade flag to true</echo>
+				<propertyfile file="${install.path}/conf/install.tmp.properties">
+					<entry key="mirth.upgrade" value="true" />
+				</propertyfile>
 			</then>
 			<else>
 				<echo>no previous installation found</echo>
@@ -105,27 +108,31 @@
 	<target name="restore">
 		<property file="${install.path}/conf/install.tmp.properties" />
 		<if>
-			<equals arg1="${do.upgrade}" arg2="true" />
+			<equals arg1="${db.upgrade}" arg2="true" />
 			<then>
-				<echo>performing restore of configuration properties</echo>
 				<property file="${install.path}/conf/database.tmp.properties" />
-				<property file="${install.path}/conf/mirth.tmp.properties" />
-				
-				<echo>updating mirth properties</echo>
-				<propertyfile file="${install.path}/conf/mirth.properties">
-					<entry key="database" value="${database.tmp}" />
-					<entry key="http.port" value="${http.port}" />
-					<entry key="https.port" value="${https.port}" />
-					<entry key="jmx.port" value="${jmx.port}" />
-					<entry key="jmx.password" value="${jmx.password}" />
-				</propertyfile>
-				
-				<echo>updating database properties: ${database.tmp}</echo>
+				<echo>restoring database properties: ${database.tmp}</echo>
 				<propertyfile file="${install.path}/conf/${database.tmp}-SqlMapConfig.properties">
 					<entry key="database" value="${database.tmp}" />
 					<entry key="url" value="${url.tmp}" />
 					<entry key="username" value="${username.tmp}" />
 					<entry key="password" value="${password.tmp}" />
+				</propertyfile>
+				
+				<propertyfile file="${install.path}/conf/mirth.properties">
+					<entry key="database" value="${database.tmp}" />
+				</propertyfile>
+			</then>
+		</if>
+		<if>
+			<equals arg1="${mirth.upgrade}" arg2="true" />
+			<then>
+				<echo>restoring mirth properties</echo>
+				<property file="${install.path}/conf/mirth.tmp.properties" />
+				<propertyfile file="${install.path}/conf/mirth.properties">
+					<entry key="http.port" value="${http.port.tmp}" />
+					<entry key="https.port" value="${https.port.tmp}" />
+					<entry key="jmx.port" value="${jmx.port.tmp}" />
 				</propertyfile>
 			</then>
 		</if>
