@@ -19,7 +19,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
+import org.mule.impl.MuleEvent;
 import org.mule.impl.MuleMessage;
+import org.mule.impl.MuleSession;
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.UMOEvent;
@@ -208,19 +210,16 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
 			template = messageObject.getEncodedData();
 		}
 		//this could be done with the one-liner below, however we need to ensure something
-		UMOMessage response = null;
-		if (connector.isSynchronised()){
-			response = receiver.routeMessage(new MuleMessage(template), true);
-		    
-		}else{
-			response = receiver.routeMessage(new MuleMessage(template));
-		    
-		}
+		Object response = null;
+	
+		UMOEvent event = new MuleEvent(new MuleMessage(template), receiver.getEndpoint(), new MuleSession(), connector.isSynchronised());
+		response = receiver.dispatchMessage(event);
+	
 		//UMOMessage response = receiver.routeMessage(new MuleMessage(messageObject.getEncodedData()), connector.isSynchronised());
 		if (response != null && response instanceof MuleMessage)
 		{
-
-		    UMOExceptionPayload payload = response.getExceptionPayload();
+			MuleMessage muleResponse = (MuleMessage)response;
+		    UMOExceptionPayload payload = muleResponse.getExceptionPayload();
 		    if (payload != null)
 		    {
 		        alertController.sendAlerts(((VMConnector) connector).getChannelId(), Constants.ERROR_412, "Error routing message", payload.getException());
