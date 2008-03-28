@@ -289,18 +289,18 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
 
             if (socket != null) {
 
-                String listenerIP = socket.getLocalAddress().toString() + ":" + socket.getLocalPort();
-                String senderIP = socket.getInetAddress().toString() + ":" + socket.getPort();
+                String sendingIP = socket.getLocalAddress().toString() + ":" + socket.getLocalPort();
+                String receivingIP = socket.getInetAddress().toString() + ":" + socket.getPort();
 
                 // If addresses begin with a slash "/", remove it.
-                if (listenerIP.startsWith("/")) {
-                    listenerIP = listenerIP.substring(1);
+                if (sendingIP.startsWith("/")) {
+                    sendingIP = sendingIP.substring(1);
                 }
-                if (senderIP.startsWith("/")) {
-                    senderIP = senderIP.substring(1);
+                if (receivingIP.startsWith("/")) {
+                    receivingIP = receivingIP.substring(1);
                 }
 
-                information += "Listener: " + listenerIP + "  Sender: " + senderIP;
+                information += "Sender: " + sendingIP + "  Receiver: " + receivingIP;
             }
 
             if (channelLog != null) {
