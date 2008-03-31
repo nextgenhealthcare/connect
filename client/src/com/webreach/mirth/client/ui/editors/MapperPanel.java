@@ -140,7 +140,9 @@ public class MapperPanel extends BasePanel
 
     public void updateTable()
     {
-        if (parent.getSelectedRow() != -1 && !parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString().equals("JavaScript"))
+    	String type = parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString();
+    	
+        if (parent.getSelectedRow() != -1 && !(type.equals("Message Builder") || type.equals("JavaScript")))
         {
             SwingUtilities.invokeLater(new Runnable()
             {
