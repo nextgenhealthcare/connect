@@ -239,8 +239,6 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				logger.debug("compiling filter script");
 				Script compiledScript = context.compileString(generatedScript, scriptId, 1, null);
 				compiledScriptCache.putCompiledScript(scriptId, compiledScript);
-			} else {
-				emptyFilterAndTransformer = true;
 			}
 		} catch (Exception e) {
 			if (e instanceof RhinoException) {
