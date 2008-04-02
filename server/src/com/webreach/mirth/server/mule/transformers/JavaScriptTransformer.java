@@ -63,6 +63,7 @@ import com.webreach.mirth.server.mule.adaptors.AdaptorFactory;
 import com.webreach.mirth.server.util.CompiledScriptCache;
 import com.webreach.mirth.server.util.JavaScriptScopeUtil;
 import com.webreach.mirth.server.util.UUIDGenerator;
+import com.webreach.mirth.util.StringUtil;
 
 public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -272,6 +273,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				// Check to see if the properties are equal to the default
 				// properties
 				Map defaultProperties = DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(Protocol.valueOf(inboundProtocol));
+
 				if (!this.inboundProperties.equals(defaultProperties)) {
 					emptyFilterAndTransformer = false;
 				}
@@ -279,25 +281,27 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				// Check to see if the properties are equal to the default
 				// properties
 				Map defaultProperties = DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(Protocol.valueOf(outboundProtocol));
+
 				if (!this.outboundProperties.equals(defaultProperties)) {
 					emptyFilterAndTransformer = false;
 				}
 			}
+			
 			// hack to get around cr/lf conversion issue see MIRTH-739
 			boolean convertLFtoCR = true;
-			if (emptyFilterAndTransformer) {
 
-				if (this.inboundProperties != null && this.inboundProperties.get("convertLFtoCR") != null) {
-					convertLFtoCR = Boolean.parseBoolean((String) inboundProperties.get("convertLFtoCR"));
-				} else if (this.outboundProperties != null && this.outboundProperties.get("convertLFtoCR") != null) {
-					convertLFtoCR = Boolean.parseBoolean((String) outboundProperties.get("convertLFtoCR"));
-				}
+			// if all of the properties are set and both are false, then set convertLFtoCR to false
+			if ((this.inboundProperties != null) && (this.inboundProperties.get("convertLFtoCR") != null) && (this.outboundProperties != null) && (this.outboundProperties.get("convertLFtoCR") != null)) {
+				convertLFtoCR = Boolean.parseBoolean((String) inboundProperties.get("convertLFtoCR")) || Boolean.parseBoolean((String) outboundProperties.get("convertLFtoCR"));
 			}
+
 			if (this.getMode().equals(Mode.SOURCE.toString())) {
 				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(inboundProtocol));
+
 				if (convertLFtoCR) {
-					source = ((String) source).replaceAll("\\n", "\r").replaceAll("\\r\\r", "\r");
+					source = StringUtil.convertLFtoCR((String) source);
 				}
+
 				messageObject = adaptor.getMessage((String) source, channelId, encryptData, inboundProperties, emptyFilterAndTransformer);
 
 				// Grab and process our attachments
@@ -312,13 +316,16 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 						MessageObjectController.getInstance().insertAttachment(attachment);
 					}
 				}
+
 				// Load properties from the context to the messageObject
 				messageObject.getChannelMap().putAll(context.getProperties());
 			} else if (this.getMode().equals(Mode.DESTINATION.toString())) {
 				MessageObject incomingMessageObject = (MessageObject) source;
+
 				if (convertLFtoCR) {
-					incomingMessageObject.setEncodedData(incomingMessageObject.getEncodedData().replaceAll("\\n", "\r").replaceAll("\\r\\r", "\r"));
+					incomingMessageObject.setEncodedData(StringUtil.convertLFtoCR(incomingMessageObject.getEncodedData()));
 				}
+
 				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(inboundProtocol));
 				messageObject = adaptor.convertMessage(incomingMessageObject, this.getConnectorName(), channelId, encryptData, inboundProperties, emptyFilterAndTransformer);
 				messageObject.setEncodedDataProtocol(Protocol.valueOf(this.outboundProtocol));
@@ -328,8 +335,16 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			throw new TransformerException(this, e);
 		}
 		// ---- End MO checks -----
+		MessageObject finalMessageObject = null;
 
-		MessageObject finalMessageObject = evaluateScript(messageObject);
+		// do not evaluate scripts if there are none
+		if (emptyFilterAndTransformer) {
+			messageObject.setStatus(MessageObject.Status.TRANSFORMED);
+			finalMessageObject = messageObject;
+		} else {
+			finalMessageObject = evaluateScript(messageObject);
+		}
+
 		boolean messageAccepted = finalMessageObject.getStatus().equals(MessageObject.Status.TRANSFORMED);
 
 		try {
