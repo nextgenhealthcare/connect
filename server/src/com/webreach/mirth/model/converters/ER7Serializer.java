@@ -47,8 +47,6 @@ import ca.uhn.hl7v2.parser.XMLParser;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
 
-import com.webreach.mirth.util.StringUtil;
-
 public class ER7Serializer implements IXMLSerializer<String> {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private PipeParser pipeParser;

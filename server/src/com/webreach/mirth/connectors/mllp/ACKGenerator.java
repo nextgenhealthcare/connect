@@ -5,7 +5,6 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 import com.webreach.mirth.server.util.DateUtil;
-import com.webreach.mirth.util.StringUtil;
 
 //Supports ACKS from 2.1-2.4
 //2.5 is supported but the advanced fields in ERR and SFT are not supported
