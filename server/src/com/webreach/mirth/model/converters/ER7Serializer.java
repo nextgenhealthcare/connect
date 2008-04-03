@@ -262,24 +262,36 @@ public class ER7Serializer implements IXMLSerializer<String> {
 	        char fieldDelim = source.charAt(3);
 	        char elementDelim = source.charAt(4);
 	        String mshFields[] = source.trim().split(segmentDelim)[0].split(Pattern.quote(String.valueOf(fieldDelim)));
+	        Pattern elementPattern = Pattern.compile(Pattern.quote(String.valueOf(elementDelim)));
+	        int mshFieldsLength = mshFields.length;
+	        
 	        String event = "";
 	        
-	        if (mshFields.length > 8) {
-	        	event = mshFields[8];
-	        }
-	        
-	        int subTypeLocation = event.indexOf(elementDelim);
-	        if(subTypeLocation > 0)
-	        {
-	            String subType = event.substring(subTypeLocation + 1);
-	            event = event.substring(0, subTypeLocation);
-	            event = event + "-" + subType;
-	        }
+			if (mshFieldsLength > 8) {
+				String[] msh9 = elementPattern.split(mshFields[8]); // MSH.9
+				event = msh9[0]; // MSH.9.1
+				
+				if (msh9.length > 1) {
+					event = event + "-" + msh9[1]; // MSH.9.2
+				}
+			}
+
 	        if(event.equals(""))
 	            event = "Unknown";
-	        map.put("version", mshFields[3]);
+	        
+	        String sendingFacility = "";
+			if (mshFieldsLength > 3) {
+				sendingFacility = elementPattern.split(mshFields[3])[0]; // MSH.4.1
+			}
+			
+			String version = "";
+			if (mshFieldsLength > 11) {
+				version = elementPattern.split(mshFields[11])[0]; // MSH.12.1
+			} 
+				
+	        map.put("version", version);
 	        map.put("type", event);
-	        map.put("source", mshFields[3]);
+	        map.put("source", sendingFacility);
 	        return map;
 		}
 	}
