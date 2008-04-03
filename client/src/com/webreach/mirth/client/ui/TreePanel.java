@@ -53,6 +53,7 @@ import com.webreach.mirth.model.converters.SerializerFactory;
 import com.webreach.mirth.model.dicom.DICOMVocabulary;
 import com.webreach.mirth.model.util.MessageVocabulary;
 import com.webreach.mirth.model.util.MessageVocabularyFactory;
+import com.webreach.mirth.util.StringUtil;
 
 /**
  * 
@@ -356,7 +357,7 @@ public class TreePanel extends javax.swing.JPanel
         			convertLFtoCR = Boolean.parseBoolean((String) protocolProperties.get("convertLFtoCR"));
         		}
                 if (convertLFtoCR){
-                	source = source.replaceAll("\\n", "\r").replaceAll("\\r\\r", "\r").trim();
+                	source = StringUtil.convertLFtoCR(source).trim();
                 }
             }
             else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.NCPDP).equals(messageType))
