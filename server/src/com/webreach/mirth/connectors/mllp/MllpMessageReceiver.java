@@ -519,7 +519,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 					// ER: Error / Reject condition
 					// SU: Successful completion only
 					
-					message = StringUtil.convertLFtoCR(message.trim());  // Make sure the message has CR line endings
+					message = message.trim();
 					char segmentDelim = '\r';
 					char fieldDelim = message.charAt(3); // Usually |
 					char elementDelim = message.charAt(4); // Usually ^

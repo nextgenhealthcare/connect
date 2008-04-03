@@ -257,7 +257,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 	            logger.error("Unable to parse, message is null or too short: " + source);
 	            throw new SerializerException("Unable to parse, message is null or too short: " + source);
 	        }
-	        source = StringUtil.convertLFtoCR(source);  // Make sure the message has CR line endings
+
 	        String segmentDelim = "\r";
 	        char fieldDelim = source.charAt(3);
 	        char elementDelim = source.charAt(4);

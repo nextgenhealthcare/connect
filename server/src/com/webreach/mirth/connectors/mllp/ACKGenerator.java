@@ -22,7 +22,7 @@ public class ACKGenerator {
 			logger.error("Unable to parse, message is null or too short: " + message);
 			throw new Exception("Unable to parse, message is null or too short: " + message);
 		}
-		message = StringUtil.convertLFtoCR(message);  // Make sure the message has CR line endings
+
 		char segmentDelim = '\r';
 		char fieldDelim = message.charAt(3); // Usually |
 		char elementDelim = message.charAt(4); // Usually ^
