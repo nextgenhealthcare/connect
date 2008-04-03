@@ -22,7 +22,7 @@ public class ACKGenerator {
 			logger.error("Unable to parse, message is null or too short: " + message);
 			throw new Exception("Unable to parse, message is null or too short: " + message);
 		}
-		message = StringUtil.convertLFtoCR(message);
+		message = StringUtil.convertLFtoCR(message);  // Make sure the message has CR line endings
 		char segmentDelim = '\r';
 		char fieldDelim = message.charAt(3); // Usually |
 		char elementDelim = message.charAt(4); // Usually ^
@@ -57,26 +57,39 @@ public class ACKGenerator {
 		String procidmode = ""; // // MSH.11.2
 		String version = ""; // MSH.12.1
 
-		if (mshFieldsLength > 10) {
-			version = elementPattern.split(mshFields[11])[0]; // MSH.12.1
-		} else if (mshFieldsLength > 9) {
-			String[] msh11 = elementPattern.split(mshFields[10]); // MSH.11
-			procid = msh11[0]; // MSH.11.1
-			if (msh11.length > 1) {
-				procidmode = msh11[1]; // MSH.11.2
-			}
-		} else if (mshFieldsLength > 8) {
-			originalid = elementPattern.split(mshFields[9])[0]; // MSH.10.1
-		} else if (mshFieldsLength > 4) {
-			receivingFacility = elementPattern.split(mshFields[5])[0]; // MSH.6.1
-		} else if (mshFieldsLength > 3) {
-			receivingApplication = elementPattern.split(mshFields[4])[0]; // MSH.5.1
-		} else if (mshFieldsLength > 2) {
-			sendingFacility = elementPattern.split(mshFields[3])[0]; // MSH.4.1
-		} else if (mshFieldsLength > 1) {
+		if (mshFieldsLength > 1) {
 			sendingApplication = elementPattern.split(mshFields[2])[0]; // MSH.3.1
+			
+			if (mshFieldsLength > 2) {
+				sendingFacility = elementPattern.split(mshFields[3])[0]; // MSH.4.1
+				
+				if (mshFieldsLength > 3) {
+					receivingApplication = elementPattern.split(mshFields[4])[0]; // MSH.5.1
+					
+					if (mshFieldsLength > 4) {
+						receivingFacility = elementPattern.split(mshFields[5])[0]; // MSH.6.1
+						
+						if (mshFieldsLength > 8) {
+							originalid = elementPattern.split(mshFields[9])[0]; // MSH.10.1
+							
+							if (mshFieldsLength > 9) {
+								String[] msh11 = elementPattern.split(mshFields[10]); // MSH.11
+								procid = msh11[0]; // MSH.11.1
+								
+								if (msh11.length > 1) {
+									procidmode = msh11[1]; // MSH.11.2
+								}
+								
+								if (mshFieldsLength > 10) {
+									version = elementPattern.split(mshFields[11])[0]; // MSH.12.1
+								} 
+							}
+						}
+					} 
+				}
+			} 
 		}
-
+		
 		ackBuilder.append(receivingApplication);
 		ackBuilder.append(fieldDelim);
 		ackBuilder.append(receivingFacility);

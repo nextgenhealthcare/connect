@@ -30,6 +30,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -45,6 +46,8 @@ import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.parser.XMLParser;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
+
+import com.webreach.mirth.util.StringUtil;
 
 public class ER7Serializer implements IXMLSerializer<String> {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -254,10 +257,11 @@ public class ER7Serializer implements IXMLSerializer<String> {
 	            logger.error("Unable to parse, message is null or too short: " + source);
 	            throw new SerializerException("Unable to parse, message is null or too short: " + source);
 	        }
+	        source = StringUtil.convertLFtoCR(source);  // Make sure the message has CR line endings
 	        String segmentDelim = "\r";
 	        char fieldDelim = source.charAt(3);
 	        char elementDelim = source.charAt(4);
-	        String mshFields[] = source.trim().split(segmentDelim)[0].split("\\" + fieldDelim);
+	        String mshFields[] = source.trim().split(segmentDelim)[0].split(Pattern.quote(String.valueOf(fieldDelim)));
 	        String event = mshFields[8];
 	        int subTypeLocation = event.indexOf(elementDelim);
 	        if(subTypeLocation > 0)

@@ -519,12 +519,12 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 					// ER: Error / Reject condition
 					// SU: Successful completion only
 					
-					String tempMessage = StringUtil.convertLFtoCR(message.trim());
+					message = StringUtil.convertLFtoCR(message.trim());  // Make sure the message has CR line endings
 					char segmentDelim = '\r';
-					char fieldDelim = tempMessage.charAt(3); // Usually |
-					char elementDelim = tempMessage.charAt(4); // Usually ^
+					char fieldDelim = message.charAt(3); // Usually |
+					char elementDelim = message.charAt(4); // Usually ^
 					
-					String mshString = tempMessage.substring(0, tempMessage.indexOf(String.valueOf(segmentDelim)));
+					String mshString = message.substring(0, message.indexOf(String.valueOf(segmentDelim)));
 
 					Pattern fieldPattern = Pattern.compile(Pattern.quote(String.valueOf(fieldDelim)));
 					Pattern elementPattern = Pattern.compile(Pattern.quote(String.valueOf(elementDelim)));
@@ -535,6 +535,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 					if (mshFields.length > 13) {
 						msh15 = elementPattern.split(mshFields[14])[0]; // MSH.15.1
 					} 
+					
 					if (msh15 != null && !msh15.equals("")) {
 						if (msh15.equalsIgnoreCase("AL")) {
 							always = true;
