@@ -57,22 +57,22 @@ public class ACKGenerator {
 		String procidmode = ""; // // MSH.11.2
 		String version = ""; // MSH.12.1
 
-		if (mshFieldsLength > 1) {
+		if (mshFieldsLength > 2) {
 			sendingApplication = elementPattern.split(mshFields[2])[0]; // MSH.3.1
 			
-			if (mshFieldsLength > 2) {
+			if (mshFieldsLength > 3) {
 				sendingFacility = elementPattern.split(mshFields[3])[0]; // MSH.4.1
 				
-				if (mshFieldsLength > 3) {
+				if (mshFieldsLength > 4) {
 					receivingApplication = elementPattern.split(mshFields[4])[0]; // MSH.5.1
 					
-					if (mshFieldsLength > 4) {
+					if (mshFieldsLength > 5) {
 						receivingFacility = elementPattern.split(mshFields[5])[0]; // MSH.6.1
 						
-						if (mshFieldsLength > 8) {
+						if (mshFieldsLength > 9) {
 							originalid = elementPattern.split(mshFields[9])[0]; // MSH.10.1
 							
-							if (mshFieldsLength > 9) {
+							if (mshFieldsLength > 10) {
 								String[] msh11 = elementPattern.split(mshFields[10]); // MSH.11
 								procid = msh11[0]; // MSH.11.1
 								
@@ -80,7 +80,7 @@ public class ACKGenerator {
 									procidmode = msh11[1]; // MSH.11.2
 								}
 								
-								if (mshFieldsLength > 10) {
+								if (mshFieldsLength > 11) {
 									version = elementPattern.split(mshFields[11])[0]; // MSH.12.1
 								} 
 							}

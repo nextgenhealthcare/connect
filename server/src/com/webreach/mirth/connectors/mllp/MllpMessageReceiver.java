@@ -532,7 +532,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 					String[] mshFields = fieldPattern.split(mshString);
 					
 					String msh15 = "";
-					if (mshFields.length > 13) {
+					if (mshFields.length > 14) {
 						msh15 = elementPattern.split(mshFields[14])[0]; // MSH.15.1
 					} 
 					

@@ -262,7 +262,12 @@ public class ER7Serializer implements IXMLSerializer<String> {
 	        char fieldDelim = source.charAt(3);
 	        char elementDelim = source.charAt(4);
 	        String mshFields[] = source.trim().split(segmentDelim)[0].split(Pattern.quote(String.valueOf(fieldDelim)));
-	        String event = mshFields[8];
+	        String event = "";
+	        
+	        if (mshFields.length > 8) {
+	        	event = mshFields[8];
+	        }
+	        
 	        int subTypeLocation = event.indexOf(elementDelim);
 	        if(subTypeLocation > 0)
 	        {
