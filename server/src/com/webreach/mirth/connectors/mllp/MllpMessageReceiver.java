@@ -30,6 +30,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.resource.spi.work.Work;
 import javax.resource.spi.work.WorkException;
@@ -55,8 +56,6 @@ import org.mule.umo.provider.UMOMessageAdapter;
 import com.webreach.mirth.connectors.mllp.protocols.LlpProtocol;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
-import com.webreach.mirth.model.converters.ER7Serializer;
-import com.webreach.mirth.model.converters.SerializerFactory;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MonitoringController;
@@ -65,6 +64,7 @@ import com.webreach.mirth.server.controllers.MonitoringController.Event;
 import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
 import com.webreach.mirth.server.util.BatchMessageProcessor;
 import com.webreach.mirth.server.util.StackTracePrinter;
+import com.webreach.mirth.util.StringUtil;
 
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 
@@ -518,9 +518,23 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 					// NE: Never
 					// ER: Error / Reject condition
 					// SU: Successful completion only
-					ER7Serializer serializer = SerializerFactory.getHL7Serializer(false, false);
-					String xmlMessage = serializer.toXML(message.trim());
-					String msh15 = serializer.getXMLValue(xmlMessage, "<msh.15.1>", "</msh.15.1>");
+					
+					String tempMessage = StringUtil.convertLFtoCR(message.trim());
+					char segmentDelim = '\r';
+					char fieldDelim = tempMessage.charAt(3); // Usually |
+					char elementDelim = tempMessage.charAt(4); // Usually ^
+					
+					String mshString = tempMessage.substring(0, tempMessage.indexOf(String.valueOf(segmentDelim)));
+
+					Pattern fieldPattern = Pattern.compile(Pattern.quote(String.valueOf(fieldDelim)));
+					Pattern elementPattern = Pattern.compile(Pattern.quote(String.valueOf(elementDelim)));
+
+					String[] mshFields = fieldPattern.split(mshString);
+					
+					String msh15 = "";
+					if (mshFields.length > 13) {
+						msh15 = elementPattern.split(mshFields[14])[0]; // MSH.15.1
+					} 
 					if (msh15 != null && !msh15.equals("")) {
 						if (msh15.equalsIgnoreCase("AL")) {
 							always = true;
