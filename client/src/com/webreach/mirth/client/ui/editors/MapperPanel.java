@@ -140,19 +140,21 @@ public class MapperPanel extends BasePanel
 
     public void updateTable()
     {
-    	String type = parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString();
-    	
-        if (parent.getSelectedRow() != -1 && !(type.equals("Message Builder") || type.equals("JavaScript")))
-        {
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    parent.getTableModel().setValueAt(variableTextField.getText(), parent.getSelectedRow(), parent.STEP_NAME_COL);
-                    parent.updateTaskPane(parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString());
-                }
-            });
-        }
+    	if (parent.getSelectedRow() != -1) {
+    		String type = parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString();
+	        
+    		if (!(type.equals("Message Builder") || type.equals("JavaScript")))
+	        {
+	            SwingUtilities.invokeLater(new Runnable()
+	            {
+	                public void run()
+	                {
+	                    parent.getTableModel().setValueAt(variableTextField.getText(), parent.getSelectedRow(), parent.STEP_NAME_COL);
+	                    parent.updateTaskPane(parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString());
+	                }
+	            });
+	        }
+    	}
     }
 
     public Map<Object, Object> getData()
