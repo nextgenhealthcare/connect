@@ -57,14 +57,11 @@ import org.w3c.dom.Element;
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatus;
-import com.webreach.mirth.model.CodeTemplate;
 import com.webreach.mirth.model.Configuration;
 import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.ServerConfiguration;
 import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.model.util.ImportConverter;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
 import com.webreach.mirth.server.builders.MuleConfigurationBuilder;
@@ -88,10 +85,10 @@ public class ConfigurationController {
 	private static final String CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT = "// This script executes once after a message has been processed\nreturn;";
 	private static final String GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT = "// Modify the message variable below to pre process data\n// This script applies across all channels\nreturn message;";
 	private static final String GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT = "// This script executes once after a message has been processed\n// This script applies across all channels\nreturn;";
-	private static final String POSTPROCESSOR = "Postprocessor";
-	private static final String PREPROCESSOR = "Preprocessor";
-	private static final String SHUTDOWN = "Shutdown";
-	private static final String DEPLOY = "Deploy";
+	public static final String POSTPROCESSOR = "Postprocessor";
+	public static final String PREPROCESSOR = "Preprocessor";
+	public static final String SHUTDOWN = "Shutdown";
+	public static final String DEPLOY = "Deploy";
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SystemLogger systemLogger = SystemLogger.getInstance();
 	public static String mirthHomeDir = new File(ClassPathResource.getResourceURI("mirth.properties")).getParentFile().getParent();
@@ -296,50 +293,44 @@ public class ConfigurationController {
 	}
 
 	public void compileScripts(List<Channel> channels) throws Exception {
-		Map<String, String> globalScripts = getGlobalScripts();
+		Iterator<Entry<String, String>> iter = getGlobalScripts().entrySet().iterator();
 
-		Iterator i = globalScripts.entrySet().iterator();
-		while (i.hasNext()) {
-			Entry entry = (Entry) i.next();
-			if (entry.getKey().toString().equals(PREPROCESSOR)) {
-				if (!globalScripts.get(PREPROCESSOR).equals(GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT) && !globalScripts.get(PREPROCESSOR).equals("")) {
-					javaScriptUtil.compileScript(PREPROCESSOR, globalScripts.get(PREPROCESSOR), false);
-					logger.debug("adding global preprocessor");
-				} else {
+		while (iter.hasNext()) {
+			Entry<String, String> entry = (Entry<String, String>) iter.next();
+			String key = entry.getKey();
+			String value = entry.getValue();
+
+			if (key.equals(PREPROCESSOR)) {
+				if (!javaScriptUtil.compileAndAddScript(key, value, GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT, false)) {
 					logger.debug("removing global preprocessor");
 					javaScriptUtil.removeScriptFromCache(PREPROCESSOR);
 				}
-			} else if (entry.getKey().toString().equals(POSTPROCESSOR)) {
-				if (!globalScripts.get(POSTPROCESSOR).equals(GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT) && !globalScripts.get(POSTPROCESSOR).equals("")) {
-					javaScriptUtil.compileScript(POSTPROCESSOR, globalScripts.get(POSTPROCESSOR), false);
-					logger.debug("adding global postprocessor");
-				} else {
+			} else if (key.equals(POSTPROCESSOR)) {
+				if (!javaScriptUtil.compileAndAddScript(key, value, GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT, false)) {
 					logger.debug("removing global postprocessor");
 					javaScriptUtil.removeScriptFromCache(POSTPROCESSOR);
 				}
 			} else {
-				if (!globalScripts.get(entry.getKey()).equals("")) {
-					javaScriptUtil.compileScript((String) entry.getKey(), globalScripts.get(entry.getKey()), false);
-					logger.debug("adding " + entry.getKey());
-				} else {
-					logger.debug("remvoing " + entry.getKey());
-					javaScriptUtil.removeScriptFromCache((String) entry.getKey());
+				// add the DEPLOY and SHUTDOWN scripts,
+				// which do not have defaults
+				if (!javaScriptUtil.compileAndAddScript(key, value, "", false)) {
+					logger.debug("remvoing " + key);
+					javaScriptUtil.removeScriptFromCache(key);
 				}
 			}
 		}
 
 		for (Channel channel : channels) {
 			if (channel.isEnabled()) {
-				javaScriptUtil.compileScript(channel.getId() + "_Deploy", channel.getDeployScript(), false);
-				javaScriptUtil.compileScript(channel.getId() + "_Shutdown", channel.getShutdownScript(), false);
+				javaScriptUtil.compileAndAddScript(channel.getId() + "_Deploy", channel.getDeployScript(), null, false);
+				javaScriptUtil.compileAndAddScript(channel.getId() + "_Shutdown", channel.getShutdownScript(), null, false);
+
 				// only compile and run post processor if its not the default
-				if (!channel.getPostprocessingScript().equals(CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT) && !channel.getPostprocessingScript().equals("")) {
-					javaScriptUtil.compileScript(channel.getId() + "_Postprocessor", channel.getPostprocessingScript(), true);
-					logger.debug("adding " + channel.getId() + "_Postprocessor");
-				} else {
+				if (!javaScriptUtil.compileAndAddScript(channel.getId() + "_Postprocessor", channel.getPostprocessingScript(), CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT, true)) {
 					logger.debug("removing " + channel.getId() + "_Postprocessor");
 					javaScriptUtil.removeScriptFromCache(channel.getId() + "_Postprocessor");
 				}
+
 			} else {
 				javaScriptUtil.removeScriptFromCache(channel.getId() + "_Deploy");
 				javaScriptUtil.removeScriptFromCache(channel.getId() + "_Shutdown");
@@ -663,7 +654,7 @@ public class ConfigurationController {
 		AlertController alertController = AlertController.getInstance();
 		UserController userController = UserController.getInstance();
 		CodeTemplateController codeTemplateController = CodeTemplateController.getInstance();
-		
+
 		ServerConfiguration serverConfiguration = new ServerConfiguration();
 		serverConfiguration.setChannels(channelController.getChannel(null));
 		serverConfiguration.setAlerts(alertController.getAlert(null));
@@ -679,7 +670,7 @@ public class ConfigurationController {
 		AlertController alertController = AlertController.getInstance();
 		UserController userController = UserController.getInstance();
 		CodeTemplateController codeTemplateController = CodeTemplateController.getInstance();
-		
+
 		setServerProperties(serverConfiguration.getProperties());
 
 		if (serverConfiguration.getChannels() != null) {
@@ -696,15 +687,13 @@ public class ConfigurationController {
 			alertController.removeAlert(null);
 			alertController.updateAlerts(serverConfiguration.getAlerts());
 		}
-		
-		if(serverConfiguration.getCodeTemplates() != null)
-		{
+
+		if (serverConfiguration.getCodeTemplates() != null) {
 			codeTemplateController.removeCodeTemplate(null);
 			codeTemplateController.updateCodeTemplates(serverConfiguration.getCodeTemplates());
 		}
-		
-		if(serverConfiguration.getGlobalScripts() != null)
-		{
+
+		if (serverConfiguration.getGlobalScripts() != null) {
 			setGlobalScripts(serverConfiguration.getGlobalScripts());
 		}
 	}

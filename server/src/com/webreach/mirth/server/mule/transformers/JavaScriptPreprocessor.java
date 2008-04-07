@@ -45,6 +45,7 @@ import com.webreach.mirth.model.CodeTemplate;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
 import com.webreach.mirth.server.controllers.CodeTemplateController;
+import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.util.CompiledScriptCache;
@@ -56,7 +57,8 @@ public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
 	private ScriptController scriptController = ScriptController.getInstance();
 	private CodeTemplateController codeTemplateController = CodeTemplateController.getInstance();
-	
+	private static String LOCAL_DEFAULT_SCRIPT = "return message;";
+
 	public String getPreprocessingScriptId() {
 		return this.preprocessingScriptId;
 	}
@@ -67,25 +69,36 @@ public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 
 	@Override
 	public void initialise() throws InitialisationException {
+		boolean createdContext = false;
+		
 		try {
-			Context context = Context.enter();
-
 			String preprocessingScript = scriptController.getScript(preprocessingScriptId);
-			
-			if ((preprocessingScript != null) && (preprocessingScript.length() > 0) && !preprocessingScript.equals("// Modify the message variable below to pre process data\nreturn message;")) {
-				String generatedPreprocessingScript = generatePreprocessingScript(preprocessingScript);
+
+			if ((preprocessingScript != null) && (preprocessingScript.length() > 0)) {
+				Context context = Context.enter();
+				createdContext = true;
+
 				logger.debug("compiling preprocessing script");
-				Script compiledPreprocessingScript = context.compileString(generatedPreprocessingScript, preprocessingScriptId, 1, null);
-				compiledScriptCache.putCompiledScript(preprocessingScriptId, compiledPreprocessingScript);
-				logger.debug("adding preprocessor script");
-			}else{
-				logger.debug("removing preprocessor script");
+				Script compiledPreprocessingScript = context.compileString(generatePreprocessingScript(preprocessingScript), preprocessingScriptId, 1, null);
+				String decompiledPreprocessingScript = context.decompileScript(compiledPreprocessingScript, 0);
+
+				Script compiledDefaultScript = context.compileString(generatePreprocessingScript(LOCAL_DEFAULT_SCRIPT), preprocessingScriptId, 1, null);
+				String decompiledDefaultScript = context.decompileScript(compiledDefaultScript, 0);
+
+				if (!decompiledDefaultScript.equals(decompiledPreprocessingScript)) {
+					logger.debug("adding preprocessor script");
+					compiledScriptCache.putCompiledScript(preprocessingScriptId, compiledPreprocessingScript);
+				}
+			} else {
+				logger.debug("clearing preprocessor script from previous deploy");
 				compiledScriptCache.removeCompiledScript(preprocessingScriptId);
 			}
 		} catch (Exception e) {
 			throw new InitialisationException(e, this);
 		} finally {
-			Context.exit();
+			if (createdContext) {
+				Context.exit();	
+			}
 		}
 	}
 
@@ -99,49 +112,51 @@ public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 		} else if (src instanceof String) {
 			message = (String) src;
 		}
-		
+
 		return doPreprocess(message, context);
 	}
 
 	public String doPreprocess(String message, UMOEventContext muleContext) throws TransformerException {
+		boolean createdContext = false;
+		
 		try {
-			Logger scriptLogger = Logger.getLogger("preprocessor");
-			Context context = Context.enter();
-			Scriptable scope = new ImporterTopLevel(context);
-			List<Attachment> attachments = new ArrayList();
-			muleContext.getProperties().put("attachments", attachments);
-			scope.put("message", scope, message);
-			scope.put("logger", scope, scriptLogger);
-			scope.put("globalMap", scope, GlobalVariableStore.getInstance());
-			scope.put("router", scope, new VMRouter());
-			scope.put("muleContext", scope, muleContext);
-			//scope.put("replacer", scope, new TemplateValueReplacer()); //Probably don't need the overhead of this
-			
-			//Add the contextMap, it contains MuleContext properties
-			Map contextMap = new HashMap();
-			muleContext.getProperties().putAll(contextMap);
-			scope.put("contextMap", scope, contextMap);
-			
-            Script globalCompiledScript = compiledScriptCache.getCompiledScript("Preprocessor");
+			Script globalCompiledScript = compiledScriptCache.getCompiledScript("Preprocessor");
 			Script compiledScript = compiledScriptCache.getCompiledScript(preprocessingScriptId);
 			String returnValue = message;
 			
-            if(globalCompiledScript != null)
-            {
-                Object result = globalCompiledScript.exec(context, scope);
-                String processedMessage = (String) Context.jsToJava(result, java.lang.String.class);
-                
-                if (processedMessage != null) {
-                    returnValue = processedMessage;
-                }
-            }
-            
-			if (compiledScript != null) {
-				Object result = compiledScript.exec(context, scope);
-				String processedMessage = (String) Context.jsToJava(result, java.lang.String.class);
+			if ((compiledScript != null) || (globalCompiledScript != null)) {
+				Logger scriptLogger = Logger.getLogger("preprocessor");
+				Context context = Context.enter();
+				createdContext = true;
+				Scriptable scope = new ImporterTopLevel(context);
+				List<Attachment> attachments = new ArrayList();
+				muleContext.getProperties().put("attachments", attachments);
+				scope.put("message", scope, message);
+				scope.put("logger", scope, scriptLogger);
+				scope.put("globalMap", scope, GlobalVariableStore.getInstance());
+				scope.put("router", scope, new VMRouter());
+				scope.put("muleContext", scope, muleContext);
+				// Add the contextMap, it contains MuleContext properties
+				Map contextMap = new HashMap();
+				muleContext.getProperties().putAll(contextMap);
+				scope.put("contextMap", scope, contextMap);
 
-				if (processedMessage != null) {
-					returnValue = processedMessage;
+				if (globalCompiledScript != null) {
+					Object result = globalCompiledScript.exec(context, scope);
+					String processedMessage = (String) Context.jsToJava(result, java.lang.String.class);
+
+					if (processedMessage != null) {
+						returnValue = processedMessage;
+					}
+				}
+
+				if (compiledScript != null) {
+					Object result = compiledScript.exec(context, scope);
+					String processedMessage = (String) Context.jsToJava(result, java.lang.String.class);
+
+					if (processedMessage != null) {
+						returnValue = processedMessage;
+					}
 				}
 			}
 
@@ -149,7 +164,9 @@ public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 		} catch (Exception e) {
 			throw new TransformerException(this, e);
 		} finally {
-			Context.exit();
+			if (createdContext) {
+				Context.exit();	
+			}
 		}
 	}
 
@@ -157,28 +174,29 @@ public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 		logger.debug("generating preprocessing script");
 		StringBuilder script = new StringBuilder();
 		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
-		// The addAttachment function let's us dynamically put data into attachment table
+		// The addAttachment function let's us dynamically put data into
+		// attachment table
 		script.append("String.prototype.trim = function() { return this.replace(/^\\s+|\\s+$/g,\"\").replace(/^\\t+|\\t+$/g,\"\"); };");
-		
+
 		script.append("function addAttachment(data, type) {");
 		script.append("var attachment = Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().createAttachment(data, type);");
 		script.append("muleContext.getProperties().get('attachments').add(attachment); \n");
 		script.append("return attachment; }\n");
-		
+
 		try {
 			List<CodeTemplate> templates = codeTemplateController.getCodeTemplate(null);
 			for (CodeTemplate template : templates) {
 				if (template.getType() == CodeSnippetType.FUNCTION) {
 					if (template.getScope() == CodeTemplate.ContextType.GLOBAL_CONTEXT.getContext() || template.getScope() == CodeTemplate.ContextType.CHANNEL_CONTEXT.getContext()) {
 						script.append(template.getCode());
-					} 
+					}
 				}
 			}
 		} catch (ControllerException e) {
 			logger.error("Could not get user functions.", e);
 		}
-		
-        script.append("function doPreprocess() {" + preprocessingScript + " \n}\n");
+
+		script.append("function doPreprocess() {" + preprocessingScript + " \n}\n");
 		script.append("doPreprocess()\n");
 		return script.toString();
 	}

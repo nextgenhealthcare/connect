@@ -61,7 +61,7 @@ public class JavaScriptUtil {
 		}
 	}
 
-	public static Context getContext() {
+	public static Context enterContext() {
 		Context context = Context.enter();
 
 		if (sealedSharedScope == null) {
@@ -72,6 +72,7 @@ public class JavaScriptUtil {
 			script.exec(context, sealedSharedScope);
 			sealedSharedScope.sealObject();
 		}
+
 		return context;
 	}
 
@@ -90,7 +91,7 @@ public class JavaScriptUtil {
 	}
 
 	public Scriptable getScope() {
-		Scriptable scope = getContext().newObject(sealedSharedScope);
+		Scriptable scope = enterContext().newObject(sealedSharedScope);
 		scope.setPrototype(sealedSharedScope);
 		scope.setParentScope(null);
 		return scope;
@@ -107,11 +108,12 @@ public class JavaScriptUtil {
 	private void executeScript(String scriptId, String scriptType, String channelId, MessageObject messageObject) {
 		Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
 		Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
+		
 		if (compiledScript == null)
 			return;
 
 		try {
-			Context context = getContext();
+			Context context = enterContext();
 			Scriptable scope = getScope();
 
 			if (messageObject != null)
@@ -137,14 +139,31 @@ public class JavaScriptUtil {
 		}
 	}
 
-	public void compileScript(String scriptId, String script, boolean includeChannelMap) throws Exception {
-		Context context = getContext();
+	public boolean compileAndAddScript(String scriptId, String script, String defaultScript, boolean includeChannelMap) throws Exception {
+		// Note: If the defaultScript is NULL, this means that the script should
+		// always be inserted without being compared.
+
+		Context context = enterContext();
+		boolean scriptInserted = false;
 
 		try {
-			logger.debug("compiling script. id=" + scriptId);
+			logger.debug("compiling script " + scriptId);
 			String generatedScript = generateScript(script, includeChannelMap);
 			Script compiledScript = context.compileString(generatedScript, scriptId, 1, null);
-			compiledScriptCache.putCompiledScript(scriptId, compiledScript);
+			String decompiledScript = context.decompileScript(compiledScript, 0);
+
+			String decompiledDefaultScript = null;
+
+			if (defaultScript != null) {
+				Script compiledDefaultScript = context.compileString(generateScript(defaultScript, includeChannelMap), scriptId, 1, null);
+				decompiledDefaultScript = context.decompileScript(compiledDefaultScript, 0);
+			}
+
+			if ((defaultScript == null) || !decompiledScript.equals(decompiledDefaultScript)) {
+				logger.debug("adding script " + scriptId);
+				compiledScriptCache.putCompiledScript(scriptId, compiledScript);
+				scriptInserted = true;
+			}
 		} catch (EvaluatorException e) {
 			if (e instanceof RhinoException) {
 				MirthJavascriptTransformerException mjte = new MirthJavascriptTransformerException((RhinoException) e, null, null, 1, scriptId);
@@ -152,10 +171,11 @@ public class JavaScriptUtil {
 			} else {
 				throw new Exception(e);
 			}
-
 		} finally {
 			Context.exit();
 		}
+
+		return scriptInserted;
 	}
 
 	public String generateScript(String script, boolean includeChannelMap) {

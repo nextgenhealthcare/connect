@@ -17,7 +17,9 @@ public class JavaScriptPostprocessor {
 		JavaScriptUtil.getInstance().executeScript(messageObject.getChannelId() + "_Postprocessor", "postprocessor", messageObject);
 		JavaScriptUtil.getInstance().executeScript("Postprocessor", "postprocessor", messageObject);
 		String channelId = messageObject.getChannelId();
+		
 		HashMap<String, Channel> channelCache = ChannelController.getChannelCache();
+		
 		// Check the cache for the channel
 		if (channelCache != null && channelCache.containsKey(channelId)) {
 			Channel channel = channelCache.get(channelId);
