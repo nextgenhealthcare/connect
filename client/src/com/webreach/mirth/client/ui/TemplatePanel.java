@@ -38,6 +38,7 @@ import com.webreach.mirth.client.ui.beans.HL7Properties;
 import com.webreach.mirth.client.ui.beans.NCPDPProperties;
 import com.webreach.mirth.client.ui.beans.X12Properties;
 import com.webreach.mirth.client.ui.editors.BoundPropertiesSheetDialog;
+import com.webreach.mirth.client.ui.editors.MirthEditorPane;
 import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.DICOMSerializer;
@@ -49,26 +50,29 @@ import com.webreach.mirth.model.converters.DICOMSerializer;
 public class TemplatePanel extends javax.swing.JPanel implements DropTargetListener
 {
     public final String DEFAULT_TEXT = "Paste a sample message here.";
-
+    protected MirthEditorPane parent;
     private SyntaxDocument HL7Doc;
-
     private TreePanel treePanel;
-
     private String currentMessage = "";
-
     private String data;
-
     private Properties dataProperties;
-
     private Timer timer;
 
-    /** Creates new form MessageTreeTemplate */
     public TemplatePanel()
     {
         initComponents();
+    }
+    
+    /** Creates new form MessageTreeTemplate */
+    public TemplatePanel(MirthEditorPane m)
+    {
+        this.parent = m;
+        
+        initComponents();
         openFileButton.setIcon(UIConstants.FILE_PICKER_ICON);
 
-        dataType.setModel(new javax.swing.DefaultComboBoxModel(PlatformUI.MIRTH_FRAME.protocols.values().toArray()));
+        if(PlatformUI.MIRTH_FRAME != null)
+            dataType.setModel(new javax.swing.DefaultComboBoxModel(PlatformUI.MIRTH_FRAME.protocols.values().toArray()));
 
         HL7Doc = new SyntaxDocument();
         HL7Doc.setTokenMarker(new HL7TokenMarker());
@@ -202,7 +206,8 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                 }
                 else
                     pasteBox.setText(FileUtil.read(file));
-
+                
+                parent.modified = true;
             }
         }
         catch (Exception e)
@@ -449,6 +454,8 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                 }
                 else
                     pasteBox.setText(FileUtil.read(file));
+                
+                parent.modified = true;
             }
             catch (Exception e)
             {
