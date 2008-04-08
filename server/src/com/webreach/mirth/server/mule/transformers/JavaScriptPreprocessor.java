@@ -120,7 +120,7 @@ public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 		boolean createdContext = false;
 		
 		try {
-			Script globalCompiledScript = compiledScriptCache.getCompiledScript("Preprocessor");
+			Script globalCompiledScript = compiledScriptCache.getCompiledScript(ConfigurationController.GLOBAL_PREPROCESSOR_KEY);
 			Script compiledScript = compiledScriptCache.getCompiledScript(preprocessingScriptId);
 			String returnValue = message;
 			
@@ -200,5 +200,4 @@ public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 		script.append("doPreprocess()\n");
 		return script.toString();
 	}
-
 }
