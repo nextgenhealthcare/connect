@@ -6,16 +6,8 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.model.converters.SerializerFactory;
 
-/**
- * Created by IntelliJ IDEA.
- * User: dans
- * Date: Jun 25, 2007
- * Time: 2:24:15 PM
- * To change this template use File | Settings | File Templates.
- */
 public class NCPDPAdaptor extends Adaptor {
 	protected void populateMessage(boolean emptyFilterAndTransformer) throws AdaptorException {
-
 		messageObject.setRawDataProtocol(MessageObject.Protocol.NCPDP);
 		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
 		messageObject.setEncodedDataProtocol(MessageObject.Protocol.NCPDP);
@@ -26,6 +18,10 @@ public class NCPDPAdaptor extends Adaptor {
 			populateMetadataFromXML(message);
 		} catch (Exception e) {
 			handleException(e);
+		}
+
+		if (emptyFilterAndTransformer) {
+			messageObject.setEncodedData(source);
 		}
 	}
 

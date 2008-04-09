@@ -55,7 +55,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 	private boolean useStrictValidation = false;
 	private boolean handleRepetitions = false;
 	private boolean convertLFtoCR = true;
-	
+
 	public static Map getDefaultProperties() {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("useStrictParser", "false");
@@ -64,7 +64,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 		map.put("convertLFtoCR", "true");
 		return map;
 	}
-	
+
 	public ER7Serializer(Map er7Properties) {
 		if (er7Properties != null && er7Properties.get("useStrictParser") != null) {
 			this.useStrictParser = Boolean.parseBoolean((String) er7Properties.get("useStrictParser"));
@@ -75,7 +75,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 		if (er7Properties != null && er7Properties.get("handleRepetitions") != null) {
 			this.handleRepetitions = Boolean.parseBoolean((String) er7Properties.get("handleRepetitions"));
 		}
-		if (er7Properties != null && er7Properties.get("convertLFtoCR") != null){
+		if (er7Properties != null && er7Properties.get("convertLFtoCR") != null) {
 			this.convertLFtoCR = Boolean.parseBoolean((String) er7Properties.get("convertLFtoCR"));
 		}
 		if (useStrictParser) {
@@ -130,13 +130,13 @@ public class ER7Serializer implements IXMLSerializer<String> {
 					e.printStackTrace();
 				}
 				builder.append(os.toString());
-				
+
 			} catch (Exception e) {
 				String exceptionMessage = e.getClass().getName() + ":" + e.getMessage();
 				logger.error(exceptionMessage);
 			}
 		}
-		return sanitize(builder.toString());
+		return builder.toString();
 	}
 
 	/**
@@ -160,28 +160,33 @@ public class ER7Serializer implements IXMLSerializer<String> {
 				// The delimiters below need to come from the XML somehow...the
 				// ER7 handler should take care of it
 				// TODO: Ensure you get these elements from the XML
-				String segmentDelimiter = getXMLValue(source, "<MSH.1>",  "</MSH.1>" ); //usually |
+				String segmentDelimiter = getXMLValue(source, "<MSH.1>", "</MSH.1>"); // usually
+																						// |
 				String fieldDelimiter = "^";
 				String repetitionDelimiter = "~";
 				String escapeSequence = "\\";
 				String subcomponentDelimiter = "&";
-				//Our delimiters usually look like this:
-				//<MSH.2>^~\&amp;</MSH.2>
-				//We need to decode XML entities
-				String otherDelimiters = getXMLValue(source, "<MSH.2>",  "</MSH.2>" ).replaceAll("&amp;","&");
-				if (otherDelimiters.length() == 4){
-					fieldDelimiter = otherDelimiters.substring(0,1); //usually ^
-					repetitionDelimiter = otherDelimiters.substring(1,2); //usually ~
-					escapeSequence = otherDelimiters.substring(2,3); //usually \
-					subcomponentDelimiter = otherDelimiters.substring(3, 4); //usually &
+				// Our delimiters usually look like this:
+				// <MSH.2>^~\&amp;</MSH.2>
+				// We need to decode XML entities
+				String otherDelimiters = getXMLValue(source, "<MSH.2>", "</MSH.2>").replaceAll("&amp;", "&");
+				if (otherDelimiters.length() == 4) {
+					fieldDelimiter = otherDelimiters.substring(0, 1); // usually
+																		// ^
+					repetitionDelimiter = otherDelimiters.substring(1, 2); // usually
+																			// ~
+					escapeSequence = otherDelimiters.substring(2, 3); // usually
+																		// \
+					subcomponentDelimiter = otherDelimiters.substring(3, 4); // usually
+																				// &
 				}
-				//String fieldDelimiter = 
-				ER7XMLHandler handler = new ER7XMLHandler("\r", segmentDelimiter, 
-						fieldDelimiter, subcomponentDelimiter, repetitionDelimiter, escapeSequence, true);
+				// String fieldDelimiter =
+				ER7XMLHandler handler = new ER7XMLHandler("\r", segmentDelimiter, fieldDelimiter, subcomponentDelimiter, repetitionDelimiter, escapeSequence, true);
 				XMLReader xr = XMLReaderFactory.createXMLReader();
 				xr.setContentHandler(handler);
 				xr.setErrorHandler(handler);
-                //Parse, but first replace all spaces between brackets. This fixes pretty-printed XML we might receive
+				// Parse, but first replace all spaces between brackets. This
+				// fixes pretty-printed XML we might receive
 				xr.parse(new InputSource(new StringReader(source.replaceAll("\\s*<([^/][^>]*)>", "<$1>").replaceAll("<(/[^>]*)>\\s*", "<$1>"))));
 				builder.append(handler.getOutput());
 			} catch (Exception e) {
@@ -191,11 +196,6 @@ public class ER7Serializer implements IXMLSerializer<String> {
 			}
 		}
 		return builder.toString();
-	}
-
-	// cleans up the XML
-	public String sanitize(String source) {
-		return source;
 	}
 
 	public Map<String, String> getMetadataFromXML(String xmlSource) throws SerializerException {
@@ -237,7 +237,12 @@ public class ER7Serializer implements IXMLSerializer<String> {
 
 		if (useStrictParser) {
 			try {
-				Message message = pipeParser.parse(source.trim()); //this had a replaceAll("\n", "\r") before 1.7
+				Message message = pipeParser.parse(source.trim()); // this had
+																	// a
+																	// replaceAll("\n",
+																	// "\r")
+																	// before
+																	// 1.7
 				Terser terser = new Terser(message);
 				String sendingFacility = terser.get("/MSH-4-1");
 				String event = terser.get("/MSH-9-1") + "-" + terser.get("/MSH-9-2");
@@ -249,48 +254,48 @@ public class ER7Serializer implements IXMLSerializer<String> {
 			}
 			return map;
 		} else {
-			source = source.trim(); //this had a replaceAll("\n", "\r") before 1.7
-	        if(source == null || source.length() < 3)
-	        {
-	            logger.error("Unable to parse, message is null or too short: " + source);
-	            throw new SerializerException("Unable to parse, message is null or too short: " + source);
-	        }
+			source = source.trim(); // this had a replaceAll("\n", "\r") before
+									// 1.7
+			if (source == null || source.length() < 3) {
+				logger.error("Unable to parse, message is null or too short: " + source);
+				throw new SerializerException("Unable to parse, message is null or too short: " + source);
+			}
 
-	        String segmentDelim = "\r";
-	        char fieldDelim = source.charAt(3);
-	        char elementDelim = source.charAt(4);
-	        String mshFields[] = source.trim().split(segmentDelim)[0].split(Pattern.quote(String.valueOf(fieldDelim)));
-	        Pattern elementPattern = Pattern.compile(Pattern.quote(String.valueOf(elementDelim)));
-	        int mshFieldsLength = mshFields.length;
-	        
-	        String event = "";
-	        
+			String segmentDelim = "\r";
+			char fieldDelim = source.charAt(3);
+			char elementDelim = source.charAt(4);
+			String mshFields[] = source.trim().split(segmentDelim)[0].split(Pattern.quote(String.valueOf(fieldDelim)));
+			Pattern elementPattern = Pattern.compile(Pattern.quote(String.valueOf(elementDelim)));
+			int mshFieldsLength = mshFields.length;
+
+			String event = "";
+
 			if (mshFieldsLength > 8) {
 				String[] msh9 = elementPattern.split(mshFields[8]); // MSH.9
 				event = msh9[0]; // MSH.9.1
-				
+
 				if (msh9.length > 1) {
 					event = event + "-" + msh9[1]; // MSH.9.2
 				}
 			}
 
-	        if(event.equals(""))
-	            event = "Unknown";
-	        
-	        String sendingFacility = "";
+			if (event.equals(""))
+				event = "Unknown";
+
+			String sendingFacility = "";
 			if (mshFieldsLength > 3) {
 				sendingFacility = elementPattern.split(mshFields[3])[0]; // MSH.4.1
 			}
-			
+
 			String version = "";
 			if (mshFieldsLength > 11) {
 				version = elementPattern.split(mshFields[11])[0]; // MSH.12.1
-			} 
-				
-	        map.put("version", version);
-	        map.put("type", event);
-	        map.put("source", sendingFacility);
-	        return map;
+			}
+
+			map.put("version", version);
+			map.put("type", event);
+			map.put("source", sendingFacility);
+			return map;
 		}
 	}
 

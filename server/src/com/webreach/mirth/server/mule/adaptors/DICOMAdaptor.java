@@ -11,16 +11,8 @@ import com.webreach.mirth.model.converters.SerializerFactory;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.UUIDGenerator;
 
-/**
- * Created by IntelliJ IDEA.
- * User: dans
- * Date: Aug 7, 2007
- * Time: 1:28:32 PM
- * To change this template use File | Settings | File Templates.
- */
 public class DICOMAdaptor extends Adaptor {
     protected void populateMessage(boolean emptyFilterAndTransformer) throws AdaptorException {
-
         messageObject.setRawDataProtocol(MessageObject.Protocol.DICOM);
         messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
         messageObject.setEncodedDataProtocol(MessageObject.Protocol.DICOM);
@@ -56,6 +48,10 @@ public class DICOMAdaptor extends Adaptor {
         } catch (Exception e) {
             handleException(e);
         }
+        
+		if (emptyFilterAndTransformer) {
+			messageObject.setEncodedData(source);
+		}
     }
 
     @Override

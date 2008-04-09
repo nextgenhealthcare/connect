@@ -17,11 +17,14 @@ public class HL7v3Adaptor extends Adaptor {
 		messageObject.setEncodedDataProtocol(MessageObject.Protocol.HL7V3);
 		messageObject.setType("XML");
 		messageObject.setTransformedData(source);
-		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder docBuilder;
+		
+		if (emptyFilterAndTransformer) {
+			messageObject.setEncodedData(source);
+		}
 
 		try {
-			docBuilder = docFactory.newDocumentBuilder();
+			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 			Document xmlDoc = docBuilder.parse(new InputSource(new StringReader(source)));
 			messageObject.setSource(new String());
 			messageObject.setType(xmlDoc.getDocumentElement().getNodeName());

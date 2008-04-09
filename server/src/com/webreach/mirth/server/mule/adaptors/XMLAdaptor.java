@@ -16,10 +16,15 @@ public class XMLAdaptor extends Adaptor {
 		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
 		messageObject.setEncodedDataProtocol(MessageObject.Protocol.XML);
 		messageObject.setType("XML");
-		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder docBuilder;
+		messageObject.setTransformedData(source);
+		
+		if (emptyFilterAndTransformer) {
+			messageObject.setEncodedData(source);
+		}
+		
 		try {
-			docBuilder = docFactory.newDocumentBuilder();
+			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 			Document xmlDoc = docBuilder.parse(new InputSource(new StringReader(source)));
 			messageObject.setSource(new String());
 			messageObject.setType(xmlDoc.getDocumentElement().getNodeName());
@@ -27,7 +32,6 @@ public class XMLAdaptor extends Adaptor {
 		} catch (Exception e) {
 			handleException(e);
 		}
-		messageObject.setTransformedData(source);
 		
 	}
 }

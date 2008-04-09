@@ -12,13 +12,17 @@ public class EDIAdaptor extends Adaptor {
 		messageObject.setRawDataProtocol(MessageObject.Protocol.EDI);
 		messageObject.setTransformedDataProtocol(MessageObject.Protocol.XML);
 		messageObject.setEncodedDataProtocol(MessageObject.Protocol.EDI);
-
+		
 		try {
 			String message = serializer.toXML(source);
 			messageObject.setTransformedData(message);
 			populateMetadataFromXML(message);
 		} catch (Exception e) {
 			handleException(e);
+		}
+
+		if (emptyFilterAndTransformer) {
+			messageObject.setEncodedData(source);
 		}
 	}
 

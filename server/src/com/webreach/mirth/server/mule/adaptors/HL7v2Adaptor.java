@@ -12,6 +12,7 @@ public class HL7v2Adaptor extends Adaptor {
 		messageObject.setRawDataProtocol(com.webreach.mirth.model.MessageObject.Protocol.HL7V2);
 		messageObject.setTransformedDataProtocol(com.webreach.mirth.model.MessageObject.Protocol.XML);
 		messageObject.setEncodedDataProtocol(com.webreach.mirth.model.MessageObject.Protocol.HL7V2);
+		
 		try {
 			if (emptyFilterAndTransformer) {
 				populateMetadataFromEncoded(source);

@@ -284,12 +284,15 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 					emptyFilterAndTransformer = false;
 				}
 			}
-			
+
 			// hack to get around cr/lf conversion issue see MIRTH-739
 			boolean convertLFtoCR = true;
 
-			// if all of the properties are set and both are false, then set convertLFtoCR to false
-			if ((this.inboundProperties != null) && (this.inboundProperties.get("convertLFtoCR") != null) && (this.outboundProperties != null) && (this.outboundProperties.get("convertLFtoCR") != null)) {
+			// if all of the properties are set and both are false, then set
+			// convertLFtoCR to false
+			if (!Protocol.valueOf(inboundProtocol).equals(Protocol.HL7V2) && !Protocol.valueOf(outboundProtocol).equals(Protocol.HL7V2)) {
+				convertLFtoCR = false;
+			} else if ((inboundProperties != null) && (inboundProperties.get("convertLFtoCR") != null) && (outboundProperties != null) && (outboundProperties.get("convertLFtoCR") != null)) {
 				convertLFtoCR = Boolean.parseBoolean((String) inboundProperties.get("convertLFtoCR")) || Boolean.parseBoolean((String) outboundProperties.get("convertLFtoCR"));
 			}
 
@@ -326,7 +329,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(inboundProtocol));
 				messageObject = adaptor.convertMessage(incomingMessageObject, this.getConnectorName(), channelId, encryptData, inboundProperties, emptyFilterAndTransformer);
-				messageObject.setEncodedDataProtocol(Protocol.valueOf(this.outboundProtocol));
+				messageObject.setEncodedDataProtocol(Protocol.valueOf(outboundProtocol));
 			}
 		} catch (Exception e) {
 			alertController.sendAlerts(channelId, Constants.ERROR_301, null, e);
@@ -391,7 +394,6 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			}
 
 			if (!messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
-
 				Object transformedData;
 				Protocol encodedDataProtocol;
 				Map encodedDataProperties;
@@ -422,7 +424,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 					messageObject.setTransformedData(context.toString(transformedData));
 				}
 
-				if ((messageObject.getTransformedData() != null)) {
+				if (messageObject.getTransformedData() != null) {
 					IXMLSerializer<String> serializer = AdaptorFactory.getAdaptor(encodedDataProtocol).getSerializer(encodedDataProperties);
 					messageObject.setEncodedData(serializer.fromXML(messageObject.getTransformedData()));
 					messageObject.setEncodedDataProtocol(encodedDataProtocol);

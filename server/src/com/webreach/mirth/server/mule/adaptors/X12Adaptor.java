@@ -20,6 +20,10 @@ public class X12Adaptor extends Adaptor {
 		} catch (Exception e) {
 			handleException(e);
 		}
+		
+		if (emptyFilterAndTransformer) {
+			messageObject.setEncodedData(source);
+		}
 	}
 
 	@Override
