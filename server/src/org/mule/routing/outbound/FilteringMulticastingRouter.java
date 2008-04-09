@@ -62,47 +62,50 @@ public class FilteringMulticastingRouter extends FilteringOutboundRouter
 		try
 		{
 			UMOEndpoint endpoint;
-      for (int i = 0; i < endpoints.size(); i++)
+			synchronized (endpoints)
 			{
-				endpoint = (UMOEndpoint) endpoints.get(i);
-				boolean processFilter = false;
+				for (int i = 0; i < endpoints.size(); i++)
+				{
+					endpoint = (UMOEndpoint) endpoints.get(i);
+					boolean processFilter = false;
 
-        UMOFilter filter = endpoint.getFilter();
-        if (filter == null)
-        {
-          processFilter = true;
-        } else
-        {
-          
-          if (endpoint.getFilter().accept(message))
-            processFilter = true;
-        }
-        if (processFilter)
-        {
-          if (synchronous)
-          {
-            // Were we have multiple outbound endpoints
-            if (result == null)
-            {
-              result = send(session, message, endpoint);
-            } else
-            {
-              String def = (String) endpoint.getProperties()
-                  .get("default");
-              if (def != null)
-              {
-                result = send(session, message, endpoint);
-              } else
-              {
-                send(session, message, endpoint);
-              }
-            }
-          } else
-          {
-            dispatch(session, message, endpoint);
-          }
-        }
-      }
+					UMOFilter filter = endpoint.getFilter();
+					if (filter == null)
+					{
+						processFilter = true;
+					} else
+					{
+						
+						if (endpoint.getFilter().accept(message))
+							processFilter = true;
+					}
+					if (processFilter)
+					{
+						if (synchronous)
+						{
+							// Were we have multiple outbound endpoints
+							if (result == null)
+							{
+								result = send(session, message, endpoint);
+							} else
+							{
+								String def = (String) endpoint.getProperties()
+										.get("default");
+								if (def != null)
+								{
+									result = send(session, message, endpoint);
+								} else
+								{
+									send(session, message, endpoint);
+								}
+							}
+						} else
+						{
+							dispatch(session, message, endpoint);
+						}
+					}
+				}
+			}
 		} catch (UMOException e)
 		{
 			throw new CouldNotRouteOutboundMessageException(message,
