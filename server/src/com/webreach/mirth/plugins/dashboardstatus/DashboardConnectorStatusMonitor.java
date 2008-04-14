@@ -3,13 +3,7 @@ package com.webreach.mirth.plugins.dashboardstatus;
 import java.net.Socket;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
@@ -128,7 +122,15 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
 						stateImage = RED;
 						statusText = NOT_POLLING;
 						break;
-				}
+					case WRITER:
+						stateImage = RED;
+						statusText = DISCONNECTED;
+						break;
+					case SENDER:
+                        stateImage = RED;
+						statusText = DISCONNECTED;
+						break;                    
+                }
 				updateState = true;
 				break;
 			case BUSY:
@@ -195,7 +197,7 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
             if (channelsFromCache.containsKey(channelId)) { //  redundant check as the channelId MUST exist in the channelCache. but just for a safety measure...
 
                 Channel channel = channelsFromCache.get(channelId);
-
+                        
                 channelName = channel.getName();
 
                 // grab the channel's log from the HashMap, if not exist, create one.
