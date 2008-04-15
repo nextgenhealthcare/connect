@@ -38,10 +38,12 @@ import org.mozilla.javascript.ScriptableObject;
 
 import com.webreach.mirth.model.CodeTemplate;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
 import com.webreach.mirth.server.MirthJavascriptTransformerException;
 import com.webreach.mirth.server.controllers.CodeTemplateController;
 import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.controllers.SystemLogger;
 
 public class JavaScriptUtil {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -98,17 +100,30 @@ public class JavaScriptUtil {
 	}
 
 	public void executeScript(String scriptId, String scriptType, MessageObject messageObject) {
-		executeScript(scriptId, scriptType, null, messageObject);
+		try {
+			executeScript(scriptId, scriptType, null, messageObject);
+		} catch (Exception e) {
+			logger.error("Error executing " + scriptType + " script.", e);
+		}
 	}
 
 	public void executeScript(String scriptId, String scriptType, String channelId) {
-		executeScript(scriptId, scriptType, channelId, null);
+		try {
+			executeScript(scriptId, scriptType, channelId, null);
+		} catch (Exception e) {
+			SystemLogger systemLogger = SystemLogger.getInstance();
+			SystemEvent event = new SystemEvent("Exception occured in " + scriptType + " script");
+			event.setLevel(SystemEvent.Level.NORMAL);
+			event.setDescription(StackTracePrinter.stackTraceToString(e));
+			systemLogger.logSystemEvent(event);
+			logger.error("Error executing " + scriptType + " script.", e);
+		}
 	}
 
-	private void executeScript(String scriptId, String scriptType, String channelId, MessageObject messageObject) {
+	private void executeScript(String scriptId, String scriptType, String channelId, MessageObject messageObject) throws Exception {
 		Script compiledScript = compiledScriptCache.getCompiledScript(scriptId);
 		Logger scriptLogger = Logger.getLogger(scriptType.toLowerCase());
-		
+
 		if (compiledScript == null)
 			return;
 
@@ -133,7 +148,7 @@ public class JavaScriptUtil {
 				}
 				e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 1, scriptType);
 			}
-			logger.error("failure to execute: " + scriptType + " script. id=" + scriptId, e);
+			throw e;
 		} finally {
 			Context.exit();
 		}
