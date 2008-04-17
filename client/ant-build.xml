@@ -115,9 +115,11 @@
 		<jar destfile="${dist}/plugins/javascript-transformer-step-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/transformer/step/javascript/**" />
 		</jar>
+		
 		<jar destfile="${dist}/plugins/mapper-transformer-step-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/transformer/step/mapper/**" />
 		</jar>
+		
 		<jar destfile="${dist}/plugins/messagebuilder-transformer-step-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/transformer/step/messagebuilder/**" />
 		</jar>
@@ -147,6 +149,10 @@
 		
 		<jar destfile="${dist}/plugins/image-viewer-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/imageviewer/**" />
+		</jar>
+		
+		<jar destfile="${dist}/plugins/serverlog-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/plugins/serverlog/**" />
 		</jar>
 		
 		<!-- copy source files -->
