@@ -263,6 +263,10 @@
 		<jar destfile="${plugins}/dashboard-status-monitor-server.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/dashboardstatus/**" />
 		</jar>
+
+		<jar destfile="${plugins}/serverlog-server.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/plugins/serverlog/**" />
+		</jar>
 	</target>
 
 	<target name="create-client-lib" depends="init">
@@ -663,6 +667,17 @@
 			</fileset>
 			<fileset dir="${dist.extensions}">
 				<include name="Dashboard Connector Status Monitor Plugin.xml" />
+			</fileset>
+		</zip>
+
+		<zip destfile="${dist.plugins}/serverlog-${version}.zip">
+			<fileset dir="${plugins}">
+				<include name="serverlog-server.jar" />
+				<include name="serverlog-client.jar" />
+				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
+				<include name="Server Log.xml" />
 			</fileset>
 		</zip>
 
