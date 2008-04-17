@@ -158,7 +158,7 @@
 		<echo>starting manager</echo>
 		<exec executable="cmd" dir="${install.path}" spawn="true">
 			<arg value="/c" />
-			<arg value="Mirth Manager.exe" />
+			<arg value="MirthServerManager.exe" />
 		</exec>
 	</target>
 </project>

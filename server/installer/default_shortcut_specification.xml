@@ -36,7 +36,7 @@
 
 	<shortcut
 	name="$APP_NAME Server Manager"
-	target="$INSTALL_PATH\Mirth Manager.exe" 
+	target="$INSTALL_PATH\MirthServerManager.exe" 
 	workingDirectory="$INSTALL_PATH"
 	description="Start the $APP_NAME Server Manager"
 	initialState="normal"
