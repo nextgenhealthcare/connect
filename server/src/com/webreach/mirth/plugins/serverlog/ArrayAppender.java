@@ -22,8 +22,15 @@ public class ArrayAppender extends AppenderSkeleton {
 			return;
 		}
 
-		// pass the new log message to ServerLogProvider.
-		serverLogProvider.newServerLogReceived(this.layout.format(loggingEvent));
+        // get the complete stack trace.
+        String[] completeLogTrace = loggingEvent.getThrowableStrRep();
+        StringBuffer logText = new StringBuffer();
+        for (String aCompleteLogTrace : completeLogTrace) {
+            logText.append(aCompleteLogTrace);
+        }
+
+        // pass the new log message to ServerLogProvider.
+		serverLogProvider.newServerLogReceived(this.layout.format(loggingEvent) + logText.toString());
 	}
 
 	public boolean requiresLayout() {

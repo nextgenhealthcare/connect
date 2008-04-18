@@ -14,7 +14,7 @@
     <mode>SERVER</mode>
   </extensionPoint>
   <extensionPoint>
-  	<name>Mirth Log</name>
+  	<name>Server Log</name>
     <type>CLIENT_DASHBOARD_PANE</type>
     <className>com.webreach.mirth.plugins.serverlog.ServerLogClient</className>
     <mode>CLIENT</mode>
