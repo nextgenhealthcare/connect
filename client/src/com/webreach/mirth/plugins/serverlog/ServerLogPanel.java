@@ -125,11 +125,13 @@ public class ServerLogPanel extends javax.swing.JPanel {
             {
                 if (evt.getClickCount() >= 2)
                 {
-                    new ViewServerLogContentDialog((String) logTable.getModel().getValueAt(logTable.convertRowIndexToModel(logTable.getSelectedRow()), 1));
+                    // synchronizing this to prevent ArrayIndexOutOfBoundsException since the server log table is constantly being redrawn.
+                    synchronized (this) {
+                        new ViewServerLogContentDialog((String) logTable.getModel().getValueAt(logTable.convertRowIndexToModel(logTable.getSelectedRow()), 1));
+                    }
                 }
             }
-        });
-        
+        });        
     }
 
     public void createPopupMenu() {
@@ -183,17 +185,15 @@ public class ServerLogPanel extends javax.swing.JPanel {
      * This method won't be called when it's in the PAUSED state.
      * @param serverLogs
      */
-    public void updateTable(LinkedList<String[]> serverLogs)
+    public synchronized void updateTable(LinkedList<String[]> serverLogs)
     {
         Object[][] tableData;
         if (serverLogs != null)
         {
             tableData = new Object[serverLogs.size()][2];
             for (int i=0; i < serverLogs.size(); i++) {
-
                 tableData[i][0] = serverLogs.get(i)[0];       // Id (hidden) - used to keep track of which log entries are sent new.
                 tableData[i][1] = serverLogs.get(i)[1];       // Log Information
-
             }
         } else {
             tableData = new Object[0][2];
@@ -227,7 +227,6 @@ public class ServerLogPanel extends javax.swing.JPanel {
         }
 
         logTable.setHighlighters(highlighter);
-
     }
 
     public boolean isPaused() {

@@ -55,7 +55,6 @@ public class ServerLogProvider implements ServerPlugin
         }
     }
 
-
     public synchronized Object invoke(String method, Object object, String sessionId) {
         if (method.equals(GET_SERVER_LOGS)) {
             if (lastDisplayedServerLogIdBySessionId.containsKey(sessionId)) {

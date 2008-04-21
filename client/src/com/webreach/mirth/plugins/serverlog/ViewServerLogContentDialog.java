@@ -49,6 +49,7 @@ public class ViewServerLogContentDialog extends javax.swing.JDialog
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setModal(true);
         this.setSize(700, 400);
+        jScrollPane1.getViewport().setBackground(new java.awt.Color(255, 255, 255));
         Dimension dlgSize = getPreferredSize();
         Dimension frmSize = parent.getSize();
         Point loc = parent.getLocation();
@@ -76,6 +77,7 @@ public class ViewServerLogContentDialog extends javax.swing.JDialog
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 
+        jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
         jScrollPane1.setDoubleBuffered(true);
 
         serverLogTextPane1.setEditable(false);
@@ -97,7 +99,7 @@ public class ViewServerLogContentDialog extends javax.swing.JDialog
                 .addContainerGap()
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jButton1)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 486, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(

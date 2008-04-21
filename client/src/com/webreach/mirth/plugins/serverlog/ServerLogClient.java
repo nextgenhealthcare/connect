@@ -71,17 +71,19 @@ public class ServerLogClient extends DashboardPanelPlugin
                 e.printStackTrace();
             }
 
-            synchronized(this) {
-                for (int i = serverLogReceived.size()-1; i >= 0; i--) {
-                    while (currentServerLogSize <= serverLogs.size()) {
-                        serverLogs.removeLast();
+            if (serverLogReceived.size() > 0) {
+                synchronized(this) {
+                    for (int i = serverLogReceived.size()-1; i >= 0; i--) {
+                        while (currentServerLogSize <= serverLogs.size()) {
+                            serverLogs.removeLast();
+                        }
+                        serverLogs.addFirst(serverLogReceived.get(i));
                     }
-                    serverLogs.addFirst(serverLogReceived.get(i));
                 }
-            }
 
-            // for mirth.log, channel being selected does not matter. display either way.
-            serverLogPanel.updateTable(serverLogs);
+                // for mirth.log, channel being selected does not matter. display either way.
+                serverLogPanel.updateTable(serverLogs);
+            }
         }
     }
 
