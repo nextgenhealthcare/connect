@@ -110,7 +110,7 @@ public class ServerLogPanel extends javax.swing.JPanel {
         logTable.packTable(UIConstants.COL_MARGIN);
         logTable.setRowHeight(UIConstants.ROW_HEIGHT);
         logTable.setOpaque(true);
-        logTable.setRowSelectionAllowed(false);
+        logTable.setRowSelectionAllowed(true);
         logTable.setSortable(true);
         logTable.setFocusable(false);
         logTable.setHorizontalScrollEnabled(true);
