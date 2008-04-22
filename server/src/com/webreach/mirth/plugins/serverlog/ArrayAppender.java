@@ -22,15 +22,19 @@ public class ArrayAppender extends AppenderSkeleton {
 			return;
 		}
 
-        // get the complete stack trace.
-        String[] completeLogTrace = loggingEvent.getThrowableStrRep();
-        StringBuffer logText = new StringBuffer();
-        for (String aCompleteLogTrace : completeLogTrace) {
-            logText.append(aCompleteLogTrace);
+        // get the complete stack trace, if applicable.
+        if (loggingEvent.getThrowableStrRep() != null) {
+            String[] completeLogTrace = loggingEvent.getThrowableStrRep();
+            StringBuffer logText = new StringBuffer();
+            for (String aCompleteLogTrace : completeLogTrace) {
+                logText.append(aCompleteLogTrace);
+            }
+            // pass the new log message to ServerLogProvider.
+            serverLogProvider.newServerLogReceived(this.layout.format(loggingEvent) + logText.toString());
+        } else {
+            // pass the new log message to ServerLogProvider.
+		    serverLogProvider.newServerLogReceived(this.layout.format(loggingEvent));
         }
-
-        // pass the new log message to ServerLogProvider.
-		serverLogProvider.newServerLogReceived(this.layout.format(loggingEvent) + logText.toString());
 	}
 
 	public boolean requiresLayout() {

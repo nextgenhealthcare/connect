@@ -111,7 +111,7 @@ public class ServerLogPanel extends javax.swing.JPanel {
         logTable.setRowHeight(UIConstants.ROW_HEIGHT);
         logTable.setOpaque(true);
         logTable.setRowSelectionAllowed(true);
-        logTable.setSortable(true);
+        logTable.setSortable(false);
         logTable.setFocusable(false);
         logTable.setHorizontalScrollEnabled(true);
         logTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
@@ -131,7 +131,7 @@ public class ServerLogPanel extends javax.swing.JPanel {
                     }
                 }
             }
-        });        
+        });
     }
 
     public void createPopupMenu() {

@@ -16,7 +16,6 @@ import java.util.LinkedList;
  */
 public class ServerLogClient extends DashboardPanelPlugin
 {
-
     private ServerLogPanel serverLogPanel;
     private LinkedList<String[]> serverLogs;
     private static final String GET_SERVER_LOGS = "getMirthServerLogs";
@@ -32,7 +31,6 @@ public class ServerLogClient extends DashboardPanelPlugin
         currentServerLogSize = serverLogPanel.getCurrentServerLogSize();
         setComponent(serverLogPanel);
     }
-
 
     public void clearLog() {
         serverLogs.clear();
