@@ -33,7 +33,7 @@ public class ServerLogProvider implements ServerPlugin
     private void initialize() {
     	// add the new appender
     	Appender arrayAppender = new ArrayAppender();
-    	Layout patternLayout = new PatternLayout("[%d{MMM dd HH:mm:ss}] %-5p (%F:%L) - %m%n");
+    	Layout patternLayout = new PatternLayout("[%d]  %-5p (%c:%L): %m%n");
     	arrayAppender.setLayout(patternLayout);
     	patternLayout.activateOptions();
     	Logger.getRootLogger().addAppender(arrayAppender);
