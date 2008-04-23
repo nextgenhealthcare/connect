@@ -70,6 +70,8 @@ public class FunctionList extends javax.swing.JPanel
     {
         ReferenceListFactory builder = ReferenceListFactory.getInstance();
         
+        addPanel(new ReferenceListPanel(ListType.ALL.getValue(), builder.getVariableListItems(ListType.ALL.getValue(), context)), "All");
+                
         ArrayList<CodeTemplate> variableListItems = builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_VARIABLES, context);
         if(variableListItems.size() > 0)
             addPanel(new ReferenceListPanel(ReferenceListFactory.USER_TEMPLATE_VARIABLES, variableListItems), ReferenceListFactory.USER_TEMPLATE_VARIABLES);
