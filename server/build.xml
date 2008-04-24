@@ -801,8 +801,8 @@
 		<delete file="${dist}/mirth-${version}.tar" />
 
 		<!-- create the win32 installer -->
-		<copy file="${installer}/installbuilder.xml" tofile="${installer}/installbuilder-tmp.xml" />
-		<replace file="${installer}/installbuilder-tmp.xml" token="@@VERSION@@" value="${version}" />
+		<copy file="${installer}/installbuilder.xml" tofile="${installer}/installbuilder-temp.xml" />
+		<replace file="${installer}/installbuilder-temp.xml" token="@@VERSION@@" value="${version}" />
 		
 		<property environment="env" />
 		<echo message="INSTALLBUILDER_HOME=${env.INSTALLBUILDER_HOME}" />
