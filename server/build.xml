@@ -800,11 +800,14 @@
 		<gzip src="${dist}/mirth-${version}.tar" zipfile="${dist}/mirth-${version}.tar.gz" />
 		<delete file="${dist}/mirth-${version}.tar" />
 
-		<!-- create the InstallBuilder win32 installer -->
+		<!-- create the win32 installer -->
+		<copy file="${installer}/installbuilder.xml" tofile="${installer}/installbuilder-tmp.xml" />
+		<replace file="${installer}/installbuilder-tmp.xml" token="@@VERSION@@" value="${version}" />
+		
 		<property environment="env" />
 		<echo message="INSTALLBUILDER_HOME=${env.INSTALLBUILDER_HOME}" />
 		<exec executable="${env.INSTALLBUILDER_HOME}/bin/builder.exe">
-			<arg line="build '${installer}/installbuilder.xml' windows">
+			<arg line="build '${installer}/installbuilder-temp.xml' windows">
 			</arg>
 		</exec>
 

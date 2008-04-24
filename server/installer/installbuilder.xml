@@ -1,7 +1,7 @@
 <project>
 	<shortName>mirth</shortName>
 	<fullName>Mirth</fullName>
-	<version>1.7.1</version>
+	<version>@@VERSION@@</version>
 	<leftImage>../installer/sidebar.png</leftImage>
 	<enableRollback>1</enableRollback>
 	<outputDirectory>../dist</outputDirectory>
