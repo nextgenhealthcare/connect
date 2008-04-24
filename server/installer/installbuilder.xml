@@ -411,16 +411,6 @@
 							<origin>../setup/mirth-manager.jar</origin>
 						</distributionFile>
 					</distributionFileList>
-
-					<actionList>
-						<logMessage>
-							<text>Starting Mirth Server Manager</text>
-						</logMessage>
-						<runProgram>
-							<program>${installdir}/MirthServerManager.exe</program>
-							<programArguments></programArguments>
-						</runProgram>
-					</actionList>
 				</folder>
 			</folderList>
 
@@ -495,6 +485,17 @@
 			<text>Backing up properties</text>
 		</logMessage>
 
+		<setInstallerVariable>
+			<ruleList>
+				<fileTest>
+					<path>${installdir}/conf/mirth.properties</path>
+					<condition>exists</condition>
+				</fileTest>
+			</ruleList>
+			<name>upgrade</name>
+			<value>true</value>
+		</setInstallerVariable>
+
 		<!-- find the database currently being used -->
 		<propertiesFileGet>
 			<ruleList>
@@ -510,7 +511,7 @@
 		</propertiesFileGet>
 
 		<!-- backup the database properties -->
-		<propertiesFileGet>
+		<actionGroup>
 			<ruleEvaluationLogic>and</ruleEvaluationLogic>
 			<ruleList>
 				<compareText>
@@ -524,51 +525,29 @@
 				</fileTest>
 			</ruleList>
 
-			<file>${installdir}/conf/${database.temp}-SqlMapConfig.properties</file>
-			<variable>url.temp</variable>
-			<key>url</key>
-		</propertiesFileGet>
+			<actionList>
+				<propertiesFileGet>
+					<file>${installdir}/conf/${database.temp}-SqlMapConfig.properties</file>
+					<variable>url.temp</variable>
+					<key>url</key>
+				</propertiesFileGet>
 
-		<propertiesFileGet>
-			<ruleEvaluationLogic>and</ruleEvaluationLogic>
-			<ruleList>
-				<compareText>
-					<text>${database}</text>
-					<logic>does_not_equal</logic>
-					<value>derby</value>
-				</compareText>
-				<fileTest>
-					<path>${installdir}/conf/${database.temp}-SqlMapConfig.properties</path>
-					<condition>exists</condition>
-				</fileTest>
-			</ruleList>
+				<propertiesFileGet>
+					<file>${installdir}/conf/${database.temp}-SqlMapConfig.properties</file>
+					<variable>username.temp</variable>
+					<key>username</key>
+				</propertiesFileGet>
 
-			<file>${installdir}/conf/${database.temp}-SqlMapConfig.properties</file>
-			<variable>username.temp</variable>
-			<key>username</key>
-		</propertiesFileGet>
-
-		<propertiesFileGet>
-			<ruleEvaluationLogic>and</ruleEvaluationLogic>
-			<ruleList>
-				<compareText>
-					<text>${database}</text>
-					<logic>does_not_equal</logic>
-					<value>derby</value>
-				</compareText>
-				<fileTest>
-					<path>${installdir}/conf/${database.temp}-SqlMapConfig.properties</path>
-					<condition>exists</condition>
-				</fileTest>
-			</ruleList>
-
-			<file>${installdir}/conf/${database.temp}-SqlMapConfig.properties</file>
-			<variable>password.temp</variable>
-			<key>password</key>
-		</propertiesFileGet>
+				<propertiesFileGet>
+					<file>${installdir}/conf/${database.temp}-SqlMapConfig.properties</file>
+					<variable>password.temp</variable>
+					<key>password</key>
+				</propertiesFileGet>
+			</actionList>
+		</actionGroup>
 
 		<!-- backup mirth properties -->
-		<propertiesFileGet>
+		<actionGroup>
 			<ruleList>
 				<fileTest>
 					<path>${installdir}/conf/mirth.properties</path>
@@ -576,36 +555,25 @@
 				</fileTest>
 			</ruleList>
 
-			<file>${installdir}/conf/mirth.properties</file>
-			<variable>http.port.temp</variable>
-			<key>http.port</key>
-		</propertiesFileGet>
+			<actionList>
 
-		<propertiesFileGet>
-			<ruleList>
-				<fileTest>
-					<path>${installdir}/conf/mirth.properties</path>
-					<condition>exists</condition>
-				</fileTest>
-			</ruleList>
-
-			<file>${installdir}/conf/mirth.properties</file>
-			<variable>https.port.temp</variable>
-			<key>https.port</key>
-		</propertiesFileGet>
-
-		<propertiesFileGet>
-			<ruleList>
-				<fileTest>
-					<path>${installdir}/conf/mirth.properties</path>
-					<condition>exists</condition>
-				</fileTest>
-			</ruleList>
-
-			<file>${installdir}/conf/mirth.properties</file>
-			<variable>jmx.port.temp</variable>
-			<key>jmx.port</key>
-		</propertiesFileGet>
+				<propertiesFileGet>
+					<file>${installdir}/conf/mirth.properties</file>
+					<variable>http.port.temp</variable>
+					<key>http.port</key>
+				</propertiesFileGet>
+				<propertiesFileGet>
+					<file>${installdir}/conf/mirth.properties</file>
+					<variable>https.port.temp</variable>
+					<key>https.port</key>
+				</propertiesFileGet>
+				<propertiesFileGet>
+					<file>${installdir}/conf/mirth.properties</file>
+					<variable>jmx.port.temp</variable>
+					<key>jmx.port</key>
+				</propertiesFileGet>
+			</actionList>
+		</actionGroup>
 
 		<logMessage>
 			<text>
@@ -616,53 +584,66 @@
 		<logMessage>
 			<text>Mirth Properties: http.port = ${http.port}, https.port = ${htts.port}, jmx.port = ${jmx.port}</text>
 		</logMessage>
+
 	</readyToInstallActionList>
 
 	<postInstallationActionList>
-		<logMessage>
-			<text>Restoring properties</text>
-		</logMessage>
+		<actionGroup>
+			<ruleList>
+				<compareValues>
+					<value1>${updgrade}</value1>
+					<logic>equals</logic>
+					<value2>0</value2>
+				</compareValues>
+			</ruleList>
 
-		<!-- restore database type -->
-		<propertiesFileSet>
-			<file>${installdir}/conf/mirth.properties</file>
-			<key>database</key>
-			<value>${database.temp}</value>
-		</propertiesFileSet>
+			<actionList>
+				<logMessage>
+					<text>Restoring properties</text>
+				</logMessage>
 
-		<!-- restore database properties -->
-		<propertiesFileSet>
-			<file>${installdir}/conf/${database.temp}-SqlMapConfig.properties</file>
-			<key>url</key>
-			<value>${url.temp}</value>
-		</propertiesFileSet>
-		<propertiesFileSet>
-			<file>${installdir}/conf/${database.temp}-SqlMapConfig.properties</file>
-			<key>username</key>
-			<value>${username.temp}</value>
-		</propertiesFileSet>
-		<propertiesFileSet>
-			<file>${installdir}/conf/${database.temp}-SqlMapConfig.properties</file>
-			<key>password</key>
-			<value>${password.temp}</value>
-		</propertiesFileSet>
+				<!-- restore database type -->
+				<propertiesFileSet>
+					<file>${installdir}/conf/mirth.properties</file>
+					<key>database</key>
+					<value>${database.temp}</value>
+				</propertiesFileSet>
 
-		<!-- restore mirth properties -->
-		<propertiesFileSet>
-			<file>${installdir}/conf/mirth.properties</file>
-			<key>http.port</key>
-			<value>${http.port.temp}</value>
-		</propertiesFileSet>
-		<propertiesFileSet>
-			<file>${installdir}/conf/mirth.properties</file>
-			<key>https.port</key>
-			<value>${https.port.temp}</value>
-		</propertiesFileSet>
-		<propertiesFileSet>
-			<file>${installdir}/conf/mirth.properties</file>
-			<key>jmx.port</key>
-			<value>${jmx.port.temp}</value>
-		</propertiesFileSet>
+				<!-- restore database properties -->
+				<propertiesFileSet>
+					<file>${installdir}/conf/${database.temp}-SqlMapConfig.properties</file>
+					<key>url</key>
+					<value>${url.temp}</value>
+				</propertiesFileSet>
+				<propertiesFileSet>
+					<file>${installdir}/conf/${database.temp}-SqlMapConfig.properties</file>
+					<key>username</key>
+					<value>${username.temp}</value>
+				</propertiesFileSet>
+				<propertiesFileSet>
+					<file>${installdir}/conf/${database.temp}-SqlMapConfig.properties</file>
+					<key>password</key>
+					<value>${password.temp}</value>
+				</propertiesFileSet>
+
+				<!-- restore mirth properties -->
+				<propertiesFileSet>
+					<file>${installdir}/conf/mirth.properties</file>
+					<key>http.port</key>
+					<value>${http.port.temp}</value>
+				</propertiesFileSet>
+				<propertiesFileSet>
+					<file>${installdir}/conf/mirth.properties</file>
+					<key>https.port</key>
+					<value>${https.port.temp}</value>
+				</propertiesFileSet>
+				<propertiesFileSet>
+					<file>${installdir}/conf/mirth.properties</file>
+					<key>jmx.port</key>
+					<value>${jmx.port.temp}</value>
+				</propertiesFileSet>
+			</actionList>
+		</actionGroup>
 	</postInstallationActionList>
 
 	<preUninstallationActionList>
@@ -735,4 +716,30 @@
 			<showMessageOnError>0</showMessageOnError>
 		</kill>
 	</preUninstallationActionList>
+
+	<finalPageActionList>
+		<logMessage>
+			<ruleList>
+				<compareValues>
+					<value1>${component(manager).selected}</value1>
+					<logic>equals</logic>
+					<value2>true</value2>
+				</compareValues>
+			</ruleList>
+			<text>Starting Mirth Server Manager</text>
+		</logMessage>
+
+		<runProgram>
+			<ruleList>
+				<compareValues>
+					<value1>${component(manager).selected}</value1>
+					<logic>equals</logic>
+					<value2>true</value2>
+				</compareValues>
+			</ruleList>
+			<program>${installdir}/MirthServerManager.exe</program>
+			<programArguments></programArguments>
+		</runProgram>
+	</finalPageActionList>
+
 </project>
