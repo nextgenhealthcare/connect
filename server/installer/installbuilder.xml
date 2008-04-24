@@ -85,7 +85,6 @@
 							<windowsPath>${installdir}</windowsPath>
 						</shortcut>
 					</shortcutList>
-
 				</folder>
 
 				<folder>
@@ -275,7 +274,6 @@
 			<selected>1</selected>
 			<show>1</show>
 			<folderList>
-
 				<folder>
 					<description>Program Files</description>
 					<destination>${installdir}</destination>
@@ -556,7 +554,6 @@
 			</ruleList>
 
 			<actionList>
-
 				<propertiesFileGet>
 					<file>${installdir}/conf/mirth.properties</file>
 					<variable>http.port.temp</variable>

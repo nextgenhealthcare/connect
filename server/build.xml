@@ -324,7 +324,7 @@
 
 		<!-- copy connector files -->
 		<copy todir="${setup.connectors}">
-			<fileset dir="${connectors}"/>
+			<fileset dir="${connectors}" />
 		</copy>
 
 		<!-- copy plugins files -->
@@ -741,7 +741,7 @@
 				<include name="Javascript Filter Rule.xml" />
 			</fileset>
 		</zip>
-		
+
 		<zip destfile="${dist.plugins}/dicom-viewer-${version}.zip">
 			<fileset dir="${plugins}">
 				<include name="dicom-viewer-client.jar" />
@@ -751,7 +751,7 @@
 				<include name="DICOM Viewer.xml" />
 			</fileset>
 		</zip>
-		
+
 		<zip destfile="${dist.plugins}/pdf-viewer-${version}.zip">
 			<fileset dir="${plugins}">
 				<include name="pdf-viewer-client.jar" />
@@ -761,7 +761,7 @@
 				<include name="PDF Viewer.xml" />
 			</fileset>
 		</zip>
-				
+
 		<zip destfile="${dist.plugins}/rtf-viewer-${version}.zip">
 			<fileset dir="${plugins}">
 				<include name="rtf-viewer-client.jar" />
@@ -771,7 +771,7 @@
 				<include name="RTF Viewer.xml" />
 			</fileset>
 		</zip>
-		
+
 		<zip destfile="${dist.plugins}/image-viewer-${version}.zip">
 			<fileset dir="${plugins}">
 				<include name="image-viewer-client.jar" />
@@ -800,44 +800,13 @@
 		<gzip src="${dist}/mirth-${version}.tar" zipfile="${dist}/mirth-${version}.tar.gz" />
 		<delete file="${dist}/mirth-${version}.tar" />
 
-		<!-- create the executable installer jar -->
-		<taskdef name="izpack" classpath="${installer.lib}/standalone-compiler.jar" classname="com.izforge.izpack.ant.IzPackTask" />
-		<copy file="${installer}/install.xml" tofile="${installer}/install-tmp.xml" />
-		<replace file="${installer}/install-tmp.xml" token="@version@" value="${version}" />
-		<izpack input="${installer}/install-tmp.xml" output="${dist}/mirth-${version}-setup.jar" basedir="${setup}" />
-		<delete file="${installer}/install-tmp.xml" />
-
-		<!-- create the win32 installer -->
+		<!-- create the InstallBuilder win32 installer -->
 		<property environment="env" />
-		<echo message="LAUNCH4J_HOME=${env.LAUNCH4J_HOME}" />
-		<taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${env.LAUNCH4J_HOME}/launch4j.jar:${env.LAUNCH4J_HOME}/lib/xstream.jar" />
-		<launch4j configFile="${installer}/launch4jconfig.xml" jar="${dist}/mirth-${version}-setup.jar" outfile="${dist}/mirth-${version}-setup.exe" />
-
-
-		<!-- create the osx installer -->
-		<mkdir dir="${dist}/osx/mirth-${version}-setup.app" />
-		<copy todir="${dist}/osx/mirth-${version}-setup.app">
-			<fileset dir="${installer}/osx" />
-		</copy>
-		<copy todir="${dist}/osx/mirth-${version}-setup.app/Contents/Resources/Java/">
-			<fileset file="${dist}/mirth-${version}-setup.jar" />
-		</copy>
-		<move file="${dist}/osx/mirth-${version}-setup.app/Contents/Resources/Java/mirth-${version}-setup.jar" tofile="${dist}/osx/mirth-${version}-setup.app/Contents/Resources/Java/mirth-setup.jar" />
-		<chmod file="${dist}/osx/mirth-${version}-setup.app/Contents/MacOS/JavaApplicationStub" perm="ugo+rx" />
-		<zip basedir="${dist}/osx" destfile="${dist}/mirth-${version}-setup-osx.zip" />
-		<delete dir="${dist}/osx" />
-
-		<!-- create the linux installer -->
-		<mkdir dir="${dist}/setup-tar" />
-		<copy todir="${dist}/setup-tar">
-			<fileset file="${dist}/mirth-${version}-setup.jar" />
-			<fileset file="${docs}/LINUX-README.txt" />
-			<fileset file="${installer}/script.xml" />
-		</copy>
-		<tar basedir="${dist}/setup-tar" tarfile="${dist}/mirth-${version}-setup.tar" />
-		<gzip src="${dist}/mirth-${version}-setup.tar" zipfile="${dist}/mirth-${version}-setup.tar.gz" />
-		<delete file="${dist}/mirth-${version}-setup.tar" />
-		<delete dir="${dist}/setup-tar" />
+		<echo message="INSTALLBUILDER_HOME=${env.INSTALLBUILDER_HOME}" />
+		<exec executable="${env.INSTALLBUILDER_HOME}/bin/builder.exe">
+			<arg line="build '${installer}/installbuilder.xml' windows">
+			</arg>
+		</exec>
 
 		<!-- create the JBoss service archive -->
 		<mkdir dir="${dist}/mirth.sar" />
