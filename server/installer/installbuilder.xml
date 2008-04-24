@@ -94,12 +94,13 @@
 					<platforms>linux, osx</platforms>
 					<distributionFileList>
 						<distributionFile>
-							<origin>mirth.sh</origin>
+							<origin>../setup/mirth.sh</origin>
 						</distributionFile>
 					</distributionFileList>
+
 					<actionList>
 						<changePermissions>
-							<files>mirth.sh</files>
+							<files>${installdir}/mirth.sh</files>
 							<permissions>755</permissions>
 						</changePermissions>
 					</actionList>
@@ -314,6 +315,13 @@
 							<origin>../setup/shell.sh</origin>
 						</distributionFile>
 					</distributionFileList>
+
+					<actionList>
+						<changePermissions>
+							<files>${installdir}/shell.sh</files>
+							<permissions>755</permissions>
+						</changePermissions>
+					</actionList>
 				</folder>
 			</folderList>
 
