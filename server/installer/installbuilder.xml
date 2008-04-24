@@ -6,6 +6,8 @@
 	<enableRollback>1</enableRollback>
 	<outputDirectory>../dist</outputDirectory>
 	<allowComponentSelection>1</allowComponentSelection>
+	<readmeFile>../setup/README.txt</readmeFile>
+	<licenseFile>../setup/licenses/mpl11.txt</licenseFile>
 
 	<componentList>
 		<component>
