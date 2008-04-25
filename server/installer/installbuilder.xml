@@ -1,7 +1,7 @@
 <project>
 	<shortName>mirth</shortName>
 	<fullName>Mirth</fullName>
-	<version>@@VERSION@@</version>
+	<version>${version}</version>
 	<leftImage>../installer/sidebar.png</leftImage>
 	<enableRollback>1</enableRollback>
 	<outputDirectory>../dist</outputDirectory>
@@ -9,6 +9,7 @@
 	<readmeFile>../setup/README.txt</readmeFile>
 	<licenseFile>../setup/licenses/license-mirth.txt</licenseFile>
 	<installerFilename>${product_shortname}-${product_version}-${platform_name}-installer.${platform_exec_suffix}</installerFilename>
+	<disableSplashScreen>1</disableSplashScreen>
 
 	<componentList>
 		<component>

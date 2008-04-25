@@ -800,26 +800,24 @@
 		<gzip src="${dist}/mirth-${version}.tar" zipfile="${dist}/mirth-${version}.tar.gz" />
 		<delete file="${dist}/mirth-${version}.tar" />
 
-		<copy file="${installer}/installbuilder.xml" tofile="${installer}/installbuilder-temp.xml" />
-		<replace file="${installer}/installbuilder-temp.xml" token="@@VERSION@@" value="${version}" />
 		<property environment="env" />
 		<echo message="INSTALLBUILDER_HOME=${env.INSTALLBUILDER_HOME}" />
 
 		<!-- create the win32 installer -->
 		<exec executable="${env.INSTALLBUILDER_HOME}/bin/builder.exe">
-			<arg line="build '${installer}/installbuilder-temp.xml' windows">
+			<arg line="build '${installer}/installbuilder-temp.xml' windows --setvars version=${version}">
 			</arg>
 		</exec>
 
 		<!-- create the linux installer -->
 		<exec executable="${env.INSTALLBUILDER_HOME}/bin/builder.exe">
-			<arg line="build '${installer}/installbuilder-temp.xml' linux">
+			<arg line="build '${installer}/installbuilder-temp.xml' linux --setvars version=${version}">
 			</arg>
 		</exec>
 
 		<!-- create the osx installer -->
 		<exec executable="${env.INSTALLBUILDER_HOME}/bin/builder.exe">
-			<arg line="build '${installer}/installbuilder-temp.xml' osx">
+			<arg line="build '${installer}/installbuilder-temp.xml' osx --setvars version=${version}">
 			</arg>
 		</exec>
 
