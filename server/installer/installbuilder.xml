@@ -7,7 +7,8 @@
 	<outputDirectory>../dist</outputDirectory>
 	<allowComponentSelection>1</allowComponentSelection>
 	<readmeFile>../setup/README.txt</readmeFile>
-	<licenseFile>../setup/licenses/mpl11.txt</licenseFile>
+	<licenseFile>../setup/licenses/license-mirth.txt</licenseFile>
+	<installerFilename>${product_shortname}-${product_version}-${platform_name}-installer.${platform_exec_suffix}</installerFilename>
 
 	<componentList>
 		<component>
