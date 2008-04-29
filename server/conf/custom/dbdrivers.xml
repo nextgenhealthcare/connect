@@ -1,7 +1,0 @@
-<drivers >
-	<driver class="sun.jdbc.odbc.JdbcOdbcDriver" name="Sun JDBC-ODBC Bridge" />
-	<driver class="com.mysql.jdbc.Driver" name="MySQL" />
-	<driver class="oracle.jdbc.OracleDriver" name="Oracle 10g Release 2" />
-	<driver class="org.postgresql.Driver" name="PostgreSQL" />
-	<driver class="net.sourceforge.jtds.jdbc.Driver" name="SQL Server/Sybase" />
-</drivers>
