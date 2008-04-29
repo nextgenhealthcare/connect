@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>RASO17</name>
+    <description>Pharmacy/Treatment Administration</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+        <group minOccurs="0">
+            <segment>PID</segment>
+            <segment minOccurs="0">PD1</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">AL1</segment>
+            <group minOccurs="0">
+                <segment>PV1</segment>
+                <segment minOccurs="0">PV2</segment>
+            </group>
+        </group>
+        <group maxOccurs="unbounded">
+            <segment>ORC</segment>
+            <group maxOccurs="unbounded" minOccurs="0">
+                <segment>TQ1</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">TQ2</segment>
+            </group>
+            <group minOccurs="0">
+                <segment>RXO</segment>
+                <group minOccurs="0">
+                    <segment maxOccurs="unbounded">NTE</segment>
+                    <segment maxOccurs="unbounded">RXR</segment>
+                    <group maxOccurs="unbounded" minOccurs="0">
+                        <segment>RXC</segment>
+                        <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+                    </group>
+                </group>
+            </group>
+            <group minOccurs="0">
+                <segment>RXE</segment>
+                <group maxOccurs="unbounded">
+                    <segment>TQ1</segment>
+                    <segment minOccurs="0" maxOccurs="unbounded">TQ2</segment>
+                </group>
+                <segment maxOccurs="unbounded">RXR</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">RXC</segment>
+            </group>
+            <group maxOccurs="unbounded">
+                <segment maxOccurs="unbounded">RXA</segment>
+                <segment>RXR</segment>
+                <group maxOccurs="unbounded" minOccurs="0">
+                    <segment>OBX</segment>
+                    <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+                </group>
+            </group>
+            <segment minOccurs="0" maxOccurs="unbounded">CTI</segment>
+        </group>
+    </segments>
+</message>

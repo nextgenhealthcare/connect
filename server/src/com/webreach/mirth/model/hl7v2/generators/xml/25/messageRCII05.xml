@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>RCII05</name>
+    <description>Request For Patient Clinical Information - Response</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment>MSA</segment>
+        <segment>QRD</segment>
+        <segment minOccurs="0">QRF</segment>
+        <group maxOccurs="unbounded">
+            <segment>PRD</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">CTD</segment>
+        </group>
+        <segment>PID</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">DG1</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">DRG</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">AL1</segment>
+        <group maxOccurs="unbounded" minOccurs="0">
+            <segment>OBR</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            <group maxOccurs="unbounded" minOccurs="0">
+                <segment>OBX</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            </group>
+        </group>
+        <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+    </segments>
+</message>

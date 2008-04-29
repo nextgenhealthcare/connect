@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>TBRR08</name>
+    <description>Tabular Data Response</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MSA</segment>
+        <segment minOccurs="0">ERR</segment>
+        <segment>QAK</segment>
+        <segment>RDF</segment>
+        <segment>RDT</segment>
+        <segment minOccurs="0">DSC</segment>
+    </segments>
+</message>

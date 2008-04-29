@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>SPR</name>
+    <description>Stored Procedure Request Definition</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>SPR.1</name>
+            <description>Query Tag</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>SPR.2</name>
+            <description>Query/Response Format Code</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>SPR.3</name>
+            <description>Stored Procedure Name</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>SPR.4</name>
+            <description>Input Parameter List</description>
+            <datatype>QIP</datatype>
+        </field>
+    </elements>
+</segment>

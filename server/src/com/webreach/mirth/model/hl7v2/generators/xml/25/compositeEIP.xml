@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>EIP</name>
+    <description>Entity Identifier Pair</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>EIP.1</name>
+            <description>Placer Assigned Identifier</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>EIP.2</name>
+            <description>Filler Assigned Identifier</description>
+            <datatype>EI</datatype>
+        </field>
+    </elements>
+</segment>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>OM5</name>
+    <description>Observation Batteries (sets)</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM5.1</name>
+            <description>Sequence Number - Test/ Observation Master File</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM5.2</name>
+            <description>Test/Observations Included w/An Ordered Test Battery</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM5.3</name>
+            <description>Observation ID Suffixes</description>
+            <datatype>ST</datatype>
+        </field>
+    </elements>
+</segment>

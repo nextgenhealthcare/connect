@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>ADTA20</name>
+    <description>Nursing/Census Application Updates</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>EVN</segment>
+        <segment>NPU</segment>
+    </segments>
+</message>

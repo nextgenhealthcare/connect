@@ -1,0 +1,24 @@
+<connectorMetaData>
+  <name>File Reader</name>
+  <author>WebReach, Inc.</author>
+  <pluginVersion>@mirthversion</pluginVersion>
+  <mirthVersion>1.7.1</mirthVersion>
+  <updateUrl><![CDATA[http://extensions.mirthproject.org/updates/?mirthversion=${mirthVersion}&version=${version}&name=${name}&serverid=${serverid}]]></updateUrl>
+  <url>http://extensions.mirthproject.org</url>
+  <description>This connector allows Mirth to poll for files from a local or network file system.</description>
+  <clientClassName>com.webreach.mirth.connectors.file.FileReader</clientClassName>
+  <serverClassName>com.webreach.mirth.connectors.file.FileConnector</serverClassName>
+  <sharedClassName>com.webreach.mirth.connectors.file.FileReaderProperties</sharedClassName>
+  <transformers>ByteArrayToString</transformers>
+  <protocol>file</protocol>
+  <type>LISTENER</type>
+  <enabled>true</enabled>
+  <mule-properties>
+      <property name="connector">com.webreach.mirth.connectors.file.FileConnector</property>
+      <property name="dispatcher.factory">com.webreach.mirth.connectors.file.FileMessageDispatcherFactory</property>
+      <property name="message.receiver">com.webreach.mirth.connectors.file.FileMessageReceiver</property>
+      <property name="message.adapter">com.webreach.mirth.connectors.file.FileContentsMessageAdapter</property>
+      <property name="endpoint.builder">com.webreach.mirth.connectors.file.FileEndpointBuilder</property>
+      <property name="inbound.transformer">com.webreach.mirth.connectors.file.transformers.FileToString</property>
+  </mule-properties>
+</connectorMetaData>

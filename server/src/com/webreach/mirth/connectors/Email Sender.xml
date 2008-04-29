@@ -1,0 +1,24 @@
+<connectorMetaData>
+  <name>Email Sender</name>
+  <author>WebReach, Inc.</author>
+  <pluginVersion>@mirthversion</pluginVersion>
+  <mirthVersion>1.7.1</mirthVersion>
+  <updateUrl><![CDATA[http://extensions.mirthproject.org/updates/?mirthversion=${mirthVersion}&version=${version}&name=${name}&serverid=${serverid}]]></updateUrl>
+  <url>http://extensions.mirthproject.org</url>
+  <description>This connector allows Mirth to send Email messages via SMTP. The velocity template engine is available to dynamically create messages.</description>
+  <clientClassName>com.webreach.mirth.connectors.email.EmailSender</clientClassName>
+  <serverClassName>com.webreach.mirth.connectors.email.SmtpConnector</serverClassName>
+  <sharedClassName>com.webreach.mirth.connectors.email.EmailSenderProperties</sharedClassName>
+  <transformers></transformers>
+  <protocol>smtp</protocol>
+  <type>SENDER</type>
+  <enabled>true</enabled>
+  <mule-properties>
+      <property name="connector">com.webreach.mirth.connectors.email.SmtpConnector</property>
+      <property name="dispatcher.factory">com.webreach.mirth.connectors.email.SmtpMessageDispatcherFactory</property>
+      <property name="message.adapter">com.webreach.mirth.connectors.email.MailMessageAdapter</property>
+      <property name="inbound.transformer">com.webreach.mirth.connectors.email.transformers.EmailMessageToString</property>
+      <property name="outbound.transformer">com.webreach.mirth.connectors.email.transformers.MessageObjectToEmailMessage</property>
+      <property name="endpoint.builder">org.mule.impl.endpoint.UrlEndpointBuilder</property>
+  </mule-properties>
+</connectorMetaData>

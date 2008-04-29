@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>VAR</name>
+    <description>Variance</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>VAR.1</name>
+            <description>Variance Instance ID</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>VAR.2</name>
+            <description>Documented Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>VAR.3</name>
+            <description>Stated Variance Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>VAR.4</name>
+            <description>Variance Originator</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>VAR.5</name>
+            <description>Variance Classification</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>VAR.6</name>
+            <description>Variance Description</description>
+            <datatype>ST</datatype>
+        </field>
+    </elements>
+</segment>

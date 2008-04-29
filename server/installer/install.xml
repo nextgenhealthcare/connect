@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
+
+<installation version="1.0">
+	<jar src="../installer/lib/ant.jar" stage="both" />
+	<jar src="../installer/lib/ant-launcher.jar" stage="both" />
+	<jar src="../installer/lib/ant-nodeps.jar" stage="both" />
+	<jar src="../installer/lib/ant-contrib-0.6.jar" stage="install" />
+	<jar src="../installer/lib/orangevolt-ant-tasks-1.3.5.jar" stage="install" />
+	<jar src="../installer/lib/roxes-win32forjava-1.0.4.jar" stage="install" />
+
+	<!-- Native libraries to use -->
+	<native type="izpack" name="ShellLink.dll" stage="install" />
+	<native type="3rdparty" name="COIOSHelper.dll" stage="both">
+		<os family="windows" />
+	</native>
+
+	<listeners>
+		<listener installer="AntActionInstallerListener" uninstaller="AntActionUninstallerListener" />
+		<!-- listener installer="RegistryInstallerListener" uninstaller="RegistryUninstallerListener">
+			<os family="windows" />
+			</listener-->
+	</listeners>
+
+	<!-- 
+		The info section.
+		The meaning of the tags should be natural ...
+	-->
+	<info>
+		<appname>Mirth</appname>
+		<appversion>@version@</appversion>
+		<javaversion>1.5</javaversion>
+		<authors>
+			<author name="Gerald Bortis" email="geraldb@webreachinc.com" />
+			<author name="Jacob Brauer" email="jacobb@webreachinc.com" />
+			<author name="Brendan Haverlock" email="brendanh@webreachinc.com" />
+			<author name="Chris Lang" email="chrisl@webreachinc.com" />
+		</authors>
+		<url>http://www.mirthproject.org/</url>
+	</info>
+
+	<!-- 
+		The gui preferences indication.
+		Sets the installer window to 640x480. It will not be able to change the size.
+	-->
+	<guiprefs width="640" height="425" resizable="no">
+		<laf name="metouia">
+			<os family="unix" />
+		</laf>
+		<laf name="looks">
+			<os family="windows" />
+			<param name="variant" value="extwin" />
+		</laf>
+
+		<modifier key="labelYGap" value="5" />
+		<modifier key="labelToTextYGap" value="5" />
+	</guiprefs>
+
+	<!-- 
+		The locale section.
+		Asks here to include the English and French langpacks.
+	-->
+	<locale>
+		<langpack iso3="eng" />
+	</locale>
+
+	<!-- 
+		The resources section.
+		The ids must be these ones if you want to use the LicencePanel and/or the InfoPanel.
+	-->
+	<resources>
+		<res id="Installer.image" src="../installer/sidebar.png" />
+		<res id="LicencePanel.licence" src="licenses/license-mirth.txt" />
+		<res id="HTMLInfoPanel.info" src="../installer/install-readme.html" />
+		<res id="shortcutSpec.xml" src="../installer/default_shortcut_specification.xml" />
+		<res id="AntActionsSpec.xml" src="../installer/ant_actions_spec.xml" />
+		
+		<res id="Unix_shortcutSpec.xml" src="../installer/unix_shortcut_specification.xml" />
+		<!-- res id="ProcessPanel.Spec.xml" src="../installer/process_panel_spec.xml" /-->
+		<!-- res id="ReigstrySpec.xml" src="../installer/registry_spec.xml" /-->
+	</resources>
+
+	<!-- 
+		The panels section.
+		We indicate here which panels we want to use. The order will be respected.
+	-->
+	<panels>
+		<panel classname="CheckedHelloPanel" />
+		<panel classname="LicencePanel" />
+		<panel classname="HTMLInfoPanel" />
+		<panel classname="TargetPanel" />
+		<panel classname="PacksPanel" />
+		<panel classname="InstallPanel" />
+		<panel classname="ShortcutPanel" />
+		<!-- panel classname="ProcessPanel" /-->
+		<panel classname="FinishPanel" />
+	</panels>
+
+	<!-- 
+		The packs section.
+		We specify here our packs.
+	-->
+	<packs>
+		<pack name="Update Scripts" required="yes">
+			<description>Scripts used to upgrade previous Mirth installations</description>
+			<file src="upgrade.xml" targetdir="$INSTALL_PATH" override="true" />
+		</pack>
+
+		<pack name="Core" required="yes">
+			<description>Mirth core libraries</description>
+
+			<updatecheck>
+				<include name="**" />
+				<exclude name="mirthdb/**" />
+				<exclude name="public_html/**" />
+				<exclude name="lib/custom/**" />
+				<exclude name="server.properties" />
+				<exclude name="server.id" />
+			</updatecheck>
+
+			<file src="mirth-server.jar" targetdir="$INSTALL_PATH" override="true" />
+			<file src="mirth-client-core.jar" targetdir="$INSTALL_PATH" override="true" />
+			<file src="mirth-launcher.jar" targetdir="$INSTALL_PATH" override="true" />
+			<file src="mirth-launcher.xml" targetdir="$INSTALL_PATH" override="true" />
+			<file src="keystore" targetdir="$INSTALL_PATH" override="true" />
+			<file src="activation.jnlp" targetdir="$INSTALL_PATH" override="true" />
+			<file src="mirth-client.jnlp" targetdir="$INSTALL_PATH" override="true" />
+			
+			<file src="mirth.sh" targetdir="$INSTALL_PATH" override="true" os="unix" />
+			<file src="mirth-daemon" targetdir="$INSTALL_PATH" override="true" os="unix" />
+			<file src="wrapper-x86-32bit" targetdir="$INSTALL_PATH" override="true" os="unix" />
+
+			<fileset dir="." targetdir="$INSTALL_PATH" os="windows" override="true">
+				<include name="Mirth.bat" />
+				<include name="Mirth.exe" />
+				<include name="Mirth.ico" />
+				<include name="uninstall.ico" />
+			</fileset>
+
+			<file src="lib" targetdir="$INSTALL_PATH" override="true" />
+			<file src="client-lib" targetdir="$INSTALL_PATH" override="true" />
+			<file src="extensions" targetdir="$INSTALL_PATH" override="true" />
+			<file src="licenses" targetdir="$INSTALL_PATH" override="true" />
+			<file src="logs" targetdir="$INSTALL_PATH" override="true" />
+
+			<file src="mirthdb" targetdir="$INSTALL_PATH" override="false" />
+			<file src="public_html" targetdir="$INSTALL_PATH" override="false" />
+		</pack>
+
+		<pack name="Configuration" required="yes">
+			<description>Mirth configuration and database files</description>
+
+			<updatecheck>
+				<include name="**" />
+				<exclude name="conf/custom/dbdrivers.xml" />
+			</updatecheck>
+
+			<file src="conf/custom/dbdrivers.xml" targetdir="$INSTALL_PATH/conf/custom" override="false" />
+
+			<fileset dir="conf" targetdir="$INSTALL_PATH/conf" override="true">
+				<include name="mirth.properties" />
+				<include name="derby-SqlMapConfig.properties" />
+				<include name="mysql-SqlMapConfig.properties" />
+				<include name="oracle-SqlMapConfig.properties" />
+				<include name="postgres-SqlMapConfig.properties" />
+				<include name="sqlserver2005-SqlMapConfig.properties" />
+				<include name="sqlserver-SqlMapConfig.properties" />
+
+				<include name="log4j.properties" />
+				<include name="mule-template.xml" />				
+				<include name="*.dtd" />
+				<include name="version.properties" />
+				<include name="wrapper.conf" />
+
+				<include name="META-INF" />
+
+				<include name="deltas/**" />
+				<include name="derby/**" />
+				<include name="postgres/**" />
+				<include name="mysql/**" />
+				<include name="oracle/**" />
+				<include name="sqlserver/**" />
+				<include name="sqlserver2005/**" />
+			</fileset>
+
+			<fileset dir="." targetdir="$INSTALL_PATH" override="true">
+				<include name="derby-database.sql" />
+				<include name="postgres-database.sql" />
+				<include name="mysql-database.sql" />
+				<include name="oracle-database.sql" />
+				<include name="sqlserver-database.sql" />
+				<include name="sqlserver2005-database.sql" />
+			</fileset>
+		</pack>
+
+		<pack name="Shell" required="no">
+			<description>Administrator shell</description>
+
+			<updatecheck>
+				<include name="**" />
+			</updatecheck>
+
+			<file src="shell.jar" targetdir="$INSTALL_PATH" override="true" />
+			<file src="shell-launcher.jar" targetdir="$INSTALL_PATH" override="true" />
+			<file src="shell-launcher.xml" targetdir="$INSTALL_PATH" override="true" />
+			<file src="Shell.bat" targetdir="$INSTALL_PATH" override="true" os="windows" />
+			<file src="shell.sh" targetdir="$INSTALL_PATH" override="true" os="unix" />
+		</pack>
+
+		<pack name="Windows NT/2000/2003/XP Service" required="no" os="windows">
+			<description>Run Mirth as a background service</description>
+
+			<updatecheck>
+				<include name="**" />
+			</updatecheck>
+
+			<fileset dir="." targetdir="$INSTALL_PATH" override="true">
+				<include name="InstallMirth-NT.bat" />
+				<include name="UninstallMirth-NT.bat" />
+				<include name="StartMirth-NT.bat" />
+				<include name="StopMirth-NT.bat" />
+				<include name="wrapper.exe" />
+			</fileset>
+
+			<executable targetfile="$INSTALL_PATH/InstallMirth-NT.bat" type="bin" stage="postinstall" failure="warn" keep="true" />
+			<executable targetfile="$INSTALL_PATH/StartMirth-NT.bat" type="bin" stage="postinstall" failure="warn" keep="true" />
+
+			<executable targetfile="$INSTALL_PATH/StopMirth-NT.bat" type="bin" stage="uninstall" failure="warn" />
+			<executable targetfile="$INSTALL_PATH/UninstallMirth-NT.bat" type="bin" stage="uninstall" failure="warn" />
+		</pack>
+
+		<pack name="Server Manager" required="no" os="windows">
+			<description>System tray utility for configuring service</description>
+
+			<updatecheck>
+				<include name="**" />
+			</updatecheck>
+
+			<depends packname="Windows NT/2000/2003/XP Service" />
+			<file src="MirthServerManager.exe" targetdir="$INSTALL_PATH" override="true" />
+			<file src="mirth-manager.jar" targetdir="$INSTALL_PATH" override="true" />
+		</pack>
+
+		<!--
+			<pack name="Sources" required="no">
+			<description>The sources</description>
+			<file src="src" targetdir="$INSTALL_PATH" />
+			</pack>
+		-->
+	</packs>
+</installation>
