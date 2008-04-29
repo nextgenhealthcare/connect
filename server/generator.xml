@@ -1,0 +1,44 @@
+<project name="generator" basedir="." default="help">
+	<target name="help">
+		<echo>Mirth Vocabulary Class Generator</echo>
+	</target>
+
+	<target name="init">
+		<property file="build.properties" />
+		<property file="generator.properties" />
+
+		<path id="classpath">
+			<fileset dir="${lib}" includes="*.jar" />
+			<fileset dir="${classes}" includes="*.class" />
+		</path>
+	</target>
+
+	<target name="clean" depends="init">
+		<delete dir="${generator.classes}" />
+	</target>
+
+	<target name="generate" depends="clean">
+		<java classname="com.webreach.mirth.model.hl7v2.generators.HL7XMLtoJava" failonerror="true">
+			<classpath>
+				<pathelement location="${classes}" />
+				<fileset dir="${lib}" />
+			</classpath>
+			
+			<arg value="${generator.basedir}" />
+			<arg value="${generator.output}" />
+			<arg value="${generator.template}" />
+		</java>
+	</target>
+
+	<target name="compile" depends="generate">
+		<mkdir dir="${generator.classes}" />
+		<javac srcdir="${generator.output}" destdir="${generator.classes}">
+			<classpath refid="classpath" />
+			<exclude name="/generators/**" />
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile">
+		<jar destfile="${generator.jar}" basedir="${generator.classes}" />
+	</target>
+</project>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>ORRO02</name>
+    <description>Order Response</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MSA</segment>
+        <segment minOccurs="0">ERR</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+        <group minOccurs="0">
+            <group minOccurs="0">
+                <segment>PID</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            </group>
+            <group maxOccurs="unbounded">
+                <segment>ORC</segment>
+                <group maxOccurs="unbounded" minOccurs="0">
+                    <segment minOccurs="0">OBR</segment>
+                    <segment minOccurs="0">RQD</segment>
+                    <segment minOccurs="0">RQ1</segment>
+                    <segment minOccurs="0">RXO</segment>
+                    <segment minOccurs="0">ODS</segment>
+                    <segment minOccurs="0">ODT</segment>
+                </group>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">CTI</segment>
+            </group>
+        </group>
+    </segments>
+</message>

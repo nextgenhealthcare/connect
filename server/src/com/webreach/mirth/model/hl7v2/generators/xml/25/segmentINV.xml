@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>INV</name>
+    <description>Inventory Detail</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>INV.1</name>
+            <description>Substance Identifier</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="unbounded">
+            <name>INV.2</name>
+            <description>Substance Status</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>INV.3</name>
+            <description>Substance Type</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>INV.4</name>
+            <description>Inventory Container Identifier</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>INV.5</name>
+            <description>Container Carrier Identifier</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>INV.6</name>
+            <description>Position On Carrier</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>INV.7</name>
+            <description>Initial Quantity</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>INV.8</name>
+            <description>Current Quantity</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>INV.9</name>
+            <description>Available Quantity</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>INV.10</name>
+            <description>Consumption Quantity</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>INV.11</name>
+            <description>Quantity Units</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>INV.12</name>
+            <description>Expiration Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>INV.13</name>
+            <description>First Used Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>INV.14</name>
+            <description>On Board Stability Duration</description>
+            <datatype>TQ</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>INV.15</name>
+            <description>Test/Fluid Identifier(s)</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>INV.16</name>
+            <description>Manufacturer Lot Number</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>INV.17</name>
+            <description>Manufacturer Identifier</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>INV.18</name>
+            <description>Supplier Identifier</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>INV.19</name>
+            <description>On Board Stability Time</description>
+            <datatype>CQ</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>INV.20</name>
+            <description>Target Value</description>
+            <datatype>CQ</datatype>
+        </field>
+    </elements>
+</segment>

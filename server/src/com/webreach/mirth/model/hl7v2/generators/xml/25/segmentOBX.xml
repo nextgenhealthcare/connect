@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>OBX</name>
+    <description>Observation/Result</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.1</name>
+            <description>Set ID</description>
+            <datatype>SI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.2</name>
+            <description>Value Type</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>OBX.3</name>
+            <description>Observation Identifier</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.4</name>
+            <description>Observation Sub-id</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>OBX.5</name>
+            <description>Observation Value</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.6</name>
+            <description>Units</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.7</name>
+            <description>References Range</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>OBX.8</name>
+            <description>Abnormal Flags</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.9</name>
+            <description>Probability</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>OBX.10</name>
+            <description>Nature of Abnormal Test</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>OBX.11</name>
+            <description>Observation Result Status</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.12</name>
+            <description>Effective Date of Reference Range</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.13</name>
+            <description>User Defined Access Checks</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.14</name>
+            <description>Date/Time of the Observation</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.15</name>
+            <description>Producer's ID</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>OBX.16</name>
+            <description>Responsible Observer</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>OBX.17</name>
+            <description>Observation Method</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>OBX.18</name>
+            <description>Equipment Instance Identifier</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.19</name>
+            <description>Date/Time of the Analysis</description>
+            <datatype>TS</datatype>
+        </field>
+    </elements>
+</segment>

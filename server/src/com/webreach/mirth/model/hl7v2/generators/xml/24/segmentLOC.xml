@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>LOC</name>
+    <description>Location Identification</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>LOC.1</name>
+            <description>Primary Key Value</description>
+            <datatype>PL</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LOC.2</name>
+            <description>Location Description</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>LOC.3</name>
+            <description>Location Type</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LOC.4</name>
+            <description>Organization Name</description>
+            <datatype>XON</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LOC.5</name>
+            <description>Location Address</description>
+            <datatype>XAD</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LOC.6</name>
+            <description>Location Phone</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LOC.7</name>
+            <description>License Number</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LOC.8</name>
+            <description>Location Equipment</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LOC.9</name>
+            <description>Location Service Code</description>
+            <datatype>IS</datatype>
+        </field>
+    </elements>
+</segment>

@@ -1,0 +1,24 @@
+<connectorMetaData>
+  <name>SOAP Listener</name>
+  <author>WebReach, Inc.</author>
+  <pluginVersion>@mirthversion</pluginVersion>
+  <mirthVersion>1.7.1</mirthVersion>
+  <updateUrl><![CDATA[http://extensions.mirthproject.org/updates/?mirthversion=${mirthVersion}&version=${version}&name=${name}&serverid=${serverid}]]></updateUrl>
+  <url>http://extensions.mirthproject.org</url>
+  <description>This connector allows Mirth to listen on an HTTP port for incoming SOAP Web Service calls. This connector also provides a WSDL for SOAP clients to use.</description>
+  <clientClassName>com.webreach.mirth.connectors.soap.SOAPListener</clientClassName>
+  <serverClassName>com.webreach.mirth.connectors.soap.axis.AxisConnector</serverClassName>
+  <sharedClassName>com.webreach.mirth.connectors.soap.SOAPListenerProperties</sharedClassName>
+  <transformers>SOAPRequestToString</transformers>
+  <protocol>soap</protocol>
+  <type>LISTENER</type>
+  <enabled>true</enabled>
+  <mule-properties>
+      <property name="connector">com.webreach.mirth.connectors.soap.axis.transport.http.SoapConnector</property>
+      <property name="dispatcher.factory">org.mule.providers.http.HttpClientMessageDispatcherFactory</property>
+      <property name="message.receiver">org.mule.providers.http.HttpMessageReceiver</property>
+      <property name="message.adapter">org.mule.providers.http.HttpMessageAdapter</property>
+      <property name="outbound.transformer">org.mule.providers.http.transformers.ObjectToHttpClientMethodRequest</property>
+      <property name="response.transformer">com.webreach.mirth.connectors.soap.axis.transport.http.transformers.UMOMessageToHttpResponse</property>
+  </mule-properties>
+</connectorMetaData>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>LRL</name>
+    <description>Location Relationship</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>LRL.1</name>
+            <description>Primary Key Value</description>
+            <datatype>PL</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LRL.2</name>
+            <description>Segment Action Code</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LRL.3</name>
+            <description>Segment Unique Key</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LRL.4</name>
+            <description>Location Relationship ID</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LRL.5</name>
+            <description>Organizational Location Relationship Value</description>
+            <datatype>XON</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LRL.6</name>
+            <description>Patient Location Relationship Value</description>
+            <datatype>PL</datatype>
+        </field>
+    </elements>
+</segment>

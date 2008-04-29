@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>VXXV02</name>
+    <description>Response to Vaccination Query Returning Multiple PID Matches</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MSA</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment>QRD</segment>
+        <segment minOccurs="0">QRF</segment>
+        <group maxOccurs="unbounded">
+            <segment>PID</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">NK1</segment>
+        </group>
+    </segments>
+</message>

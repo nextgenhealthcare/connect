@@ -1,0 +1,24 @@
+<connectorMetaData>
+  <name>HTTP Sender</name>
+  <author>WebReach, Inc.</author>
+  <pluginVersion>@mirthversion</pluginVersion>
+  <mirthVersion>1.7.1</mirthVersion>
+  <updateUrl><![CDATA[http://extensions.mirthproject.org/updates/?mirthversion=${mirthVersion}&version=${version}&name=${name}&serverid=${serverid}]]></updateUrl>
+  <url>http://extensions.mirthproject.org</url>
+  <description>This connector allows Mirth to send messages to an HTTP server. Custom header properties can be specified.</description>
+  <clientClassName>com.webreach.mirth.connectors.http.HTTPSender</clientClassName>
+  <serverClassName>com.webreach.mirth.connectors.http.HttpConnector</serverClassName>
+  <sharedClassName>com.webreach.mirth.connectors.http.HTTPSenderProperties</sharedClassName>
+  <transformers></transformers>
+  <protocol>http</protocol>
+  <type>SENDER</type>
+  <enabled>true</enabled>
+  <mule-properties>
+      <property name="connector">com.webreach.mirth.connectors.http.HttpConnector</property>
+      <property name="dispatcher.factory">com.webreach.mirth.connectors.http.HttpClientMessageDispatcherFactory</property>
+      <property name="message.receiver">com.webreach.mirth.connectors.http.HttpMessageReceiver</property>
+      <property name="message.adapter">org.mule.providers.http.HttpMessageAdapter</property>
+      <property name="outbound.transformer">org.mule.providers.http.transformers.ObjectToHttpClientMethodRequest</property>
+      <property name="response.transformer">com.webreach.mirth.connectors.http.transformers.UMOMessageToHttpResponse</property>
+  </mule-properties>
+</connectorMetaData>

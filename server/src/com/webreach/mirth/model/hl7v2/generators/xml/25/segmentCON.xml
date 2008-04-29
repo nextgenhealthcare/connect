@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>CON</name>
+    <description>Consent Segment</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>CON.1</name>
+            <description>Set ID</description>
+            <datatype>SI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CON.2</name>
+            <description>Consent Type</description>
+            <datatype>CWE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CON.3</name>
+            <description>Consent Form ID</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CON.4</name>
+            <description>Consent Form Number</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>CON.5</name>
+            <description>Consent Text</description>
+            <datatype>FT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>CON.6</name>
+            <description>Subject-specific Consent Text</description>
+            <datatype>FT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>CON.7</name>
+            <description>Consent Background</description>
+            <datatype>FT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>CON.8</name>
+            <description>Subject-specific Consent Background</description>
+            <datatype>FT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>CON.9</name>
+            <description>Consenter-imposed Limitations</description>
+            <datatype>FT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CON.10</name>
+            <description>Consent Mode</description>
+            <datatype>CNE</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>CON.11</name>
+            <description>Consent Status</description>
+            <datatype>CNE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CON.12</name>
+            <description>Consent Discussion Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CON.13</name>
+            <description>Consent Decision Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CON.14</name>
+            <description>Consent Effective Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CON.15</name>
+            <description>Consent End Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CON.16</name>
+            <description>Subject Competence Indicator</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CON.17</name>
+            <description>Translator Assistance Indicator</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CON.18</name>
+            <description>Language Translated To</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CON.19</name>
+            <description>Informational Material Supplied Indicator</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CON.20</name>
+            <description>Consent Bypass Reason</description>
+            <datatype>CWE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CON.21</name>
+            <description>Consent Disclosure Level</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CON.22</name>
+            <description>Consent Non-disclosure Reason</description>
+            <datatype>CWE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CON.23</name>
+            <description>Non-subject Consenter Reason</description>
+            <datatype>CWE</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="unbounded">
+            <name>CON.24</name>
+            <description>Consenter ID</description>
+            <datatype>XPN</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="unbounded">
+            <name>CON.25</name>
+            <description>Relationship to Subject Table</description>
+            <datatype>IS</datatype>
+        </field>
+    </elements>
+</segment>

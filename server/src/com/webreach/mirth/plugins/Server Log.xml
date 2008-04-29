@@ -1,0 +1,22 @@
+<pluginMetaData>
+  <name>Server Log</name>
+  <author>WebReach, Inc.</author>
+  <pluginVersion>@mirthversion</pluginVersion>
+  <mirthVersion>1.7.1</mirthVersion>
+  <updateUrl><![CDATA[http://extensions.mirthproject.org/updates/?mirthversion=${mirthVersion}&version=${version}&name=${name}&serverid=${serverid}]]></updateUrl>
+  <url>http://extensions.mirthproject.org</url>
+  <description>This plugin allows you to view the server log on the Mirth administrator.</description>
+  <enabled>true</enabled>
+  <extensionPoint>
+  	<name>Server Log</name>
+    <type>SERVER_PLUGIN</type>
+    <className>com.webreach.mirth.plugins.serverlog.ServerLogProvider</className>
+    <mode>SERVER</mode>
+  </extensionPoint>
+  <extensionPoint>
+  	<name>Server Log</name>
+    <type>CLIENT_DASHBOARD_PANE</type>
+    <className>com.webreach.mirth.plugins.serverlog.ServerLogClient</className>
+    <mode>CLIENT</mode>
+  </extensionPoint>
+</pluginMetaData>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>MFNM13</name>
+    <description>Master File Notification - General</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment>MFI</segment>
+        <segment maxOccurs="unbounded">MFE</segment>
+    </segments>
+</message>

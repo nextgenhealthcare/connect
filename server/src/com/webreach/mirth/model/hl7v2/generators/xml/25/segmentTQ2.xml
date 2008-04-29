@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>TQ2</name>
+    <description>Timing/Quantity Relationship</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TQ2.1</name>
+            <description>Set ID</description>
+            <datatype>SI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TQ2.2</name>
+            <description>Sequence/Results Flag</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>TQ2.3</name>
+            <description>Related Placer Number</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>TQ2.4</name>
+            <description>Related Filler Number</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>TQ2.5</name>
+            <description>Related Placer Group Number</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TQ2.6</name>
+            <description>Sequence Condition Code</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TQ2.7</name>
+            <description>Cyclic Entry/Exit Indicator</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TQ2.8</name>
+            <description>Sequence Condition Time Interval</description>
+            <datatype>CQ</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TQ2.9</name>
+            <description>Cyclic Group Maximum Number of Repeats</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TQ2.10</name>
+            <description>Special Service Request Relationship</description>
+            <datatype>ID</datatype>
+        </field>
+    </elements>
+</segment>

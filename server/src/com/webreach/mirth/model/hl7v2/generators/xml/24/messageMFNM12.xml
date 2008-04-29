@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>MFNM12</name>
+    <description>Master File Notification Message</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MFI</segment>
+        <group maxOccurs="unbounded">
+            <segment>MFE</segment>
+            <segment>OM1</segment>
+            <segment minOccurs="0">OM7</segment>
+        </group>
+    </segments>
+</message>
