@@ -805,19 +805,19 @@
 
 		<!-- create the win32 installer -->
 		<exec executable="${env.INSTALLBUILDER_HOME}/bin/builder.exe">
-			<arg line="build '${installer}/installbuilder-temp.xml' windows --setvars version=${version}">
+			<arg line="build '${installer}/installer.xml' windows --setvars version=${version}">
 			</arg>
 		</exec>
 
 		<!-- create the linux installer -->
 		<exec executable="${env.INSTALLBUILDER_HOME}/bin/builder.exe">
-			<arg line="build '${installer}/installbuilder-temp.xml' linux --setvars version=${version}">
+			<arg line="build '${installer}/installer.xml' linux --setvars version=${version}">
 			</arg>
 		</exec>
 
 		<!-- create the osx installer -->
 		<exec executable="${env.INSTALLBUILDER_HOME}/bin/builder.exe">
-			<arg line="build '${installer}/installbuilder-temp.xml' osx --setvars version=${version}">
+			<arg line="build '${installer}/installer.xml' osx --setvars version=${version}">
 			</arg>
 		</exec>
 
