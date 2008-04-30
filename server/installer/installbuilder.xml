@@ -349,7 +349,6 @@
 			<selected>1</selected>
 			<show>1</show>
 			<folderList>
-
 				<folder>
 					<description>Program Files</description>
 					<destination>${installdir}</destination>
@@ -387,14 +386,6 @@
 							<description>Open source cross-platform health care integration engine</description>
 							<startType>auto</startType>
 						</createWindowsService>
-
-						<logMessage>
-							<text>Starting Mirth service</text>
-						</logMessage>
-
-						<startWindowsService>
-							<serviceName>Mirth</serviceName>
-						</startWindowsService>
 					</actionList>
 				</folder>
 
@@ -455,10 +446,7 @@
 	</parameterList>
 
 	<readyToInstallActionList>
-		<logMessage>
-			<text>Stopping Mirth service</text>
-		</logMessage>
-
+		<!-- stop mirth service -->
 		<stopWindowsService>
 			<ruleEvaluationLogic>and</ruleEvaluationLogic>
 			<ruleList>
@@ -472,14 +460,23 @@
 				</windowsServiceTest>
 			</ruleList>
 			<serviceName>Mirth</serviceName>
-			<abortOnError>0</abortOnError>
-			<showMessageOnError>0</showMessageOnError>
+			<abortOnError>1</abortOnError>
+			<showMessageOnError>1</showMessageOnError>
 		</stopWindowsService>
 
-		<logMessage>
-			<text>Killing Mirth Server Manager</text>
-		</logMessage>
+		<!-- kill mirth -->
+		<kill>
+			<ruleList>
+				<platformTest>
+					<type>windows</type>
+				</platformTest>
+			</ruleList>
+			<name>Mirth.exe</name>
+			<abortOnError>1</abortOnError>
+			<showMessageOnError>1</showMessageOnError>
+		</kill>
 
+		<!-- kill mirth server manager -->
 		<kill>
 			<ruleList>
 				<platformTest>
@@ -487,13 +484,9 @@
 				</platformTest>
 			</ruleList>
 			<name>MirthServerManager.exe</name>
-			<abortOnError>0</abortOnError>
-			<showMessageOnError>0</showMessageOnError>
+			<abortOnError>1</abortOnError>
+			<showMessageOnError>1</showMessageOnError>
 		</kill>
-
-		<logMessage>
-			<text>Backing up properties</text>
-		</logMessage>
 
 		<setInstallerVariable>
 			<ruleList>
@@ -583,17 +576,6 @@
 				</propertiesFileGet>
 			</actionList>
 		</actionGroup>
-
-		<logMessage>
-			<text>
-				Database properties: database = ${database.temp}, url = ${url.temp}, username = ${username.temp}, password = ${password.temp}
-			</text>
-		</logMessage>
-
-		<logMessage>
-			<text>Mirth Properties: http.port = ${http.port}, https.port = ${htts.port}, jmx.port = ${jmx.port}</text>
-		</logMessage>
-
 	</readyToInstallActionList>
 
 	<postInstallationActionList>
@@ -655,11 +637,40 @@
 		</actionGroup>
 	</postInstallationActionList>
 
-	<preUninstallationActionList>
-		<logMessage>
-			<text>Stopping Mirth service</text>
-		</logMessage>
+	<finalPageActionList>
+		<!-- start mirth service if selected -->
+		<startWindowsService>
+			<progressText>Start Mirth service</progressText>
 
+			<ruleList>
+				<compareValues>
+					<value1>${component(service).selected}</value1>
+					<logic>equals</logic>
+					<value2>1</value2>
+				</compareValues>
+			</ruleList>
+
+			<serviceName>Mirth</serviceName>
+		</startWindowsService>
+
+		<!-- start mirth server manager if selected -->
+		<runProgram>
+			<progressText>Start Mirth Server Manager</progressText>
+
+			<ruleList>
+				<compareValues>
+					<value1>${component(manager).selected}</value1>
+					<logic>equals</logic>
+					<value2>1</value2>
+				</compareValues>
+			</ruleList>
+
+			<program>${installdir}/MirthServerManager.exe</program>
+			<programArguments></programArguments>
+		</runProgram>
+	</finalPageActionList>
+
+	<preUninstallationActionList>
 		<stopWindowsService>
 			<ruleEvaluationLogic>and</ruleEvaluationLogic>
 			<ruleList>
@@ -674,13 +685,9 @@
 			</ruleList>
 
 			<serviceName>Mirth</serviceName>
-			<abortOnError>0</abortOnError>
-			<showMessageOnError>0</showMessageOnError>
+			<abortOnError>1</abortOnError>
+			<showMessageOnError>1</showMessageOnError>
 		</stopWindowsService>
-
-		<logMessage>
-			<text>Deleting Mirth service</text>
-		</logMessage>
 
 		<deleteWindowsService>
 			<ruleList>
@@ -691,13 +698,9 @@
 			</ruleList>
 
 			<serviceName>Mirth</serviceName>
-			<abortOnError>0</abortOnError>
-			<showMessageOnError>0</showMessageOnError>
+			<abortOnError>1</abortOnError>
+			<showMessageOnError>1</showMessageOnError>
 		</deleteWindowsService>
-
-		<logMessage>
-			<text>Killing Mirth</text>
-		</logMessage>
 
 		<kill>
 			<ruleList>
@@ -706,13 +709,9 @@
 				</platformTest>
 			</ruleList>
 			<name>Mirth.exe</name>
-			<abortOnError>0</abortOnError>
-			<showMessageOnError>0</showMessageOnError>
+			<abortOnError>1</abortOnError>
+			<showMessageOnError>1</showMessageOnError>
 		</kill>
-
-		<logMessage>
-			<text>Killing Mirth Server Manager</text>
-		</logMessage>
 
 		<kill>
 			<ruleList>
@@ -721,34 +720,8 @@
 				</platformTest>
 			</ruleList>
 			<name>MirthServerManager.exe</name>
-			<abortOnError>0</abortOnError>
-			<showMessageOnError>0</showMessageOnError>
+			<abortOnError>1</abortOnError>
+			<showMessageOnError>1</showMessageOnError>
 		</kill>
 	</preUninstallationActionList>
-
-	<finalPageActionList>
-		<logMessage>
-			<ruleList>
-				<compareValues>
-					<value1>${component(manager).selected}</value1>
-					<logic>equals</logic>
-					<value2>true</value2>
-				</compareValues>
-			</ruleList>
-			<text>Starting Mirth Server Manager</text>
-		</logMessage>
-
-		<runProgram>
-			<ruleList>
-				<compareValues>
-					<value1>${component(manager).selected}</value1>
-					<logic>equals</logic>
-					<value2>true</value2>
-				</compareValues>
-			</ruleList>
-			<program>${installdir}/MirthServerManager.exe</program>
-			<programArguments></programArguments>
-		</runProgram>
-	</finalPageActionList>
-
 </project>
