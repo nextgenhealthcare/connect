@@ -460,8 +460,8 @@
 				</windowsServiceTest>
 			</ruleList>
 			<serviceName>Mirth</serviceName>
-			<abortOnError>1</abortOnError>
-			<showMessageOnError>1</showMessageOnError>
+			<abortOnError>0</abortOnError>
+			<showMessageOnError>0</showMessageOnError>
 		</stopWindowsService>
 
 		<!-- kill mirth -->
@@ -472,8 +472,8 @@
 				</platformTest>
 			</ruleList>
 			<name>Mirth.exe</name>
-			<abortOnError>1</abortOnError>
-			<showMessageOnError>1</showMessageOnError>
+			<abortOnError>0</abortOnError>
+			<showMessageOnError>0</showMessageOnError>
 		</kill>
 
 		<!-- kill mirth server manager -->
@@ -484,8 +484,8 @@
 				</platformTest>
 			</ruleList>
 			<name>MirthServerManager.exe</name>
-			<abortOnError>1</abortOnError>
-			<showMessageOnError>1</showMessageOnError>
+			<abortOnError>0</abortOnError>
+			<showMessageOnError>0</showMessageOnError>
 		</kill>
 
 		<setInstallerVariable>
