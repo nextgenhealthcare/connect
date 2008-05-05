@@ -665,8 +665,8 @@
 				</compareValues>
 			</ruleList>
 
-			<program>${installdir}/MirthServerManager.exe</program>
-			<programArguments></programArguments>
+			<program>cmd.exe</program>
+			<programArguments>/c "${installdir}/MirthServerManager.exe" &amp;</programArguments>
 		</runProgram>
 	</finalPageActionList>
 
@@ -685,8 +685,8 @@
 			</ruleList>
 
 			<serviceName>Mirth</serviceName>
-			<abortOnError>1</abortOnError>
-			<showMessageOnError>1</showMessageOnError>
+			<abortOnError>0</abortOnError>
+			<showMessageOnError>0</showMessageOnError>
 		</stopWindowsService>
 
 		<deleteWindowsService>
@@ -698,8 +698,8 @@
 			</ruleList>
 
 			<serviceName>Mirth</serviceName>
-			<abortOnError>1</abortOnError>
-			<showMessageOnError>1</showMessageOnError>
+			<abortOnError>0</abortOnError>
+			<showMessageOnError>0</showMessageOnError>
 		</deleteWindowsService>
 
 		<kill>
@@ -709,8 +709,8 @@
 				</platformTest>
 			</ruleList>
 			<name>Mirth.exe</name>
-			<abortOnError>1</abortOnError>
-			<showMessageOnError>1</showMessageOnError>
+			<abortOnError>0</abortOnError>
+			<showMessageOnError>0</showMessageOnError>
 		</kill>
 
 		<kill>
@@ -720,8 +720,8 @@
 				</platformTest>
 			</ruleList>
 			<name>MirthServerManager.exe</name>
-			<abortOnError>1</abortOnError>
-			<showMessageOnError>1</showMessageOnError>
+			<abortOnError>0</abortOnError>
+			<showMessageOnError>0</showMessageOnError>
 		</kill>
 	</preUninstallationActionList>
 </project>
