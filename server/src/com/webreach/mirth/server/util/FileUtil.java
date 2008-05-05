@@ -115,4 +115,16 @@ public class FileUtil {
 
 		return contents.toString();
 	}
+
+
+    /**
+     * deletes a specified File.  'delete' is a keyword in Rhino and E4X, thus can't call File.delete() method within Mirth directly.
+     * @param file
+     * @return
+     * @throws SecurityException
+     */
+    public static boolean deleteFile(File file) throws SecurityException {
+        return file.delete();
+	}
+
 }
