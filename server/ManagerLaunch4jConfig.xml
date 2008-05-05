@@ -5,7 +5,7 @@
   <outfile>C:\Documents and Settings\geraldb\workspace\Server\MirthServerManager.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
-  <chdir></chdir>
+  <chdir>.</chdir>
   <priority>normal</priority>
   <downloadUrl>http://java.com/download</downloadUrl>
   <supportUrl></supportUrl>
