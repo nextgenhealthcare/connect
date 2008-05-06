@@ -100,6 +100,9 @@
 						<distributionFile>
 							<origin>../setup/mirth.sh</origin>
 						</distributionFile>
+						<distributionFile>
+							<origin>../setup/Mirth.ico</origin>
+						</distributionFile>
 					</distributionFileList>
 
 					<actionList>
@@ -179,7 +182,7 @@
 				<shortcut>
 					<comment>Start the Mirth Server</comment>
 					<exec>${installdir}/mirth.sh</exec>
-					<icon></icon>
+					<icon>${installdir}/Mirth.ico</icon>
 					<name>Mirth Server</name>
 					<path>${installdir}</path>
 					<platforms>all</platforms>
