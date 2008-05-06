@@ -95,7 +95,7 @@
 					<description>Program Files</description>
 					<destination>${installdir}</destination>
 					<name>programfileslinux</name>
-					<platforms>linux, osx</platforms>
+					<platforms>linux,osx</platforms>
 					<distributionFileList>
 						<distributionFile>
 							<origin>../setup/mirth.sh</origin>
@@ -156,6 +156,21 @@
 					<windowsPath>${installdir}/</windowsPath>
 				</startMenuShortcut>
 			</startMenuShortcutList>
+			<desktopShortcutList>
+				<shortcut>
+					<comment>Start the Mirth Server</comment>
+					<exec>${installdir}/mirth.sh</exec>
+					<icon></icon>
+					<name>Mirth Server</name>
+					<path>{$installdir}</path>
+					<platforms>all</platforms>
+					<runInTerminal>0</runInTerminal>
+					<windowsExec>${installdir}/Mirth.exe</windowsExec>
+					<windowsExecArgs></windowsExecArgs>
+					<windowsIcon>${installdir}/Mirth.ico</windowsIcon>
+					<windowsPath>${installdir}</windowsPath>
+				</shortcut>
+			</desktopShortcutList>
 		</component>
 
 		<component>
@@ -313,7 +328,7 @@
 					<description>Program Files</description>
 					<destination>${installdir}</destination>
 					<name>programfileslinux</name>
-					<platforms>linux, osx</platforms>
+					<platforms>linux,osx</platforms>
 					<distributionFileList>
 						<distributionFile>
 							<origin>../setup/shell.sh</origin>
@@ -617,7 +632,7 @@
 					<value>${password.temp}</value>
 				</propertiesFileSet>
 
-				<!-- restore mirth properties -->
+				<!-- restore mirth.properties -->
 				<propertiesFileSet>
 					<file>${installdir}/conf/mirth.properties</file>
 					<key>http.port</key>
