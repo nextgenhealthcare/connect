@@ -95,7 +95,7 @@
 					<description>Program Files</description>
 					<destination>${installdir}</destination>
 					<name>programfileslinux</name>
-					<platforms>linux,osx</platforms>
+					<platforms>linux</platforms>
 					<distributionFileList>
 						<distributionFile>
 							<origin>../setup/mirth.sh</origin>
@@ -328,7 +328,7 @@
 					<description>Program Files</description>
 					<destination>${installdir}</destination>
 					<name>programfileslinux</name>
-					<platforms>linux,osx</platforms>
+					<platforms>linux</platforms>
 					<distributionFileList>
 						<distributionFile>
 							<origin>../setup/shell.sh</origin>
