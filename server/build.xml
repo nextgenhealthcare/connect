@@ -369,13 +369,13 @@
 			<fileset file="${basedir}/mirth-manager.jar" />
 
 			<!-- batch scripts and icons -->
-			<fileset file="${basedir}/Mirth.bat" />
+			<fileset file="${basedir}/MirthServerManager.exe" />
+			<fileset file="${basedir}/Mirth.exe" />
+			<fileset file="${basedir}/Mirth.l4j.ini" />
 			<fileset file="${basedir}/mirth.sh" />
 			<fileset file="${basedir}/Mirth.ico" />
 			<fileset file="${basedir}/Shell.bat" />
 			<fileset file="${basedir}/shell.sh" />
-			<fileset file="${basedir}/MirthServerManager.exe" />
-			<fileset file="${basedir}/Mirth.exe" />
 			<fileset file="${docs}/README.txt" />
 			<fileset file="${installer}/upgrade.xml" />
 			<fileset file="${installer}/uninstall.ico" />

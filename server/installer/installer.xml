@@ -117,7 +117,7 @@
 					<platforms>windows</platforms>
 					<distributionFileList>
 						<distributionFile>
-							<origin>../setup/Mirth.bat</origin>
+							<origin>../setup/Mirth.l4j.ini</origin>
 						</distributionFile>
 						<distributionFile>
 							<origin>../setup/Mirth.exe</origin>
