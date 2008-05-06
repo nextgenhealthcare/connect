@@ -113,6 +113,25 @@
 				<folder>
 					<description>Program Files</description>
 					<destination>${installdir}</destination>
+					<name>programfilesosx</name>
+					<platforms>osx</platforms>
+					<distributionFileList>
+						<distributionFile>
+							<origin>../setup/mirth.sh</origin>
+						</distributionFile>
+					</distributionFileList>
+
+					<actionList>
+						<changePermissions>
+							<files>${installdir}/mirth.sh</files>
+							<permissions>755</permissions>
+						</changePermissions>
+					</actionList>
+				</folder>
+
+				<folder>
+					<description>Program Files</description>
+					<destination>${installdir}</destination>
 					<name>programfileswindows</name>
 					<platforms>windows</platforms>
 					<distributionFileList>
@@ -162,7 +181,7 @@
 					<exec>${installdir}/mirth.sh</exec>
 					<icon></icon>
 					<name>Mirth Server</name>
-					<path>{$installdir}</path>
+					<path>${installdir}</path>
 					<platforms>all</platforms>
 					<runInTerminal>0</runInTerminal>
 					<windowsExec>${installdir}/Mirth.exe</windowsExec>
@@ -329,6 +348,25 @@
 					<destination>${installdir}</destination>
 					<name>programfileslinux</name>
 					<platforms>linux</platforms>
+					<distributionFileList>
+						<distributionFile>
+							<origin>../setup/shell.sh</origin>
+						</distributionFile>
+					</distributionFileList>
+
+					<actionList>
+						<changePermissions>
+							<files>${installdir}/shell.sh</files>
+							<permissions>755</permissions>
+						</changePermissions>
+					</actionList>
+				</folder>
+
+				<folder>
+					<description>Program Files</description>
+					<destination>${installdir}</destination>
+					<name>programfilesosx</name>
+					<platforms>osx</platforms>
 					<distributionFileList>
 						<distributionFile>
 							<origin>../setup/shell.sh</origin>
