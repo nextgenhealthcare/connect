@@ -38,6 +38,7 @@ import org.apache.log4j.Logger;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.Alert;
+import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.server.builders.ErrorMessageBuilder;
 import com.webreach.mirth.server.util.SMTPConnection;
 import com.webreach.mirth.server.util.SMTPConnectionFactory;
@@ -187,7 +188,7 @@ public class AlertController {
 				Alert alert = (Alert) iter.next();
 
 				if (alert.isEnabled() && isAlertCondition(alert.getExpression(), errorMessage)) {
-					sentAlertEmails(alert.getEmails(), alert.getTemplate(), errorMessage);
+					sentAlertEmails(alert.getEmails(), alert.getTemplate(), errorMessage, channelId);
 				}
 			}
 		} catch (ControllerException ce) {
@@ -207,15 +208,19 @@ public class AlertController {
 		}
 	}
 
-	private void sentAlertEmails(List<String> emails, String template, String errorMessage) throws ControllerException {
+	private void sentAlertEmails(List<String> emails, String template, String errorMessage, String channelId) throws ControllerException {
 		try {
 			Properties properties = ConfigurationController.getInstance().getServerProperties();
 			String fromAddress = PropertyLoader.getProperty(properties, "smtp.from");
-			
 			String toAddressList = generateEmailList(emails);
 
 			TemplateEvaluator evaluator = new TemplateEvaluator();
 			Map<String, Object> context = new HashMap<String, Object>();
+			Channel filterChannel = new Channel();
+			filterChannel.setId(channelId);
+			Channel channel = ChannelController.getInstance().getChannel(filterChannel).get(0);
+			
+			context.put("channelName", channel.getName());
 			context.put("ERROR", errorMessage);
 			context.put("error", errorMessage);
 			context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
