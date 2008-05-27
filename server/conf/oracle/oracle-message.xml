@@ -238,8 +238,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			CORRELATION_ID = ?,
 			CONNECTOR_MAP = ?,
 			CHANNEL_MAP = ?,
-			RESPONSE_MAP = ?
-            ATTACHMENT = ?        
+			RESPONSE_MAP = ?,
+      ATTACHMENT = ?
 		WHERE ID = ?
 	</update>
 	
