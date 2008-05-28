@@ -29,7 +29,7 @@ public class JavaScriptBuilder {
 				// generate the functions
 				for (ListIterator iter = filter.getRules().listIterator(); iter.hasNext();) {
 					Rule rule = (Rule) iter.next();
-					builder.append("function filterRule" + iter.nextIndex() + "() {" + rule.getScript() + "}");
+					builder.append("function filterRule" + iter.nextIndex() + "() {\n" + rule.getScript() + "\n}");
 				}
 
 				builder.append("function doFilter() { phase = 'filter'; return (");
