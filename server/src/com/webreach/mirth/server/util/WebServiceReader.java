@@ -290,7 +290,7 @@ public class WebServiceReader {
 							}
 						}
 						wsOperation.setNamespace(namespace);				
-						Iterator partIterator = bindingOperation.getOperation().getInput().getMessage().getParts().values().iterator();
+						Iterator partIterator = bindingOperation.getOperation().getInput().getMessage().getOrderedParts(null).iterator();
 						while (partIterator.hasNext()) {
 							Part part = (Part) partIterator.next();
 							
