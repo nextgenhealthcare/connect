@@ -111,6 +111,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
 	private boolean binary = false;
 	private String channelId;
+	private Map protocolProperties;
 
 	/*
 	 * (non-Javadoc)
@@ -509,4 +510,11 @@ public class FileConnector extends AbstractServiceEnabledConnector {
         this.pollingType = pollingType;
     }
 
+	public Map getProtocolProperties() {
+		return protocolProperties;
+	}
+
+	public void setProtocolProperties(Map protocolProperties) {
+		this.protocolProperties = protocolProperties;
+	}
 }
