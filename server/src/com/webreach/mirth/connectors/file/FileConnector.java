@@ -112,6 +112,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	private boolean binary = false;
 	private String channelId;
 	private Map protocolProperties;
+	private String inboundProtocol;
 
 	/*
 	 * (non-Javadoc)
@@ -516,5 +517,13 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 
 	public void setProtocolProperties(Map protocolProperties) {
 		this.protocolProperties = protocolProperties;
+	}
+
+	public String getInboundProtocol() {
+		return inboundProtocol;
+	}
+
+	public void setInboundProtocol(String inboundProtocol) {
+		this.inboundProtocol = inboundProtocol;
 	}
 }

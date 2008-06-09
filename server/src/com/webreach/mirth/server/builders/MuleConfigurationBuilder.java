@@ -534,7 +534,7 @@ public class MuleConfigurationBuilder {
 
 			// add the inbound transformer's protocol as a connector properties
 			Element protocolPropertyElement = document.createElement("property");
-			protocolPropertyElement.setAttribute("name", "protocol");
+			protocolPropertyElement.setAttribute("name", "inboundProtocol");
 			protocolPropertyElement.setAttribute("value", connector.getTransformer().getInboundProtocol().toString());
 			propertiesElement.appendChild(protocolPropertyElement);
 
