@@ -19,6 +19,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import org.mule.MuleException;
 import org.mule.config.i18n.Message;
@@ -27,6 +29,7 @@ import org.mule.impl.MuleMessage;
 import org.mule.providers.ConnectException;
 import org.mule.providers.PollingMessageReceiver;
 import org.mule.providers.TemplateValueReplacer;
+import org.mule.umo.MessagingException;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
@@ -40,13 +43,17 @@ import org.mule.util.Utility;
 import sun.misc.BASE64Encoder;
 
 import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
+import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
+import com.webreach.mirth.server.mule.adaptors.Adaptor;
+import com.webreach.mirth.server.mule.adaptors.AdaptorFactory;
+import com.webreach.mirth.server.mule.adaptors.BatchAdaptor;
+import com.webreach.mirth.server.mule.adaptors.BatchMessageProcessor;
 import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
-import com.webreach.mirth.server.util.BatchMessageProcessor;
 import com.webreach.mirth.server.util.StackTracePrinter;
 
 /**
@@ -57,7 +64,7 @@ import com.webreach.mirth.server.util.StackTracePrinter;
  * @version $Revision: 1.12 $
  */
 
-public class FileMessageReceiver extends PollingMessageReceiver {
+public class FileMessageReceiver extends PollingMessageReceiver implements BatchMessageProcessor {
 	private String readDir = null;
 	private String moveDir = null;
 	private String errorDir = null;
@@ -73,6 +80,8 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	private ConnectorType connectorType = ConnectorType.READER;
+	
+	private String originalFilename = null;
 
 	public FileMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, String readDir, String moveDir, String moveToPattern, String errorDir, Long frequency) throws InitialisationException {
 		super(connector, component, endpoint, frequency);
@@ -171,6 +180,17 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 		}
 	}
 
+	public void processBatchMessage(String message)
+		throws MessagingException, UMOException
+	{
+		UMOMessageAdapter messageAdapter = connector.getMessageAdapter(message);
+		messageAdapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
+		UMOMessage umoMessage = routeMessage(new MuleMessage(messageAdapter), endpoint.isSynchronous());
+		if (umoMessage != null) {
+			postProcessor.doPostProcess(umoMessage.getPayload());
+		}
+	}
+
 	public synchronized void processFile(File file) throws UMOException {
 		boolean checkFileAge = ((FileConnector) connector).getCheckFileAge();
 		if (checkFileAge) {
@@ -182,7 +202,7 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 		}
 		FileConnector connector = (FileConnector) this.connector;
 		File destinationFile = null;
-		String originalFilename = file.getName();
+		originalFilename = file.getName();
 		UMOMessageAdapter adapter = connector.getMessageAdapter(file);
 		adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
 
@@ -207,20 +227,17 @@ public class FileMessageReceiver extends PollingMessageReceiver {
 			} else {
 				Exception fileProcesedException = null;
 				try {
+
 					// ast: use the user-selected encoding
-
 					if (connector.isProcessBatchFiles()) {
-						List<String> messages = new BatchMessageProcessor().processHL7Messages(new InputStreamReader(new FileInputStream(file), connector.getCharsetEncoding()));
 
-						for (Iterator iter = messages.iterator(); iter.hasNext() && (fileProcesedException == null);) {
-							String message = (String) iter.next();
-							UMOMessageAdapter batchAdapter = connector.getMessageAdapter(message);
-							batchAdapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
-							UMOMessage umoMessage = routeMessage(new MuleMessage(batchAdapter), endpoint.isSynchronous());
-							if (umoMessage != null) {
-								postProcessor.doPostProcess(umoMessage.getPayload());
-							}
+						Protocol protocol = Protocol.valueOf(connector.getInboundProtocol());
+						Adaptor adaptor = AdaptorFactory.getAdaptor(protocol);
+						if (adaptor instanceof BatchAdaptor) {
+							BatchAdaptor batchAdaptor = (BatchAdaptor) adaptor;
+							batchAdaptor.processBatch(new InputStreamReader(new FileInputStream(file), connector.getCharsetEncoding()), connector.getProtocolProperties(), this);
 						}
+
 					} else {
 
 						byte[] contents = getBytesFromFile(file);
