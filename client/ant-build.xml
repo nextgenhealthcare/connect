@@ -26,7 +26,7 @@
 		</javac>
 
 		<copy todir="${classes}" file="${src}/log4j.properties" />
-		
+
 		<!-- copy the image files so they will be included in jar -->
 		<copy todir="${classes}/com/webreach/mirth/client/ui/images">
 			<fileset dir="${src}/com/webreach/mirth/client/ui/images" />
@@ -45,104 +45,106 @@
 				<include name="com/webreach/mirth/connectors/ConnectorClass.class" />
 			</fileset>
 		</jar>
-		
+
 		<!-- CONNECTORS -->
-		<mkdir dir="${dist}/connectors" />		
-		
+		<mkdir dir="${dist}/connectors" />
+
 		<jar destfile="${dist}/connectors/doc-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/doc/**" />
 		</jar>
-		
+
 		<jar destfile="${dist}/connectors/email-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/email/**" />
 		</jar>
-		
+
 		<jar destfile="${dist}/connectors/file-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/file/**" />
 		</jar>
-		
+
 		<jar destfile="${dist}/connectors/ftp-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/ftp/**" />
 		</jar>
-		
+
 		<jar destfile="${dist}/connectors/http-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/http/**" />
 		</jar>
-		
+
+		<jar destfile="${dist}/connectors/https-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/connectors/https/**" />
+		</jar>
+
 		<jar destfile="${dist}/connectors/jdbc-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/jdbc/**" />
 		</jar>
-		
+
 		<jar destfile="${dist}/connectors/jms-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/jms/**" />
 		</jar>
-		
+
 		<jar destfile="${dist}/connectors/js-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/js/**" />
 		</jar>
-		
+
 		<jar destfile="${dist}/connectors/mllp-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/mllp/**" />
 		</jar>
-		
+
 		<jar destfile="${dist}/connectors/sftp-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/sftp/**" />
 		</jar>
-		
+
 		<jar destfile="${dist}/connectors/soap-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/soap/**" />
 		</jar>
-		
+
 		<jar destfile="${dist}/connectors/tcp-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/tcp/**" />
 		</jar>
-		
+
 		<jar destfile="${dist}/connectors/vm-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/vm/**" />
 		</jar>
-		
+
 		<!-- PLUGINS -->
-		<mkdir dir="${dist}/plugins" />		
-		
+		<mkdir dir="${dist}/plugins" />
+
 		<jar destfile="${dist}/plugins/message-pruner-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/messagepruner/**" />
 		</jar>
-		
+
 		<jar destfile="${dist}/plugins/extension-manager-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/extensionmanager/**" />
 		</jar>
-		
+
 		<jar destfile="${dist}/plugins/javascript-transformer-step-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/transformer/step/javascript/**" />
 		</jar>
-		
 		<jar destfile="${dist}/plugins/mapper-transformer-step-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/transformer/step/mapper/**" />
 		</jar>
-		
 		<jar destfile="${dist}/plugins/messagebuilder-transformer-step-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/transformer/step/messagebuilder/**" />
 		</jar>
-		
+
 		<jar destfile="${dist}/plugins/javascript-filter-rule-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/filter/rule/javascript/**" />
 		</jar>
 		<jar destfile="${dist}/plugins/rule-builder-filter-rule-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/filter/rule/rulebuilder/**" />
 		</jar>
-		
+
 		<jar destfile="${dist}/plugins/dashboard-status-monitor-server-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/dashboardstatus/**" />
 		</jar>
-		
+
 		<jar destfile="${dist}/plugins/dicom-viewer-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/dicomviewer/**" />
 		</jar>
-		
+
 		<jar destfile="${dist}/plugins/pdf-viewer-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/pdfviewer/**" />
 		</jar>
-		
+
 		<jar destfile="${dist}/plugins/rtf-viewer-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/rtfviewer/**" />
 		</jar>
