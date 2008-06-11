@@ -224,11 +224,23 @@
 			<include name="com/webreach/mirth/connectors/tcp/TCPListenerProperties.class" />
 			<include name="com/webreach/mirth/connectors/tcp/TCPSenderProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/tcp-server.jar">
+        <jar destfile="${connectors}/tcp-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/tcp/**" />
 				<exclude name="com/webreach/mirth/connectors/tcp/TCPListenerProperties.class" />
 				<exclude name="com/webreach/mirth/connectors/tcp/TCPSenderProperties.class" />
+			</fileset>
+		</jar>
+
+		<jar destfile="${connectors}/https-shared.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/connectors/https/HTTPSListenerProperties.class" />
+			<include name="com/webreach/mirth/connectors/https/HTTPSSenderProperties.class" />
+		</jar>
+        <jar destfile="${connectors}/https-server.jar">
+			<fileset dir="${classes}">
+				<include name="com/webreach/mirth/connectors/https/**" />
+				<exclude name="com/webreach/mirth/connectors/https/HTTPSListenerProperties.class" />
+				<exclude name="com/webreach/mirth/connectors/https/HTTPSSenderProperties.class" />
 			</fileset>
 		</jar>
 
@@ -632,6 +644,19 @@
 			<fileset dir="${dist.extensions}">
 				<include name="TCP Listener.xml" />
 				<include name="TCP Sender.xml" />
+			</fileset>
+		</zip>
+
+		<zip destfile="${dist.connectors}/https-${version}.zip">
+			<fileset dir="${connectors}">
+				<include name="https-shared.jar" />
+				<include name="https-server.jar" />
+				<include name="https-client.jar" />
+				<include name="${classes}/com/webreach/mirth/connectors/archive-metadata.xml" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
+				<include name="HTTPS Listener.xml" />
+				<include name="HTTPS Sender.xml" />
 			</fileset>
 		</zip>
 
