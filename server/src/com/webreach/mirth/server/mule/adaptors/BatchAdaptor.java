@@ -1,5 +1,6 @@
 package com.webreach.mirth.server.mule.adaptors;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.util.Map;
 
@@ -15,5 +16,5 @@ import org.mule.umo.UMOException;
 public interface BatchAdaptor {
 
 	public void processBatch(Reader src, Map properties, BatchMessageProcessor dest)
-		throws MessagingException, UMOException;
+		throws MessagingException, UMOException, IOException;
 }
