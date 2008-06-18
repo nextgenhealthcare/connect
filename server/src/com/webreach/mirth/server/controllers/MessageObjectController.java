@@ -25,19 +25,26 @@
 
 package com.webreach.mirth.server.controllers;
 
+import java.io.File;
 import java.net.Socket;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.activation.UnsupportedDataTypeException;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.mule.umo.UMOEvent;
 
@@ -59,6 +66,7 @@ import com.webreach.mirth.server.util.UUIDGenerator;
 import com.webreach.mirth.server.util.VMRouter;
 import com.webreach.mirth.util.Encrypter;
 import com.webreach.mirth.util.EncryptionException;
+import com.webreach.mirth.util.PropertyLoader;
 
 public class MessageObjectController {
 	private static final String RECEIVE_SOCKET = "receiverSocket";
@@ -343,12 +351,52 @@ public class MessageObjectController {
 		logger.debug("removing messages: filter=" + filter.toString());
 
 		try {
-			int temp =  sqlMap.delete("deleteMessage", getFilterMap(filter, null));
+            removeMessageFromQueue(filter);
+			int rowCount =  sqlMap.delete("deleteMessage", getFilterMap(filter, null));
             sqlMap.delete("deleteUnusedAttachments");
-            return temp;
-        } catch (SQLException e) {
+            return rowCount;
+        } catch (Exception e) {
 			throw new ControllerException(e);
 		}
+	}
+	
+	private void removeMessageFromQueue(MessageObjectFilter filter) throws Exception {
+		String uid = System.currentTimeMillis() + "";
+		filter.setStatus(Status.QUEUED);
+		int size = createMessagesTempTable(filter, uid, true);
+		int page = 0;
+		int interval = 10;
+
+		while ((page * interval) < size) {
+			List<MessageObject> messages = getMessagesByPage(page, interval, size, uid);
+			
+			for (Iterator iterator = messages.iterator(); iterator.hasNext();) {
+				MessageObject messageObject = (MessageObject) iterator.next();
+				
+				String messageId = messageObject.getId();
+				String channelId = messageObject.getChannelId();
+
+				Properties properties = PropertyLoader.loadProperties("mirth");
+				String muleQueue = PropertyLoader.getProperty(properties, "mule.queue");
+				muleQueue = StringUtils.replace(muleQueue, "${mirthHomeDir}", ConfigurationController.mirthHomeDir);
+
+				File queuestore = new File(muleQueue + File.separator + "queuestore");
+				IOFileFilter fileFilter = new WildcardFileFilter(messageId + ".*");
+				IOFileFilter dirFilter = new WildcardFileFilter(channelId + "*");
+				
+				Collection files = FileUtils.listFiles(queuestore, fileFilter, dirFilter);
+				
+				for (Iterator fileIterator = files.iterator(); fileIterator.hasNext();) {
+					File file = (File) fileIterator.next();
+					System.out.println("Deleting : " + file.getAbsoluteFile());
+					FileUtils.forceDelete(file);
+				}
+			}
+			
+			page++;
+		}
+		
+		removeFilterTable(uid);
 	}
 
 	public void removeFilterTable(String uid) {

@@ -447,19 +447,12 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	}
 
 	public String getQueueName(UMOEndpoint endpoint) {
-		String adr = "dummy";
-		String adr_securefile;
-		try {
-			// adr = endpoint.getEndpointURI().getAddress();
-			adr = this.getName();
-		} catch (Throwable t) {
-		}
-		adr_securefile = adr.replace("\\", "");
-		adr_securefile = adr_securefile.replace("/", "");
-		adr_securefile = adr_securefile.replace(":", "_");
-		adr_securefile = adr_securefile.replace(" ", "_");
-
-		return adr_securefile;
+		String queueName = this.getName();
+		queueName = queueName.replace("\\", "");
+		queueName = queueName.replace("/", "");
+		queueName = queueName.replace(":", "_");
+		queueName = queueName.replace(" ", "_");
+		return queueName;
 	}
 
 	public String getErrorQueueName(UMOEndpoint endpoint) {
