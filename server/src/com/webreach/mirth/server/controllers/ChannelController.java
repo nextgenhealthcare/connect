@@ -25,14 +25,21 @@
 
 package com.webreach.mirth.server.controllers;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Map.Entry;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
@@ -40,6 +47,7 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelSummary;
 import com.webreach.mirth.model.util.ImportConverter;
 import com.webreach.mirth.server.util.SqlConfig;
+import com.webreach.mirth.util.PropertyLoader;
 import com.webreach.mirth.util.PropertyVerifier;
 
 public class ChannelController {
@@ -255,10 +263,26 @@ public class ChannelController {
 		logger.debug("removing channel");
 
 		try {
+			removeChannelQueuestore(channel.getId());
 			removeChannelFromCache(channel);
 			sqlMap.delete("deleteChannel", channel);
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			throw new ControllerException(e);
+		}
+	}
+	
+	private void removeChannelQueuestore(String channelId) throws Exception {
+		File queuestoreDir = new File(ConfigurationController.getInstance().getQueuestorePath());
+		
+		if (queuestoreDir.exists()) {
+			// NOTE: could not use FileUtils here because the listFiles method
+			// does not return directories
+			String[] files = queuestoreDir.list(new WildcardFileFilter(channelId + "*"));
+			
+			for (int i = 0; i < files.length; i++) {
+				File file = new File(queuestoreDir.getAbsolutePath() + File.separator + files[i]);
+				FileUtils.forceDelete(file);
+			}
 		}
 	}
 

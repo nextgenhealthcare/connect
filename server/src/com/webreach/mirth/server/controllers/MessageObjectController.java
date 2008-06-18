@@ -361,6 +361,7 @@ public class MessageObjectController {
 	}
 	
 	private void removeMessageFromQueue(MessageObjectFilter filter) throws Exception {
+		File queuestoreDir = new File(ConfigurationController.getInstance().getQueuestorePath());
 		String uid = System.currentTimeMillis() + "";
 		filter.setStatus(Status.QUEUED);
 		int size = createMessagesTempTable(filter, uid, true);
@@ -373,23 +374,17 @@ public class MessageObjectController {
 			for (Iterator iterator = messages.iterator(); iterator.hasNext();) {
 				MessageObject messageObject = (MessageObject) iterator.next();
 				
-				String messageId = messageObject.getId();
-				String channelId = messageObject.getChannelId();
-
-				Properties properties = PropertyLoader.loadProperties("mirth");
-				String muleQueue = PropertyLoader.getProperty(properties, "mule.queue");
-				muleQueue = StringUtils.replace(muleQueue, "${mirthHomeDir}", ConfigurationController.mirthHomeDir);
-
-				File queuestore = new File(muleQueue + File.separator + "queuestore");
-				IOFileFilter fileFilter = new WildcardFileFilter(messageId + ".*");
-				IOFileFilter dirFilter = new WildcardFileFilter(channelId + "*");
-				
-				Collection files = FileUtils.listFiles(queuestore, fileFilter, dirFilter);
-				
-				for (Iterator fileIterator = files.iterator(); fileIterator.hasNext();) {
-					File file = (File) fileIterator.next();
-					System.out.println("Deleting : " + file.getAbsoluteFile());
-					FileUtils.forceDelete(file);
+				if (queuestoreDir.exists()) {
+					String messageId = messageObject.getId();
+					String channelId = messageObject.getChannelId();
+					IOFileFilter fileFilter = new WildcardFileFilter(messageId + ".*");
+					IOFileFilter dirFilter = new WildcardFileFilter(channelId + "*");
+					Collection files = FileUtils.listFiles(queuestoreDir, fileFilter, dirFilter);
+					
+					for (Iterator fileIterator = files.iterator(); fileIterator.hasNext();) {
+						File file = (File) fileIterator.next();
+						FileUtils.forceDelete(file);
+					}
 				}
 			}
 			

@@ -50,6 +50,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -712,5 +713,13 @@ public class ConfigurationController {
 
 	public void shutdown() {
 		CommandQueue.getInstance().addCommand(new Command(Command.Operation.SHUTDOWN_SERVER));
+	}
+	
+	public String getQueuestorePath() {
+		Properties properties = PropertyLoader.loadProperties("mirth");
+		String muleQueue = PropertyLoader.getProperty(properties, "mule.queue");
+		String queuestorePath = StringUtils.replace(muleQueue, "${mirthHomeDir}", mirthHomeDir);
+		queuestorePath += File.separator + "queuestore";
+		return queuestorePath;
 	}
 }
