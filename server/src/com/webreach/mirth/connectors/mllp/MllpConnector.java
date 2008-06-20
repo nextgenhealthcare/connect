@@ -57,6 +57,7 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	public static final String PROPERTY_TRANSFORMER_ACK = "responseFromTransformer";
 	public static final String PROPERTY_RESPONSE_VALUE = "responseValue";
 	public static final String PROPERTY_USE_STRICT_LLP = "useStrictLLP";
+	public static final String PROPERTY_ROTATE_QUEUE = "rotateQueue";
 	// custom properties
 	private boolean serverMode = true;
 	private String charEncoding = "hex";
@@ -75,6 +76,7 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	private String channelId;
 	private boolean waitForEndOfMessageCharacter = false;
 	private boolean useStrictLLP = true;
+	private boolean rotateQueue = false;
 	// ack properties
 	public static final String PROPERTY_ACKCODE_SUCCESSFUL = "ackCodeSuccessful";
 	public static final String PROPERTY_ACKMSG_SUCCESSFUL = "ackMsgSuccessful";
@@ -441,9 +443,7 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 			return new MllpMessageResponseQueued(this, component, endpoint, (long) 10000);
 		} else {
 			return super.createReceiver(component, endpoint);
-
 		}
-
 	}
 
 	public String getQueueName(UMOEndpoint endpoint) {
@@ -708,5 +708,13 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 
 	public void setProcessHl7AckResponse(boolean processHl7AckResponse) {
 		this.processHl7AckResponse = processHl7AckResponse;
+	}
+
+	public boolean isRotateQueue() {
+		return rotateQueue;
+	}
+
+	public void setRotateQueue(boolean rotateQueue) {
+		this.rotateQueue = rotateQueue;
 	}
 }

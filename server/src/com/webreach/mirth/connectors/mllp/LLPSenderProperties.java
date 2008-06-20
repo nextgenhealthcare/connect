@@ -55,6 +55,7 @@ public class LLPSenderProperties implements ComponentProperties
     public static final String CHANNEL_ID = "replyChannelId";
     public static final String CHANNEL_NAME = "channelName";
     public static final String LLP_RECONNECT_INTERVAL = "reconnectMillisecs";
+    public static final String LLP_ROTATE_QUEUE = "rotateQueue";
     
     public Properties getDefaults()
     {
@@ -80,6 +81,7 @@ public class LLPSenderProperties implements ComponentProperties
         properties.put(CHANNEL_ID, "sink");
         properties.put(CHANNEL_NAME, "None");
         properties.put(LLP_RECONNECT_INTERVAL, "10000");
+        properties.put(LLP_ROTATE_QUEUE, "0");
         return properties;
     }
 }

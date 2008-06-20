@@ -74,19 +74,17 @@ public class MllpMessageResponseQueued extends PollingMessageReceiver {
 		}
 	}
 
-	/*public void doStart() throws UMOException {
-
-		super.doStart();
-		// System.out.println("[TcpMessageDispatcherQueued] doStart() ");
-
-	}
-
-	public void doStop() throws UMOException {
-
-		super.doStop();
-		// System.out.println("[TcpMessageDispatcherQueued] doStop() ");
-
-	}*/
+	/*
+	 * public void doStart() throws UMOException {
+	 * 
+	 * super.doStart(); // System.out.println("[TcpMessageDispatcherQueued]
+	 * doStart() "); }
+	 * 
+	 * public void doStop() throws UMOException {
+	 * 
+	 * super.doStop(); // System.out.println("[TcpMessageDispatcherQueued]
+	 * doStop() "); }
+	 */
 
 	public int getQueueSize() {
 		if (queue != null)
@@ -102,21 +100,24 @@ public class MllpMessageResponseQueued extends PollingMessageReceiver {
 		// If the endopoint is active, try to send without waiting for another
 		// pool()
 		while ((queue.size() > 0) && open) {
-			MessageObject thePayload= null;
+			MessageObject thePayload = null;
 			try {
-				thePayload = (MessageObject)queue.peek();
+				thePayload = (MessageObject) queue.peek();
+				
 				if (auxDispatcher.sendPayload(thePayload, endpoint)) {
 					queue.poll(pollMaxTime);
 					open = true;
-					// UMOMessage
-					// um=auxDispatcher.doTheRemoteSyncStuff(endpoint);
-					// if (um!=null) System.out.println("MENSAJE RECIBIDO \r\n
-					// ["+um.getPayloadAsString()+"]");
-				}else{
+				} else {
+					if (((MllpConnector) connector).isRotateQueue()) {
+						queue.put(queue.poll(pollMaxTime));
+					}
 					MessageObjectController.getInstance().resetQueuedStatus(thePayload);
 				}
 			} catch (Throwable t) {
-				if (thePayload != null){
+				if (thePayload != null) {
+					if (((MllpConnector) connector).isRotateQueue()) {
+						queue.put(queue.poll(pollMaxTime));
+					}
 					MessageObjectController.getInstance().resetQueuedStatus(thePayload);
 				}
 				logger.debug("Conection error [" + t + "] " + " at " + endpoint.getEndpointURI() + " queue size " + new Integer(queue.size()).toString());
