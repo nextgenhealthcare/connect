@@ -351,7 +351,7 @@ public class MessageObjectController {
 		logger.debug("removing messages: filter=" + filter.toString());
 
 		try {
-            removeMessageFromQueue(filter);
+            removeMessagesFromQueue(filter);
 			int rowCount =  sqlMap.delete("deleteMessage", getFilterMap(filter, null));
             sqlMap.delete("deleteUnusedAttachments");
             return rowCount;
@@ -360,7 +360,7 @@ public class MessageObjectController {
 		}
 	}
 	
-	private void removeMessageFromQueue(MessageObjectFilter filter) throws Exception {
+	private void removeMessagesFromQueue(MessageObjectFilter filter) throws Exception {
 		File queuestoreDir = new File(ConfigurationController.getInstance().getQueuestorePath());
 		String uid = System.currentTimeMillis() + "";
 		filter.setStatus(Status.QUEUED);
@@ -384,6 +384,7 @@ public class MessageObjectController {
 					for (Iterator fileIterator = files.iterator(); fileIterator.hasNext();) {
 						File file = (File) fileIterator.next();
 						FileUtils.forceDelete(file);
+						ChannelStatisticsController.getInstance().decrementQueuedCount(channelId);
 					}
 				}
 			}
