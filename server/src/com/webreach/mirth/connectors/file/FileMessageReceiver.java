@@ -9,12 +9,11 @@
 
 package com.webreach.mirth.connectors.file;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -34,6 +33,7 @@ import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpoint;
+import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageAdapter;
@@ -42,6 +42,8 @@ import org.mule.util.Utility;
 
 import sun.misc.BASE64Encoder;
 
+import com.webreach.mirth.connectors.file.filesystems.FileInfo;
+import com.webreach.mirth.connectors.file.filesystems.FileSystemConnection;
 import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.server.Constants;
@@ -68,9 +70,6 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 	private String readDir = null;
 	private String moveDir = null;
 	private String errorDir = null;
-	private File readDirectory = null;
-	private File moveDirectory = null;
-	private File errorDirectory = null;
 	private String moveToPattern = null;
 	private FilenameFilter filenameFilter = null;
 	private boolean routingError = false;
@@ -80,6 +79,7 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	private ConnectorType connectorType = ConnectorType.READER;
+	private FileConnector fileConnector = null;
 	
 	private String originalFilename = null;
 
@@ -89,54 +89,37 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 		this.moveDir = replacer.replaceValuesFromGlobal(moveDir, true);
 		this.moveToPattern = replacer.replaceValuesFromGlobal(moveToPattern, true);
 		this.errorDir = replacer.replaceValuesFromGlobal(errorDir, true);
+		this.fileConnector = (FileConnector) connector;
 
-		if (((FileConnector) connector).getPollingType().equals(FileConnector.POLLING_TYPE_TIME))
-			setTime(((FileConnector) connector).getPollingTime());
+		if (fileConnector.getPollingType().equals(FileConnector.POLLING_TYPE_TIME))
+			setTime(fileConnector.getPollingTime());
 		else
-			setFrequency(((FileConnector) connector).getPollingFrequency());
+			setFrequency(fileConnector.getPollingFrequency());
 
-		filenameFilter = new FilenameWildcardFilter(replacer.replaceValuesFromGlobal(((FileConnector) connector).getFileFilter(), true));
+		filenameFilter = new FilenameWildcardFilter(replacer.replaceValuesFromGlobal(fileConnector.getFileFilter(), true));
 		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
 	}
 
 	public void doConnect() throws Exception {
-		if (readDir != null) {
-			readDirectory = Utility.openDirectory(readDir);
-			if (!(readDirectory.canRead())) {
-				throw new ConnectException(new Message(Messages.FILE_X_DOES_NOT_EXIST, readDirectory.getAbsolutePath()), this);
-			} else {
-				logger.debug("Listening on endpointUri: " + readDirectory.getAbsolutePath());
-			}
-		}
-
-		if (moveDir != null) {
-			moveDirectory = Utility.openDirectory((moveDir));
-			if (!(moveDirectory.canRead()) || !moveDirectory.canWrite()) {
-				throw new ConnectException(new Message("file", 5), this);
-			}
-		}
-
-		if (errorDir != null) {
-			errorDirectory = Utility.openDirectory((errorDir));
-			if (!(errorDirectory.canRead()) || !errorDirectory.canWrite()) {
-				throw new ConnectException(new Message("file", 5), this);
-			}
-		}
-
+		FileSystemConnection con = fileConnector.getConnection(getEndpointURI(), null);
+		fileConnector.releaseConnection(getEndpointURI(), con, null);
 	}
 
-	public void doDisconnect() throws Exception {}
+	public void doDisconnect() throws Exception {
+	}
 
 	public void poll() {
+
 		monitoringController.updateStatus(connector, connectorType, Event.CONNECTED);
 		try {
-			File[] files = listFiles();
+
+			FileInfo[] files = listFiles();
 
 			if (files == null) {
 				return;
 			}
 
-			// sort files by specified attribute before sorting
+			// sort files by specified attribute before processing
 			sortFiles(files);
 			routingError = false;
 			
@@ -148,38 +131,46 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 					monitoringController.updateStatus(connector, connectorType, Event.DONE);
 				}
 			}
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
+			
 			alertController.sendAlerts(((FileConnector) connector).getChannelId(), Constants.ERROR_403, null, e);
 			handleException(e);
-		} finally {
+		}
+		finally {
+			
 			monitoringController.updateStatus(connector, connectorType, Event.DONE);
 		}
 	}
 
-	public void sortFiles(File[] files) {
+	public void sortFiles(FileInfo[] files) {
 		String sortAttribute = ((FileConnector) connector).getSortAttribute();
 
 		if (sortAttribute.equals(FileConnector.SORT_DATE)) {
-			Arrays.sort(files, new Comparator<File>() {
-				public int compare(File file1, File file2) {
-					return Float.compare(file1.lastModified(), file2.lastModified());
+			Arrays.sort(files, new Comparator<FileInfo>() {
+				public int compare(FileInfo file1, FileInfo file2) {
+					return Float.compare(file1.getLastModified(), file2.getLastModified());
 				}
 			});
 		} else if (sortAttribute.equals(FileConnector.SORT_SIZE)) {
-			Arrays.sort(files, new Comparator<File>() {
-				public int compare(File file1, File file2) {
-					return Float.compare(file1.length(), file2.length());
+			Arrays.sort(files, new Comparator<FileInfo>() {
+				public int compare(FileInfo file1, FileInfo file2) {
+					return Float.compare(file1.getSize(), file2.getSize());
 				}
 			});
 		} else {
-			Arrays.sort(files, new Comparator<File>() {
-				public int compare(File file1, File file2) {
-					return file1.compareTo(file2);
+			Arrays.sort(files, new Comparator<FileInfo>() {
+				public int compare(FileInfo file1, FileInfo file2) {
+					return file1.getName().compareTo(file2.getName());
 				}
 			});
 		}
 	}
 
+	/** Converts the supplied message into a MuleMessage and routes it.
+	 * @param message The message to be converted and routed.
+	 * @throws MessagingException, UMOException
+	 */
 	public void processBatchMessage(String message)
 		throws MessagingException, UMOException
 	{
@@ -191,29 +182,31 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 		}
 	}
 
-	public synchronized void processFile(File file) throws UMOException {
-		boolean checkFileAge = ((FileConnector) connector).getCheckFileAge();
+	public synchronized void processFile(FileInfo file) throws UMOException {
+		
+		boolean checkFileAge = fileConnector.getCheckFileAge();
 		if (checkFileAge) {
-			long fileAge = ((FileConnector) connector).getFileAge();
-			long lastMod = file.lastModified();
+			long fileAge = fileConnector.getFileAge();
+			long lastMod = file.getLastModified();
 			long now = (new java.util.Date()).getTime();
 			if ((now - lastMod) < fileAge)
 				return;
 		}
-		FileConnector connector = (FileConnector) this.connector;
-		File destinationFile = null;
+		
+		String destinationDir = null;
+		String destinationName = null;
 		originalFilename = file.getName();
 		UMOMessageAdapter adapter = connector.getMessageAdapter(file);
 		adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
 
 		if (moveDir != null) {
-			String fileName = file.getName();
+			destinationName = file.getName();
 
 			if (moveToPattern != null) {
-				fileName = connector.getFilenameParser().getFilename(adapter, moveToPattern);
+				destinationName = fileConnector.getFilenameParser().getFilename(adapter, moveToPattern);
 			}
 
-			destinationFile = new File(moveDir, fileName);
+			destinationDir = moveDir;
 		}
 
 		boolean resultOfFileMoveOperation = false;
@@ -222,31 +215,29 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 			// Perform some quick checks to make sure file can be processed
 			if (file.isDirectory()) {
 				// ignore directories
-			} else if (!(file.canRead() && file.exists() && file.isFile())) {
+			} else if (!(file.isReadable() && file.isFile())) {
+				// it's either not readable, or something odd like a link */
 				throw new MuleException(new Message(Messages.FILE_X_DOES_NOT_EXIST, file.getName()));
 			} else {
-				Exception fileProcesedException = null;
+				
+				Exception fileProcessedException = null;
+				
 				try {
 
 					// ast: use the user-selected encoding
-					if (connector.isProcessBatchFiles()) {
+					if (fileConnector.isProcessBatchFiles()) {
 
-						Protocol protocol = Protocol.valueOf(connector.getInboundProtocol());
-						Adaptor adaptor = AdaptorFactory.getAdaptor(protocol);
-						if (adaptor instanceof BatchAdaptor) {
-							BatchAdaptor batchAdaptor = (BatchAdaptor) adaptor;
-							batchAdaptor.processBatch(new InputStreamReader(new FileInputStream(file), connector.getCharsetEncoding()), connector.getProtocolProperties(), this);
-						}
+						processBatch(file);
 
 					} else {
 
 						byte[] contents = getBytesFromFile(file);
 						String message = "";
-						if (connector.isBinary()) {
+						if (fileConnector.isBinary()) {
 							BASE64Encoder encoder = new BASE64Encoder();
 							message = encoder.encode(contents);
 						} else {
-							message = new String(contents, connector.getCharsetEncoding());
+							message = new String(contents, fileConnector.getCharsetEncoding());
 						}
 						adapter = connector.getMessageAdapter(message);
 						adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
@@ -263,43 +254,41 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 					
 					if (errorDir != null) {
 						logger.error("Moving file to error directory: " + errorDir);
-						destinationFile = new File(errorDir, file.getName());
+						destinationDir = errorDir;
+						destinationName = file.getName();
 					}
 				} catch (Exception e) {
 					logger.error(e.getMessage());
-					fileProcesedException = new MuleException(new Message(Messages.FAILED_TO_READ_PAYLOAD, file.getName()));
+					fileProcessedException = new MuleException(new Message(Messages.FAILED_TO_READ_PAYLOAD, file.getName()));
 				}
 
 				// move the file if needed
-				if (destinationFile != null) {
-					try {
-						destinationFile.delete();
-					} catch (Exception e) {
-						logger.info("Unable to delete destination file");
-					}
+				if (destinationDir != null) {
+					deleteFile(destinationName, destinationDir);
 
-					resultOfFileMoveOperation = file.renameTo(destinationFile);
+					resultOfFileMoveOperation = renameFile(file.getName(), readDir, destinationName, destinationDir);
 
 					if (!resultOfFileMoveOperation) {
-						throw new MuleException(new Message("file", 4, file.getAbsolutePath(), destinationFile.getAbsolutePath()));
+						throw new MuleException(new Message("file", 4, pathname(file.getName(), readDir), pathname(destinationName, destinationDir)));
 					}
 				}
 
-				if (connector.isAutoDelete()) {
+				if (fileConnector.isAutoDelete()) {
 					adapter.getPayloadAsBytes();
 
 					// no moveTo directory
-					if (destinationFile == null) {
-						resultOfFileMoveOperation = file.delete();
+					if (destinationDir == null) {
+						
+						resultOfFileMoveOperation = deleteFile(file.getName(), readDir);
 
 						if (!resultOfFileMoveOperation) {
-							throw new MuleException(new Message("file", 3, file.getAbsolutePath()));
+							throw new MuleException(new Message("file", 3, pathname(file.getName(), readDir)));
 						}
 					}
 				}
 				
-				if (fileProcesedException != null) {
-					throw fileProcesedException;
+				if (fileProcessedException != null) {
+					throw fileProcessedException;
 				}
 			}
 		} catch (Exception e) {
@@ -308,52 +297,119 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 		}
 	}
 
-	// Returns the contents of the file in a byte array.
-	private byte[] getBytesFromFile(File file) throws IOException {
-		InputStream is = new FileInputStream(file);
+	/** Convert a directory path and a filename into a pathname */
+	private String pathname(String name, String dir) {
 
-		// Get the size of the file
-		long length = file.length();
+		if (dir != null && dir.length() > 0) {
 
-		// You cannot create an array using a long type.
-		// It needs to be an int type.
-		// Before converting to an int type, check
-		// to ensure that file is not larger than Integer.MAX_VALUE.
-		if (length > Integer.MAX_VALUE) {
-			// File is too large
+			return dir + "/" + name;
 		}
-
-		// Create the byte array to hold the data
-		byte[] bytes = new byte[(int) length];
-
-		// Read in the bytes
-		int offset = 0;
-		int numRead = 0;
-		while (offset < bytes.length && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
-			offset += numRead;
+		else {
+			
+			return name;
 		}
-
-		// Ensure all the bytes have been read in
-		if (offset < bytes.length) {
-			throw new IOException("Could not completely read file " + file.getName());
-		}
-
-		// Close the input stream and return bytes
-		is.close();
-		return bytes;
 	}
 
-	/**
-	 * Exception tolerant roll back method
-	 */
-	private boolean rollbackFileMove(File sourceFile, String destinationFilePath) {
-		boolean result = false;
-		try {
-			result = sourceFile.renameTo(new File(destinationFilePath));
-		} catch (Throwable t) {
-			logger.debug("rollback of file move failed: " + t.getMessage());
+	/** Process a single file as a batched message source */
+	private void processBatch(FileInfo file) throws Exception{
+		
+		UMOEndpointURI uri = endpoint.getEndpointURI();
+		Protocol protocol = Protocol.valueOf(fileConnector.getInboundProtocol());
+		Adaptor adaptor = AdaptorFactory.getAdaptor(protocol);
+		if (adaptor instanceof BatchAdaptor) {
+			BatchAdaptor batchAdaptor = (BatchAdaptor) adaptor;
+			FileSystemConnection con = fileConnector.getConnection(uri, null);
+			try {
+				Reader in = new InputStreamReader(con.readFile(file.getName(), readDir), fileConnector.getCharsetEncoding());
+				batchAdaptor.processBatch(in, fileConnector.getProtocolProperties(), this);
+			}
+			finally {
+				fileConnector.releaseConnection(uri, con, null);
+			}
 		}
-		return result;
+	}
+
+	/** Delete a file */
+	private boolean deleteFile(String name, String dir) throws Exception {
+		
+		UMOEndpointURI uri = endpoint.getEndpointURI();
+		FileSystemConnection con = fileConnector.getConnection(uri, null);
+		try {
+			
+			con.delete(name, dir);
+			return true;
+		}
+		catch (Exception e) {
+
+			logger.info("Unable to delete destination file");
+			return false;
+		}
+		finally {
+			fileConnector.releaseConnection(uri, con, null);
+		}
+	}
+	
+	private boolean renameFile(String fromName, String fromDir, String toName, String toDir) throws Exception {
+		
+		UMOEndpointURI uri = endpoint.getEndpointURI();
+		FileSystemConnection con = fileConnector.getConnection(uri, null);
+		try {
+
+			con.move(fromName, fromDir, toName, toDir);
+			return true;
+		}
+		catch (Exception e) {
+
+			return false;
+		}
+		finally {
+			fileConnector.releaseConnection(uri, con, null);
+		}
+	}
+
+	// Returns the contents of the file in a byte array.
+	private byte[] getBytesFromFile(FileInfo file) throws Exception {
+		
+		UMOEndpointURI uri = endpoint.getEndpointURI();
+		FileSystemConnection con = fileConnector.getConnection(uri, null);
+
+		try {
+			InputStream is = con.readFile(file.getName(), readDir);
+	
+			// Get the size of the file
+			long length = file.getSize();
+	
+			// You cannot create an array using a long type.
+			// It needs to be an int type.
+			// Before converting to an int type, check
+			// to ensure that file is not larger than Integer.MAX_VALUE.
+			if (length > Integer.MAX_VALUE) {
+				// File is too large
+				// TODO: throw new ??Exception("Implementation restriction: file too large.");
+			}
+	
+			// Create the byte array to hold the data
+			byte[] bytes = new byte[(int) length];
+	
+			// Read in the bytes
+			int offset = 0;
+			int numRead = 0;
+			while (offset < bytes.length && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
+				offset += numRead;
+			}
+	
+			// Ensure all the bytes have been read in
+			if (offset < bytes.length) {
+				throw new IOException("Could not completely read file " + file.getName());
+			}
+	
+			// Close the input stream and return bytes
+			is.close();
+			return bytes;
+		}
+		finally {
+			fileConnector.releaseConnection(uri, con, null);
+		}
 	}
 
 	/**
@@ -363,14 +419,19 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 	 * @throws org.mule.MuleException
 	 *             which will wrap any other exceptions or errors.
 	 */
-	File[] listFiles() throws MuleException {
-		File[] todoFiles = new File[0];
+	FileInfo[] listFiles() throws Exception {
+		
+		UMOEndpointURI uri = endpoint.getEndpointURI();
+		FileSystemConnection con = fileConnector.getConnection(uri, null);
+
 		try {
-			todoFiles = readDirectory.listFiles(filenameFilter);
-		} catch (Exception e) {
-			throw new MuleException(new Message("file", 1), e);
+			
+			return con.listFiles(readDir, filenameFilter).toArray(new FileInfo[0]);
 		}
-		return todoFiles;
+		finally {
+
+			fileConnector.releaseConnection(uri, con, null);
+		}
 	}
 
 	public boolean isRoutingError() {

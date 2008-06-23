@@ -208,6 +208,18 @@
 			</fileset>
 		</jar>
 
+		<jar destfile="${connectors}/nfile-shared.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/connectors/nfile/NewFileReaderProperties.class" />
+			<include name="com/webreach/mirth/connectors/nfile/NewFileWriterProperties.class" />
+		</jar>
+		<jar destfile="${connectors}/nfile-server.jar">
+			<fileset dir="${classes}">
+				<include name="com/webreach/mirth/connectors/nfile/**" />
+				<exclude name="com/webreach/mirth/connectors/nfile/NewFileReaderProperties.class" />
+				<exclude name="com/webreach/mirth/connectors/nfile/NewFileWriterProperties.class" />
+			</fileset>
+		</jar>
+
 		<jar destfile="${connectors}/soap-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/soap/SOAPListenerProperties.class" />
 			<include name="com/webreach/mirth/connectors/soap/SOAPSenderProperties.class" />
@@ -618,6 +630,19 @@
 			<fileset dir="${dist.extensions}">
 				<include name="SFTP Reader.xml" />
 				<include name="SFTP Writer.xml" />
+			</fileset>
+		</zip>
+
+		<zip destfile="${dist.connectors}/nfile-${version}.zip">
+			<fileset dir="${connectors}">
+				<include name="nfile-shared.jar" />
+				<include name="nfile-server.jar" />
+				<include name="nfile-client.jar" />
+				<include name="${classes}/com/webreach/mirth/connectors/archive-metadata.xml" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
+				<include name="New File Reader.xml" />
+				<include name="New File Writer.xml" />
 			</fileset>
 		</zip>
 
