@@ -38,8 +38,7 @@ import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
  */
 public class FileReader extends ConnectorClass
 {
-    /** Creates new form FileWriter */
-    
+    /** Creates new form FileReader */
     public FileReader()
     {
         name = FileReaderProperties.name;
@@ -50,11 +49,44 @@ public class FileReader extends ConnectorClass
         parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
     
+    /** Converts the value of the host and directory form fields to the FILE_DIRECTORY property value */
+    private String getHostDirectory() {
+        if (scheme.getSelectedItem().equals("file")) {
+            return directoryField.getText().replace('\\', '/');
+        }
+        else {
+            return hostField.getText() + "/" + directoryField.getText();
+        }
+    }
+
+    /** Converts the values of the form fields to a Properties */
     public Properties getProperties()
     {
         Properties properties = new Properties();
         properties.put(FileReaderProperties.DATATYPE, name);
-        properties.put(FileReaderProperties.FILE_DIRECTORY, directoryField.getText().replace('\\', '/'));
+        
+        if (((String) scheme.getSelectedItem()).equals("file"))
+            properties.put(FileReaderProperties.FILE_SCHEME, FileReaderProperties.SCHEME_FILE);
+        else if (((String) scheme.getSelectedItem()).equals("ftp"))
+            properties.put(FileReaderProperties.FILE_SCHEME, FileReaderProperties.SCHEME_FTP);
+        else if (((String) scheme.getSelectedItem()).equals("sftp"))
+            properties.put(FileReaderProperties.FILE_SCHEME, FileReaderProperties.SCHEME_SFTP);
+        
+        properties.put(FileReaderProperties.FILE_DIRECTORY, getHostDirectory());
+        
+        properties.put(FileReaderProperties.FILE_USERNAME, usernameField.getText());
+        properties.put(FileReaderProperties.FILE_PASSWORD, new String(passwordField.getPassword()));
+        
+        if (passiveModeYes.isSelected())
+            properties.put(FileReaderProperties.FILE_PASSIVE_MODE, UIConstants.YES_OPTION);
+        else
+            properties.put(FileReaderProperties.FILE_PASSIVE_MODE, UIConstants.NO_OPTION);
+        
+        if (validateConnectionYes.isSelected())
+            properties.put(FileReaderProperties.FILE_VALIDATE_CONNECTION, UIConstants.YES_OPTION);
+        else
+            properties.put(FileReaderProperties.FILE_VALIDATE_CONNECTION, UIConstants.NO_OPTION);
+        
         properties.put(FileReaderProperties.FILE_MOVE_TO_PATTERN, moveToPattern.getText());
         properties.put(FileReaderProperties.FILE_MOVE_TO_DIRECTORY, moveToDirectory.getText().replace('\\', '/'));
         properties.put(FileReaderProperties.FILE_MOVE_TO_ERROR_DIRECTORY, errorMoveToDirectory.getText().replace('\\', '/'));
@@ -106,11 +138,64 @@ public class FileReader extends ConnectorClass
         return properties;
     }
     
+    /** Converts FILE_DIRECTORY to host and directory form field values */
+    public void setHostDirectory(String src) {
+        
+        int splitIndex = src.indexOf('/');
+        String hostValue = "";
+        String directoryValue = "";
+        if (splitIndex != -1)
+        {
+        	hostValue = src.substring(0, splitIndex);
+        	directoryValue = src.substring(splitIndex + 1);
+        }
+        else
+        {
+        	hostValue = src;
+        }
+        
+        hostField.setText(hostValue);
+        directoryField.setText(directoryValue);
+    }
+
+    /** Converts a Properties to values of the form fields */
     public void setProperties(Properties props)
     {
         resetInvalidProperties();
+
+        if (props.get(FileReaderProperties.FILE_SCHEME).equals(FileReaderProperties.SCHEME_FILE))
+            scheme.setSelectedItem("file");
+        else if (props.get(FileReaderProperties.FILE_SCHEME).equals(FileReaderProperties.SCHEME_FTP))
+            scheme.setSelectedItem("ftp");
+        else if (props.get(FileReaderProperties.FILE_SCHEME).equals(FileReaderProperties.SCHEME_SFTP))
+            scheme.setSelectedItem("sftp");
+        schemeActionPerformed(null);
+
+        setHostDirectory((String) props.get(FileReaderProperties.FILE_DIRECTORY));
         
-        directoryField.setText((String) props.get(FileReaderProperties.FILE_DIRECTORY));
+        if (((String) props.get(FileReaderProperties.FILE_ANONYMOUS)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        {
+            anonymousYes.setSelected(true);
+            anonymousYesActionPerformed(null);
+        }
+        else
+        {
+            anonymousNo.setSelected(true);
+            anonymousNoActionPerformed(null);
+            usernameField.setText((String) props.get(FileReaderProperties.FILE_USERNAME));
+            passwordField.setText((String) props.get(FileReaderProperties.FILE_PASSWORD));
+        }
+        
+        if (((String) props.get(FileReaderProperties.FILE_PASSIVE_MODE)).equalsIgnoreCase(UIConstants.YES_OPTION))
+            passiveModeYes.setSelected(true);
+        else
+            passiveModeNo.setSelected(true);
+        
+        if (((String) props.get(FileReaderProperties.FILE_VALIDATE_CONNECTION)).equalsIgnoreCase(UIConstants.YES_OPTION))
+            validateConnectionYes.setSelected(true);
+        else
+            validateConnectionNo.setSelected(true);
+        
         moveToPattern.setText((String) props.get(FileReaderProperties.FILE_MOVE_TO_PATTERN));
         moveToDirectory.setText((String) props.get(FileReaderProperties.FILE_MOVE_TO_DIRECTORY));
         errorMoveToDirectory.setText((String) props.get(FileReaderProperties.FILE_MOVE_TO_ERROR_DIRECTORY));
@@ -179,11 +264,15 @@ public class FileReader extends ConnectorClass
         }
     }
     
+    /** Returns the default Properties */
     public Properties getDefaults()
     {
         return new FileReaderProperties().getDefaults();
     }
     
+    /** Tests if the specified Properties are valid, optionally highlighting fields
+     * with invalid entries.
+     */
     public boolean checkProperties(Properties props, boolean highlight)
     {
         resetInvalidProperties();
@@ -213,6 +302,21 @@ public class FileReader extends ConnectorClass
             if (highlight)
             	pollingTime.setBackground(UIConstants.INVALID_COLOR);
         }
+        if (((String) props.get(FileReaderProperties.FILE_ANONYMOUS)).equals(UIConstants.NO_OPTION))
+        {
+            if (((String) props.get(FileReaderProperties.FILE_USERNAME)).length() == 0)
+            {
+                valid = false;
+                if (highlight)
+                	usernameField.setBackground(UIConstants.INVALID_COLOR);
+            }
+            if (((String) props.get(FileReaderProperties.FILE_PASSWORD)).length() == 0)
+            {
+                valid = false;
+                if (highlight)
+                	passwordField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
         if (((String) props.get(FileReaderProperties.FILE_CHECK_FILE_AGE)).equals(UIConstants.YES_OPTION))
         {
             if (((String) props.get(FileReaderProperties.FILE_FILE_AGE)).length() == 0)
@@ -226,13 +330,16 @@ public class FileReader extends ConnectorClass
         return valid;
     }
     
+    /** Turns off all invalid property value highlighting */
     private void resetInvalidProperties()
     {
         directoryField.setBackground(null);
         fileNameFilter.setBackground(null);
         pollingFrequency.setBackground(null);
-        fileAge.setBackground(null);
         pollingTime.setBackground(null);
+        fileAge.setBackground(null);
+        usernameField.setBackground(null);
+        passwordField.setBackground(null);
     }
     
     public String doValidate(Properties props, boolean highlight)
@@ -252,23 +359,32 @@ public class FileReader extends ConnectorClass
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents()
-    {
+    private void initComponents() {
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
         buttonGroup3 = new javax.swing.ButtonGroup();
         buttonGroup4 = new javax.swing.ButtonGroup();
         buttonGroup5 = new javax.swing.ButtonGroup();
-        jLabel1 = new javax.swing.JLabel();
-        pollingFrequencyLabel = new javax.swing.JLabel();
+        scheme = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        hostLabel = new javax.swing.JLabel();
+        hostField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        directoryLabel = new javax.swing.JLabel();
         directoryField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        filenameFilterLabel = new javax.swing.JLabel();
+        fileNameFilter = new com.webreach.mirth.client.ui.components.MirthTextField();
+        pollingTypeLabel = new javax.swing.JLabel();
+        pollingIntervalButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        pollingTimeButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        pollingFrequencyLabel = new javax.swing.JLabel();
         pollingFrequency = new com.webreach.mirth.client.ui.components.MirthTextField();
+        pollingTimeLabel = new javax.swing.JLabel();
+        pollingTime = new com.webreach.mirth.client.ui.components.MirthTimePicker();
         moveToDirectoryLabel = new javax.swing.JLabel();
         moveToPattern = new com.webreach.mirth.client.ui.components.MirthTextField();
         moveToDirectory = new com.webreach.mirth.client.ui.components.MirthTextField();
         moveToFileLabel = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
+        deleteAfterReadLabel = new javax.swing.JLabel();
+        checkFileAgeLabel = new javax.swing.JLabel();
         fileAgeLabel = new javax.swing.JLabel();
         deleteAfterReadYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         deleteAfterReadNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
@@ -276,39 +392,99 @@ public class FileReader extends ConnectorClass
         checkFileAgeNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         mirthVariableList1 = new com.webreach.mirth.client.ui.components.MirthVariableList();
         fileAge = new com.webreach.mirth.client.ui.components.MirthTextField();
-        jLabel3 = new javax.swing.JLabel();
+        sortFilesByLabel = new javax.swing.JLabel();
         sortBy = new com.webreach.mirth.client.ui.components.MirthComboBox();
         charsetEncodingCombobox = new com.webreach.mirth.client.ui.components.MirthComboBox();
         encodingLabel = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
-        fileNameFilter = new com.webreach.mirth.client.ui.components.MirthTextField();
         processBatchFilesLabel = new javax.swing.JLabel();
         processBatchFilesYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         processBatchFilesNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         fileTypeASCII = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         fileTypeBinary = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        jLabel10 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        pollingIntervalButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        pollingTimeButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        pollingTimeLabel = new javax.swing.JLabel();
-        pollingTime = new com.webreach.mirth.client.ui.components.MirthTimePicker();
+        fileTypeLabel = new javax.swing.JLabel();
         errorMoveToDirectoryLabel = new javax.swing.JLabel();
         errorMoveToDirectory = new com.webreach.mirth.client.ui.components.MirthTextField();
+        anonymousLabel = new javax.swing.JLabel();
+        anonymousYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        anonymousNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        usernameLabel = new javax.swing.JLabel();
+        usernameField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        passwordLabel = new javax.swing.JLabel();
+        passwordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
+        validateConnectionLabel = new javax.swing.JLabel();
+        validateConnectionYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        validateConnectionNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        passiveModeLabel = new javax.swing.JLabel();
+        passiveModeYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        passiveModeNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        jLabel1.setText("Directory:");
+        scheme.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "file", "ftp", "sftp" }));
+        scheme.setToolTipText("The basic method used to access files to be read - file (local filesystem), FTP, or SFTP.");
+        scheme.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                schemeActionPerformed(evt);
+            }
+        });
+
+        hostLabel.setText("://");
+
+        hostField.setToolTipText("The name or IP address of the host (computer) on which the files to be read can be found.");
+
+        directoryLabel.setText("/");
+
+        directoryField.setToolTipText("The directory (folder) in which the files to be read can be found.");
+
+        filenameFilterLabel.setText("Filename Filter Pattern:");
+
+        fileNameFilter.setToolTipText("The pattern which names of files must match in order to be read. Files with names that do not match the pattern will be ignored.");
+
+        pollingTypeLabel.setText("Polling Type:");
+
+        pollingIntervalButton.setBackground(new java.awt.Color(255, 255, 255));
+        pollingIntervalButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup5.add(pollingIntervalButton);
+        pollingIntervalButton.setText("Interval");
+        pollingIntervalButton.setToolTipText("Records that the time at which polling for files to be read will be specified as the time between polling attempts.");
+        pollingIntervalButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        pollingIntervalButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pollingIntervalButtonActionPerformed(evt);
+            }
+        });
+
+        pollingTimeButton.setBackground(new java.awt.Color(255, 255, 255));
+        pollingTimeButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup5.add(pollingTimeButton);
+        pollingTimeButton.setText("Time");
+        pollingTimeButton.setToolTipText("Records that the time at which polling for files to be read will be specified as the time of day at which a polling attempt will occur each day.");
+        pollingTimeButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        pollingTimeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pollingTimeButtonActionPerformed(evt);
+            }
+        });
 
         pollingFrequencyLabel.setText("Polling Frequency (ms):");
 
+        pollingFrequency.setToolTipText("If the Interval Polling Type is selected, enter the number of milliseconds between polling attempts here.");
+
+        pollingTimeLabel.setText("Polling Time (daily):");
+
+        pollingTime.setToolTipText("If the Time Polling Type is selected, enter the time of day for polling attempts here.");
+
         moveToDirectoryLabel.setText("Move-to Directory:");
+
+        moveToPattern.setToolTipText("If successfully processed files should be renamed, enter the new name here. The filename specified may include template substitutions from the list to the right. If this field is left empty, successfully processed files will not be renamed.");
+
+        moveToDirectory.setToolTipText("If successfully processed files should be moved to a different directory (folder), enter that directory here. The directory name specified may include template substitutions from the list to the right. If this field is left empty, successfully processed files will not be moved to a different directory.");
 
         moveToFileLabel.setText("Move-to File Name:");
 
-        jLabel6.setText("Delete File After Read:");
+        deleteAfterReadLabel.setText("Delete File After Read:");
 
-        jLabel7.setText("Check File Age:");
+        checkFileAgeLabel.setText("Check File Age:");
 
         fileAgeLabel.setText("File Age (ms):");
 
@@ -316,11 +492,10 @@ public class FileReader extends ConnectorClass
         deleteAfterReadYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup1.add(deleteAfterReadYes);
         deleteAfterReadYes.setText("Yes");
+        deleteAfterReadYes.setToolTipText("Select Yes to delete files after they are processed.");
         deleteAfterReadYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        deleteAfterReadYes.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        deleteAfterReadYes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 deleteAfterReadYesActionPerformed(evt);
             }
         });
@@ -330,11 +505,10 @@ public class FileReader extends ConnectorClass
         buttonGroup1.add(deleteAfterReadNo);
         deleteAfterReadNo.setSelected(true);
         deleteAfterReadNo.setText("No");
+        deleteAfterReadNo.setToolTipText("Select No to not delete files after they are processed.");
         deleteAfterReadNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        deleteAfterReadNo.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        deleteAfterReadNo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 deleteAfterReadNoActionPerformed(evt);
             }
         });
@@ -343,11 +517,10 @@ public class FileReader extends ConnectorClass
         checkFileAgeYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup2.add(checkFileAgeYes);
         checkFileAgeYes.setText("Yes");
+        checkFileAgeYes.setToolTipText("Select Yes to skip processing files which are older than the specified age.");
         checkFileAgeYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        checkFileAgeYes.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        checkFileAgeYes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 checkFileAgeYesActionPerformed(evt);
             }
         });
@@ -357,39 +530,42 @@ public class FileReader extends ConnectorClass
         buttonGroup2.add(checkFileAgeNo);
         checkFileAgeNo.setSelected(true);
         checkFileAgeNo.setText("No");
+        checkFileAgeNo.setToolTipText("Select No to process files regardless of age.");
         checkFileAgeNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        checkFileAgeNo.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        checkFileAgeNo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 checkFileAgeNoActionPerformed(evt);
             }
         });
 
         mirthVariableList1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-        mirthVariableList1.setModel(new javax.swing.AbstractListModel()
-        {
+        mirthVariableList1.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "DATE", "COUNT", "UUID", "SYSTIME", "ORIGINALNAME" };
             public int getSize() { return strings.length; }
             public Object getElementAt(int i) { return strings[i]; }
         });
 
-        jLabel3.setText("Sort Files By:");
+        fileAge.setToolTipText("If Check File Age Yes is selected, the maximum age of a file, in milliseconds, that should be processed.");
+
+        sortFilesByLabel.setText("Sort Files By:");
 
         sortBy.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Date", "Name", "Size" }));
+        sortBy.setToolTipText("Selects the order in which files should be processed, if there are multiple files available to be processed. Files can be processed by Date (oldest last modification date first), Size (smallest first) or name (a before z, etc.).");
+        sortBy.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                sortByActionPerformed(evt);
+            }
+        });
 
         charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Default", "UTF-8", "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)", "US-ASCII" }));
-        charsetEncodingCombobox.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        charsetEncodingCombobox.setToolTipText("If File Type ASCII is selected, select the character set encoding (ASCII, UTF-8, etc.) to be used in reading the contents of each file.");
+        charsetEncodingCombobox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 charsetEncodingComboboxActionPerformed(evt);
             }
         });
 
         encodingLabel.setText("Encoding:");
-
-        jLabel8.setText("Filename Filter Pattern:");
 
         processBatchFilesLabel.setText("Process Batch Files:");
 
@@ -397,6 +573,7 @@ public class FileReader extends ConnectorClass
         processBatchFilesYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup3.add(processBatchFilesYes);
         processBatchFilesYes.setText("Yes");
+        processBatchFilesYes.setToolTipText("Select Yes to process all messages in each file.");
         processBatchFilesYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         processBatchFilesNo.setBackground(new java.awt.Color(255, 255, 255));
@@ -404,11 +581,10 @@ public class FileReader extends ConnectorClass
         buttonGroup3.add(processBatchFilesNo);
         processBatchFilesNo.setSelected(true);
         processBatchFilesNo.setText("No");
+        processBatchFilesNo.setToolTipText("Select No to process the entire contents of the file as a single message.");
         processBatchFilesNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        processBatchFilesNo.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        processBatchFilesNo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 processBatchFilesNoActionPerformed(evt);
             }
         });
@@ -418,11 +594,10 @@ public class FileReader extends ConnectorClass
         buttonGroup4.add(fileTypeASCII);
         fileTypeASCII.setSelected(true);
         fileTypeASCII.setText("ASCII");
+        fileTypeASCII.setToolTipText("Select No if files contain text (ASCII is a misnomer here).");
         fileTypeASCII.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        fileTypeASCII.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        fileTypeASCII.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 fileTypeASCIIActionPerformed(evt);
             }
         });
@@ -431,48 +606,83 @@ public class FileReader extends ConnectorClass
         fileTypeBinary.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup4.add(fileTypeBinary);
         fileTypeBinary.setText("Binary");
+        fileTypeBinary.setToolTipText("Select Yes if files contain binary data which should be Base64 encoded before processing.");
         fileTypeBinary.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        fileTypeBinary.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        fileTypeBinary.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 fileTypeBinaryActionPerformed(evt);
             }
         });
 
-        jLabel10.setText("File Type:");
-
-        jLabel4.setText("Polling Type:");
-
-        pollingIntervalButton.setBackground(new java.awt.Color(255, 255, 255));
-        pollingIntervalButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup5.add(pollingIntervalButton);
-        pollingIntervalButton.setText("Interval");
-        pollingIntervalButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        pollingIntervalButton.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                pollingIntervalButtonActionPerformed(evt);
-            }
-        });
-
-        pollingTimeButton.setBackground(new java.awt.Color(255, 255, 255));
-        pollingTimeButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup5.add(pollingTimeButton);
-        pollingTimeButton.setText("Time");
-        pollingTimeButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        pollingTimeButton.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                pollingTimeButtonActionPerformed(evt);
-            }
-        });
-
-        pollingTimeLabel.setText("Polling Time (daily):");
+        fileTypeLabel.setText("File Type:");
 
         errorMoveToDirectoryLabel.setText("Error Move-to Directory:");
+
+        errorMoveToDirectory.setToolTipText("If files which cause processing errors should be moved to a different directory (folder), enter that directory here. The directory name specified may include template substitutions from the list to the right. If this field is left empty, files which cause processing errors will not be moved to a different directory.");
+
+        anonymousLabel.setText("Anonymous:");
+
+        anonymousYes.setBackground(new java.awt.Color(255, 255, 255));
+        anonymousYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        anonymousYes.setText("Yes");
+        anonymousYes.setToolTipText("Connects to the file anonymously instead of using a username and password.");
+        anonymousYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        anonymousYes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                anonymousYesActionPerformed(evt);
+            }
+        });
+
+        anonymousNo.setBackground(new java.awt.Color(255, 255, 255));
+        anonymousNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        anonymousNo.setSelected(true);
+        anonymousNo.setText("No");
+        anonymousNo.setToolTipText("Connects to the file using a username and password instead of anonymously.");
+        anonymousNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        anonymousNo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                anonymousNoActionPerformed(evt);
+            }
+        });
+
+        usernameLabel.setText("Username:");
+
+        usernameField.setToolTipText("The user name used to gain access to the server.");
+
+        passwordLabel.setText("Password:");
+
+        passwordField.setToolTipText("The password used to gain access to the server.");
+        passwordField.setFont(new java.awt.Font("Tahoma", 0, 11));
+
+        validateConnectionLabel.setText("Validate Connection:");
+
+        validateConnectionYes.setBackground(new java.awt.Color(255, 255, 255));
+        validateConnectionYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        validateConnectionYes.setText("Yes");
+        validateConnectionYes.setToolTipText("Select Yes to test the connection to the server before each operation.");
+        validateConnectionYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        validateConnectionNo.setBackground(new java.awt.Color(255, 255, 255));
+        validateConnectionNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        validateConnectionNo.setSelected(true);
+        validateConnectionNo.setText("No");
+        validateConnectionNo.setToolTipText("Select No to skip testing the connection to the server before each operation.");
+        validateConnectionNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        passiveModeLabel.setText("Passive Mode:");
+
+        passiveModeYes.setBackground(new java.awt.Color(255, 255, 255));
+        passiveModeYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        passiveModeYes.setText("Yes");
+        passiveModeYes.setToolTipText("Select Yes to connect to the server in \"passive mode\". Passive mode sometimes allows a connection through a firewall that normal mode does not.");
+        passiveModeYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        passiveModeNo.setBackground(new java.awt.Color(255, 255, 255));
+        passiveModeNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        passiveModeNo.setSelected(true);
+        passiveModeNo.setText("No");
+        passiveModeNo.setToolTipText("Select Yes to connect to the server in \"normal mode\" as opposed to passive mode.");
+        passiveModeNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -481,132 +691,298 @@ public class FileReader extends ConnectorClass
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel8)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, pollingFrequencyLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, pollingTimeLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, moveToDirectoryLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, moveToFileLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, errorMoveToDirectoryLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, processBatchFilesLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel10)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, fileAgeLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, encodingLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(fileNameFilter, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(directoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
-                        .add(pollingIntervalButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(errorMoveToDirectoryLabel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(pollingTimeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(pollingFrequency, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(pollingTime, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(errorMoveToDirectory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(layout.createSequentialGroup()
+                        .add(10, 10, 10)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(checkFileAgeLabel)
+                            .add(deleteAfterReadLabel)
+                            .add(fileAgeLabel)
+                            .add(fileTypeLabel)
+                            .add(sortFilesByLabel)
+                            .add(encodingLabel)
+                            .add(processBatchFilesLabel))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(fileAge, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(layout.createSequentialGroup()
-                                .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                             .add(layout.createSequentialGroup()
                                 .add(processBatchFilesYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(processBatchFilesNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(sortBy, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(sortBy, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(layout.createSequentialGroup()
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                                    .add(deleteAfterReadYes, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .add(checkFileAgeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(fileAge, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(layout.createSequentialGroup()
+                                .add(deleteAfterReadYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(deleteAfterReadNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(layout.createSequentialGroup()
+                                .add(checkFileAgeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(checkFileAgeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
+                .addContainerGap(181, Short.MAX_VALUE))
+            .add(layout.createSequentialGroup()
+                .add(16, 16, 16)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(pollingFrequencyLabel)
+                    .add(pollingTypeLabel)
+                    .add(passiveModeLabel)
+                    .add(passwordLabel)
+                    .add(usernameLabel)
+                    .add(anonymousLabel)
+                    .add(filenameFilterLabel)
+                    .add(layout.createSequentialGroup()
+                        .add(scheme, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(hostLabel))
+                    .add(validateConnectionLabel)
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                        .add(pollingTimeLabel)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(moveToFileLabel)
+                            .add(moveToDirectoryLabel))))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
+                        .add(moveToPattern, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(layout.createSequentialGroup()
+                                .add(pollingTime, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap())
+                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                .add(layout.createSequentialGroup()
+                                    .add(pollingFrequency, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .addContainerGap())
                                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(deleteAfterReadNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .add(checkFileAgeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                            .add(moveToPattern, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(layout.createSequentialGroup()
+                                        .add(pollingIntervalButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(pollingTimeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                        .add(331, 331, 331))
+                                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                        .add(layout.createSequentialGroup()
+                                            .add(passiveModeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                            .add(passiveModeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                            .add(359, 359, 359))
+                                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                            .add(layout.createSequentialGroup()
+                                                .add(passwordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                .addContainerGap())
+                                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                                .add(layout.createSequentialGroup()
+                                                    .add(usernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                    .addContainerGap())
+                                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                                    .add(layout.createSequentialGroup()
+                                                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                                            .add(layout.createSequentialGroup()
+                                                                .add(hostField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 167, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                                .add(directoryLabel)
+                                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                                .add(directoryField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE))
+                                                            .add(fileNameFilter, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                            .add(layout.createSequentialGroup()
+                                                                .add(validateConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                                .add(validateConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                                .add(184, 184, 184)
+                                                                .add(mirthVariableList1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                                        .addContainerGap(56, Short.MAX_VALUE))
+                                                    .add(layout.createSequentialGroup()
+                                                        .add(anonymousYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                        .add(anonymousNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                        .add(359, 359, 359)))))))))
+                        .add(layout.createSequentialGroup()
                             .add(moveToDirectory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(errorMoveToDirectory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .add(6, 6, 6)
-                        .add(mirthVariableList1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(92, Short.MAX_VALUE))
+                            .addContainerGap()))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
-                    .add(directoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel8)
-                    .add(fileNameFilter, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel4)
-                    .add(pollingIntervalButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(pollingTimeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(pollingFrequency, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(pollingFrequencyLabel))
-                .add(5, 5, 5)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(pollingTimeLabel)
-                    .add(pollingTime, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(mirthVariableList1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(moveToDirectory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(moveToDirectoryLabel))
+                            .add(hostLabel)
+                            .add(scheme, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(directoryLabel)
+                            .add(hostField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(directoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(moveToPattern, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(moveToFileLabel))
+                            .add(filenameFilterLabel)
+                            .add(fileNameFilter, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(errorMoveToDirectory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(errorMoveToDirectoryLabel))
+                            .add(anonymousLabel)
+                            .add(anonymousYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(anonymousNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel6)
-                            .add(deleteAfterReadYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(deleteAfterReadNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(usernameLabel)
+                            .add(usernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel7)
-                            .add(checkFileAgeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(checkFileAgeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                            .add(passwordLabel)
+                            .add(passwordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(17, 17, 17)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(layout.createSequentialGroup()
+                                .add(10, 10, 10)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                    .add(validateConnectionLabel)
+                                    .add(validateConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(validateConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                    .add(pollingTypeLabel)
+                                    .add(pollingIntervalButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(pollingTimeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                    .add(pollingFrequencyLabel)
+                                    .add(pollingFrequency, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                    .add(pollingTimeLabel)
+                                    .add(pollingTime, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                    .add(moveToDirectoryLabel)
+                                    .add(moveToDirectory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                    .add(moveToFileLabel)
+                                    .add(moveToPattern, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                    .add(errorMoveToDirectoryLabel)
+                                    .add(errorMoveToDirectory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                    .add(deleteAfterReadLabel)
+                                    .add(deleteAfterReadYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(deleteAfterReadNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                            .add(layout.createSequentialGroup()
+                                .add(14, 14, 14)
+                                .add(mirthVariableList1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                    .add(layout.createSequentialGroup()
+                        .add(124, 124, 124)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(processBatchFilesNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(processBatchFilesYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(processBatchFilesLabel))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel10)
-                            .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(fileAgeLabel)
-                            .add(fileAge, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel3)
-                            .add(sortBy, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(encodingLabel)
-                            .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(39, Short.MAX_VALUE))
+                            .add(passiveModeLabel)
+                            .add(passiveModeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(passiveModeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(checkFileAgeLabel)
+                    .add(checkFileAgeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(checkFileAgeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(fileAgeLabel)
+                    .add(fileAge, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(7, 7, 7)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(sortFilesByLabel)
+                    .add(sortBy, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(fileTypeLabel)
+                    .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(encodingLabel)
+                    .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(processBatchFilesLabel)
+                    .add(processBatchFilesYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(processBatchFilesNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void anonymousNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_anonymousNoActionPerformed
+
+        usernameLabel.setEnabled(true);
+        usernameField.setEnabled(true);
+
+        passwordLabel.setEnabled(true);
+        passwordField.setEnabled(true);
+    }//GEN-LAST:event_anonymousNoActionPerformed
+
+    private void anonymousYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_anonymousYesActionPerformed
+
+        usernameLabel.setEnabled(false);
+        usernameField.setEnabled(false);
+        usernameField.setText("anonymous");
+        
+        passwordLabel.setEnabled(false);
+        passwordField.setEnabled(false);
+        passwordField.setText("anonymous");
+    }//GEN-LAST:event_anonymousYesActionPerformed
+
+    private void onSchemeChange(boolean enableHost, boolean enableOthers, boolean anonymous) {
+        
+            // act like the appropriate Anonymous button was selected.
+        if (anonymous) {
+            
+            anonymousYes.doClick();
+        }
+        else {
+            
+            anonymousNo.doClick();
+        }
+            
+        hostLabel.setEnabled(enableHost);
+        hostField.setEnabled(enableHost);
+
+        anonymousLabel.setEnabled(enableOthers);
+        anonymousYes.setEnabled(enableOthers);
+        anonymousNo.setEnabled(enableOthers);
+        passiveModeLabel.setEnabled(enableOthers);
+        passiveModeYes.setEnabled(enableOthers);
+        passiveModeNo.setEnabled(enableOthers);
+        validateConnectionLabel.setEnabled(enableOthers);
+        validateConnectionYes.setEnabled(enableOthers);
+        validateConnectionNo.setEnabled(enableOthers);
+    }
+
+    private void schemeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_schemeActionPerformed
+
+        String text = (String) scheme.getSelectedItem();
+        
+        // if File is selected
+        if (text.equals("file")) {
+            
+            onSchemeChange(false, false, true);
+        }
+        // else if FTP is selected
+        else if (text.equals("ftp")) {
+
+            onSchemeChange(true, true, anonymousYes.isSelected());
+        }
+        // else if SFTP is selected
+        else if (text.equals("sftp")) {
+            
+            onSchemeChange(true, false, false);
+        }
+    }//GEN-LAST:event_schemeActionPerformed
+
+    private void sortByActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sortByActionPerformed
+// TODO add your handling code here:
+    }//GEN-LAST:event_sortByActionPerformed
     
     private void pollingTimeButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_pollingTimeButtonActionPerformed
     {//GEN-HEADEREND:event_pollingTimeButtonActionPerformed
@@ -692,17 +1068,23 @@ public class FileReader extends ConnectorClass
     }// GEN-LAST:event_checkFileAgeYesActionPerformed
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel anonymousLabel;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton anonymousNo;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton anonymousYes;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.ButtonGroup buttonGroup3;
     private javax.swing.ButtonGroup buttonGroup4;
     private javax.swing.ButtonGroup buttonGroup5;
     private com.webreach.mirth.client.ui.components.MirthComboBox charsetEncodingCombobox;
+    private javax.swing.JLabel checkFileAgeLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton checkFileAgeNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton checkFileAgeYes;
+    private javax.swing.JLabel deleteAfterReadLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton deleteAfterReadNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton deleteAfterReadYes;
     private com.webreach.mirth.client.ui.components.MirthTextField directoryField;
+    private javax.swing.JLabel directoryLabel;
     private javax.swing.JLabel encodingLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField errorMoveToDirectory;
     private javax.swing.JLabel errorMoveToDirectoryLabel;
@@ -711,28 +1093,38 @@ public class FileReader extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthTextField fileNameFilter;
     private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeASCII;
     private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeBinary;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel fileTypeLabel;
+    private javax.swing.JLabel filenameFilterLabel;
+    private com.webreach.mirth.client.ui.components.MirthTextField hostField;
+    private javax.swing.JLabel hostLabel;
     private com.webreach.mirth.client.ui.components.MirthVariableList mirthVariableList1;
     private com.webreach.mirth.client.ui.components.MirthTextField moveToDirectory;
     private javax.swing.JLabel moveToDirectoryLabel;
     private javax.swing.JLabel moveToFileLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField moveToPattern;
+    private javax.swing.JLabel passiveModeLabel;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton passiveModeNo;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton passiveModeYes;
+    private com.webreach.mirth.client.ui.components.MirthPasswordField passwordField;
+    private javax.swing.JLabel passwordLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField pollingFrequency;
     private javax.swing.JLabel pollingFrequencyLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton pollingIntervalButton;
     private com.webreach.mirth.client.ui.components.MirthTimePicker pollingTime;
     private com.webreach.mirth.client.ui.components.MirthRadioButton pollingTimeButton;
     private javax.swing.JLabel pollingTimeLabel;
+    private javax.swing.JLabel pollingTypeLabel;
     private javax.swing.JLabel processBatchFilesLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton processBatchFilesNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton processBatchFilesYes;
+    private com.webreach.mirth.client.ui.components.MirthComboBox scheme;
     private com.webreach.mirth.client.ui.components.MirthComboBox sortBy;
+    private javax.swing.JLabel sortFilesByLabel;
+    private com.webreach.mirth.client.ui.components.MirthTextField usernameField;
+    private javax.swing.JLabel usernameLabel;
+    private javax.swing.JLabel validateConnectionLabel;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton validateConnectionNo;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton validateConnectionYes;
     // End of variables declaration//GEN-END:variables
     
 }
