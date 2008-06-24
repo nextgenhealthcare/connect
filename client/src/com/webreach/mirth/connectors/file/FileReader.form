@@ -35,404 +35,180 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel8" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="pollingFrequencyLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="pollingTimeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="moveToDirectoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="moveToFileLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="errorMoveToDirectoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel6" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel7" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="processBatchFilesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel10" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileAgeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="encodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="fileNameFilter" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
+                  <Component id="directoryField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="errorMoveToDirectoryLabel" min="-2" max="-2" attributes="0"/>
+                      <Component id="pollingIntervalButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="errorMoveToDirectory" min="-2" pref="250" max="-2" attributes="1"/>
+                      <Component id="pollingTimeButton" min="-2" max="-2" attributes="0"/>
                   </Group>
+                  <Component id="pollingFrequency" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
+                  <Component id="pollingTime" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="checkFileAgeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="deleteAfterReadLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="fileAgeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="fileTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="sortFilesByLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="encodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="processBatchFilesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
-                              <Component id="processBatchFilesYes" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="processBatchFilesNo" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="charsetEncodingCombobox" min="-2" pref="125" max="-2" attributes="1"/>
-                          <Component id="sortBy" min="-2" pref="75" max="-2" attributes="1"/>
-                          <Group type="102" attributes="0">
+                          <Component id="fileAge" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
+                          <Group type="102" alignment="0" attributes="0">
                               <Component id="fileTypeBinary" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="fileTypeASCII" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="fileAge" min="-2" pref="75" max="-2" attributes="1"/>
-                          <Group type="102" attributes="0">
-                              <Component id="deleteAfterReadYes" min="-2" max="-2" attributes="1"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="processBatchFilesYes" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="deleteAfterReadNo" min="-2" max="-2" attributes="0"/>
+                              <Component id="processBatchFilesNo" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Group type="102" attributes="0">
-                              <Component id="checkFileAgeYes" min="-2" max="-2" attributes="1"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="checkFileAgeNo" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                      </Group>
-                  </Group>
-              </Group>
-              <EmptySpace pref="181" max="32767" attributes="0"/>
-          </Group>
-          <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="pollingFrequencyLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="pollingTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="passiveModeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="anonymousLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="filenameFilterLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Group type="102" alignment="1" attributes="0">
-                      <Component id="scheme" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="hostLabel" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="validateConnectionLabel" min="-2" max="-2" attributes="0"/>
-                  <Group type="103" alignment="1" groupAlignment="0" attributes="0">
-                      <Component id="pollingTimeLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                      <Group type="103" alignment="0" groupAlignment="1" attributes="0">
-                          <Component id="moveToFileLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="moveToDirectoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="103" alignment="0" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
-                          <Component id="pollingFrequency" min="-2" pref="75" max="-2" attributes="1"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                      </Group>
-                      <Group type="103" alignment="0" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
-                              <Component id="pollingIntervalButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="pollingTimeButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="-2" pref="331" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="103" alignment="0" groupAlignment="0" attributes="0">
-                              <Group type="102" attributes="0">
-                                  <Component id="passiveModeYes" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="passiveModeNo" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace min="-2" pref="359" max="-2" attributes="0"/>
+                          <Component id="sortBy" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
+                          <Component id="charsetEncodingCombobox" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                                  <Component id="deleteAfterReadYes" alignment="1" max="32767" attributes="1"/>
+                                  <Component id="checkFileAgeYes" alignment="1" min="-2" max="-2" attributes="1"/>
                               </Group>
-                              <Group type="103" alignment="0" groupAlignment="0" attributes="0">
-                                  <Group type="102" attributes="0">
-                                      <Component id="passwordField" min="-2" pref="125" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                  </Group>
-                                  <Group type="103" alignment="0" groupAlignment="0" attributes="0">
-                                      <Group type="102" attributes="0">
-                                          <Component id="usernameField" min="-2" pref="125" max="-2" attributes="0"/>
-                                          <EmptySpace max="-2" attributes="0"/>
-                                      </Group>
-                                      <Group type="103" alignment="0" groupAlignment="0" attributes="0">
-                                          <Group type="102" attributes="0">
-                                              <Group type="103" groupAlignment="0" attributes="0">
-                                                  <Group type="102" attributes="1">
-                                                      <Component id="hostField" min="-2" pref="167" max="-2" attributes="0"/>
-                                                      <EmptySpace max="-2" attributes="0"/>
-                                                      <Component id="directoryLabel" min="-2" max="-2" attributes="0"/>
-                                                      <EmptySpace max="-2" attributes="0"/>
-                                                      <Component id="directoryField" pref="196" max="32767" attributes="1"/>
-                                                  </Group>
-                                                  <Component id="fileNameFilter" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
-                                                  <Group type="102" alignment="0" attributes="0">
-                                                      <Component id="validateConnectionYes" min="-2" max="-2" attributes="0"/>
-                                                      <EmptySpace max="-2" attributes="0"/>
-                                                      <Component id="validateConnectionNo" min="-2" max="-2" attributes="0"/>
-                                                  </Group>
-                                              </Group>
-                                              <EmptySpace pref="56" max="32767" attributes="0"/>
-                                          </Group>
-                                          <Group type="102" attributes="0">
-                                              <Component id="anonymousYes" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="anonymousNo" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace min="-2" pref="359" max="-2" attributes="0"/>
-                                          </Group>
-                                      </Group>
-                                  </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="deleteAfterReadNo" min="-2" max="-2" attributes="0"/>
+                                  <Component id="checkFileAgeNo" alignment="0" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                      </Group>
-                  </Group>
-                  <Group type="102" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="moveToPattern" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
-                          <Component id="pollingTime" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="moveToDirectory" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
+                          <Component id="errorMoveToDirectory" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
                       <Component id="mirthVariableList1" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
+              <EmptySpace pref="92" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="directoryField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="jLabel8" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileNameFilter" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="pollingIntervalButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="pollingTimeButton" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="pollingFrequency" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="pollingFrequencyLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="pollingTimeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="pollingTime" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="mirthVariableList1" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="hostLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="scheme" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="directoryLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="hostField" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="directoryField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="moveToDirectory" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="moveToDirectoryLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Group type="102" attributes="0">
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="filenameFilterLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="fileNameFilter" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="anonymousLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="anonymousYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="anonymousNo" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="usernameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="usernameField" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="passwordLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="passwordField" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="validateConnectionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="validateConnectionYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="validateConnectionNo" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="pollingTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="pollingIntervalButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="pollingTimeButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="pollingFrequencyLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="pollingFrequency" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="pollingTimeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="pollingTime" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="moveToDirectoryLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="moveToDirectory" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="moveToFileLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="moveToPattern" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="errorMoveToDirectoryLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="errorMoveToDirectory" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="deleteAfterReadLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="deleteAfterReadYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="deleteAfterReadNo" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                          </Group>
-                          <Group type="102" alignment="1" attributes="1">
-                              <EmptySpace max="32767" attributes="0"/>
-                              <Component id="mirthVariableList1" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
-                          </Group>
-                      </Group>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="124" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="passiveModeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="passiveModeYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="passiveModeNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="moveToPattern" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="moveToFileLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="errorMoveToDirectory" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="errorMoveToDirectoryLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="deleteAfterReadYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="deleteAfterReadNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="jLabel7" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="checkFileAgeYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="checkFileAgeNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="processBatchFilesNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="processBatchFilesYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="processBatchFilesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="jLabel10" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="fileTypeBinary" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="fileTypeASCII" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="fileAgeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="fileAge" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="sortBy" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="encodingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="charsetEncodingCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="checkFileAgeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="checkFileAgeYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="checkFileAgeNo" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="fileAgeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="fileAge" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" pref="7" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="sortFilesByLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="sortBy" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="fileTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="fileTypeBinary" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="fileTypeASCII" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="encodingLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="charsetEncodingCombobox" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="processBatchFilesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="processBatchFilesYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="processBatchFilesNo" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace pref="39" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="scheme">
+    <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
-        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="3">
-            <StringItem index="0" value="file"/>
-            <StringItem index="1" value="ftp"/>
-            <StringItem index="2" value="sftp"/>
-          </StringArray>
-        </Property>
-        <Property name="toolTipText" type="java.lang.String" value="The basic method used to access files to be read - file (local filesystem), FTP, or SFTP."/>
+        <Property name="text" type="java.lang.String" value="Directory:"/>
       </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="schemeActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="javax.swing.JLabel" name="hostLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="://"/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="hostField">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="The name or IP address of the host (computer) on which the files to be read can be found."/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="directoryLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="/"/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="directoryField">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="The directory (folder) in which the files to be read can be found."/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="filenameFilterLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Filename Filter Pattern:"/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="fileNameFilter">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="The pattern which names of files must match in order to be read. Files with names that do not match the pattern will be ignored."/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="pollingTypeLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Polling Type:"/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="pollingIntervalButton">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup5"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Interval"/>
-        <Property name="toolTipText" type="java.lang.String" value="Records that the time at which polling for files to be read will be specified as the time between polling attempts."/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pollingIntervalButtonActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="pollingTimeButton">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup5"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Time"/>
-        <Property name="toolTipText" type="java.lang.String" value="Records that the time at which polling for files to be read will be specified as the time of day at which a polling attempt will occur each day."/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pollingTimeButtonActionPerformed"/>
-      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="pollingFrequencyLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Polling Frequency (ms):"/>
       </Properties>
     </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="directoryField">
+    </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="pollingFrequency">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="If the Interval Polling Type is selected, enter the number of milliseconds between polling attempts here."/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="pollingTimeLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Polling Time (daily):"/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTimePicker" name="pollingTime">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="If the Time Polling Type is selected, enter the time of day for polling attempts here."/>
-      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="moveToDirectoryLabel">
       <Properties>
@@ -440,26 +216,20 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="moveToPattern">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="If successfully processed files should be renamed, enter the new name here. The filename specified may include template substitutions from the list to the right. If this field is left empty, successfully processed files will not be renamed."/>
-      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="moveToDirectory">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="If successfully processed files should be moved to a different directory (folder), enter that directory here. The directory name specified may include template substitutions from the list to the right. If this field is left empty, successfully processed files will not be moved to a different directory."/>
-      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="moveToFileLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Move-to File Name:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="deleteAfterReadLabel">
+    <Component class="javax.swing.JLabel" name="jLabel6">
       <Properties>
         <Property name="text" type="java.lang.String" value="Delete File After Read:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="checkFileAgeLabel">
+    <Component class="javax.swing.JLabel" name="jLabel7">
       <Properties>
         <Property name="text" type="java.lang.String" value="Check File Age:"/>
       </Properties>
@@ -483,7 +253,6 @@
           <ComponentRef name="buttonGroup1"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="Select Yes to delete files after they are processed."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -507,7 +276,6 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="Select No to not delete files after they are processed."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -530,7 +298,6 @@
           <ComponentRef name="buttonGroup2"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="Select Yes to skip processing files which are older than the specified age."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -554,7 +321,6 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="Select No to process files regardless of age."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -582,11 +348,8 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="fileAge">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="If Check File Age Yes is selected, the maximum age of a file, in milliseconds, that should be processed."/>
-      </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="sortFilesByLabel">
+    <Component class="javax.swing.JLabel" name="jLabel3">
       <Properties>
         <Property name="text" type="java.lang.String" value="Sort Files By:"/>
       </Properties>
@@ -600,11 +363,7 @@
             <StringItem index="2" value="Size"/>
           </StringArray>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="Selects the order in which files should be processed, if there are multiple files available to be processed. Files can be processed by Date (oldest last modification date first), Size (smallest first) or name (a before z, etc.)."/>
       </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sortByActionPerformed"/>
-      </Events>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="charsetEncodingCombobox">
       <Properties>
@@ -619,7 +378,6 @@
             <StringItem index="6" value="US-ASCII"/>
           </StringArray>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="If File Type ASCII is selected, select the character set encoding (ASCII, UTF-8, etc.) to be used in reading the contents of each file."/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="charsetEncodingComboboxActionPerformed"/>
@@ -629,6 +387,13 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Encoding:"/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel8">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Filename Filter Pattern:"/>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="fileNameFilter">
     </Component>
     <Component class="javax.swing.JLabel" name="processBatchFilesLabel">
       <Properties>
@@ -649,7 +414,6 @@
           <ComponentRef name="buttonGroup3"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="Select Yes to process all messages in each file."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -670,7 +434,6 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="Select No to process the entire contents of the file as a single message."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -694,7 +457,6 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="ASCII"/>
-        <Property name="toolTipText" type="java.lang.String" value="Select No if files contain text (ASCII is a misnomer here)."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -717,7 +479,6 @@
           <ComponentRef name="buttonGroup4"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Binary"/>
-        <Property name="toolTipText" type="java.lang.String" value="Select Yes if files contain binary data which should be Base64 encoded before processing."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -726,10 +487,66 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="fileTypeBinaryActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JLabel" name="fileTypeLabel">
+    <Component class="javax.swing.JLabel" name="jLabel10">
       <Properties>
         <Property name="text" type="java.lang.String" value="File Type:"/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel4">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Polling Type:"/>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="pollingIntervalButton">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="buttonGroup5"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Interval"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pollingIntervalButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="pollingTimeButton">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="buttonGroup5"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Time"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pollingTimeButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="pollingTimeLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Polling Time (daily):"/>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTimePicker" name="pollingTime">
     </Component>
     <Component class="javax.swing.JLabel" name="errorMoveToDirectoryLabel">
       <Properties>
@@ -737,158 +554,6 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="errorMoveToDirectory">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="If files which cause processing errors should be moved to a different directory (folder), enter that directory here. The directory name specified may include template substitutions from the list to the right. If this field is left empty, files which cause processing errors will not be moved to a different directory."/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="anonymousLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Anonymous:"/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="anonymousYes">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="Connects to the file anonymously instead of using a username and password."/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="anonymousYesActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="anonymousNo">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="Connects to the file using a username and password instead of anonymously."/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="anonymousNoActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="javax.swing.JLabel" name="usernameLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Username:"/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="usernameField">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="The user name used to gain access to the server."/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="passwordLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Password:"/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthPasswordField" name="passwordField">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="The password used to gain access to the server."/>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Tahoma" size="11" style="0"/>
-        </Property>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="validateConnectionLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Validate Connection:"/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="validateConnectionYes">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="Select Yes to test the connection to the server before each operation."/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="validateConnectionNo">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="Select No to skip testing the connection to the server before each operation."/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="passiveModeLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Passive Mode:"/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="passiveModeYes">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="Select Yes to connect to the server in &quot;passive mode&quot;. Passive mode sometimes allows a connection through a firewall that normal mode does not."/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="passiveModeNo">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="Select Yes to connect to the server in &quot;normal mode&quot; as opposed to passive mode."/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
     </Component>
   </SubComponents>
 </Form>

@@ -93,10 +93,6 @@
 			<include name="com/webreach/mirth/connectors/sftp/**" />
 		</jar>
 
-		<jar destfile="${dist}/connectors/nfile-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/connectors/nfile/**" />
-		</jar>
-		
 		<jar destfile="${dist}/connectors/soap-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/soap/**" />
 		</jar>
