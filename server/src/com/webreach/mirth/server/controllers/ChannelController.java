@@ -28,18 +28,14 @@ package com.webreach.mirth.server.controllers;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
@@ -47,7 +43,6 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelSummary;
 import com.webreach.mirth.model.util.ImportConverter;
 import com.webreach.mirth.server.util.SqlConfig;
-import com.webreach.mirth.util.PropertyLoader;
 import com.webreach.mirth.util.PropertyVerifier;
 
 public class ChannelController {
@@ -56,42 +51,42 @@ public class ChannelController {
 	private static HashMap<String, Channel> channelCache = new HashMap<String, Channel>();
 	private static HashMap<String, String> channelIdLookup = new HashMap<String, String>();
 	private ChannelStatisticsController statisticsController = ChannelStatisticsController.getInstance();
-    private ExtensionController extensionController = ExtensionController.getInstance();
-    private ConfigurationController configurationController = ConfigurationController.getInstance();
-    
+	private ExtensionController extensionController = ExtensionController.getInstance();
+	private ConfigurationController configurationController = ConfigurationController.getInstance();
+
 	private static ChannelController instance = null;
 
 	private ChannelController() {
-		
+
 	}
-	
+
 	public static ChannelController getInstance() {
 		synchronized (ChannelController.class) {
 			if (instance == null) {
 				instance = new ChannelController();
 			}
-			
+
 			return instance;
 		}
-	}    
-    
+	}
+
 	public void initialize() {
 		try {
 			updateChannelCache(getChannel(null));
 
 			for (Channel channel : channelCache.values()) {
-                if(!channel.getVersion().equals(configurationController.getServerVersion())) {
-                    Channel updatedChannel = ImportConverter.convertChannelObject(channel);
-                    PropertyVerifier.checkChannelProperties(updatedChannel);
-                    PropertyVerifier.checkConnectorProperties(updatedChannel, extensionController.getConnectorMetaData());
-                    updatedChannel.setVersion(configurationController.getServerVersion());
-                    updateChannel(updatedChannel, true);
-                }
+				if (!channel.getVersion().equals(configurationController.getServerVersion())) {
+					Channel updatedChannel = ImportConverter.convertChannelObject(channel);
+					PropertyVerifier.checkChannelProperties(updatedChannel);
+					PropertyVerifier.checkConnectorProperties(updatedChannel, extensionController.getConnectorMetaData());
+					updatedChannel.setVersion(configurationController.getServerVersion());
+					updateChannel(updatedChannel, true);
+				}
 				if (!statisticsController.checkIfStatisticsExist(channel.getId())) {
 					statisticsController.createStatistics(channel.getId());
 				}
 			}
-			
+
 			statisticsController.reloadLocalCache();
 		} catch (Exception e) {
 			logger.warn(e);
@@ -101,9 +96,9 @@ public class ChannelController {
 	public void updateChannelCache(List<Channel> channels) throws ControllerException {
 		channelCache = new HashMap<String, Channel>();
 		channelIdLookup = new HashMap<String, String>();
-		
+
 		Iterator<Channel> it = channels.iterator();
-		
+
 		while (it.hasNext()) {
 			Channel channel = it.next();
 			updateChannelInCache(channel);
@@ -140,23 +135,22 @@ public class ChannelController {
 			throw new ControllerException(e);
 		}
 	}
-    
-    public List<Channel> getEnabledChannels() throws ControllerException {
-        List<Channel> channels = getChannel(null);
 
-        for (int i = 0; i < channels.size(); i++)
-        {
-            if(!channels.get(i).isEnabled())
-                channels.remove(i);
-        }
-        
-        return channels;
-    }
+	public List<Channel> getEnabledChannels() throws ControllerException {
+		List<Channel> channels = getChannel(null);
+
+		for (int i = 0; i < channels.size(); i++) {
+			if (!channels.get(i).isEnabled())
+				channels.remove(i);
+		}
+
+		return channels;
+	}
 
 	public List<ChannelSummary> getChannelSummary(Map<String, Integer> cachedChannels) throws ControllerException {
 		logger.debug("getting channel summary");
 		List<ChannelSummary> channelSummaries = new ArrayList<ChannelSummary>();
-		
+
 		try {
 			Map<String, Integer> serverChannels = sqlMap.queryForMap("getChannelRevision", null, "id", "revision");
 
@@ -238,11 +232,10 @@ public class ChannelController {
 		ConfigurationController configurationController = ConfigurationController.getInstance();
 		channel.setVersion(configurationController.getServerVersion());
 
-		
 		try {
-	
+
 			updateChannelInCache(channel);
-			
+
 			Channel channelFilter = new Channel();
 			channelFilter.setId(channel.getId());
 
@@ -270,15 +263,15 @@ public class ChannelController {
 			throw new ControllerException(e);
 		}
 	}
-	
+
 	private void removeChannelQueuestore(String channelId) throws Exception {
 		File queuestoreDir = new File(ConfigurationController.getInstance().getQueuestorePath());
-		
+
 		if (queuestoreDir.exists()) {
 			// NOTE: could not use FileUtils here because the listFiles method
 			// does not return directories
 			String[] files = queuestoreDir.list(new WildcardFileFilter(channelId + "*"));
-			
+
 			for (int i = 0; i < files.length; i++) {
 				File file = new File(queuestoreDir.getAbsolutePath() + File.separator + files[i]);
 				FileUtils.forceDelete(file);
