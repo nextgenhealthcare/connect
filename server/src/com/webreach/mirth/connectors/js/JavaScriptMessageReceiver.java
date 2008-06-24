@@ -147,7 +147,7 @@ public class JavaScriptMessageReceiver extends PollingMessageReceiver {
 				Object result = null;
 				try {
 					result = compiledScript.exec(context, scope);
-				} catch (Exception e) {
+				} catch (Throwable e) {
 					logger.error(e);
 					alertController.sendAlerts(((JavaScriptConnector) connector).getChannelId(), Constants.ERROR_414, null, e);
 					return null;
