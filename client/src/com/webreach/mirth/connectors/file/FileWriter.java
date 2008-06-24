@@ -26,6 +26,7 @@
 package com.webreach.mirth.connectors.file;
 
 import java.util.Properties;
+import org.apache.log4j.Logger;
 
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.connectors.ConnectorClass;
@@ -36,6 +37,8 @@ import com.webreach.mirth.connectors.ConnectorClass;
  */
 public class FileWriter extends ConnectorClass
 {
+    private Logger logger = Logger.getLogger(this.getClass());
+
     /** Creates new form FileWriter */
 
     public FileWriter()
@@ -66,8 +69,19 @@ public class FileWriter extends ConnectorClass
             properties.put(FileWriterProperties.FILE_SCHEME, FileWriterProperties.SCHEME_FTP);
         else if (((String) scheme.getSelectedItem()).equals("sftp"))
             properties.put(FileWriterProperties.FILE_SCHEME, FileWriterProperties.SCHEME_SFTP);
+        else {
+           	// This "can't happen"
+            logger.error("Unrecognized this.scheme value '" + scheme.getSelectedItem() + "', using 'file' instead");
+            properties.put(FileWriterProperties.FILE_SCHEME, FileWriterProperties.SCHEME_FILE);
+        }
+
+        if (scheme.getSelectedItem().equals("file")) {
+            properties.put(FileReaderProperties.FILE_HOST, directoryField.getText().replace('\\', '/'));
+        }
+        else {
+            properties.put(FileWriterProperties.FILE_HOST, hostField.getText() + "/" + directoryField.getText());
+        }
         
-        properties.put(FileWriterProperties.FILE_DIRECTORY, getHostDirectory());
         properties.put(FileWriterProperties.FILE_NAME, fileNameField.getText());
 
         if (anonymousYes.isSelected())
@@ -101,6 +115,8 @@ public class FileWriter extends ConnectorClass
             properties.put(FileWriterProperties.FILE_TYPE, UIConstants.YES_OPTION);
         else
             properties.put(FileWriterProperties.FILE_TYPE, UIConstants.NO_OPTION);
+        
+    	logger.debug("getProperties: properties=" + properties);
 
         return properties;
     }
@@ -127,47 +143,76 @@ public class FileWriter extends ConnectorClass
 
     public void setProperties(Properties props)
     {
+    	logger.debug("setProperties: props=" + props);
+
         resetInvalidProperties();
 
-        if (props.get(FileWriterProperties.FILE_SCHEME).equals(FileWriterProperties.SCHEME_FILE))
+        Object schemeValue = props.get(FileWriterProperties.FILE_SCHEME);
+        if (schemeValue.equals(FileWriterProperties.SCHEME_FILE))
             scheme.setSelectedItem("file");
-        else if (props.get(FileWriterProperties.FILE_SCHEME).equals(FileWriterProperties.SCHEME_FTP))
+        else if (schemeValue.equals(FileWriterProperties.SCHEME_FTP))
             scheme.setSelectedItem("ftp");
-        else if (props.get(FileWriterProperties.FILE_SCHEME).equals(FileWriterProperties.SCHEME_SFTP))
+        else if (schemeValue.equals(FileWriterProperties.SCHEME_SFTP))
             scheme.setSelectedItem("sftp");
+        else {
+           	// This "can't happen"
+            logger.error("Unrecognized props[\"scheme\"] value '" + schemeValue + "', using 'file' instead");
+            scheme.setSelectedItem("file");
+        }
         schemeActionPerformed(null);
         
-        setHostDirectory((String) props.get(FileWriterProperties.FILE_DIRECTORY));
+        if (scheme.getSelectedItem().equals("file")) {
+        
+            hostField.setText("");
+            directoryField.setText((String) props.get(FileWriterProperties.FILE_HOST));
+        }
+        else {
+            setHostDirectory((String) props.get(FileWriterProperties.FILE_HOST));
+        }
         
         fileNameField.setText((String) props.get(FileWriterProperties.FILE_NAME));
 
         if (((String) props.get(FileWriterProperties.FILE_ANONYMOUS)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
             anonymousYes.setSelected(true);
+            anonymousNo.setSelected(false);
             anonymousYesActionPerformed(null);
         }
         else
         {
+            anonymousYes.setSelected(false);
             anonymousNo.setSelected(true);
             anonymousNoActionPerformed(null);
             usernameField.setText((String) props.get(FileWriterProperties.FILE_USERNAME));
             passwordField.setText((String) props.get(FileWriterProperties.FILE_PASSWORD));
         }
 
-        if (((String) props.get(FileWriterProperties.FILE_PASSIVE_MODE)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        if (((String) props.get(FileWriterProperties.FILE_PASSIVE_MODE)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             passiveModeYes.setSelected(true);
-        else
+            passiveModeNo.setSelected(false);
+        }
+        else {
+            passiveModeYes.setSelected(false);
             passiveModeNo.setSelected(true);
+        }
 
-        if (((String) props.get(FileWriterProperties.FILE_VALIDATE_CONNECTION)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        if (((String) props.get(FileWriterProperties.FILE_VALIDATE_CONNECTION)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             validateConnectionYes.setSelected(true);
-        else
+            validateConnectionNo.setSelected(false);
+        }
+        else {
+            validateConnectionYes.setSelected(false);
             validateConnectionNo.setSelected(true);
+        }
 
-        if (((String) props.get(FileWriterProperties.FILE_APPEND)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        if (((String) props.get(FileWriterProperties.FILE_APPEND)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             appendToFileYes.setSelected(true);
-        else
+            appendToFileNo.setSelected(false);
+        }
+        else {
+            appendToFileYes.setSelected(false);
             appendToFileNo.setSelected(true);
+        }
 
         parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(FileWriterProperties.CONNECTOR_CHARSET_ENCODING));
 
@@ -176,10 +221,12 @@ public class FileWriter extends ConnectorClass
         if (((String) props.get(FileWriterProperties.FILE_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
             fileTypeBinary.setSelected(true);
+            fileTypeASCII.setSelected(false);
             fileTypeBinaryActionPerformed(null);
         }
         else
         {
+            fileTypeBinary.setSelected(false);
             fileTypeASCII.setSelected(true);
             fileTypeASCIIActionPerformed(null);
         }
@@ -195,7 +242,7 @@ public class FileWriter extends ConnectorClass
         resetInvalidProperties();
         boolean valid = true;
 
-        if (((String) props.get(FileWriterProperties.FILE_DIRECTORY)).length() == 0)
+        if (((String) props.get(FileWriterProperties.FILE_HOST)).length() == 0)
         {
             valid = false;
             if (highlight)
@@ -263,18 +310,18 @@ public class FileWriter extends ConnectorClass
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
         buttonGroup3 = new javax.swing.ButtonGroup();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
+        directoryLabel = new javax.swing.JLabel();
+        fileNameLabel = new javax.swing.JLabel();
+        templateLabel = new javax.swing.JLabel();
         directoryField = new com.webreach.mirth.client.ui.components.MirthTextField();
         fileNameField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        jLabel4 = new javax.swing.JLabel();
+        appendToFileLabel = new javax.swing.JLabel();
         appendToFileYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         appendToFileNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         fileContentsTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(false,false);
         charsetEncodingCombobox = new com.webreach.mirth.client.ui.components.MirthComboBox();
         encodingLabel = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
+        fileTypeLabel = new javax.swing.JLabel();
         fileTypeBinary = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         fileTypeASCII = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         scheme = new com.webreach.mirth.client.ui.components.MirthComboBox();
@@ -296,13 +343,13 @@ public class FileWriter extends ConnectorClass
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        jLabel1.setText("/");
+        directoryLabel.setText("/");
 
-        jLabel2.setText("File Name:");
+        fileNameLabel.setText("File Name:");
 
-        jLabel3.setText("Template:");
+        templateLabel.setText("Template:");
 
-        jLabel4.setText("Append to file:");
+        appendToFileLabel.setText("Append to file:");
 
         appendToFileYes.setBackground(new java.awt.Color(255, 255, 255));
         appendToFileYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -323,7 +370,7 @@ public class FileWriter extends ConnectorClass
 
         encodingLabel.setText("Encoding:");
 
-        jLabel5.setText("File Type:");
+        fileTypeLabel.setText("File Type:");
 
         fileTypeBinary.setBackground(new java.awt.Color(255, 255, 255));
         fileTypeBinary.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -338,7 +385,7 @@ public class FileWriter extends ConnectorClass
         fileTypeASCII.setText("ASCII");
         fileTypeASCII.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        scheme.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "File", "FTP", "SFTP" }));
+        scheme.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "file", "ftp", "sftp" }));
         scheme.setToolTipText("The basic method used to access files to be read - file (local filesystem), FTP, or SFTP.");
         scheme.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -422,19 +469,19 @@ public class FileWriter extends ConnectorClass
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(encodingLabel)
-                    .add(jLabel5)
-                    .add(jLabel4)
+                    .add(fileTypeLabel)
+                    .add(appendToFileLabel)
                     .add(passiveModeLabel)
                     .add(passwordLabel)
                     .add(usernameLabel)
                     .add(anonymousLabel)
-                    .add(jLabel2)
+                    .add(fileNameLabel)
                     .add(layout.createSequentialGroup()
                         .add(scheme, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(hostLabel))
                     .add(validateConnectionLabel)
-                    .add(jLabel3))
+                    .add(templateLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
@@ -479,7 +526,7 @@ public class FileWriter extends ConnectorClass
                             .add(layout.createSequentialGroup()
                                 .add(hostField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 167, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jLabel1)
+                                .add(directoryLabel)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(directoryField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE))
                             .add(fileNameField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 375, Short.MAX_VALUE))
@@ -492,11 +539,11 @@ public class FileWriter extends ConnectorClass
                     .add(hostLabel)
                     .add(scheme, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(hostField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel1)
+                    .add(directoryLabel)
                     .add(directoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel2)
+                    .add(fileNameLabel)
                     .add(fileNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
@@ -523,12 +570,12 @@ public class FileWriter extends ConnectorClass
                     .add(validateConnectionLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel4)
+                    .add(appendToFileLabel)
                     .add(appendToFileYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(appendToFileNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel5)
+                    .add(fileTypeLabel)
                     .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -537,8 +584,8 @@ public class FileWriter extends ConnectorClass
                     .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE)
-                    .add(jLabel3))
+                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
+                    .add(templateLabel))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -561,7 +608,7 @@ public class FileWriter extends ConnectorClass
         passwordField.setText("anonymous");
     }//GEN-LAST:event_anonymousYesActionPerformed
 
-    private void onSchemeChange(boolean enableHost, boolean enableOthers, boolean anonymous) {
+    private void onSchemeChange(boolean enableHost, boolean enableOthers, boolean anonymous, boolean allowAppend) {
         
             // act like the appropriate Anonymous button was selected.
         if (anonymous) {
@@ -572,7 +619,7 @@ public class FileWriter extends ConnectorClass
             
             anonymousNo.doClick();
         }
-            
+
         hostLabel.setEnabled(enableHost);
         hostField.setEnabled(enableHost);
 
@@ -585,25 +632,42 @@ public class FileWriter extends ConnectorClass
         validateConnectionLabel.setEnabled(enableOthers);
         validateConnectionYes.setEnabled(enableOthers);
         validateConnectionNo.setEnabled(enableOthers);
+        
+        if (allowAppend) {
+        	
+        	appendToFileNo.setEnabled(true); 
+        	appendToFileYes.setEnabled(true); 
+        }
+        else {
+
+        	if (appendToFileYes.isSelected()) {
+	    		appendToFileNo.setSelected(true);
+	        	appendToFileYes.setSelected(false);
+        	}
+        	
+        	appendToFileNo.setEnabled(false); 
+        	appendToFileYes.setEnabled(false); 
+        }
     }
 
     private void schemeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_schemeActionPerformed
         String text = (String) scheme.getSelectedItem();
         
         // if File is selected
-        if (text.equals("File")) {
+        if (text.equals("file")) {
             
-            onSchemeChange(false, false, true);
+            onSchemeChange(false, false, true, true);
+            hostField.setText("");
         }
         // else if FTP is selected
-        else if (text.equals("FTP")) {
+        else if (text.equals("ftp")) {
             
-            onSchemeChange(true, true, anonymousYes.isSelected());
+            onSchemeChange(true, true, anonymousYes.isSelected(), false);
         }
         // else if SFTP is selected
-        else if (text.equals("SFTP")) {
+        else if (text.equals("sftp")) {
             
-            onSchemeChange(true, false, false);
+            onSchemeChange(true, false, false, true);
         }
     }//GEN-LAST:event_schemeActionPerformed
 
@@ -624,6 +688,7 @@ public class FileWriter extends ConnectorClass
     private javax.swing.JLabel anonymousLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton anonymousNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton anonymousYes;
+    private javax.swing.JLabel appendToFileLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton appendToFileNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton appendToFileYes;
     private javax.swing.ButtonGroup buttonGroup1;
@@ -631,24 +696,23 @@ public class FileWriter extends ConnectorClass
     private javax.swing.ButtonGroup buttonGroup3;
     private com.webreach.mirth.client.ui.components.MirthComboBox charsetEncodingCombobox;
     private com.webreach.mirth.client.ui.components.MirthTextField directoryField;
+    private javax.swing.JLabel directoryLabel;
     private javax.swing.JLabel encodingLabel;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea fileContentsTextPane;
     private com.webreach.mirth.client.ui.components.MirthTextField fileNameField;
+    private javax.swing.JLabel fileNameLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeASCII;
     private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeBinary;
+    private javax.swing.JLabel fileTypeLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField hostField;
     private javax.swing.JLabel hostLabel;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel passiveModeLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton passiveModeNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton passiveModeYes;
     private com.webreach.mirth.client.ui.components.MirthPasswordField passwordField;
     private javax.swing.JLabel passwordLabel;
     private com.webreach.mirth.client.ui.components.MirthComboBox scheme;
+    private javax.swing.JLabel templateLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField usernameField;
     private javax.swing.JLabel usernameLabel;
     private javax.swing.JLabel validateConnectionLabel;

@@ -25,12 +25,16 @@
 
 package com.webreach.mirth.connectors.file;
 
-import com.webreach.mirth.connectors.ConnectorClass;
 import java.awt.Color;
 import java.util.Properties;
+import org.apache.log4j.Logger;
+
+import org.apache.log4j.Logger;
 
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
+import com.webreach.mirth.client.ui.components.MirthRadioButton;
+import com.webreach.mirth.connectors.ConnectorClass;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -38,6 +42,8 @@ import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
  */
 public class FileReader extends ConnectorClass
 {
+    private Logger logger = Logger.getLogger(this.getClass());
+
     /** Creates new form FileReader */
     public FileReader()
     {
@@ -49,16 +55,6 @@ public class FileReader extends ConnectorClass
         parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
     
-    /** Converts the value of the host and directory form fields to the FILE_DIRECTORY property value */
-    private String getHostDirectory() {
-        if (scheme.getSelectedItem().equals("file")) {
-            return directoryField.getText().replace('\\', '/');
-        }
-        else {
-            return hostField.getText() + "/" + directoryField.getText();
-        }
-    }
-
     /** Converts the values of the form fields to a Properties */
     public Properties getProperties()
     {
@@ -71,9 +67,24 @@ public class FileReader extends ConnectorClass
             properties.put(FileReaderProperties.FILE_SCHEME, FileReaderProperties.SCHEME_FTP);
         else if (((String) scheme.getSelectedItem()).equals("sftp"))
             properties.put(FileReaderProperties.FILE_SCHEME, FileReaderProperties.SCHEME_SFTP);
+        else {
+           	// This "can't happen"
+            logger.error("Unrecognized this.scheme value '" + scheme.getSelectedItem() + "', using 'file' instead");
+            properties.put(FileReaderProperties.FILE_SCHEME, FileReaderProperties.SCHEME_FILE);
+        }
         
-        properties.put(FileReaderProperties.FILE_DIRECTORY, getHostDirectory());
+        if (scheme.getSelectedItem().equals("file")) {
+            properties.put(FileReaderProperties.FILE_HOST, directoryField.getText().replace('\\', '/'));
+        }
+        else {
+            properties.put(FileReaderProperties.FILE_HOST, hostField.getText() + "/" + directoryField.getText());
+        }
         
+        if (anonymousYes.isSelected())
+            properties.put(FileReaderProperties.FILE_ANONYMOUS, UIConstants.YES_OPTION);
+        else
+            properties.put(FileReaderProperties.FILE_ANONYMOUS, UIConstants.NO_OPTION);
+
         properties.put(FileReaderProperties.FILE_USERNAME, usernameField.getText());
         properties.put(FileReaderProperties.FILE_PASSWORD, new String(passwordField.getPassword()));
         
@@ -135,6 +146,8 @@ public class FileReader extends ConnectorClass
             properties.put(FileReaderProperties.FILE_POLLING_TIME, pollingTime.getDate());
         }
         
+    	logger.debug("getProperties: properties=" + properties);
+
         return properties;
     }
     
@@ -161,40 +174,65 @@ public class FileReader extends ConnectorClass
     /** Converts a Properties to values of the form fields */
     public void setProperties(Properties props)
     {
+    	logger.debug("setProperties: props=" + props);
+
         resetInvalidProperties();
 
-        if (props.get(FileReaderProperties.FILE_SCHEME).equals(FileReaderProperties.SCHEME_FILE))
+        Object schemeValue = props.get(FileReaderProperties.FILE_SCHEME);
+        if (schemeValue.equals(FileReaderProperties.SCHEME_FILE))
             scheme.setSelectedItem("file");
-        else if (props.get(FileReaderProperties.FILE_SCHEME).equals(FileReaderProperties.SCHEME_FTP))
+        else if (schemeValue.equals(FileReaderProperties.SCHEME_FTP))
             scheme.setSelectedItem("ftp");
-        else if (props.get(FileReaderProperties.FILE_SCHEME).equals(FileReaderProperties.SCHEME_SFTP))
+        else if (schemeValue.equals(FileReaderProperties.SCHEME_SFTP))
             scheme.setSelectedItem("sftp");
+        else {
+           	// This "can't happen"
+            logger.error("Unrecognized props[\"scheme\"] value '" + schemeValue + "', using 'file' instead");
+            scheme.setSelectedItem("file");
+        }
         schemeActionPerformed(null);
 
-        setHostDirectory((String) props.get(FileReaderProperties.FILE_DIRECTORY));
+        if (scheme.getSelectedItem().equals("file")) {
+        
+            hostField.setText("");
+            directoryField.setText((String) props.get(FileReaderProperties.FILE_HOST));
+        }
+        else {
+            setHostDirectory((String) props.get(FileReaderProperties.FILE_HOST));
+        }
         
         if (((String) props.get(FileReaderProperties.FILE_ANONYMOUS)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
             anonymousYes.setSelected(true);
+            anonymousNo.setSelected(false);
             anonymousYesActionPerformed(null);
         }
         else
         {
+            anonymousYes.setSelected(false);
             anonymousNo.setSelected(true);
             anonymousNoActionPerformed(null);
             usernameField.setText((String) props.get(FileReaderProperties.FILE_USERNAME));
             passwordField.setText((String) props.get(FileReaderProperties.FILE_PASSWORD));
         }
         
-        if (((String) props.get(FileReaderProperties.FILE_PASSIVE_MODE)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        if (((String) props.get(FileReaderProperties.FILE_PASSIVE_MODE)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             passiveModeYes.setSelected(true);
-        else
+            passiveModeNo.setSelected(false);
+        }
+        else {
+            passiveModeYes.setSelected(false);
             passiveModeNo.setSelected(true);
+        }
         
-        if (((String) props.get(FileReaderProperties.FILE_VALIDATE_CONNECTION)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        if (((String) props.get(FileReaderProperties.FILE_VALIDATE_CONNECTION)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             validateConnectionYes.setSelected(true);
-        else
+            validateConnectionNo.setSelected(false);
+        }
+        else {
+            validateConnectionYes.setSelected(false);
             validateConnectionNo.setSelected(true);
+        }
         
         moveToPattern.setText((String) props.get(FileReaderProperties.FILE_MOVE_TO_PATTERN));
         moveToDirectory.setText((String) props.get(FileReaderProperties.FILE_MOVE_TO_DIRECTORY));
@@ -203,20 +241,24 @@ public class FileReader extends ConnectorClass
         if (((String) props.get(FileReaderProperties.FILE_DELETE_AFTER_READ)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
             deleteAfterReadYes.setSelected(true);
+            deleteAfterReadNo.setSelected(false);
             deleteAfterReadYesActionPerformed(null);
         }
         else
         {
+            deleteAfterReadYes.setSelected(false);
             deleteAfterReadNo.setSelected(true);
             deleteAfterReadNoActionPerformed(null);
         }
         if (((String) props.get(FileReaderProperties.FILE_CHECK_FILE_AGE)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
             checkFileAgeYes.setSelected(true);
+            checkFileAgeNo.setSelected(false);
             checkFileAgeYesActionPerformed(null);
         }
         else
         {
+            checkFileAgeYes.setSelected(false);
             checkFileAgeNo.setSelected(true);
             checkFileAgeNoActionPerformed(null);
         }
@@ -237,27 +279,35 @@ public class FileReader extends ConnectorClass
         if (((String) props.get(FileReaderProperties.FILE_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
             fileTypeBinary.setSelected(true);
+            fileTypeASCII.setSelected(false);
             fileTypeBinaryActionPerformed(null);
         }
         else
         {
+            fileTypeBinary.setSelected(false);
             fileTypeASCII.setSelected(true);
             fileTypeASCIIActionPerformed(null);
         }
         
-        if (((String) props.get(FileReaderProperties.FILE_PROCESS_BATCH_FILES)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        if (((String) props.get(FileReaderProperties.FILE_PROCESS_BATCH_FILES)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             processBatchFilesYes.setSelected(true);
-        else
+            processBatchFilesNo.setSelected(false);
+        }
+        else {
+            processBatchFilesYes.setSelected(false);
             processBatchFilesNo.setSelected(true);
+        }
         
         if (((String) props.get(FileReaderProperties.FILE_POLLING_TYPE)).equalsIgnoreCase("interval"))
         {
             pollingIntervalButton.setSelected(true);
+            pollingTimeButton.setSelected(false);
             pollingIntervalButtonActionPerformed(null);
             pollingFrequency.setText((String) props.get(FileReaderProperties.FILE_POLLING_FREQUENCY));
         }
         else
         {
+            pollingIntervalButton.setSelected(false);
             pollingTimeButton.setSelected(true);
             pollingTimeButtonActionPerformed(null);
             pollingTime.setDate((String) props.get(FileReaderProperties.FILE_POLLING_TIME));
@@ -278,7 +328,7 @@ public class FileReader extends ConnectorClass
         resetInvalidProperties();
         boolean valid = true;
         
-        if (((String) props.get(FileReaderProperties.FILE_DIRECTORY)).length() == 0)
+        if (((String) props.get(FileReaderProperties.FILE_HOST)).length() == 0)
         {
             valid = false;
             if (highlight)
@@ -749,63 +799,58 @@ public class FileReader extends ConnectorClass
                             .add(moveToDirectoryLabel))))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(moveToPattern, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())
                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                        .add(layout.createSequentialGroup()
+                            .add(pollingFrequency, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .addContainerGap())
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(layout.createSequentialGroup()
-                                .add(pollingTime, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap())
+                                .add(pollingIntervalButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(pollingTimeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(331, 331, 331))
                             .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                 .add(layout.createSequentialGroup()
-                                    .add(pollingFrequency, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .addContainerGap())
+                                    .add(passiveModeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                    .add(passiveModeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(359, 359, 359))
                                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                     .add(layout.createSequentialGroup()
-                                        .add(pollingIntervalButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(pollingTimeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .add(331, 331, 331))
+                                        .add(passwordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                        .addContainerGap())
                                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                         .add(layout.createSequentialGroup()
-                                            .add(passiveModeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                            .add(passiveModeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                            .add(359, 359, 359))
+                                            .add(usernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                            .addContainerGap())
                                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                             .add(layout.createSequentialGroup()
-                                                .add(passwordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                                .addContainerGap())
-                                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                                .add(layout.createSequentialGroup()
-                                                    .add(usernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                                    .addContainerGap())
                                                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                                     .add(layout.createSequentialGroup()
-                                                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                                            .add(layout.createSequentialGroup()
-                                                                .add(hostField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 167, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                                                .add(directoryLabel)
-                                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                                                .add(directoryField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE))
-                                                            .add(fileNameFilter, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                                            .add(layout.createSequentialGroup()
-                                                                .add(validateConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                                                .add(validateConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                                                .add(184, 184, 184)
-                                                                .add(mirthVariableList1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                                                        .addContainerGap(56, Short.MAX_VALUE))
-                                                    .add(layout.createSequentialGroup()
-                                                        .add(anonymousYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                        .add(hostField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 167, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                                        .add(anonymousNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                                        .add(359, 359, 359)))))))))
-                        .add(layout.createSequentialGroup()
-                            .add(moveToDirectory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .addContainerGap()))))
+                                                        .add(directoryLabel)
+                                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                        .add(directoryField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE))
+                                                    .add(fileNameFilter, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                    .add(layout.createSequentialGroup()
+                                                        .add(validateConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                        .add(validateConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                                .addContainerGap(56, Short.MAX_VALUE))
+                                            .add(layout.createSequentialGroup()
+                                                .add(anonymousYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                .add(anonymousNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                .add(359, 359, 359))))))))
+                    .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(moveToPattern, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(pollingTime, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(moveToDirectory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(mirthVariableList1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -818,27 +863,26 @@ public class FileReader extends ConnectorClass
                             .add(directoryLabel)
                             .add(hostField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(directoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(filenameFilterLabel)
-                            .add(fileNameFilter, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(anonymousLabel)
-                            .add(anonymousYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(anonymousNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(usernameLabel)
-                            .add(usernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(passwordLabel)
-                            .add(passwordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .add(17, 17, 17)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                             .add(layout.createSequentialGroup()
-                                .add(10, 10, 10)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                    .add(filenameFilterLabel)
+                                    .add(fileNameFilter, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                    .add(anonymousLabel)
+                                    .add(anonymousYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(anonymousNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                    .add(usernameLabel)
+                                    .add(usernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                    .add(passwordLabel)
+                                    .add(passwordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .add(27, 27, 27)
                                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                                     .add(validateConnectionLabel)
                                     .add(validateConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -873,9 +917,10 @@ public class FileReader extends ConnectorClass
                                     .add(deleteAfterReadLabel)
                                     .add(deleteAfterReadYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                     .add(deleteAfterReadNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                            .add(layout.createSequentialGroup()
-                                .add(14, 14, 14)
-                                .add(mirthVariableList1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .add(mirthVariableList1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(15, 15, 15))))
                     .add(layout.createSequentialGroup()
                         .add(124, 124, 124)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
@@ -938,11 +983,13 @@ public class FileReader extends ConnectorClass
             // act like the appropriate Anonymous button was selected.
         if (anonymous) {
             
+            anonymousNo.setSelected(false);
             anonymousYes.doClick();
         }
         else {
             
             anonymousNo.doClick();
+            anonymousYes.setSelected(false);
         }
             
         hostLabel.setEnabled(enableHost);
@@ -967,6 +1014,7 @@ public class FileReader extends ConnectorClass
         if (text.equals("file")) {
             
             onSchemeChange(false, false, true);
+            hostField.setText("");
         }
         // else if FTP is selected
         else if (text.equals("ftp")) {

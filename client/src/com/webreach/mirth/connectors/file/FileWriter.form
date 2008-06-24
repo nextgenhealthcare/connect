@@ -35,20 +35,20 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="encodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel5" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="appendToFileLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="passiveModeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="anonymousLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel2" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileNameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Group type="102" alignment="1" attributes="0">
                       <Component id="scheme" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="hostLabel" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="validateConnectionLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                  <Component id="templateLabel" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -103,7 +103,7 @@
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="hostField" min="-2" pref="167" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                              <Component id="directoryLabel" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="directoryField" pref="196" max="32767" attributes="1"/>
                           </Group>
@@ -122,12 +122,12 @@
                   <Component id="hostLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="scheme" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="hostField" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="directoryLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="directoryField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="fileNameField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -160,13 +160,13 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="appendToFileLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="appendToFileYes" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="appendToFileNo" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel5" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="fileTypeBinary" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="fileTypeASCII" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
@@ -177,8 +177,8 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="fileContentsTextPane" pref="191" max="32767" attributes="0"/>
-                  <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileContentsTextPane" pref="100" max="32767" attributes="0"/>
+                  <Component id="templateLabel" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -186,17 +186,17 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JLabel" name="jLabel1">
+    <Component class="javax.swing.JLabel" name="directoryLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="/"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel2">
+    <Component class="javax.swing.JLabel" name="fileNameLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="File Name:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel3">
+    <Component class="javax.swing.JLabel" name="templateLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Template:"/>
       </Properties>
@@ -205,7 +205,7 @@
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="fileNameField">
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel4">
+    <Component class="javax.swing.JLabel" name="appendToFileLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Append to file:"/>
       </Properties>
@@ -281,7 +281,7 @@
         <Property name="text" type="java.lang.String" value="Encoding:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel5">
+    <Component class="javax.swing.JLabel" name="fileTypeLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="File Type:"/>
       </Properties>
@@ -329,9 +329,9 @@
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="3">
-            <StringItem index="0" value="File"/>
-            <StringItem index="1" value="FTP"/>
-            <StringItem index="2" value="SFTP"/>
+            <StringItem index="0" value="file"/>
+            <StringItem index="1" value="ftp"/>
+            <StringItem index="2" value="sftp"/>
           </StringArray>
         </Property>
         <Property name="toolTipText" type="java.lang.String" value="The basic method used to access files to be read - file (local filesystem), FTP, or SFTP."/>

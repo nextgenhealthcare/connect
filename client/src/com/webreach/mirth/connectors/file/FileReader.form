@@ -110,83 +110,75 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <Component id="moveToPattern" min="-2" pref="250" max="-2" attributes="1"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                  </Group>
                   <Group type="103" alignment="0" groupAlignment="0" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" attributes="0">
+                          <Component id="pollingFrequency" min="-2" pref="75" max="-2" attributes="1"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="103" alignment="0" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
-                              <Component id="pollingTime" min="-2" max="-2" attributes="0"/>
+                              <Component id="pollingIntervalButton" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
+                              <Component id="pollingTimeButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="331" max="-2" attributes="0"/>
                           </Group>
                           <Group type="103" alignment="0" groupAlignment="0" attributes="0">
                               <Group type="102" attributes="0">
-                                  <Component id="pollingFrequency" min="-2" pref="75" max="-2" attributes="1"/>
+                                  <Component id="passiveModeYes" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="passiveModeNo" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace min="-2" pref="359" max="-2" attributes="0"/>
                               </Group>
                               <Group type="103" alignment="0" groupAlignment="0" attributes="0">
                                   <Group type="102" attributes="0">
-                                      <Component id="pollingIntervalButton" min="-2" max="-2" attributes="0"/>
+                                      <Component id="passwordField" min="-2" pref="125" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="pollingTimeButton" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace min="-2" pref="331" max="-2" attributes="0"/>
                                   </Group>
                                   <Group type="103" alignment="0" groupAlignment="0" attributes="0">
                                       <Group type="102" attributes="0">
-                                          <Component id="passiveModeYes" min="-2" max="-2" attributes="0"/>
+                                          <Component id="usernameField" min="-2" pref="125" max="-2" attributes="0"/>
                                           <EmptySpace max="-2" attributes="0"/>
-                                          <Component id="passiveModeNo" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace min="-2" pref="359" max="-2" attributes="0"/>
                                       </Group>
                                       <Group type="103" alignment="0" groupAlignment="0" attributes="0">
                                           <Group type="102" attributes="0">
-                                              <Component id="passwordField" min="-2" pref="125" max="-2" attributes="0"/>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                          </Group>
-                                          <Group type="103" alignment="0" groupAlignment="0" attributes="0">
-                                              <Group type="102" attributes="0">
-                                                  <Component id="usernameField" min="-2" pref="125" max="-2" attributes="0"/>
-                                                  <EmptySpace max="-2" attributes="0"/>
-                                              </Group>
-                                              <Group type="103" alignment="0" groupAlignment="0" attributes="0">
-                                                  <Group type="102" attributes="0">
-                                                      <Group type="103" groupAlignment="0" attributes="0">
-                                                          <Group type="102" attributes="1">
-                                                              <Component id="hostField" min="-2" pref="167" max="-2" attributes="0"/>
-                                                              <EmptySpace max="-2" attributes="0"/>
-                                                              <Component id="directoryLabel" min="-2" max="-2" attributes="0"/>
-                                                              <EmptySpace max="-2" attributes="0"/>
-                                                              <Component id="directoryField" pref="196" max="32767" attributes="1"/>
-                                                          </Group>
-                                                          <Component id="fileNameFilter" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
-                                                          <Group type="102" alignment="0" attributes="0">
-                                                              <Component id="validateConnectionYes" min="-2" max="-2" attributes="0"/>
-                                                              <EmptySpace max="-2" attributes="0"/>
-                                                              <Component id="validateConnectionNo" min="-2" max="-2" attributes="0"/>
-                                                              <EmptySpace min="-2" pref="184" max="-2" attributes="0"/>
-                                                              <Component id="mirthVariableList1" min="-2" max="-2" attributes="0"/>
-                                                          </Group>
-                                                      </Group>
-                                                      <EmptySpace pref="56" max="32767" attributes="0"/>
-                                                  </Group>
-                                                  <Group type="102" attributes="0">
-                                                      <Component id="anonymousYes" min="-2" max="-2" attributes="0"/>
+                                              <Group type="103" groupAlignment="0" attributes="0">
+                                                  <Group type="102" attributes="1">
+                                                      <Component id="hostField" min="-2" pref="167" max="-2" attributes="0"/>
                                                       <EmptySpace max="-2" attributes="0"/>
-                                                      <Component id="anonymousNo" min="-2" max="-2" attributes="0"/>
-                                                      <EmptySpace min="-2" pref="359" max="-2" attributes="0"/>
+                                                      <Component id="directoryLabel" min="-2" max="-2" attributes="0"/>
+                                                      <EmptySpace max="-2" attributes="0"/>
+                                                      <Component id="directoryField" pref="196" max="32767" attributes="1"/>
+                                                  </Group>
+                                                  <Component id="fileNameFilter" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
+                                                  <Group type="102" alignment="0" attributes="0">
+                                                      <Component id="validateConnectionYes" min="-2" max="-2" attributes="0"/>
+                                                      <EmptySpace max="-2" attributes="0"/>
+                                                      <Component id="validateConnectionNo" min="-2" max="-2" attributes="0"/>
                                                   </Group>
                                               </Group>
+                                              <EmptySpace pref="56" max="32767" attributes="0"/>
+                                          </Group>
+                                          <Group type="102" attributes="0">
+                                              <Component id="anonymousYes" min="-2" max="-2" attributes="0"/>
+                                              <EmptySpace max="-2" attributes="0"/>
+                                              <Component id="anonymousNo" min="-2" max="-2" attributes="0"/>
+                                              <EmptySpace min="-2" pref="359" max="-2" attributes="0"/>
                                           </Group>
                                       </Group>
                                   </Group>
                               </Group>
                           </Group>
                       </Group>
-                      <Group type="102" alignment="0" attributes="0">
-                          <Component id="moveToDirectory" min="-2" pref="250" max="-2" attributes="1"/>
-                          <EmptySpace max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="moveToPattern" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
+                          <Component id="pollingTime" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="moveToDirectory" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
                       </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="mirthVariableList1" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
           </Group>
@@ -204,31 +196,30 @@
                           <Component id="hostField" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="directoryField" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="filenameFilterLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="fileNameFilter" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="anonymousLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="anonymousYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="anonymousNo" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="usernameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="usernameField" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="passwordLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="passwordField" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="-2" pref="17" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Group type="102" attributes="0">
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="filenameFilterLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="fileNameFilter" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="anonymousLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="anonymousYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="anonymousNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="usernameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="usernameField" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="passwordLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="passwordField" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
                                   <Component id="validateConnectionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="validateConnectionYes" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -272,9 +263,10 @@
                                   <Component id="deleteAfterReadNo" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
+                          <Group type="102" alignment="1" attributes="1">
+                              <EmptySpace max="32767" attributes="0"/>
                               <Component id="mirthVariableList1" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
