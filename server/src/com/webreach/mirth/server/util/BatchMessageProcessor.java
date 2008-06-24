@@ -21,8 +21,6 @@
  * Contributor(s):
  *   Gerald Bortis <geraldb@webreachinc.com>
  *
- * @deprecated See HL7BatchAdaptor
- *
  * ***** END LICENSE BLOCK ***** */
 
 package com.webreach.mirth.server.util;

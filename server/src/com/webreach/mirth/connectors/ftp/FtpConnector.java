@@ -498,22 +498,24 @@ public class FtpConnector extends AbstractServiceEnabledConnector {
 	public void setValidateConnections(boolean validateConnections) {
 		this.validateConnections = validateConnections;
 	}
-	
-    public String getPollingTime() {
+    public String getPollingTime()
+    {
         return pollingTime;
     }
 
-    public void setPollingTime(String pollingTime) {
+    public void setPollingTime(String pollingTime)
+    {
         this.pollingTime = pollingTime;
     }
 
-    public String getPollingType() {
+    public String getPollingType()
+    {
         return pollingType;
     }
 
-    public void setPollingType(String pollingType) {
+    public void setPollingType(String pollingType)
+    {
         this.pollingType = pollingType;
     }
 
-    
 }

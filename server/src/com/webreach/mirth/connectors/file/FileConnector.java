@@ -12,36 +12,25 @@ package com.webreach.mirth.connectors.file;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.pool.ObjectPool;
-import org.apache.commons.pool.impl.GenericObjectPool;
 import org.mule.config.MuleProperties;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
 import org.mule.providers.AbstractServiceEnabledConnector;
-import org.mule.providers.TemplateValueReplacer;
 import org.mule.providers.VariableFilenameParser;
 import org.mule.transformers.simple.ByteArrayToSerializable;
 import org.mule.transformers.simple.SerializableToByteArray;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOException;
 import org.mule.umo.endpoint.UMOEndpoint;
-import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.lifecycle.InitialisationException;
-import org.mule.umo.provider.ConnectorException;
-import org.mule.umo.provider.UMOMessageDispatcher;
 import org.mule.umo.provider.UMOMessageReceiver;
 import org.mule.util.Utility;
 
-import com.webreach.mirth.connectors.file.filesystems.FileSystemConnection;
-import com.webreach.mirth.connectors.file.filesystems.FileSystemConnectionFactory;
-import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.SystemLogger;
 
@@ -65,42 +54,35 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	// declarations
     public static final String PROPERTY_POLLING_TYPE = "pollingType";
     public static final String PROPERTY_POLLING_TIME = "pollingTime";
-	public static final String PROPERTY_ORIGINAL_FILENAME = "originalFilename";
 	public static final String PROPERTY_POLLING_FREQUENCY = "pollingFrequency";
-	public static final String PROPERTY_FILENAME = "filename";
-	public static final String PROPERTY_OUTPUT_PATTERN = "outputPattern";
-	public static final String PROPERTY_TEMPLATE = "template";
-	public static final String PROPERTY_BINARY = "binary";
 	public static final String PROPERTY_FILE_AGE = "fileAge";
 	public static final String PROPERTY_FILE_FILTER = "fileFilter";
+	public static final String PROPERTY_FILENAME = "filename";
+	public static final String PROPERTY_ORIGINAL_FILENAME = "originalFilename";
+	public static final String PROPERTY_OUTPUT_PATTERN = "outputPattern";
 	public static final String PROPERTY_MOVE_TO_PATTERN = "moveToPattern";
 	public static final String PROPERTY_MOVE_TO_DIRECTORY = "moveToDirectory";
 	public static final String PROPERTY_MOVE_TO_ERROR_DIRECTORY = "moveToErrorDirectory";
 	public static final String PROPERTY_DELETE_ON_READ = "autoDelete";
 	public static final String PROPERTY_DIRECTORY = "directory";
+	public static final String PROPERTY_TEMPLATE = "template";
 	public static final String PROPERTY_SORT_ATTRIBUTE = "sortAttribute";
 	public static final String PROPERTY_BATCH_PROCESS = "processBatchFiles";
-	public static final String PROPERTY_CHANNEL_ID = "channelId";
-	public static final String PROPERTY_SCHEME = "scheme";
-    public static final String PROPERTY_PASSIVE_MODE = "passive";
+	public static final String PROPERTY_BINARY = "binary";
 
 	public static final String SORT_NAME = "name";
 	public static final String SORT_DATE = "date";
 	public static final String SORT_SIZE = "size";
-	public static final long DEFAULT_POLLING_FREQUENCY = 1000;
 	
     public static final String POLLING_TYPE_INTERVAL = "interval";
     public static final String POLLING_TYPE_TIME = "time";
     
+	public static final long DEFAULT_POLLING_FREQUENCY = 1000;
 
 	// ast: encoding Charset
 	public static final String PROPERTY_CHARSET_ENCODING = "charsetEncoding";
 	public static final String CHARSET_KEY = "ca.uhn.hl7v2.llp.charset";
 	public static final String DEFAULT_CHARSET_ENCODING = System.getProperty(CHARSET_KEY, java.nio.charset.Charset.defaultCharset().name());
-
-	public static final String SCHEME_FILE = "file";
-	public static final String SCHEME_FTP = "ftp";
-	public static final String SCHEME_SFTP = "sftp";
 
 	/**
 	 * Time in milliseconds to poll. On each poll the poll() method is called
@@ -108,37 +90,30 @@ public class FileConnector extends AbstractServiceEnabledConnector {
     private String pollingType = POLLING_TYPE_INTERVAL;
     private String pollingTime = "12:00 AM";
 	private long pollingFrequency = 0;
-	private String outputPattern = null;
-	private String template = null;
-	public FilenameParser filenameParser = new VariableFilenameParser();
-	private Map pools = new HashMap();
-	private String username;
-	private String password;
-	private boolean binary = false;
 	private String moveToPattern = null;
 	private String writeToDirectoryName = null;
 	private String moveToDirectory = null;
 	private String moveToErrorDirectory = null;
+	private String outputPattern = null;
 	private String sortAttribute = SORT_NAME;
 	private boolean outputAppend = false;
 	private boolean autoDelete = true;
 	private boolean checkFileAge = false;
 	private String fileFilter = "*";
 	private long fileAge = 0;
+	private String template = null;
 	private FileOutputStream outputStream = null;
 	private boolean serialiseObjects = false;
+	public FilenameParser filenameParser = new VariableFilenameParser();
 	private UMOMessageReceiver receiver = null;
 	private boolean processBatchFiles = true;
-	private boolean validateConnections = true;
 	// ast: encoding charset
 	private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
+	private boolean binary = false;
 	private String channelId;
-	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	private Map protocolProperties;
 	private String inboundProtocol;
-	private String scheme = SCHEME_FILE;
-	private boolean passive = false;
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -170,7 +145,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	 * </ul>
 	 */
 	public UMOMessageReceiver createReceiver(UMOComponent component, UMOEndpoint endpoint) throws Exception {
-		String readDir = endpoint.getEndpointURI().getPath();
+		String readDir = endpoint.getEndpointURI().getAddress();
 		long polling = this.pollingFrequency;
 
 		String moveTo = moveToDirectory;
@@ -205,7 +180,6 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 			logger.debug("set polling frequency to: " + polling);
 		}
 		try {
-			// TODO: file has more parameters than FTP, must apparently update FTP. 
 			receiver = serviceDescriptor.createMessageReceiver(this, component, endpoint, new Object[] { readDir, moveTo, moveToPattern, moveToErrorDirectory, new Long(polling) });
 			return receiver;
 		} catch (Exception e) {
@@ -226,15 +200,6 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 				logger.warn("Failed to close file output stream on stop: " + e);
 			}
 		}
-		try {
-			for (Iterator it = pools.values().iterator(); it.hasNext();) {
-				ObjectPool pool = (ObjectPool) it.next();
-				pool.close();
-			}
-			pools.clear();
-		} catch (Exception e) {
-			throw new ConnectorException(new Message(Messages.FAILED_TO_STOP_X, "File Connector"), this, e);
-		}
 	}
 
 	/*
@@ -251,108 +216,6 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.mule.providers.AbstractConnector#doDispose()
-	 */
-	protected void doDispose() {
-		try {
-			doStop();
-		} catch (UMOException e) {
-			logger.error(e.getMessage(), e);
-		}
-	}
-
-	// ********************************************
-	// connection pool management
-
-	/** Allocate a connection from the pool
-	 * @param uri The URI of the endpoint for which the connection is being created.
-	 * @param messageObject ??
-	 * @return The allocated connection.
-	 */
-	protected FileSystemConnection getConnection(UMOEndpointURI uri, MessageObject messageObject) throws Exception {
-		ObjectPool pool = getConnectionPool(uri, messageObject);
-		return (FileSystemConnection) pool.borrowObject();
-	}
-
-	/** Return a connection to the pool
-	 * 
-	 * @param uri The URI of the endpoint from which the connection is being released.
-	 * @param client The connection that is being released.
-	 * @param messageObject ??
-	 * @throws Exception
-	 */
-	protected void releaseConnection(UMOEndpointURI uri, FileSystemConnection connection, MessageObject messageObject) throws Exception {
-		if (isCreateDispatcherPerRequest()) {
-			destroyConnection(uri, connection, messageObject);
-			UMOMessageDispatcher dispatcher = getDispatcher(uri.toString());
-		} else {
-			if (connection != null && connection.isConnected()) {
-				ObjectPool pool = getConnectionPool(uri, messageObject);
-				pool.returnObject(connection);
-			}
-		}
-	}
-
-	/** Permanently destroy a connection.
-	 * 
-	 * @param uri The URI of the endpoint from which the connection is being released.
-	 * @param connection The connection that is to be destroyed.
-	 * @param messageObject ??
-	 * @throws Exception
-	 */
-	protected void destroyConnection(UMOEndpointURI uri, FileSystemConnection connection, MessageObject messageObject) throws Exception {
-		if (connection != null) {
-			ObjectPool pool = getConnectionPool(uri, messageObject);
-			pool.invalidateObject(connection);
-		}
-	}
-
-	private String replace(String src, MessageObject messageObject) {
-		if (messageObject == null){
-			return replacer.replaceValuesFromGlobal(src, true);
-		}
-		else if (src.indexOf('$') > -1) {
-			return replacer.replaceValues(src, messageObject);
-		}
-		else {
-			return src;
-		}
-	}
-
-	/** Gets the pool of connections to the "server" for the specified
-	 *  endpoint, creating the pool if necessary.
-	 * 
-	 * @param uri The URI of the endpoint the created pool should be associated with.
-	 * @param messageObject ???
-	 * @return The pool of connections for this endpoint.
-	 */
-	private synchronized ObjectPool getConnectionPool(UMOEndpointURI uri, MessageObject messageObject) {
-		
-		// Resolve all the connection parameters to final substituted values,
-		// since we're about to actually use them.
-		String username = replace(getUsername(), messageObject);
-		String password = replace(getPassword(), messageObject);
-		String key = FileSystemConnectionFactory.getPoolKey(getScheme(), username, password, uri.getHost(), uri.getPort());
-		ObjectPool pool = (ObjectPool) pools.get(key);
-		if (pool == null) {
-			GenericObjectPool.Config config = new GenericObjectPool.Config();
-			if (isValidateConnections()) {
-				config.testOnBorrow = true;
-				config.testOnReturn = true;
-			}
-			pool = new GenericObjectPool(new FileSystemConnectionFactory(getScheme(), username, password, uri.getHost(), uri.getPort(), isPassive()), config);
-
-			pools.put(key, pool);
-		}
-		return pool;
-	}
-
-	// ********************************************
-	// getters & setters
-	
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see org.mule.providers.UMOConnector#getProtocol()
 	 */
 	public String getProtocol() {
@@ -365,6 +228,19 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 
 	public void setFilenameParser(FilenameParser filenameParser) {
 		this.filenameParser = filenameParser;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mule.providers.AbstractConnector#doDispose()
+	 */
+	protected void doDispose() {
+		try {
+			doStop();
+		} catch (UMOException e) {
+			logger.error(e.getMessage(), e);
+		}
 	}
 
 	/**
@@ -450,19 +326,15 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 		this.pollingFrequency = pollingFrequency;
 	}
 
-	public boolean isCheckFileAge() {
-		return checkFileAge;
-	}
-
-	public void setCheckFileAge(boolean checkFileAge) {
-		this.checkFileAge = checkFileAge;
-	}
-
 	/**
 	 * @return Returns the fileAge.
 	 */
 	public long getFileAge() {
 		return fileAge;
+	}
+
+	public boolean getCheckFileAge() {
+		return checkFileAge;
 	}
 
 	/**
@@ -653,45 +525,5 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 
 	public void setInboundProtocol(String inboundProtocol) {
 		this.inboundProtocol = inboundProtocol;
-	}
-	
-	public String getPassword() {
-		return this.password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public String getUsername() {
-		return this.username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-	
-	public boolean isValidateConnections() {
-		return validateConnections;
-	}
-
-	public void setValidateConnections(boolean validateConnections) {
-		this.validateConnections = validateConnections;
-	}
-
-	public String getScheme() {
-		return scheme;
-	}
-
-	public void setScheme(String scheme) {
-		this.scheme = scheme;
-	}
-
-	public boolean isPassive() {
-		return passive;
-	}
-
-	public void setPassive(boolean passive) {
-		this.passive = passive;
 	}
 }

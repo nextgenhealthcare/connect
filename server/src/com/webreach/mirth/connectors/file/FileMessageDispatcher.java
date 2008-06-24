@@ -9,18 +9,11 @@
 
 package com.webreach.mirth.connectors.file;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
 
 import org.mule.MuleException;
 import org.mule.MuleManager;
@@ -37,11 +30,7 @@ import org.mule.util.Utility;
 
 import sun.misc.BASE64Decoder;
 
-import com.jcraft.jsch.ChannelSftp;
-import com.webreach.mirth.connectors.file.filesystems.FileInfo;
-import com.webreach.mirth.connectors.file.filesystems.FileSystemConnection;
 import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
-import com.webreach.mirth.connectors.sftp.SftpConnector;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
@@ -77,19 +66,16 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 	 * @see org.mule.umo.provider.UMOConnectorSession#dispatch(org.mule.umo.UMOEvent)
 	 */
 	public void doDispatch(UMOEvent event) throws Exception {
-		
 		monitoringController.updateStatus(connector, connectorType, Event.BUSY);
 		TemplateValueReplacer replacer = new TemplateValueReplacer();
-		
+		UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
+		FileOutputStream fos = null;
+		Object data = null;
 		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
 		if (messageObject == null) {
 			return;
 		}
 
-		Object data = null;
-		OutputStream os = null;
-		FileSystemConnection con = null;
-		UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
 		try {
 			String filename = (String) event.getProperty(FileConnector.PROPERTY_FILENAME);
 			if (filename == null) {
@@ -107,9 +93,8 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 				throw new IOException("Filename is null");
 			}
 
-			String path = generateFilename(event, uri.getAddress(), messageObject);
 			String template = replacer.replaceValues(connector.getTemplate(), messageObject);
-
+			File file =	Utility.createFile(generateFilename(event, uri.getAddress(), messageObject) + "/" + filename);
 			// ast: change the output method to allow encoding election
 			// if (connector.isOutputAppend())
 			// template+=System.getProperty("line.separator");
@@ -122,9 +107,8 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 				buffer = template.getBytes(connector.getCharsetEncoding());
 			}
 			//logger.info("Writing file to: " + file.getAbsolutePath());
-			con = connector.getConnection(uri, messageObject);
-			os = con.writeFile(filename, path, connector.isOutputAppend());
-			os.write(buffer);
+			fos = new FileOutputStream(file, connector.isOutputAppend());
+			fos.write(buffer);
 
 			// update the message status to sent
 			messageObjectController.setSuccess(messageObject, "File successfully written: " + filename);
@@ -133,11 +117,8 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 			messageObjectController.setError(messageObject, Constants.ERROR_403, "Error writing file", e);
 			connector.handleException(e);
 		} finally {
-			if (os != null) {
-				os.close();
-			}
-			if (con != null) {
-				connector.releaseConnection(uri, con, messageObject);
+			if (fos != null) {
+				fos.close();
 			}
 			monitoringController.updateStatus(connector, connectorType, Event.DONE);
 		}
@@ -149,19 +130,77 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 	 * file in the directory according to the filename filter configured on the
 	 * connector.
 	 * 
-	 * TODO: This method is not implemented by the FTP or SFTP message
-	 * dispatchers. Is it actually used?
-	 * 
 	 * @param endpointUri
 	 *            a path to a file or directory
 	 * @param timeout
 	 *            this is ignored when doing a receive on this dispatcher
-	 * @return a message containing file contents or null if there was nothing
+	 * @return a message containing file contents or null if there was notthing
 	 *         to receive
 	 * @throws Exception
 	 */
 	public UMOMessage receive(UMOEndpointURI endpointUri, long timeout) throws Exception {
+		File file = new File(endpointUri.getAddress());
+		File result = null;
+		FilenameFilter filenameFilter = null;
+		String filter = (String) endpointUri.getParams().get("filter");
+		if (filter != null) {
+			filter = URLDecoder.decode(filter, MuleManager.getConfiguration().getEncoding());
+			filenameFilter = new FilenameWildcardFilter(filter);
+		}
+		if (file.exists()) {
+			if (file.isFile()) {
+				result = file;
+			} else if (file.isDirectory()) {
+				result = getNextFile(endpointUri.getAddress(), filenameFilter);
+			}
+			if (result != null) {
+				boolean checkFileAge = connector.getCheckFileAge();
+				if (checkFileAge) {
+					long fileAge = connector.getFileAge();
+					long lastMod = result.lastModified();
+					long now = (new java.util.Date()).getTime();
+					if ((now - lastMod) < fileAge) {
+						return null;
+					}
+				}
+
+				MuleMessage message = new MuleMessage(connector.getMessageAdapter(result));
+				if (connector.getMoveToDirectory() != null) {
+					File destinationFile = new File(connector.getMoveToDirectory(), result.getName());
+					if (!result.renameTo(destinationFile)) {
+						logger.error("Failed to move file: " + result.getAbsolutePath() + " to " + destinationFile.getAbsolutePath());
+					}
+				}
+				result.delete();
+				return message;
+			}
+		}
 		return null;
+	}
+
+	private File getNextFile(String dir, FilenameFilter filter) throws UMOException {
+		File[] files = new File[] {};
+		File file = new File(dir);
+		File result = null;
+		try {
+			if (file.exists()) {
+				if (file.isFile()) {
+					result = file;
+				} else if (file.isDirectory()) {
+					if (filter != null) {
+						files = file.listFiles(filter);
+					} else {
+						files = file.listFiles();
+					}
+					if (files.length > 0) {
+						result = files[0];
+					}
+				}
+			}
+			return result;
+		} catch (Exception e) {
+			throw new MuleException(new Message("file", 1), e);
+		}
 	}
 
 	public UMOMessage doSend(UMOEvent event) throws Exception {
