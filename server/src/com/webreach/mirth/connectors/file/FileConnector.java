@@ -82,6 +82,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	public static final String PROPERTY_BATCH_PROCESS = "processBatchFiles";
 	public static final String PROPERTY_CHANNEL_ID = "channelId";
 	public static final String PROPERTY_SCHEME = "scheme";
+    public static final String PROPERTY_PASSIVE_MODE = "passive";
 
 	public static final String SORT_NAME = "name";
 	public static final String SORT_DATE = "date";
@@ -136,7 +137,8 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	private Map protocolProperties;
 	private String inboundProtocol;
 	private String scheme = SCHEME_FILE;
-
+	private boolean passive = false;
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -168,7 +170,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	 * </ul>
 	 */
 	public UMOMessageReceiver createReceiver(UMOComponent component, UMOEndpoint endpoint) throws Exception {
-		String readDir = endpoint.getEndpointURI().getAddress();
+		String readDir = endpoint.getEndpointURI().getPath();
 		long polling = this.pollingFrequency;
 
 		String moveTo = moveToDirectory;
@@ -229,8 +231,9 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 				ObjectPool pool = (ObjectPool) it.next();
 				pool.close();
 			}
+			pools.clear();
 		} catch (Exception e) {
-			throw new ConnectorException(new Message(Messages.FAILED_TO_STOP_X, "FTP Connector"), this, e);
+			throw new ConnectorException(new Message(Messages.FAILED_TO_STOP_X, "File Connector"), this, e);
 		}
 	}
 
@@ -337,7 +340,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 				config.testOnBorrow = true;
 				config.testOnReturn = true;
 			}
-			pool = new GenericObjectPool(new FileSystemConnectionFactory(getScheme(), username, password, uri.getHost(), uri.getPort()), config);
+			pool = new GenericObjectPool(new FileSystemConnectionFactory(getScheme(), username, password, uri.getHost(), uri.getPort(), isPassive()), config);
 
 			pools.put(key, pool);
 		}
@@ -353,7 +356,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	 * @see org.mule.providers.UMOConnector#getProtocol()
 	 */
 	public String getProtocol() {
-		return scheme;
+		return "FILE";
 	}
 
 	public FilenameParser getFilenameParser() {
@@ -447,15 +450,19 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 		this.pollingFrequency = pollingFrequency;
 	}
 
+	public boolean isCheckFileAge() {
+		return checkFileAge;
+	}
+
+	public void setCheckFileAge(boolean checkFileAge) {
+		this.checkFileAge = checkFileAge;
+	}
+
 	/**
 	 * @return Returns the fileAge.
 	 */
 	public long getFileAge() {
 		return fileAge;
-	}
-
-	public boolean getCheckFileAge() {
-		return checkFileAge;
 	}
 
 	/**
@@ -678,5 +685,13 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 
 	public void setScheme(String scheme) {
 		this.scheme = scheme;
+	}
+
+	public boolean isPassive() {
+		return passive;
+	}
+
+	public void setPassive(boolean passive) {
+		this.passive = passive;
 	}
 }

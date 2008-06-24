@@ -5,6 +5,12 @@ public interface FileInfo {
 	/** Gets the name of the file relative to the folder searched */
 	public String getName();
 	
+	/** Gets the absolute pathname of the file */
+	public String getAbsolutePath();
+	
+	/** Gets the absolute pathname of the directory holding the file */
+	public String getParent();
+	
 	/** Gets the size of the file in bytes */
 	public long getSize();
 	

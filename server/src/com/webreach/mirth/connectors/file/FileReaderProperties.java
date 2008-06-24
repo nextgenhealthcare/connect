@@ -34,6 +34,7 @@ public class FileReaderProperties implements ComponentProperties
     public static final String name = "File Reader";
 	
     public static final String DATATYPE = "DataType";
+    public static final String FILE_HOST = "host";
     public static final String FILE_DIRECTORY = "directory";
     public static final String FILE_ANONYMOUS = "FTPAnonymous";
     public static final String FILE_USERNAME = "username";
@@ -68,10 +69,13 @@ public class FileReaderProperties implements ComponentProperties
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
         properties.put(FILE_SCHEME, SCHEME_FILE);
+        properties.put(FILE_HOST, "");
         properties.put(FILE_DIRECTORY, "");
         properties.put(FILE_ANONYMOUS, "1");
         properties.put(FILE_USERNAME, "anonymous");
         properties.put(FILE_PASSWORD, "anonymous");
+        properties.put(FILE_PASSIVE_MODE, "1");
+        properties.put(FILE_VALIDATE_CONNECTION, "1");
         properties.put(FILE_POLLING_TYPE, "interval");
         properties.put(FILE_POLLING_TIME, "12:00 AM");
         properties.put(FILE_POLLING_FREQUENCY, "1000");

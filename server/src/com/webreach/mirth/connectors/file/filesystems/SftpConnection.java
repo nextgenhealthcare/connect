@@ -24,9 +24,11 @@ public class SftpConnection implements FileSystemConnection {
 
 	public class SftpFileInfo implements FileInfo {
 
+		String thePath;
 		ChannelSftp.LsEntry theFile;
 
-		public SftpFileInfo(ChannelSftp.LsEntry theFile) {
+		public SftpFileInfo(String path, ChannelSftp.LsEntry theFile) {
+			this.thePath = path;
 			this.theFile = theFile;
 		}
 
@@ -38,6 +40,18 @@ public class SftpConnection implements FileSystemConnection {
 			return theFile.getFilename();
 		}
 
+		/** Gets the absolute pathname of the file */
+		public String getAbsolutePath() {
+			
+			return getParent() + "/" + getName();
+		}
+		
+		/** Gets the absolute pathname of the directory holding the file */
+		public String getParent() {
+			
+			return this.thePath;
+		}
+		
 		public long getSize() {
 			return theFile.getAttrs().getSize();
 		}
@@ -105,7 +119,7 @@ public class SftpConnection implements FileSystemConnection {
 
 			if (!entry.getAttrs().isDir() && !entry.getAttrs().isLink()) {
 				if ((filenameFilter == null) || (filenameFilter.accept(null, entry.getFilename()))) {
-					files.add(new SftpFileInfo(entry));
+					files.add(new SftpFileInfo(fromDir, entry));
 				}
 			}
 		}

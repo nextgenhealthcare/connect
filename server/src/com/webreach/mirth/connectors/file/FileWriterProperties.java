@@ -34,6 +34,7 @@ public class FileWriterProperties implements ComponentProperties
 	public static final String name = "File Writer";
 	
     public static final String DATATYPE = "DataType";
+    public static final String FILE_HOST = "host";
     public static final String FILE_DIRECTORY = "directory";
     public static final String FILE_ANONYMOUS = "FTPAnonymous";
     public static final String FILE_USERNAME = "username";
@@ -56,6 +57,7 @@ public class FileWriterProperties implements ComponentProperties
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
         properties.put(FILE_SCHEME, SCHEME_FILE);
+        properties.put(FILE_HOST, "");
         properties.put(FILE_DIRECTORY, "");
         properties.put(FILE_NAME, "");
         properties.put(FILE_ANONYMOUS, "1");

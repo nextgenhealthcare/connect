@@ -22,15 +22,17 @@ public class FileSystemConnectionFactory implements PoolableObjectFactory {
 	private String password;
 	private String host;
 	private int port;
+	private boolean passive;
 
 	/** Construct a FileSystemConnectionFactory from the endpoint URI and connector properties */
-	public FileSystemConnectionFactory(String scheme, String username, String password, String host, int port) {
+	public FileSystemConnectionFactory(String scheme, String username, String password, String host, int port, boolean passive) {
 
 		this.scheme = scheme;
 		this.username = username;
 		this.password = password;
 		this.host = host;
 		this.port = port;
+		this.passive = passive;
 	}
 
 	/** Gets a pool key for connections on this endpoint
@@ -62,7 +64,7 @@ public class FileSystemConnectionFactory implements PoolableObjectFactory {
 			return new FileConnection();
 		}
 		else if (scheme.equals(FileConnector.SCHEME_FTP)) {
-			return new FtpConnection(host, port, username, password);
+			return new FtpConnection(host, port, username, password, passive);
 		}
 		else if (scheme.equals(FileConnector.SCHEME_SFTP)) {
 			return new SftpConnection(host, port, username, password);

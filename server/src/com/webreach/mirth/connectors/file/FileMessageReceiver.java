@@ -184,7 +184,7 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 
 	public synchronized void processFile(FileInfo file) throws UMOException {
 		
-		boolean checkFileAge = fileConnector.getCheckFileAge();
+		boolean checkFileAge = fileConnector.isCheckFileAge();
 		if (checkFileAge) {
 			long fileAge = fileConnector.getFileAge();
 			long lastMod = file.getLastModified();
@@ -264,7 +264,7 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 
 				// move the file if needed
 				if (destinationDir != null) {
-					deleteFile(destinationName, destinationDir);
+					deleteFile(destinationName, destinationDir, true);
 
 					resultOfFileMoveOperation = renameFile(file.getName(), readDir, destinationName, destinationDir);
 
@@ -272,14 +272,13 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 						throw new MuleException(new Message("file", 4, pathname(file.getName(), readDir), pathname(destinationName, destinationDir)));
 					}
 				}
-
-				if (fileConnector.isAutoDelete()) {
+				else if (fileConnector.isAutoDelete()) {
 					adapter.getPayloadAsBytes();
 
 					// no moveTo directory
 					if (destinationDir == null) {
 						
-						resultOfFileMoveOperation = deleteFile(file.getName(), readDir);
+						resultOfFileMoveOperation = deleteFile(file.getName(), readDir, false);
 
 						if (!resultOfFileMoveOperation) {
 							throw new MuleException(new Message("file", 3, pathname(file.getName(), readDir)));
@@ -330,7 +329,7 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 	}
 
 	/** Delete a file */
-	private boolean deleteFile(String name, String dir) throws Exception {
+	private boolean deleteFile(String name, String dir, boolean mayNotExist) throws Exception {
 		
 		UMOEndpointURI uri = endpoint.getEndpointURI();
 		FileSystemConnection con = fileConnector.getConnection(uri, null);
@@ -341,8 +340,13 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 		}
 		catch (Exception e) {
 
-			logger.info("Unable to delete destination file");
-			return false;
+			if (mayNotExist) {
+				return true;
+			}
+			else {
+				logger.info("Unable to delete destination file");
+				return false;
+			}
 		}
 		finally {
 			fileConnector.releaseConnection(uri, con, null);

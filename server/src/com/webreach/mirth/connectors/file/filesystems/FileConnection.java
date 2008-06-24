@@ -36,6 +36,18 @@ public class FileConnection implements FileSystemConnection {
 			return this.theFile.getName();
 		}
 		
+		/** Gets the absolute pathname of the file */
+		public String getAbsolutePath() {
+			
+			return this.theFile.getAbsolutePath();
+		}
+		
+		/** Gets the absolute pathname of the directory holding the file */
+		public String getParent() {
+			
+			return this.theFile.getParent();
+		}
+		
 		/** Gets the size of the file in bytes */
 		public long getSize() {
 			

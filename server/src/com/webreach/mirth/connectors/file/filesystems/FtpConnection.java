@@ -29,9 +29,11 @@ public class FtpConnection implements FileSystemConnection {
 
 	public class FtpFileInfo implements FileInfo {
 
+		String thePath;
 		FTPFile theFile;
 		
-		public FtpFileInfo(FTPFile theFile) {
+		public FtpFileInfo(String path, FTPFile theFile) {
+			this.thePath = path;
 			this.theFile = theFile;
 		}
 
@@ -43,6 +45,18 @@ public class FtpConnection implements FileSystemConnection {
 			return theFile.getName();
 		}
 
+		/** Gets the absolute pathname of the file */
+		public String getAbsolutePath() {
+			
+			return getParent() + "/" + getName();
+		}
+		
+		/** Gets the absolute pathname of the directory holding the file */
+		public String getParent() {
+			
+			return this.thePath;
+		}
+		
 		public long getSize() {
 			return theFile.getSize();
 		}
@@ -67,7 +81,7 @@ public class FtpConnection implements FileSystemConnection {
 	/** The apache commons FTP client instance */
 	private FTPClient client = null;
 
-	public FtpConnection(String host, int port, String username, String password) throws Exception {
+	public FtpConnection(String host, int port, String username, String password, boolean passive) throws Exception {
 		
 		client = new FTPClient();
 		try {
@@ -84,6 +98,9 @@ public class FtpConnection implements FileSystemConnection {
 			}
 			if (!client.setFileType(FTP.BINARY_FILE_TYPE)) {
 				throw new IOException("Ftp error");
+			}
+			if (passive) {
+				client.enterLocalPassiveMode();
 			}
 		} catch (Exception e) {
 			if (client.isConnected()) {
@@ -113,7 +130,7 @@ public class FtpConnection implements FileSystemConnection {
 		for (int i = 0; i < files.length; i++) {
 			if ((files[i] != null) && files[i].isFile()) {
 				if (filenameFilter == null || filenameFilter.accept(null, files[i].getName())) {
-					v.add(new FtpFileInfo(files[i]));
+					v.add(new FtpFileInfo(fromDir, files[i]));
 				}
 			}
 		}

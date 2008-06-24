@@ -18,19 +18,23 @@ import org.mule.umo.MessagingException;
 import org.mule.umo.provider.MessageTypeNotSupportedException;
 import org.mule.umo.provider.UniqueIdNotSupportedException;
 
+import com.webreach.mirth.connectors.file.filesystems.FileInfo;
+
 public class TextLineMessageAdapter extends AbstractMessageAdapter
 {
     private String message = null;
-    private File file;
+    private FileInfo file;
     public TextLineMessageAdapter(Object message) throws MessagingException
     {
         if (message instanceof String) {
             setMessage((String)message);
-        } else if (message instanceof File){
+        } 
+        else if (message instanceof FileInfo){
         	//Hackish method
-        	this.file = (File)message;
+        	this.file = (FileInfo) message;
         	setMessage("");
-        }else {
+        }
+        else {
             throw new MessageTypeNotSupportedException(message, getClass());
         }
     }
@@ -79,12 +83,13 @@ public class TextLineMessageAdapter extends AbstractMessageAdapter
             	properties.put(FileConnector.PROPERTY_ORIGINAL_FILENAME, this.file.getName());
             	properties.put(FileConnector.PROPERTY_DIRECTORY, this.file.getParent());
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new MessagingException(new Message(Messages.FILE_X_DOES_NOT_EXIST, file.getAbsolutePath()), e);
         }
     }
 
-    public File getFile()
+    public FileInfo getFile()
     {
         return file;
     }
