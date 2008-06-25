@@ -34,7 +34,6 @@ import java.util.Properties;
 
 import com.webreach.mirth.client.ui.BeanBinder;
 import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.beans.EDIProperties;
 
 /** Creates the error dialog. */
 public class BoundPropertiesSheetDialog extends javax.swing.JDialog
@@ -46,6 +45,11 @@ public class BoundPropertiesSheetDialog extends javax.swing.JDialog
     /** Creates new form AboutMirth */
     public BoundPropertiesSheetDialog(Properties p, Object bean)
     {
+        this(p, bean, -1, -1);
+    }
+    
+    public BoundPropertiesSheetDialog(Properties p, Object bean, int width, int height)
+    {
         super(PlatformUI.MIRTH_FRAME);
         this.bean = bean;
         this.properties = p;
@@ -53,6 +57,11 @@ public class BoundPropertiesSheetDialog extends javax.swing.JDialog
         initComponents();
         BeanBinder beanBinder = new BeanBinder(bean, propertySheetPanel, null);
         beanBinder.setWriteEnabled(true);
+        
+        if (width > 0 && height > 0) {
+        	this.setSize(width, height);
+        }
+        
         this.setLocationRelativeTo(PlatformUI.MIRTH_FRAME);
         setVisible(true);
     }
