@@ -324,7 +324,7 @@ public class DICOMSerializer implements IXMLSerializer<String> {
 
     }
     
-    private static byte[] readDicomObj(DicomObject dcmObj) throws SerializerException {
+    public static byte[] readDicomObj(DicomObject dcmObj) throws SerializerException {
         BasicDicomObject bDcmObj = (BasicDicomObject) dcmObj;
         DicomOutputStream dos = null;
         try {
