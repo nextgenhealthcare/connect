@@ -37,14 +37,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.activation.UnsupportedDataTypeException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.mule.umo.UMOEvent;
 
@@ -66,7 +64,7 @@ import com.webreach.mirth.server.util.UUIDGenerator;
 import com.webreach.mirth.server.util.VMRouter;
 import com.webreach.mirth.util.Encrypter;
 import com.webreach.mirth.util.EncryptionException;
-import com.webreach.mirth.util.PropertyLoader;
+import com.webreach.mirth.util.QueueUtil;
 
 public class MessageObjectController {
 	private static final String RECEIVE_SOCKET = "receiverSocket";
@@ -429,7 +427,8 @@ public class MessageObjectController {
 			parameterMap.put("channelId", channelId);
 			sqlMap.delete("deleteMessage", parameterMap);
             sqlMap.delete("deleteUnusedAttachments");
-        } catch (SQLException e) {
+            QueueUtil.removeChannelQueuestore(channelId);
+        } catch (Exception e) {
 			throw new ControllerException(e);
 		}
 	}
