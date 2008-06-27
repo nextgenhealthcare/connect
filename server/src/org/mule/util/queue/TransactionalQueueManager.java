@@ -257,6 +257,12 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 			}
 		}
 
+		public void clearList() {
+			synchronized (list) {
+				list = new LinkedList();
+			}
+		}
+
 		public boolean offer(Object o, int room, long timeout) throws InterruptedException {
 			if (Thread.interrupted()) {
 				throw new InterruptedException();
@@ -401,9 +407,30 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 		 * 
 		 * @see org.mule.transaction.xa.queue.QueueSession#getQueue(java.lang.String)
 		 */
+
 		public Queue getQueue(String name) {
-			QueueInfo queue = TransactionalQueueManager.this.getQueue(name);
-			return new QueueImpl(queue);
+			QueueInfo queueInfo = TransactionalQueueManager.this.getQueue(name);
+			return new QueueImpl(queueInfo);	
+		}
+
+		public Queue resyncQueue(String name) {
+			try {
+				QueueInfo queueInfo = TransactionalQueueManager.this.getQueue(name);
+				if (queueInfo != null) {
+					queueInfo.clearList();
+					List msgs = persistenceStrategy.restore();
+					for (Iterator it = msgs.iterator(); it.hasNext();) {
+						Holder h = (Holder) it.next();
+						if(h.getQueue().equals(name)) { 
+							queueInfo.putNow(h.getId());
+						}
+					}
+					return new QueueImpl(queueInfo);
+				}
+			} catch (Exception e) {
+				logger.error(e);
+			}
+			return null;
 		}
 
 		protected class QueueImpl implements Queue {
@@ -459,7 +486,8 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 						return null;
 					}
 				} catch (IOException e) {
-					throw new RuntimeException(e);
+					logger.error("file no longer exists: " + e);
+					return null;
 				}
 			}
 

@@ -13,19 +13,14 @@
  */
 package com.webreach.mirth.connectors.mllp;
 
-import org.mule.MuleManager;
-import org.mule.config.QueueProfile;
 import org.mule.config.i18n.Message;
 import org.mule.impl.model.AbstractComponent;
 import org.mule.management.stats.ComponentStatistics;
-import org.mule.providers.AbstractServiceEnabledConnector;
+import org.mule.providers.QueueEnabledConnector;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOMessageReceiver;
-import org.mule.util.queue.Queue;
-import org.mule.util.queue.QueueManager;
-import org.mule.util.queue.QueueSession;
 
 import com.webreach.mirth.connectors.mllp.protocols.LlpProtocol;
 import com.webreach.mirth.model.SystemEvent;
@@ -40,7 +35,7 @@ import com.webreach.mirth.server.controllers.SystemLogger;
  * 
  * @version $Revision: 1.11 $
  */
-public class MllpConnector extends AbstractServiceEnabledConnector {
+public class MllpConnector extends QueueEnabledConnector {
 	// custom properties
 	public static final String PROPERTY_CHAR_ENCODING = "charEncoding";
 	public static final String PROPERTY_START_OF_MESSAGE = "messageStart";
@@ -57,7 +52,7 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	public static final String PROPERTY_TRANSFORMER_ACK = "responseFromTransformer";
 	public static final String PROPERTY_RESPONSE_VALUE = "responseValue";
 	public static final String PROPERTY_USE_STRICT_LLP = "useStrictLLP";
-	public static final String PROPERTY_ROTATE_QUEUE = "rotateQueue";
+
 	// custom properties
 	private boolean serverMode = true;
 	private String charEncoding = "hex";
@@ -76,7 +71,7 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	private String channelId;
 	private boolean waitForEndOfMessageCharacter = false;
 	private boolean useStrictLLP = true;
-	private boolean rotateQueue = false;
+	
 	// ack properties
 	public static final String PROPERTY_ACKCODE_SUCCESSFUL = "ackCodeSuccessful";
 	public static final String PROPERTY_ACKMSG_SUCCESSFUL = "ackMsgSuccessful";
@@ -98,7 +93,6 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	public static final int DEFAULT_SOCKET_TIMEOUT = 5000;
 	public static final int DEFAULT_ACK_TIMEOUT = 5000;
 	public static final int DEFAULT_BUFFER_SIZE = 64 * 1024;
-	public static final long DEFAULT_POLLING_FREQUENCY = 10;
 	public static final int DEFAULT_BACKLOG = 256;
 	private int reconnectInterval = DEFAULT_RECONNECT_INTERVAL;
 	private int sendTimeout = DEFAULT_SOCKET_TIMEOUT;
@@ -107,11 +101,11 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	private int backlog = DEFAULT_BACKLOG;
 	private boolean sendACK = false;
 	private LlpProtocol llpProtocol;
+	
+	public static final long DEFAULT_POLL_FREQUENCY = 1000;
+	public static final long STARTUP_DELAY = 1000;
+	private long frequency = DEFAULT_POLL_FREQUENCY;
 
-	// ast: Queue variables
-	private boolean usePersistentQueues = false;
-	private int maxQueues = 16;
-	private QueueProfile queueProfile;
 	private UMOComponent component = null;
 	private int ackTimeout = DEFAULT_ACK_TIMEOUT;
 	// ast: encoding Charset
@@ -132,9 +126,6 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	public static final int KEEP_RETRYING_INDEFINETLY = 100;
 	public static final int DEFAULT_RETRY_TIMES = 100;
 	private boolean keepSendSocketOpen = false;
-
-	// Time to sleep between reconnects in msecs
-	private int reconnectMillisecs = 10000;
 
 	// -1 try to reconnect forever
 	private int maxRetryCount = DEFAULT_RETRY_TIMES;
@@ -160,17 +151,9 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	public boolean isKeepSendSocketOpen() {
 		return keepSendSocketOpen;
 	}
-
+    
 	public void setKeepSendSocketOpen(boolean keepSendSocketOpen) {
 		this.keepSendSocketOpen = keepSendSocketOpen;
-	}
-
-	public int getReconnectMillisecs() {
-		return reconnectMillisecs;
-	}
-
-	public void setReconnectMillisecs(int reconnectMillisecs) {
-		this.reconnectMillisecs = reconnectMillisecs;
 	}
 
 	public int getMaxRetryCount() {
@@ -204,9 +187,9 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 				throw new InitialisationException(new Message("mllp", 3), e);
 			}
 		}
-		// ast: configure the queue (if selected)
-		if (isQueueEvents() && (queueProfile == null)) {
-			queueProfile = MuleManager.getConfiguration().getQueueProfile();
+		
+		if(isUsePersistentQueues()) { 
+			setDispatcher(new MllpMessageDispatcher(this));
 		}
 	}
 
@@ -396,10 +379,6 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 		return (this.charsetEncoding);
 	}
 
-	/***************************************************************************
-	 * ***************ast: Queue functions**********************
-	 **************************************************************************/
-
 	public void setAckTimeout(int timeout) {
 		if (timeout < 0) {
 			timeout = DEFAULT_ACK_TIMEOUT;
@@ -436,96 +415,9 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 	 * @see org.mule.umo.provider.UMOConnector#registerListener(org.mule.umo.UMOSession,
 	 *      org.mule.umo.endpoint.UMOEndpoint)
 	 */
-	public UMOMessageReceiver createReceiver(UMOComponent component, UMOEndpoint endpoint) throws Exception {
+	public UMOMessageReceiver createReceiver(UMOComponent component, UMOEndpoint endpoint) throws Exception {		
 		this.component = component;
-		if (usePersistentQueues) {
-			configureQueues(endpoint);
-			return new MllpMessageResponseQueued(this, component, endpoint, (long) 10000);
-		} else {
-			return super.createReceiver(component, endpoint);
-		}
-	}
-
-	public String getQueueName(UMOEndpoint endpoint) {
-		String queueName = this.getName();
-		queueName = queueName.replace("\\", "");
-		queueName = queueName.replace("/", "");
-		queueName = queueName.replace(":", "_");
-		queueName = queueName.replace(" ", "_");
-		return queueName;
-	}
-
-	public String getErrorQueueName(UMOEndpoint endpoint) {
-		return "_Error" + getQueueName(endpoint);
-	}
-
-	public void configureQueues(UMOEndpoint endpoint) throws Exception {
-
-		try {
-			queueProfile.configureQueue(getQueueName(endpoint));
-			queueProfile.configureQueue(getErrorQueueName(endpoint));
-		} catch (Throwable t) {
-			logger.warn("It's impossible to configure a queue for the endooint " + t);
-		}
-	}
-
-	public boolean isQueueEvents() {
-		return usePersistentQueues;
-	}
-
-	public void setQueueEvents(boolean usePersistentQueues) {
-		this.usePersistentQueues = usePersistentQueues;
-	}
-
-	public boolean isUsePersistentQueues() {
-		return usePersistentQueues;
-	}
-
-	public void setUsePersistentQueues(boolean usePersistentQueues) {
-		this.usePersistentQueues = usePersistentQueues;
-	}
-
-	public QueueProfile getQueueProfile() {
-		return queueProfile;
-	}
-
-	public void setQueueProfile(QueueProfile queueProfile) {
-		this.queueProfile = queueProfile;
-	}
-
-	public void setMaxQueues(int maxQueues) {
-		this.maxQueues = maxQueues;
-	}
-
-	public int getMaxQueues(int maxQueues) {
-		return this.maxQueues;
-	}
-
-	public Queue getQueue(UMOEndpoint endpoint) throws InitialisationException {
-
-		QueueSession qs = getQueueSession();
-		Queue q = qs.getQueue(getQueueName(endpoint));
-		return q;
-
-	}
-
-	public Queue getErrorQueue(UMOEndpoint endpoint) throws InitialisationException {
-
-		QueueSession qs = getQueueSession();
-		Queue q = qs.getQueue(getErrorQueueName(endpoint));
-		return q;
-
-	}
-
-	public QueueSession getQueueSession() throws InitialisationException {
-
-		QueueManager qm = MuleManager.getInstance().getQueueManager();
-
-		logger.debug("Retrieving new queue session from queue manager " + this.getName());
-
-		QueueSession session = qm.getQueueSession();
-
-		return session;
+		return super.createReceiver(component, endpoint);
 	}
 
 	public void incErrorStatistics() {
@@ -710,11 +602,11 @@ public class MllpConnector extends AbstractServiceEnabledConnector {
 		this.processHl7AckResponse = processHl7AckResponse;
 	}
 
-	public boolean isRotateQueue() {
-		return rotateQueue;
+	public long getFrequency() {
+		return frequency;
 	}
 
-	public void setRotateQueue(boolean rotateQueue) {
-		this.rotateQueue = rotateQueue;
+	public void setFrequency(long frequency) {
+		this.frequency = frequency;
 	}
 }

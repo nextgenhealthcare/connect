@@ -31,7 +31,7 @@ import org.mule.MuleManager;
 import org.mule.config.MuleConfiguration;
 import org.mule.util.file.DeleteException;
 
-import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.QueuedMessage;
 
 /**
  * @author <a href="mailto:gnt@codehaus.org">Guillaume Nodet</a>
@@ -67,8 +67,8 @@ public class FilePersistenceStrategy implements QueuePersistenceStrategy
     {
     	String id = null;
     	
-    	if (obj instanceof MessageObject) {
-    		id = ((MessageObject) obj).getId();
+    	if (obj instanceof QueuedMessage) {
+    		id = ((QueuedMessage) obj).getMessageObject().getId();
     	} else {
     		id = getId(obj);
     	}

@@ -13,19 +13,14 @@
  */
 package com.webreach.mirth.connectors.tcp;
 
-import org.mule.MuleManager;
-import org.mule.config.QueueProfile;
 import org.mule.config.i18n.Message;
 import org.mule.impl.model.AbstractComponent;
 import org.mule.management.stats.ComponentStatistics;
-import org.mule.providers.AbstractServiceEnabledConnector;
+import org.mule.providers.QueueEnabledConnector;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOMessageReceiver;
-import org.mule.util.queue.Queue;
-import org.mule.util.queue.QueueManager;
-import org.mule.util.queue.QueueSession;
 
 import com.webreach.mirth.connectors.tcp.protocols.DefaultProtocol;
 import com.webreach.mirth.model.SystemEvent;
@@ -40,7 +35,7 @@ import com.webreach.mirth.server.controllers.SystemLogger;
  * 
  * @version $Revision: 1.11 $
  */
-public class TcpConnector extends AbstractServiceEnabledConnector {
+public class TcpConnector extends QueueEnabledConnector {
 	// custom properties
 	public static final String PROPERTY_CHAR_ENCODING = "charEncoding";
 	public static final String PROPERTY_START_OF_MESSAGE = "messageStart";
@@ -81,10 +76,6 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 	private boolean sendACK = false;
 	private TcpProtocol tcpProtocol;
 
-	// ast: Queue variables
-	private boolean usePersistentQueues = false;
-	private int maxQueues = 16;
-	private QueueProfile queueProfile;
 	private UMOComponent component = null;
 	private int ackTimeout = DEFAULT_ACK_TIMEOUT;
 	// ast: encoding Charset
@@ -105,9 +96,6 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 	public static final int KEEP_RETRYING_INDEFINETLY = 100;
 	public static final int DEFAULT_RETRY_TIMES = 100;
 	private boolean keepSendSocketOpen = false;
-
-	// Time to sleep between reconnects in msecs
-	private int reconnectMillisecs = 10000;
 
 	// -1 try to reconnect forever
 	private int maxRetryCount = DEFAULT_RETRY_TIMES;
@@ -137,14 +125,6 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 		this.keepSendSocketOpen = keepSendSocketOpen;
 	}
 
-	public int getReconnectMillisecs() {
-		return reconnectMillisecs;
-	}
-
-	public void setReconnectMillisecs(int reconnectMillisecs) {
-		this.reconnectMillisecs = reconnectMillisecs;
-	}
-
 	public int getMaxRetryCount() {
 		return maxRetryCount;
 	}
@@ -172,9 +152,9 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 				throw new InitialisationException(new Message("tcp", 3), e);
 			}
 		}
-		// ast: configure the queue (if selected)
-		if (isQueueEvents() && (queueProfile == null)) {
-			queueProfile = MuleManager.getConfiguration().getQueueProfile();
+		
+		if(isUsePersistentQueues()) { 
+			setDispatcher(new TcpMessageDispatcher(this));
 		}
 	}
 
@@ -320,10 +300,6 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 		return (this.charsetEncoding);
 	}
 
-	/***************************************************************************
-	 * ***************ast: Queue functions**********************
-	 **************************************************************************/
-
 	public void setAckTimeout(int timeout) {
 		if (timeout < 0) {
 			timeout = DEFAULT_ACK_TIMEOUT;
@@ -362,103 +338,7 @@ public class TcpConnector extends AbstractServiceEnabledConnector {
 	 */
 	public UMOMessageReceiver createReceiver(UMOComponent component, UMOEndpoint endpoint) throws Exception {
 		this.component = component;
-		if (usePersistentQueues) {
-			configureQueues(endpoint);
-			return new TcpMessageResponseQueued(this, component, endpoint, (long) 10000);
-		} else {
-			return super.createReceiver(component, endpoint);
-
-		}
-
-	}
-
-	public String getQueueName(UMOEndpoint endpoint) {
-		String adr = "dummy";
-		String adr_securefile;
-		try {
-			// adr = endpoint.getEndpointURI().getAddress();
-			adr = this.getName();
-		} catch (Throwable t) {
-		}
-		adr_securefile = adr.replace("\\", "");
-		adr_securefile = adr_securefile.replace("/", "");
-		adr_securefile = adr_securefile.replace(":", "_");
-		adr_securefile = adr_securefile.replace(" ", "_");
-
-		return adr_securefile;
-	}
-
-	public String getErrorQueueName(UMOEndpoint endpoint) {
-		return "_Error" + getQueueName(endpoint);
-	}
-
-	public void configureQueues(UMOEndpoint endpoint) throws Exception {
-
-		try {
-			queueProfile.configureQueue(getQueueName(endpoint));
-			queueProfile.configureQueue(getErrorQueueName(endpoint));
-		} catch (Throwable t) {
-			logger.warn("It's impossible to configure a queue for the endooint " + t);
-		}
-	}
-
-	public boolean isQueueEvents() {
-		return usePersistentQueues;
-	}
-
-	public void setQueueEvents(boolean usePersistentQueues) {
-		this.usePersistentQueues = usePersistentQueues;
-	}
-
-	public boolean isUsePersistentQueues() {
-		return usePersistentQueues;
-	}
-
-	public void setUsePersistentQueues(boolean usePersistentQueues) {
-		this.usePersistentQueues = usePersistentQueues;
-	}
-
-	public QueueProfile getQueueProfile() {
-		return queueProfile;
-	}
-
-	public void setQueueProfile(QueueProfile queueProfile) {
-		this.queueProfile = queueProfile;
-	}
-
-	public void setMaxQueues(int maxQueues) {
-		this.maxQueues = maxQueues;
-	}
-
-	public int getMaxQueues(int maxQueues) {
-		return this.maxQueues;
-	}
-
-	public Queue getQueue(UMOEndpoint endpoint) throws InitialisationException {
-
-		QueueSession qs = getQueueSession();
-		Queue q = qs.getQueue(getQueueName(endpoint));
-		return q;
-
-	}
-
-	public Queue getErrorQueue(UMOEndpoint endpoint) throws InitialisationException {
-
-		QueueSession qs = getQueueSession();
-		Queue q = qs.getQueue(getErrorQueueName(endpoint));
-		return q;
-
-	}
-
-	public QueueSession getQueueSession() throws InitialisationException {
-
-		QueueManager qm = MuleManager.getInstance().getQueueManager();
-
-		logger.debug("Retrieving new queue session from queue manager " + this.getName());
-
-		QueueSession session = qm.getQueueSession();
-
-		return session;
+		return super.createReceiver(component, endpoint);
 	}
 
 	public void incErrorStatistics() {

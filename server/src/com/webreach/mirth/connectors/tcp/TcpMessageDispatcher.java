@@ -31,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.AbstractMessageDispatcher;
+import org.mule.providers.QueueEnabledMessageDispatcher;
 import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
@@ -44,6 +45,7 @@ import sun.misc.BASE64Decoder;
 
 import com.webreach.mirth.connectors.mllp.MllpConnector;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.QueuedMessage;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
@@ -62,7 +64,7 @@ import com.webreach.mirth.server.util.VMRouter;
  * @version $Revision: 1.12 $
  */
 
-public class TcpMessageDispatcher extends AbstractMessageDispatcher {
+public class TcpMessageDispatcher extends AbstractMessageDispatcher implements QueueEnabledMessageDispatcher{
 	// ///////////////////////////////////////////////////////////////
 	// keepSocketOpen option variables
 	// ///////////////////////////////////////////////////////////////
@@ -90,22 +92,6 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 		super(connector);
 		this.connector = connector;
 		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
-	}
-
-	// ast: set queues
-	public void setQueues(UMOEndpoint endpoint) {
-		// connect to the queues
-		this.queue = null;
-		this.errorQueue = null;
-
-		if (connector.isUsePersistentQueues() && (endpoint != null)) {
-			try {
-				this.queue = connector.getQueue(endpoint);
-				this.errorQueue = connector.getErrorQueue(endpoint);
-			} catch (Exception e) {
-				logger.error("Error setting queues to the endpoint" + e);
-			}
-		}
 	}
 
 	protected Socket initSocket(String endpoint) throws IOException, URISyntaxException {
@@ -138,18 +124,20 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 		boolean success = false;
 		Exception exceptionWriting = null;
 		String exceptionMessage = "";
+		String endpointUri = event.getEndpoint().getEndpointURI().toString();
 		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
 		if (messageObject == null) {
 			return;
 		}
-		this.setQueues(event.getEndpoint());
-		// ast: now, the stuff for queueing (and re-try)
+
+		String host = replacer.replaceURLValues(endpointUri, messageObject);
+		
 		try {
 			if (queue != null) {
 				try {
 					// The status should be queued, even if we are retrying
 					messageObjectController.setQueued(messageObject, "Message is queued");
-					queue.put(messageObject);
+					connector.putMessageInQueue(endpointUri, messageObject);
 					return;
 				} catch (Exception exq) {
 					exceptionMessage = "Can't save payload to queue";
@@ -165,7 +153,6 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 						retryCount++;
 					}
 					try {
-						String host = replacer.replaceURLValues(event.getEndpoint().getEndpointURI().toString(), messageObject);
 						if (!connector.isKeepSendSocketOpen()) {
 							socket = initSocket(host);
 							writeTemplatedData(socket, messageObject);
@@ -225,7 +212,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			alertController.sendAlerts(((TcpConnector) connector).getChannelId(), Constants.ERROR_411, exceptionMessage, exceptionWriting);
 		}
 		if (success && (exceptionWriting == null)) {
-			manageResponseAck(socket, event.getEndpoint(), messageObject);
+			manageResponseAck(socket, endpointUri, messageObject);
 			if (!connector.isKeepSendSocketOpen()) {
 				monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED, socket);
 				doDispose();
@@ -280,26 +267,25 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 
 	// ast: sendPayload is called from the doSend method, or from
 	// MessageResponseQueued
-	public boolean sendPayload(MessageObject data, UMOEndpoint endpoint) throws Exception {
+	public boolean sendPayload(QueuedMessage thePayload) throws Exception {
 		Boolean result = false;
 		Exception sendException = null;
 		Socket socket = null;
-		String host = replacer.replaceURLValues(endpoint.getEndpointURI().toString(), data);
-		if (this.queue == null)
-			this.queue = connector.getQueue(endpoint);
+		String host = replacer.replaceURLValues(thePayload.getEndpointURI(), thePayload.getMessageObject());
+
 		try {
 			if (!connector.isKeepSendSocketOpen()) {
 				socket = initSocket(host);
-				writeTemplatedData(socket, data);
+				writeTemplatedData(socket, thePayload.getMessageObject());
 				result = true;
 			} else {
 				socket = connectedSockets.get(host);
 				if (socket != null && !socket.isClosed()) {
-					writeTemplatedData(socket, data);
+					writeTemplatedData(socket, thePayload.getMessageObject());
 					result = true;
 				} else {
 					socket = initSocket(host);
-					writeTemplatedData(socket, data);
+					writeTemplatedData(socket, thePayload.getMessageObject());
 					result = true;
 				}
 			}
@@ -314,7 +300,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 				if (reconnect(host, connector.getMaxRetryCount())) {
 					socket = connectedSockets.get(host);
 					if (socket != null) {
-						writeTemplatedData(socket, data);
+						writeTemplatedData(socket, thePayload.getMessageObject());
 						result = true;
 					}
 				}
@@ -330,13 +316,13 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 
 		if ((result == false) || (sendException != null)) {
 			if (sendException != null) {
-				messageObjectController.setError(data, Constants.ERROR_408, "Socket write exception", sendException);
+				messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_408, "Socket write exception", sendException);
 				throw sendException;
 			}
 			return result;
 		}
 		// If we have reached this point, the conections has been fine
-		manageResponseAck(socket, endpoint, data);
+		manageResponseAck(socket, thePayload.getEndpointURI(), thePayload.getMessageObject());
 		if (!connector.isKeepSendSocketOpen()) {
 			doDispose(socket);
 		}
@@ -355,7 +341,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 	}
 
 
-	public void manageResponseAck(Socket socket, UMOEndpoint endpoint, MessageObject messageObject) {
+	public void manageResponseAck(Socket socket, String endpointUri, MessageObject messageObject) {
 		int maxTime = connector.getAckTimeout();
 		if (maxTime <= 0) { // TODO: Either make a UI setting to "not check for
 			// ACK" or document this
@@ -363,7 +349,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			messageObjectController.setSuccess(messageObject, "Message successfully sent");
 			return;
 		}
-		byte[] theAck = getAck(socket, endpoint);
+		byte[] theAck = getAck(socket, endpointUri);
 
 		if (theAck == null) {
 			// NACK
@@ -385,8 +371,8 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 		}
 	}
 
-	public byte[] getAck(Socket socket, UMOEndpoint endpoint) {
-		int maxTime = endpoint.getRemoteSyncTimeout();
+	public byte[] getAck(Socket socket, String endpointUri) {
+		int maxTime = connector.getAckTimeout();
 		if (maxTime == 0)
 			return null;
 		try {
@@ -397,10 +383,10 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher {
 			return result;
 		} catch (SocketTimeoutException e) {
 			// we don't necessarily expect to receive a response here
-			logger.warn("Socket timed out normally while doing a synchronous receive on endpointUri: " + endpoint.getEndpointURI());
+			logger.warn("Socket timed out normally while doing a synchronous receive on endpointUri: " + endpointUri);
 			return null;
 		} catch (Exception ex) {
-			logger.info("Socket error while doing a synchronous receive on endpointUri: " + endpoint.getEndpointURI());
+			logger.info("Socket error while doing a synchronous receive on endpointUri: " + endpointUri);
 			return null;
 		}
 	}

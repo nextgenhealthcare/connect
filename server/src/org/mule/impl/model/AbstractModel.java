@@ -30,6 +30,7 @@ import org.mule.impl.ImmutableMuleDescriptor;
 import org.mule.impl.MuleSession;
 import org.mule.impl.internal.events.ModelEvent;
 import org.mule.model.DynamicEntryPointResolver;
+import org.mule.routing.outbound.FilteringMulticastingRouter;
 import org.mule.transaction.TransactionCoordination;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMODescriptor;
@@ -43,6 +44,7 @@ import org.mule.umo.manager.UMOServerEvent;
 import org.mule.umo.model.ModelException;
 import org.mule.umo.model.UMOEntryPointResolver;
 import org.mule.umo.model.UMOModel;
+import org.mule.umo.routing.UMORouter;
 
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.SystemLogger;
@@ -387,7 +389,39 @@ public abstract class AbstractModel implements UMOModel {
 			logger.debug("Model already started");
 		}
 	}
-
+	
+	public void startDispatchers(UMOComponent component) throws UMOException{ 
+		List<UMORouter> routers = component.getDescriptor().getOutboundRouter().getRouters(); 
+		for(UMORouter router : routers) {				
+			for (Iterator it = ((FilteringMulticastingRouter)router).getEndpoints().iterator(); it.hasNext();) {
+				UMOEndpoint endpoint = (UMOEndpoint) it.next();
+				try {
+					endpoint.getConnector().startDispatchers(component, endpoint);
+				} catch (UMOException e) {
+					throw e;
+				} catch (Exception e) {
+					throw new ModelException(new Message(Messages.FAILED_TO_UNREGISTER_X_ON_ENDPOINT_X, component.getDescriptor().getName(), endpoint.getEndpointURI()), e);
+				}
+			}
+		}
+	}
+	
+	public void stopDispatchers(UMOComponent component) throws UMOException{ 
+		List<UMORouter> routers = component.getDescriptor().getOutboundRouter().getRouters(); 
+		for(UMORouter router : routers) {				
+			for (Iterator it = ((FilteringMulticastingRouter)router).getEndpoints().iterator(); it.hasNext();) {
+				UMOEndpoint endpoint = (UMOEndpoint) it.next();
+				try {
+					endpoint.getConnector().stopDispatchers(component, endpoint);
+				} catch (UMOException e) {
+					throw e;
+				} catch (Exception e) {
+					throw new ModelException(new Message(Messages.FAILED_TO_UNREGISTER_X_ON_ENDPOINT_X, component.getDescriptor().getName(), endpoint.getEndpointURI()), e);
+				}
+			}
+		}
+	}
+	
 	/**
 	 * Stops a single Mule Component. This can be useful when stopping and
 	 * starting some Mule UMOs while letting others continue.
@@ -404,6 +438,7 @@ public abstract class AbstractModel implements UMOModel {
 			throw new ModelException(new Message(Messages.COMPONENT_X_NOT_REGISTERED, name));
 		} else {
 			unregisterListeners(component);
+			stopDispatchers(component);
 			component.stop();
 			logger.info("mule " + name + " has been stopped successfully");
 		}
@@ -420,19 +455,21 @@ public abstract class AbstractModel implements UMOModel {
 	 *             start
 	 */
 	public void startComponent(String name) throws UMOException {
-		// ast: changes to allow the
+
 		UMOComponent component = (UMOComponent) components.get(name);
 		if (component == null) {
 			throw new ModelException(new Message(Messages.COMPONENT_X_NOT_REGISTERED, name));
 		} else {
 			try {
 				registerListeners(component);
+				startDispatchers(component);
 				component.start();
 				logger.info("Mule " + component.toString() + " has been started successfully");
 			} catch (Exception e) {
 				logger.error("Error starting component [" + name + "] \n" + e);
 				try {
 					unregisterListeners(component);
+					stopDispatchers(component);
 					component.stop();
 				} catch (Throwable t) {
 					logger.warn("Error stopping a connector after an error " + t);

@@ -21,6 +21,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -28,22 +29,27 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.resource.spi.work.Work;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.AbstractMessageDispatcher;
+import org.mule.providers.QueueEnabledMessageDispatcher;
 import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.endpoint.UMOEndpointURI;
+import org.mule.umo.lifecycle.Disposable;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.util.queue.Queue;
 
 import com.webreach.mirth.connectors.mllp.protocols.LlpProtocol;
 import com.webreach.mirth.connectors.tcp.TcpConnector;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.QueuedMessage;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
@@ -63,18 +69,13 @@ import com.webreach.mirth.server.util.VMRouter;
  * @version $Revision: 1.12 $
  */
 
-public class MllpMessageDispatcher extends AbstractMessageDispatcher {
+public class MllpMessageDispatcher extends AbstractMessageDispatcher implements QueueEnabledMessageDispatcher {
 	// ///////////////////////////////////////////////////////////////
 	// keepSocketOpen option variables
 	// ///////////////////////////////////////////////////////////////
 
 	protected Map<String, Socket> connectedSockets = new HashMap<String, Socket>();
-
-	// ast:queue variables
-	protected Queue queue = null;
-
-	protected Queue errorQueue = null;
-
+	
 	// ///////////////////////////////////////////////////////////////
 	/**
 	 * logger used by this class
@@ -94,24 +95,8 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
 	}
 
-	// ast: set queues
-	public void setQueues(UMOEndpoint endpoint) {
-		// connect to the queues
-		this.queue = null;
-		this.errorQueue = null;
-
-		if (connector.isUsePersistentQueues() && (endpoint != null)) {
-			try {
-				this.queue = connector.getQueue(endpoint);
-				this.errorQueue = connector.getErrorQueue(endpoint);
-			} catch (Exception e) {
-				logger.error("Error setting queues to the endpoint" + e);
-			}
-		}
-	}
-
 	protected Socket initSocket(String endpoint) throws IOException, URISyntaxException {
-		if (connectedSockets.get(endpoint) != null){
+		if (connectedSockets.get(endpoint) != null) {
 			monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED, connectedSockets.get(endpoint));
 		}
 		URI uri = new URI(endpoint);
@@ -136,22 +121,24 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 	 */
 	public void doDispatch(UMOEvent event) throws Exception {
 		Socket socket = null;
-		Object payload = null;
 		boolean success = false;
 		Exception exceptionWriting = null;
 		String exceptionMessage = "";
+		String endpointUri = event.getEndpoint().getEndpointURI().toString();
+		
 		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
 		if (messageObject == null) {
 			return;
 		}
-		this.setQueues(event.getEndpoint());
-		// ast: now, the stuff for queueing (and re-try)
+		
+		String host = replacer.replaceURLValues(endpointUri, messageObject);
+
 		try {
-			if (queue != null) {
+			if (connector.isUsePersistentQueues()) {
 				try {
 					// The status should be queued, even if we are retrying
 					messageObjectController.setQueued(messageObject, "Message is queued");
-					queue.put(messageObject);
+					connector.putMessageInQueue(endpointUri, messageObject);
 					return;
 				} catch (Exception exq) {
 					exceptionMessage = "Can't save payload to queue";
@@ -167,7 +154,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 						retryCount++;
 					}
 					try {
-						String host = replacer.replaceURLValues(event.getEndpoint().getEndpointURI().toString(), messageObject);
+						
 						if (!connector.isKeepSendSocketOpen()) {
 							socket = initSocket(host);
 							writeTemplatedData(socket, messageObject);
@@ -175,11 +162,12 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 						} else {
 							socket = connectedSockets.get(host);
 							if (socket != null && !socket.isClosed()) {
-								try{
+								try {
 									writeTemplatedData(socket, messageObject);
 									success = true;
-								}catch (Exception e){
-									//if the connection was lost, try creating it again
+								} catch (Exception e) {
+									// if the connection was lost, try creating
+									// it again
 									doDispose(socket);
 									socket = initSocket(host);
 									writeTemplatedData(socket, messageObject);
@@ -193,7 +181,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 						}
 					} catch (Exception exs) {
 						if (retryCount < maxRetries) {
-							if (socket != null){
+							if (socket != null) {
 								doDispose(socket);
 							}
 							logger.warn("Can't connect to the endopint,waiting" + new Float(connector.getReconnectMillisecs() / 1000) + "seconds for reconnecting \r\n(" + exs + ")");
@@ -227,7 +215,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, exceptionMessage, exceptionWriting);
 		}
 		if (success && (exceptionWriting == null)) {
-			manageResponseAck(socket, event.getEndpoint(), messageObject);
+			manageResponseAck(socket, host, messageObject);
 			if (!connector.isKeepSendSocketOpen()) {
 				monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED, socket);
 				doDispose();
@@ -261,36 +249,30 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 		bos.flush();
 	}
 
-	// ast: split the doSend code into three functions: sendPayload (sending)
-	// and doTheRemoteSyncStuff (for remote-sync)
-
 	public UMOMessage doSend(UMOEvent event) throws Exception {
 		doDispatch(event);
 		return event.getMessage();
 	}
 
-	// ast: sendPayload is called from the doSend method, or from
-	// MessageResponseQueued
-	public boolean sendPayload(MessageObject data, UMOEndpoint endpoint) throws Exception {
+	public boolean sendPayload(QueuedMessage thePayload) throws Exception {
 		Boolean result = false;
 		Exception sendException = null;
 		Socket socket = null;
-		String host = replacer.replaceURLValues(endpoint.getEndpointURI().toString(), data);
-		if (this.queue == null)
-			this.queue = connector.getQueue(endpoint);
+		String host = replacer.replaceURLValues(thePayload.getEndpointURI(), thePayload.getMessageObject());
+
 		try {
 			if (!connector.isKeepSendSocketOpen()) {
 				socket = initSocket(host);
-				writeTemplatedData(socket, data);
+				writeTemplatedData(socket, thePayload.getMessageObject());
 				result = true;
 			} else {
 				socket = connectedSockets.get(host);
 				if (socket != null && !socket.isClosed()) {
-					writeTemplatedData(socket, data);
+					writeTemplatedData(socket, thePayload.getMessageObject());
 					result = true;
 				} else {
 					socket = initSocket(host);
-					writeTemplatedData(socket, data);
+					writeTemplatedData(socket, thePayload.getMessageObject());
 					result = true;
 				}
 			}
@@ -305,10 +287,12 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 				if (reconnect(host, connector.getMaxRetryCount())) {
 					socket = connectedSockets.get(host);
 					if (socket != null) {
-						writeTemplatedData(socket, data);
+						writeTemplatedData(socket, thePayload.getMessageObject());
 						result = true;
 					}
 				}
+			} catch (InterruptedException ie) {
+				throw ie;
 			} catch (Exception ers) {
 				logger.warn("Write raised exception: '" + e.getMessage() + "' ceasing reconnecting.");
 				sendException = ers;
@@ -321,13 +305,13 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 
 		if ((result == false) || (sendException != null)) {
 			if (sendException != null) {
-				messageObjectController.setError(data, Constants.ERROR_408, "Socket write exception", sendException);
+				messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_408, "Socket write exception", sendException);
 				throw sendException;
 			}
 			return result;
 		}
 		// If we have reached this point, the conections has been fine
-		result = manageResponseAck(socket, endpoint, data);
+		result = manageResponseAck(socket, thePayload.getEndpointURI(), thePayload.getMessageObject());
 		if (!connector.isKeepSendSocketOpen()) {
 			doDispose(socket);
 		}
@@ -345,7 +329,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 		monitoringController.updateStatus(connector, connectorType, Event.DONE, socket);
 	}
 
-	public boolean manageResponseAck(Socket socket, UMOEndpoint endpoint, MessageObject messageObject) {
+	public boolean manageResponseAck(Socket socket, String endpointUri, MessageObject messageObject) {
 		int maxTime = connector.getAckTimeout();
 		if (maxTime <= 0) { // TODO: Either make a UI setting to "not check for
 			// ACK" or document this
@@ -354,7 +338,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 
 			return true;
 		}
-		byte[] theAck = getAck(socket, endpoint);
+		byte[] theAck = getAck(socket, endpointUri);
 
 		if (theAck == null) {
 			// NACK
@@ -377,8 +361,8 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, "Error setting encoding: " + connector.getCharsetEncoding(), e);
 		}
 		String ackString = null;
-		if (connector.isProcessHl7AckResponse()){
-			//If we process ack response, 
+		if (connector.isProcessHl7AckResponse()) {
+			// If we process ack response,
 			try {
 				ackString = processResponseData(theAck);
 			} catch (Throwable t) {
@@ -399,13 +383,13 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 				alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, "NACK sent from receiver: " + rack.getErrorDescription() + ": " + ackString, null);
 				return true;
 			}
-		}else{
+		} else {
 			messageObjectController.setSuccess(messageObject, initialAckString);
 			return true;
 		}
 	}
 
-	public byte[] getAck(Socket socket, UMOEndpoint endpoint) {
+	public byte[] getAck(Socket socket, String endpointUri) {
 		int maxTime = connector.getAckTimeout();
 		if (maxTime == 0)
 			return null;
@@ -417,10 +401,10 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 			return result;
 		} catch (SocketTimeoutException e) {
 			// we don't necessarily expect to receive a response here
-			logger.info("Socket timed out normally while doing a synchronous receive on endpointUri: " + endpoint.getEndpointURI());
+			logger.info("Socket timed out normally while doing a synchronous receive on endpointUri: " + endpointUri);
 			return null;
 		} catch (Exception ex) {
-			logger.info("Socket error while doing a synchronous receive on endpointUri: " + endpoint.getEndpointURI());
+			logger.info("Socket error while doing a synchronous receive on endpointUri: " + endpointUri);
 			return null;
 		}
 	}
@@ -566,11 +550,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher {
 				logger.debug("run() warning at host: '" + endpoint + "'. Reason: " + e.getMessage());
 
 				if (retryCount < maxRetries) {
-					try {
-						Thread.sleep(connector.getReconnectMillisecs());
-					} catch (Exception ex) {
-						logger.debug("SocketConnector threadsleep interrupted. Reason: " + ex.getMessage());
-					}
+					Thread.sleep(connector.getReconnectMillisecs());
 				} else {
 					throw e;
 				}

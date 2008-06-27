@@ -544,7 +544,7 @@ public class MessageObjectController {
         clone.setAttachment(messageObject.isAttachment());
 		return clone;
 	}
-
+	
 	public MessageObject getMessageObjectFromEvent(UMOEvent event) throws Exception {
 		MessageObject messageObject = null;
 		Object incomingData = event.getTransformedMessage();

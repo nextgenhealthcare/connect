@@ -179,47 +179,10 @@ public class MuleConfigurationBuilder {
 			// outbound-router
 			muleDescriptorElement.appendChild(getOutboundRouter(document, configurationElement, channel));
 
-			// ast: Response router
-			Element responseRouterElement = getResponseRouter(document, configurationElement, channel);
-
-			if (responseRouterElement != null) {
-				muleDescriptorElement.appendChild(responseRouterElement);
-			}
-
 			return muleDescriptorElement;
 		} catch (Exception e) {
 			throw new BuilderException(e);
 		}
-	}
-
-	/*
-	 * ast: Add the getResponseRouter elements for the queued connectors
-	 * 
-	 */
-	private Element getResponseRouter(Document document, Element configurationElement, Channel channel) throws BuilderException {
-		Element responseRouterElement = null;
-
-		for (ListIterator iterator = channel.getDestinationConnectors().listIterator(); iterator.hasNext();) {
-			Connector connector = (Connector) iterator.next();
-
-			if (connector.isEnabled()) {
-				String usePersistentQueues = connector.getProperties().getProperty("usePersistentQueues");
-
-				if ((usePersistentQueues != null) && (usePersistentQueues.equals("1"))) {
-					if (responseRouterElement == null) {
-						responseRouterElement = document.createElement("response-router");
-					}
-
-					Element endpointElement = document.createElement("endpoint");
-					endpointElement.setAttribute("address", getEndpointUri(connector));
-					String connectorName = getConnectorNameForOutputRouter(getConnectorReferenceForOutputRouter(channel, String.valueOf(iterator.nextIndex())));
-					endpointElement.setAttribute("connector", connectorName);
-					responseRouterElement.appendChild(endpointElement);
-				}
-			}
-		}
-
-		return responseRouterElement;
 	}
 
 	private Element getInboundRouter(Document document, Element configurationElement, Channel channel) throws BuilderException {
@@ -658,7 +621,6 @@ public class MuleConfigurationBuilder {
 		if (connector.getProperties().getProperty("host") != null && (connector.getProperties().getProperty("host").startsWith("axis:") || connector.getProperties().getProperty("host").startsWith("http"))) {
 			return connector.getProperties().getProperty("host");
 		}
-
 		StringBuilder builder = new StringBuilder();
 		builder.append(transports.get(connector.getTransportName()).getProtocol());
 		builder.append("://");
