@@ -73,6 +73,10 @@
 			<include name="com/webreach/mirth/connectors/https/**" />
 		</jar>
 
+		<jar destfile="${dist}/connectors/dicom-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/connectors/dicom/**" />
+		</jar>
+
 		<jar destfile="${dist}/connectors/jdbc-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/jdbc/**" />
 		</jar>
@@ -148,15 +152,15 @@
 		<jar destfile="${dist}/plugins/rtf-viewer-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/rtfviewer/**" />
 		</jar>
-		
+
 		<jar destfile="${dist}/plugins/image-viewer-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/imageviewer/**" />
 		</jar>
-		
+
 		<jar destfile="${dist}/plugins/serverlog-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/serverlog/**" />
 		</jar>
-		
+
 		<!-- copy source files -->
 		<copy todir="${dist.source}">
 			<fileset dir="${src}">
