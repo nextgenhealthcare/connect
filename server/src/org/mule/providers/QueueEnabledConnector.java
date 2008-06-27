@@ -109,9 +109,6 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 
 		public void run() {
 				
-			if(queue == null) { 
-				logger.error("failed to initialize queue: " + getQueueName());
-			}
 			try {
 				logger.debug("queuing thread started on connector: " + getName());		
 				while (!killQueueThread) {
