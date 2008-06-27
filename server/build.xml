@@ -231,6 +231,18 @@
 				<exclude name="com/webreach/mirth/connectors/tcp/TCPSenderProperties.class" />
 			</fileset>
 		</jar>
+		<jar destfile="${connectors}/dicom-shared.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/connectors/dimse/DICOMListenerProperties.class" />
+			<include name="com/webreach/mirth/connectors/dimse/DICOMSenderProperties.class" />
+			<!--<include name="com/webreach/mirth/connectors/tcp/TCPSenderProperties.class" />-->
+		</jar>
+        <jar destfile="${connectors}/dicom-server.jar">
+			<fileset dir="${classes}">
+				<include name="com/webreach/mirth/connectors/dicom/**" />
+				<exclude name="com/webreach/mirth/connectors/dicom/DICOMListenerProperties.class" />
+				<exclude name="com/webreach/mirth/connectors/dicom/DICOMSenderProperties.class" />
+			</fileset>
+		</jar>
 
 		<jar destfile="${connectors}/https-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/https/HTTPSListenerProperties.class" />
