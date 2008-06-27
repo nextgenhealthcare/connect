@@ -40,6 +40,7 @@ public class ConnectorMetaData extends MetaData implements Serializable {
 	private String serverClassName;
 	private String sharedClassName;
 	private String clientClassName;
+	private String serviceClassName;
 	private String transformers;
 	private String protocol;
 
@@ -69,6 +70,14 @@ public class ConnectorMetaData extends MetaData implements Serializable {
 
 	public void setClientClassName(String clientClassName) {
 		this.clientClassName = clientClassName;
+	}
+
+	public String getServiceClassName() {
+		return serviceClassName;
+	}
+
+	public void setServiceClassName(String serviceClassName) {
+		this.serviceClassName = serviceClassName;
 	}
 
 	public String getProtocol() {
@@ -120,6 +129,7 @@ public class ConnectorMetaData extends MetaData implements Serializable {
 			EqualsUtil.areEqual(this.getServerClassName(), transport.getServerClassName()) &&
 			EqualsUtil.areEqual(this.getSharedClassName(), transport.getSharedClassName()) &&
 			EqualsUtil.areEqual(this.getClientClassName(), transport.getClientClassName()) &&
+			EqualsUtil.areEqual(this.getServiceClassName(), transport.getServiceClassName()) &&
 			EqualsUtil.areEqual(this.getProtocol(), transport.getProtocol()) &&
 			EqualsUtil.areEqual(this.getPluginVersion(), transport.getPluginVersion()) &&
 			EqualsUtil.areEqual(this.getMirthVersion(), transport.getMirthVersion()) &&
@@ -140,6 +150,7 @@ public class ConnectorMetaData extends MetaData implements Serializable {
 		builder.append("serverClassName=" + getServerClassName() + ", ");
 		builder.append("sharedClassName=" + getSharedClassName() + ", ");
 		builder.append("clientClassName=" + getClientClassName() + ", ");
+		builder.append("serviceClassName=" + getServiceClassName() + ", ");
 		builder.append("transformers=" + getTransformers() + ", ");
 		builder.append("protocol=" + getProtocol() + ", ");
 		builder.append("enabled=" + isEnabled() + ", ");

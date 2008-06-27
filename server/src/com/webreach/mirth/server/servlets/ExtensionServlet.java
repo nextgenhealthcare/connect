@@ -59,23 +59,23 @@ public class ExtensionServlet extends MirthServlet {
 				String operation = "";
 				Map<String, String> multipartParameters = new HashMap<String, String>();
 				boolean isMultipart = ServletFileUpload.isMultipartContent(request);
-				if (isMultipart){
-					//we need to load properties from the multipart data
+				if (isMultipart) {
+					// we need to load properties from the multipart data
 					DiskFileItemFactory factory = new DiskFileItemFactory();
-                    ServletFileUpload upload = new ServletFileUpload(factory);
-                    List items = upload.parseRequest(request);
-                    Iterator iter = items.iterator();
-                    while (iter.hasNext()){
-                    	FileItem item = (FileItem)iter.next();
-                    	if (item.isFormField()){
-                    		multipartParameters.put(item.getFieldName(), item.getString());
-                    	}else{
-                    		//only supports a single file
-                    		multiPartFile = item;
-                    	}
-                    }
-                    operation = multipartParameters.get("op");
-				}else{
+					ServletFileUpload upload = new ServletFileUpload(factory);
+					List items = upload.parseRequest(request);
+					Iterator iter = items.iterator();
+					while (iter.hasNext()) {
+						FileItem item = (FileItem) iter.next();
+						if (item.isFormField()) {
+							multipartParameters.put(item.getFieldName(), item.getString());
+						} else {
+							// only supports a single file
+							multiPartFile = item;
+						}
+					}
+					operation = multipartParameters.get("op");
+				} else {
 					operation = request.getParameter("op");
 				}
 				if (operation.equals("getPluginProperties")) {
@@ -83,36 +83,43 @@ public class ExtensionServlet extends MirthServlet {
 					String name = request.getParameter("name");
 					out.println(serializer.toXML(extensionController.getPluginProperties(name)));
 				} else if (operation.equals("setPluginProperties")) {
-                    String name = request.getParameter("name");
-                    Properties properties = (Properties) serializer.fromXML(request.getParameter("properties"));
-                    extensionController.setPluginProperties(name, properties);
-                    extensionController.updatePlugin(name, properties);
+					String name = request.getParameter("name");
+					Properties properties = (Properties) serializer.fromXML(request.getParameter("properties"));
+					extensionController.setPluginProperties(name, properties);
+					extensionController.updatePlugin(name, properties);
 				} else if (operation.equals("getPluginMetaData")) {
-                    out.println(serializer.toXML(extensionController.getPluginMetaData(),new Class[]{PluginMetaData.class}));
-                } else if (operation.equals("setPluginMetaData")) {
-                    Map<String, PluginMetaData> metaData = (Map<String, PluginMetaData>) serializer.fromXML(request.getParameter("metaData"),new Class[]{PluginMetaData.class});
-                    extensionController.savePluginMetaData(metaData);
-                } else if (operation.equals("getConnectorMetaData")) {
-                    response.setContentType("application/xml");
-                    out.println(serializer.toXML(extensionController.getConnectorMetaData(), new Class[]{ConnectorMetaData.class}));
-                } else if (operation.equals("setConnectorMetaData")) {
-                    Map<String, ConnectorMetaData> metaData = (Map<String, ConnectorMetaData>) serializer.fromXML(request.getParameter("metaData"),new Class[]{ConnectorMetaData.class});
-                    extensionController.saveConnectorMetaData(metaData);
-                } else if (operation.equals("isExtensionEnabled")) {
-                    String extensionName= request.getParameter("name");
-                    out.println(extensionController.isExtensionEnabled(extensionName));
-                }else if (operation.equals("invoke")) {
-                    String name = request.getParameter("name");
-                    String method = request.getParameter("method");
-                    Object object =(Object) serializer.fromXML(request.getParameter("object"));
-                    String sessionId = request.getSession().getId();
-                    out.println(serializer.toXML(extensionController.invoke(name, method, object, sessionId)));
-                } else if (operation.equals("installExtension")) {
-                	//This is a multi-part method, so we need our parameters from the new map
-                    String location = multipartParameters.get("location");
-                    extensionController.installExtension(location, multiPartFile);
-                }
-            } catch (Exception e) {
+					out.println(serializer.toXML(extensionController.getPluginMetaData(), new Class[] { PluginMetaData.class }));
+				} else if (operation.equals("setPluginMetaData")) {
+					Map<String, PluginMetaData> metaData = (Map<String, PluginMetaData>) serializer.fromXML(request.getParameter("metaData"), new Class[] { PluginMetaData.class });
+					extensionController.savePluginMetaData(metaData);
+				} else if (operation.equals("getConnectorMetaData")) {
+					response.setContentType("application/xml");
+					out.println(serializer.toXML(extensionController.getConnectorMetaData(), new Class[] { ConnectorMetaData.class }));
+				} else if (operation.equals("setConnectorMetaData")) {
+					Map<String, ConnectorMetaData> metaData = (Map<String, ConnectorMetaData>) serializer.fromXML(request.getParameter("metaData"), new Class[] { ConnectorMetaData.class });
+					extensionController.saveConnectorMetaData(metaData);
+				} else if (operation.equals("isExtensionEnabled")) {
+					String extensionName = request.getParameter("name");
+					out.println(extensionController.isExtensionEnabled(extensionName));
+				} else if (operation.equals("invoke")) {
+					String name = request.getParameter("name");
+					String method = request.getParameter("method");
+					Object object = (Object) serializer.fromXML(request.getParameter("object"));
+					String sessionId = request.getSession().getId();
+					out.println(serializer.toXML(extensionController.invoke(name, method, object, sessionId)));
+				} else if (operation.equals("invokeConnectorService")) {
+					String name = request.getParameter("name");
+					String method = request.getParameter("method");
+					Object object = (Object) serializer.fromXML(request.getParameter("object"));
+					String sessionId = request.getSession().getId();
+					out.println(serializer.toXML(extensionController.invokeConnectorService(name, method, object, sessionId)));
+				} else if (operation.equals("installExtension")) {
+					// This is a multi-part method, so we need our parameters
+					// from the new map
+					String location = multipartParameters.get("location");
+					extensionController.installExtension(location, multiPartFile);
+				}
+			} catch (Exception e) {
 				throw new ServletException(e);
 			}
 		}

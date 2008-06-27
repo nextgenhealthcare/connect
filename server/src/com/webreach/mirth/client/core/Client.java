@@ -269,6 +269,18 @@ public class Client {
 	}
 
 	/**
+	 * Invoke a method on a connector and pass back the Object returned
+	 * 
+	 * @return
+	 * @throws ClientException
+	 */
+	public Object invokeConnectorService(String name, String method, Object object) throws ClientException {
+		logger.debug("invoking connector service " + method + " on " + name);
+		NameValuePair[] params = { new NameValuePair("op", "invokeConnectorService"), new NameValuePair("name", name), new NameValuePair("method", method), new NameValuePair("object", serializer.toXML(object)) };
+		return (Object) serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params));
+	}
+
+	/**
 	 * Returns a List of all of the encodings supported by the server
 	 * 
 	 * @return

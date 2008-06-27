@@ -37,6 +37,7 @@ import java.util.Properties;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.log4j.Logger;
 
+import com.webreach.mirth.connectors.ConnectorService;
 import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.ExtensionPoint;
 import com.webreach.mirth.model.ExtensionPointDefinition;
@@ -128,22 +129,21 @@ public class ExtensionController {
 					}
 				}
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e);
 			}
 		}
 	}
 
 	public boolean isExtensionEnabled(String name) {
 		for (PluginMetaData plugin : plugins.values()) {
-			if(plugin.isEnabled() && plugin.getName().equals(name))
+			if (plugin.isEnabled() && plugin.getName().equals(name))
 				return true;
 		}
 		for (ConnectorMetaData connector : connectors.values()) {
-			if(connector.isEnabled() && connector.getName().equals(name))
+			if (connector.isEnabled() && connector.getName().equals(name))
 				return true;
 		}
-		
+
 		return false;
 	}
 
@@ -168,6 +168,21 @@ public class ExtensionController {
 
 	public Object invoke(String name, String method, Object object, String sessionId) {
 		return loadedPlugins.get(name).invoke(method, object, sessionId);
+	}
+
+	public Object invokeConnectorService(String name, String method, Object object, String sessionsId) {
+		try {
+			ConnectorMetaData connectorMetaData = (ConnectorMetaData) connectors.get(name);
+			
+			if (connectorMetaData.getServiceClassName() != null) {
+				ConnectorService connectorService = (ConnectorService) Class.forName(connectorMetaData.getServiceClassName()).newInstance();
+				return connectorService.invoke(method, object, sessionsId);
+			}
+		} catch (Exception e) {
+			logger.error(e);
+		}
+		
+		return null;
 	}
 
 	public void installExtension(String location, FileItem fileItem) throws ControllerException {
