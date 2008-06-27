@@ -42,7 +42,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.webreach.mirth.model.*;
+import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.Connector;
+import com.webreach.mirth.model.ConnectorMetaData;
+import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
@@ -109,7 +113,7 @@ public class MuleConfigurationBuilder {
 				} else if (agent.getAttribute("name").toLowerCase().equals("jmx")) {
 					propertyElement.setAttribute("name", "connectorServerUrl");
 					propertyElement.setAttribute("value", "service:jmx:rmi:///jndi/rmi://localhost:" + port + "/server");
-					
+
 					// add JMX credentials
 					String jmxPassword = PropertyLoader.getProperty(properties, "jmx.password");
 					Element credentialsMapElement = document.createElement("map");
@@ -197,15 +201,15 @@ public class MuleConfigurationBuilder {
 
 		for (ListIterator iterator = channel.getDestinationConnectors().listIterator(); iterator.hasNext();) {
 			Connector connector = (Connector) iterator.next();
-			
+
 			if (connector.isEnabled()) {
 				String usePersistentQueues = connector.getProperties().getProperty("usePersistentQueues");
-	
+
 				if ((usePersistentQueues != null) && (usePersistentQueues.equals("1"))) {
 					if (responseRouterElement == null) {
 						responseRouterElement = document.createElement("response-router");
 					}
-	
+
 					Element endpointElement = document.createElement("endpoint");
 					endpointElement.setAttribute("address", getEndpointUri(connector));
 					String connectorName = getConnectorNameForOutputRouter(getConnectorReferenceForOutputRouter(channel, String.valueOf(iterator.nextIndex())));
@@ -416,11 +420,10 @@ public class MuleConfigurationBuilder {
 				String templateId = UUIDGenerator.getUUID();
 
 				if (transformer.getOutboundTemplate().length() > 0) {
-                    if(transformer.getOutboundProtocol().equals(MessageObject.Protocol.DICOM)) {
-                        templateController.putTemplate(templateId, transformer.getOutboundTemplate());        
-                    }
-                    else 
-                        templateController.putTemplate(templateId, serializer.toXML(transformer.getOutboundTemplate()));
+					if (transformer.getOutboundProtocol().equals(MessageObject.Protocol.DICOM)) {
+						templateController.putTemplate(templateId, transformer.getOutboundTemplate());
+					} else
+						templateController.putTemplate(templateId, serializer.toXML(transformer.getOutboundTemplate()));
 				}
 
 				properties.put("templateId", templateId);
@@ -539,16 +542,16 @@ public class MuleConfigurationBuilder {
 			propertiesElement.appendChild(protocolPropertyElement);
 
 			if (connector.getMode().equals(Connector.Mode.SOURCE)) {
-				
+
 				// add the protocol properties to the connector
 				Properties protocolProperties = connector.getTransformer().getInboundProperties();
-				
+
 				if (protocolProperties != null && protocolProperties.size() > 0) {
 					Element protocolPropertiesElement = getPropertiesMap(document, protocolProperties, null, "protocolProperties");
 					propertiesElement.appendChild(protocolPropertiesElement);
 				}
 			}
-			
+
 			// add the properties to the connector
 			connectorElement.appendChild(propertiesElement);
 
@@ -655,6 +658,7 @@ public class MuleConfigurationBuilder {
 		if (connector.getProperties().getProperty("host") != null && (connector.getProperties().getProperty("host").startsWith("axis:") || connector.getProperties().getProperty("host").startsWith("http"))) {
 			return connector.getProperties().getProperty("host");
 		}
+
 		StringBuilder builder = new StringBuilder();
 		builder.append(transports.get(connector.getTransportName()).getProtocol());
 		builder.append("://");

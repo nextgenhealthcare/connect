@@ -34,7 +34,6 @@ import java.util.zip.GZIPOutputStream;
 import sun.misc.BASE64Encoder;
 
 import com.webreach.mirth.model.ComponentProperties;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.ws.WSDefinition;
 
 public class SOAPSenderProperties implements ComponentProperties
