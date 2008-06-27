@@ -548,7 +548,7 @@ public class DICOMMessageReceiver extends AbstractMessageReceiver {
 
     private  InputStream openFileOrURL(String url) throws IOException {
         if (url.startsWith("resource:")) {
-            return DcmRcv.class.getClassLoader().getResourceAsStream(
+            return DcmRcv2.class.getClassLoader().getResourceAsStream(
                     url.substring(9));
         }
         try {
