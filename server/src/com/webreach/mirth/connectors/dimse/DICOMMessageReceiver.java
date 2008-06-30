@@ -75,7 +75,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
  */
 public class DICOMMessageReceiver extends AbstractMessageReceiver {
     // --- DICOM Specific Variables ---
-    DcmRcv dcmrcv = new DcmRcv(); 
+    DcmRcv2 dcmrcv = new DcmRcv2(); 
     protected DICOMConnector connector;
 	private AlertController alertController = AlertController.getInstance();
 	private MonitoringController monitoringController = MonitoringController.getInstance();
@@ -201,4 +201,52 @@ public class DICOMMessageReceiver extends AbstractMessageReceiver {
         logger.info("Closed DICOM port");
 	}
         
+    public class DcmRcv2 extends DcmRcv {
+
+        @Override
+        protected void onCStoreRQ(Association as, int pcid, DicomObject rq,
+                PDVInputStream dataStream, String tsuid, DicomObject rsp)
+                throws IOException, DicomServiceException {
+                UMOMessage returnMessage = null;
+                try {
+                    String cuid = rq.getString(Tag.AffectedSOPClassUID);
+                    String iuid = rq.getString(Tag.AffectedSOPInstanceUID);                    
+                    byte[] dicomObj = DICOMSerializer.readDicomObj(rq);
+                    BasicDicomObject fmi = new BasicDicomObject();
+                    fmi.initFileMetaInformation(cuid, iuid, tsuid);
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    BufferedOutputStream bos = new BufferedOutputStream(baos);
+                    DicomOutputStream dos = new DicomOutputStream(bos);
+                    dos.writeFileMetaInformation(fmi);
+                    dataStream.copyTo(dos);
+                    dos.close();        
+                    BASE64Encoder encoder = new BASE64Encoder();
+                    String dcmString = encoder.encode(baos.toByteArray());
+                    returnMessage = routeMessage(new MuleMessage(dcmString), endpoint.isSynchronous());
+                    // We need to check the message status
+                    if (returnMessage != null && returnMessage instanceof MuleMessage) {
+                        Object payload = returnMessage.getPayload();
+                        if (payload instanceof MessageObject) {
+                            MessageObject messageObjectResponse = (MessageObject) payload;
+                            postProcessor.doPostProcess(messageObjectResponse);
+                            Map responseMap = messageObjectResponse.getResponseMap();
+                            String errorString = "";
+                        }
+                    }
+                } catch (Exception e) {
+                } finally {
+                    // Let the dispose take care of closing the socket
+                }
+        }
+        @Override
+        public void cstore(final Association as, final int pcid, DicomObject rq, 
+                PDVInputStream dataStream, String tsuid) 
+                throws DicomServiceException, IOException {
+            final DicomObject rsp = CommandUtils.mkRSP(rq, CommandUtils.SUCCESS);
+            onCStoreRQ(as, pcid, rq, dataStream, tsuid, rsp);
+            as.writeDimseRSP(pcid, rsp);
+            onCStoreRSP(as, pcid, rq, dataStream, tsuid, rsp);
+        }      
+           
+    }             
 }
