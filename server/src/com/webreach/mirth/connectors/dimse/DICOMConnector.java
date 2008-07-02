@@ -67,7 +67,7 @@ public class DICOMConnector extends AbstractServiceEnabledConnector {
     public static final String DICOM_DEFTS = "defts";                // boolean
     public static final String DICOM_DEST = "dest";                  // string
     public static final String DICOM_NATIVE = "nativeData";              // boolean
-    
+    public static final String DICOM_APPENTITY = "applicationEntity";        
     // custom properties
     private NetworkConnection nc = new NetworkConnection();
     private NetworkApplicationEntity ae = new NetworkApplicationEntity();
@@ -111,7 +111,7 @@ public class DICOMConnector extends AbstractServiceEnabledConnector {
     private boolean defts;        
     private String dest;        
     private boolean nativeData;        
-            
+    private String applicationEntity;        
     private UMOComponent component = null;
 
 	// ast: encoding Charset
@@ -586,5 +586,13 @@ public class DICOMConnector extends AbstractServiceEnabledConnector {
 
     public void setNativeData(boolean nativeData) {
         this.nativeData = nativeData;
+    }
+
+    public String getApplicationEntity() {
+        return applicationEntity;
+    }
+
+    public void setApplicationEntity(String applicationEntity) {
+        this.applicationEntity = applicationEntity;
     }
 }

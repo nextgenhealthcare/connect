@@ -16,6 +16,7 @@ public class DICOMListenerProperties implements ComponentProperties {
     public static final String DATATYPE = "DataType";
     public static final String DICOM_ADDRESS = "host";
     public static final String DICOM_PORT = "port";
+    public static final String DICOM_APPENTITY = "applicationEntity";    
     public static final String DICOM_SOCLOSEDELAY = "soclosedelay";     
     public static final String DICOM_RELEASETO = "releaseto";    
     public static final String DICOM_REQUESTTO = "requestto";
@@ -69,6 +70,7 @@ public class DICOMListenerProperties implements ComponentProperties {
         properties.put(DICOM_SORCVBUF, "0");
         properties.put(DICOM_SOSNDBUF, "0");
         properties.put(DICOM_TCPDELAY, "1");
+
         properties.put(DICOM_KEYPW, "");
         properties.put(DICOM_KEYSTORE, "");
         properties.put(DICOM_KEYSTOREPW, "");
@@ -77,7 +79,7 @@ public class DICOMListenerProperties implements ComponentProperties {
         properties.put(DICOM_TLS, "notls");
         properties.put(DICOM_TRUSTSTORE, "");
         properties.put(DICOM_TRUSTSTOREPW, "");
-        
+        properties.put(DICOM_APPENTITY, "");
         
         return properties;
     }    

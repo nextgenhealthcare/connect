@@ -70,6 +70,8 @@ public class DICOMMessageDispatcher extends AbstractMessageDispatcher {
         dcmSnd.setCalledAET("DCMRCV");
         dcmSnd.setRemoteHost(uri.getHost());
         dcmSnd.setRemotePort(uri.getPort());
+        if(dicomConnector.getApplicationEntity() != null && !dicomConnector.getApplicationEntity().equals(""))
+            dcmSnd.setCalledAET(dicomConnector.getApplicationEntity());
         dcmSnd.addFile(tempFile);
         // New Attributes/properties -----
         if(dicomConnector.getAccecptto() != 5)

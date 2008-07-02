@@ -117,6 +117,8 @@ public class DICOMMessageReceiver extends AbstractMessageReceiver {
             else if(connector.isBigendian()){
                 dcmrcv.setTransferSyntax(non_retired_ts);
             }
+            if(connector.getApplicationEntity() != null && !connector.getApplicationEntity().equals(""))
+                dcmrcv.setAEtitle(connector.getApplicationEntity());            
             if(connector.getReaper() != 10)
                 dcmrcv.setAssociationReaperPeriod(connector.getReaper());
             if(connector.getIdleto() != 60)
