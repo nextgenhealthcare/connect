@@ -238,9 +238,9 @@
 		</jar>
         <jar destfile="${connectors}/dicom-server.jar">
 			<fileset dir="${classes}">
-				<include name="com/webreach/mirth/connectors/dicom/**" />
-				<exclude name="com/webreach/mirth/connectors/dicom/DICOMListenerProperties.class" />
-				<exclude name="com/webreach/mirth/connectors/dicom/DICOMSenderProperties.class" />
+				<include name="com/webreach/mirth/connectors/dimse/**" />
+				<exclude name="com/webreach/mirth/connectors/dimse/DICOMListenerProperties.class" />
+				<exclude name="com/webreach/mirth/connectors/dimse/DICOMSenderProperties.class" />
 			</fileset>
 		</jar>
 
