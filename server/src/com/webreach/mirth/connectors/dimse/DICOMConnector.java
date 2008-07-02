@@ -30,6 +30,8 @@ public class DICOMConnector extends AbstractServiceEnabledConnector {
     public static final String DICOM_TEMPLATE = "template";
     public static final String DICOM_HOST = "host";
     public static final String DICOM_PORT = "port";
+    public static final String DICOM_LOCALHOST = "localHost";
+    public static final String DICOM_LOCALPORT = "localPort";
     public static final String DICOM_ACCECPTTO = "accecptto";        // int
     public static final String DICOM_ASYNC = "async";                // int
     public static final String DICOM_BUFSIZE = "bufsize";            // int
@@ -68,12 +70,16 @@ public class DICOMConnector extends AbstractServiceEnabledConnector {
     public static final String DICOM_DEST = "dest";                  // string
     public static final String DICOM_NATIVE = "nativeData";              // boolean
     public static final String DICOM_APPENTITY = "applicationEntity";        
+    public static final String DICOM_LOCALAPPENTITY = "localApplicationEntity";        
+
     // custom properties
     private NetworkConnection nc = new NetworkConnection();
     private NetworkApplicationEntity ae = new NetworkApplicationEntity();
     private String template = "message.encodedData";
     private String host = null;
     private String port = null;
+    private String localHost = null;
+    private int localPort;
     private int accecptto;
     private int async;
     private int bufsize;
@@ -112,8 +118,9 @@ public class DICOMConnector extends AbstractServiceEnabledConnector {
     private String dest;        
     private boolean nativeData;        
     private String applicationEntity;        
+    private String localApplicationEntity;   
     private UMOComponent component = null;
-
+    private String channelId;
 	// ast: encoding Charset
 	public static final String PROPERTY_CHARSET_ENCODING = "charsetEncoding";
 	public static final String CHARSET_KEY = "ca.uhn.hl7v2.llp.charset";
@@ -594,5 +601,37 @@ public class DICOMConnector extends AbstractServiceEnabledConnector {
 
     public void setApplicationEntity(String applicationEntity) {
         this.applicationEntity = applicationEntity;
+    }
+
+    public String getChannelId() {
+        return channelId;
+    }
+
+    public void setChannelId(String channelId) {
+        this.channelId = channelId;
+    }
+
+    public String getLocalHost() {
+        return localHost;
+    }
+
+    public void setLocalHost(String localHost) {
+        this.localHost = localHost;
+    }
+
+    public int getLocalPort() {
+        return localPort;
+    }
+
+    public void setLocalPort(int localPort) {
+        this.localPort = localPort;
+    }
+
+    public String getLocalApplicationEntity() {
+        return localApplicationEntity;
+    }
+
+    public void setLocalApplicationEntity(String localApplicationEntity) {
+        this.localApplicationEntity = localApplicationEntity;
     }
 }

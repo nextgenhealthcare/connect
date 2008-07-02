@@ -6,6 +6,7 @@ import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
 import org.mule.umo.endpoint.UMOEndpointURI;
 import org.dcm4che2.net.*;
+import org.dcm4che2.net.pdu.AAssociateRJ;
 import org.dcm4che2.net.service.StorageCommitmentService;
 import org.dcm4che2.data.*;
 import org.dcm4che2.io.DicomInputStream;
@@ -18,7 +19,9 @@ import org.dcm4che2.tool.dcmsnd.DcmSnd;
 import org.apache.commons.cli.*;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.util.FileUtil;
+import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.model.MessageObject;
 
 import java.util.*;
@@ -42,7 +45,8 @@ public class DICOMMessageDispatcher extends AbstractMessageDispatcher {
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();    
     private MonitoringController monitoringController = MonitoringController.getInstance();
 	private MonitoringController.ConnectorType connectorType = MonitoringController.ConnectorType.SENDER;
-
+	private AlertController alertController = AlertController.getInstance();
+    
         private HashMap as2ts = new HashMap();
  
     public DICOMMessageDispatcher(DICOMConnector connector) {
@@ -72,6 +76,14 @@ public class DICOMMessageDispatcher extends AbstractMessageDispatcher {
         dcmSnd.setRemotePort(uri.getPort());
         if(dicomConnector.getApplicationEntity() != null && !dicomConnector.getApplicationEntity().equals(""))
             dcmSnd.setCalledAET(dicomConnector.getApplicationEntity());
+        if(dicomConnector.getLocalApplicationEntity() != null && !dicomConnector.getLocalApplicationEntity().equals("")){
+            dcmSnd.setCalling(dicomConnector.getLocalApplicationEntity());
+        }
+        if(dicomConnector.getLocalHost() != null && !dicomConnector.getLocalHost().equals(""))  {
+            dcmSnd.setLocalHost(dicomConnector.getLocalHost());
+            dcmSnd.setLocalPort(dicomConnector.getLocalPort());
+        }
+                
         dcmSnd.addFile(tempFile);
         // New Attributes/properties -----
         if(dicomConnector.getAccecptto() != 5)
@@ -150,12 +162,25 @@ public class DICOMMessageDispatcher extends AbstractMessageDispatcher {
         
         dcmSnd.configureTransferCapability();
         dcmSnd.start();
-        dcmSnd.open();
-        dcmSnd.send();
-        dcmSnd.close();
+        
+        try {
+            dcmSnd.open();
+            dcmSnd.send();
+            dcmSnd.close();            
+            messageObjectController.setSuccess(messageObject, "Message successfully sent");
+        }
+        catch(AAssociateRJ e){
+            e.getMessage();
+            messageObjectController.setError(messageObject, Constants.ERROR_415, e.getMessage(), null);
+			alertController.sendAlerts(((DICOMConnector) connector).getChannelId(), Constants.ERROR_415,e.getMessage(), null);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            messageObjectController.setError(messageObject, Constants.ERROR_415, "", null);
+			alertController.sendAlerts(((DICOMConnector) connector).getChannelId(), Constants.ERROR_415,"", null);
+        }
         dcmSnd.stop();
         
-        messageObjectController.setSuccess(messageObject, "Message successfully sent");
         tempFile.delete();
         monitoringController.updateStatus(connector, connectorType, MonitoringController.Event.DONE);
         return event.getMessage();    

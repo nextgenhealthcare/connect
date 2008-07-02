@@ -17,6 +17,9 @@ public class DICOMSenderProperties implements ComponentProperties {
     public static final String DICOM_ADDRESS = "host";
     public static final String DICOM_PORT = "port";
     public static final String DICOM_APPENTITY = "applicationEntity";
+    public static final String DICOM_LOCALADDRESS = "localHost";
+    public static final String DICOM_LOCALPORT = "localPort";
+    public static final String DICOM_LOCALAPPENTITY = "localApplicationEntity";    
     public static final String DICOM_TEMPLATE = "template";
     public static final String DICOM_ACCECPTTO = "accecptto";
     public static final String DICOM_ASYNC = "async";
@@ -86,7 +89,9 @@ public class DICOMSenderProperties implements ComponentProperties {
         properties.put(DICOM_UIDNEGRSP, "0");
         properties.put(DICOM_USERNAME, "");
         properties.put(DICOM_APPENTITY, "");
-       
+        properties.put(DICOM_LOCALADDRESS, "");
+        properties.put(DICOM_LOCALPORT, "");        
+        properties.put(DICOM_LOCALAPPENTITY, "");           
         return properties;
     }    
 }

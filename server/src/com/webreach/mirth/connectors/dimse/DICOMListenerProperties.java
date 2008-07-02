@@ -17,6 +17,9 @@ public class DICOMListenerProperties implements ComponentProperties {
     public static final String DICOM_ADDRESS = "host";
     public static final String DICOM_PORT = "port";
     public static final String DICOM_APPENTITY = "applicationEntity";    
+    public static final String DICOM_LOCALADDRESS = "localHost";
+    public static final String DICOM_LOCALPORT = "localPort";
+    public static final String DICOM_LOCALAPPENTITY = "localApplicationEntity";
     public static final String DICOM_SOCLOSEDELAY = "soclosedelay";     
     public static final String DICOM_RELEASETO = "releaseto";    
     public static final String DICOM_REQUESTTO = "requestto";
@@ -78,8 +81,12 @@ public class DICOMListenerProperties implements ComponentProperties {
         properties.put(DICOM_NOSSL2, "1");
         properties.put(DICOM_TLS, "notls");
         properties.put(DICOM_TRUSTSTORE, "");
-        properties.put(DICOM_TRUSTSTOREPW, "");
+        properties.put(DICOM_TRUSTSTOREPW, "");    
         properties.put(DICOM_APPENTITY, "");
+
+        properties.put(DICOM_LOCALADDRESS, "");
+        properties.put(DICOM_LOCALPORT, "");        
+        properties.put(DICOM_LOCALAPPENTITY, "");        
         
         return properties;
     }    
