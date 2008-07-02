@@ -74,7 +74,7 @@
 		</jar>
 
 		<jar destfile="${dist}/connectors/dicom-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/connectors/dicom/**" />
+			<include name="com/webreach/mirth/connectors/dimse/**" />
 		</jar>
 
 		<jar destfile="${dist}/connectors/jdbc-client.jar" basedir="${classes}">
