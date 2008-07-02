@@ -22,4 +22,5 @@ public class Constants {
 	public static final String ERROR_412 = "ERROR-412: VM Connector error";
 	public static final String ERROR_413 = "ERROR-413: Email Connector error";
 	public static final String ERROR_414 = "ERROR-414: JavaScript Connector error";
+	public static final String ERROR_415 = "ERROR-415: DICOM Connector error";
 }
