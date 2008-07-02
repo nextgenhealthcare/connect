@@ -326,6 +326,14 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 		this.pollingFrequency = pollingFrequency;
 	}
 
+	public boolean getCheckFileAge() {
+		return checkFileAge;
+	}
+
+	public void setCheckFileAge(boolean checkFileAge) {
+		this.checkFileAge = checkFileAge;
+	}
+
 	/**
 	 * @return Returns the fileAge.
 	 */
@@ -333,17 +341,12 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 		return fileAge;
 	}
 
-	public boolean getCheckFileAge() {
-		return checkFileAge;
-	}
-
-	/**
+    /**
 	 * @param fileAge
 	 *            The fileAge in seconds to set.
 	 */
 	public void setFileAge(long fileAge) {
 		this.fileAge = fileAge;
-		this.checkFileAge = true;
 	}
 
 	/**
