@@ -1,12 +1,7 @@
-/*
- * FindRplDialog.java
- *
- * Created on November 1, 2007, 3:29 PM
- */
-
 package com.webreach.mirth.client.ui;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FocusTraversalPolicy;
 import java.awt.Point;
@@ -18,19 +13,25 @@ import java.util.regex.Pattern;
 
 import org.syntax.jedit.JEditTextArea;
 
-
-/**
- *
- * @author  dans
- */
 public class FindRplDialog extends javax.swing.JDialog {
     static MyOwnFocusTraversalPolicy tabPolicy;
+    
+    private Frame parent;
 
     /** Creates new form FindRplDialog */
-    public FindRplDialog(Frame parent, boolean modal, JEditTextArea textarea) {
+    public FindRplDialog(java.awt.Frame parent, boolean modal, JEditTextArea textarea) {
         super(parent, modal);
+        initialize(textarea);
+    }
+    
+    public FindRplDialog(Dialog parent, boolean modal, JEditTextArea textarea) {
+        super(parent, modal);
+        initialize(textarea);
+    }
+    
+    private void initialize(JEditTextArea textarea) {
         initComponents();
-        
+        this.parent = PlatformUI.MIRTH_FRAME;
         search_text = textarea;
         Dimension dlgSize = getPreferredSize();
         Dimension frmSize = parent.getSize();
@@ -60,25 +61,20 @@ public class FindRplDialog extends javax.swing.JDialog {
         mirthTextField1.addKeyListener(new KeyListener(){
 
 			public void keyPressed(KeyEvent e) {
-				// TODO Auto-generated method stub
 				if (e.getKeyCode() == KeyEvent.VK_ENTER){
 					find(true);
 				}else if (e.getKeyCode() == KeyEvent.VK_ESCAPE){
 					exit();
 				}
-				
 			}
 
 			public void keyReleased(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
 			}
 
 			public void keyTyped(KeyEvent e) {
-				// TODO Auto-generated method stub
-				
 			}});    
     }
+    
     void exit(){
     	this.setVisible(false);
     }

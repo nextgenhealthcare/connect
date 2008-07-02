@@ -1,36 +1,36 @@
 package com.webreach.mirth.client.ui.actions;
 
-import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
-import com.webreach.mirth.client.ui.*;
-
-import javax.swing.*;
+import java.awt.Dialog;
+import java.awt.Frame;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
 
 import org.syntax.jedit.JEditTextArea;
 
-/**
- * Created by IntelliJ IDEA.
- * User: dans
- * Date: Oct 31, 2007
- * Time: 3:35:08 PM
- * To change this template use File | Settings | File Templates.
- */
+import com.webreach.mirth.client.ui.FindRplDialog;
+
 public class FindAndReplaceAction extends AbstractAction
 {
     JEditTextArea comp;
     FindRplDialog find;
-    Frame frame;
+    Window owner;
 
-    public FindAndReplaceAction(Frame frame, JEditTextArea comp)
+    public FindAndReplaceAction(Window owner, JEditTextArea comp)
     {
         super("Find/Replace");
         this.comp = comp;
-        this.frame = frame;
+        this.owner = owner;
     }
 
     public void actionPerformed(ActionEvent e)
     {
-        find = new FindRplDialog(frame,true,comp);
+    	if (owner instanceof Frame) {
+    		find = new FindRplDialog((Frame)owner,true,comp);
+    	} else { // window instanceof Dialog
+    		find = new FindRplDialog((Dialog)owner,true,comp);
+    	}
         find.setVisible(true);
     }
     public boolean isEnabled()

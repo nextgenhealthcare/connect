@@ -32,6 +32,7 @@ import java.util.Iterator;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -112,7 +113,7 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
         selectAllAction = new SelectAllAction(this);
         undoAction = new UndoAction(this);
         redoAction = new RedoAction(this);
-        findReplaceAction = new FindAndReplaceAction(parent,this);
+        findReplaceAction = new FindAndReplaceAction(SwingUtilities.windowForComponent(this),this);
         showLineEndingsAction = new ShowLineEndingsAction(this);
         popup = new JPopupMenu();
 
