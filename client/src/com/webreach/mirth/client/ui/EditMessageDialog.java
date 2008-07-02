@@ -157,7 +157,7 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
                 if (protocol.equals(MessageObject.Protocol.HL7V2) || protocol.equals(MessageObject.Protocol.NCPDP) || protocol.equals(MessageObject.Protocol.DICOM))
                 {
                     newDoc.setTokenMarker(new HL7TokenMarker());
-                    message = message.replace('\r', '\n');
+//                    message = message.replace('\r', '\n');  // Not required with current text area
                     // HL7 (ER7) encoded messages have \r as end of line
                     // segments
                     // The syntax editor box only recognizes \n

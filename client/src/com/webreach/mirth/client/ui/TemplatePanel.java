@@ -266,14 +266,15 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
     {
         if (pasteBox.getText().equals(DEFAULT_TEXT))
             return "";
-        else
-            return pasteBox.getText().replace('\n', '\r');
+//        else
+//            return pasteBox.getText().replace('\n', '\r');  // Not required with current text area
+        return pasteBox.getText();
     }
 
     public void setMessage(String msg)
     {
-        if (msg != null)
-            msg = msg.replace('\r', '\n');
+//        if (msg != null)
+//            msg = msg.replace('\r', '\n');  // Not required with current text area
         pasteBox.setText(msg);
         pasteBoxFocusLost(null);
         updateText();

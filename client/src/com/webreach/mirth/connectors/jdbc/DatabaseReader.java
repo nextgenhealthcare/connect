@@ -446,7 +446,8 @@ public class DatabaseReader extends ConnectorClass
             
             String xml = docSerializer.toXML(document);
             
-            parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().setInboundTemplate(xml.replaceAll("\\r\\n", "\n"));
+//            parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().setInboundTemplate(xml.replaceAll("\\r\\n", "\n"));  // Not required with current text area
+            parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().setInboundTemplate(xml);
             
             if (parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundProtocol() == MessageObject.Protocol.XML
                     && parent.channelEditPanel.currentChannel.getSourceConnector().getTransformer().getOutboundTemplate() != null
@@ -455,7 +456,8 @@ public class DatabaseReader extends ConnectorClass
                 List<Connector> list = parent.channelEditPanel.currentChannel.getDestinationConnectors();
                 for (Connector c : list)
                 {
-                    c.getTransformer().setInboundTemplate(xml.replaceAll("\\r\\n", "\n"));
+//                    c.getTransformer().setInboundTemplate(xml.replaceAll("\\r\\n", "\n"));  // Not required with current text area
+                    c.getTransformer().setInboundTemplate(xml);
                 }
             }
         }
