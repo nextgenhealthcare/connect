@@ -672,6 +672,19 @@
 			</fileset>
 		</zip>
 
+		<zip destfile="${dist.connectors}/dicom-${version}.zip">
+			<fileset dir="${connectors}">
+				<include name="dicom-shared.jar" />
+				<include name="dicom-server.jar" />
+				<include name="dicom-client.jar" />
+				<include name="${classes}/com/webreach/mirth/connectors/archive-metadata.xml" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
+				<include name="DICOM Reader.xml" />
+				<include name="DICOM Sender.xml" />
+			</fileset>
+		</zip>
+
 		<zip destfile="${dist.connectors}/vm-${version}.zip">
 			<fileset dir="${connectors}">
 				<include name="vm-shared.jar" />
