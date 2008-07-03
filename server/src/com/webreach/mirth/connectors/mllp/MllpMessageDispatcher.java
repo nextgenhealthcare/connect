@@ -136,9 +136,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 		try {
 			if (connector.isUsePersistentQueues()) {
 				try {
-					// The status should be queued, even if we are retrying
-					messageObjectController.setQueued(messageObject, "Message is queued");
-					connector.putMessageInQueue(endpointUri, messageObject);
+					connector.putMessageInQueue(event.getEndpoint().getEndpointURI(), messageObject);
 					return;
 				} catch (Exception exq) {
 					exceptionMessage = "Can't save payload to queue";
@@ -258,7 +256,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 		Boolean result = false;
 		Exception sendException = null;
 		Socket socket = null;
-		String host = replacer.replaceURLValues(thePayload.getEndpointURI(), thePayload.getMessageObject());
+		String host = replacer.replaceURLValues(thePayload.getEndpointUri().toString(), thePayload.getMessageObject());
 
 		try {
 			if (!connector.isKeepSendSocketOpen()) {
@@ -311,7 +309,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 			return result;
 		}
 		// If we have reached this point, the conections has been fine
-		result = manageResponseAck(socket, thePayload.getEndpointURI(), thePayload.getMessageObject());
+		result = manageResponseAck(socket, thePayload.getEndpointUri().toString(), thePayload.getMessageObject());
 		if (!connector.isKeepSendSocketOpen()) {
 			doDispose(socket);
 		}

@@ -27,9 +27,9 @@ package com.webreach.mirth.connectors.tcp;
 
 import java.util.Properties;
 
-import com.webreach.mirth.model.ComponentProperties;
+import com.webreach.mirth.model.QueuedSenderProperties;
 
-public class TCPSenderProperties implements ComponentProperties
+public class TCPSenderProperties extends QueuedSenderProperties
 {
 	public static final String name = "TCP Sender";
 	
@@ -42,17 +42,15 @@ public class TCPSenderProperties implements ComponentProperties
     public static final String TCP_MAX_RETRY_COUNT = "maxRetryCount";
     public static final String TCP_CHAR_ENCODING = "charEncoding";
     public static final String TCP_TEMPLATE = "template";
-    public static final String TCP_USE_PERSISTENT_QUEUES = "usePersistentQueues";
     public static final String TCP_ACK_TIMEOUT = "ackTimeout";
     public static final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
     public static final String CHANNEL_ID = "replyChannelId";
     public static final String CHANNEL_NAME = "channelName";
-    public static final String TCP_RECONNECT_INTERVAL = "reconnectMillisecs";
     public static final String TCP_TYPE = "binary";
 
     public Properties getDefaults()
     {
-        Properties properties = new Properties();
+        Properties properties = super.getDefaults();
         properties.put(DATATYPE, name);
         properties.put(TCP_ADDRESS, "127.0.0.1");
         properties.put(TCP_PORT, "6660");
@@ -61,13 +59,11 @@ public class TCPSenderProperties implements ComponentProperties
         properties.put(TCP_KEEP_CONNECTION_OPEN, "0");
         properties.put(TCP_MAX_RETRY_COUNT, "50");
         properties.put(TCP_CHAR_ENCODING, "hex");
-        properties.put(TCP_USE_PERSISTENT_QUEUES, "0");
         properties.put(TCP_ACK_TIMEOUT, "5000");
         properties.put(CONNECTOR_CHARSET_ENCODING, "DEFAULT_ENCODING");
         properties.put(TCP_TEMPLATE, "${message.encodedData}");
         properties.put(CHANNEL_ID, "sink");
         properties.put(CHANNEL_NAME, "None");
-        properties.put(TCP_RECONNECT_INTERVAL, "10000");
         properties.put(TCP_TYPE, "0");
         return properties;
     }

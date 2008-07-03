@@ -27,10 +27,10 @@ package com.webreach.mirth.connectors.http;
 
 import java.util.Properties;
 
-import com.webreach.mirth.model.ComponentProperties;
+import com.webreach.mirth.model.QueuedSenderProperties;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 
-public class HTTPSenderProperties implements ComponentProperties
+public class HTTPSenderProperties extends QueuedSenderProperties
 {
     public static final String name = "HTTP Sender";
 	
@@ -45,7 +45,7 @@ public class HTTPSenderProperties implements ComponentProperties
     
     public Properties getDefaults()
     {
-        Properties properties = new Properties();
+        Properties properties = super.getDefaults();
         properties.put(DATATYPE, name);
         properties.put(HTTP_URL, "");
         properties.put(HTTP_METHOD, "post");

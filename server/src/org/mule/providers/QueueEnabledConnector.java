@@ -9,20 +9,22 @@ import org.mule.config.QueueProfile;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOException;
 import org.mule.umo.endpoint.UMOEndpoint;
+import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.util.queue.Queue;
 import org.mule.util.queue.QueueManager;
 import org.mule.util.queue.QueueSession;
-import org.mule.util.queue.TransactionalQueueManager;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.QueuedMessage;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 
 public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
+	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
+	
 	protected Queue queue = null;
 	protected Queue errorQueue = null;
-
+	
 	private QueueEnabledMessageDispatcher dispatcher;
 
 	public static final String PROPERTY_ROTATE_QUEUE = "rotateQueue";
@@ -86,10 +88,13 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 		}
 	}
 
-	public void putMessageInQueue(String endpointUri, MessageObject messageObject) throws Exception {
+	public void putMessageInQueue(UMOEndpointURI endpointUri, MessageObject messageObject) throws Exception {
+		messageObjectController.setQueued(messageObject, "Message is queued");
+		
 		QueuedMessage queuedMessage = new QueuedMessage();
 		queuedMessage.setEndpointUri(endpointUri);
 		queuedMessage.setMessageObject(messageObject);
+		
 		queue.put(queuedMessage);
 	}
 
@@ -131,7 +136,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 							
 							try {
 								thePayload = (QueuedMessage) queue.peek();
-								logger.debug("retrying queued message: id = " + thePayload.getMessageObject().getId() + ", endpointUri = " + thePayload.getEndpointURI());
+								logger.debug("retrying queued message: id = " + thePayload.getMessageObject().getId() + ", endpointUri = " + thePayload.getEndpointUri().toString());
 								if (dispatcher.sendPayload(thePayload)) {
 									queue.poll(getPollMaxTime());
 									connected = true;
@@ -152,13 +157,16 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 											queue.put(tempMessage);
 										}
 									}
-									logger.debug("Conection error [" + t + "] " + " at " + thePayload.getEndpointURI() + " queue size " + new Integer(queue.size()).toString());
+									logger.debug("Conection error [" + t + "] " + " at " + thePayload.getEndpointUri().toString() + " queue size " + new Integer(queue.size()).toString());
 									MessageObjectController.getInstance().resetQueuedStatus(thePayload.getMessageObject());
 								} else { 
 									queue.poll(getPollMaxTime());
 									logger.error("error reading message off the queue: " + t);
 								}
 								connected = false;
+							}
+							if (!connected) { 
+								Thread.sleep(getReconnectMillisecs());
 							}
 						}
 					}

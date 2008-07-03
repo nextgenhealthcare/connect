@@ -22,6 +22,7 @@ import org.mule.providers.http.HttpConstants;
 import org.mule.providers.tcp.TcpConnector;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.endpoint.UMOEndpoint;
+import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageReceiver;
 
@@ -120,7 +121,17 @@ public class HttpConnector extends TcpConnector
 	public void setRequestVariables(Map requestVariables) {
 		this.requestVariables = requestVariables;
 	}
-
+	
+	@Override
+	public void doInitialise() throws InitialisationException {
+		// TODO Auto-generated method stub
+		super.doInitialise();
+		
+		if(isUsePersistentQueues()) { 
+			setDispatcher(new HttpClientMessageDispatcher(this));
+		}
+	}
+	
 	/**
      * @see UMOConnector#registerListener(UMOComponent, UMOEndpoint)
      */

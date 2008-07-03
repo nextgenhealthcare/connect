@@ -135,9 +135,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
 		try {
 			if (queue != null) {
 				try {
-					// The status should be queued, even if we are retrying
-					messageObjectController.setQueued(messageObject, "Message is queued");
-					connector.putMessageInQueue(endpointUri, messageObject);
+					connector.putMessageInQueue(event.getEndpoint().getEndpointURI(), messageObject);
 					return;
 				} catch (Exception exq) {
 					exceptionMessage = "Can't save payload to queue";
@@ -271,7 +269,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
 		Boolean result = false;
 		Exception sendException = null;
 		Socket socket = null;
-		String host = replacer.replaceURLValues(thePayload.getEndpointURI(), thePayload.getMessageObject());
+		String host = replacer.replaceURLValues(thePayload.getEndpointUri().toString(), thePayload.getMessageObject());
 
 		try {
 			if (!connector.isKeepSendSocketOpen()) {
@@ -322,7 +320,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
 			return result;
 		}
 		// If we have reached this point, the conections has been fine
-		manageResponseAck(socket, thePayload.getEndpointURI(), thePayload.getMessageObject());
+		manageResponseAck(socket, thePayload.getEndpointUri().toString(), thePayload.getMessageObject());
 		if (!connector.isKeepSendSocketOpen()) {
 			doDispose(socket);
 		}

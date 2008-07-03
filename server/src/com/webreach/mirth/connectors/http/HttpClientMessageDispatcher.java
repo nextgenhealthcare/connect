@@ -16,7 +16,7 @@
 package com.webreach.mirth.connectors.http;
 
 import java.net.BindException;
-import java.net.URI;
+import java.net.SocketException;
 import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.Map;
@@ -37,8 +37,10 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.mule.config.i18n.Message;
 import org.mule.impl.MuleMessage;
+import org.mule.impl.endpoint.MuleEndpointURI;
 import org.mule.impl.message.ExceptionPayload;
 import org.mule.providers.AbstractMessageDispatcher;
+import org.mule.providers.QueueEnabledMessageDispatcher;
 import org.mule.providers.TemplateValueReplacer;
 import org.mule.providers.http.HttpConstants;
 import org.mule.providers.http.transformers.HttpClientMethodResponseToObject;
@@ -54,6 +56,7 @@ import org.mule.umo.transformer.UMOTransformer;
 import sun.misc.BASE64Encoder;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.QueuedMessage;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
@@ -69,7 +72,7 @@ import com.webreach.mirth.server.util.VMRouter;
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @version $Revision: 1.27 $
  */
-public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
+public class HttpClientMessageDispatcher extends AbstractMessageDispatcher implements QueueEnabledMessageDispatcher {
 	private HttpConnector connector;
 	private HttpState state;
 	private UMOTransformer receiveTransformer;
@@ -79,6 +82,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	private ConnectorType connectorType = ConnectorType.SENDER;
 	private final String PAYLOAD_KEY = "$payload";
+
 	public HttpClientMessageDispatcher(HttpConnector connector) {
 		super(connector);
 		this.connector = connector;
@@ -133,7 +137,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 
 		HttpConnection connection = null;
 		try {
-			connection = getConnection(endpointUri.getUri());
+			connection = getConnection(endpointUri);
 			connection.open();
 			if (connection.isProxied() && connection.isSecure()) {
 				httpMethod = new ConnectMethod();
@@ -146,7 +150,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 				header.append(new BASE64Encoder().encode(endpointUri.getUserInfo().getBytes()));
 				httpMethod.addRequestHeader(HttpConstants.HEADER_AUTHORIZATION, header.toString());
 			}
-			
+
 			httpMethod.execute(state, connection);
 
 			if (httpMethod.getStatusCode() == HttpStatus.SC_OK) {
@@ -165,26 +169,24 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 		}
 	}
 
-	protected HttpMethod execute(UMOEvent event, boolean closeConnection, MessageObject messageObject) throws Exception {
-		
-		
-		String method = (String) event.getProperty(HttpConnector.HTTP_METHOD_PROPERTY, HttpConstants.METHOD_POST);
-		URI uri = new URI(replacer.replaceURLValues(event.getEndpoint().getEndpointURI().toString()	, messageObject));
-		
+	protected HttpMethod execute(UMOEndpointURI endpointURI, boolean closeConnection, MessageObject messageObject) throws Exception {
+		MuleEndpointURI uri = new MuleEndpointURI(replacer.replaceURLValues(endpointURI.toString(), messageObject));
+
 		HttpMethod httpMethod = null;
 
 		Map requestVariables = connector.getRequestVariables();
 		if (connector.getMethod().equals("post")) {
 			// We add all the paramerters from the connector to the post
-			PostMethod postMethod = new PostMethod(uri.toString());		       
-			if (requestVariables != null && requestVariables.size() > 0){
+			PostMethod postMethod = new PostMethod(uri.toString());
+			if (requestVariables != null && requestVariables.size() > 0) {
 				for (Iterator iter = requestVariables.keySet().iterator(); iter.hasNext();) {
 					String key = (String) iter.next();
-					//one of our variables can be $payload (or current payload_key)
-					//set our request entiity to this if set
-					if (key.equals(PAYLOAD_KEY)){
+					// one of our variables can be $payload (or current
+					// payload_key)
+					// set our request entiity to this if set
+					if (key.equals(PAYLOAD_KEY)) {
 						postMethod.setRequestEntity(new StringRequestEntity(replacer.replaceValues((String) requestVariables.get(key), messageObject)));
-					}else{
+					} else {
 						postMethod.addParameter(key, replacer.replaceValues((String) requestVariables.get(key), messageObject));
 					}
 				}
@@ -200,7 +202,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 			} else {
 				urlBuilder.append("?");
 			}
-			if (requestVariables != null && requestVariables.size() > 0){
+			if (requestVariables != null && requestVariables.size() > 0) {
 				for (Iterator iter = requestVariables.keySet().iterator(); iter.hasNext();) {
 					String key = (String) iter.next();
 					urlBuilder.append(key);
@@ -215,8 +217,9 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 		} else {
 			throw new Exception("Invalid HTTP Method: " + connector.getMethod());
 		}
-		if (httpMethod!=null) httpMethod.getParams().setCookiePolicy(org.apache.commons.httpclient.cookie.CookiePolicy.IGNORE_COOKIES);
-		
+		if (httpMethod != null)
+			httpMethod.getParams().setCookiePolicy(org.apache.commons.httpclient.cookie.CookiePolicy.IGNORE_COOKIES);
+
 		/*
 		 * this is not used with Mirth, however it will be helpful if we add
 		 * binary data one day else if (body instanceof HttpMethod) { httpMethod =
@@ -232,6 +235,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 		 * postMethod.setRequestEntity(new ByteArrayRequestEntity(buffer));
 		 * httpMethod = postMethod; }
 		 */
+		
 		HttpConnection connection = null;
 		try {
 			connection = getConnection(uri);
@@ -240,27 +244,26 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 				httpMethod = new ConnectMethod();
 			}
 			httpMethod.setDoAuthentication(true);
-
-			if (event.getCredentials() != null) {
-				// Add User Creds
+			if (uri.getUserInfo() != null) {
+				// Add User Creds            
 				StringBuffer header = new StringBuffer();
 				header.append("Basic ");
-				String creds = event.getCredentials().getUsername() + ":" + new String(event.getCredentials().getPassword());
+				String creds = uri.getUsername() + ":" + uri.getPassword();
 				header.append(new BASE64Encoder().encode(creds.getBytes()));
 				httpMethod.addRequestHeader(HttpConstants.HEADER_AUTHORIZATION, header.toString());
 			}
-			//add headers
+			// add headers
 			Map headerVariables = connector.getHeaderVariables();
-			if (headerVariables != null && headerVariables.size() > 0){
+			if (headerVariables != null && headerVariables.size() > 0) {
 				for (Iterator iter = headerVariables.keySet().iterator(); iter.hasNext();) {
 					String key = (String) iter.next();
 					Header httpHeader = httpMethod.getRequestHeader(key);
-					//TODO: Verify this in testing
-					if (httpHeader != null){
+					// TODO: Verify this in testing
+					if (httpHeader != null) {
 						httpMethod.removeRequestHeader(httpHeader);
 					}
 					httpMethod.addRequestHeader(key, replacer.replaceValues((String) headerVariables.get(key), messageObject));
-				}	
+				}
 			}
 			try {
 				httpMethod.execute(state, connection);
@@ -277,8 +280,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 			if (httpMethod != null)
 				httpMethod.releaseConnection();
 			connection.close();
-			messageObjectController.setError(messageObject, Constants.ERROR_404, "HTTP Error", e);
-			throw new DispatchException(event.getMessage(), event.getEndpoint(), e);
+			throw e;
 		} finally {
 			if (connection != null && closeConnection) {
 				connection.close();
@@ -294,85 +296,126 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher {
 	public UMOMessage doSend(UMOEvent event) throws Exception {
 		monitoringController.updateStatus(connector, connectorType, Event.BUSY);
 		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
+		String endpointUri = event.getEndpoint().getEndpointURI().toString();
+
 		if (messageObject == null) {
 			return null;
 		}
-		HttpMethod httpMethod = execute(event, false, messageObject);
-		try {
 
-			if (httpMethod == null) {
+		if (connector.isUsePersistentQueues()) {
+			try {
+				connector.putMessageInQueue(event.getEndpoint().getEndpointURI(), messageObject);
+				return event.getMessage();
+			} catch (Exception exq) {
+				String exceptionMessage = "Can't save payload to queue";
+				logger.error("Can't save payload to queue\r\n\t " + exq);
+				messageObjectController.setError(messageObject, Constants.ERROR_404, exceptionMessage, exq);
+				alertController.sendAlerts(((HttpConnector) connector).getChannelId(), Constants.ERROR_404, exceptionMessage, exq);
 				return null;
 			}
-
-			Properties h = new Properties();
-			Header[] headers = httpMethod.getRequestHeaders();
-			for (int i = 0; i < headers.length; i++) {
-				h.setProperty(headers[i].getName(), headers[i].getValue());
+		} else {
+			HttpMethod httpMethod = null;
+			try {
+				send(event.getEndpoint().getEndpointURI(), httpMethod, messageObject);
+				
+				if(httpMethod == null)
+					return null;
+				
+				return event.getMessage();
+			} catch (Exception e) {
+				alertController.sendAlerts(((HttpConnector) connector).getChannelId(), Constants.ERROR_404, null, e);
+				messageObjectController.setError(messageObject, Constants.ERROR_404, "HTTP Error", e);
+				throw new DispatchException(event.getMessage(), event.getEndpoint(), e);
+			} finally {
+				if (httpMethod != null)
+					httpMethod.releaseConnection();
+				monitoringController.updateStatus(connector, connectorType, Event.DONE);
 			}
-			String status = String.valueOf(httpMethod.getStatusCode());
-
-			h.setProperty(HttpConnector.HTTP_STATUS_PROPERTY, status);
-			logger.debug("Http response is: " + status);
-			ExceptionPayload ep = null;
-			
-			String fullResponseHeader = "";
-
-			if (!connector.isExcludeHeaders()) {
-				fullResponseHeader = (httpMethod.getStatusLine()==null)?"":httpMethod.getStatusLine().toString()+"\r\n";
-				org.apache.commons.httpclient.Header [] responseHeaders=httpMethod.getResponseHeaders();
-				for(int i=0;i<responseHeaders.length;i++){
-					fullResponseHeader+=responseHeaders[i].toString();
-				}
-			}
-			
-			String fullResponse=fullResponseHeader+httpMethod.getResponseBodyAsString();
-			logger.debug("Full response from HTTP:\r\n"+fullResponse);
-			
-			if (httpMethod.getStatusCode() >= 400) {
-				logger.error("HTTP Error message. Full Response: \r\n"+fullResponse);
-				String exceptionText = "Http call returned a status of: " + httpMethod.getStatusCode() + " " + httpMethod.getStatusText();
-				ep = new ExceptionPayload(new DispatchException(event.getMessage(), event.getEndpoint(), new Exception(exceptionText)));
-				messageObjectController.setError(messageObject, Constants.ERROR_404, "HTTP Error", ep.getException());
-			}
-			UMOMessage m = null;
-			// text or binary content?
-			if (httpMethod.getResponseHeader(HttpConstants.HEADER_CONTENT_TYPE) != null && httpMethod.getResponseHeader(HttpConstants.HEADER_CONTENT_TYPE).getValue().startsWith("text/")) {
-				m = new MuleMessage(fullResponseHeader+httpMethod.getResponseBodyAsString(), h);
-			} else {
-				byte[] headerBytes=fullResponseHeader.getBytes();
-				byte[] bodyBytes=httpMethod.getResponseBody();
-				byte[] fullResponseBytes = new byte[headerBytes.length+bodyBytes.length];
-				System.arraycopy(headerBytes,0,fullResponseBytes,0,headerBytes.length);
-				System.arraycopy(bodyBytes,0,fullResponseBytes,headerBytes.length,bodyBytes.length);
-				m = new MuleMessage(fullResponseBytes, h);
-			}
-
-			// update the message status to sent
-			if (ep == null){
-				//if we didn't have an exception
-				messageObjectController.setSuccess(messageObject, m.getPayloadAsString());
-			}
-			// handle reply to
-			if (connector.getReplyChannelId() != null && !connector.getReplyChannelId().equals("sink")) {
-				VMRouter router = new VMRouter();
-				router.routeMessageByChannelId(connector.getReplyChannelId(), m.getPayload(), true, true);
-			}
-
-			m.setExceptionPayload(ep);
-
-			return event.getMessage();
-		} catch (Exception e) {
-			alertController.sendAlerts(((HttpConnector) connector).getChannelId(), Constants.ERROR_404, null, e);
-			messageObjectController.setError(messageObject,Constants.ERROR_404, "HTTP Error", e);
-			throw new DispatchException(event.getMessage(), event.getEndpoint(), e);
-		} finally {
-			if (httpMethod != null)
-				httpMethod.releaseConnection();
-			monitoringController.updateStatus(connector, connectorType, Event.DONE);
 		}
 	}
+	
+	public void send(UMOEndpointURI endpointUri, HttpMethod httpMethod, MessageObject messageObject) throws Exception { 
+		httpMethod = execute(endpointUri, false, messageObject);
+		
+		if (httpMethod == null) {
+			return;
+		}
 
-	protected HttpConnection getConnection(URI uri) throws URISyntaxException {
+		Properties h = new Properties();
+		Header[] headers = httpMethod.getRequestHeaders();
+		for (int i = 0; i < headers.length; i++) {
+			h.setProperty(headers[i].getName(), headers[i].getValue());
+		}
+		String status = String.valueOf(httpMethod.getStatusCode());
+
+		h.setProperty(HttpConnector.HTTP_STATUS_PROPERTY, status);
+		logger.debug("Http response is: " + status);
+		ExceptionPayload ep = null;
+
+		String fullResponseHeader = "";
+
+		if (!connector.isExcludeHeaders()) {
+			fullResponseHeader = (httpMethod.getStatusLine() == null) ? "" : httpMethod.getStatusLine().toString() + "\r\n";
+			org.apache.commons.httpclient.Header[] responseHeaders = httpMethod.getResponseHeaders();
+			for (int i = 0; i < responseHeaders.length; i++) {
+				fullResponseHeader += responseHeaders[i].toString();
+			}
+		}
+
+		String fullResponse = fullResponseHeader + httpMethod.getResponseBodyAsString();
+		logger.debug("Full response from HTTP:\r\n" + fullResponse);
+
+		if (httpMethod.getStatusCode() >= 400) {
+			logger.error("HTTP Error message. Full Response: \r\n" + fullResponse);
+			String exceptionText = "Http call returned a status of: " + httpMethod.getStatusCode() + " " + httpMethod.getStatusText();
+			ep = new ExceptionPayload(new Exception(exceptionText));
+			messageObjectController.setError(messageObject, Constants.ERROR_404, "HTTP Error", ep.getException());
+		}
+		UMOMessage m = null;
+		// text or binary content?
+		if (httpMethod.getResponseHeader(HttpConstants.HEADER_CONTENT_TYPE) != null && httpMethod.getResponseHeader(HttpConstants.HEADER_CONTENT_TYPE).getValue().startsWith("text/")) {
+			m = new MuleMessage(fullResponseHeader + httpMethod.getResponseBodyAsString(), h);
+		} else {
+			byte[] headerBytes = fullResponseHeader.getBytes();
+			byte[] bodyBytes = httpMethod.getResponseBody();
+			byte[] fullResponseBytes = new byte[headerBytes.length + bodyBytes.length];
+			System.arraycopy(headerBytes, 0, fullResponseBytes, 0, headerBytes.length);
+			System.arraycopy(bodyBytes, 0, fullResponseBytes, headerBytes.length, bodyBytes.length);
+			m = new MuleMessage(fullResponseBytes, h);
+		}
+
+		// update the message status to sent
+		if (ep == null) {
+			// if we didn't have an exception
+			messageObjectController.setSuccess(messageObject, m.getPayloadAsString());
+		}
+		// handle reply to
+		if (connector.getReplyChannelId() != null && !connector.getReplyChannelId().equals("sink")) {
+			VMRouter router = new VMRouter();
+			router.routeMessageByChannelId(connector.getReplyChannelId(), m.getPayload(), true, !connector.isUsePersistentQueues());
+		}
+
+		m.setExceptionPayload(ep);
+	}
+ 	
+	public boolean sendPayload(QueuedMessage thePayload) throws Exception {
+		boolean result = true;
+		
+		try { 
+			HttpMethod httpMethod = null;
+			send(thePayload.getEndpointUri(), httpMethod, thePayload.getMessageObject());
+		} catch (SocketException e) {
+			messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_404, "Connection refused", e);
+			throw e;
+		} catch(Exception e) {
+			messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_404, e.getMessage(), e);
+			alertController.sendAlerts(thePayload.getMessageObject().getChannelId(), Constants.ERROR_404, e.getMessage(), e);
+		}
+		
+		return result;
+	}
+
+	protected HttpConnection getConnection(UMOEndpointURI uri) throws URISyntaxException {
 		HttpConnection connection = null;
 
 		Protocol protocol = Protocol.getProtocol(connector.getProtocol().toLowerCase());

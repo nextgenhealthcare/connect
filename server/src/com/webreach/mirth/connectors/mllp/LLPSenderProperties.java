@@ -27,9 +27,9 @@ package com.webreach.mirth.connectors.mllp;
 
 import java.util.Properties;
 
-import com.webreach.mirth.model.ComponentProperties;
+import com.webreach.mirth.model.QueuedSenderProperties;
 
-public class LLPSenderProperties implements ComponentProperties
+public class LLPSenderProperties extends QueuedSenderProperties
 {
 	public static final String name = "LLP Sender";
 	
@@ -48,18 +48,15 @@ public class LLPSenderProperties implements ComponentProperties
     public static final String LLP_RECORD_SEPARATOR = "recordSeparator";
     public static final String LLP_SEGMENT_END = "segmentEnd";
     public static final String LLP_TEMPLATE = "template";
-    public static final String LLP_USE_PERSISTENT_QUEUES = "usePersistentQueues";
     public static final String LLP_ACK_TIMEOUT = "ackTimeout";
     public static final String LLP_HL7_ACK_RESPONSE = "hl7AckResponse";
     public static final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
     public static final String CHANNEL_ID = "replyChannelId";
     public static final String CHANNEL_NAME = "channelName";
-    public static final String LLP_RECONNECT_INTERVAL = "reconnectMillisecs";
-    public static final String LLP_ROTATE_QUEUE = "rotateQueue";
     
     public Properties getDefaults()
     {
-        Properties properties = new Properties();
+        Properties properties = super.getDefaults();
         properties.put(DATATYPE, name);
         properties.put(LLP_PROTOCOL_NAME, LLP_PROTOCOL_NAME_VALUE);
         properties.put(LLP_ADDRESS, "127.0.0.1");
@@ -73,15 +70,12 @@ public class LLPSenderProperties implements ComponentProperties
         properties.put(LLP_END_OF_MESSAGE_CHARACTER, "0x1C");
         properties.put(LLP_RECORD_SEPARATOR, "0x0D");
         properties.put(LLP_SEGMENT_END, "0x0D");
-        properties.put(LLP_USE_PERSISTENT_QUEUES, "0");
         properties.put(LLP_ACK_TIMEOUT, "5000");
         properties.put(LLP_HL7_ACK_RESPONSE, "1");
         properties.put(CONNECTOR_CHARSET_ENCODING, "DEFAULT_ENCODING");
         properties.put(LLP_TEMPLATE, "${message.encodedData}");
         properties.put(CHANNEL_ID, "sink");
         properties.put(CHANNEL_NAME, "None");
-        properties.put(LLP_RECONNECT_INTERVAL, "10000");
-        properties.put(LLP_ROTATE_QUEUE, "0");
         return properties;
     }
 }
