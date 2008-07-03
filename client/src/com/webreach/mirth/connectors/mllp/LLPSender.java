@@ -33,6 +33,7 @@ import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.QueuedSenderProperties;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -66,7 +67,6 @@ public class LLPSender extends ConnectorClass
         properties.put(LLPSenderProperties.LLP_ADDRESS, hostAddressField.getText());
         properties.put(LLPSenderProperties.LLP_PORT, hostPortField.getText());
         properties.put(LLPSenderProperties.LLP_SERVER_TIMEOUT, serverTimeoutField.getText());
-        properties.put(LLPSenderProperties.LLP_RECONNECT_INTERVAL, reconnectInterval.getText());
         properties.put(LLPSenderProperties.LLP_BUFFER_SIZE, bufferSizeField.getText());
 
         if (keepConnectionOpenYesRadio.isSelected())
@@ -86,23 +86,25 @@ public class LLPSender extends ConnectorClass
         properties.put(LLPSenderProperties.LLP_RECORD_SEPARATOR, recordSeparatorField.getText());
 
         properties.put(LLPSenderProperties.LLP_SEGMENT_END, segmentEnd.getText());
-        // ast: queues
-        if (usePersistentQueuesYesRadio.isSelected())
-            properties.put(LLPSenderProperties.LLP_USE_PERSISTENT_QUEUES, UIConstants.YES_OPTION);
-        else
-            properties.put(LLPSenderProperties.LLP_USE_PERSISTENT_QUEUES, UIConstants.NO_OPTION);
 
+        properties.put(QueuedSenderProperties.RECONNECT_INTERVAL, reconnectInterval.getText());
+        
+        if (usePersistentQueuesYesRadio.isSelected())
+            properties.put(QueuedSenderProperties.USE_PERSISTENT_QUEUES, UIConstants.YES_OPTION);
+        else
+            properties.put(QueuedSenderProperties.USE_PERSISTENT_QUEUES, UIConstants.NO_OPTION);
+
+        if (rotateMessages.isSelected())
+            properties.put(QueuedSenderProperties.ROTATE_QUEUE, UIConstants.YES_OPTION);
+        else
+            properties.put(QueuedSenderProperties.ROTATE_QUEUE, UIConstants.NO_OPTION);
+        
         properties.put(LLPSenderProperties.LLP_ACK_TIMEOUT, ackTimeoutField.getText());
         
         if (processHL7AckYesRadio.isSelected())
             properties.put(LLPSenderProperties.LLP_HL7_ACK_RESPONSE, UIConstants.YES_OPTION);
         else
             properties.put(LLPSenderProperties.LLP_HL7_ACK_RESPONSE, UIConstants.NO_OPTION);
-        
-        if (rotateMessages.isSelected())
-            properties.put(LLPSenderProperties.LLP_ROTATE_QUEUE, UIConstants.YES_OPTION);
-        else
-            properties.put(LLPSenderProperties.LLP_ROTATE_QUEUE, UIConstants.NO_OPTION);
         
         properties.put(LLPSenderProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
         properties.put(LLPSenderProperties.LLP_TEMPLATE, template.getText());
@@ -118,7 +120,6 @@ public class LLPSender extends ConnectorClass
         hostAddressField.setText((String) props.get(LLPSenderProperties.LLP_ADDRESS));
         hostPortField.setText((String) props.get(LLPSenderProperties.LLP_PORT));
         serverTimeoutField.setText((String) props.get(LLPSenderProperties.LLP_SERVER_TIMEOUT));
-        reconnectInterval.setText((String) props.get(LLPSenderProperties.LLP_RECONNECT_INTERVAL));
         bufferSizeField.setText((String) props.get(LLPSenderProperties.LLP_BUFFER_SIZE));
 
         if (((String) props.get(LLPSenderProperties.LLP_KEEP_CONNECTION_OPEN)).equals(UIConstants.YES_OPTION))
@@ -137,8 +138,10 @@ public class LLPSender extends ConnectorClass
         endOfMessageCharacterField.setText((String) props.get(LLPSenderProperties.LLP_END_OF_MESSAGE_CHARACTER));
         recordSeparatorField.setText((String) props.get(LLPSenderProperties.LLP_RECORD_SEPARATOR));
         segmentEnd.setText((String) props.get(LLPSenderProperties.LLP_SEGMENT_END));
-        // ast:queued
-        if (((String) props.get(LLPSenderProperties.LLP_USE_PERSISTENT_QUEUES)).equals(UIConstants.YES_OPTION))
+        
+        reconnectInterval.setText((String) props.get(QueuedSenderProperties.RECONNECT_INTERVAL));
+        
+        if (((String) props.get(QueuedSenderProperties.USE_PERSISTENT_QUEUES)).equals(UIConstants.YES_OPTION))
         {
             usePersistentQueuesYesRadio.setSelected(true);
             usePersistentQueuesYesRadioActionPerformed(null);
@@ -148,7 +151,12 @@ public class LLPSender extends ConnectorClass
             usePersistentQueuesNoRadio.setSelected(true);
             usePersistentQueuesNoRadioActionPerformed(null);
         }
-
+        
+        if (((String) props.get(QueuedSenderProperties.ROTATE_QUEUE)).equals(UIConstants.YES_OPTION))
+            rotateMessages.setSelected(true);
+        else
+            rotateMessages.setSelected(false);
+        
         if (((String) props.get(LLPSenderProperties.LLP_ACK_TIMEOUT)).equals("0"))
             ignoreACKCheckBox.setSelected(true);
         else
@@ -162,12 +170,7 @@ public class LLPSender extends ConnectorClass
             processHL7AckYesRadio.setSelected(true);
         else
             processHL7AckNoRadio.setSelected(true);
-        
-        if (((String) props.get(LLPSenderProperties.LLP_ROTATE_QUEUE)).equals(UIConstants.YES_OPTION))
-            rotateMessages.setSelected(true);
-        else
-            rotateMessages.setSelected(false);
-        
+       
         template.setText((String) props.get(LLPSenderProperties.LLP_TEMPLATE));
         parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(LLPSenderProperties.CONNECTOR_CHARSET_ENCODING));
 
@@ -218,7 +221,7 @@ public class LLPSender extends ConnectorClass
             if (highlight)
             	serverTimeoutField.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.get(LLPSenderProperties.LLP_RECONNECT_INTERVAL)).length() == 0)
+        if (((String) props.get(QueuedSenderProperties.RECONNECT_INTERVAL)).length() == 0)
         {
             valid = false;
             if (highlight)
