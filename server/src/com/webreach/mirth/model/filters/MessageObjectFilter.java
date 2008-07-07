@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.model.filters;
 
+import java.io.Serializable;
 import java.util.Calendar;
 
 import com.webreach.mirth.model.MessageObject.Protocol;
@@ -36,7 +37,7 @@ import com.webreach.mirth.model.MessageObject.Status;
  * @author geraldb
  * 
  */
-public class MessageObjectFilter {
+public class MessageObjectFilter implements Serializable {
 	private String id;
 	private String channelId;
 	private Calendar startDate;
