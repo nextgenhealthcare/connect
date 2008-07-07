@@ -8,9 +8,7 @@
 		<property file="build.properties" />
 		<echo>Version: ${version}</echo>
 		<path id="classpath">
-			<fileset dir="${lib}" includes="*.jar" />
-			<fileset dir="${lib}/mule" includes="*.jar" />
-			<fileset dir="${lib}/jetty" includes="*.jar" />
+			<fileset dir="${lib}" includes="**/*.jar" />
 		</path>
 	</target>
 
@@ -224,7 +222,7 @@
 			<include name="com/webreach/mirth/connectors/tcp/TCPListenerProperties.class" />
 			<include name="com/webreach/mirth/connectors/tcp/TCPSenderProperties.class" />
 		</jar>
-        <jar destfile="${connectors}/tcp-server.jar">
+		<jar destfile="${connectors}/tcp-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/tcp/**" />
 				<exclude name="com/webreach/mirth/connectors/tcp/TCPListenerProperties.class" />
@@ -248,7 +246,7 @@
 			<include name="com/webreach/mirth/connectors/https/HTTPSListenerProperties.class" />
 			<include name="com/webreach/mirth/connectors/https/HTTPSSenderProperties.class" />
 		</jar>
-        <jar destfile="${connectors}/https-server.jar">
+		<jar destfile="${connectors}/https-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/https/**" />
 				<exclude name="com/webreach/mirth/connectors/https/HTTPSListenerProperties.class" />
@@ -412,6 +410,7 @@
 			<include name="com/webreach/mirth/model/**" />
 			<include name="com/webreach/mirth/util/**" />
 			<include name="com/webreach/mirth/plugins/*.class" />
+			<include name="com/webreach/mirth/connectors/*.class" />
 			<include name="org/**" />
 			<include name="ca/**" />
 
@@ -423,7 +422,6 @@
 			<exclude name="com/webreach/mirth/server/tools/IntToken.class" />
 			<exclude name="com/webreach/mirth/server/tools/StringToken.class" />
 			<exclude name="com/webreach/mirth/server/tools/QuitShell.class" />
-
 		</jar>
 
 		<!-- create the mirth-launcher jar -->
