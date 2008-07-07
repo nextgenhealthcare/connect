@@ -55,6 +55,7 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
 import com.webreach.mirth.model.MessageObject.Status;
+import com.webreach.mirth.model.converters.ObjectCloner;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.builders.ErrorMessageBuilder;
 import com.webreach.mirth.server.util.DICOMUtil;
@@ -361,8 +362,10 @@ public class MessageObjectController {
 	private void removeMessagesFromQueue(MessageObjectFilter filter) throws Exception {
 		File queuestoreDir = new File(ConfigurationController.getInstance().getQueuestorePath());
 		String uid = System.currentTimeMillis() + "";
-		filter.setStatus(Status.QUEUED);
-		int size = createMessagesTempTable(filter, uid, true);
+		// clone the filter so that we don't modify the original
+		MessageObjectFilter queueFilter = (MessageObjectFilter) ObjectCloner.deepCopy(filter);
+		queueFilter.setStatus(Status.QUEUED);
+		int size = createMessagesTempTable(queueFilter, uid, true);
 		int page = 0;
 		int interval = 10;
 
