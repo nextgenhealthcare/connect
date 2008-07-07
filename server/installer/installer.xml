@@ -434,6 +434,13 @@
 						</logMessage>
 
 						<createWindowsService>
+							<ruleList>
+								<windowsServiceTest>
+									<service>Mirth</service>
+									<condition>not_exists</condition>
+								</windowsServiceTest>
+							</ruleList>
+
 							<program>${installdir}/wrapper.exe</program>
 							<programArguments>-s "${installdir}/conf/wrapper.conf"</programArguments>
 
