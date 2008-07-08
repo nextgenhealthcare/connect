@@ -19,14 +19,20 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.NClob;
+import java.sql.Clob;
+import java.sql.Blob;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
+import java.sql.SQLXML;
 import java.sql.Savepoint;
 import java.sql.Statement;
 import java.util.Map;
-
+import java.util.Properties;
+import java.sql.Struct;
+import java.sql.Array;
 import javax.sql.XAConnection;
 import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
@@ -48,6 +54,69 @@ public class ConnectionWrapper implements Connection
         this.con = xaCon.getConnection();
         this.tm = tm;
         this.tx = null;
+    }
+
+    public boolean isWrapperFor(Class iface) throws SQLException
+    {
+        return false;
+    }
+
+    public Object unwrap(Class iface) throws SQLException
+    {
+        throw new SQLException("No object found for " + iface);
+    }
+
+    public Struct createStruct(String typeName, Object[] attributes) throws SQLException
+    {
+        return null;
+    }
+
+    public Array createArrayOf(String typeName, Object[] elements) throws SQLException
+    {
+	  return null;
+    }
+
+    public Properties getClientInfo() throws SQLException
+    {
+	return null;
+    }
+
+    public String getClientInfo(String prop) throws SQLException
+    {
+	return null;
+    }
+
+    public void setClientInfo(Properties properties)
+    {
+    }
+
+    public void setClientInfo(String name, String value)
+    {
+    }
+
+    public boolean isValid(int timeout) throws SQLException
+    {
+        return !isClosed();
+    }
+
+    public SQLXML createSQLXML() throws SQLException
+    {
+        return null;
+    }
+
+    public NClob createNClob() throws SQLException
+    {
+        return null;
+    }
+
+    public Clob createClob() throws SQLException
+    {
+        return null;
+    }
+
+    public Blob createBlob() throws SQLException
+    {
+        return null;
     }
 
     /*
