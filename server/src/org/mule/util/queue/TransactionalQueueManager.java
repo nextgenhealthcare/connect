@@ -410,7 +410,7 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 
 		public Queue getQueue(String name) {
 			QueueInfo queueInfo = TransactionalQueueManager.this.getQueue(name);
-			return new QueueImpl(queueInfo);	
+			return new QueueImpl(queueInfo);
 		}
 
 		public Queue resyncQueue(String name) {
@@ -421,7 +421,7 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 					List msgs = persistenceStrategy.restore();
 					for (Iterator it = msgs.iterator(); it.hasNext();) {
 						Holder h = (Holder) it.next();
-						if(h.getQueue().equals(name)) { 
+						if (h.getQueue().equals(name)) {
 							queueInfo.putNow(h.getId());
 						}
 					}
@@ -441,29 +441,29 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 				this.queue = queue;
 			}
 
-			public void put(Object item) throws InterruptedException {
+			public void put(Object item) throws Exception {
 				offer(item, Long.MAX_VALUE);
 			}
 
-			public boolean offer(Object item, long timeout) throws InterruptedException {
+			public boolean offer(Object item, long timeout) throws Exception {
 				if (localContext != null) {
 					return ((QueueTransactionContext) localContext).offer(queue, item, timeout);
 				} else {
+					Object id = doStore(queue, item);
 					try {
-						Object id = doStore(queue, item);
-						try {
-							if (!queue.offer(id, 0, timeout)) {
-								doRemove(queue, item);
-								return false;
-							} else {
-								return true;
-							}
-						} catch (InterruptedException e) {
+						if (!queue.offer(id, 0, timeout)) {
 							doRemove(queue, item);
-							throw e;
+							return false;
+						} else {
+							return true;
 						}
-					} catch (IOException e) {
-						throw new RuntimeException(e);
+					} catch (InterruptedException e) {
+						try {
+							doRemove(queue, item);
+						} catch(Exception ex) {
+							logger.warn("message not found because it wasn't fully persisted");
+						}
+						throw e;
 					}
 				}
 			}

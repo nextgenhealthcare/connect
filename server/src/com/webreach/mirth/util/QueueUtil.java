@@ -4,11 +4,32 @@ import java.io.File;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.webreach.mirth.server.controllers.ConfigurationController;
+import com.webreach.mirth.server.controllers.MessageObjectController;
 
 public class QueueUtil {
-	public static void removeChannelQueuestore(String channelId) throws Exception {
+	private Log logger = LogFactory.getLog(getClass());
+	
+	private static QueueUtil instance = null;
+
+	public QueueUtil() {
+		
+	}
+	
+	public static QueueUtil getInstance() {
+		synchronized (QueueUtil.class) {
+			if (instance == null) {
+				instance = new QueueUtil();
+			}
+			
+			return instance;
+		}
+	}
+	
+	public void removeChannelQueuestore(String channelId) throws Exception {
 		try {
 			File queuestoreDir = new File(ConfigurationController.getInstance().getQueuestorePath());
 
@@ -23,7 +44,7 @@ public class QueueUtil {
 				}
 			}
 		} catch (Exception e) {
-			throw new Exception("Could remove queue messages for channel: " + channelId);
+			logger.error("Could remove queue messages for channel: " + channelId + " \n" + e);
 		}
 	}
 }

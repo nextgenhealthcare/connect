@@ -93,6 +93,8 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
 				queue.put(event);
 			} catch (InterruptedException e) {
 				throw new MuleException(new Message(Messages.INTERRUPTED_QUEUING_EVENT_FOR_X, this.endpoint.getEndpointURI()), e);
+			} catch (Exception e) { 
+				throw new MuleException(e);
 			}
 		} else {
 			try{

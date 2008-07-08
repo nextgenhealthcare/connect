@@ -26,6 +26,8 @@ import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageReceiver;
 
+import com.webreach.mirth.server.Constants;
+
 /**
  * <code>HttpConnector</code> provides a way of receiving and sending http
  * requests and responses. The UMOConnector itself handles dispatching http
@@ -128,6 +130,7 @@ public class HttpConnector extends TcpConnector
 		super.doInitialise();
 		
 		if(isUsePersistentQueues()) { 
+			setConnectorErrorCode(Constants.ERROR_404);
 			setDispatcher(new HttpClientMessageDispatcher(this));
 		}
 	}

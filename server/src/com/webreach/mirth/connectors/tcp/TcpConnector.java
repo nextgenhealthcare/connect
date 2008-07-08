@@ -24,6 +24,7 @@ import org.mule.umo.provider.UMOMessageReceiver;
 
 import com.webreach.mirth.connectors.tcp.protocols.DefaultProtocol;
 import com.webreach.mirth.model.SystemEvent;
+import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.SystemLogger;
 
 /**
@@ -154,6 +155,7 @@ public class TcpConnector extends QueueEnabledConnector {
 		}
 		
 		if(isUsePersistentQueues()) { 
+			setConnectorErrorCode(Constants.ERROR_411);
 			setDispatcher(new TcpMessageDispatcher(this));
 		}
 	}

@@ -57,6 +57,7 @@ import org.mule.util.ClassHelper;
 
 import com.webreach.mirth.connectors.http.HttpClientMessageDispatcher;
 import com.webreach.mirth.connectors.soap.axis.extensions.WSDDJavaMuleProvider;
+import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.util.UUIDGenerator;
 
 /**
@@ -211,6 +212,7 @@ public class AxisConnector extends QueueEnabledConnector implements ModelEventLi
         }
         
         if(isUsePersistentQueues()) { 
+        	setConnectorErrorCode(Constants.ERROR_410);
 			setDispatcher(new AxisMessageDispatcher(this));
 		}
     }

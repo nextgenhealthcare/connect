@@ -254,7 +254,7 @@ public class ChannelController {
 		logger.debug("removing channel");
 
 		try {
-			QueueUtil.removeChannelQueuestore(channel.getId());
+			QueueUtil.getInstance().removeChannelQueuestore(channel.getId());
 			removeChannelFromCache(channel);
 			sqlMap.delete("deleteChannel", channel);
 		} catch (Exception e) {

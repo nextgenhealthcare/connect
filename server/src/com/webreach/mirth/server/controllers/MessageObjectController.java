@@ -430,7 +430,7 @@ public class MessageObjectController {
 			parameterMap.put("channelId", channelId);
 			sqlMap.delete("deleteMessage", parameterMap);
             sqlMap.delete("deleteUnusedAttachments");
-            QueueUtil.removeChannelQueuestore(channelId);
+            QueueUtil.getInstance().removeChannelQueuestore(channelId);
         } catch (Exception e) {
 			throw new ControllerException(e);
 		}

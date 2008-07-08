@@ -15,21 +15,25 @@ import org.mule.util.queue.Queue;
 import org.mule.util.queue.QueueManager;
 import org.mule.util.queue.QueueSession;
 
+import com.webreach.mirth.connectors.mllp.MllpConnector;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.QueuedMessage;
+import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 
 public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-	
+	private AlertController alertController = AlertController.getInstance();
+
 	protected Queue queue = null;
 	protected Queue errorQueue = null;
-	
+
 	private QueueEnabledMessageDispatcher dispatcher;
 
 	public static final String PROPERTY_ROTATE_QUEUE = "rotateQueue";
 	public static final long DEFAULT_POLLING_FREQUENCY = 10;
-
+	
+	private String connectorErrorCode;
 	private boolean rotateQueue = false;
 	private boolean usePersistentQueues = false;
 	private long pollMaxTime = 10000;
@@ -64,21 +68,21 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 			}
 		}
 	}
-	
+
 	@Override
 	public void startDispatchers(UMOComponent component, UMOEndpoint endpoint) throws UMOException {
 		// TODO Auto-generated method stub
 		super.startDispatchers(component, endpoint);
 		startQueueThread();
 	}
-	
+
 	@Override
 	public void stopDispatchers(UMOComponent component, UMOEndpoint endpoint) throws UMOException {
 		// TODO Auto-generated method stub
 		super.stopDispatchers(component, endpoint);
 		stopQueueThread();
 	}
-	
+
 	public void setQueues() {
 		try {
 			this.queue = getQueue();
@@ -90,11 +94,11 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 
 	public void putMessageInQueue(UMOEndpointURI endpointUri, MessageObject messageObject) throws Exception {
 		messageObjectController.setQueued(messageObject, "Message is queued");
-		
+
 		QueuedMessage queuedMessage = new QueuedMessage();
 		queuedMessage.setEndpointUri(endpointUri);
 		queuedMessage.setMessageObject(messageObject);
-		
+
 		queue.put(queuedMessage);
 	}
 
@@ -111,20 +115,35 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 		public void release() {
 
 		}
+		
+		public void rotateCurrentMessage() throws InterruptedException{ 
+			QueuedMessage tempMessage = (QueuedMessage) queue.poll(getPollMaxTime());
+			if (tempMessage != null) {
+				try {
+					queue.put(tempMessage);
+				} catch (InterruptedException e) {
+					throw e;
+				} catch (Exception e) {
+					logger.error("Could not rotate message in queue: " + e);
+					alertController.sendAlerts(tempMessage.getMessageObject().getChannelId(), getConnectorErrorCode(), null, e);
+					messageObjectController.setError(tempMessage.getMessageObject(), getConnectorErrorCode(), "Could not rotate message in queue", e);
+				}
+			}
+		}
 
 		public void run() {
-				
+
 			try {
-				logger.debug("queuing thread started on connector: " + getName());		
+				logger.debug("queuing thread started on connector: " + getName());
 				while (!killQueueThread) {
 					boolean connected = true;
-					
+					boolean interrupted = false;
 					try {
 						queue = getQueueSession().resyncQueue(getQueueName());
-					} catch (Exception ex) { 
+					} catch (Exception ex) {
 						logger.error(ex);
 					}
-					
+
 					logger.debug("queue.size = " + queue.size());
 					if (queue == null || queue.size() == 0) {
 						Thread.sleep(getReconnectMillisecs());
@@ -133,7 +152,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 						// waiting
 						while ((queue.size() > 0) && connected) {
 							QueuedMessage thePayload = null;
-							
+
 							try {
 								thePayload = (QueuedMessage) queue.peek();
 								logger.debug("retrying queued message: id = " + thePayload.getMessageObject().getId() + ", endpointUri = " + thePayload.getEndpointUri().toString());
@@ -142,30 +161,30 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 									connected = true;
 								} else {
 									if (isRotateQueue()) {
-										QueuedMessage tempMessage = (QueuedMessage) queue.poll(getPollMaxTime());
-										if(tempMessage != null) { 
-											queue.put(tempMessage);
-										}
+										rotateCurrentMessage();
 									}
 									MessageObjectController.getInstance().resetQueuedStatus(thePayload.getMessageObject());
 								}
-							} catch (Throwable t) { 
+							} catch (Throwable t) {
+								if(t instanceof InterruptedException) {
+									interrupted = true;
+								}
+								
 								if (thePayload != null) {
 									if (isRotateQueue()) {
-										QueuedMessage tempMessage = (QueuedMessage) queue.poll(getPollMaxTime());
-										if(tempMessage != null) { 
-											queue.put(tempMessage);
-										}
+										rotateCurrentMessage();
 									}
 									logger.debug("Conection error [" + t + "] " + " at " + thePayload.getEndpointUri().toString() + " queue size " + new Integer(queue.size()).toString());
 									MessageObjectController.getInstance().resetQueuedStatus(thePayload.getMessageObject());
-								} else { 
-									queue.poll(getPollMaxTime());
-									logger.error("error reading message off the queue: " + t);
+								} else {
+									if (!interrupted) {
+										queue.poll(getPollMaxTime());
+										logger.warn("Error reading message off the queue: " + t);
+									}
 								}
 								connected = false;
 							}
-							if (!connected) { 
+							if (!connected && !interrupted) {
 								Thread.sleep(getReconnectMillisecs());
 							}
 						}
@@ -173,10 +192,10 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 				}
 			} catch (InterruptedException e) {
 			}
-			logger.debug("queuing thread ended on connector: " + getName());	
+			logger.debug("queuing thread ended on connector: " + getName());
 		}
 	}
-
+	
 	@Override
 	public String getProtocol() {
 		// override in implementing class
@@ -317,5 +336,13 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 
 	public int getMaxQueues() {
 		return maxQueues;
+	}
+
+	public String getConnectorErrorCode() {
+		return connectorErrorCode;
+	}
+
+	public void setConnectorErrorCode(String connectorErrorCode) {
+		this.connectorErrorCode = connectorErrorCode;
 	}
 }
