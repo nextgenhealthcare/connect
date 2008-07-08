@@ -34,16 +34,6 @@ public class DataSourceWrapper implements DataSource
     {
     }
 
-    public boolean isWrapperFor(Class iface) throws SQLException
-    {
-        return false;
-    }
-
-    public Object unwrap(Class iface) throws SQLException
-    {
-        throw new SQLException("No object found for " + iface);
-    }
-
     public DataSourceWrapper(XADataSource xads, TransactionManager tm)
     {
         this.xads = xads;
