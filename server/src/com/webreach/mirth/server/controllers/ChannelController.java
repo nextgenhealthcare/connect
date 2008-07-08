@@ -250,12 +250,24 @@ public class ChannelController {
 		}
 	}
 
+	/**
+	 * Removes a channel. If the channel is NULL, then all channels are removed.
+	 * 
+	 * @param channel
+	 * @throws ControllerException
+	 */
 	public void removeChannel(Channel channel) throws ControllerException {
 		logger.debug("removing channel");
 
 		try {
-			QueueUtil.getInstance().removeChannelQueuestore(channel.getId());
-			removeChannelFromCache(channel);
+			if (channel != null) {
+				QueueUtil.getInstance().removeChannelQueuestore(channel.getId());
+				removeChannelFromCache(channel.getId());
+			} else {
+				QueueUtil.getInstance().clearChannelQueuestores();
+				clearChannelCache();
+			}
+
 			sqlMap.delete("deleteChannel", channel);
 		} catch (Exception e) {
 			throw new ControllerException(e);
@@ -266,11 +278,14 @@ public class ChannelController {
 		return channelCache;
 	}
 
-	private static void removeChannelFromCache(Channel channel) {
-		if (channel != null) {
-			channelCache.remove(channel.getId());
-			channelIdLookup.remove(channel.getId());
-		}
+	private static void removeChannelFromCache(String channelId) {
+		channelCache.remove(channelId);
+		channelIdLookup.remove(channelId);
+	}
+
+	private static void clearChannelCache() {
+		channelCache.clear();
+		channelIdLookup.clear();
 	}
 
 	private static void updateChannelInCache(Channel channel) {
