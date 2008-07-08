@@ -33,10 +33,10 @@ import java.util.zip.GZIPOutputStream;
 
 import sun.misc.BASE64Encoder;
 
-import com.webreach.mirth.model.ComponentProperties;
+import com.webreach.mirth.model.QueuedSenderProperties;
 import com.webreach.mirth.model.ws.WSDefinition;
 
-public class SOAPSenderProperties implements ComponentProperties
+public class SOAPSenderProperties extends QueuedSenderProperties
 { 
     public static final String name = "SOAP Sender";
 
@@ -58,7 +58,7 @@ public class SOAPSenderProperties implements ComponentProperties
 
     public Properties getDefaults()
     {
-        Properties properties = new Properties();
+        Properties properties = super.getDefaults();
         properties.put(DATATYPE, name);
         properties.put(SOAP_URL, "");
         properties.put(SOAP_SERVICE_ENDPOINT, "");

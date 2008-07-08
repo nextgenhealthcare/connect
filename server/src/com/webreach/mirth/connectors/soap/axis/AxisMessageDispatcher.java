@@ -16,6 +16,8 @@
 package com.webreach.mirth.connectors.soap.axis;
 
 import java.io.UnsupportedEncodingException;
+import java.net.ConnectException;
+import java.net.SocketException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +32,7 @@ import javax.activation.DataHandler;
 import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPEnvelope;
 
+import org.apache.axis.AxisFault;
 import org.apache.axis.AxisProperties;
 import org.apache.axis.Handler;
 import org.apache.axis.Message;
@@ -48,6 +51,7 @@ import org.apache.axis.wsdl.fromJava.Types;
 import org.apache.axis.wsdl.gen.Parser;
 import org.apache.axis.wsdl.symbolTable.ServiceEntry;
 import org.apache.axis.wsdl.symbolTable.SymTabEntry;
+import org.apache.commons.httpclient.HttpMethod;
 import org.mule.config.MuleProperties;
 import org.mule.config.i18n.Messages;
 import org.mule.impl.MuleMessage;
@@ -56,6 +60,7 @@ import org.mule.impl.endpoint.MuleEndpointURI;
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.NullPayload;
 import org.mule.providers.ParameterValueReplacer;
+import org.mule.providers.QueueEnabledMessageDispatcher;
 import org.mule.providers.TemplateValueReplacer;
 import org.mule.providers.soap.NamedParameter;
 import org.mule.providers.soap.SoapMethod;
@@ -72,7 +77,9 @@ import org.mule.umo.transformer.TransformerException;
 import org.mule.util.BeanUtils;
 import org.mule.util.TemplateParser;
 
+import com.webreach.mirth.connectors.http.HttpConnector;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.QueuedMessage;
 import com.webreach.mirth.model.ws.WSParameter;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
@@ -89,19 +96,20 @@ import com.webreach.mirth.server.util.VMRouter;
  * <at> author <a href="mailto:ross.mason@...">Ross Mason</a> <at> version
  * $Revision: 1.26 $
  */
-public class AxisMessageDispatcher extends AbstractMessageDispatcher {
+public class AxisMessageDispatcher extends AbstractMessageDispatcher implements QueueEnabledMessageDispatcher {
 	private Map<String, Service> services;
-
-	private Map<String, SoapMethod> callParameters;
 
 	protected SimpleProvider clientConfig;
 	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
 	private AlertController alertController = AlertController.getInstance();
 	private MonitoringController monitoringController = MonitoringController.getInstance();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
-	private ConnectorType connectorType= ConnectorType.SENDER;
-	public AxisMessageDispatcher(AxisConnector connector) throws UMOException {
+	private ConnectorType connectorType = ConnectorType.SENDER;
+	private AxisConnector connector;
+
+	public AxisMessageDispatcher(AxisConnector connector) {
 		super(connector);
+		this.connector = connector;
 		AxisProperties.setProperty("axis.doAutoTypes", "true");
 		services = new HashMap<String, Service>();
 		// Should be loading this from a WSDD but for some reason it is not
@@ -110,8 +118,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
 	}
 
-	public void doDispose() {
-	}
+	public void doDispose() {}
 
 	protected synchronized Service getService(UMOEvent event) throws Exception {
 		String wsdlUrl = getWsdlUrl(event);
@@ -202,93 +209,112 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		if (messageObject == null) {
 			return;
 		}
-		invokeWebService(event, messageObject);	
+
+		if (connector.isUsePersistentQueues()) {
+			try {
+				connector.putMessageInQueue(event.getEndpoint().getEndpointURI(), messageObject);
+			} catch (Exception exq) {
+				String exceptionMessage = "Can't save payload to queue";
+				logger.error("Can't save payload to queue\r\n\t " + exq);
+				messageObjectController.setError(messageObject, Constants.ERROR_404, exceptionMessage, exq);
+				alertController.sendAlerts(messageObject.getChannelId(), Constants.ERROR_404, exceptionMessage, exq);
+			}
+		} else {
+			try {
+				invokeWebService(event.getEndpoint().getEndpointURI(), messageObject);
+			} catch (Exception e) {
+				alertController.sendAlerts(messageObject.getChannelId(), Constants.ERROR_410, "Error invoking WebService", e);
+				messageObjectController.setError(messageObject, Constants.ERROR_410, "Error invoking WebService", e);
+				connector.handleException(e);
+			} finally {
+				monitoringController.updateStatus(connector, connectorType, Event.DONE);
+			}
+		}
 	}
 
-	private Object[] invokeWebService(UMOEvent event, MessageObject messageObject) throws Exception {
-		try{
-			monitoringController.updateStatus(connector, connectorType, Event.BUSY);
-			//set the uri for the event
-			String uri = "axis:" + replacer.replaceURLValues(event.getEndpoint().getEndpointURI().toString(), messageObject);
-			String serviceEndpoint = "";
-			if (((AxisConnector) connector).getServiceEndpoint() != null && ((AxisConnector) connector).getServiceEndpoint().length() > 0){
-				try{
-					serviceEndpoint=replacer.replaceURLValues(URLEncoder.encode(((AxisConnector) connector).getServiceEndpoint(),"UTF-8"), messageObject);
-				}catch(UnsupportedEncodingException e){
-					serviceEndpoint=replacer.replaceURLValues(URLEncoder.encode(((AxisConnector) connector).getServiceEndpoint()), messageObject);
-				}
+	public boolean sendPayload(QueuedMessage thePayload) throws Exception {
+		boolean result = true;
+
+		try {
+			invokeWebService(thePayload.getEndpointUri(), thePayload.getMessageObject());
+		} catch (Exception e) {
+			if (e instanceof AxisFault && ((AxisFault) e).detail != null && ((AxisFault) e).detail.getClass() == ConnectException.class) {
+				messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_404, "Connection refused", e);
+				throw e;
 			}
-			
-			event.getEndpoint().setEndpointURI(new MuleEndpointURI(uri));
-			AxisProperties.setProperty("axis.doAutoTypes", "true");
-			Object[] args = new Object[0];// getArgs(event);
-			Call call = getCall(event, args);
-			//note - this is rather strange, as we have a valid call above
-			//however the call about does not work
-			call = new Call(serviceEndpoint);
-			String requestMessage = ((AxisConnector) connector).getSoapEnvelope();
-			// Run the template replacer on the xml
-			
-			requestMessage = replacer.replaceValues(requestMessage, messageObject);
-			Message reqMessage = new Message(requestMessage);
-			// Only set the actionURI if we have one explicitly defined
-			if (((AxisConnector) connector).getSoapActionURI() != null && ((AxisConnector) connector).getSoapActionURI().length() > 0){
-				call.setSOAPActionURI(replacer.replaceURLValues(((AxisConnector) connector).getSoapActionURI(), messageObject));
-			}
-			if (serviceEndpoint.length() > 0){
-				call.setTargetEndpointAddress(serviceEndpoint);
-			}
-	
-			// dont use invokeOneWay here as we are already in a thread pool.
-			// Axis creates a new thread for every invoke one way call. nasty!
-			// Mule overides the default Axis HttpSender to return immediately if
-			// the axis.one.way property is set
-			// Change this to FALSE to debug
-			
-			call.setProperty("axis.one.way", Boolean.TRUE);
-			call.setProperty(MuleProperties.MULE_EVENT_PROPERTY, event);
-			//ast: Get possible user auth info from endpoint
-			// this only resolves basic and NTLM
-			// For auth/digest protocol://user:pass@uri
-			// For NTLM protocol://domain%5Cuser:pass@uri
-			// (%5C is the urlencoding for '\')
-			UMOEndpointURI endpointUri = event.getEndpoint().getEndpointURI();
-			if (endpointUri.getUserInfo() != null) {
-				call.setProperty(Call.USERNAME_PROPERTY, endpointUri.getUsername());
-				call.setProperty(Call.PASSWORD_PROPERTY, endpointUri.getPassword());
-				logger.trace("HTTP auth sec detected: ["+endpointUri.getUsername()+"] Clave: ["+endpointUri.getPassword()+"]");			
-			}else{
-				logger.trace("No HTTP auth sec detected");
-			}
-			
-			
-			// call.invoke(args);
-			Object result = call.invoke(reqMessage);
-			AxisConnector axisConnector = (AxisConnector)connector;
-			if (axisConnector.getReplyChannelId() != null && !axisConnector.getReplyChannelId().equals("")  && !axisConnector.getReplyChannelId().equals("sink")){
-				//reply back to channel
-				VMRouter router = new VMRouter();
-				router.routeMessageByChannelId(axisConnector.getReplyChannelId(), result.toString(), true, true);
-			}
-			// update the message status to sent
-			if (result == null){
-				result = "";
-			}
-			messageObjectController.setSuccess(messageObject, result.toString());
-			Object[] retVal = new Object[2];
-			retVal[0] = result;
-			retVal[1] = call.getMessageContext();
-			logger.debug("WS ("+endpointUri.toString()+" returned \r\n["+result+"]");
-			return retVal;
-		}catch(Exception e){
-			alertController.sendAlerts(messageObject.getChannelId(), Constants.ERROR_410, "Error invoking WebService", e);
-			messageObjectController.setError(messageObject, Constants.ERROR_410, "Error invoking WebService", e);
-			connector.handleException(e);
-			return null;
-		}finally{
-			monitoringController.updateStatus(connector, connectorType, Event.DONE);
+			messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_404, e.getMessage(), e);
+			alertController.sendAlerts(thePayload.getMessageObject().getChannelId(), Constants.ERROR_404, e.getMessage(), e);
 		}
 
+		return result;
+	}
+
+	private Object[] invokeWebService(UMOEndpointURI endpointUri, MessageObject messageObject) throws Exception {
+		monitoringController.updateStatus(connector, connectorType, Event.BUSY);
+		// set the uri for the event
+		String uri = "axis:" + replacer.replaceURLValues(endpointUri.toString(), messageObject);
+		MuleEndpointURI updatedUri = new MuleEndpointURI(uri);
+		String serviceEndpoint = "";
+		if (((AxisConnector) connector).getServiceEndpoint() != null && ((AxisConnector) connector).getServiceEndpoint().length() > 0) {
+			try {
+				serviceEndpoint = replacer.replaceURLValues(URLEncoder.encode(((AxisConnector) connector).getServiceEndpoint(), "UTF-8"), messageObject);
+			} catch (UnsupportedEncodingException e) {
+				serviceEndpoint = replacer.replaceURLValues(URLEncoder.encode(((AxisConnector) connector).getServiceEndpoint()), messageObject);
+			}
+		}
+
+		AxisProperties.setProperty("axis.doAutoTypes", "true");
+		Object[] args = new Object[0];// getArgs(event);
+
+		Call call = new Call(serviceEndpoint);
+		String requestMessage = ((AxisConnector) connector).getSoapEnvelope();
+		// Run the template replacer on the xml
+
+		requestMessage = replacer.replaceValues(requestMessage, messageObject);
+		Message reqMessage = new Message(requestMessage);
+		// Only set the actionURI if we have one explicitly defined
+		if (((AxisConnector) connector).getSoapActionURI() != null && ((AxisConnector) connector).getSoapActionURI().length() > 0) {
+			call.setSOAPActionURI(replacer.replaceURLValues(((AxisConnector) connector).getSoapActionURI(), messageObject));
+		}
+		if (serviceEndpoint.length() > 0) {
+			call.setTargetEndpointAddress(serviceEndpoint);
+		}
+
+		// dont use invokeOneWay here as we are already in a thread pool.
+		// Axis creates a new thread for every invoke one way call. nasty!
+		// Mule overides the default Axis HttpSender to return immediately if
+		// the axis.one.way property is set
+		// Change this to FALSE to debug
+
+		call.setProperty("axis.one.way", Boolean.TRUE);
+
+		// get basic authentication info
+		if (updatedUri.getUserInfo() != null) {
+			call.setProperty(Call.USERNAME_PROPERTY, updatedUri.getUsername());
+			call.setProperty(Call.PASSWORD_PROPERTY, updatedUri.getPassword());
+			logger.trace("HTTP auth sec detected: [" + updatedUri.getUsername() + "] Clave: [" + updatedUri.getPassword() + "]");
+		} else {
+			logger.trace("No HTTP auth sec detected");
+		}
+
+		// call.invoke(args);
+		Object result = call.invoke(reqMessage);
+		AxisConnector axisConnector = (AxisConnector) connector;
+		if (axisConnector.getReplyChannelId() != null && !axisConnector.getReplyChannelId().equals("") && !axisConnector.getReplyChannelId().equals("sink")) {
+			// reply back to channel
+			VMRouter router = new VMRouter();
+			router.routeMessageByChannelId(axisConnector.getReplyChannelId(), result.toString(), true, true);
+		}
+		// update the message status to sent
+		if (result == null) {
+			result = "";
+		}
+		messageObjectController.setSuccess(messageObject, result.toString());
+		Object[] retVal = new Object[2];
+		retVal[0] = result;
+		retVal[1] = call.getMessageContext();
+		logger.debug("WS (" + endpointUri.toString() + " returned \r\n[" + result + "]");
+		return retVal;
 	}
 
 	public UMOMessage doSend(UMOEvent event) throws Exception {
@@ -297,155 +323,42 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 		if (messageObject == null) {
 			return null;
 		}
-		results = invokeWebService(event, messageObject);	
-		
-		Object result = null;
-		if (results != null){
-			result = results[0];
-			
-		}
-		if (result == null) {
+		if (connector.isUsePersistentQueues()) {
+			try {
+				connector.putMessageInQueue(event.getEndpoint().getEndpointURI(), messageObject);
+			} catch (Exception exq) {
+				String exceptionMessage = "Can't save payload to queue";
+				logger.error("Can't save payload to queue\r\n\t " + exq);
+				messageObjectController.setError(messageObject, Constants.ERROR_404, exceptionMessage, exq);
+				alertController.sendAlerts(messageObject.getChannelId(), Constants.ERROR_404, exceptionMessage, exq);
+			}
 			return null;
 		} else {
-			//Return the messageObject here
-			UMOMessage resultMessage = new MuleMessage(messageObject, event.getProperties());
-			setMessageContextProperties(resultMessage, (MessageContext) results[1]);
-			return resultMessage;
-		}
-	}
+			try {
+				results = invokeWebService(event.getEndpoint().getEndpointURI(), messageObject);
 
-	private Call getCall(UMOEvent event, Object[] args) throws Exception {
-		UMOEndpointURI endpointUri = event.getEndpoint().getEndpointURI();
-		String method = (String) endpointUri.getParams().remove("method");
+				Object result = null;
+				if (results != null) {
+					result = results[0];
 
-		if (method == null) {
-			method = (String) event.getEndpoint().getProperties().get("method");
-			if (method == null) {
-				throw new DispatchException(new org.mule.config.i18n.Message("soap", 4), event.getMessage(), event.getEndpoint());
-			}
-		}
-
-		Call call = (Call) getService(event).createCall();
-
-		String style = (String) event.getProperties().get("style");
-		String use = (String) event.getProperties().get("use");
-
-		// Note that Axis has specific rules to how these two variables are
-		// combined. This is handled for us
-		// Set style: RPC/wrapped/Doc/Message
-		if (style != null) {
-			Style s = Style.getStyle(style);
-			if (s == null) {
-				throw new IllegalArgumentException(new org.mule.config.i18n.Message(Messages.VALUE_X_IS_INVALID_FOR_X, style, "style").toString());
-			} else {
-				call.setOperationStyle(s);
-			}
-		}
-		// Set use: Endcoded/Literal
-		if (use != null) {
-			Use u = Use.getUse(use);
-			if (u == null) {
-				throw new IllegalArgumentException(new org.mule.config.i18n.Message(Messages.VALUE_X_IS_INVALID_FOR_X, use, "use").toString());
-			} else {
-				call.setOperationUse(u);
-			}
-		}
-
-		// set properties on the call from the endpoint properties
-		BeanUtils.populateWithoutFail(call, event.getEndpoint().getProperties(), false);
-		call.setTargetEndpointAddress(endpointUri.toString());
-
-		// Set a custome method namespace if one is set. This will be used
-		// forthe parameters too
-		String methodNamespace = (String) event.getProperty(AxisConnector.METHOD_NAMESPACE_PROPERTY);
-		if (methodNamespace != null) {
-			call.setOperationName(new QName(methodNamespace, method));
-		} else {
-			call.setOperationName(new QName(method));
-		}
-
-		// set Mule event here so that handlers can extract info
-		call.setProperty(MuleProperties.MULE_EVENT_PROPERTY, event);
-		call.setProperty(MuleProperties.MULE_ENDPOINT_PROPERTY, event.getEndpoint());
-		// Set timeout
-		int timeout = event.getIntProperty(MuleProperties.MULE_EVENT_TIMEOUT_PROPERTY, -1);
-		if (timeout >= 0) {
-			call.setTimeout(new Integer(timeout));
-		}
-		// Add User Creds
-		if (endpointUri.getUserInfo() != null) {
-			call.setUsername(endpointUri.getUsername());
-			call.setPassword(endpointUri.getPassword());
-		}
-
-		Map methodCalls = (Map) event.getProperty("soapMethods");
-		if (methodCalls == null) {
-			ArrayList<String> params = new ArrayList<String>();
-			for (int i = 0; i < args.length; i++) {
-				if (args[i] instanceof DataHandler[]) {
-					params.add("attachments;qname{DataHandler:http://xml.apache.org/xml-soap};in");
-				} else if (call.getTypeMapping().getTypeQName(args[i].getClass()) != null) {
-					QName qname = call.getTypeMapping().getTypeQName(args[i].getClass());
-					params.add("value" + i + ";qname{" + qname.getPrefix() + ":" + qname.getLocalPart() + ":" + qname.getNamespaceURI() + "};in");
-				} else {
-					params.add("value" + i + ";qname{" + Types.getLocalNameFromFullName(args[i].getClass().getName()) + ":" + Namespaces.makeNamespace(args[i].getClass().getName()) + "};in");
 				}
+				if (result == null) {
+					return null;
+				} else {
+					// Return the messageObject here
+					UMOMessage resultMessage = new MuleMessage(messageObject, event.getProperties());
+					setMessageContextProperties(resultMessage, (MessageContext) results[1]);
+					return resultMessage;
+				}
+			} catch (Exception e) {
+				alertController.sendAlerts(messageObject.getChannelId(), Constants.ERROR_410, "Error invoking WebService", e);
+				messageObjectController.setError(messageObject, Constants.ERROR_410, "Error invoking WebService", e);
+				connector.handleException(e);
+				return null;
+			} finally {
+				monitoringController.updateStatus(connector, connectorType, Event.DONE);
 			}
-			HashMap<String, ArrayList<String>> map = new HashMap<String, ArrayList<String>>();
-			map.put(method, params);
-			event.setProperty("soapMethods", map);
 		}
-
-		setCallParams(call, event, call.getOperationName());
-
-		// Set custom soap action if set on the event or endpoint
-		String soapAction = (String) event.getProperty(AxisConnector.SOAP_ACTION_PROPERTY);
-		if (soapAction != null) {
-			soapAction = parseSoapAction(soapAction, call, event);
-			call.setSOAPActionURI(soapAction);
-			call.setUseSOAPAction(Boolean.TRUE.booleanValue());
-		} else {
-			//call.setSOAPActionURI(endpointUri.getAddress());
-		}
-		return call;
-	}
-
-	private Object[] getArgs(UMOEvent event) throws TransformerException {
-		Object payload = event.getTransformedMessage();
-		Object[] args = new Object[0];
-		if (payload instanceof MessageObject) {
-			MessageObject messageObject = (MessageObject) payload;
-			ArrayList arguments = new ArrayList();
-			// TODO: URGENT Ensure that the ordering is correct for the param
-			// mappings
-			// Get the parameter mappings (param = value) from the connector
-			List<WSParameter> parameterMappings = ((AxisConnector) connector).getParameterMapping();
-			Iterator<WSParameter> it = parameterMappings.iterator();
-			ParameterValueReplacer paramValueReplacer = new ParameterValueReplacer();
-			// Check each 'value' as a reference to the global/local var maps
-			while (it.hasNext()) {
-				// Note that this DOES NOT take into account vars such as
-				// "Original Filename"
-				WSParameter param = it.next();
-				arguments.add(paramValueReplacer.getValue(param.getValue(), messageObject));
-			}
-		} else if (payload instanceof Object[]) {
-			args = (Object[]) payload;
-		} else {
-			args = new Object[] { payload };
-		}
-		// TODO: Check this logic
-		if (event.getMessage().getAttachmentNames() != null && event.getMessage().getAttachmentNames().size() > 0) {
-			ArrayList<DataHandler> attachments = new ArrayList<DataHandler>();
-			Iterator i = event.getMessage().getAttachmentNames().iterator();
-			while (i.hasNext()) {
-				attachments.add(event.getMessage().getAttachment((String) i.next()));
-			}
-			ArrayList<Object> temp = new ArrayList<Object>(Arrays.asList(args));
-			temp.add(attachments.toArray(new DataHandler[0]));
-			args = temp.toArray();
-		}
-		return args;
 	}
 
 	private void setMessageContextProperties(UMOMessage message, MessageContext ctx) {
@@ -569,59 +482,5 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher {
 			logger.debug("SoapAction for this call is: " + soapAction);
 		}
 		return soapAction;
-	}
-
-	private void setCallParams(Call call, UMOEvent event, QName method) throws ClassNotFoundException {
-		if (callParameters == null) {
-			loadCallParams(event, method.getNamespaceURI());
-		}
-
-		SoapMethod soapMethod;
-		soapMethod = (SoapMethod) event.removeProperty(MuleProperties.MULE_SOAP_METHOD);
-		if (soapMethod == null) {
-			soapMethod = callParameters.get(method.getLocalPart());
-		}
-		if (soapMethod != null) {
-			for (Iterator iterator = soapMethod.getNamedParameters().iterator(); iterator.hasNext();) {
-				NamedParameter parameter = (NamedParameter) iterator.next();
-				call.addParameter(parameter.getName(), parameter.getType(), parameter.getMode());
-			}
-
-			if (soapMethod.getReturnType() != null) {
-				call.setReturnType(soapMethod.getReturnType());
-			} else if (soapMethod.getReturnClass() != null) {
-				call.setReturnClass(soapMethod.getReturnClass());
-			}
-			call.setOperationName(soapMethod.getName());
-		}
-
-	}
-
-	private void loadCallParams(UMOEvent event, String namespace) throws ClassNotFoundException {
-		callParameters = new HashMap<String, SoapMethod>();
-		Map methodCalls = (Map) event.getProperty("soapMethods");
-		if (methodCalls == null)
-			return;
-
-		Map.Entry entry;
-		SoapMethod soapMethod;
-		for (Iterator iterator = methodCalls.entrySet().iterator(); iterator.hasNext();) {
-			entry = (Map.Entry) iterator.next();
-
-			if ("".equals(namespace) || namespace == null) {
-				if (entry.getValue() instanceof List) {
-					soapMethod = new SoapMethod(entry.getKey().toString(), (List) entry.getValue());
-				} else {
-					soapMethod = new SoapMethod(entry.getKey().toString(), entry.getValue().toString());
-				}
-			} else {
-				if (entry.getValue() instanceof List) {
-					soapMethod = new SoapMethod(new QName(namespace, entry.getKey().toString()), (List) entry.getValue());
-				} else {
-					soapMethod = new SoapMethod(new QName(namespace, entry.getKey().toString()), entry.getValue().toString());
-				}
-			}
-			callParameters.put(soapMethod.getName().getLocalPart(), soapMethod);
-		}
 	}
 }

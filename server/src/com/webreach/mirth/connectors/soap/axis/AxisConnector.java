@@ -40,7 +40,7 @@ import org.mule.impl.MuleDescriptor;
 import org.mule.impl.endpoint.MuleEndpoint;
 import org.mule.impl.internal.events.ModelEvent;
 import org.mule.impl.internal.events.ModelEventListener;
-import org.mule.providers.AbstractServiceEnabledConnector;
+import org.mule.providers.QueueEnabledConnector;
 import org.mule.providers.TemplateValueReplacer;
 import org.mule.providers.http.servlet.ServletConnector;
 import org.mule.providers.service.ConnectorFactory;
@@ -55,6 +55,7 @@ import org.mule.umo.manager.UMOServerEvent;
 import org.mule.umo.provider.UMOMessageReceiver;
 import org.mule.util.ClassHelper;
 
+import com.webreach.mirth.connectors.http.HttpClientMessageDispatcher;
 import com.webreach.mirth.connectors.soap.axis.extensions.WSDDJavaMuleProvider;
 import com.webreach.mirth.server.util.UUIDGenerator;
 
@@ -68,7 +69,7 @@ import com.webreach.mirth.server.util.UUIDGenerator;
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @version $Revision: 1.30 $
  */
-public class AxisConnector extends AbstractServiceEnabledConnector implements ModelEventListener {
+public class AxisConnector extends QueueEnabledConnector implements ModelEventListener {
     public static final QName QNAME_MULERPC_PROVIDER = new QName(WSDDConstants.URI_WSDD_JAVA, "Mule");
     public static final QName QNAME_MULE_TYPE_MAPPINGS = new QName("http://www.muleumo.org/ws/mappings", "Mule");
     public static final String DEFAULT_MULE_NAMESPACE_URI = "http://www.muleumo.org";
@@ -208,6 +209,10 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
             System.setProperty("java.protocol.handler.pkgs", handlerPkgs);
             logger.debug("Setting java.protocol.handler.pkgs to: " + handlerPkgs);
         }
+        
+        if(isUsePersistentQueues()) { 
+			setDispatcher(new AxisMessageDispatcher(this));
+		}
     }
 
     protected void registerTransportTypes() throws ClassNotFoundException {
@@ -440,6 +445,8 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
      * @throws org.mule.umo.UMOException if the method fails
      */
     protected void doStart() throws UMOException {
+    	super.doStart();
+    	
     	if (axisServer != null)
     		axisServer.start();
     }
@@ -450,7 +457,9 @@ public class AxisConnector extends AbstractServiceEnabledConnector implements Mo
      * @throws org.mule.umo.UMOException if the method fails
      */
     protected void doStop() throws UMOException {
-        axisServer.stop();
+    	super.doStop();
+    	
+    	axisServer.stop();
         // UMOModel model = MuleManager.getInstance().getModel();
         // model.unregisterComponent(model.getDescriptor(AXIS_SERVICE_COMPONENT_NAME));
     }
