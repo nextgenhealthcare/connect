@@ -673,7 +673,6 @@ public class ConfigurationController {
 	public void setServerConfiguration(ServerConfiguration serverConfiguration) throws ControllerException {
 		ChannelController channelController = ChannelController.getInstance();
 		AlertController alertController = AlertController.getInstance();
-		UserController userController = UserController.getInstance();
 		CodeTemplateController codeTemplateController = CodeTemplateController.getInstance();
 
 		setServerProperties(serverConfiguration.getProperties());
