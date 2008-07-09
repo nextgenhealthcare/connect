@@ -46,6 +46,7 @@ import org.mule.umo.lifecycle.Disposable;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.util.queue.Queue;
 
+import com.webreach.mirth.connectors.http.HttpConnector;
 import com.webreach.mirth.connectors.mllp.protocols.LlpProtocol;
 import com.webreach.mirth.connectors.tcp.TcpConnector;
 import com.webreach.mirth.model.MessageObject;
@@ -75,7 +76,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 	// ///////////////////////////////////////////////////////////////
 
 	protected Map<String, Socket> connectedSockets = new HashMap<String, Socket>();
-	
+
 	// ///////////////////////////////////////////////////////////////
 	/**
 	 * logger used by this class
@@ -125,25 +126,18 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 		Exception exceptionWriting = null;
 		String exceptionMessage = "";
 		String endpointUri = event.getEndpoint().getEndpointURI().toString();
-		
+
 		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
 		if (messageObject == null) {
 			return;
 		}
-		
+
 		String host = replacer.replaceURLValues(endpointUri, messageObject);
 
 		try {
 			if (connector.isUsePersistentQueues()) {
-				try {
-					connector.putMessageInQueue(event.getEndpoint().getEndpointURI(), messageObject);
-					return;
-				} catch (Exception exq) {
-					exceptionMessage = "Can't save payload to queue";
-					logger.error("Can't save payload to queue\r\n\t " + exq);
-					exceptionWriting = exq;
-					success = false;
-				}
+				connector.putMessageInQueue(event.getEndpoint().getEndpointURI(), messageObject);
+				return;
 			} else {
 				int retryCount = -1;
 				int maxRetries = connector.getMaxRetryCount();
@@ -152,7 +146,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 						retryCount++;
 					}
 					try {
-						
+
 						if (!connector.isKeepSendSocketOpen()) {
 							socket = initSocket(host);
 							writeTemplatedData(socket, messageObject);

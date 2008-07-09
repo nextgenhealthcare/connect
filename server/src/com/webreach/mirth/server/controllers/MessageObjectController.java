@@ -585,8 +585,8 @@ public class MessageObjectController {
 	public void setSuccess(MessageObject messageObject, String responseMessage) {
 		setStatus(messageObject, MessageObject.Status.SENT, Response.Status.SUCCESS, responseMessage);
 	}
-
-	public void setQueued(MessageObject messageObject, String responseMessage) {
+	
+	public void setQueued(MessageObject messageObject, String responseMessage) {		
 		// queued messages are stored into a persistence media, so their socket element should be removed
 		if (messageObject.getChannelMap().containsKey(RECEIVE_SOCKET)){
 			Object socketObj = messageObject.getChannelMap().get(RECEIVE_SOCKET);

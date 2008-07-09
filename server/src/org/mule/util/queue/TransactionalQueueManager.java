@@ -264,9 +264,10 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 		}
 
 		public boolean offer(Object o, int room, long timeout) throws InterruptedException {
-			if (Thread.interrupted()) {
+			// we don't want to lose messages, so wait for the method to complete
+			/*if (Thread.interrupted()) {
 				throw new InterruptedException();
-			}
+			}*/
 			synchronized (list) {
 				if (config.capacity > 0) {
 					if (config.capacity <= room) {
@@ -291,9 +292,10 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 		}
 
 		public Object poll(long timeout) throws InterruptedException {
-			if (Thread.interrupted()) {
+			// we don't want to lose messages, so wait for the method to complete
+			/*if (Thread.interrupted()) {
 				throw new InterruptedException();
-			}
+			}*/
 			synchronized (list) {
 				long l1 = timeout > 0L ? System.currentTimeMillis() : 0L;
 				long l2 = timeout;
@@ -311,9 +313,10 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 		}
 
 		public Object peek() throws InterruptedException {
-			if (Thread.interrupted()) {
+			// we don't want to lose messages, so wait for the method to complete
+			/*if (Thread.interrupted()) {
 				throw new InterruptedException();
-			}
+			}*/
 			synchronized (list) {
 				if (list.isEmpty()) {
 					return null;
@@ -417,15 +420,17 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 			try {
 				QueueInfo queueInfo = TransactionalQueueManager.this.getQueue(name);
 				if (queueInfo != null) {
-					queueInfo.clearList();
-					List msgs = persistenceStrategy.restore();
-					for (Iterator it = msgs.iterator(); it.hasNext();) {
-						Holder h = (Holder) it.next();
-						if (h.getQueue().equals(name)) {
-							queueInfo.putNow(h.getId());
+					synchronized (queueInfo.list) {
+						queueInfo.clearList();
+						List msgs = persistenceStrategy.restore();
+						for (Iterator it = msgs.iterator(); it.hasNext();) {
+							Holder h = (Holder) it.next();
+							if (h.getQueue().equals(name)) {
+								queueInfo.putNow(h.getId());
+							}
 						}
+						return new QueueImpl(queueInfo);
 					}
-					return new QueueImpl(queueInfo);
 				}
 			} catch (Exception e) {
 				logger.error(e);
@@ -461,7 +466,7 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 						try {
 							doRemove(queue, item);
 						} catch(Exception ex) {
-							logger.warn("message not found because it wasn't fully persisted");
+							logger.debug("message not found because it wasn't fully persisted");
 						}
 						throw e;
 					}
@@ -486,12 +491,11 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 						return null;
 					}
 				} catch (IOException e) {
-					logger.error("file no longer exists: " + e);
+					logger.error("failed to poll queue", e);
 					return null;
 				}
 			}
 
-			// ast: change the function to do't remove the object
 			public Object peek() throws InterruptedException {
 				try {
 					if (localContext != null) {
@@ -508,7 +512,8 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 						return null;
 					}
 				} catch (IOException e) {
-					throw new RuntimeException(e);
+					logger.error("failed to peek queue", e);
+					return null;
 				}
 			}
 

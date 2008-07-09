@@ -134,15 +134,8 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
 		
 		try {
 			if (queue != null) {
-				try {
-					connector.putMessageInQueue(event.getEndpoint().getEndpointURI(), messageObject);
-					return;
-				} catch (Exception exq) {
-					exceptionMessage = "Can't save payload to queue";
-					logger.error("Can't save payload to queue\r\n\t " + exq);
-					exceptionWriting = exq;
-					success = false;
-				}
+				connector.putMessageInQueue(event.getEndpoint().getEndpointURI(), messageObject);
+				return;
 			} else {
 				int retryCount = -1;
 				int maxRetries = connector.getMaxRetryCount();

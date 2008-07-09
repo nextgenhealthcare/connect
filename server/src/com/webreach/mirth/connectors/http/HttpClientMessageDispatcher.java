@@ -235,7 +235,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher imple
 		 * postMethod.setRequestEntity(new ByteArrayRequestEntity(buffer));
 		 * httpMethod = postMethod; }
 		 */
-		
+
 		HttpConnection connection = null;
 		try {
 			connection = getConnection(uri);
@@ -245,7 +245,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher imple
 			}
 			httpMethod.setDoAuthentication(true);
 			if (uri.getUserInfo() != null) {
-				// Add User Creds            
+				// Add User Creds
 				StringBuffer header = new StringBuffer();
 				header.append("Basic ");
 				String creds = uri.getUsername() + ":" + uri.getPassword();
@@ -303,24 +303,16 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher imple
 		}
 
 		if (connector.isUsePersistentQueues()) {
-			try {
-				connector.putMessageInQueue(event.getEndpoint().getEndpointURI(), messageObject);
-				return event.getMessage();
-			} catch (Exception exq) {
-				String exceptionMessage = "Can't save payload to queue";
-				logger.error("Can't save payload to queue\r\n\t " + exq);
-				messageObjectController.setError(messageObject, Constants.ERROR_404, exceptionMessage, exq);
-				alertController.sendAlerts(((HttpConnector) connector).getChannelId(), Constants.ERROR_404, exceptionMessage, exq);
-				return null;
-			}
+			connector.putMessageInQueue(event.getEndpoint().getEndpointURI(), messageObject);
+			return event.getMessage();
 		} else {
 			HttpMethod httpMethod = null;
 			try {
 				send(event.getEndpoint().getEndpointURI(), httpMethod, messageObject);
-				
-				if(httpMethod == null)
+
+				if (httpMethod == null)
 					return null;
-				
+
 				return event.getMessage();
 			} catch (Exception e) {
 				alertController.sendAlerts(((HttpConnector) connector).getChannelId(), Constants.ERROR_404, null, e);
@@ -333,10 +325,10 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher imple
 			}
 		}
 	}
-	
-	public void send(UMOEndpointURI endpointUri, HttpMethod httpMethod, MessageObject messageObject) throws Exception { 
+
+	public void send(UMOEndpointURI endpointUri, HttpMethod httpMethod, MessageObject messageObject) throws Exception {
 		httpMethod = execute(endpointUri, false, messageObject);
-		
+
 		if (httpMethod == null) {
 			return;
 		}
@@ -397,21 +389,21 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher imple
 
 		m.setExceptionPayload(ep);
 	}
- 	
+
 	public boolean sendPayload(QueuedMessage thePayload) throws Exception {
 		boolean result = true;
-		
-		try { 
+
+		try {
 			HttpMethod httpMethod = null;
 			send(thePayload.getEndpointUri(), httpMethod, thePayload.getMessageObject());
 		} catch (SocketException e) {
 			messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_404, "Connection refused", e);
 			throw e;
-		} catch(Exception e) {
+		} catch (Exception e) {
 			messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_404, e.getMessage(), e);
 			alertController.sendAlerts(thePayload.getMessageObject().getChannelId(), Constants.ERROR_404, e.getMessage(), e);
 		}
-		
+
 		return result;
 	}
 

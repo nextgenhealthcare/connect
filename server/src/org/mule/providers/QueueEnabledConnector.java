@@ -15,9 +15,10 @@ import org.mule.util.queue.Queue;
 import org.mule.util.queue.QueueManager;
 import org.mule.util.queue.QueueSession;
 
-import com.webreach.mirth.connectors.mllp.MllpConnector;
+import com.webreach.mirth.connectors.tcp.TcpConnector;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.QueuedMessage;
+import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 
@@ -26,13 +27,13 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 	private AlertController alertController = AlertController.getInstance();
 
 	protected Queue queue = null;
-	protected Queue errorQueue = null;
+	protected QueueSession queueSession = null;
 
 	private QueueEnabledMessageDispatcher dispatcher;
 
 	public static final String PROPERTY_ROTATE_QUEUE = "rotateQueue";
 	public static final long DEFAULT_POLLING_FREQUENCY = 10;
-	
+
 	private String connectorErrorCode;
 	private boolean rotateQueue = false;
 	private boolean usePersistentQueues = false;
@@ -51,6 +52,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 			killQueueThread = false;
 			work = (QueueWorker) createWork(queue);
 			queueThread = new Thread(work);
+			queueThread.setName(getName() + "_queue_thread");
 			queueThread.start();
 		} catch (Exception e) {
 			logger.error("Error starting queuing thread:\n " + e);
@@ -86,20 +88,27 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 	public void setQueues() {
 		try {
 			this.queue = getQueue();
-			this.errorQueue = getErrorQueue();
 		} catch (Exception e) {
 			logger.error("Error setting queues to the endpoint\n" + e);
 		}
 	}
 
-	public void putMessageInQueue(UMOEndpointURI endpointUri, MessageObject messageObject) throws Exception {
-		messageObjectController.setQueued(messageObject, "Message is queued");
-
-		QueuedMessage queuedMessage = new QueuedMessage();
-		queuedMessage.setEndpointUri(endpointUri);
-		queuedMessage.setMessageObject(messageObject);
-
-		queue.put(queuedMessage);
+	public synchronized void putMessageInQueue(UMOEndpointURI endpointUri, MessageObject messageObject) {
+		try{
+			messageObjectController.setQueued(messageObject, "Message is queued");
+			
+			QueuedMessage queuedMessage = new QueuedMessage();
+			queuedMessage.setEndpointUri(endpointUri);
+			queuedMessage.setMessageObject(messageObject);
+	
+			queue.put(queuedMessage);
+		} catch (Exception e) {
+			String exceptionMessage = "Can't save payload to queue";
+			logger.error("Can't save payload to queue", e);
+			messageObjectController.setError(messageObject, getConnectorErrorCode(), exceptionMessage, e);
+			alertController.sendAlerts(messageObject.getChannelId(), getConnectorErrorCode(), exceptionMessage, e);
+			return;
+		}
 	}
 
 	protected Work createWork(Queue queue) throws SocketException {
@@ -115,8 +124,8 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 		public void release() {
 
 		}
-		
-		public void rotateCurrentMessage() throws InterruptedException{ 
+
+		public void rotateCurrentMessage() throws InterruptedException {
 			QueuedMessage tempMessage = (QueuedMessage) queue.poll(getPollMaxTime());
 			if (tempMessage != null) {
 				try {
@@ -138,11 +147,6 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 				while (!killQueueThread) {
 					boolean connected = true;
 					boolean interrupted = false;
-					try {
-						queue = getQueueSession().resyncQueue(getQueueName());
-					} catch (Exception ex) {
-						logger.error(ex);
-					}
 
 					logger.debug("queue.size = " + queue.size());
 					if (queue == null || queue.size() == 0) {
@@ -166,11 +170,11 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 									MessageObjectController.getInstance().resetQueuedStatus(thePayload.getMessageObject());
 								}
 							} catch (Throwable t) {
-								if(t instanceof InterruptedException) {
+								if (t instanceof InterruptedException) {
 									interrupted = true;
 								}
-								
-								if (thePayload != null) {
+
+								if (thePayload != null && thePayload.getMessageObject().getStatus().equals(MessageObject.Status.ERROR)) {
 									if (isRotateQueue()) {
 										rotateCurrentMessage();
 									}
@@ -178,8 +182,10 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 									MessageObjectController.getInstance().resetQueuedStatus(thePayload.getMessageObject());
 								} else {
 									if (!interrupted) {
-										queue.poll(getPollMaxTime());
-										logger.warn("Error reading message off the queue: " + t);
+										logger.warn("Error reading message off the queue. Queue out of sync with filesystem: ", t);
+										queueSession.resyncQueue(getName());
+										
+										//queue.poll(getPollMaxTime());
 									}
 								}
 								connected = false;
@@ -195,7 +201,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 			logger.debug("queuing thread ended on connector: " + getName());
 		}
 	}
-	
+
 	@Override
 	public String getProtocol() {
 		// override in implementing class
@@ -239,15 +245,10 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 		return queueName;
 	}
 
-	public String getErrorQueueName() {
-		return "_Error" + getQueueName();
-	}
-
 	public void configureQueues() {
 
 		try {
 			queueProfile.configureQueue(getQueueName());
-			queueProfile.configureQueue(getErrorQueueName());
 		} catch (Throwable t) {
 			logger.warn("could not configure queue for endpoint " + t);
 		}
@@ -269,29 +270,28 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 		return this.maxQueues;
 	}
 
-	public Queue getQueue() throws InitialisationException {
+	public Queue getQueue() throws Exception {
 
-		QueueSession qs = getQueueSession();
-		Queue q = qs.getQueue(getQueueName());
+		initQueueSession();
+		if (getQueueSession() == null) {
+			throw new Exception("Could not initialize queuesession for " + getQueueName());
+		}
+		Queue q = getQueueSession().getQueue(getQueueName());
 		return q;
 	}
 
-	public Queue getErrorQueue() throws InitialisationException {
-
-		QueueSession qs = getQueueSession();
-		Queue q = qs.getQueue(getErrorQueueName());
-		return q;
-	}
-
-	public QueueSession getQueueSession() throws InitialisationException {
-
+	public void initQueueSession() {
 		QueueManager qm = MuleManager.getInstance().getQueueManager();
-
 		logger.debug("Retrieving new queue session from queue manager " + this.getName());
+		setQueueSession(qm.getQueueSession());
+	}
 
-		QueueSession session = qm.getQueueSession();
+	public QueueSession getQueueSession() {
+		return queueSession;
+	}
 
-		return session;
+	public void setQueueSession(QueueSession queueSession) {
+		this.queueSession = queueSession;
 	}
 
 	public boolean isRotateQueue() {

@@ -211,14 +211,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher implements 
 		}
 
 		if (connector.isUsePersistentQueues()) {
-			try {
-				connector.putMessageInQueue(event.getEndpoint().getEndpointURI(), messageObject);
-			} catch (Exception exq) {
-				String exceptionMessage = "Can't save payload to queue";
-				logger.error("Can't save payload to queue\r\n\t " + exq);
-				messageObjectController.setError(messageObject, Constants.ERROR_404, exceptionMessage, exq);
-				alertController.sendAlerts(messageObject.getChannelId(), Constants.ERROR_404, exceptionMessage, exq);
-			}
+			connector.putMessageInQueue(event.getEndpoint().getEndpointURI(), messageObject);
 		} else {
 			try {
 				invokeWebService(event.getEndpoint().getEndpointURI(), messageObject);
