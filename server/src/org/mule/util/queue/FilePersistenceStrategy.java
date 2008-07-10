@@ -24,6 +24,8 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.doomdark.uuid.UUIDGenerator;
@@ -32,6 +34,7 @@ import org.mule.config.MuleConfiguration;
 import org.mule.util.file.DeleteException;
 
 import com.webreach.mirth.model.QueuedMessage;
+import com.webreach.mirth.server.controllers.ConfigurationController;
 
 /**
  * @author <a href="mailto:gnt@codehaus.org">Guillaume Nodet</a>
@@ -80,7 +83,21 @@ public class FilePersistenceStrategy implements QueuePersistenceStrategy
         oos.close();
         return id;
     }
+    
+	public void removeQueue(String queue) throws IOException {
+		if (store.exists()) {
+			// NOTE: could not use FileUtils here because the listFiles
+			// method
+			// does not return directories
+			String[] files = store.list(new WildcardFileFilter(queue));
 
+			for (int i = 0; i < files.length; i++) {
+				File file = new File(store.getAbsolutePath() + File.separator + files[i]);
+				FileUtils.forceDelete(file);
+			}
+		}
+	}
+	    
     /*
      * (non-Javadoc)
      * 

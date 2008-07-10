@@ -1,5 +1,5 @@
 /* 
- * $Header: /home/projects/mule/scm/mule/mule/src/java/org/mule/util/queue/QueueSession.java,v 1.2 2005/06/03 01:20:30 gnt Exp $
+ * $Header: /home/projects/mule/scm/mule/mule/src/java/org/mule/util/queue/QueueManager.java,v 1.2 2005/06/03 01:20:30 gnt Exp $
  * $Revision: 1.2 $
  * $Date: 2005/06/03 01:20:30 $
  * ------------------------------------------------------------------------------------------------------
@@ -14,24 +14,28 @@
  */
 package org.mule.util.queue;
 
-import org.mule.util.xa.ResourceManagerException;
+import java.util.List;
+
+import org.mule.util.xa.ResourceManagerSystemException;
 
 /**
  * @author <a href="mailto:gnt@codehaus.org">Guillaume Nodet</a>
  * @version $Revision: 1.2 $
  */
-public interface QueueSession
+public interface QueueManager
 {
 
-    Queue getQueue(String name);
-    
-    Queue resyncQueue(String name);
-    
-    void begin() throws ResourceManagerException;
+    void start() throws ResourceManagerSystemException;
 
-    void commit() throws ResourceManagerException;
+    void stop() throws ResourceManagerSystemException;
 
-    void rollback() throws ResourceManagerException;
+    QueueSession getQueueSession();
+
+    void close();
+
+    void setDefaultQueueConfiguration(QueueConfiguration config);
+
+    void setQueueConfiguration(String queueName, QueueConfiguration config);
     
-    void deleteQueue(String name) throws Exception;
+    List<String> getAllQueueNames();
 }

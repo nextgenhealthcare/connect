@@ -71,6 +71,17 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 		return q;
 	}
 
+	public synchronized List<String> getAllQueueNames() {
+		List<String> names = new ArrayList<String>();
+
+		Iterator<String> i = queues.entrySet().iterator();
+		while (i.hasNext()) {
+			names.add(i.next());
+		}
+
+		return names;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -213,6 +224,11 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 		return obj;
 	}
 
+	protected void doDeleteQueue(QueueInfo queue) throws IOException {
+		QueuePersistenceStrategy ps = (queue.config.persistent) ? persistenceStrategy : memoryPersistenceStrategy;
+		ps.removeQueue(queue.name);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -262,7 +278,7 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 				list = new LinkedList();
 			}
 		}
-		
+
 		public boolean remove(Object o) {
 			synchronized (list) {
 				try {
@@ -275,10 +291,11 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 		}
 
 		public boolean offer(Object o, int room, long timeout) throws InterruptedException {
-			// we don't want to lose messages, so wait for the method to complete
-			/*if (Thread.interrupted()) {
-				throw new InterruptedException();
-			}*/
+			// we don't want to lose messages, so wait for the method to
+			// complete
+			/*
+			 * if (Thread.interrupted()) { throw new InterruptedException(); }
+			 */
 			synchronized (list) {
 				if (config.capacity > 0) {
 					if (config.capacity <= room) {
@@ -303,10 +320,11 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 		}
 
 		public Object poll(long timeout) throws InterruptedException {
-			// we don't want to lose messages, so wait for the method to complete
-			/*if (Thread.interrupted()) {
-				throw new InterruptedException();
-			}*/
+			// we don't want to lose messages, so wait for the method to
+			// complete
+			/*
+			 * if (Thread.interrupted()) { throw new InterruptedException(); }
+			 */
 			synchronized (list) {
 				long l1 = timeout > 0L ? System.currentTimeMillis() : 0L;
 				long l2 = timeout;
@@ -324,10 +342,11 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 		}
 
 		public Object peek() throws InterruptedException {
-			// we don't want to lose messages, so wait for the method to complete
-			/*if (Thread.interrupted()) {
-				throw new InterruptedException();
-			}*/
+			// we don't want to lose messages, so wait for the method to
+			// complete
+			/*
+			 * if (Thread.interrupted()) { throw new InterruptedException(); }
+			 */
 			synchronized (list) {
 				if (list.isEmpty()) {
 					return null;
@@ -449,6 +468,11 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 			return null;
 		}
 
+		public void deleteQueue(String name) throws Exception {
+			QueueInfo queueInfo = TransactionalQueueManager.this.getQueue(name);
+			new QueueImpl(queueInfo).delete();
+		}
+
 		protected class QueueImpl implements Queue {
 
 			protected QueueInfo queue;
@@ -476,14 +500,14 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 					} catch (InterruptedException e) {
 						try {
 							doRemove(queue, id);
-						} catch(Exception ex) {
+						} catch (Exception ex) {
 							logger.debug("message not found because it wasn't fully persisted");
 						}
 						throw e;
 					}
 				}
 			}
-			
+
 			public void remove(Object id) throws Exception {
 				if (queue.remove(id)) {
 					doRemove(queue, id);
@@ -526,7 +550,8 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 						return null;
 					}
 				} catch (IOException e) {
-					// don't worry, the user probably deleted a message from the queue
+					// don't worry, the user probably deleted a message from the
+					// queue
 					logger.debug("failed to peek queue", e);
 					return null;
 				}
@@ -538,6 +563,11 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 				} else {
 					return queue.list.size();
 				}
+			}
+
+			public void delete() throws Exception {
+				queue.clearList();
+				doDeleteQueue(queue);
 			}
 		}
 	}
