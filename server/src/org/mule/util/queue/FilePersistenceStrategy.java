@@ -89,12 +89,8 @@ public class FilePersistenceStrategy implements QueuePersistenceStrategy
 			// NOTE: could not use FileUtils here because the listFiles
 			// method
 			// does not return directories
-			String[] files = store.list(new WildcardFileFilter(queue));
-
-			for (int i = 0; i < files.length; i++) {
-				File file = new File(store.getAbsolutePath() + File.separator + files[i]);
-				FileUtils.forceDelete(file);
-			}
+			File file = new File(store, queue);
+			FileUtils.forceDelete(file);
 		}
 	}
 	    
