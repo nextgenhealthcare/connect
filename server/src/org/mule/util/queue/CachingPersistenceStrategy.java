@@ -45,7 +45,7 @@ public class CachingPersistenceStrategy implements QueuePersistenceStrategy
     }
 
 	public void removeQueue(String queue) throws IOException {
-		objects.clear();
+		this.objects = Collections.synchronizedMap(new ReferenceMap());
 		ps.removeQueue(queue);
 	}
     
