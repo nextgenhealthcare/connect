@@ -47,6 +47,7 @@ import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Transformer;
+import com.webreach.mirth.model.converters.DefaultSerializerPropertiesFactory;
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
@@ -307,7 +308,7 @@ public class MuleConfigurationBuilder {
 						transformers.append(transport.getTransformers());
 					}
 
-					// enable transactions for the outbount router only if it
+					// enable transactions for the outbound router only if it
 					// has a
 					// JDBC connector
 					if (transport.getProtocol().equals("jdbc")) {
@@ -409,8 +410,17 @@ public class MuleConfigurationBuilder {
 				Element outboundPropertiesElement = getPropertiesMap(document, transformer.getOutboundProperties(), null, "outboundProperties");
 				propertiesElement.appendChild(outboundPropertiesElement);
 			}
+			
 			transformerElement.appendChild(propertiesElement);
 			transformersElement.appendChild(transformerElement);
+			
+			// Add the "batchScript" property to the script table
+			ScriptController scriptController = ScriptController.getInstance();
+			if (transformer.getInboundProperties() != null &&
+					transformer.getInboundProperties().getProperty("batchScript") != null) {
+				
+					scriptController.putScript(channel.getId(), transformer.getInboundProperties().getProperty("batchScript"));
+			}
 		} catch (Exception e) {
 			throw new BuilderException(e);
 		}
@@ -501,24 +511,27 @@ public class MuleConfigurationBuilder {
 			// add the inbound transformer's protocol as a connector properties
 			Element protocolPropertyElement = document.createElement("property");
 			protocolPropertyElement.setAttribute("name", "inboundProtocol");
-			protocolPropertyElement.setAttribute("value", connector.getTransformer().getInboundProtocol().toString());
+			MessageObject.Protocol inboundProtocol = connector.getTransformer().getInboundProtocol();
+			protocolPropertyElement.setAttribute("value", inboundProtocol.toString());
 			propertiesElement.appendChild(protocolPropertyElement);
 
 			if (connector.getMode().equals(Connector.Mode.SOURCE)) {
 
 				// add the protocol properties to the connector
-				Properties protocolProperties = connector.getTransformer().getInboundProperties();
+				Map protocolProperties = connector.getTransformer().getInboundProperties();
 
-				if (protocolProperties != null && protocolProperties.size() > 0) {
-					Element protocolPropertiesElement = getPropertiesMap(document, protocolProperties, null, "protocolProperties");
-					propertiesElement.appendChild(protocolPropertiesElement);
+				if (protocolProperties == null || protocolProperties.size() <= 0) {
+					protocolProperties = DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(inboundProtocol);
 				}
+				
+				Element protocolPropertiesElement = getPropertiesMap(document, protocolProperties, null, "protocolProperties");
+				propertiesElement.appendChild(protocolPropertiesElement);
 			}
 
 			// add the properties to the connector
 			connectorElement.appendChild(propertiesElement);
 
-			// insert the connector before the tranformers element to maintain
+			// insert the connector before the transformers element to maintain
 			// sequence
 			Element transformersElement = (Element) configurationElement.getElementsByTagName("transformers").item(0);
 			configurationElement.insertBefore(connectorElement, transformersElement);
@@ -555,7 +568,7 @@ public class MuleConfigurationBuilder {
 	 * @param name
 	 * @return
 	 */
-	private Element getPropertiesMap(Document document, Properties properties, List<String> textProperties, String name) {
+	private Element getPropertiesMap(Document document, Map properties, List<String> textProperties, String name) {
 		Element propertiesElement = document.createElement("map");
 		propertiesElement.setAttribute("name", name);
 		for (Iterator iter = properties.entrySet().iterator(); iter.hasNext();) {

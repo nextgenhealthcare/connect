@@ -16,6 +16,8 @@ public class AdaptorFactory {
 			return new NCPDPAdaptor();
 		} else if (protocol.equals(Protocol.DICOM)){
 			return new DICOMAdaptor();
+		} else if (protocol.equals(Protocol.DELIMITED)){
+			return new DelimitedAdaptor();
 		} else {
 			return new XMLAdaptor();
 		}

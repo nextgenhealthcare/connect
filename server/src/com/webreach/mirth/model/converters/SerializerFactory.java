@@ -19,6 +19,8 @@ public class SerializerFactory {
 			return new NCPDPSerializer(properties);
 		} else if (protocol.equals(Protocol.DICOM)) {
 			return new DICOMSerializer(properties);
+		} else if (protocol.equals(Protocol.DELIMITED)) {
+			return new DelimitedSerializer(properties);
 		} else {
 			return new DefaultXMLSerializer();
 		}

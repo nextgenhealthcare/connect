@@ -224,7 +224,7 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
 
                         if (connector.getTransportName().equals(FileWriterProperties.name)) {
                             // Destination - File Writer.
-                            information = "Result written to: " + connector.getProperties().getProperty(FileWriterProperties.FILE_DIRECTORY) + "/" + connector.getProperties().getProperty(FileWriterProperties.FILE_NAME);
+                            information = FileWriterProperties.getInformation(connector.getProperties());
                         } else if (connector.getTransportName().equals(DatabaseWriterProperties.name)) {
                             // Destination - Database Writer.
                             information = "URL: " + connector.getProperties().getProperty(DatabaseWriterProperties.DATABASE_URL);

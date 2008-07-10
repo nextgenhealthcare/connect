@@ -34,7 +34,7 @@ import com.webreach.mirth.util.EqualsUtil;
 
 public class MessageObject implements Serializable {
 	public enum Protocol {
-        HL7V2, X12, XML, HL7V3, EDI, NCPDP, DICOM
+        HL7V2, X12, XML, HL7V3, EDI, NCPDP, DICOM, DELIMITED
 	}
 
 	public enum Status {

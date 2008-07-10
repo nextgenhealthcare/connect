@@ -18,6 +18,8 @@ public class DefaultSerializerPropertiesFactory {
 			return NCPDPSerializer.getDefaultProperties();
 		} else if (protocol.equals(Protocol.DICOM)) {
 			return DICOMSerializer.getDefaultProperties();
+		} else if (protocol.equals(Protocol.DELIMITED)) {
+			return DelimitedSerializer.getDefaultProperties();
 		} else {
 			return DefaultXMLSerializer.getDefaultProperties();
 		}

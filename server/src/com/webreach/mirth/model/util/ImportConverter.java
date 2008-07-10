@@ -8,7 +8,9 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -279,6 +281,7 @@ public class ImportConverter {
 				if (minorVersion < 7 || (minorVersion == 7 && patchVersion < 1)) {  // Run for all version prior to 1.7.1
 					updateTransformerFor1_7_1(document);	
 				}
+				convertChannelConnectorsFor1_8(document, channelRoot);
 			}
 		}
 
@@ -286,6 +289,153 @@ public class ImportConverter {
 		channelXML = docSerializer.toXML(document);
 
 		return updateLocalAndGlobalVariables(channelXML);
+	}
+
+	/** Convert the source and destination connectors for the channel
+	 * from pre-1.8 to 1.8
+	 */ 
+	public static void convertChannelConnectorsFor1_8(Document document, Element channelRoot) throws Exception {
+		Element sourceConnectorRoot = (Element) channelRoot.getElementsByTagName("sourceConnector").item(0);
+		Element destinationConnectorRoot = (Element) channelRoot.getElementsByTagName("destinationConnectors").item(0);
+		NodeList destinationsConnectors = destinationConnectorRoot.getElementsByTagName("com.webreach.mirth.model.Connector");
+		
+		// Convert the source connector
+		convertOneConnectorFor1_8(document, sourceConnectorRoot);
+		
+		// Convert all destination connectors
+		for (int i = 0; i < destinationsConnectors.getLength(); i++) {
+			
+			Element destinationConnector = (Element) destinationsConnectors.item(i);
+			convertOneConnectorFor1_8(document, destinationConnector);
+		}
+	}
+
+	/** Update the child property elements of a properties element
+	 * @param document The document to use to generate new Elements.
+	 * @param properties The properties element to be modified.
+	 * @param defaultProperties Properties to be added only if they are missing.
+	 * @param changeProperties Properties to be added if missing, or changed if already present.  
+	 */
+	public static void updateProperties(Document document, Element properties, Map<String, String> defaultProperties, Map<String, String> changeProperties) throws Exception {
+
+		// Make a working copy of the properies so we can remove existing properties
+		Map<String, String> missingProperties = new HashMap<String, String>();
+		missingProperties.putAll(defaultProperties);
+		missingProperties.putAll(changeProperties);
+
+		// Remove all existing properties from the working copy, and change
+		// the value of any change properties
+		NodeList existingProperties = properties.getElementsByTagName("property");
+		for (int i = 0; i < existingProperties.getLength(); i++) {
+			
+			Node existingProperty = existingProperties.item(i);
+			Node existingPropertyNameAttribute = existingProperty.getAttributes().getNamedItem("name");
+			String existingPropertyName = existingPropertyNameAttribute.getNodeValue();
+			if (missingProperties.containsKey(existingPropertyName)) {
+				if (changeProperties.containsKey(existingPropertyName)) {
+					existingProperty.setTextContent(changeProperties.get(existingPropertyName));
+				}
+				missingProperties.remove(existingPropertyName);
+			}
+		}
+		
+		// And any remaining default or change properties
+		for (Map.Entry<String, String> thisEntry : missingProperties.entrySet()) {
+			Element newProperty = document.createElement("property");
+			newProperty.setAttribute("name", thisEntry.getKey());
+			newProperty.setTextContent(thisEntry.getValue());
+			properties.appendChild(newProperty);
+		}
+	}
+
+	/** Get the child transport node of a connector */
+	public static Node getConnectorTransportNode(Element connectorRoot) throws Exception {
+		
+		// There will be exactly one.
+		NodeList transportNames = connectorRoot.getElementsByTagName("transportName");
+		/*
+		if (transportNames.getLength() != 1) {
+			logger.error("getConnectorTransportName: expected a single transportName, saw " + transportNames.getLength();)
+		}
+		*/
+		return transportNames.item(0);
+	}
+
+	/** Get the child properties element of a connector */
+	public static Element getPropertiesElement(Element connectorRoot) throws Exception {
+		NodeList propertiesElements = connectorRoot.getElementsByTagName("properties");
+		return (Element) propertiesElements.item(0);
+	}
+
+	/** Convert a single source or destination connector from pre-1.8 to 1.8 */
+	public static void convertOneConnectorFor1_8(Document document, Element connectorRoot) throws Exception {
+
+		Node transportNode = getConnectorTransportNode(connectorRoot);
+		String transportNameText = transportNode.getTextContent();
+		
+		Element propertiesElement = getPropertiesElement(connectorRoot);
+		
+		// Properties to be added if they're missing.
+		Map<String, String> propertyDefaults = new HashMap<String, String>();
+		propertyDefaults.put("charsetEncoding", "DEFAULT_ENCODING");
+		propertyDefaults.put("FTPAnonymous", "1");
+		propertyDefaults.put("outputAppend", "0");
+		propertyDefaults.put("passive", "1");
+		propertyDefaults.put("password", "anonymous");
+		propertyDefaults.put("username", "anonymous");
+		propertyDefaults.put("validateConnections", "1");
+
+		// Properties to be added if missing, or reset if present
+		Map<String, String> propertyChanges = new HashMap<String, String>();
+
+		if (transportNameText.equals("File Reader")) {
+
+			propertyDefaults.put("scheme", "file");
+			updateProperties(document, propertiesElement, propertyDefaults, propertyChanges);
+		}
+		else if (transportNameText.equals("File Writer")) {
+
+			propertyDefaults.put("scheme", "file");
+			updateProperties(document, propertiesElement, propertyDefaults, propertyChanges);
+		}
+		else if (transportNameText.equals("FTP Reader")) {
+
+			transportNode.setTextContent("File Reader");
+
+			propertyDefaults.put("scheme", "ftp");
+			propertyChanges.put("DataType", "File Reader");
+
+			updateProperties(document, propertiesElement, propertyDefaults, propertyChanges);
+		}
+		else if (transportNameText.equals("FTP Writer")) {
+			
+			transportNode.setTextContent("File Writer");
+
+			propertyDefaults.put("scheme", "ftp");
+			propertyChanges.put("DataType", "File Writer");
+			
+			updateProperties(document, propertiesElement, propertyDefaults, propertyChanges);
+		}
+		else if (transportNameText.equals("SFTP Reader")) {
+			
+			transportNode.setTextContent("File Reader");
+
+			propertyDefaults.put("scheme", "sftp");
+			propertyDefaults.put("FTPAnonymous", "0");
+			propertyChanges.put("DataType", "File Reader");
+			
+			updateProperties(document, propertiesElement, propertyDefaults, propertyChanges);
+		}
+		else if (transportNameText.equals("SFTP Writer")) {
+			
+			transportNode.setTextContent("File Writer");
+
+			propertyDefaults.put("scheme", "sftp");
+			propertyDefaults.put("FTPAnonymous", "0");
+			propertyChanges.put("DataType", "File Writer");
+			
+			updateProperties(document, propertiesElement, propertyDefaults, propertyChanges);
+		}
 	}
 
 	public static String convertFilter(File filter) throws Exception {
