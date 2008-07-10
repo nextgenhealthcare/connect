@@ -13,16 +13,16 @@
  */
 package com.webreach.mirth.connectors.jms;
 
-import org.apache.commons.collections.map.LRUMap;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.mule.umo.MessagingException;
+import java.util.Collections;
+import java.util.Map;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
 
-import java.util.Collections;
-import java.util.Map;
+import org.apache.commons.collections.map.LRUMap;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.mule.umo.MessagingException;
 
 /**
  * <code>DefaultRedeliveryHandler</code>

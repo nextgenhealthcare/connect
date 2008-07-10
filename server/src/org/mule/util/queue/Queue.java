@@ -43,6 +43,8 @@ public interface Queue
      * @return an object.
      */
     Object take() throws InterruptedException;
+    
+    void remove(Object id) throws Exception;
 
     Object peek() throws InterruptedException;
 

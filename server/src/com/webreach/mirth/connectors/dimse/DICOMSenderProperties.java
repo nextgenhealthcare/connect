@@ -1,8 +1,8 @@
 package com.webreach.mirth.connectors.dimse;
 
-import com.webreach.mirth.model.ComponentProperties;
-
 import java.util.Properties;
+
+import com.webreach.mirth.model.ComponentProperties;
 
 /**
  * Created by IntelliJ IDEA.

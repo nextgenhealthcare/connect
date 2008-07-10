@@ -1,22 +1,20 @@
 package com.webreach.mirth.connectors.dimse;
 
-import org.mule.config.i18n.Message;
-import org.mule.umo.UMOComponent;
-import org.mule.umo.endpoint.UMOEndpoint;
-import org.mule.umo.provider.UMOMessageReceiver;
-import org.mule.umo.lifecycle.InitialisationException;
-import org.mule.MuleManager;
-import org.mule.providers.AbstractServiceEnabledConnector;
+import java.util.Map;
+
+import org.dcm4che2.net.NetworkApplicationEntity;
+import org.dcm4che2.net.NetworkConnection;
+import org.dcm4che2.net.service.VerificationService;
 import org.mule.impl.model.AbstractComponent;
 import org.mule.management.stats.ComponentStatistics;
-import org.dcm4che2.net.service.VerificationService;
-import org.dcm4che2.net.NetworkConnection;
-import org.dcm4che2.net.NetworkApplicationEntity;
-import com.webreach.mirth.connectors.tcp.protocols.DefaultProtocol;
-import com.webreach.mirth.server.controllers.SystemLogger;
-import com.webreach.mirth.model.SystemEvent;
+import org.mule.providers.AbstractServiceEnabledConnector;
+import org.mule.umo.UMOComponent;
+import org.mule.umo.endpoint.UMOEndpoint;
+import org.mule.umo.lifecycle.InitialisationException;
+import org.mule.umo.provider.UMOMessageReceiver;
 
-import java.util.Map;
+import com.webreach.mirth.model.SystemEvent;
+import com.webreach.mirth.server.controllers.SystemLogger;
 
 /**
  * Created by IntelliJ IDEA.

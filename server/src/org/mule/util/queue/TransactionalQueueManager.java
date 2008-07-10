@@ -262,6 +262,17 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 				list = new LinkedList();
 			}
 		}
+		
+		public boolean remove(Object o) {
+			synchronized (list) {
+				try {
+					list.remove(o);
+					return true;
+				} catch (Exception e) {
+					return false;
+				}
+			}
+		}
 
 		public boolean offer(Object o, int room, long timeout) throws InterruptedException {
 			// we don't want to lose messages, so wait for the method to complete
@@ -464,12 +475,18 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 						}
 					} catch (InterruptedException e) {
 						try {
-							doRemove(queue, item);
+							doRemove(queue, id);
 						} catch(Exception ex) {
 							logger.debug("message not found because it wasn't fully persisted");
 						}
 						throw e;
 					}
+				}
+			}
+			
+			public void remove(Object id) throws Exception {
+				if (queue.remove(id)) {
+					doRemove(queue, id);
 				}
 			}
 
@@ -491,7 +508,7 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 						return null;
 					}
 				} catch (IOException e) {
-					logger.error("failed to poll queue", e);
+					logger.debug("failed to poll queue", e);
 					return null;
 				}
 			}
@@ -504,15 +521,13 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 						Object id = queue.peek();
 						if (id != null) {
 							Object item = doLoad(queue, id);
-							// ast: for peek, the object isn't removed from the
-							// queue
-							// doRemove(queue, id);
 							return item;
 						}
 						return null;
 					}
 				} catch (IOException e) {
-					logger.error("failed to peek queue", e);
+					// don't worry, the user probably deleted a message from the queue
+					logger.debug("failed to peek queue", e);
 					return null;
 				}
 			}
@@ -524,7 +539,6 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 					return queue.list.size();
 				}
 			}
-
 		}
 	}
 

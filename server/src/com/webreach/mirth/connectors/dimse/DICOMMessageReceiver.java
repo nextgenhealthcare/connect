@@ -14,56 +14,42 @@
  */
 package com.webreach.mirth.connectors.dimse;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.URI;
 import java.util.Map;
-import java.security.GeneralSecurityException;
-import java.security.KeyStore;
 
-import javax.resource.spi.work.Work;
-import javax.resource.spi.work.WorkException;
-import javax.resource.spi.work.WorkManager;
-
+import org.dcm4che2.data.BasicDicomObject;
+import org.dcm4che2.data.DicomObject;
+import org.dcm4che2.data.Tag;
+import org.dcm4che2.data.UID;
+import org.dcm4che2.io.DicomOutputStream;
+import org.dcm4che2.net.Association;
+import org.dcm4che2.net.CommandUtils;
+import org.dcm4che2.net.DicomServiceException;
+import org.dcm4che2.net.PDVInputStream;
+import org.dcm4che2.tool.dcmrcv.DcmRcv;
 import org.mule.config.i18n.Message;
-import org.mule.config.i18n.Messages;
 import org.mule.impl.MuleMessage;
-import org.mule.impl.ResponseOutputStream;
 import org.mule.providers.AbstractMessageReceiver;
 import org.mule.providers.ConnectException;
 import org.mule.providers.TemplateValueReplacer;
-import org.mule.providers.AbstractConnector;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpoint;
-import org.mule.umo.lifecycle.Disposable;
-import org.mule.umo.lifecycle.DisposeException;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
-import org.mule.umo.provider.UMOMessageAdapter;
-import org.dcm4che2.net.*;
-import org.dcm4che2.net.service.StorageService;
-import org.dcm4che2.net.service.VerificationService;
-import org.dcm4che2.data.UID;
-import org.dcm4che2.data.DicomObject;
-import org.dcm4che2.data.Tag;
-import org.dcm4che2.data.BasicDicomObject;
-import org.dcm4che2.io.DicomOutputStream;
-import org.dcm4che2.tool.dcmrcv.DcmRcv;
 
 import sun.misc.BASE64Encoder;
 
 import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.Response;
 import com.webreach.mirth.model.converters.DICOMSerializer;
-import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
 import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
-
-
-import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * <code>DICOMMessageReceiver</code> acts like a DICOM server to receive socket

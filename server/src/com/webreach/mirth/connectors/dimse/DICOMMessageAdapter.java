@@ -14,7 +14,6 @@
  */
 package com.webreach.mirth.connectors.dimse;
 
-import org.apache.commons.net.ftp.FTPFile;
 import org.mule.providers.AbstractMessageAdapter;
 import org.mule.umo.MessagingException;
 import org.mule.umo.provider.MessageTypeNotSupportedException;

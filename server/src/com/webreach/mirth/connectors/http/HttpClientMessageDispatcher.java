@@ -296,7 +296,6 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher imple
 	public UMOMessage doSend(UMOEvent event) throws Exception {
 		monitoringController.updateStatus(connector, connectorType, Event.BUSY);
 		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
-		String endpointUri = event.getEndpoint().getEndpointURI().toString();
 
 		if (messageObject == null) {
 			return null;

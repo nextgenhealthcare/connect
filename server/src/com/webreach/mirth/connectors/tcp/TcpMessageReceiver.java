@@ -50,7 +50,6 @@ import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageAdapter;
 
 import sun.misc.BASE64Encoder;
-import sun.rmi.transport.tcp.TCPConnection;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;

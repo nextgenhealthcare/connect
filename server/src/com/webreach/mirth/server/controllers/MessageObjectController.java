@@ -44,7 +44,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.log4j.Logger;
+import org.mule.MuleManager;
 import org.mule.umo.UMOEvent;
+import org.mule.util.queue.QueueManager;
+import org.mule.util.queue.QueueSession;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.ibatis.sqlmap.client.SqlMapException;

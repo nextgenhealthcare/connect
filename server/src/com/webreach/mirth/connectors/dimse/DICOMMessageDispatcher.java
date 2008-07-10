@@ -1,38 +1,23 @@
 package com.webreach.mirth.connectors.dimse;
 
+import java.io.File;
+import java.util.HashMap;
+
+import org.dcm4che2.net.UserIdentity;
+import org.dcm4che2.net.pdu.AAssociateRJ;
+import org.dcm4che2.tool.dcmsnd.DcmSnd;
 import org.mule.providers.AbstractMessageDispatcher;
-import org.mule.umo.UMOMessage;
 import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
+import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpointURI;
-import org.dcm4che2.net.*;
-import org.dcm4che2.net.pdu.AAssociateRJ;
-import org.dcm4che2.net.service.StorageCommitmentService;
-import org.dcm4che2.data.*;
-import org.dcm4che2.io.DicomInputStream;
-import org.dcm4che2.io.StopTagInputHandler;
-import org.dcm4che2.io.DicomOutputStream;
-import org.dcm4che2.io.TranscoderInputHandler;
-import org.dcm4che2.util.StringUtils;
-import org.dcm4che2.util.UIDUtils;
-import org.dcm4che2.tool.dcmsnd.DcmSnd;
-import org.apache.commons.cli.*;
-import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.controllers.AlertController;
-import com.webreach.mirth.server.util.FileUtil;
-import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.model.MessageObject;
 
-import java.util.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.security.GeneralSecurityException;
-import java.security.KeyStore;
-import java.net.URL;
-import java.net.MalformedURLException;
+import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.util.FileUtil;
 
 /**
  * Created by IntelliJ IDEA.

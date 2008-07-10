@@ -184,8 +184,6 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 									if (!interrupted) {
 										logger.warn("Error reading message off the queue. Queue out of sync with filesystem: ", t);
 										queueSession.resyncQueue(getName());
-										
-										//queue.poll(getPollMaxTime());
 									}
 								}
 								connected = false;
