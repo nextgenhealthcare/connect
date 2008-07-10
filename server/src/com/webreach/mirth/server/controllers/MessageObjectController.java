@@ -55,6 +55,7 @@ import com.ibatis.sqlmap.engine.impl.ExtendedSqlMapClient;
 import com.ibatis.sqlmap.engine.impl.SqlMapExecutorDelegate;
 import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
 import com.webreach.mirth.model.MessageObject.Status;
@@ -82,15 +83,15 @@ public class MessageObjectController {
 	private static MessageObjectController instance = null;
 
 	private MessageObjectController() {
-		
+
 	}
-	
+
 	public static MessageObjectController getInstance() {
 		synchronized (MessageObjectController.class) {
 			if (instance == null) {
 				instance = new MessageObjectController();
 			}
-			
+
 			return instance;
 		}
 	}
@@ -112,9 +113,9 @@ public class MessageObjectController {
 			String[] types = { "TABLE" };
 			String tablePattern = "MSG_TMP_%";
 			resultSet = dbmd.getTables(null, null, tablePattern, types);
-			
+
 			boolean resultFound = resultSet.next();
-			
+
 			// Some databases only accept lowercase table names
 			if (!resultFound) {
 				resultSet = dbmd.getTables(null, null, tablePattern.toLowerCase(), types);
@@ -138,94 +139,90 @@ public class MessageObjectController {
 	}
 
 	public void updateMessage(MessageObject incomingMessageObject, boolean checkIfMessageExists) {
-			MessageObject messageObject = (MessageObject) incomingMessageObject.clone();
-			Socket socket = null;
-			try{
-				//Check if we have a socket. We need to replace with a string because
-				//Sockets are not serializable and we want to retain the socket
-				if (messageObject.getChannelMap().containsKey(RECEIVE_SOCKET)){
-					Object socketObj = messageObject.getChannelMap().get(RECEIVE_SOCKET);
-					if (socketObj instanceof Socket){
-						socket = (Socket) socketObj;
-						messageObject.getChannelMap().put(RECEIVE_SOCKET, socket.toString());
-					}else{
-						messageObject.getChannelMap().put(RECEIVE_SOCKET, socketObj.toString());
-					}
-					
+		MessageObject messageObject = (MessageObject) incomingMessageObject.clone();
+		Socket socket = null;
+		try {
+			// Check if we have a socket. We need to replace with a string
+			// because
+			// Sockets are not serializable and we want to retain the socket
+			if (messageObject.getChannelMap().containsKey(RECEIVE_SOCKET)) {
+				Object socketObj = messageObject.getChannelMap().get(RECEIVE_SOCKET);
+				if (socketObj instanceof Socket) {
+					socket = (Socket) socketObj;
+					messageObject.getChannelMap().put(RECEIVE_SOCKET, socket.toString());
+				} else {
+					messageObject.getChannelMap().put(RECEIVE_SOCKET, socketObj.toString());
 				}
-			}catch (Exception e){
-				logger.error(e);
+
 			}
-			// update the stats counts
-			if (messageObject.getStatus().equals(MessageObject.Status.TRANSFORMED)) {
-				statisticsController.incrementReceivedCount(messageObject.getChannelId());
-			} else if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
-				statisticsController.incrementFilteredCount(messageObject.getChannelId());
-			} else if (messageObject.getStatus().equals(MessageObject.Status.ERROR)) {
-				statisticsController.incrementErrorCount(messageObject.getChannelId());
-			} else if (messageObject.getStatus().equals(MessageObject.Status.SENT)) {
-				statisticsController.incrementSentCount(messageObject.getChannelId());
-			} else if (messageObject.getStatus().equals(MessageObject.Status.QUEUED)) {
-				statisticsController.incrementQueuedCount(messageObject.getChannelId());
-			}
+		} catch (Exception e) {
+			logger.error(e);
+		}
+		// update the stats counts
+		if (messageObject.getStatus().equals(MessageObject.Status.TRANSFORMED)) {
+			statisticsController.incrementReceivedCount(messageObject.getChannelId());
+		} else if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
+			statisticsController.incrementFilteredCount(messageObject.getChannelId());
+		} else if (messageObject.getStatus().equals(MessageObject.Status.ERROR)) {
+			statisticsController.incrementErrorCount(messageObject.getChannelId());
+		} else if (messageObject.getStatus().equals(MessageObject.Status.SENT)) {
+			statisticsController.incrementSentCount(messageObject.getChannelId());
+		} else if (messageObject.getStatus().equals(MessageObject.Status.QUEUED)) {
+			statisticsController.incrementQueuedCount(messageObject.getChannelId());
+		}
 
-			String channelId = messageObject.getChannelId();
-			HashMap<String, Channel> channelCache = ChannelController.getChannelCache();
+		String channelId = messageObject.getChannelId();
+		HashMap<String, Channel> channelCache = ChannelController.getChannelCache();
 
-			// Check the cache for the channel
-			if (channelCache != null && channelCache.containsKey(channelId)) {
-				Channel channel = channelCache.get(channelId);
+		// Check the cache for the channel
+		if (channelCache != null && channelCache.containsKey(channelId)) {
+			Channel channel = channelCache.get(channelId);
 
-				if (channel.getProperties().containsKey("store_messages")) {
-					if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
-						logger.debug("message is not stored");
-						return;
-					} else if (channel.getProperties().getProperty("encryptData").equals("true")) {
-						try{
-                            encryptMessageData(messageObject);
-                        }
-                        catch (EncryptionException e) {
-                            logger.error("message logging halted. could not encrypt message. id=" + messageObject.getId(), e);
-                        }
+			if (channel.getProperties().containsKey("store_messages")) {
+				if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
+					logger.debug("message is not stored");
+					return;
+				} else if (channel.getProperties().getProperty("encryptData").equals("true")) {
+					try {
+						encryptMessageData(messageObject);
+					} catch (EncryptionException e) {
+						logger.error("message logging halted. could not encrypt message. id=" + messageObject.getId(), e);
 					}
 				}
 			}
+		}
 
-            writeMessageToDatabase(messageObject, checkIfMessageExists);
-            if (socket != null){
-            	messageObject.getChannelMap().put(RECEIVE_SOCKET, socket);
-            }
+		writeMessageToDatabase(messageObject, checkIfMessageExists);
+		if (socket != null) {
+			messageObject.getChannelMap().put(RECEIVE_SOCKET, socket);
+		}
 	}
-    
-    public void importMessage(MessageObject messageObject)
-    {
-        writeMessageToDatabase(messageObject, true);
-    }
-    
-    private void writeMessageToDatabase(MessageObject messageObject, boolean checkIfMessageExists)
-    {
-        try {
-            if (checkIfMessageExists) {
-                int count = (Integer) sqlMap.queryForObject("getMessageCount", messageObject.getId());
-    
-                if (count == 0) {
-                    logger.debug("adding message: id=" + messageObject.getId());
-                    sqlMap.insert("insertMessage", messageObject);
-    
-                } else {
-                    logger.debug("updating message: id=" + messageObject.getId());
-                    sqlMap.update("updateMessage", messageObject);
-                }
-            }
-            else {
-                logger.debug("adding message (not checking for message): id=" + messageObject.getId());
-                sqlMap.insert("insertMessage", messageObject);
-            }
-        }
-        catch (SQLException e) {
-            logger.error("could not log message: id=" + messageObject.getId(), e);
-        }
-    }
+
+	public void importMessage(MessageObject messageObject) {
+		writeMessageToDatabase(messageObject, true);
+	}
+
+	private void writeMessageToDatabase(MessageObject messageObject, boolean checkIfMessageExists) {
+		try {
+			if (checkIfMessageExists) {
+				int count = (Integer) sqlMap.queryForObject("getMessageCount", messageObject.getId());
+
+				if (count == 0) {
+					logger.debug("adding message: id=" + messageObject.getId());
+					sqlMap.insert("insertMessage", messageObject);
+
+				} else {
+					logger.debug("updating message: id=" + messageObject.getId());
+					sqlMap.update("updateMessage", messageObject);
+				}
+			} else {
+				logger.debug("adding message (not checking for message): id=" + messageObject.getId());
+				sqlMap.insert("insertMessage", messageObject);
+			}
+		} catch (SQLException e) {
+			logger.error("could not log message: id=" + messageObject.getId(), e);
+		}
+	}
 
 	private void encryptMessageData(MessageObject messageObject) throws EncryptionException {
 		Encrypter encrypter = new Encrypter(configurationController.getEncryptionKey());
@@ -353,17 +350,16 @@ public class MessageObjectController {
 		logger.debug("removing messages: filter=" + filter.toString());
 
 		try {
-            removeMessagesFromQueue(filter);
-			int rowCount =  sqlMap.delete("deleteMessage", getFilterMap(filter, null));
-            sqlMap.delete("deleteUnusedAttachments");
-            return rowCount;
-        } catch (Exception e) {
+			removeMessagesFromQueue(filter);
+			int rowCount = sqlMap.delete("deleteMessage", getFilterMap(filter, null));
+			sqlMap.delete("deleteUnusedAttachments");
+			return rowCount;
+		} catch (Exception e) {
 			throw new ControllerException(e);
 		}
 	}
-	
+
 	private void removeMessagesFromQueue(MessageObjectFilter filter) throws Exception {
-		File queuestoreDir = new File(ConfigurationController.getInstance().getQueuestorePath());
 		String uid = System.currentTimeMillis() + "";
 		// clone the filter so that we don't modify the original
 		MessageObjectFilter queueFilter = (MessageObjectFilter) ObjectCloner.deepCopy(filter);
@@ -373,29 +369,16 @@ public class MessageObjectController {
 		int interval = 10;
 
 		while ((page * interval) < size) {
-			List<MessageObject> messages = getMessagesByPage(page, interval, size, uid);
-			
-			for (Iterator iterator = messages.iterator(); iterator.hasNext();) {
-				MessageObject messageObject = (MessageObject) iterator.next();
-				
-				if (queuestoreDir.exists()) {
-					String messageId = messageObject.getId();
-					String channelId = messageObject.getChannelId();
-					IOFileFilter fileFilter = new WildcardFileFilter(messageId + ".*");
-					IOFileFilter dirFilter = new WildcardFileFilter(channelId + "*");
-					Collection files = FileUtils.listFiles(queuestoreDir, fileFilter, dirFilter);
-					
-					for (Iterator fileIterator = files.iterator(); fileIterator.hasNext();) {
-						File file = (File) fileIterator.next();
-						FileUtils.forceDelete(file);
-						ChannelStatisticsController.getInstance().decrementQueuedCount(channelId);
-					}
-				}
+			for (MessageObject message : getMessagesByPage(page, interval, size, uid)) {
+				String connectorId = ChannelController.getInstance().getConnectorId(message.getChannelId(), message.getConnectorName());
+				String queueName = QueueUtil.getInstance().getQueueName(message.getChannelId(), connectorId);
+				QueueUtil.getInstance().removeMessageFromQueue(queueName, message.getId());
+				// decrease queued count
 			}
-			
+
 			page++;
 		}
-		
+
 		removeFilterTable(uid);
 	}
 
@@ -432,9 +415,13 @@ public class MessageObjectController {
 			Map parameterMap = new HashMap();
 			parameterMap.put("channelId", channelId);
 			sqlMap.delete("deleteMessage", parameterMap);
-            sqlMap.delete("deleteUnusedAttachments");
-            QueueUtil.getInstance().removeChannelQueuestore(channelId);
-        } catch (Exception e) {
+			sqlMap.delete("deleteUnusedAttachments");
+
+			Channel filterChannel = new Channel();
+			filterChannel.setId(channelId);
+			Channel channel = ChannelController.getInstance().getChannel(filterChannel).get(0);
+			QueueUtil.getInstance().removeAllQueuesForChannel(channel);
+		} catch (Exception e) {
 			throw new ControllerException(e);
 		}
 	}
@@ -464,11 +451,11 @@ public class MessageObjectController {
 									}
 
 									MessageObject message = iter.next();
-                                    // get attachment for old message
-                                    if(message.isAttachment()){
-                                        String rawData = DICOMUtil.getDICOMRawData(message);
-                                        message.setRawData(rawData);
-                                    }
+									// get attachment for old message
+									if (message.isAttachment()) {
+										String rawData = DICOMUtil.getDICOMRawData(message);
+										message.setRawData(rawData);
+									}
 									router.routeMessageByChannelId(message.getChannelId(), message.getRawData(), true, true);
 								}
 							} catch (Exception e) {
@@ -487,22 +474,21 @@ public class MessageObjectController {
 
 				}
 			});
-			
+
 			reprocessThread.start();
 		} catch (ControllerException e) {
 			throw new ControllerException(e);
 		}
 	}
-    
-    public void processMessage(MessageObject message) throws ControllerException
-    {
-        try {
-            VMRouter router = new VMRouter();
-            router.routeMessageByChannelId(message.getChannelId(), message.getRawData(), true, true);
-        } catch (Exception e) {
-            throw new ControllerException("could not reprocess message", e);
-        }
-    }
+
+	public void processMessage(MessageObject message) throws ControllerException {
+		try {
+			VMRouter router = new VMRouter();
+			router.routeMessageByChannelId(message.getChannelId(), message.getRawData(), true, true);
+		} catch (Exception e) {
+			throw new ControllerException("could not reprocess message", e);
+		}
+	}
 
 	private Map getFilterMap(MessageObjectFilter filter, String uid) {
 		Map parameterMap = new HashMap();
@@ -547,10 +533,10 @@ public class MessageObjectController {
 		clone.setResponseMap(messageObject.getResponseMap());
 		clone.setChannelMap(messageObject.getChannelMap());
 		clone.setChannelId(messageObject.getChannelId());
-        clone.setAttachment(messageObject.isAttachment());
+		clone.setAttachment(messageObject.isAttachment());
 		return clone;
 	}
-	
+
 	public MessageObject getMessageObjectFromEvent(UMOEvent event) throws Exception {
 		MessageObject messageObject = null;
 		Object incomingData = event.getTransformedMessage();
@@ -565,7 +551,7 @@ public class MessageObjectController {
 		if (messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
 			return null;
 		}
-		
+
 		return messageObject;
 	}
 
@@ -588,14 +574,15 @@ public class MessageObjectController {
 	public void setSuccess(MessageObject messageObject, String responseMessage) {
 		setStatus(messageObject, MessageObject.Status.SENT, Response.Status.SUCCESS, responseMessage);
 	}
-	
-	public void setQueued(MessageObject messageObject, String responseMessage) {		
-		// queued messages are stored into a persistence media, so their socket element should be removed
-		if (messageObject.getChannelMap().containsKey(RECEIVE_SOCKET)){
+
+	public void setQueued(MessageObject messageObject, String responseMessage) {
+		// queued messages are stored into a persistence media, so their socket
+		// element should be removed
+		if (messageObject.getChannelMap().containsKey(RECEIVE_SOCKET)) {
 			Object socketObj = messageObject.getChannelMap().get(RECEIVE_SOCKET);
-			messageObject.getChannelMap().put(RECEIVE_SOCKET, socketObj.toString());						
+			messageObject.getChannelMap().put(RECEIVE_SOCKET, socketObj.toString());
 		}
-		
+
 		setStatus(messageObject, MessageObject.Status.QUEUED, Response.Status.QUEUED, responseMessage);
 	}
 
@@ -616,10 +603,11 @@ public class MessageObjectController {
 			if (oldStatus.equals(MessageObject.Status.QUEUED) && !newStatus.equals(MessageObject.Status.QUEUED)) {
 				statisticsController.decrementQueuedCount(messageObject.getChannelId());
 			}
-            updateMessage(messageObject, oldStatus.equals(MessageObject.Status.QUEUED));
-            
+			updateMessage(messageObject, oldStatus.equals(MessageObject.Status.QUEUED));
+
 		}
 	}
+
 	public void resetQueuedStatus(MessageObject messageObject) {
 
 		if (messageObject != null) {
@@ -628,6 +616,7 @@ public class MessageObjectController {
 			statisticsController.decrementErrorCount(messageObject.getChannelId());
 		}
 	}
+
 	private boolean statementExists(String statement) {
 		try {
 			SqlMapExecutorDelegate delegate = ((ExtendedSqlMapClient) sqlMap).getDelegate();
@@ -639,74 +628,75 @@ public class MessageObjectController {
 
 		return true;
 	}
-    
+
 	public Attachment getAttachment(String attachmentId) throws ControllerException {
 		try {
 			return (Attachment) sqlMap.queryForObject("getAttachment", attachmentId);
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		}
-	}    
-    
+	}
+
 	public List<Attachment> getAttachmentsByMessageId(String messageId) throws ControllerException {
 		try {
 			return sqlMap.queryForList("getAttachmentsByMessageId", messageId);
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		}
-	} 
+	}
+
 	public List<Attachment> getAttachmentIdsByMessageId(String messageId) throws ControllerException {
 		try {
 			return sqlMap.queryForList("getAttachmentIdsByMessageId", messageId);
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		}
-	}     
-    public void insertAttachment(Attachment attachment) {
-        try {
-            sqlMap.insert("insertAttachment", attachment);
-        }
-        catch (SQLException e) {
-            logger.error("could not insert attachment: id=" + attachment.getAttachmentId(), e);
-        }        
-    }
-    public void deleteAttachments(MessageObject message) {
-        try {
-            sqlMap.delete("deleteAttachments", message);
-        }
-        catch (SQLException e) {
-            logger.error("could not delete attachment: message id=" + message.getId(), e);
-        }           
-    }
-    public void deleteUnusedAttachments() {
-        try {
-            sqlMap.delete("deleteUnusedAttachments");
-        }
-        catch (SQLException e) {
-            logger.error("problem deleting unused attachments", e);
-        }           
-    }    
-    public Attachment createAttachment(Object data, String type) throws UnsupportedDataTypeException{
-    	byte[] byteData;
-    	if (data instanceof byte[]){
-    		byteData = (byte[])data;
-    	}else if (data instanceof String){
-    		byteData = ((String)data).getBytes();
-    	}else{
-    		throw new UnsupportedDataTypeException("Attachment can be of type String or byte[]");
-    	}
-        Attachment attachment = new Attachment();
-        attachment.setAttachmentId(UUIDGenerator.getUUID());
-        attachment.setData(byteData);
-        attachment.setSize(byteData.length);
-        attachment.setType(type);
-        return attachment;
-    }
-    public Attachment createAttachment(Object data, String type, MessageObject messageObject) throws UnsupportedDataTypeException{
-    	Attachment attachment = createAttachment(data, type);
-    	attachment.setMessageId(messageObject.getId());
-    	return attachment;
-    }
+	}
+
+	public void insertAttachment(Attachment attachment) {
+		try {
+			sqlMap.insert("insertAttachment", attachment);
+		} catch (SQLException e) {
+			logger.error("could not insert attachment: id=" + attachment.getAttachmentId(), e);
+		}
+	}
+
+	public void deleteAttachments(MessageObject message) {
+		try {
+			sqlMap.delete("deleteAttachments", message);
+		} catch (SQLException e) {
+			logger.error("could not delete attachment: message id=" + message.getId(), e);
+		}
+	}
+
+	public void deleteUnusedAttachments() {
+		try {
+			sqlMap.delete("deleteUnusedAttachments");
+		} catch (SQLException e) {
+			logger.error("problem deleting unused attachments", e);
+		}
+	}
+
+	public Attachment createAttachment(Object data, String type) throws UnsupportedDataTypeException {
+		byte[] byteData;
+		if (data instanceof byte[]) {
+			byteData = (byte[]) data;
+		} else if (data instanceof String) {
+			byteData = ((String) data).getBytes();
+		} else {
+			throw new UnsupportedDataTypeException("Attachment can be of type String or byte[]");
+		}
+		Attachment attachment = new Attachment();
+		attachment.setAttachmentId(UUIDGenerator.getUUID());
+		attachment.setData(byteData);
+		attachment.setSize(byteData.length);
+		attachment.setType(type);
+		return attachment;
+	}
+
+	public Attachment createAttachment(Object data, String type, MessageObject messageObject) throws UnsupportedDataTypeException {
+		Attachment attachment = createAttachment(data, type);
+		attachment.setMessageId(messageObject.getId());
+		return attachment;
+	}
 }
-
-

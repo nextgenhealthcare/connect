@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -38,6 +39,7 @@ import org.apache.log4j.Logger;
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelSummary;
+import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.util.ImportConverter;
 import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.util.PropertyVerifier;
@@ -122,6 +124,22 @@ public class ChannelController {
 		}
 
 		return destinationName;
+	}
+	
+	public String getConnectorId(String channelId, String connectorName) throws Exception {
+		Channel filterChannel = new Channel();
+		filterChannel.setId(channelId);
+		int index = 1;
+		
+		for (Connector connector : getChannel(filterChannel).get(0).getDestinationConnectors()) {
+			if (connector.getName().equals(connectorName)) {
+				return String.valueOf(index);
+			} else {
+				index++;
+			}
+		}
+		
+		throw new Exception("Connector name not found");
 	}
 
 	public List<Channel> getChannel(Channel channel) throws ControllerException {
@@ -261,10 +279,10 @@ public class ChannelController {
 
 		try {
 			if (channel != null) {
-				QueueUtil.getInstance().removeChannelQueuestore(channel.getId());
+				QueueUtil.getInstance().removeAllQueuesForChannel(channel);
 				removeChannelFromCache(channel.getId());
 			} else {
-				QueueUtil.getInstance().clearChannelQueuestores();
+				QueueUtil.getInstance().removeAllQueues();
 				clearChannelCache();
 			}
 

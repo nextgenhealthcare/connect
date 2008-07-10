@@ -15,10 +15,8 @@ import org.mule.util.queue.Queue;
 import org.mule.util.queue.QueueManager;
 import org.mule.util.queue.QueueSession;
 
-import com.webreach.mirth.connectors.tcp.TcpConnector;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.QueuedMessage;
-import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 
