@@ -33,6 +33,7 @@ import org.syntax.jedit.tokenmarker.HL7TokenMarker;
 import org.syntax.jedit.tokenmarker.X12TokenMarker;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
+import com.webreach.mirth.client.ui.beans.DelimitedProperties;
 import com.webreach.mirth.client.ui.beans.EDIProperties;
 import com.webreach.mirth.client.ui.beans.HL7Properties;
 import com.webreach.mirth.client.ui.beans.NCPDPProperties;
@@ -492,6 +493,8 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             new BoundPropertiesSheetDialog(dataProperties, new HL7Properties());
         else if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.NCPDP)))
             new BoundPropertiesSheetDialog(dataProperties, new NCPDPProperties());
+        else if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DELIMITED)))
+        	new BoundPropertiesSheetDialog(dataProperties, new DelimitedProperties(), 550, 370);
         updateText();
     }//GEN-LAST:event_propertiesActionPerformed
 
@@ -502,7 +505,8 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12)) ||
                 ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI)) ||
                 ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2)) ||
-                ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.NCPDP)))
+                ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.NCPDP)) ||
+                ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DELIMITED)))
             properties.setEnabled(true);
         else
             properties.setEnabled(false);

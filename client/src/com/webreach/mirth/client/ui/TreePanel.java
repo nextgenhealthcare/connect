@@ -384,6 +384,10 @@ public class TreePanel extends javax.swing.JPanel
             {
                 protocol = Protocol.EDI;
             }
+            else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DELIMITED).equals(messageType))
+            {
+                protocol = Protocol.DELIMITED;
+            }
             else
             {
                 logger.error("Invalid protocol");
@@ -617,6 +621,10 @@ public class TreePanel extends javax.swing.JPanel
                 {
                     // We already at the last possible child segment, so just
                     // add empty node
+                    currentNode.add(new MirthTreeNode(EMPTY));
+                }
+                else if (protocol.equals(Protocol.DELIMITED)) {
+                    // We have empty column node
                     currentNode.add(new MirthTreeNode(EMPTY));
                 }
                 else
