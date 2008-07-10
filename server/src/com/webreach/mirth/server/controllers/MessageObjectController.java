@@ -25,14 +25,12 @@
 
 package com.webreach.mirth.server.controllers;
 
-import java.io.File;
 import java.net.Socket;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -40,14 +38,8 @@ import java.util.Map;
 
 import javax.activation.UnsupportedDataTypeException;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.log4j.Logger;
-import org.mule.MuleManager;
 import org.mule.umo.UMOEvent;
-import org.mule.util.queue.QueueManager;
-import org.mule.util.queue.QueueSession;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.ibatis.sqlmap.client.SqlMapException;
@@ -55,7 +47,6 @@ import com.ibatis.sqlmap.engine.impl.ExtendedSqlMapClient;
 import com.ibatis.sqlmap.engine.impl.SqlMapExecutorDelegate;
 import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
 import com.webreach.mirth.model.MessageObject.Status;
@@ -373,7 +364,7 @@ public class MessageObjectController {
 				String connectorId = ChannelController.getInstance().getConnectorId(message.getChannelId(), message.getConnectorName());
 				String queueName = QueueUtil.getInstance().getQueueName(message.getChannelId(), connectorId);
 				QueueUtil.getInstance().removeMessageFromQueue(queueName, message.getId());
-				// decrease queued count
+				ChannelStatisticsController.getInstance().decrementQueuedCount(message.getChannelId());
 			}
 
 			page++;
