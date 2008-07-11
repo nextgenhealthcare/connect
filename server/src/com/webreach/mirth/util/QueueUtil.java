@@ -1,6 +1,5 @@
 package com.webreach.mirth.util;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -14,6 +13,7 @@ import org.mule.util.queue.QueueSession;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.QueuedSenderProperties;
+import com.webreach.mirth.server.controllers.ChannelController;
 
 public class QueueUtil {
 	private Log logger = LogFactory.getLog(getClass());
@@ -34,8 +34,6 @@ public class QueueUtil {
 	}
 
 	public void removeAllQueuesForChannel(Channel channel) {
-		removeQueue(channel.getId());
-
 		// iterate through all destinations, create queue name, remove queue
 		for (ListIterator iterator = channel.getDestinationConnectors().listIterator(); iterator.hasNext();) {
 			Connector connector = (Connector) iterator.next();
@@ -57,16 +55,15 @@ public class QueueUtil {
 	}
 
 	public void removeAllQueues() {
-		QueueManager qm = MuleManager.getInstance().getQueueManager();
-		QueueSession session = qm.getQueueSession();
-		List<String> queueNames = qm.getAllQueueNames();
+		try {
+			List<Channel> channels = ChannelController.getInstance().getChannel(null);
 
-		for (String queueName : queueNames) {
-			try {
-				session.deleteQueue(queueName);
-			} catch (Exception e) {
-				logger.error("Could not remove queue: " + queueName);
+			for (Channel channel : channels) {
+				removeQueue(channel.getId());
+				removeAllQueuesForChannel(channel);
 			}
+		} catch (Exception e) {
+			logger.error("Could not remove all queues", e);
 		}
 	}
 
