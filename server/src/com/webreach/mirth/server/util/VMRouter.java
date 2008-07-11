@@ -70,5 +70,4 @@ public class VMRouter {
 			logger.debug("dispatched Event on endpointUri: " + endpointUri);
 		}
 	}
-
 }

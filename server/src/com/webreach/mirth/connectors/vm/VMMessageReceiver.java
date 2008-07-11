@@ -53,17 +53,15 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
     private MonitoringController monitoringController = MonitoringController.getInstance();
     private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
     private ConnectorType connectorType = ConnectorType.LISTENER;
+    
 	public VMMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
 		super(connector, component, endpoint, new Long(10));
 		this.vmConnector = (VMConnector) connector;
 		componentName = component.getDescriptor().getName() + "_source_connector";
 		receiveMessagesInTransaction = endpoint.getTransactionConfig().isTransacted();
 		VMRegistry.getInstance().register(this.getEndpointURI().getAddress(), this);
-		
 	}
 	
-	
-
 	public void doConnect() throws Exception {
 		if (vmConnector.isQueueEvents()) {
 			// Ensure we can create a vm queue
@@ -111,7 +109,6 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
 				monitoringController.updateStatus(componentName, connectorType, Event.DONE, null);
 			}
 		}
-		
 	}
 
 	public Object dispatchMessage(UMOEvent event) throws UMOException {

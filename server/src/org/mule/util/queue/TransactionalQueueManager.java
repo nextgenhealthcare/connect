@@ -565,7 +565,7 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 				}
 			}
 
-			public void delete() throws Exception {
+			public void delete() throws Exception {				
 				queue.clearList();
 				doDeleteQueue(queue);
 			}

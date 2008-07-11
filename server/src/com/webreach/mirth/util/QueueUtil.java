@@ -50,7 +50,7 @@ public class QueueUtil {
 			QueueSession session = qm.getQueueSession();
 			session.deleteQueue(queueName);
 		} catch (Exception e) {
-			logger.error("Could not remove queue: " + queueName);
+			logger.debug("Could not remove queue: " + queueName);
 		}
 	}
 
@@ -63,7 +63,7 @@ public class QueueUtil {
 				removeAllQueuesForChannel(channel);
 			}
 		} catch (Exception e) {
-			logger.error("Could not remove all queues", e);
+			logger.debug("Could not remove all queues", e);
 		}
 	}
 
@@ -75,7 +75,7 @@ public class QueueUtil {
 		try {
 			queue.remove(messageId);
 		} catch (Exception e) {
-			logger.error("Could not remove message: " + messageId + " from queue: " + queueName);
+			logger.debug("Could not remove message: " + messageId + " from queue: " + queueName);
 		}
 	}
 

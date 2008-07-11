@@ -1,13 +1,11 @@
 package org.mule.util.queue;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.map.ReferenceMap;
-import org.apache.commons.io.FileUtils;
 
 public class CachingPersistenceStrategy implements QueuePersistenceStrategy
 {
@@ -45,7 +43,7 @@ public class CachingPersistenceStrategy implements QueuePersistenceStrategy
     }
 
 	public void removeQueue(String queue) throws IOException {
-		this.objects = Collections.synchronizedMap(new ReferenceMap());
+		objects.clear();
 		ps.removeQueue(queue);
 	}
     
