@@ -32,7 +32,6 @@ public class FindAndReplaceAction extends AbstractAction
     		find = new FindRplDialog((Dialog)owner,true,comp);
     	}
     	
-    	find.paintAll(find.getGraphics());
         find.setVisible(true);
     }
     public boolean isEnabled()

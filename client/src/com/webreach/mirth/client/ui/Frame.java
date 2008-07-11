@@ -28,8 +28,10 @@ package com.webreach.mirth.client.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Window;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
@@ -55,6 +57,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
@@ -88,7 +91,6 @@ import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
 import com.webreach.mirth.model.converters.ObjectCloner;
@@ -3888,7 +3890,15 @@ public class Frame extends JXFrame
 
     public void doFind(JEditTextArea text)
     {
-        FindRplDialog find = new FindRplDialog(this, true, text);
+        FindRplDialog find;
+        Window owner = SwingUtilities.windowForComponent(text);
+        
+    	if (owner instanceof Frame) {
+    		find = new FindRplDialog((Frame)owner,true,text);
+    	} else { // window instanceof Dialog
+    		find = new FindRplDialog((Dialog)owner,true,text);
+    	}
+    	
         find.setVisible(true);
     }
 
