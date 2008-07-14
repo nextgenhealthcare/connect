@@ -97,11 +97,17 @@ public class FileConnection implements FileSystemConnection {
 
 		try {
 			File[] todoFiles = readDirectory.listFiles(filenameFilter);
-			List<FileInfo> result = new ArrayList<FileInfo>(todoFiles.length);
-			for (File f : todoFiles) {
-				result.add(new FileFileInfo(f));
+			if (todoFiles == null) {
+
+				return new ArrayList<FileInfo>();
 			}
+			else {
+				List<FileInfo> result = new ArrayList<FileInfo>(todoFiles.length);
+				for (File f : todoFiles) {
+					result.add(new FileFileInfo(f));
+				}
 			return result;
+			}
 		}
 		catch (Exception e) {
 			throw new MuleException(new Message("file", 1), e);

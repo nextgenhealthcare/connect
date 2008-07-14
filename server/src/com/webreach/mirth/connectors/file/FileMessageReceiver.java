@@ -273,7 +273,7 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 					}
 				}
 				else if (fileConnector.isAutoDelete()) {
-					adapter.getPayloadAsBytes();
+					//adapter.getPayloadAsBytes();
 
 					// no moveTo directory
 					if (destinationDir == null) {

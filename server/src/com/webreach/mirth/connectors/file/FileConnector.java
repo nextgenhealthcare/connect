@@ -12,6 +12,7 @@ package com.webreach.mirth.connectors.file;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -159,6 +160,26 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 		return endpoint.getEndpointURI().getAddress();
 	}
 
+	/** Extract the path part of a URI as needed by the rest of this code. UMOEndpointURI.getPath
+	 * fails for some URI's when the scheme is file.
+	 * 
+	 * @param uri The URI from which the path part is to be taken.
+	 * @return The path (directory, folder) part of the URI.
+	 */
+	protected String getPathPart(UMOEndpointURI uri) {
+
+		if (scheme.equals("file")) {
+
+			// In //xyz, return xyz.
+			return uri.getUri().getSchemeSpecificPart().substring(2);
+		}
+		else {
+			
+			// For the remaining cases, getPath seems to do the right thing.
+			return uri.getPath();
+		}
+	}
+
 	/**
 	 * Registers a listener for a particular directory The following properties
 	 * can be overriden in the endpoint declaration
@@ -170,7 +191,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	 * </ul>
 	 */
 	public UMOMessageReceiver createReceiver(UMOComponent component, UMOEndpoint endpoint) throws Exception {
-		String readDir = endpoint.getEndpointURI().getPath();
+		String readDir = getPathPart(endpoint.getEndpointURI());
 		long polling = this.pollingFrequency;
 
 		String moveTo = moveToDirectory;
