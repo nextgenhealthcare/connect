@@ -643,11 +643,15 @@ public class FileWriter extends ConnectorClass
             // act like the appropriate Anonymous button was selected.
         if (anonymous) {
             
-            anonymousYes.doClick();
+            anonymousNo.setSelected(false);
+            anonymousYes.setSelected(true);
+            anonymousYesActionPerformed(null);
         }
         else {
             
-            anonymousNo.doClick();
+            anonymousNo.setSelected(true);
+            anonymousYes.setSelected(false);
+            anonymousNoActionPerformed(null);
         }
 
         hostLabel.setEnabled(enableHost);

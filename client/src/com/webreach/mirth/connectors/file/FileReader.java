@@ -1042,12 +1042,14 @@ public class FileReader extends ConnectorClass
         if (anonymous) {
             
             anonymousNo.setSelected(false);
-            anonymousYes.doClick();
+            anonymousYes.setSelected(true);
+            anonymousYesActionPerformed(null);
         }
         else {
             
-            anonymousNo.doClick();
+            anonymousNo.setSelected(true);
             anonymousYes.setSelected(false);
+            anonymousNoActionPerformed(null);
         }
             
         hostLabel.setEnabled(enableHost);
