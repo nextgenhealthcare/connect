@@ -678,8 +678,21 @@ public class ConfigurationController {
 		setServerProperties(serverConfiguration.getProperties());
 
 		if (serverConfiguration.getChannels() != null) {
-			channelController.removeChannel(null);
 
+			for(Channel channel : channelController.getChannel(null)) {
+				boolean found = false;
+				
+				for(Channel newChannel : serverConfiguration.getChannels()) {
+					if(newChannel.getId().equals(channel.getId())) {
+						found = true;
+					}
+				}
+				
+				if(!found) {
+					channelController.removeChannel(channel);
+				}
+			}
+			
 			for (Channel channel : serverConfiguration.getChannels()) {
 				PropertyVerifier.checkChannelProperties(channel);
 				PropertyVerifier.checkConnectorProperties(channel, extensionController.getConnectorMetaData());
