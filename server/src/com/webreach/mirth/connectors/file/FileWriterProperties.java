@@ -27,7 +27,6 @@ package com.webreach.mirth.connectors.file;
 
 import java.util.Properties;
 
-import com.webreach.mirth.connectors.ftp.FTPWriterProperties;
 import com.webreach.mirth.model.ComponentProperties;
 
 public class FileWriterProperties implements ComponentProperties

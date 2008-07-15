@@ -11,12 +11,10 @@ import org.apache.log4j.Logger;
 import com.webreach.mirth.connectors.doc.DocumentWriterProperties;
 import com.webreach.mirth.connectors.email.EmailSenderProperties;
 import com.webreach.mirth.connectors.file.FileWriterProperties;
-import com.webreach.mirth.connectors.ftp.FTPWriterProperties;
 import com.webreach.mirth.connectors.http.HTTPSenderProperties;
 import com.webreach.mirth.connectors.jdbc.DatabaseWriterProperties;
 import com.webreach.mirth.connectors.jms.JMSWriterProperties;
 import com.webreach.mirth.connectors.mllp.LLPSenderProperties;
-import com.webreach.mirth.connectors.sftp.SFTPWriterProperties;
 import com.webreach.mirth.connectors.soap.SOAPSenderProperties;
 import com.webreach.mirth.connectors.tcp.TCPSenderProperties;
 import com.webreach.mirth.connectors.vm.ChannelWriterProperties;
@@ -228,22 +226,6 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
                         } else if (connector.getTransportName().equals(DatabaseWriterProperties.name)) {
                             // Destination - Database Writer.
                             information = "URL: " + connector.getProperties().getProperty(DatabaseWriterProperties.DATABASE_URL);
-                        } else if (connector.getTransportName().equals(FTPWriterProperties.name)) {
-                            // Destination - FTP Writer.
-                            information = "Result written to: " + connector.getProperties().getProperty(FTPWriterProperties.FTP_URL) + "/" + connector.getProperties().getProperty(FTPWriterProperties.FTP_OUTPUT_PATTERN);
-                            if (connector.getProperties().getProperty(FTPWriterProperties.FTP_FILE_TYPE).equals("0")) {
-                                information += "   File Type: ASCII";
-                            } else {
-                                information += "   File Type: Binary";
-                            }
-                        } else if (connector.getTransportName().equals(SFTPWriterProperties.name)) {
-                            // Destination - SFTP Writer.
-                            information = "Result written to: " + connector.getProperties().getProperty(SFTPWriterProperties.SFTP_ADDRESS) + "/" + connector.getProperties().getProperty(SFTPWriterProperties.SFTP_OUTPUT_PATTERN);
-                            if (connector.getProperties().getProperty(SFTPWriterProperties.SFTP_BINARY).equals("0")) {
-                                information += "   File Type: ASCII";
-                            } else {
-                                information += "   File Type: Binary";
-                            }
                         } else if (connector.getTransportName().equals(JMSWriterProperties.name)) {
                             // Destination - JMS Writer.
                             information = "URL: " + JMSWriterProperties.JMS_URL;

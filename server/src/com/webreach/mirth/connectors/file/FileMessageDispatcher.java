@@ -41,7 +41,6 @@ import com.jcraft.jsch.ChannelSftp;
 import com.webreach.mirth.connectors.file.filesystems.FileInfo;
 import com.webreach.mirth.connectors.file.filesystems.FileSystemConnection;
 import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
-import com.webreach.mirth.connectors.sftp.SftpConnector;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;

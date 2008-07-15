@@ -122,18 +122,6 @@
 			</fileset>
 		</jar>
 
-		<jar destfile="${connectors}/ftp-shared.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/connectors/ftp/FTPReaderProperties.class" />
-			<include name="com/webreach/mirth/connectors/ftp/FTPWriterProperties.class" />
-		</jar>
-		<jar destfile="${connectors}/ftp-server.jar">
-			<fileset dir="${classes}">
-				<include name="com/webreach/mirth/connectors/ftp/**" />
-				<exclude name="com/webreach/mirth/connectors/ftp/FTPReaderProperties.class" />
-				<exclude name="com/webreach/mirth/connectors/ftp/FTPWriterProperties.class" />
-			</fileset>
-		</jar>
-
 		<jar destfile="${connectors}/http-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/http/HTTPListenerProperties.class" />
 			<include name="com/webreach/mirth/connectors/http/HTTPSenderProperties.class" />
@@ -191,18 +179,6 @@
 				<include name="com/webreach/mirth/connectors/mllp/**" />
 				<exclude name="com/webreach/mirth/connectors/mllp/LLPListenerProperties.class" />
 				<exclude name="com/webreach/mirth/connectors/mllp/LLPSenderProperties.class" />
-			</fileset>
-		</jar>
-
-		<jar destfile="${connectors}/sftp-shared.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/connectors/sftp/SFTPReaderProperties.class" />
-			<include name="com/webreach/mirth/connectors/sftp/SFTPWriterProperties.class" />
-		</jar>
-		<jar destfile="${connectors}/sftp-server.jar">
-			<fileset dir="${classes}">
-				<include name="com/webreach/mirth/connectors/sftp/**" />
-				<exclude name="com/webreach/mirth/connectors/sftp/SFTPReaderProperties.class" />
-				<exclude name="com/webreach/mirth/connectors/sftp/SFTPWriterProperties.class" />
 			</fileset>
 		</jar>
 
@@ -553,19 +529,6 @@
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.connectors}/ftp-${version}.zip">
-			<fileset dir="${connectors}">
-				<include name="ftp-shared.jar" />
-				<include name="ftp-server.jar" />
-				<include name="ftp-client.jar" />
-				<include name="${classes}/com/webreach/mirth/connectors/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="FTP Writer.xml" />
-				<include name="FTP Reader.xml" />
-			</fileset>
-		</zip>
-
 		<zip destfile="${dist.connectors}/http-${version}.zip">
 			<fileset dir="${connectors}">
 				<include name="http-shared.jar" />
@@ -615,19 +578,6 @@
 			<fileset dir="${dist.extensions}">
 				<include name="LLP Listener.xml" />
 				<include name="LLP Sender.xml" />
-			</fileset>
-		</zip>
-
-		<zip destfile="${dist.connectors}/sftp-${version}.zip">
-			<fileset dir="${connectors}">
-				<include name="sftp-shared.jar" />
-				<include name="sftp-server.jar" />
-				<include name="sftp-client.jar" />
-				<include name="${classes}/com/webreach/mirth/connectors/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="SFTP Reader.xml" />
-				<include name="SFTP Writer.xml" />
 			</fileset>
 		</zip>
 
