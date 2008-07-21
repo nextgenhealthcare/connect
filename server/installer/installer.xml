@@ -67,9 +67,6 @@
 							<origin>../setup/logs</origin>
 						</distributionDirectory>
 						<distributionDirectory>
-							<origin>../setup/mirthdb</origin>
-						</distributionDirectory>
-						<distributionDirectory>
 							<origin>../setup/public_html</origin>
 						</distributionDirectory>
 					</distributionFileList>
@@ -89,6 +86,23 @@
 							<windowsPath>${installdir}</windowsPath>
 						</shortcut>
 					</shortcutList>
+				</folder>
+
+				<folder>
+					<description>Program Files</description>
+					<destination>${installdir}</destination>
+					<name>programfilesdb</name>
+					<platforms>all</platforms>
+
+					<distributionFileList>
+						<distributionDirectory>
+							<origin>../setup/mirthdb</origin>
+						</distributionDirectory>
+					</distributionFileList>
+
+					<ruleList>
+						<fileTest path="${installdir}/mirthdb" condition="not_exists" />
+					</ruleList>
 				</folder>
 
 				<folder>
