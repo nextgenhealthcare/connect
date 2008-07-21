@@ -61,10 +61,6 @@
 			<include name="com/webreach/mirth/connectors/file/**" />
 		</jar>
 
-		<jar destfile="${dist}/connectors/ftp-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/connectors/ftp/**" />
-		</jar>
-
 		<jar destfile="${dist}/connectors/http-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/http/**" />
 		</jar>
@@ -91,10 +87,6 @@
 
 		<jar destfile="${dist}/connectors/mllp-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/mllp/**" />
-		</jar>
-
-		<jar destfile="${dist}/connectors/sftp-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/connectors/sftp/**" />
 		</jar>
 
 		<jar destfile="${dist}/connectors/soap-client.jar" basedir="${classes}">
