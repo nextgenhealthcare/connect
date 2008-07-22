@@ -28,6 +28,7 @@ package com.webreach.mirth.server;
 import java.io.File;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -453,7 +454,7 @@ public class Mirth extends Thread {
 		String version = PropertyLoader.getProperty(versionProperties, "mirth.version");
 		String buildDate = PropertyLoader.getProperty(versionProperties, "mirth.date");
 		System.out.println("Mirth " + version + " (" + buildDate + ") server successfully started: " + (new Date()).toString());
-		System.out.println("This product includes software developed by SymphonySoft Limited (http://www.symphonysoft.com) and its contributors.");
+		System.out.println("This product was developed by WebReach, Inc. (http://www.webreachinc.com) and its contributors. ©2005-" + Calendar.getInstance().get(Calendar.YEAR));
 		System.out.println("Running Java " + System.getProperty("java.version") + " on " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ", " + System.getProperty("os.arch") + ")");
 	}
 
