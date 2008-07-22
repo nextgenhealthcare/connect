@@ -209,7 +209,7 @@
 			<include name="com/webreach/mirth/connectors/dimse/DICOMListenerProperties.class" />
 			<include name="com/webreach/mirth/connectors/dimse/DICOMSenderProperties.class" />
 		</jar>
-        <jar destfile="${connectors}/dicom-server.jar">
+		<jar destfile="${connectors}/dicom-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/dimse/**" />
 				<exclude name="com/webreach/mirth/connectors/dimse/DICOMListenerProperties.class" />
@@ -786,6 +786,58 @@
 	</target>
 
 	<target name="create-dist" depends="create-extension-zips">
-		<ant antfile="create-dist.xml" target="create-dist" />
+		<!-- create the dist directory -->
+		<mkdir dir="${dist}" />
+
+		<!-- create the zip -->
+		<zip basedir="${setup}" destfile="${dist}/mirth-${version}.zip" excludes="META-INF/**" />
+
+		<!-- create the tar.gz -->
+		<tar basedir="${setup}" tarfile="${dist}/mirth-${version}.tar" />
+		<gzip src="${dist}/mirth-${version}.tar" zipfile="${dist}/mirth-${version}.tar.gz" />
+		<delete file="${dist}/mirth-${version}.tar" />
+
+		<!-- create the JBoss service archive -->
+		<mkdir dir="${dist}/mirth.sar" />
+		<copy todir="${dist}/mirth.sar">
+			<fileset dir="${setup}">
+				<exclude name="InstallMirth-NT.bat" />
+				<exclude name="MirthServerManager.exe" />
+				<exclude name="Mirth.bat" />
+				<exclude name="Mirth.exe" />
+				<exclude name="Mirth.ico" />
+				<exclude name="mirth.sh" />
+				<exclude name="mirth-daemon" />
+				<exclude name="mirth-launcher.jar" />
+				<exclude name="mirth-launcher.xml" />
+				<exclude name="mirth-manager.jar" />
+				<exclude name="StartMirth-NT.bat" />
+				<exclude name="StopMirth-NT.bat" />
+				<exclude name="uninstall.ico" />
+				<exclude name="UninstallMirth-NT.bat" />
+				<exclude name="upgrade.xml" />
+				<exclude name="wrapper.exe" />
+				<exclude name="wrapper-x86-32bit" />
+				<exclude name="source/**" />
+				<exclude name="conf/wrapper.conf" />
+			</fileset>
+		</copy>
+		<mkdir dir="${dist}/mirth.sar/META-INF" />
+		<copy todir="${dist}/mirth.sar/META-INF">
+			<fileset file="${basedir}/jboss-service.xml" />
+		</copy>
+		<copy todir="${dist}/mirth.sar">
+			<fileset file="${docs}/JBOSS-README.txt" />
+		</copy>
+
+		<!-- create the mbeans jar with classpath manifest -->
+		<jar destfile="${dist}/mirth.sar/mirth-jboss.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/server/mbeans/**" />
+			<manifest>
+				<attribute name="Class-Path" value="conf/ extensions/" />
+			</manifest>
+		</jar>
+		<zip basedir="${dist}" destfile="${dist}/mirth-${version}-jboss-sar.zip" includes="mirth.sar/**" />
+		<delete dir="${dist}/mirth.sar" />
 	</target>
 </project>
