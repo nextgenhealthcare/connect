@@ -374,8 +374,6 @@
 			<fileset file="${basedir}/Shell.bat" />
 			<fileset file="${basedir}/shell.sh" />
 			<fileset file="${docs}/README.txt" />
-			<fileset file="${installer}/upgrade.xml" />
-			<fileset file="${installer}/uninstall.ico" />
 		</copy>
 
 		<!-- create the server jar -->
