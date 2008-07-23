@@ -28,6 +28,7 @@ package com.webreach.mirth.client.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -52,6 +53,7 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -162,7 +164,6 @@ public class Frame extends JXFrame
     public JXTaskPane globalScriptsTasks;
     public JPopupMenu globalScriptsPopupMenu;
     public JXTitledPanel rightContainer;
-    public JXTitledPanel leftContainer;
     public ArrayList<ConnectorClass> sourceConnectors;
     public ArrayList<ConnectorClass> destinationConnectors;
     private Thread statusUpdater;
@@ -182,7 +183,6 @@ public class Frame extends JXFrame
     public Frame()
     {
         dsb = BorderFactory.createEmptyBorder();
-        leftContainer = new JXTitledPanel();
         rightContainer = new JXTitledPanel();
         channels = new HashMap<String, Channel>();
 
@@ -442,6 +442,19 @@ public class Frame extends JXFrame
         container.setBorder(null);
         container.setTitleFont(new Font("Tahoma", Font.BOLD, 18));
         container.setTitleForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
+        JLabel webreachImage = new JLabel();
+        webreachImage.setIcon(UIConstants.WEBREACH_LOGO_GRAY);
+        webreachImage.setText(" ");
+        webreachImage.setToolTipText(UIConstants.WEBREACH_TOOLTIP);
+        webreachImage.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        webreachImage.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            	BareBonesBrowserLaunch.openURL(UIConstants.WEBREACH_URL);
+            }
+        });
+        
+        ((JPanel)container.getComponent(0)).add(webreachImage);
 
         component.setBorder(new LineBorder(Color.GRAY, 1));
         component.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);

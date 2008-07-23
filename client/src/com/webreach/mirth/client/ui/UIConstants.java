@@ -46,6 +46,10 @@ public class UIConstants
     public static final String TITLE_TEXT = "Mirth Administrator";
     public static final int MIRTH_WIDTH = 950;
     public static final int MIRTH_HEIGHT = 650;
+    public static final ImageIcon WEBREACH_LOGO_GRAY = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/webreachGray.png"));
+    public static final ImageIcon WEBREACH_LOGO = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/webreach.png"));
+    public static final String WEBREACH_TOOLTIP = "WebReach, Inc.";
+    public static final String WEBREACH_URL = "http://www.webreachinc.com";
 
     // for error checking
     public static final int ERROR_CONSTANT = -1;
