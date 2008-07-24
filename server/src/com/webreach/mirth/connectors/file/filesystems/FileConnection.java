@@ -4,11 +4,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.mule.MuleException;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
@@ -174,8 +176,16 @@ public class FileConnection implements FileSystemConnection {
 
 		dst.delete();
 
+		// File.renameTo operation doesn't work across file systems. So we will
+		// attempt to do a File.renameTo for efficiency and atomicity, if this
+		// fails then we will use the Commons-IO moveFile operation which
+		// does a "copy and delete"
 		if (!src.renameTo(dst)) {
-			throw new MuleException(new Message("file", 4, src.getAbsolutePath(), dst.getAbsolutePath()));
+		    try {
+		        FileUtils.moveFile(src, dst);    
+		    } catch (IOException e) {
+		        throw new MuleException(new Message("file", 4, src.getAbsolutePath(), dst.getAbsolutePath()), e);    
+		    }
 		}
 	}
 
