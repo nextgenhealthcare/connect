@@ -169,9 +169,10 @@ public class UMOMessageToHttpResponse extends AbstractEventAwareTransformer
 
         // End header
         httpMessage.append(HttpConstants.CRLF);
-        byte[] resultPayload = new byte[httpMessage.length() + response.length];
-        System.arraycopy(httpMessage.toString().getBytes(), 0, resultPayload, 0, httpMessage.length());
-        System.arraycopy(response, 0, resultPayload, httpMessage.length(), response.length);
+        byte [] headerPayload=httpMessage.toString().getBytes();
+        byte[] resultPayload = new byte[headerPayload.length + response.length];
+        System.arraycopy(headerPayload, 0, resultPayload, 0, headerPayload.length);
+        System.arraycopy(response, 0, resultPayload, headerPayload.length, response.length);
 
         if(contentType.startsWith("text/")) {
             return new String(resultPayload);
