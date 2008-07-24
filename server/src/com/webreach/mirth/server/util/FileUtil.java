@@ -25,16 +25,15 @@
 
 package com.webreach.mirth.server.util;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
+
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Document;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.rtf.RTFEditorKit;
 
 public class FileUtil {
 	public static void write(String fileName, boolean append, String data) throws IOException {
@@ -116,7 +115,6 @@ public class FileUtil {
 		return contents.toString();
 	}
 
-
     /**
      * deletes a specified File.  'delete' is a keyword in Rhino and E4X, thus can't call File.delete() method within Mirth directly.
      * @param file
@@ -126,5 +124,33 @@ public class FileUtil {
     public static boolean deleteFile(File file) throws SecurityException {
         return file.delete();
 	}
+
+
+    public static String rtf2plainText(String message, String replaceLinebreaksWith) throws IOException, BadLocationException {
+
+        String convertedPlainText;
+
+        // Reading the RTF content string
+        Reader in = new StringReader(message);
+
+        // creating a default blank styled document
+        DefaultStyledDocument styledDoc = new DefaultStyledDocument();
+
+        // Creating a RTF Editor kit
+        RTFEditorKit rtfKit = new RTFEditorKit();
+
+        // Populating the contents in the blank styled document
+        rtfKit.read(in, styledDoc, 0);
+
+        // Getting the root document
+        Document doc = styledDoc.getDefaultRootElement().getDocument();
+
+        convertedPlainText = doc.getText(0, doc.getLength());
+        if (replaceLinebreaksWith != null) {
+            convertedPlainText = convertedPlainText.replaceAll("\\n", replaceLinebreaksWith);
+        }
+
+        return convertedPlainText;
+    }
 
 }
