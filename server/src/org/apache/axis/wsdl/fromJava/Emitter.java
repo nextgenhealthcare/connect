@@ -236,8 +236,6 @@ public class Emitter {
      */
     public Emitter() {
 
-		System.out.println("****** CREANDO EMITER ******");
-	
         createDocumentFragment();
 
         namespaces = new Namespaces();
@@ -485,11 +483,7 @@ public class Emitter {
         // Write the WSDL constructs and return full Definition
         Binding binding = writeBinding(def, true);
 
-		System.out.println("::::::::::::::-----------------------------::::::::::::::::::::::::");
-		System.out.println("..............Escribiendo types\r\n"+types);
-		System.out.println("------------------------------");
-		System.out.println("..............Def:\r\n"+def);
-		System.out.println("::::::::::::::-----------------------------::::::::::::::::::::::::");
+		log.debug("Writing types\r\n"+types+" defs "+def);
 		
         writePortType(def, binding);
         writeService(def, binding);
@@ -635,12 +629,12 @@ public class Emitter {
             } else {
                 clsName = getServiceDesc().getName();
             }
-			System.out.println(" CLASE POR DEFECTO :"+cls+" Nombre: "+clsName);
+			log.debug(" default class :"+cls+" Name: "+clsName);
 
             // Default the portType name
             if (getPortTypeName() == null) {
                 setPortTypeName(clsName.replace("$","_"));
-				System.out.println("Defaulto portTypeName ("+getPortTypeName()+")");
+				log.debug("Default portTypeName ("+getPortTypeName()+")");
             }
 
             // Default the serviceElementName
@@ -676,7 +670,7 @@ public class Emitter {
             }
 
             // Default the bindingName
-			System.out.println(" generando binding name. ServicePortName:"+getServicePortName());
+			log.trace(" Generating binding name. ServicePortName:"+getServicePortName());
             if (getBindingName() == null) {
                 setBindingName(getServicePortName() + "SoapBinding");
             }
@@ -1007,7 +1001,7 @@ public class Emitter {
 
         QName portTypeQName = new QName(intfNS, getPortTypeName());
 		
-		System.out.println("portTypeQName ["+portTypeQName+"] portTypeName:"+getPortTypeName() );
+		log.debug("portTypeQName ["+portTypeQName+"] portTypeName:"+getPortTypeName() );
 
         // Get or create a portType
         PortType portType = def.getPortType(portTypeQName);
@@ -1491,7 +1485,7 @@ public class Emitter {
         	//as a WRAPPED-LITERAL service instead.
         	//see http://issues.apache.org/jira/browse/AXIS-2017
         	if(oper.getStyle() == Style.DOCUMENT && parameters.size()>1 ) {
-         		System.out.println(Messages.getMessage("warnDocLitInteropMultipleInputParts"));
+         		log.debug(Messages.getMessage("warnDocLitInteropMultipleInputParts"));
          	}
 
             // write a part for each non-header parameter

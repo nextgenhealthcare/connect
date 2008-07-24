@@ -250,6 +250,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
         {
             return null;
         }
+        
         try
         {
             VMMessageReceiver receiver = connector.getReceiver(endpointUri);

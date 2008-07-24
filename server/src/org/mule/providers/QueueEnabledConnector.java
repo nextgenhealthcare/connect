@@ -146,48 +146,55 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 					boolean connected = true;
 					boolean interrupted = false;
 
-					logger.debug("queue.size = " + queue.size());
-					if (queue == null || queue.size() == 0) {
-						Thread.sleep(getReconnectMillisecs());
-					} else {
-						// If the endpoint is active, try to send without
-						// waiting
-						while ((queue.size() > 0) && connected) {
-							QueuedMessage thePayload = null;
-
-							try {
-								thePayload = (QueuedMessage) queue.peek();
-								logger.debug("retrying queued message: id = " + thePayload.getMessageObject().getId() + ", endpointUri = " + thePayload.getEndpointUri().toString());
-								if (dispatcher.sendPayload(thePayload)) {
-									queue.poll(getPollMaxTime());
-									connected = true;
-								} else {
-									if (isRotateQueue()) {
-										rotateCurrentMessage();
+					if (queue == null) {
+						setQueues();
+					}
+					
+					if(queue != null) { 
+						logger.debug("queue size = " + queue.size());
+						
+						if(queue.size() == 0) {
+							Thread.sleep(getReconnectMillisecs());
+						} else {
+							// If the endpoint is active, try to send without
+							// waiting
+							while ((queue.size() > 0) && connected) {
+								QueuedMessage thePayload = null;
+	
+								try {
+									thePayload = (QueuedMessage) queue.peek();
+									logger.debug("retrying queued message: id = " + thePayload.getMessageObject().getId() + ", endpointUri = " + thePayload.getEndpointUri().toString());
+									if (dispatcher.sendPayload(thePayload)) {
+										queue.poll(getPollMaxTime());
+										connected = true;
+									} else {
+										if (isRotateQueue()) {
+											rotateCurrentMessage();
+										}
+										MessageObjectController.getInstance().resetQueuedStatus(thePayload.getMessageObject());
 									}
-									MessageObjectController.getInstance().resetQueuedStatus(thePayload.getMessageObject());
-								}
-							} catch (Throwable t) {
-								if (t instanceof InterruptedException) {
-									interrupted = true;
-								}
-
-								if (thePayload != null && thePayload.getMessageObject().getStatus().equals(MessageObject.Status.ERROR)) {
-									if (isRotateQueue()) {
-										rotateCurrentMessage();
+								} catch (Throwable t) {
+									if (t instanceof InterruptedException) {
+										interrupted = true;
 									}
-									logger.debug("Conection error [" + t + "] " + " at " + thePayload.getEndpointUri().toString() + " queue size " + new Integer(queue.size()).toString());
-									MessageObjectController.getInstance().resetQueuedStatus(thePayload.getMessageObject());
-								} else {
-									if (!interrupted) {
-										logger.warn("Error reading message off the queue. Queue out of sync with filesystem: ", t);
-										queueSession.resyncQueue(getName());
+	
+									if (thePayload != null && thePayload.getMessageObject().getStatus().equals(MessageObject.Status.ERROR)) {
+										if (isRotateQueue()) {
+											rotateCurrentMessage();
+										}
+										logger.debug("Conection error [" + t + "] " + " at " + thePayload.getEndpointUri().toString() + " queue size " + new Integer(queue.size()).toString());
+										MessageObjectController.getInstance().resetQueuedStatus(thePayload.getMessageObject());
+									} else {
+										if (!interrupted) {
+											logger.warn("Error reading message off the queue. Queue out of sync with filesystem: ", t);
+											queueSession.resyncQueue(getName());
+										}
 									}
+									connected = false;
 								}
-								connected = false;
-							}
-							if (!connected && !interrupted) {
-								Thread.sleep(getReconnectMillisecs());
+								if (!connected && !interrupted) {
+									Thread.sleep(getReconnectMillisecs());
+								}
 							}
 						}
 					}
