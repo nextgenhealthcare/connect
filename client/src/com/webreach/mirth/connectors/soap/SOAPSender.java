@@ -941,7 +941,7 @@ reconnectIntervalLabel.setEnabled(true);
 
                 try
                 {
-                    definition = parent.mirthClient.getWebServiceDefinition(wsdlUrl.getText().trim());
+                    definition = (WSDefinition) parent.mirthClient.invokeConnectorService(name, "getWebServiceDefinition", wsdlUrl.getText().trim());
                     if (definition == null)
                         throw new ClientException("No WSDL Methods Found.");
                     return null;
