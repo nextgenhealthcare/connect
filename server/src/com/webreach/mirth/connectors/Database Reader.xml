@@ -9,6 +9,7 @@
   <clientClassName>com.webreach.mirth.connectors.jdbc.DatabaseReader</clientClassName>
   <serverClassName>com.webreach.mirth.connectors.jdbc.JdbcConnector</serverClassName>
   <sharedClassName>com.webreach.mirth.connectors.jdbc.DatabaseReaderProperties</sharedClassName>
+  <serviceClassName>com.webreach.mirth.connectors.jdbc.JdbcConnectorService</serviceClassName>
   <transformers>ResultMapToXML</transformers>
   <protocol>jdbc</protocol>
   <type>LISTENER</type>
