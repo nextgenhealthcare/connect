@@ -126,7 +126,7 @@ public class FileUtil {
 	}
 
 
-    public static String rtf2plainText(String message, String replaceLinebreaksWith) throws IOException, BadLocationException {
+    public static String rtfToPlainText(String message, String replaceLinebreaksWith) throws IOException, BadLocationException {
 
         String convertedPlainText;
 
