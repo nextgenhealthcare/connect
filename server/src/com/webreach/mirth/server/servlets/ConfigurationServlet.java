@@ -40,70 +40,65 @@ import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.util.WebServiceReader;
 
 public class ConfigurationServlet extends MirthServlet {
-	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		try {
-			PrintWriter out = response.getWriter();
-			String operation = request.getParameter("op");
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            PrintWriter out = response.getWriter();
+            String operation = request.getParameter("op");
 
-			if (operation.equals("getStatus")) {
-				response.setContentType("text/plain");
-				out.println(ConfigurationController.getInstance().getStatus());
-			} else if (!isUserLoggedIn(request)) {
-				response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-			} else {
-				ConfigurationController configurationController = ConfigurationController.getInstance();
-				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+            if (operation.equals("getStatus")) {
+                response.setContentType("text/plain");
+                out.println(ConfigurationController.getInstance().getStatus());
+            } else if (!isUserLoggedIn(request)) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            } else {
+                ConfigurationController configurationController = ConfigurationController.getInstance();
+                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
-				if (operation.equals("getAvaiableCharsetEncodings")) {
-					response.setContentType("application/xml");
-					out.println(serializer.toXML(configurationController.getAvaiableCharsetEncodings()));
-				} else if (operation.equals("getServerProperties")) {
-					response.setContentType("application/xml");
-					out.println(serializer.toXML(configurationController.getServerProperties()));
-				} else if (operation.equals("setServerProperties")) {
-					String properties = request.getParameter("data");
-					configurationController.setServerProperties((Properties) serializer.fromXML(properties));
-				} else if (operation.equals("getGuid")) {
-					response.setContentType("text/plain");
-					out.print(configurationController.getGuid());
-				} else if (operation.equals("deployChannels")) {
-					configurationController.deployChannels();
-				} else if (operation.equals("getDatabaseDrivers")) {
-					response.setContentType("application/xml");
-					out.println(serializer.toXML(configurationController.getDatabaseDrivers()));
-				} else if (operation.equals("getVersion")) {
-					response.setContentType("text/plain");
-					out.print(configurationController.getServerVersion());
-				} else if (operation.equals("getBuildDate")) {
-					response.setContentType("text/plain");
-					out.print(configurationController.getBuildDate());
-				} else if (operation.equals("getWebServiceDefinition")) {
-					response.setContentType("application/xml");
-					String address = request.getParameter("address");
-					WebServiceReader wsReader = new WebServiceReader(address);
-					out.println(serializer.toXML(wsReader.getWSDefinition()));
-				} else if (operation.equals("getServerConfiguration")) {
-					response.setContentType("application/xml");
-					out.println(serializer.toXML(configurationController.getServerConfiguration()));
-				} else if (operation.equals("setServerConfiguration")) {
-					String serverConfiguration = request.getParameter("data");
-					configurationController.setServerConfiguration((ServerConfiguration) serializer.fromXML(serverConfiguration));
-				} else if (operation.equals("getServerId")) {
-					response.setContentType("application/xml");
-					out.println(configurationController.getServerId());
-				} else if (operation.equals("getGlobalScripts")) {
-					response.setContentType("application/xml");
-					out.println(serializer.toXML(configurationController.getGlobalScripts()));
-				} else if (operation.equals("setGlobalScripts")) {
-					String scripts = request.getParameter("scripts");
-					configurationController.setGlobalScripts((Map<String, String>) serializer.fromXML(scripts));
-				} else if (operation.equals("shutdown")) {
-					configurationController.shutdown();
-				}
+                if (operation.equals("getAvaiableCharsetEncodings")) {
+                    response.setContentType("application/xml");
+                    out.println(serializer.toXML(configurationController.getAvaiableCharsetEncodings()));
+                } else if (operation.equals("getServerProperties")) {
+                    response.setContentType("application/xml");
+                    out.println(serializer.toXML(configurationController.getServerProperties()));
+                } else if (operation.equals("setServerProperties")) {
+                    String properties = request.getParameter("data");
+                    configurationController.setServerProperties((Properties) serializer.fromXML(properties));
+                } else if (operation.equals("getGuid")) {
+                    response.setContentType("text/plain");
+                    out.print(configurationController.getGuid());
+                } else if (operation.equals("deployChannels")) {
+                    configurationController.deployChannels();
+                } else if (operation.equals("getDatabaseDrivers")) {
+                    response.setContentType("application/xml");
+                    out.println(serializer.toXML(configurationController.getDatabaseDrivers()));
+                } else if (operation.equals("getVersion")) {
+                    response.setContentType("text/plain");
+                    out.print(configurationController.getServerVersion());
+                } else if (operation.equals("getBuildDate")) {
+                    response.setContentType("text/plain");
+                    out.print(configurationController.getBuildDate());
+                } else if (operation.equals("getServerConfiguration")) {
+                    response.setContentType("application/xml");
+                    out.println(serializer.toXML(configurationController.getServerConfiguration()));
+                } else if (operation.equals("setServerConfiguration")) {
+                    String serverConfiguration = request.getParameter("data");
+                    configurationController.setServerConfiguration((ServerConfiguration) serializer.fromXML(serverConfiguration));
+                } else if (operation.equals("getServerId")) {
+                    response.setContentType("application/xml");
+                    out.println(configurationController.getServerId());
+                } else if (operation.equals("getGlobalScripts")) {
+                    response.setContentType("application/xml");
+                    out.println(serializer.toXML(configurationController.getGlobalScripts()));
+                } else if (operation.equals("setGlobalScripts")) {
+                    String scripts = request.getParameter("scripts");
+                    configurationController.setGlobalScripts((Map<String, String>) serializer.fromXML(scripts));
+                } else if (operation.equals("shutdown")) {
+                    configurationController.shutdown();
+                }
 
-			}
-		} catch (Exception e) {
-			throw new ServletException(e);
-		}
-	}
+            }
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
+    }
 }

@@ -759,12 +759,6 @@ public class Client {
 		}
 	}
 
-	public WSDefinition getWebServiceDefinition(String address) throws ClientException {
-		logger.debug("retrieving web service definition for address: " + address);
-		NameValuePair[] params = { new NameValuePair("op", "getWebServiceDefinition"), new NameValuePair("address", address) };
-		return (WSDefinition) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
-	}
-
 	public Attachment getAttachment(String attachmentId) throws ClientException {
 		logger.debug("getting Attachment: " + attachmentId);
 		NameValuePair[] params = { new NameValuePair("op", "getAttachment"), new NameValuePair("attachmentId", attachmentId) };

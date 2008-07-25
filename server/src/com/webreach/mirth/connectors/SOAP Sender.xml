@@ -9,6 +9,7 @@
   <clientClassName>com.webreach.mirth.connectors.soap.SOAPSender</clientClassName>
   <serverClassName>com.webreach.mirth.connectors.soap.axis.AxisConnector</serverClassName>
   <sharedClassName>com.webreach.mirth.connectors.soap.SOAPSenderProperties</sharedClassName>
+  <serviceClassName>com.webreach.mirth.connectors.soap.SoapConnectorService</serviceClassName>
   <transformers></transformers>
   <protocol>axis</protocol>
   <type>SENDER</type>
