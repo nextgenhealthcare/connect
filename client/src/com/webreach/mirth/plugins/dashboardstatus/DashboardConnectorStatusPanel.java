@@ -483,13 +483,13 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
         // i.e. this log size change only affects on the client side.
         if (logSizeTextField.getText().length() == 0)
         {
-            parent.alertWarning("Please enter a valid number.");
+            parent.alertWarning(this, "Please enter a valid number.");
             return;
         }
         int newDashboardLogSize = Integer.parseInt(logSizeTextField.getText());
         if (newDashboardLogSize != currentDashboardLogSize) {
             if (newDashboardLogSize <= 0) {
-                parent.alertWarning("Please enter a log size that is larger than 0.");
+                parent.alertWarning(this, "Please enter a log size that is larger than 0.");
             } else {
                 userPreferences.putInt("dashboardLogSize", newDashboardLogSize);
                 currentDashboardLogSize = newDashboardLogSize;

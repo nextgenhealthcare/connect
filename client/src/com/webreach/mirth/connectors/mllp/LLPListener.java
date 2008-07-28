@@ -742,7 +742,7 @@ public class LLPListener extends ConnectorClass
     {// GEN-HEADEREND:event_responseFromTransformerActionPerformed
         if (responseFromTransformer.getSelectedIndex() != 0 && !parent.channelEditPanel.synchronousCheckBox.isSelected())
         {
-            parent.alertInformation("The synchronize source connector setting has been enabled since it is required to use this feature.");
+            parent.alertInformation(this, "The synchronize source connector setting has been enabled since it is required to use this feature.");
             parent.channelEditPanel.synchronousCheckBox.setSelected(true);
         }
     }// GEN-LAST:event_responseFromTransformerActionPerformed

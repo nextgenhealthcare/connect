@@ -88,6 +88,8 @@ public class Mirth
 
         PlatformUI.MIRTH_FRAME.setVisible(true);
         
+        new ServerIdentDialog();
+        
     }
 
     /**

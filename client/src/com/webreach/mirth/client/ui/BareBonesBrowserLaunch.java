@@ -70,7 +70,7 @@ public class BareBonesBrowserLaunch
         }
         catch (Exception e)
         {
-            PlatformUI.MIRTH_FRAME.alertException(e.getStackTrace(), e.getMessage());
+            PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
         }
     }
 }

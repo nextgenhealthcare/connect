@@ -40,11 +40,20 @@ public class CustomErrorDialog extends javax.swing.JDialog
     public static final String ERROR_ENABLING_CHANNEL = "The channel was not configured properly.  Please fix the following problem(s) in the channel before trying to enable it again:";
     public static final String ERROR_VALIDATING_GLOBAL_SCRIPTS = "There was an error in the validation of your global scripts.  Please fix the following error(s):";
     
-    /** Creates new form AboutMirth */
-    public CustomErrorDialog(String errorMessage, String errorQuestion)
+    public CustomErrorDialog(java.awt.Frame owner, String errorMessage, String errorQuestion)
     {
-        super(PlatformUI.MIRTH_FRAME);
-        this.parent = PlatformUI.MIRTH_FRAME;
+        super(owner);
+        initialize(errorMessage, errorQuestion);
+    }
+    
+    public CustomErrorDialog(java.awt.Dialog owner, String errorMessage, String errorQuestion)
+    {
+        super(owner);
+        initialize(errorMessage, errorQuestion);
+    }
+    
+    private void initialize(String errorMessage, String errorQuestion) {
+    	this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
         
         question.setText(errorQuestion);

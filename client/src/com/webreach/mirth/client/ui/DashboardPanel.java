@@ -138,7 +138,7 @@ public class DashboardPanel extends javax.swing.JPanel
                         }
                         catch (Exception e)
                         {
-                            parent.alertException(e.getStackTrace(), e.getMessage());
+                            parent.alertException(this, e.getStackTrace(), e.getMessage());
                         }
                     }
                 }
@@ -146,7 +146,7 @@ public class DashboardPanel extends javax.swing.JPanel
         }
         catch (Exception e)
         {
-            parent.alertException(e.getStackTrace(), e.getMessage());
+            parent.alertException(this, e.getStackTrace(), e.getMessage());
         }
     }
     
@@ -186,7 +186,7 @@ public class DashboardPanel extends javax.swing.JPanel
                         }
                         catch (Exception e)
                         {
-                            parent.alertException(e.getStackTrace(), e.getMessage());
+                            parent.alertException(this, e.getStackTrace(), e.getMessage());
                         }
                     }
                 }
@@ -210,7 +210,7 @@ public class DashboardPanel extends javax.swing.JPanel
         }
         catch (Exception e)
         {
-            parent.alertException(e.getStackTrace(), e.getMessage());
+            parent.alertException(this, e.getStackTrace(), e.getMessage());
         }
     }
     

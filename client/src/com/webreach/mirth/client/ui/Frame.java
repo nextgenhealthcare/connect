@@ -29,7 +29,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Window;
@@ -115,7 +114,7 @@ public class Frame extends JXFrame
     public Client mirthClient;
     public DashboardPanel dashboardPanel = null;
     public ChannelPanel channelPanel = null;
-    public SettingsPanel settingsPanel = null;
+    public SettingsPane settingsPane = null;
     public UserPanel userPanel = null;
     public ChannelSetup channelEditPanel = null;
     public EventBrowser eventBrowser = null;
@@ -267,7 +266,7 @@ public class Frame extends JXFrame
         }
         catch (Exception e)
         {
-            alertError("Error getting the charset list:\n " + e);
+            alertError(this, "Error getting the charset list:\n " + e);
         }
     }
 
@@ -326,7 +325,7 @@ public class Frame extends JXFrame
         }
         else
         {
-            alertInformation("Sorry, the JVM of the server can't support the previously selected " + selectedCharset + " encoding. Please choose another one or install more encodings in the server.");
+            alertInformation(this, "Sorry, the JVM of the server can't support the previously selected " + selectedCharset + " encoding. Please choose another one or install more encodings in the server.");
             charsetEncodingCombobox.setSelectedIndex(0);
         }
     }
@@ -344,7 +343,7 @@ public class Frame extends JXFrame
         }
         catch (Throwable t)
         {
-            alertInformation("Error " + t);
+            alertInformation(this, "Error " + t);
             return UIConstants.DEFAULT_ENCODING_OPTION;
         }
     }
@@ -393,7 +392,7 @@ public class Frame extends JXFrame
         }
         catch (ClientException e)
         {
-            alertError("Could not get server information.");
+            alertError(this, "Could not get server information.");
         }
 
         setCurrentTaskPaneContainer(taskPaneContainer);
@@ -428,7 +427,7 @@ public class Frame extends JXFrame
         }
         catch (ClientException e)
         {
-            alertException(e.getStackTrace(), "Unable to load plugins");
+            alertException(this, e.getStackTrace(), "Unable to load plugins");
         }
         pluginPanel = new PluginPanel();
     }
@@ -917,9 +916,9 @@ public class Frame extends JXFrame
     /**
      * Alerts the user with a yes/no option with the passed in 'message'
      */
-    public boolean alertOption(String message)
-    {
-        int option = JOptionPane.showConfirmDialog(this, message, "Select an Option", JOptionPane.YES_NO_OPTION);
+    public boolean alertOption(Component parentComponent, String message)
+    {    	
+        int option = JOptionPane.showConfirmDialog(getVisibleComponent(parentComponent), message, "Select an Option", JOptionPane.YES_NO_OPTION);
         if (option == JOptionPane.YES_OPTION)
             return true;
         else
@@ -929,9 +928,9 @@ public class Frame extends JXFrame
     /**
      * Alerts the user with a Ok/cancel option with the passed in 'message'
      */
-    public boolean alertOkCancel(String message)
+    public boolean alertOkCancel(Component parentComponent, String message)
     {
-        int option = JOptionPane.showConfirmDialog(this, message, "Select an Option", JOptionPane.OK_CANCEL_OPTION);
+        int option = JOptionPane.showConfirmDialog(getVisibleComponent(parentComponent), message, "Select an Option", JOptionPane.OK_CANCEL_OPTION);
         if (option == JOptionPane.OK_OPTION)
             return true;
         else
@@ -941,43 +940,58 @@ public class Frame extends JXFrame
     /**
      * Alerts the user with an information dialog with the passed in 'message'
      */
-    public void alertInformation(String message)
+    public void alertInformation(Component parentComponent, String message)
     {
-        JOptionPane.showMessageDialog(this, message, "Information", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(getVisibleComponent(parentComponent), message, "Information", JOptionPane.INFORMATION_MESSAGE);
     }
 
     /**
      * Alerts the user with a warning dialog with the passed in 'message'
      */
-    public void alertWarning(String message)
+    public void alertWarning(Component parentComponent, String message)
     {
-        JOptionPane.showMessageDialog(this, message, "Warning", JOptionPane.WARNING_MESSAGE);
+        JOptionPane.showMessageDialog(getVisibleComponent(parentComponent), message, "Warning", JOptionPane.WARNING_MESSAGE);
     }
 
     /**
      * Alerts the user with an error dialog with the passed in 'message'
      */
-    public void alertError(String message)
+    public void alertError(Component parentComponent, String message)
     {
-        JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(getVisibleComponent(parentComponent), message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     /**
      * Alerts the user with an error dialog with the passed in 'message' and a
      * 'question'.
      */
-    public void alertCustomError(String message, String question)
+    public void alertCustomError(Component parentComponent, String message, String question)
     {
-        new CustomErrorDialog(message, question);
+    	parentComponent = getVisibleComponent(parentComponent);
+    	
+        Object owner = null;
+        if (parentComponent instanceof java.awt.Frame || parentComponent instanceof java.awt.Dialog) {
+        	owner = parentComponent;
+        } else {
+        	owner = SwingUtilities.windowForComponent(parentComponent);
+        }
+        
+    	if (owner instanceof java.awt.Frame) {
+    		new CustomErrorDialog((java.awt.Frame)owner, message, question);
+    	} else { // window instanceof Dialog
+    		new CustomErrorDialog((java.awt.Dialog)owner, message, question);
+    	}
     }
 
     /**
      * Alerts the user with an exception dialog with the passed in stack trace.
      */
-    public void alertException(StackTraceElement[] strace, String message)
-    {
+    public void alertException(Component parentComponent, StackTraceElement[] strace, String message)
+    {    	
         if (connectionError)
             return;
+        
+        parentComponent = getVisibleComponent(parentComponent);
 
         if (message != null)
         {
@@ -991,7 +1005,7 @@ public class Frame extends JXFrame
                 connectionError = true;
                 if (currentContentPage == dashboardPanel)
                     su.interruptThread();
-                alertWarning("Sorry your connection to Mirth has either timed out or there was an error in the connection.  Please login again.");
+                alertWarning(parentComponent, "Sorry your connection to Mirth has either timed out or there was an error in the connection.  Please login again.");
                 if (!exportChannelOnError())
                     return;
                 this.dispose();
@@ -1003,7 +1017,7 @@ public class Frame extends JXFrame
                 connectionError = true;
                 if (currentContentPage == dashboardPanel)
                     su.interruptThread();
-                alertWarning("The Mirth server " + PlatformUI.SERVER_NAME + " is no longer running.  Please start it and login again.");
+                alertWarning(parentComponent, "The Mirth server " + PlatformUI.SERVER_NAME + " is no longer running.  Please start it and login again.");
                 if (!exportChannelOnError())
                     return;
                 this.dispose();
@@ -1018,7 +1032,28 @@ public class Frame extends JXFrame
 
         logger.error(stackTrace);
 
-        new ErrorDialog(stackTrace);
+        Object owner = null;
+        if (parentComponent instanceof java.awt.Frame || parentComponent instanceof java.awt.Dialog) {
+        	owner = parentComponent;
+        } else {
+        	owner = SwingUtilities.windowForComponent(parentComponent);
+        }
+        
+    	if (owner instanceof java.awt.Frame) {
+    		new ErrorDialog((java.awt.Frame)owner, stackTrace);
+    	} else { // window instanceof Dialog
+    		new ErrorDialog((java.awt.Dialog)owner, stackTrace);
+    	}
+    }
+    
+    private Component getVisibleComponent(Component component) {
+    	if (component != null && component.isVisible()) {
+    		return component;
+    	} else if (this.isVisible()) {
+    		return this;
+    	} else {
+    		return null;
+    	}
     }
 
     /*
@@ -1107,14 +1142,14 @@ public class Frame extends JXFrame
             else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION)
                 return false;
         }
-        else if (settingsPanel != null && currentContentPage == settingsPanel && settingsTasks.getContentPane().getComponent(1).isVisible())
+        else if (settingsPane != null && currentContentPage == settingsPane && settingsTasks.getContentPane().getComponent(1).isVisible())
         {
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the settings?");
 
             if (option == JOptionPane.YES_OPTION)
-                settingsPanel.saveSettings();
+                settingsPane.getSettingsPanel().saveSettings();
             else if (option == JOptionPane.NO_OPTION)
-                settingsPanel.loadSettings();
+                settingsPane.getSettingsPanel().loadSettings();
             else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION)
                 return false;
         }
@@ -1162,7 +1197,7 @@ public class Frame extends JXFrame
         {
             if (!mirthClient.updateChannel(curr, false))
             {
-                if (alertOption("This channel has been modified since you first opened it.  Would you like to overwrite it?"))
+                if (alertOption(this, "This channel has been modified since you first opened it.  Would you like to overwrite it?"))
                     mirthClient.updateChannel(curr, true);
                 else
                     return false;
@@ -1171,7 +1206,7 @@ public class Frame extends JXFrame
         }
         catch (ClientException e)
         {
-            alertException(e.getStackTrace(), e.getMessage());
+            alertException(this, e.getStackTrace(), e.getMessage());
             return false;
         }
 
@@ -1181,7 +1216,7 @@ public class Frame extends JXFrame
     /**
      * Sends the passed in user to the server, updating it or adding it.
      */
-    public void updateUser(final User curr, final String password)
+    public void updateUser(final Component parentComponent, final User curr, final String password)
     {
         setWorking("Saving user...", true);
 
@@ -1196,7 +1231,7 @@ public class Frame extends JXFrame
                 }
                 catch (ClientException e)
                 {
-                    alertException(e.getStackTrace(), e.getMessage());
+                    alertException(parentComponent, e.getStackTrace(), e.getMessage());
                 }
                 return null;
             }
@@ -1233,13 +1268,13 @@ public class Frame extends JXFrame
     {
         if (name.equals(""))
         {
-            alertWarning("Channel name cannot be empty.");
+            alertWarning(this, "Channel name cannot be empty.");
             return false;
         }
 
         if (name.length() > 40)
         {
-            alertWarning("Channel name cannot be longer than 40 characters.");
+            alertWarning(this, "Channel name cannot be longer than 40 characters.");
             return false;
         }
 
@@ -1255,13 +1290,13 @@ public class Frame extends JXFrame
                 {
                     if (Double.isNaN(Double.parseDouble(c + "")))
                     {
-                        alertWarning("Channel name cannot have special characters besides hyphen, underscore, and space.");
+                        alertWarning(this, "Channel name cannot have special characters besides hyphen, underscore, and space.");
                         return false;
                     }
                 }
                 catch (Exception e)
                 {
-                    alertWarning("Channel name cannot have special characters besides hyphen, underscore, and space.");
+                    alertWarning(this, "Channel name cannot have special characters besides hyphen, underscore, and space.");
                     return false;
                 }
             }
@@ -1271,7 +1306,7 @@ public class Frame extends JXFrame
         {
             if (channel.getName().equalsIgnoreCase(name) && !channel.getId().equals(id))
             {
-                alertWarning("Channel \"" + name + "\" already exists.");
+                alertWarning(this, "Channel \"" + name + "\" already exists.");
                 return false;
             }
         }
@@ -1289,7 +1324,7 @@ public class Frame extends JXFrame
             channelEditPanel.transformerPane.modified = true;
         else if (channelEditPanel != null && currentContentPage == channelEditPanel.filterPane)
             channelEditPanel.filterPane.modified = true;
-        else if (settingsPanel != null && currentContentPage == settingsPanel)
+        else if (settingsPane != null && currentContentPage == settingsPane)
             settingsTasks.getContentPane().getComponent(1).setVisible(true);
         else if (alertPanel != null && currentContentPage == alertPanel)
             alertTasks.getContentPane().getComponent(1).setVisible(true);
@@ -1310,7 +1345,7 @@ public class Frame extends JXFrame
             channelEditPanel.transformerPane.modified = false;
         else if (channelEditPanel != null && currentContentPage == channelEditPanel.filterPane)
             channelEditPanel.filterPane.modified = false;
-        else if (currentContentPage == settingsPanel)
+        else if (currentContentPage == settingsPane)
             settingsTasks.getContentPane().getComponent(1).setVisible(false);
         else if (alertPanel != null && currentContentPage == alertPanel)
             alertTasks.getContentPane().getComponent(1).setVisible(false);
@@ -1400,8 +1435,8 @@ public class Frame extends JXFrame
 
     public void doShowSettings()
     {
-        if (settingsPanel == null)
-            settingsPanel = new SettingsPanel();
+        if (settingsPane == null)
+            settingsPane = new SettingsPane();
 
         if (!confirmLeave())
             return;
@@ -1412,7 +1447,7 @@ public class Frame extends JXFrame
         {
             public Void doInBackground()
             {
-                settingsPanel.loadSettings();
+                settingsPane.getSettingsPanel().loadSettings();
                 return null;
             }
 
@@ -1420,7 +1455,7 @@ public class Frame extends JXFrame
             {
                 setBold(viewPane, 3);
                 setPanelName("Settings");
-                setCurrentContentPage(settingsPanel);
+                setCurrentContentPage(settingsPane);
                 setFocus(settingsTasks);
                 setWorking("", false);
             }
@@ -1519,7 +1554,7 @@ public class Frame extends JXFrame
         }
         catch (ClientException e)
         {
-            alertException(e.getStackTrace(), e.getMessage());
+            alertException(this, e.getStackTrace(), e.getMessage());
         }
 
         return true;
@@ -1539,7 +1574,7 @@ public class Frame extends JXFrame
     {
         if (sourceConnectors.size() == 0 || destinationConnectors.size() == 0)
         {
-            alertError("You must have at least one source connector and one destination connector installed.");
+            alertError(this, "You must have at least one source connector and one destination connector installed.");
             return;
         }
 
@@ -1558,7 +1593,7 @@ public class Frame extends JXFrame
         }
         catch (ClientException e)
         {
-            alertException(e.getStackTrace(), e.getMessage());
+            alertException(this, e.getStackTrace(), e.getMessage());
         }
 
         channel.setName("");
@@ -1587,7 +1622,7 @@ public class Frame extends JXFrame
             }
             catch (ObjectClonerException e)
             {
-                alertException(e.getStackTrace(), e.getMessage());
+                alertException(this, e.getStackTrace(), e.getMessage());
             }
         }
         isEditingChannel = false;
@@ -1635,7 +1670,7 @@ public class Frame extends JXFrame
             String errorText = "Your Mirth installation is missing required connectors for this channel:\n";
             for (String s : missingConnectors)
                 errorText += s + "\n";
-            alertError(errorText);
+            alertError(this, errorText);
             return false;
         }
         else
@@ -1735,7 +1770,7 @@ public class Frame extends JXFrame
             }
             catch (Exception e)
             {
-                alertException(e.getStackTrace(), "Invalid scripts file. " + e.getMessage());
+                alertException(this, e.getStackTrace(), "Invalid scripts file. " + e.getMessage());
                 return;
             }
         }
@@ -1745,7 +1780,7 @@ public class Frame extends JXFrame
     {
         if (changesHaveBeenMade())
         {
-            if (alertOption("You must save your global scripts before exporting.  Would you like to save them now?"))
+            if (alertOption(this, "You must save your global scripts before exporting.  Would you like to save them now?"))
             {
                 globalScriptsPanel.save();
                 disableSave();
@@ -1778,17 +1813,17 @@ public class Frame extends JXFrame
                 exportFile = new File(exportFile.getAbsolutePath() + ".xml");
 
             if (exportFile.exists())
-                if (!alertOption("This file already exists.  Would you like to overwrite it?"))
+                if (!alertOption(this, "This file already exists.  Would you like to overwrite it?"))
                     return;
 
             try
             {
                 FileUtil.write(exportFile, channelXML, false);
-                alertInformation("The global scripts were written to " + exportFile.getPath() + ".");
+                alertInformation(this, "The global scripts were written to " + exportFile.getPath() + ".");
             }
             catch (IOException ex)
             {
-                alertError("File could not be written.");
+                alertError(this, "File could not be written.");
             }
         }
     }
@@ -1822,7 +1857,7 @@ public class Frame extends JXFrame
 
     public void doDeleteChannel()
     {
-        if (!alertOption("Are you sure you want to delete this channel?"))
+        if (!alertOption(this, "Are you sure you want to delete this channel?"))
             return;
 
         setWorking("Deleting channel...", true);
@@ -1837,7 +1872,7 @@ public class Frame extends JXFrame
                 }
                 catch (ClientException e)
                 {
-                    alertException(e.getStackTrace(), e.getMessage());
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                     return null;
                 }
                 Channel channel = channelPanel.getSelectedChannel();
@@ -1851,7 +1886,7 @@ public class Frame extends JXFrame
                 {
                     if (status.get(i).getChannelId().equals(channelId))
                     {
-                        alertWarning("You may not delete a deployed channel.\nPlease re-deploy without it enabled first.");
+                        alertWarning(PlatformUI.MIRTH_FRAME, "You may not delete a deployed channel.\nPlease re-deploy without it enabled first.");
                         return null;
                     }
                 }
@@ -1862,7 +1897,7 @@ public class Frame extends JXFrame
                 }
                 catch (ClientException e)
                 {
-                    alertException(e.getStackTrace(), e.getMessage());
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
                 return null;
             }
@@ -1962,7 +1997,7 @@ public class Frame extends JXFrame
         }
         catch (ClientException e)
         {
-            alertException(e.getStackTrace(), e.getMessage());
+            alertException(this, e.getStackTrace(), e.getMessage());
         }
     }
 
@@ -2049,7 +2084,7 @@ public class Frame extends JXFrame
                             }
                             catch (ClientException ex)
                             {
-                                alertException(ex.getStackTrace(), ex.getMessage());
+                                alertException(PlatformUI.MIRTH_FRAME, ex.getStackTrace(), ex.getMessage());
                             }
 
                             if (tempStatus.getState() == ChannelStatus.State.STARTED)
@@ -2066,7 +2101,8 @@ public class Frame extends JXFrame
                 }
                 catch (ClientException e)
                 {
-                    alertException(e.getStackTrace(), e.getMessage());
+                	status = null;
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
                 return null;
             }
@@ -2074,12 +2110,14 @@ public class Frame extends JXFrame
             public void done()
             {
                 setWorking("", false);
-                dashboardPanel.updateTable(tableData);
-                dashboardPanel.updateCurrentPluginPanel();
-                if (status.size() > 0)
-                    setVisibleTasks(statusTasks, statusPopupMenu, 1, 3, true);
-                else
-                    setVisibleTasks(statusTasks, statusPopupMenu, 1, 3, false);
+                if (status != null) {
+	                dashboardPanel.updateTable(tableData);
+	                dashboardPanel.updateCurrentPluginPanel();
+	                if (status.size() > 0)
+	                    setVisibleTasks(statusTasks, statusPopupMenu, 1, 3, true);
+	                else
+	                    setVisibleTasks(statusTasks, statusPopupMenu, 1, 3, false);
+                }
             }
         };
         worker.execute();
@@ -2105,7 +2143,7 @@ public class Frame extends JXFrame
                 }
                 catch (ClientException e)
                 {
-                    alertException(e.getStackTrace(), e.getMessage());
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
                 return null;
             }
@@ -2138,7 +2176,7 @@ public class Frame extends JXFrame
                 }
                 catch (ClientException e)
                 {
-                    alertException(e.getStackTrace(), e.getMessage());
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
                 return null;
             }
@@ -2173,7 +2211,7 @@ public class Frame extends JXFrame
                 }
                 catch (ClientException e)
                 {
-                    alertException(e.getStackTrace(), e.getMessage());
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
                 return null;
             }
@@ -2205,7 +2243,7 @@ public class Frame extends JXFrame
                 }
                 catch (ClientException e)
                 {
-                    alertException(e.getStackTrace(), e.getMessage());
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
                 return null;
             }
@@ -2237,7 +2275,7 @@ public class Frame extends JXFrame
                 }
                 catch (ClientException e)
                 {
-                    alertException(e.getStackTrace(), e.getMessage());
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
                 return null;
             }
@@ -2259,7 +2297,7 @@ public class Frame extends JXFrame
 
     public void doDeleteDestination()
     {
-        if (!alertOption("Are you sure you want to delete this destination?"))
+        if (!alertOption(this, "Are you sure you want to delete this destination?"))
             return;
 
         channelEditPanel.deleteDestination();
@@ -2285,14 +2323,14 @@ public class Frame extends JXFrame
         final Channel channel = channelPanel.getSelectedChannel();
         if (channel == null)
         {
-            alertWarning("Channel no longer exists.");
+            alertWarning(this, "Channel no longer exists.");
             return;
         }
 
         String validationMessage = channelEditPanel.checkAllForms(channel);
         if (validationMessage != null)
         {
-            alertCustomError(validationMessage, CustomErrorDialog.ERROR_ENABLING_CHANNEL);
+            alertCustomError(this, validationMessage, CustomErrorDialog.ERROR_ENABLING_CHANNEL);
             return;
         }
 
@@ -2323,7 +2361,7 @@ public class Frame extends JXFrame
         final Channel channel = channelPanel.getSelectedChannel();
         if (channel == null)
         {
-            alertWarning("Channel no longer exists.");
+            alertWarning(this, "Channel no longer exists.");
             return;
         }
 
@@ -2358,7 +2396,7 @@ public class Frame extends JXFrame
         int index = userPanel.getUserIndex();
 
         if (index == UIConstants.ERROR_CONSTANT)
-            JOptionPane.showMessageDialog(this, "User no longer exists.");
+            alertWarning(this, "User no longer exists.");
         else
         {
             new UserWizard(users.get(index));
@@ -2367,7 +2405,7 @@ public class Frame extends JXFrame
 
     public void doDeleteUser()
     {
-        if (!alertOption("Are you sure you want to delete this user?"))
+        if (!alertOption(this, "Are you sure you want to delete this user?"))
             return;
 
         setWorking("Deleting user...", true);
@@ -2378,7 +2416,7 @@ public class Frame extends JXFrame
             {
                 if (users.size() == 1)
                 {
-                    alertWarning("You must have at least one user account.");
+                    alertWarning(PlatformUI.MIRTH_FRAME, "You must have at least one user account.");
                     return null;
                 }
 
@@ -2390,7 +2428,7 @@ public class Frame extends JXFrame
                     {
                         if (mirthClient.isUserLoggedIn(users.get(userToDelete)))
                         {
-                            alertWarning("You cannot delete a user that is currently logged in.");
+                            alertWarning(PlatformUI.MIRTH_FRAME, "You cannot delete a user that is currently logged in.");
                             return null;
                         }
 
@@ -2400,7 +2438,7 @@ public class Frame extends JXFrame
                 }
                 catch (ClientException e)
                 {
-                    alertException(e.getStackTrace(), e.getMessage());
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
                 return null;
             }
@@ -2462,7 +2500,7 @@ public class Frame extends JXFrame
         }
         catch (ClientException e)
         {
-            alertException(e.getStackTrace(), e.getMessage());
+            alertException(this, e.getStackTrace(), e.getMessage());
         }
 
         // as long as the channel was not deleted
@@ -2485,7 +2523,7 @@ public class Frame extends JXFrame
                 }
                 catch (ClientException e)
                 {
-                    alertException(e.getStackTrace(), e.getMessage());
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
                 return null;
             }
@@ -2539,7 +2577,7 @@ public class Frame extends JXFrame
             return channelEditPanel.transformerPane.modified;
         else if (channelEditPanel != null && currentContentPage == channelEditPanel.filterPane)
             return channelEditPanel.filterPane.modified;
-        else if (settingsPanel != null && currentContentPage == settingsPanel)
+        else if (settingsPane != null && currentContentPage == settingsPane)
             return settingsTasks.getContentPane().getComponent(1).isVisible();
         else if (alertPanel != null && currentContentPage == alertPanel)
             return alertTasks.getContentPane().getComponent(1).isVisible();
@@ -2605,7 +2643,7 @@ public class Frame extends JXFrame
         {
             public Void doInBackground()
             {
-                settingsPanel.saveSettings();
+                settingsPane.getSettingsPanel().saveSettings();
                 return null;
             }
 
@@ -2654,7 +2692,7 @@ public class Frame extends JXFrame
         catch (Exception e1)
         {
             if (showAlerts)
-                alertException(e1.getStackTrace(), "Invalid channel file. " + e1.getMessage());
+                alertException(this, e1.getStackTrace(), "Invalid channel file. " + e1.getMessage());
         }
 
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
@@ -2667,7 +2705,7 @@ public class Frame extends JXFrame
         catch (Exception e)
         {
             if (showAlerts)
-                alertException(e.getStackTrace(), "Invalid channel file. " + e.getMessage());
+                alertException(this, e.getStackTrace(), "Invalid channel file. " + e.getMessage());
             return;
         }
 
@@ -2701,7 +2739,7 @@ public class Frame extends JXFrame
             // Check to see that the channel name doesn't already exist.
             if (!checkChannelName(channelName, tempId))
             {
-                if (!alertOption("Would you like to overwrite the existing channel?  Choose 'No' to create a new channel."))
+                if (!alertOption(this, "Would you like to overwrite the existing channel?  Choose 'No' to create a new channel."))
                 {
                     importChannel.setRevision(0);
 
@@ -2738,7 +2776,7 @@ public class Frame extends JXFrame
         }
         catch (ClientException e)
         {
-            alertException(e.getStackTrace(), e.getMessage());
+            alertException(this, e.getStackTrace(), e.getMessage());
         }
 
         try
@@ -2765,7 +2803,7 @@ public class Frame extends JXFrame
 
             if (showAlerts)
             {
-                alertError("Channel had an unknown problem. Channel import aborted.");
+                alertError(this, "Channel had an unknown problem. Channel import aborted.");
                 channelEditPanel = new ChannelSetup();
             }
 
@@ -2777,7 +2815,7 @@ public class Frame extends JXFrame
     {
         if (changesHaveBeenMade())
         {
-            if (alertOption("This channel has been modified. You must save the channel changes before you can export. Would you like to save them now?"))
+            if (alertOption(this, "This channel has been modified. You must save the channel changes before you can export. Would you like to save them now?"))
             {
                 if (!channelEditPanel.saveChanges())
                     return false;
@@ -2818,17 +2856,17 @@ public class Frame extends JXFrame
                 exportFile = new File(exportFile.getAbsolutePath() + ".xml");
 
             if (exportFile.exists())
-                if (!alertOption("This file already exists.  Would you like to overwrite it?"))
+                if (!alertOption(this, "This file already exists.  Would you like to overwrite it?"))
                     return false;
 
             try
             {
                 FileUtil.write(exportFile, channelXML, false);
-                alertInformation(channel.getName() + " was written to " + exportFile.getPath() + ".");
+                alertInformation(this, channel.getName() + " was written to " + exportFile.getPath() + ".");
             }
             catch (IOException ex)
             {
-                alertError("File could not be written.");
+                alertError(this, "File could not be written.");
                 return false;
             }
             return true;
@@ -2867,16 +2905,16 @@ public class Frame extends JXFrame
                     exportFile = new File(exportDirectory.getAbsolutePath() + "/" + channel.getName() + ".xml");
 
                     if (exportFile.exists())
-                        if (!alertOption("The file " + channel.getName() + ".xml already exists.  Would you like to overwrite it?"))
+                        if (!alertOption(this, "The file " + channel.getName() + ".xml already exists.  Would you like to overwrite it?"))
                             continue;
 
                     FileUtil.write(exportFile, channelXML, false);
                 }
-                alertInformation("All files were written successfully to " + exportDirectory.getPath() + ".");
+                alertInformation(this, "All files were written successfully to " + exportDirectory.getPath() + ".");
             }
             catch (IOException ex)
             {
-                alertError("File could not be written.");
+                alertError(this, "File could not be written.");
             }
         }
     }
@@ -2890,7 +2928,7 @@ public class Frame extends JXFrame
         }
         catch (ObjectClonerException e)
         {
-            alertException(e.getStackTrace(), e.getMessage());
+            alertException(this, e.getStackTrace(), e.getMessage());
             return;
         }
 
@@ -2901,7 +2939,7 @@ public class Frame extends JXFrame
         }
         catch (ClientException e)
         {
-            alertException(e.getStackTrace(), e.getMessage());
+            alertException(this, e.getStackTrace(), e.getMessage());
         }
 
         String channelName = channel.getName();
@@ -2950,7 +2988,7 @@ public class Frame extends JXFrame
 
             if (channel == null)
             {
-                alertError("Channel no longer exists!");
+                alertError(this, "Channel no longer exists!");
                 return;
             }
 
@@ -2968,7 +3006,7 @@ public class Frame extends JXFrame
         }
         catch (ClientException e)
         {
-            alertException(e.getStackTrace(), e.getMessage());
+            alertException(this, e.getStackTrace(), e.getMessage());
         }
     }
 
@@ -3016,7 +3054,7 @@ public class Frame extends JXFrame
 
     public void doRemoveAllMessagesAllChannels()
     {
-        if (alertOption("Are you sure you would like to remove all messages and all statistics for all channels?"))
+        if (alertOption(this, "Are you sure you would like to remove all messages and all statistics for all channels?"))
         {
             setWorking("Removing messages...", true);
 
@@ -3032,7 +3070,7 @@ public class Frame extends JXFrame
                         }
                         catch (ClientException e)
                         {
-                            alertException(e.getStackTrace(), e.getMessage());
+                            alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                         }
 
                     }
@@ -3074,7 +3112,7 @@ public class Frame extends JXFrame
                     }
                     catch (ClientException e)
                     {
-                        alertException(e.getStackTrace(), e.getMessage());
+                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                     }
 
                 }
@@ -3094,7 +3132,7 @@ public class Frame extends JXFrame
 
     public void doRemoveAllMessages()
     {
-        if (alertOption("Are you sure you would like to remove all messages in this channel?"))
+        if (alertOption(this, "Are you sure you would like to remove all messages in this channel?"))
         {
             setWorking("Removing messages...", true);
 
@@ -3109,7 +3147,7 @@ public class Frame extends JXFrame
                     }
                     catch (ClientException e)
                     {
-                        alertException(e.getStackTrace(), e.getMessage());
+                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                     }
                     return null;
                 }
@@ -3118,7 +3156,7 @@ public class Frame extends JXFrame
                 {
                     if (currentContentPage == dashboardPanel)
                     {
-                        if (alertOption("Would you also like to clear all statistics?"))
+                        if (alertOption(PlatformUI.MIRTH_FRAME, "Would you also like to clear all statistics?"))
                             clearStats(dashboardPanel.getSelectedStatus(), true, true, true, true, true);
                         doRefreshStatuses();
                     }
@@ -3163,7 +3201,7 @@ public class Frame extends JXFrame
                 }
                 catch (ClientException e)
                 {
-                    alertException(e.getStackTrace(), e.getMessage());
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
                 return null;
             }
@@ -3180,7 +3218,7 @@ public class Frame extends JXFrame
 
     public void doRemoveFilteredMessages()
     {
-        if (alertOption("Are you sure you would like to remove all currently filtered messages in this channel?"))
+        if (alertOption(this, "Are you sure you would like to remove all currently filtered messages in this channel?"))
         {
             setWorking("Removing messages...", true);
 
@@ -3194,7 +3232,7 @@ public class Frame extends JXFrame
                     }
                     catch (ClientException e)
                     {
-                        alertException(e.getStackTrace(), e.getMessage());
+                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                     }
                     return null;
                 }
@@ -3215,7 +3253,7 @@ public class Frame extends JXFrame
 
     public void doRemoveMessage()
     {
-        if (alertOption("Are you sure you would like to remove the selected message?"))
+        if (alertOption(this, "Are you sure you would like to remove the selected message?"))
         {
             setWorking("Removing message...", true);
 
@@ -3231,7 +3269,7 @@ public class Frame extends JXFrame
                     }
                     catch (ClientException e)
                     {
-                        alertException(e.getStackTrace(), e.getMessage());
+                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                     }
                     return null;
                 }
@@ -3264,7 +3302,7 @@ public class Frame extends JXFrame
                 }
                 catch (ClientException e)
                 {
-                    alertException(e.getStackTrace(), e.getMessage());
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
                 return null;
             }
@@ -3294,7 +3332,7 @@ public class Frame extends JXFrame
                 }
                 catch (ClientException e)
                 {
-                    alertException(e.getStackTrace(), e.getMessage());
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
                 return null;
             }
@@ -3344,7 +3382,7 @@ public class Frame extends JXFrame
                 }
                 catch (ClientException e)
                 {
-                    alertException(e.getStackTrace(), e.getMessage());
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
                 return null;
             }
@@ -3366,7 +3404,7 @@ public class Frame extends JXFrame
 
     public void doRemoveAllEvents()
     {
-        if (alertOption("Are you sure you would like to clear all system events?"))
+        if (alertOption(this, "Are you sure you would like to clear all system events?"))
         {
             setWorking("Clearing events...", true);
 
@@ -3380,7 +3418,7 @@ public class Frame extends JXFrame
                     }
                     catch (ClientException e)
                     {
-                        alertException(e.getStackTrace(), e.getMessage());
+                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                     }
                     return null;
                 }
@@ -3398,7 +3436,7 @@ public class Frame extends JXFrame
 
     public void doRemoveFilteredEvents()
     {
-        if (alertOption("Are you sure you would like to remove all currently filtered system events?"))
+        if (alertOption(this, "Are you sure you would like to remove all currently filtered system events?"))
         {
             setWorking("Removing events...", true);
 
@@ -3412,7 +3450,7 @@ public class Frame extends JXFrame
                     }
                     catch (ClientException e)
                     {
-                        alertException(e.getStackTrace(), e.getMessage());
+                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                     }
                     return null;
                 }
@@ -3431,7 +3469,7 @@ public class Frame extends JXFrame
 
     public void doRemoveEvent()
     {
-        if (alertOption("Are you sure you would like to remove the selected system event?"))
+        if (alertOption(this, "Are you sure you would like to remove the selected system event?"))
         {
             setWorking("Removing event...", true);
 
@@ -3447,7 +3485,7 @@ public class Frame extends JXFrame
                     }
                     catch (ClientException e)
                     {
-                        alertException(e.getStackTrace(), e.getMessage());
+                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                     }
                     return null;
                 }
@@ -3468,7 +3506,7 @@ public class Frame extends JXFrame
     {
         if (changesHaveBeenMade())
         {
-            if (!alertOption("Are you sure you would like to reload the settings from the server and lose your changes?"))
+            if (!alertOption(this, "Are you sure you would like to reload the settings from the server and lose your changes?"))
                 return;
             else
                 disableSave();
@@ -3480,7 +3518,7 @@ public class Frame extends JXFrame
         {
             public Void doInBackground()
             {
-                settingsPanel.loadSettings();
+                settingsPane.getSettingsPanel().loadSettings();
                 return null;
             }
 
@@ -3523,7 +3561,7 @@ public class Frame extends JXFrame
         }
         catch (ClientException e)
         {
-            alertException(e.getStackTrace(), e.getMessage());
+            alertException(this, e.getStackTrace(), e.getMessage());
         }
     }
 
@@ -3539,14 +3577,14 @@ public class Frame extends JXFrame
                 {
                     Properties serverProperties = mirthClient.getServerProperties();
                     if (!(serverProperties.getProperty("smtp.host") != null && ((String) serverProperties.getProperty("smtp.host")).length() > 0) || !(serverProperties.getProperty("smtp.port") != null && ((String) serverProperties.getProperty("smtp.port")).length() > 0))
-                        alertWarning("The SMTP server on the settings page is not specified or is incomplete.  An SMTP server is required to send alerts.");
+                        alertWarning(PlatformUI.MIRTH_FRAME, "The SMTP server on the settings page is not specified or is incomplete.  An SMTP server is required to send alerts.");
 
                     alertPanel.saveAlert();
                     mirthClient.updateAlerts(alerts);
                 }
                 catch (ClientException e)
                 {
-                    alertException(e.getStackTrace(), e.getMessage());
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
                 return null;
             }
@@ -3585,7 +3623,7 @@ public class Frame extends JXFrame
     {
         if (changesHaveBeenMade())
         {
-            if (alertOption("Would you like to save the changes made to the alerts?"))
+            if (alertOption(this, "Would you like to save the changes made to the alerts?"))
                 alertPanel.saveAlert();
             else
                 return;
@@ -3614,17 +3652,17 @@ public class Frame extends JXFrame
                 exportFile = new File(exportFile.getAbsolutePath() + ".xml");
 
             if (exportFile.exists())
-                if (!alertOption("This file already exists.  Would you like to overwrite it?"))
+                if (!alertOption(this, "This file already exists.  Would you like to overwrite it?"))
                     return;
 
             try
             {
                 FileUtil.write(exportFile, alertXML, false);
-                alertInformation("All alerts were written to " + exportFile.getPath() + ".");
+                alertInformation(this, "All alerts were written to " + exportFile.getPath() + ".");
             }
             catch (IOException ex)
             {
-                alertError("File could not be written.");
+                alertError(this, "File could not be written.");
             }
         }
     }
@@ -3651,7 +3689,7 @@ public class Frame extends JXFrame
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 alerts = (List<Alert>) serializer.fromXML(alertXML);
                 
-                alertInformation("All alerts imported sucessfully.");
+                alertInformation(this, "All alerts imported sucessfully.");
                 
                 enableSave();
                 alertPanel.loadAlert();
@@ -3660,7 +3698,7 @@ public class Frame extends JXFrame
             }
             catch (Exception e)
             {
-                alertError("Invalid alert file.");
+                alertError(this, "Invalid alert file.");
             }
         }
     }
@@ -3696,7 +3734,7 @@ public class Frame extends JXFrame
         }
         catch (ClientException e)
         {
-            alertException(e.getStackTrace(), e.getMessage());
+            alertException(this, e.getStackTrace(), e.getMessage());
         }
     }
 
@@ -3741,7 +3779,7 @@ public class Frame extends JXFrame
         }
         catch (ClientException e)
         {
-            alertException(e.getStackTrace(), e.getMessage());
+            alertException(this, e.getStackTrace(), e.getMessage());
             return false;
         }
         return true;
@@ -3766,7 +3804,7 @@ public class Frame extends JXFrame
     {
         if (changesHaveBeenMade())
         {
-            if (alertOption("Would you like to save the changes made to the code templates?"))
+            if (alertOption(this, "Would you like to save the changes made to the code templates?"))
                 codeTemplatePanel.saveCodeTemplate();
             else
                 return;
@@ -3795,17 +3833,17 @@ public class Frame extends JXFrame
                 exportFile = new File(exportFile.getAbsolutePath() + ".xml");
 
             if (exportFile.exists())
-                if (!alertOption("This file already exists.  Would you like to overwrite it?"))
+                if (!alertOption(this, "This file already exists.  Would you like to overwrite it?"))
                     return;
 
             try
             {
                 FileUtil.write(exportFile, codeTemplateXML, false);
-                alertInformation("All Code templates were written to " + exportFile.getPath() + ".");
+                alertInformation(this, "All Code templates were written to " + exportFile.getPath() + ".");
             }
             catch (IOException ex)
             {
-                alertError("File could not be written.");
+                alertError(this, "File could not be written.");
             }
         }
     }
@@ -3832,7 +3870,7 @@ public class Frame extends JXFrame
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 codeTemplates = (List<CodeTemplate>) serializer.fromXML(codeTemplatesXML);
                 
-                alertInformation("All code templates imported sucessfully.");
+                alertInformation(this, "All code templates imported sucessfully.");
                 
                 enableSave();
                 codeTemplatePanel.loadCodeTemplate();
@@ -3840,7 +3878,7 @@ public class Frame extends JXFrame
             }
             catch (Exception e)
             {
-                alertError("Invalid code template file.");
+                alertError(this, "Invalid code template file.");
             }
         }
     }
@@ -3891,7 +3929,7 @@ public class Frame extends JXFrame
         {
             doSaveGlobalScripts();
         }
-        else if (currentContentPage == settingsPanel)
+        else if (currentContentPage == settingsPane)
         {
             doSaveSettings();
         }
@@ -3906,10 +3944,10 @@ public class Frame extends JXFrame
         FindRplDialog find;
         Window owner = SwingUtilities.windowForComponent(text);
         
-    	if (owner instanceof Frame) {
-    		find = new FindRplDialog((Frame)owner,true,text);
+    	if (owner instanceof java.awt.Frame) {
+    		find = new FindRplDialog((java.awt.Frame)owner,true,text);
     	} else { // window instanceof Dialog
-    		find = new FindRplDialog((Dialog)owner,true,text);
+    		find = new FindRplDialog((java.awt.Dialog)owner,true,text);
     	}
     	
         find.setVisible(true);
@@ -3927,7 +3965,7 @@ public class Frame extends JXFrame
             BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.MESSAGE_BROWSER_HELP_LOCATION);
         else if (currentContentPage == eventBrowser)
             BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.SYSTEM_EVENT_HELP_LOCATION);
-        else if (currentContentPage == settingsPanel)
+        else if (currentContentPage == settingsPane)
             BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.CONFIGURATION_HELP_LOCATION);
         else if (currentContentPage == channelEditPanel.transformerPane)
             BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.TRANFORMER_HELP_LOCATION);

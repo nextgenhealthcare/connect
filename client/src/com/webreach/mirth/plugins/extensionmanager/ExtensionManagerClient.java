@@ -63,8 +63,7 @@ public class ExtensionManagerClient extends ClientPanelPlugin
         }
         catch (ClientException e)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        	alertException(parent, e.getStackTrace(), e.getMessage());
         }
     }
     public void doCheckForUpdates()
@@ -75,8 +74,7 @@ public class ExtensionManagerClient extends ClientPanelPlugin
         }
         catch (ClientException e)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        	alertException(parent, e.getStackTrace(), e.getMessage());
         }
     }
     public void doShowRepository()
@@ -87,8 +85,7 @@ public class ExtensionManagerClient extends ClientPanelPlugin
         }
         catch (ClientException e)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        	alertException(parent, e.getStackTrace(), e.getMessage());
         }
     }
     
@@ -106,7 +103,7 @@ public class ExtensionManagerClient extends ClientPanelPlugin
                 }
                 catch (ClientException e)
                 {
-                    alertException(e.getStackTrace(), e.getMessage());
+                    alertException(parent, e.getStackTrace(), e.getMessage());
                 }
                 return null;
             }
@@ -131,11 +128,11 @@ public class ExtensionManagerClient extends ClientPanelPlugin
                 try
                 {
                     save();
-                    alertInformation("A restart is required before your changes will take effect.");
+                    alertInformation(parent, "A restart is required before your changes will take effect.");
                 }
                 catch (ClientException e)
                 {
-                    alertException(e.getStackTrace(), e.getMessage());
+                    alertException(parent, e.getStackTrace(), e.getMessage());
                 }
                 return null;
             }
@@ -181,7 +178,7 @@ public class ExtensionManagerClient extends ClientPanelPlugin
     		}
     		else
     		{
-    			alertError("Invalid extension file.");
+    			alertError(parent, "Invalid extension file.");
                 return false;
     		}
         }
@@ -202,18 +199,18 @@ public class ExtensionManagerClient extends ClientPanelPlugin
     	}
     	catch (ClientException e)
     	{
-    		alertException(e.getStackTrace(), e.getMessage());
+    		alertException(parent, e.getStackTrace(), e.getMessage());
     	}
     	
 		if (props != null && Boolean.parseBoolean(props.getProperty("disableInstall")))
 		{
-			alertInformation("Your extension(s) have been installed to the 'install_temp' directories in your extensions\n" +
+			alertInformation(parent, "Your extension(s) have been installed to the 'install_temp' directories in your extensions\n" +
 					"location on the server.  To load the new plugins, manually shutdown the Mirth container\n" +
 					"(e.g. JBoss), drag the plugins out of 'install_temp', and restart the Mirth container.\n");
 		}
 		else
 		{
-			alertInformation("The Mirth server must be restarted for the extension(s) to load.");
+			alertInformation(parent, "The Mirth server must be restarted for the extension(s) to load.");
 		}
     }
     

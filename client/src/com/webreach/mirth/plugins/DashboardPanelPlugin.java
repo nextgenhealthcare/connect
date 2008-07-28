@@ -9,6 +9,7 @@
 
 package com.webreach.mirth.plugins;
 
+import java.awt.Component;
 import java.util.Properties;
 
 import javax.swing.JComponent;
@@ -40,34 +41,34 @@ public abstract class DashboardPanelPlugin extends ClientPlugin
         return component;
     }
             
-    public void alertException(StackTraceElement[] strace, String message)
+    public void alertException(Component parentComponent, StackTraceElement[] strace, String message)
     {
-        parent.alertException(strace, message);
+        parent.alertException(parentComponent, strace, message);
     }
 
-    public void alertWarning(String message)
+    public void alertWarning(Component parentComponent, String message)
     {
-        parent.alertWarning(message);
+        parent.alertWarning(parentComponent, message);
     }
 
-    public void alertInformation(String message)
+    public void alertInformation(Component parentComponent, String message)
     {
-        parent.alertInformation(message);
+        parent.alertInformation(parentComponent, message);
     }
 
-    public void alertError(String message)
+    public void alertError(Component parentComponent, String message)
     {
-        parent.alertError(message);
+        parent.alertError(parentComponent, message);
     }
 
-    public boolean alertOkCancel(String message)
+    public boolean alertOkCancel(Component parentComponent, String message)
     {
-        return parent.alertOkCancel(message);
+        return parent.alertOkCancel(parentComponent, message);
     }
 
-    public boolean alertOption(String message)
+    public boolean alertOption(Component parentComponent, String message)
     {
-        return parent.alertOption(message);
+        return parent.alertOption(parentComponent, message);
     }
     
     public void setWorking(String message, boolean working)

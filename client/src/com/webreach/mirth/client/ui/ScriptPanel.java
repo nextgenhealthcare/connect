@@ -88,7 +88,7 @@ public class ScriptPanel extends javax.swing.JPanel
         
         Context.exit();
         
-        PlatformUI.MIRTH_FRAME.alertInformation(sb.toString());
+        PlatformUI.MIRTH_FRAME.alertInformation(this, sb.toString());
     }
     
     public String validateScript(String script)

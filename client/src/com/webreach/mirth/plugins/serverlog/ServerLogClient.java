@@ -66,7 +66,7 @@ public class ServerLogClient extends DashboardPanelPlugin
             try {
                 serverLogReceived = (LinkedList<String[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, GET_SERVER_LOGS, null);
             } catch (ClientException e) {
-                e.printStackTrace();
+                parent.alertException(parent, e.getStackTrace(), e.getMessage());
             }
 
             if (serverLogReceived.size() > 0) {
@@ -108,7 +108,7 @@ public class ServerLogClient extends DashboardPanelPlugin
             // either way, the sessionId is gone.
             PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, REMOVE_SESSIONID, null);
         } catch (ClientException e) {
-            parent.alertException(e.getStackTrace(), e.getMessage());
+            parent.alertException(parent, e.getStackTrace(), e.getMessage());
         }
     }
 }

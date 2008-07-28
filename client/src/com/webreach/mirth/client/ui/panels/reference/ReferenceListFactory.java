@@ -90,7 +90,7 @@ public class ReferenceListFactory
                 }
                 catch (Exception e)
                 {
-                    parent.alertException(e.getStackTrace(), e.getMessage());
+                    parent.alertException(parent, e.getStackTrace(), e.getMessage());
                 }
             }
         }
@@ -114,7 +114,7 @@ public class ReferenceListFactory
                     }
                     catch (Exception e)
                     {
-                        parent.alertException(e.getStackTrace(), e.getMessage());
+                        parent.alertException(parent, e.getStackTrace(), e.getMessage());
                     }
                 }
             }

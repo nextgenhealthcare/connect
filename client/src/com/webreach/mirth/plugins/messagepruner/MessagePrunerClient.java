@@ -50,7 +50,7 @@ public class MessagePrunerClient extends ClientPanelPlugin
                 }
                 catch (ClientException e)
                 {
-                    alertException(e.getStackTrace(), e.getMessage());
+                    alertException(parent, e.getStackTrace(), e.getMessage());
                 }
                 return null;
             }
@@ -78,7 +78,7 @@ public class MessagePrunerClient extends ClientPanelPlugin
                 }
                 catch (ClientException e)
                 {
-                    alertException(e.getStackTrace(), e.getMessage());
+                    alertException(parent, e.getStackTrace(), e.getMessage());
                 }
                 return null;
             }

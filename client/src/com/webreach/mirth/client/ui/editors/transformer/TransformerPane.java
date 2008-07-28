@@ -163,7 +163,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
                             }
 						}
 					} catch (Exception e) {
-						parent.alertException(e.getStackTrace(), e.getMessage());
+						parent.alertException(this, e.getStackTrace(), e.getMessage());
 					}
 				}
 			}
@@ -192,7 +192,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 	 */
 	public boolean load(Connector c, Transformer t, boolean channelHasBeenChanged) {
 		if (loadedPlugins.values().size() == 0) {
-			parent.alertError("No transformer step plugins loaded.\r\nPlease install plugins and try again.");
+			parent.alertError(this, "No transformer step plugins loaded.\r\nPlease install plugins and try again.");
 			return false;
 		}
 		prevSelRow = -1;
@@ -208,7 +208,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 		while (li.hasNext()) {
 			Step s = li.next();
 			if (!loadedPlugins.containsKey(s.getType())) {
-				parent.alertError("Unable to load transformer step plugin \"" + s.getType() + "\"\r\nPlease install plugin and try again.");
+				parent.alertError(this, "Unable to load transformer step plugin \"" + s.getType() + "\"\r\nPlease install plugin and try again.");
 				return false;
 			}
 			int row = s.getSequenceNumber();
@@ -525,8 +525,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 						stepPanel.showCard(type);
 						updateTaskPane(type);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						parent.alertException(e.getStackTrace(), e.getMessage());
+						parent.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
 					}
 
 				}
@@ -721,7 +720,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 				List<Step> list = buildStepList(new ArrayList<Step>(), transformerTable.getRowCount());
 				transformer.setSteps(list);
 			} catch (Exception e) {
-				parent.alertException(e.getStackTrace(), e.getMessage());
+				parent.alertException(this, e.getStackTrace(), e.getMessage());
 			}
 		}
 	}
@@ -754,8 +753,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 			plugin = getPlugin(type);
 			plugin.setData(data);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			parent.alertException(e.getStackTrace(), e.getMessage());
+			parent.alertException(this, e.getStackTrace(), e.getMessage());
 		}
 	}
 
@@ -764,7 +762,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 		if (plugin == null) {
 			String message = "Unable to find Transformer Step Plugin: " + name;
 			Exception e = new Exception(message);
-			parent.alertError(message);
+			parent.alertError(this, message);
 			throw new Exception(e);
 		} else {
 			return plugin;
@@ -803,8 +801,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 			transformerTable.setRowSelectionInterval(row, row);
 			updating = false;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			parent.alertException(e.getStackTrace(), e.getMessage());
+			parent.alertException(this, e.getStackTrace(), e.getMessage());
 		}
 	}
 
@@ -957,7 +954,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 				load(connector, previousTransformer, modified);
 			}
 		} catch (Exception e) {
-			parent.alertError("Invalid transformer file.");
+			parent.alertError(this, "Invalid transformer file.");
 		}
 	}
 
@@ -992,14 +989,14 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 				exportFile = new File(exportFile.getAbsolutePath() + ".xml");
 
 			if (exportFile.exists())
-				if (!parent.alertOption("This file already exists.  Would you like to overwrite it?"))
+				if (!parent.alertOption(this, "This file already exists.  Would you like to overwrite it?"))
 					return;
 
 			try {
 				FileUtil.write(exportFile, transformerXML, false);
-				parent.alertInformation("Transformer was written to " + exportFile.getPath() + ".");
+				parent.alertInformation(this, "Transformer was written to " + exportFile.getPath() + ".");
 			} catch (IOException ex) {
-				parent.alertError("File could not be written.");
+				parent.alertError(this, "File could not be written.");
 			}
 		}
 	}
@@ -1016,11 +1013,11 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 			String validationMessage = stepPlugin.doValidate(stepPlugin.getData(selectedStep));
 
 			if (validationMessage == null)
-				parent.alertInformation("Validation successful.");
+				parent.alertInformation(this, "Validation successful.");
 			else
-				parent.alertInformation(validationMessage);
+				parent.alertInformation(this, validationMessage);
 		} catch (Exception e) {
-			parent.alertException(e.getStackTrace(), e.getMessage());
+			parent.alertException(this, e.getStackTrace(), e.getMessage());
 		}
 	}
 
@@ -1035,7 +1032,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 			TransformerStepPlugin stepPlugin = getPlugin(step.getType());
 			return stepPlugin.doValidate((Map<Object, Object>)step.getData());
 		} catch (Exception e) {
-			parent.alertException(e.getStackTrace(), e.getMessage());
+			parent.alertException(this, e.getStackTrace(), e.getMessage());
 			return "Exception occurred during validation.";
 		}
 	}
@@ -1085,7 +1082,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 			try {
 				step.setScript(getPlugin(step.getType()).getScript(map));
 			} catch (Exception e) {
-				parent.alertException(e.getStackTrace(), e.getMessage());
+				parent.alertException(this, e.getStackTrace(), e.getMessage());
 			}
 			list.add(step);
 		}
@@ -1258,7 +1255,7 @@ public class TransformerPane extends MirthEditorPane implements DropTargetListen
 			else
 				parent.setVisibleTasks(transformerTasks, transformerPopupMenu, 4, 4, false);
 		} catch (Exception e) {
-			parent.alertException(e.getStackTrace(), e.getMessage());
+			parent.alertException(this, e.getStackTrace(), e.getMessage());
 		}
 	}
 

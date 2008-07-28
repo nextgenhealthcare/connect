@@ -82,9 +82,9 @@ public class DatabaseReader extends ConnectorClass
         {
             drivers = this.parent.mirthClient.getDatabaseDrivers();
         }
-        catch (ClientException ex)
+        catch (ClientException e)
         {
-            ex.printStackTrace();
+            parent.alertException(this, e.getStackTrace(), e.getMessage());
         }
         
         initComponents();

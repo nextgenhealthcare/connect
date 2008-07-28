@@ -388,13 +388,13 @@ public class UserWizard extends javax.swing.JDialog
         {
             if (!editingUser && parent.users.get(i).getUsername().equals(username.getText()))
             {
-                parent.alertWarning("Username already exists.");
+                parent.alertWarning(this, "Username already exists.");
                 return;
             }
         }
         if (!String.valueOf(password1.getPassword()).equals(String.valueOf(password2.getPassword())))
         {
-            parent.alertWarning("Passwords must be the same.");
+            parent.alertWarning(this, "Passwords must be the same.");
             return;
         }
         else
@@ -411,7 +411,7 @@ public class UserWizard extends javax.swing.JDialog
             temp.setEmail(email.getText());
             temp.setPhoneNumber(phoneNumber.getText());
             temp.setDescription(description.getText());
-            parent.updateUser(temp, String.valueOf(password1.getPassword()));
+            parent.updateUser(this, temp, String.valueOf(password1.getPassword()));
             this.dispose();
         }
     }// GEN-LAST:event_finishButtonActionPerformed

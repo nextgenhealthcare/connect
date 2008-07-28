@@ -322,7 +322,7 @@ public class MessageBrowser extends javax.swing.JPanel
                         }
                         catch (Exception e)
                         {
-                            parent.alertException(e.getStackTrace(), e.getMessage());
+                            parent.alertException(this, e.getStackTrace(), e.getMessage());
                         }
                     }
                 }
@@ -330,7 +330,7 @@ public class MessageBrowser extends javax.swing.JPanel
         }
         catch (Exception e)
         {
-            parent.alertException(e.getStackTrace(), e.getMessage());
+            parent.alertException(this, e.getStackTrace(), e.getMessage());
         }
     }
     public AttachmentViewer getAttachmentViewer(String type){
@@ -444,7 +444,7 @@ public class MessageBrowser extends javax.swing.JPanel
                         }
                         catch (Exception e)
                         {
-                            parent.alertException(e.getStackTrace(),"Unable to connect to server. Stopping import. " + e.getMessage());
+                            parent.alertException(this, e.getStackTrace(),"Unable to connect to server. Stopping import. " + e.getMessage());
                             br.close();
                             return;
                         }
@@ -453,7 +453,7 @@ public class MessageBrowser extends javax.swing.JPanel
                     }
                     
                 }
-                parent.alertInformation("All messages have been successfully imported.");
+                parent.alertInformation(this, "All messages have been successfully imported.");
                 br.close();
             }
             catch (Exception e)
@@ -469,7 +469,7 @@ public class MessageBrowser extends javax.swing.JPanel
                         ex.printStackTrace();
                     }
                 }
-                parent.alertException(e.getStackTrace(), "Invalid message file. Message importing will stop. " + e.getMessage());
+                parent.alertException(this, e.getStackTrace(), "Invalid message file. Message importing will stop. " + e.getMessage());
             }
         }
     }
@@ -501,7 +501,7 @@ public class MessageBrowser extends javax.swing.JPanel
                 StringBuffer messages = new StringBuffer();
 
                 if (exportFile.exists())
-                    if (!parent.alertOption("The file " + exportFile.getName() + " already exists.  Would you like to overwrite it?"))
+                    if (!parent.alertOption(this, "The file " + exportFile.getName() + " already exists.  Would you like to overwrite it?"))
                         return;
                 
                 if (length < 4 || !exportFile.getName().substring(length - 4, length).equals(".xml"))
@@ -527,11 +527,11 @@ public class MessageBrowser extends javax.swing.JPanel
                     messageObjects = tempMessageListHandler.getNextPage();
                 }
                 
-                parent.alertInformation("All messages were written successfully to " + exportFile.getPath() + ".");
+                parent.alertInformation(this, "All messages were written successfully to " + exportFile.getPath() + ".");
             }
             catch (Exception ex)
             {
-                parent.alertError("File could not be written.");
+                parent.alertError(this, "File could not be written.");
             }
             finally
             {
@@ -543,7 +543,7 @@ public class MessageBrowser extends javax.swing.JPanel
                     }
                     catch (ClientException e)
                     {
-                            parent.alertException(e.getStackTrace(), e.getMessage());
+                            parent.alertException(this, e.getStackTrace(), e.getMessage());
                     }
             	}
             }
@@ -754,7 +754,7 @@ public class MessageBrowser extends javax.swing.JPanel
             catch (ListHandlerException e)
             {
                 messageObjectList = null;
-                parent.alertException(e.getStackTrace(), e.getMessage());
+                parent.alertException(this, e.getStackTrace(), e.getMessage());
             }
         }
     }
@@ -1522,7 +1522,7 @@ public class MessageBrowser extends javax.swing.JPanel
                 worker.execute();
             }                
             else {
-                parent.alertInformation("No Attachment Viewer plugin installed for type: " + attachType);
+                parent.alertInformation(this, "No Attachment Viewer plugin installed for type: " + attachType);
             }
         }
         catch(Exception e){}
@@ -1629,7 +1629,7 @@ public class MessageBrowser extends javax.swing.JPanel
             }
             catch(Exception e)
             {
-                parent.alertError("Invalid date.");
+                parent.alertError(this, "Invalid date.");
                 return;
             }
 
@@ -1651,7 +1651,7 @@ public class MessageBrowser extends javax.swing.JPanel
             
             if (startCalendar.getTimeInMillis() > endCalendar.getTimeInMillis())
         {
-                parent.alertError("Start date cannot be after the end date.");
+                parent.alertError(this, "Start date cannot be after the end date.");
                 return;
         }
             
@@ -1723,7 +1723,7 @@ public class MessageBrowser extends javax.swing.JPanel
                 }
                 catch (ClientException e)
                 {
-                    parent.alertException(e.getStackTrace(), e.getMessage());
+                    parent.alertException(parent, e.getStackTrace(), e.getMessage());
                 }
                 getMessageTableData(messageListHandler, FIRST_PAGE);
                 return null;

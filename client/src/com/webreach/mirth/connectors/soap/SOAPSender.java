@@ -949,7 +949,7 @@ reconnectIntervalLabel.setEnabled(true);
                 catch (ClientException e)
                 {
 
-                    parent.alertError("No methods found.  Check the WSDL URL and try again.");
+                    parent.alertError(parent, "No methods found.  Check the WSDL URL and try again.");
                     return null;
                 }
             }

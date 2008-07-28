@@ -331,7 +331,7 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
             }
             catch (IOException e)
             {
-                parent.alertError("Unable to read file.");
+                parent.alertError(this, "Unable to read file.");
             }
         }
     }//GEN-LAST:event_processBinaryFileButtonActionPerformed
@@ -357,7 +357,7 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
             }
             catch (IOException e)
             {
-                parent.alertError("Unable to read file.");
+                parent.alertError(this, "Unable to read file.");
             }
         }
     }//GEN-LAST:event_openFileButtonActionPerformed

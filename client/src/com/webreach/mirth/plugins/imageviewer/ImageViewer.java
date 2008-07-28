@@ -95,7 +95,7 @@ public class ImageViewer extends AttachmentViewer {
 			frame.setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
 			frame.setVisible(true);
 		} catch (Exception e) {
-			parent.alertException(e.getStackTrace(), e.getMessage());
+			parent.alertException(parent, e.getStackTrace(), e.getMessage());
 		}
 	}
 }

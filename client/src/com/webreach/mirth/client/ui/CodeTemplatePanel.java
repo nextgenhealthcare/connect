@@ -244,9 +244,9 @@ public class CodeTemplatePanel extends javax.swing.JPanel
                     {
                         codeTemplate.setId(parent.mirthClient.getGuid());
                     }
-                    catch (ClientException ex)
+                    catch (ClientException e)
                     {
-                        ex.printStackTrace();
+                        parent.alertException(this, e.getStackTrace(), e.getMessage());
                     }
 
                     codeTemplate.setName(getNewCodeTemplateName(tableSize));
@@ -336,7 +336,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
         
         Context.exit();
         if(alertOnSuccess || !alertOnSuccess && !passed)
-            PlatformUI.MIRTH_FRAME.alertInformation(sb.toString());
+            PlatformUI.MIRTH_FRAME.alertInformation(this, sb.toString());
         return passed;
     }
     
@@ -530,7 +530,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
 
     public void deleteCodeTemplate()
     {
-        if (!parent.alertOption("Are you sure you want to delete this code template?"))
+        if (!parent.alertOption(this, "Are you sure you want to delete this code template?"))
             return;
         isDeleting = true;
 

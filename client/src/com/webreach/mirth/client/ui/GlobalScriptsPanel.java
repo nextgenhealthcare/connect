@@ -36,7 +36,7 @@ public class GlobalScriptsPanel extends javax.swing.JPanel
         }
         catch(ClientException e)
         {
-            parent.alertException(e.getStackTrace(), e.getMessage());
+            parent.alertException(this, e.getStackTrace(), e.getMessage());
         }
     }
     
@@ -84,7 +84,7 @@ public class GlobalScriptsPanel extends javax.swing.JPanel
     	String validationMessage = validateAllScripts();
         if (validationMessage != null)
         {
-        	parent.alertCustomError(validationMessage, CustomErrorDialog.ERROR_VALIDATING_GLOBAL_SCRIPTS);
+        	parent.alertCustomError(this, validationMessage, CustomErrorDialog.ERROR_VALIDATING_GLOBAL_SCRIPTS);
         }
         
         try
@@ -93,7 +93,7 @@ public class GlobalScriptsPanel extends javax.swing.JPanel
         }
         catch(ClientException e)
         {
-            parent.alertException(e.getStackTrace(), e.getMessage());
+            parent.alertException(this, e.getStackTrace(), e.getMessage());
         }
     }
             

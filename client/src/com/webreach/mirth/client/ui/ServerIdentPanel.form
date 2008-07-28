@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.3" maxVersion="1.6" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+  <Properties>
+    <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+      <Color blue="ff" green="ff" red="ff" type="rgb"/>
+    </Property>
+    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+      <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+        <TitledBorder title="Server Identification">
+          <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.MatteColorBorderInfo">
+            <MatteColorBorder bottom="0" left="0" right="0" top="1">
+              <Color PropertyName="color" blue="cc" green="cc" red="cc" type="rgb"/>
+            </MatteColorBorder>
+          </Border>
+          <Font PropertyName="font" name="Tahoma" size="11" style="1"/>
+        </TitledBorder>
+      </Border>
+    </Property>
+  </Properties>
+  <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+  </AuxValues>
+
+  <Layout>
+    <DimensionLayout dim="0">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="serverIdLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="identServerNameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="identFirstNameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="identLastNameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="identCompanyLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="identEmailLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="identPhoneLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="identServerName" min="-2" pref="200" max="-2" attributes="1"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="asteriskLabel" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="identFirstName" min="-2" pref="200" max="-2" attributes="1"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="asteriskLabel1" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="identLastName" min="-2" pref="200" max="-2" attributes="1"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="asteriskLabel2" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="identCompany" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="identEmail" min="-2" pref="200" max="-2" attributes="1"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="asteriskLabel3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="identPhone" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
+                  <Component id="serverId" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace pref="16" max="32767" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+    <DimensionLayout dim="1">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="serverIdLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="serverId" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="identServerName" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="identServerNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="asteriskLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="identFirstNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="identFirstName" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="asteriskLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="identLastNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="identLastName" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="asteriskLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="identCompanyLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="identCompany" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="identEmailLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="identEmail" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="asteriskLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="identPhoneLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="identPhone" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="32767" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+  </Layout>
+  <SubComponents>
+    <Component class="javax.swing.JLabel" name="identServerNameLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Server Name:"/>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="identServerName">
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="identFirstName">
+    </Component>
+    <Component class="javax.swing.JLabel" name="identFirstNameLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="First Name:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="identLastNameLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Last Name:"/>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="identLastName">
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="identCompany">
+    </Component>
+    <Component class="javax.swing.JLabel" name="identCompanyLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Company:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="identEmailLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Email:"/>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="identEmail">
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="identEmailActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="identPhone">
+    </Component>
+    <Component class="javax.swing.JLabel" name="identPhoneLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Phone:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="asteriskLabel">
+      <Properties>
+        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="0" green="0" red="ff" type="rgb"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="*"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="asteriskLabel1">
+      <Properties>
+        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="0" green="0" red="ff" type="rgb"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="*"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="asteriskLabel2">
+      <Properties>
+        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="0" green="0" red="ff" type="rgb"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="*"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="asteriskLabel3">
+      <Properties>
+        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="0" green="0" red="ff" type="rgb"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="*"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="serverIdLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Server ID:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="serverId">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="{id}"/>
+      </Properties>
+    </Component>
+  </SubComponents>
+</Form>

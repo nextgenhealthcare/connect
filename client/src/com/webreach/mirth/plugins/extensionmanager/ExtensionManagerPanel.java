@@ -731,7 +731,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
                 }
                 else
                 {
-                    parent.alertError("Unable to install extension.");
+                    parent.alertError(PlatformUI.MIRTH_FRAME, "Unable to install extension.");
                 }
             }
         };

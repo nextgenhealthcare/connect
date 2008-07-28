@@ -43,7 +43,6 @@ import java.util.Iterator;
 
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
@@ -278,7 +277,7 @@ public class JavaScriptEditorDialog extends javax.swing.JDialog implements DropT
             try {
                 scriptContent.setText(FileUtil.read(importFile));
             } catch (IOException e) {
-                parent.alertError("Unable to read file.");
+                parent.alertError(this, "Unable to read file.");
             }
         }
     }//GEN-LAST:event_openFileButtonActionPerformed
@@ -307,7 +306,7 @@ private void validateScriptButtonActionPerformed(java.awt.event.ActionEvent evt)
     
     Context.exit();
     
-    JOptionPane.showMessageDialog(this, sb.toString(), "Information", JOptionPane.INFORMATION_MESSAGE);   
+    parent.alertInformation(this, sb.toString());   
 }//GEN-LAST:event_validateScriptButtonActionPerformed
 
 private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed

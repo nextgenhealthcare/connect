@@ -225,9 +225,9 @@ public class AlertPanel extends javax.swing.JPanel
                     {
                         alert.setId(parent.mirthClient.getGuid());
                     }
-                    catch (ClientException ex)
+                    catch (ClientException e)
                     {
-                        ex.printStackTrace();
+                    	parent.alertException(this, e.getStackTrace(), e.getMessage());
                     }
 
                     alert.setName(getNewAlertName(tableSize));
@@ -639,7 +639,7 @@ public class AlertPanel extends javax.swing.JPanel
 
     public void deleteAlert()
     {
-        if (!parent.alertOption("Are you sure you want to delete this alert?"))
+        if (!parent.alertOption(this, "Are you sure you want to delete this alert?"))
             return;
         isDeleting = true;
 

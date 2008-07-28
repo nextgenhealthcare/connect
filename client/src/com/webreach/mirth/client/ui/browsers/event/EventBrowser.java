@@ -337,7 +337,7 @@ public class EventBrowser extends javax.swing.JPanel
             catch (ListHandlerException e)
             {
                 systemEventList = null;
-                parent.alertException(e.getStackTrace(), e.getMessage());
+                parent.alertException(this, e.getStackTrace(), e.getMessage());
             }
         }
     }
@@ -785,7 +785,7 @@ public class EventBrowser extends javax.swing.JPanel
                 }
                 catch (ClientException e)
                 {
-                    parent.alertException(e.getStackTrace(), e.getMessage());
+                    parent.alertException(parent, e.getStackTrace(), e.getMessage());
                 }
                 getEventTableData(systemEventListHandler, FIRST_PAGE);
                 return null;

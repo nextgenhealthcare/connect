@@ -103,7 +103,7 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
         try {
             channelsDeployed = (Boolean) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, CHANNELS_DEPLOYED, null);
         } catch (ClientException e) {
-            parent.alertException(e.getStackTrace(), e.getMessage());            
+            parent.alertException(parent, e.getStackTrace(), e.getMessage());            
         }
 
         if (channelsDeployed) {
@@ -143,7 +143,7 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
                     connectionInfoLogsReceived = (LinkedList<String[]>) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, GET_CONNECTION_INFO_LOGS, selectedChannel);
                 }
             } catch (ClientException e) {
-                parent.alertException(e.getStackTrace(), e.getMessage());
+                parent.alertException(parent, e.getStackTrace(), e.getMessage());
             }
 
             synchronized(this) {
@@ -180,7 +180,7 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
         try {
             PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, REMOVE_SESSIONID, null);
         } catch (ClientException e) {
-            parent.alertException(e.getStackTrace(), e.getMessage());
+            parent.alertException(parent, e.getStackTrace(), e.getMessage());
         }
     }
 

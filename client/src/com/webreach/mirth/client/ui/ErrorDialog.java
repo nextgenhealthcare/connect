@@ -37,11 +37,20 @@ public class ErrorDialog extends javax.swing.JDialog
 {
     private Frame parent;
 
-    /** Creates new form AboutMirth */
-    public ErrorDialog(String message)
+    public ErrorDialog(java.awt.Frame owner, String message)
     {
-        super(PlatformUI.MIRTH_FRAME);
-        this.parent = PlatformUI.MIRTH_FRAME;
+        super(owner);
+        initialize(message);
+    }
+    
+    public ErrorDialog(java.awt.Dialog owner, String message)
+    {
+        super(owner);
+        initialize(message);
+    }
+    
+    private void initialize(String message) {
+    	this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
         question.setBackground(UIManager.getColor("Control"));
         errorContent.setBackground(UIManager.getColor("Control"));
@@ -184,7 +193,7 @@ public class ErrorDialog extends javax.swing.JDialog
 
     private void submitActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_submitActionPerformed
     {// GEN-HEADEREND:event_submitActionPerformed
-        if (parent.alertOkCancel("The information collected is anonymous, but please verify that the error message itself does not contain any personal health information."))
+        if (parent.alertOkCancel(this, "The information collected is anonymous, but please verify that the error message itself does not contain any personal health information."))
             parent.sendError(errorContent.getText());
         this.dispose();
     }// GEN-LAST:event_submitActionPerformed
