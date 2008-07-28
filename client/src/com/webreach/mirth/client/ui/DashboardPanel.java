@@ -468,7 +468,6 @@ public class DashboardPanel extends javax.swing.JPanel
             }
             else
             {
-                parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 4, 4, false);
                // parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 7, 7, true);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 8, 8, true);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 9, 9, false);
