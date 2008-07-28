@@ -64,7 +64,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 				queueThread.interrupt();
 				queueThread.join();
 			} catch (Exception e) {
-				logger.error("Cound not stop queue thread: " + e);
+				logger.error("Could not stop queue thread: " + e);
 			}
 		}
 	}

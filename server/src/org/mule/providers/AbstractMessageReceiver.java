@@ -386,7 +386,7 @@ public abstract class AbstractMessageReceiver implements UMOMessageReceiver {
 		return endpoint.getEndpointURI().toString();
 	}
 
-	public final void start() throws UMOException {
+	public void start() throws UMOException {
 		// ast: changes to allow a start without problems
 		UMOException startException = null;
 		if (stopped.commit(true, false)) {
@@ -407,7 +407,7 @@ public abstract class AbstractMessageReceiver implements UMOMessageReceiver {
 		}
 	}
 
-	public final void stop() {
+	public void stop() {
 		if (stopped.commit(false, true)) {
 			try {
 				doStop();

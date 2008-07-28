@@ -50,10 +50,10 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
 	private VMConnector vmConnector;
 	private String componentName;
 	private Object lock = new Object();
-    private MonitoringController monitoringController = MonitoringController.getInstance();
-    private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
-    private ConnectorType connectorType = ConnectorType.LISTENER;
-    
+	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
+	private ConnectorType connectorType = ConnectorType.LISTENER;
+
 	public VMMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
 		super(connector, component, endpoint, new Long(10));
 		this.vmConnector = (VMConnector) connector;
@@ -61,22 +61,43 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
 		receiveMessagesInTransaction = endpoint.getTransactionConfig().isTransacted();
 		VMRegistry.getInstance().register(this.getEndpointURI().getAddress(), this);
 	}
-	
+
+	@Override
+	public void start() throws UMOException {
+		// TODO Auto-generated method stub
+		try {
+			getWorkManager().start();
+		} catch (Exception e) {
+		}
+		super.start();
+	}
+
+	@Override
+	public void stop() {
+		// TODO Auto-generated method stub
+		super.stop();
+		try {
+			getWorkManager().stop();
+		} catch (Exception e) {
+		}
+	}
+
 	public void doConnect() throws Exception {
 		if (vmConnector.isQueueEvents()) {
 			// Ensure we can create a vm queue
 			QueueSession queueSession = vmConnector.getQueueSession();
 			queueSession.getQueue(endpoint.getEndpointURI().getAddress());
 		}
-		monitoringController.updateStatus(componentName, connectorType,  Event.INITIALIZED, null);
+		monitoringController.updateStatus(componentName, connectorType, Event.INITIALIZED, null);
 	}
-	
+
 	public void doDisconnect() throws Exception {}
 
-	public void doStop() throws UMOException{
+	public void doStop() throws UMOException {
 		super.doStop();
 		monitoringController.updateStatus(componentName, connectorType, Event.DISCONNECTED, null);
 	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -91,21 +112,21 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
 				queue.put(event);
 			} catch (InterruptedException e) {
 				throw new MuleException(new Message(Messages.INTERRUPTED_QUEUING_EVENT_FOR_X, this.endpoint.getEndpointURI()), e);
-			} catch (Exception e) { 
+			} catch (Exception e) {
 				throw new MuleException(e);
 			}
 		} else {
-			try{
-			UMOMessage msg = new MuleMessage(event.getTransformedMessage(), event.getProperties());
-			if (msg != null){
-				postProcessor.doPostProcess(msg.getPayload());
-			}
-			synchronized (lock) {
-				routeMessage(msg);
-			}
-			}catch (UMOException e){
+			try {
+				UMOMessage msg = new MuleMessage(event.getTransformedMessage(), event.getProperties());
+				if (msg != null) {
+					postProcessor.doPostProcess(msg.getPayload());
+				}
+				synchronized (lock) {
+					routeMessage(msg);
+				}
+			} catch (UMOException e) {
 				throw e;
-			}finally{
+			} finally {
 				monitoringController.updateStatus(componentName, connectorType, Event.DONE, null);
 			}
 		}
@@ -113,17 +134,17 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
 
 	public Object dispatchMessage(UMOEvent event) throws UMOException {
 		monitoringController.updateStatus(componentName, connectorType, Event.BUSY, null);
-		try{
+		try {
 			UMOMessage umoMessage = routeMessage(new MuleMessage(event.getMessage(), event.getProperties(), event.getMessage()), event.isSynchronous());
-			if (umoMessage != null){
+			if (umoMessage != null) {
 				postProcessor.doPostProcess(umoMessage.getPayload());
 			}
 			return umoMessage;
-		}catch (UMOException e){
+		} catch (UMOException e) {
 			throw e;
-		}finally{
+		} finally {
 			monitoringController.updateStatus(componentName, connectorType, Event.DONE, null);
-		}		
+		}
 	}
 
 	/*
@@ -133,36 +154,37 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
 	 */
 	public Object onCall(UMOEvent event) throws UMOException {
 		monitoringController.updateStatus(componentName, connectorType, Event.BUSY, null);
-		try{
+		try {
 			UMOMessage umoMessage = routeMessage(new MuleMessage(event.getTransformedMessage(), event.getProperties(), event.getMessage()), event.isSynchronous());
-			if (umoMessage != null){
+			if (umoMessage != null) {
 				postProcessor.doPostProcess(umoMessage.getPayload());
 			}
 			return umoMessage;
-		}catch (UMOException e){
+		} catch (UMOException e) {
 			throw e;
-		}finally{
+		} finally {
 			monitoringController.updateStatus(componentName, connectorType, Event.DONE, null);
-		}		
+		}
 	}
 
 	protected List getMessages() throws Exception {
 		QueueSession qs = vmConnector.getQueueSession();
 		Queue queue = qs.getQueue(endpoint.getEndpointURI().getAddress());
 		UMOEvent event = (UMOEvent) queue.take();
-		//TODO: Check post processor logic on this
+		// TODO: Check post processor logic on this
 		monitoringController.updateStatus(componentName, connectorType, Event.BUSY, null);
-		try{
+		try {
 			UMOMessage umoMessage = routeMessage(new MuleMessage(event.getTransformedMessage(), event.getProperties()), true);
-			if (umoMessage != null){
+			if (umoMessage != null) {
 				postProcessor.doPostProcess(umoMessage.getPayload());
 			}
 			monitoringController.updateStatus(componentName, connectorType, Event.DONE, null);
-		}catch (UMOException e){
+		} catch (UMOException e) {
 			throw e;
-		}finally{
+		} finally {
 			monitoringController.updateStatus(componentName, connectorType, Event.DONE, null);
-		}	
+		}
+
 		return null;
 	}
 
