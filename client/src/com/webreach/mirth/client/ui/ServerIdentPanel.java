@@ -2,8 +2,6 @@ package com.webreach.mirth.client.ui;
 
 import java.util.Properties;
 
-import com.webreach.mirth.client.core.ClientException;
-
 public class ServerIdentPanel extends javax.swing.JPanel {
 
     /** Creates new form ServerIdentificationPanel */
@@ -11,17 +9,7 @@ public class ServerIdentPanel extends javax.swing.JPanel {
         initComponents();
     }
     
-    public void loadSettings(Properties serverProperties) {
-        
-        String serverIdValue = "";
-        try {
-        	serverIdValue = PlatformUI.MIRTH_FRAME.mirthClient.getServerId();
-        } catch (ClientException e) {
-        	PlatformUI.MIRTH_FRAME.alertException(this, e.getStackTrace(), e.getMessage());
-        }
-        
-        serverId.setText(serverIdValue);
-        
+    public void loadSettings(Properties serverProperties) {        
         if (serverProperties.getProperty("ident.serverName") != null)
             identServerName.setText((String) serverProperties.getProperty("ident.serverName"));
         else
@@ -104,8 +92,6 @@ public class ServerIdentPanel extends javax.swing.JPanel {
         asteriskLabel1 = new javax.swing.JLabel();
         asteriskLabel2 = new javax.swing.JLabel();
         asteriskLabel3 = new javax.swing.JLabel();
-        serverIdLabel = new javax.swing.JLabel();
-        serverId = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Server Identification", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
@@ -140,10 +126,6 @@ public class ServerIdentPanel extends javax.swing.JPanel {
         asteriskLabel3.setForeground(new java.awt.Color(255, 0, 0));
         asteriskLabel3.setText("*");
 
-        serverIdLabel.setText("Server ID:");
-
-        serverId.setText("{id}");
-
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -151,7 +133,6 @@ public class ServerIdentPanel extends javax.swing.JPanel {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, serverIdLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, identServerNameLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, identFirstNameLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, identLastNameLabel)
@@ -177,17 +158,12 @@ public class ServerIdentPanel extends javax.swing.JPanel {
                         .add(identEmail, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(asteriskLabel3))
-                    .add(identPhone, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(serverId))
-                .addContainerGap(16, Short.MAX_VALUE))
+                    .add(identPhone, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(18, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(serverIdLabel)
-                    .add(serverId))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(identServerName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(identServerNameLabel)
@@ -241,8 +217,6 @@ private void identEmailActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
     private javax.swing.JLabel identPhoneLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField identServerName;
     private javax.swing.JLabel identServerNameLabel;
-    private javax.swing.JLabel serverId;
-    private javax.swing.JLabel serverIdLabel;
     // End of variables declaration//GEN-END:variables
 
 }

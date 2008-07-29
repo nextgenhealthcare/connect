@@ -35,7 +35,6 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="serverIdLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="identServerNameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="identFirstNameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="identLastNameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -67,20 +66,14 @@
                       <Component id="asteriskLabel3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="identPhone" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
-                  <Component id="serverId" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="16" max="32767" attributes="0"/>
+              <EmptySpace pref="18" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="serverIdLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="serverId" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="identServerName" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="identServerNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -195,16 +188,6 @@
           <Color blue="0" green="0" red="ff" type="rgb"/>
         </Property>
         <Property name="text" type="java.lang.String" value="*"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="serverIdLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Server ID:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="serverId">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="{id}"/>
       </Properties>
     </Component>
   </SubComponents>
