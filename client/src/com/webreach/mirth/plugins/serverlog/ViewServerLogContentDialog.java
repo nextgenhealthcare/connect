@@ -52,11 +52,11 @@ public class ViewServerLogContentDialog extends javax.swing.JDialog
         jScrollPane1.getViewport().setBackground(new java.awt.Color(255, 255, 255));
         Dimension dlgSize = getPreferredSize();
         Dimension frmSize = parent.getSize();
+        Point loc = parent.getLocation();
         
-        if (frmSize.width == 0 && frmSize.height == 0) {
+        if ((frmSize.width == 0 && frmSize.height == 0) || (loc.x == 0 && loc.y == 0)) {
         	setLocationRelativeTo(null);
         } else {
-	        Point loc = parent.getLocation();
 	        setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         }
         

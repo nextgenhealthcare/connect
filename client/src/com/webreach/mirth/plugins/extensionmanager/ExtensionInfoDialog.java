@@ -63,11 +63,11 @@ public class ExtensionInfoDialog extends javax.swing.JDialog
         urlLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
         Dimension dlgSize = getPreferredSize();
         Dimension frmSize = PlatformUI.MIRTH_FRAME.getSize();
+        Point loc = PlatformUI.MIRTH_FRAME.getLocation();
         
-        if (frmSize.width == 0 && frmSize.height == 0) {
+        if ((frmSize.width == 0 && frmSize.height == 0) || (loc.x == 0 && loc.y == 0)) {
         	setLocationRelativeTo(null);
         } else {
-	        Point loc = PlatformUI.MIRTH_FRAME.getLocation();
 	        setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         }
         
