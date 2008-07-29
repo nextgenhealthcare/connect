@@ -969,12 +969,7 @@ public class Frame extends JXFrame
     {
     	parentComponent = getVisibleComponent(parentComponent);
     	
-        Object owner = null;
-        if (parentComponent instanceof java.awt.Frame || parentComponent instanceof java.awt.Dialog) {
-        	owner = parentComponent;
-        } else {
-        	owner = SwingUtilities.windowForComponent(parentComponent);
-        }
+        Window owner = getWindowForComponent(parentComponent);
         
     	if (owner instanceof java.awt.Frame) {
     		new CustomErrorDialog((java.awt.Frame)owner, message, question);
@@ -1032,14 +1027,9 @@ public class Frame extends JXFrame
 
         logger.error(stackTrace);
 
-        Object owner = null;
-        if (parentComponent instanceof java.awt.Frame || parentComponent instanceof java.awt.Dialog) {
-        	owner = parentComponent;
-        } else {
-        	owner = SwingUtilities.windowForComponent(parentComponent);
-        }
+        Window owner = getWindowForComponent(parentComponent);
         
-    	if (owner instanceof java.awt.Frame) {
+        if (owner instanceof java.awt.Frame) {
     		new ErrorDialog((java.awt.Frame)owner, stackTrace);
     	} else { // window instanceof Dialog
     		new ErrorDialog((java.awt.Dialog)owner, stackTrace);
@@ -1054,6 +1044,20 @@ public class Frame extends JXFrame
     	} else {
     		return null;
     	}
+    }
+    
+    private Window getWindowForComponent(Component parentComponent) {
+        Window owner = null;
+        
+        if (parentComponent == null) {
+        	owner = this;
+        } else if (parentComponent instanceof java.awt.Frame || parentComponent instanceof java.awt.Dialog) {
+        	owner = (Window)parentComponent;
+        } else {
+        	owner = SwingUtilities.windowForComponent(parentComponent);
+        }
+        
+        return owner;
     }
 
     /*
@@ -3942,7 +3946,7 @@ public class Frame extends JXFrame
     public void doFind(JEditTextArea text)
     {
         FindRplDialog find;
-        Window owner = SwingUtilities.windowForComponent(text);
+        Window owner = getWindowForComponent(text);
         
     	if (owner instanceof java.awt.Frame) {
     		find = new FindRplDialog((java.awt.Frame)owner,true,text);

@@ -44,8 +44,14 @@ public class DICOMViewer extends AttachmentViewer {
             dcm.show();
 			Dimension dlgSize = dcm.getWindow().getSize();
 	        Dimension frmSize = parent.getSize();
-	        Point loc = parent.getLocation();
-	        dcm.getWindow().setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+	        
+	        if (frmSize.width == 0 && frmSize.height == 0) {
+	        	dcm.getWindow().setLocationRelativeTo(null);
+	        } else {
+		        Point loc = parent.getLocation();
+		        dcm.getWindow().setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+	        }
+	        
         }
         catch(Exception e ){
         	parent.alertException(parent, e.getStackTrace(), e.getMessage());

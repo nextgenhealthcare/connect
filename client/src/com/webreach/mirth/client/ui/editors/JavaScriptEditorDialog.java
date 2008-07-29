@@ -95,8 +95,14 @@ public class JavaScriptEditorDialog extends javax.swing.JDialog implements DropT
         new DropTarget(scriptContent, this);
         Dimension dlgSize = getPreferredSize();
         Dimension frmSize = parent.getSize();
-        Point loc = parent.getLocation();
-        setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+        
+        if (frmSize.width == 0 && frmSize.height == 0) {
+        	setLocationRelativeTo(null);
+        } else {
+	        Point loc = parent.getLocation();
+	        setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+        }
+        
         setVisible(true);
     }
     

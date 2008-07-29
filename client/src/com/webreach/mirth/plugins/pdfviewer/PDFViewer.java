@@ -77,8 +77,13 @@ public class PDFViewer extends AttachmentViewer
 			
 			Dimension dlgSize = frame.getSize();
 	        Dimension frmSize = parent.getSize();
-	        Point loc = parent.getLocation();
-	        frame.setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+	        
+	        if (frmSize.width == 0 && frmSize.height == 0) {
+	        	frame.setLocationRelativeTo(null);
+	        } else {
+		        Point loc = parent.getLocation();
+		        frame.setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+	        }
 	        			
 			frame.setVisible(true);
 		} catch (Exception e) {

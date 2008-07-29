@@ -97,8 +97,14 @@ public class RepositoryDialog extends javax.swing.JDialog
         
         Dimension dlgSize = getPreferredSize();
         Dimension frmSize = PlatformUI.MIRTH_FRAME.getSize();
-        Point loc = PlatformUI.MIRTH_FRAME.getLocation();
-        setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+        
+        if (frmSize.width == 0 && frmSize.height == 0) {
+        	setLocationRelativeTo(null);
+        } else {
+	        Point loc = PlatformUI.MIRTH_FRAME.getLocation();
+	        setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+        }
+        
         progressBar.setVisible(false);
         installUpdatesButton.setEnabled(false);
         setVisible(true);
