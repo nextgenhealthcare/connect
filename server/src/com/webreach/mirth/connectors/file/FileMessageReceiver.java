@@ -9,23 +9,18 @@
 
 package com.webreach.mirth.connectors.file;
 
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.mule.MuleException;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
 import org.mule.impl.MuleMessage;
-import org.mule.providers.ConnectException;
 import org.mule.providers.PollingMessageReceiver;
 import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.MessagingException;
@@ -38,13 +33,11 @@ import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageAdapter;
 import org.mule.umo.routing.RoutingException;
-import org.mule.util.Utility;
 
 import sun.misc.BASE64Encoder;
 
 import com.webreach.mirth.connectors.file.filesystems.FileInfo;
 import com.webreach.mirth.connectors.file.filesystems.FileSystemConnection;
-import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
@@ -71,7 +64,7 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 	private String moveDir = null;
 	private String errorDir = null;
 	private String moveToPattern = null;
-	private FilenameFilter filenameFilter = null;
+	private String filenamePattern = null;
 	private boolean routingError = false;
 
 	private AlertController alertController = AlertController.getInstance();
@@ -96,7 +89,7 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 		else
 			setFrequency(fileConnector.getPollingFrequency());
 
-		filenameFilter = new FilenameWildcardFilter(replacer.replaceValuesFromGlobal(fileConnector.getFileFilter(), true));
+		filenamePattern = replacer.replaceValuesFromGlobal(fileConnector.getFileFilter(), true);
 		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
 	}
 
@@ -437,11 +430,9 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 		FileSystemConnection con = fileConnector.getConnection(uri, null);
 
 		try {
-			
-			return con.listFiles(readDir, filenameFilter).toArray(new FileInfo[0]);
+			return con.listFiles(readDir, filenamePattern).toArray(new FileInfo[0]);
 		}
 		finally {
-
 			fileConnector.releaseConnection(uri, con, null);
 		}
 	}

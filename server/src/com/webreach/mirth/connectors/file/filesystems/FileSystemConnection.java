@@ -1,11 +1,7 @@
 package com.webreach.mirth.connectors.file.filesystems;
 
-import java.io.FilenameFilter;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
-
-import org.mule.MuleException;
 
 /** The interface that must be implemented by a file system for it to be
  *  usable by the File connector.
@@ -18,13 +14,13 @@ public interface FileSystemConnection {
 	 * with names matching the specified pattern.
 	 * 
 	 * @param fromDir The directory (folder) to be searched for files.
-	 * @param namePattern The pattern file names must match to be included.
+	 * @param filenamePattern The pattern file names must match to be included.
 	 * The exact syntax of a namePattern may vary between FileSystems.
 	 * @return A List of FileInfo for the files located in the specified
 	 * folder with names matching the specified pattern.
 	 * @throws Exception
 	 */
-	public List<FileInfo> listFiles(String fromDir, FilenameFilter filenameFilter)
+	public List<FileInfo> listFiles(String fromDir, String filenamePattern)
 		throws Exception;
 	
 	/** Constructs and returns an InputStream to read the contents of the

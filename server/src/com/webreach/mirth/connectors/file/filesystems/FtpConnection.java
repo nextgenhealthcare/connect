@@ -1,12 +1,9 @@
 package com.webreach.mirth.connectors.file.filesystems;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,10 +13,8 @@ import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
-import org.mule.MuleException;
 
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.SftpATTRS;
+import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
 
 /** The FileSystemConnection class for files accessed via FTP.
  * 
@@ -122,9 +117,11 @@ public class FtpConnection implements FileSystemConnection {
 		}
 	}
 
-	public List<FileInfo> listFiles(String fromDir, FilenameFilter filenameFilter)
+	public List<FileInfo> listFiles(String fromDir, String filenamePattern)
 		throws Exception
 	{
+	    FilenameFilter filenameFilter = new FilenameWildcardFilter(filenamePattern);
+	    
 		if (!client.changeWorkingDirectory(fixDir(fromDir))) {
 			logger.error("listFiles.changeWorkingDirectory: " + client.getReplyCode() + "-" + client.getReplyString());
 			throw new IOException("Ftp error: " + client.getReplyCode());

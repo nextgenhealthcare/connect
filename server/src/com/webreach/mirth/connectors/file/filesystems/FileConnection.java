@@ -86,9 +86,10 @@ public class FileConnection implements FileSystemConnection {
 		// That was easy
 	}
 
-	public List<FileInfo> listFiles(String fromDir, FilenameFilter filenameFilter)
+	public List<FileInfo> listFiles(String fromDir, String filenamePattern)
 		throws Exception
 	{
+	    FilenameFilter filenameFilter = new FilenameWildcardFilter(filenamePattern);	    
 		File readDirectory = null;
 		try {
 			readDirectory = new File(fromDir);

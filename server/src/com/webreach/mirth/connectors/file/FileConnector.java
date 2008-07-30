@@ -102,6 +102,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	public static final String SCHEME_FILE = "file";
 	public static final String SCHEME_FTP = "ftp";
 	public static final String SCHEME_SFTP = "sftp";
+	public static final String SCHEME_SMB = "smb";
 
 	/**
 	 * Time in milliseconds to poll. On each poll the poll() method is called

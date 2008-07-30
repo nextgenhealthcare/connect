@@ -1,10 +1,11 @@
 package com.webreach.mirth.connectors.file.filesystems;
 
 import java.io.IOException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool.PoolableObjectFactory;
-import org.mule.umo.endpoint.UMOEndpointURI;
+
 import com.webreach.mirth.connectors.file.FileConnector;
 
 /** A factory to create instances of FileSystemConnection based on the
@@ -52,6 +53,9 @@ public class FileSystemConnectionFactory implements PoolableObjectFactory {
 		else if (scheme.equals(FileConnector.SCHEME_SFTP)) {
 			return "sftp://" + username + ":" + password + "@" + host + ":" + port;
 		}
+		else if (scheme.equals(FileConnector.SCHEME_SMB)) {
+		    return "smb://" + username + ":" + password + "@" + host + ":" + port;
+		}
 		else {
 			logger.error("getPoolKey doesn't handle scheme " + scheme);
 			return "default";
@@ -68,6 +72,9 @@ public class FileSystemConnectionFactory implements PoolableObjectFactory {
 		}
 		else if (scheme.equals(FileConnector.SCHEME_SFTP)) {
 			return new SftpConnection(host, port, username, password);
+		}
+		else if (scheme.equals(FileConnector.SCHEME_SMB)) {
+		    return new SmbFileConnection(host, username, password);
 		}
 		else {
 			logger.error("makeObject doesn't handle scheme " + scheme);

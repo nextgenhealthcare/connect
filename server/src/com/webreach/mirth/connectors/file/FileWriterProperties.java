@@ -51,6 +51,7 @@ public class FileWriterProperties implements ComponentProperties
 	public static final String SCHEME_FILE = "file";
 	public static final String SCHEME_FTP = "ftp";
 	public static final String SCHEME_SFTP = "sftp";
+	public static final String SCHEME_SMB = "smb";
 
     public Properties getDefaults()
     {

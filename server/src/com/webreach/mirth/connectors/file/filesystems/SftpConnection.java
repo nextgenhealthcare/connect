@@ -3,7 +3,6 @@ package com.webreach.mirth.connectors.file.filesystems;
 import java.io.ByteArrayInputStream;
 import java.io.FilenameFilter;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -11,8 +10,6 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPFile;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
@@ -20,6 +17,7 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.UserInfo;
+import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
 
 public class SftpConnection implements FileSystemConnection {
 
@@ -120,9 +118,11 @@ public class SftpConnection implements FileSystemConnection {
 		}
 	}
 
-	public List<FileInfo> listFiles(String fromDir, FilenameFilter filenameFilter)
+	public List<FileInfo> listFiles(String fromDir, String filenamePattern)
 		throws Exception
 	{
+	    FilenameFilter filenameFilter = new FilenameWildcardFilter(filenamePattern);
+	    
 		client.cd(fixDir(fromDir));
 		Vector entries = client.ls(".");
 		List<FileInfo> files = new ArrayList<FileInfo>(entries.size());
