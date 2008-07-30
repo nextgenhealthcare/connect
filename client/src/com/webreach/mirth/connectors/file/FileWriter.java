@@ -59,6 +59,8 @@ public class FileWriter extends ConnectorClass
             properties.put(FileWriterProperties.FILE_SCHEME, FileWriterProperties.SCHEME_FTP);
         else if (((String) schemeComboBox.getSelectedItem()).equals("sftp"))
             properties.put(FileWriterProperties.FILE_SCHEME, FileWriterProperties.SCHEME_SFTP);
+        else if (((String) schemeComboBox.getSelectedItem()).equals("smb"))
+            properties.put(FileWriterProperties.FILE_SCHEME, FileWriterProperties.SCHEME_SMB);
         else {
            	// This "can't happen"
             logger.error("Unrecognized this.schemeComboBox value '" + schemeComboBox.getSelectedItem() + "', using 'file' instead");
@@ -185,6 +187,8 @@ public class FileWriter extends ConnectorClass
             schemeComboBox.setSelectedItem("ftp");
         else if (schemeValue.equals(FileWriterProperties.SCHEME_SFTP))
             schemeComboBox.setSelectedItem("sftp");
+        else if (schemeValue.equals(FileWriterProperties.SCHEME_SMB))
+            schemeComboBox.setSelectedItem("smb");
         else {
            	// This "can't happen"
             logger.error("Unrecognized props[\"scheme\"] value '" + schemeValue + "', using 'file' instead");
@@ -373,8 +377,8 @@ public class FileWriter extends ConnectorClass
 
         schemeLabel.setText("Method:");
 
-        schemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "file", "ftp", "sftp" }));
-        schemeComboBox.setToolTipText("The basic method used to access files to be read - file (local filesystem), FTP, or SFTP.");
+        schemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "file", "ftp", "sftp", "smb" }));
+        schemeComboBox.setToolTipText("The basic method used to access files to be read - file (local filesystem), FTP, SFTP, or Samba share.");
         schemeComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 schemeComboBoxActionPerformed(evt);
@@ -710,6 +714,12 @@ public class FileWriter extends ConnectorClass
             
             onSchemeChange(true, false, false, true);
             hostLabel.setText("sftp://");
+        }
+        // else if SFTP is selected
+        else if (text.equals("smb")) {
+            
+            onSchemeChange(true, false, false, true);
+            hostLabel.setText("smb://");
         }
     }//GEN-LAST:event_schemeComboBoxActionPerformed
 

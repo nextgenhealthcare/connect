@@ -25,15 +25,12 @@
 
 package com.webreach.mirth.connectors.file;
 
-import java.awt.Color;
 import java.util.Properties;
-import org.apache.log4j.Logger;
 
 import org.apache.log4j.Logger;
 
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
-import com.webreach.mirth.client.ui.components.MirthRadioButton;
 import com.webreach.mirth.connectors.ConnectorClass;
 
 /**
@@ -67,6 +64,8 @@ public class FileReader extends ConnectorClass
             properties.put(FileReaderProperties.FILE_SCHEME, FileReaderProperties.SCHEME_FTP);
         else if (((String) schemeComboBox.getSelectedItem()).equals("sftp"))
             properties.put(FileReaderProperties.FILE_SCHEME, FileReaderProperties.SCHEME_SFTP);
+        else if (((String) schemeComboBox.getSelectedItem()).equals("smb"))
+            properties.put(FileReaderProperties.FILE_SCHEME, FileReaderProperties.SCHEME_SMB);
         else {
            	// This "can't happen"
             logger.error("Unrecognized this.schemeComboBox value '" + schemeComboBox.getSelectedItem() + "', using 'file' instead");
@@ -226,6 +225,8 @@ public class FileReader extends ConnectorClass
             schemeComboBox.setSelectedItem("ftp");
         else if (schemeValue.equals(FileReaderProperties.SCHEME_SFTP))
             schemeComboBox.setSelectedItem("sftp");
+        else if (schemeValue.equals(FileReaderProperties.SCHEME_SMB))
+            schemeComboBox.setSelectedItem("smb");
         else {
            	// This "can't happen"
             logger.error("Unrecognized props[\"scheme\"] value '" + schemeValue + "', using 'file' instead");
@@ -512,8 +513,8 @@ public class FileReader extends ConnectorClass
 
         schemeLabel.setText("Method:");
 
-        schemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "file", "ftp", "sftp" }));
-        schemeComboBox.setToolTipText("The basic method used to access files to be read - file (local filesystem), FTP, or SFTP.");
+        schemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "file", "ftp", "sftp", "smb" }));
+        schemeComboBox.setToolTipText("The basic method used to access files to be read - file (local filesystem), FTP, SFTP, or Samba share.");
         schemeComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 schemeComboBoxActionPerformed(evt);
@@ -1080,6 +1081,12 @@ public class FileReader extends ConnectorClass
             
             onSchemeChange(true, false, false);
             hostLabel.setText("sftp://");
+        }
+        // else if SMB is selected
+        else if (text.equals("smb")) {
+            
+            onSchemeChange(true, false, false);
+            hostLabel.setText("smb://");
         }
     }//GEN-LAST:event_schemeComboBoxActionPerformed
 
