@@ -37,7 +37,6 @@ import javax.servlet.http.HttpServletResponse;
 import com.webreach.mirth.model.ServerConfiguration;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.ConfigurationController;
-import com.webreach.mirth.server.util.WebServiceReader;
 
 public class ConfigurationServlet extends MirthServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

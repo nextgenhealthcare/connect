@@ -461,6 +461,14 @@ public class MuleConfigurationBuilder {
 				nonConnectorProperties.add("host");
 				nonConnectorProperties.add("port");
 				nonConnectorProperties.add("DataType");
+				
+				// list of keys whose values are actually properties
+				// themselves, and should be turned into maps
+				ArrayList<String> keysOfValuesThatAreProperties = new ArrayList<String>();
+				keysOfValuesThatAreProperties.add("connectionFactoryProperties");
+				keysOfValuesThatAreProperties.add("requestVariables");
+				keysOfValuesThatAreProperties.add("headerVariables");
+				keysOfValuesThatAreProperties.add("envelopeProperties");
 
 				// only add non-null, non-empty, non-Mule properties to the list
 				// the getProperties method could not be used since this is a
@@ -471,10 +479,10 @@ public class MuleConfigurationBuilder {
 						textPropertyElement.setAttribute("name", "template");
 						textPropertyElement.setTextContent(property.getValue().toString());
 						propertiesElement.appendChild(textPropertyElement);
-					} else if (property.getKey().equals("connectionFactoryProperties") || property.getKey().equals("requestVariables") || property.getKey().equals("headerVariables")) {
+					} else if (keysOfValuesThatAreProperties.contains(property.getKey())) {
 						ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-						Properties connectionFactoryProperties = (Properties) serializer.fromXML(property.getValue().toString());
-						Element connectionFactoryPropertiesMapElement = getPropertiesMap(document, connectionFactoryProperties, null, property.getKey().toString());
+						Properties properties = (Properties) serializer.fromXML(property.getValue().toString());
+						Element connectionFactoryPropertiesMapElement = getPropertiesMap(document, properties, null, property.getKey().toString());
 						propertiesElement.appendChild(connectionFactoryPropertiesMapElement);
 					} else {
 						// script is a special property reserved for some
