@@ -213,18 +213,21 @@ public class AlertController {
 			Properties properties = ConfigurationController.getInstance().getServerProperties();
 			String fromAddress = PropertyLoader.getProperty(properties, "smtp.from");
 			String toAddressList = generateEmailList(emails);
-
-			TemplateEvaluator evaluator = new TemplateEvaluator();
-			Map<String, Object> context = new HashMap<String, Object>();
-			Channel filterChannel = new Channel();
-			filterChannel.setId(channelId);
-			Channel channel = ChannelController.getInstance().getChannel(filterChannel).get(0);
+			String body = errorMessage;
 			
-			context.put("channelName", channel.getName());
-			context.put("ERROR", errorMessage);
-			context.put("error", errorMessage);
-			context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
-			String body = evaluator.evaluate(template, context);
+			if (template != null) {
+	            TemplateEvaluator evaluator = new TemplateEvaluator();
+	            Map<String, Object> context = new HashMap<String, Object>();
+	            Channel filterChannel = new Channel();
+	            filterChannel.setId(channelId);
+	            Channel channel = ChannelController.getInstance().getChannel(filterChannel).get(0);
+	            
+	            context.put("channelName", channel.getName());
+	            context.put("ERROR", errorMessage);
+	            context.put("error", errorMessage);
+	            context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
+	            body = evaluator.evaluate(template, context);
+			}
 
 			SMTPConnection connection = SMTPConnectionFactory.createSMTPConnection();
 			connection.send(toAddressList, null, fromAddress, "Mirth Alert", body);
