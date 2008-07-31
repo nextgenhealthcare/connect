@@ -490,9 +490,9 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 		Connection con;
 		if (URL != null && driver != null) {
 			if (messageObject == null){
-				username = replacer.replaceValuesFromGlobal(username, true);
-				password = replacer.replaceValuesFromGlobal(password, true);
-				URL = replacer.replaceValuesFromGlobal(URL, true);
+				username = replacer.replaceValues(username);
+				password = replacer.replaceValues(password);
+				URL = replacer.replaceValues(URL);
 			}else{
 				if (username.indexOf('$') > -1)
 					username = replacer.replaceValues(username, messageObject);
@@ -500,8 +500,8 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 					password = replacer.replaceValues(password, messageObject);
 				URL = replacer.replaceValues(URL, messageObject);
 			}
-			username = replacer.replaceValuesFromGlobal(username, true);
-			password = replacer.replaceValuesFromGlobal(password, true);
+			username = replacer.replaceValues(username);
+			password = replacer.replaceValues(password);
 			
 			logger.debug("Retrieving new connection from data source: " + URL + " (" + driver + ")");
 			Class.forName(driver);
