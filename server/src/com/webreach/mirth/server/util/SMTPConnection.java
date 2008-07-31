@@ -37,61 +37,74 @@ import javax.mail.internet.MimeMessage;
 import org.apache.log4j.Logger;
 
 public class SMTPConnection {
-	private Logger logger = Logger.getLogger(this.getClass());
-	private String host;
-	private int port;
-	private String username;
-	private String password;
+    private Logger logger = Logger.getLogger(this.getClass());
+    private String host;
+    private int port;
+    private String username;
+    private String password;
 
-	public SMTPConnection(String host, int port, String username, String password) {
-		this.host = host;
-		this.port = port;
-		this.username = username;
-		this.password = password;
-	}
+    public SMTPConnection(String host, int port, String username, String password) {
+        this.host = host;
+        this.port = port;
+        this.username = username;
+        this.password = password;
+    }
 
-	public void send(String to, String cc, String from, String subject, String body) {
-		try {
-			Properties properties = System.getProperties();
+    public void send(String to, String cc, String from, String subject, String body) {
+        try {
+            Properties properties = System.getProperties();
 
-			// attaching to default Session, or we could start a new one --
-			properties.put("mail.smtp.host", host);
-			properties.put("mail.smtp.port", port);
+            // attaching to default Session, or we could start a new one --
+            properties.put("mail.smtp.host", host);
+            properties.put("mail.smtp.port", port);
+            
+            // ast: set auth explicity false/true to avoid authentication
+            // problems
+            if (username == null) {
+                properties.put("mail.smtp.auth", "false");
+            } else {
+                properties.put("mail.smtp.auth", "true");
+            }   
+            
+            Session session = Session.getInstance(properties, null);
+            session.setDebug(false);
+            
+            // create a new message
+            Message message = new MimeMessage(session);
 
-			Session session = Session.getInstance(properties);
+            // set the FROM and TO fields
+            if (from.length() > 0) {
+                message.setFrom(new InternetAddress(from));
+            } else {
+                // set a default from address if there was none specified
+                message.setFrom();
+            }
 
-			// create a new message
-			Message message = new MimeMessage(session);
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to, false));
 
-			// set the FROM and TO fields
-			if (from.length() > 0) {
-				message.setFrom(new InternetAddress(from));
-			} else {
-				// set a default from address if there was none specified
-				message.setFrom();
-			}
+            // include CC recipients
+            if (cc != null) {
+                message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(cc, false));
+            }
 
-			message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to, false));
+            // set the subject and body text
+            message.setSubject(subject);
+            message.setText(body);
 
-			// include CC recipients
-			if (cc != null) {
-				message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(cc, false));
-			}
+            // set some other header information
+            message.setSentDate(new Date());
 
-			// set the subject and body text
-			message.setSubject(subject);
-			message.setText(body);
-
-			// set some other header information
-			message.setSentDate(new Date());
-
-			// send the message
-			Transport transport = session.getTransport("smtp");
-			transport.connect(host, username, password);
-			transport.sendMessage(message, message.getAllRecipients());
-			transport.close();
-		} catch (Exception e) {
-			logger.warn("Could not send email message.", e);
-		}
-	}
+            // send the message
+            if (username != null) {
+                Transport transport = session.getTransport("smtp");
+                transport.connect(host, username, password);
+                transport.sendMessage(message, message.getAllRecipients());
+                transport.close();
+            } else {
+                Transport.send(message, message.getAllRecipients());
+            }
+        } catch (Exception e) {
+            logger.warn("Could not send email message.", e);
+        }
+    }
 }
