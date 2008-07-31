@@ -105,7 +105,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 				throw new IOException("Filename is null");
 			}
 
-			String path = generateFilename(event, uri.getPath(), messageObject);
+			String path = generateFilename(event, connector.getPathPart(uri), messageObject);
 			String template = replacer.replaceValues(connector.getTemplate(), messageObject);
 
 			// ast: change the output method to allow encoding election
