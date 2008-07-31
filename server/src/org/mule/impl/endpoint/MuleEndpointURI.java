@@ -125,10 +125,9 @@ public class MuleEndpointURI implements UMOEndpointURI
             endpointName = uri;
             uri = uriIdentifier;
         }
-        if (uri.indexOf('$') > -1){
-        	TemplateValueReplacer replacer = new TemplateValueReplacer();
-        	uri = replacer.replaceValuesFromGlobal(uri, false);
-        }
+        
+       	TemplateValueReplacer replacer = new TemplateValueReplacer();
+       	uri = replacer.replaceValues(uri);
         uri = uri.trim().replaceAll("%","%25").replaceAll(" ", "%20").replaceAll("\\$", "%24").replaceAll("\\{", "%7B").replaceAll("\\}", "%7D").replaceAll("\\(", "%28").replaceAll("\\)", "%29").replaceAll("#", "%23");
         
         if (!validateUrl(uri)) {

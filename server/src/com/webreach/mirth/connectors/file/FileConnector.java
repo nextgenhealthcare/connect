@@ -336,7 +336,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 
 	private String replace(String src, MessageObject messageObject) {
 		if (messageObject == null){
-			return replacer.replaceValuesFromGlobal(src, true);
+			return replacer.replaceValues(src);
 		}
 		else if (src.indexOf('$') > -1) {
 			return replacer.replaceValues(src, messageObject);

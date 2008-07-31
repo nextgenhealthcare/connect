@@ -58,12 +58,12 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 		String username = new String();
 		String password = new String();
 		if (connector.getUsername() != null){
-			username = replacer.replaceValuesFromGlobal(connector.getUsername(), true);
+			username = replacer.replaceValues(connector.getUsername());
 		}
 		if (connector.getPassword() != null){
-			password = replacer.replaceValuesFromGlobal(connector.getPassword(), true);
+			password = replacer.replaceValues(connector.getPassword());
 		}
-		URLName url = new URLName(connector.getProtocol(), replacer.replaceValuesFromGlobal(connector.getHostname(), true), Integer.parseInt(replacer.replaceValuesFromGlobal(connector.getSmtpPort(), true)), null, username, password);
+		URLName url = new URLName(connector.getProtocol(), replacer.replaceValues(connector.getHostname()), Integer.parseInt(replacer.replaceValues(connector.getSmtpPort())), null, username, password);
 		session = MailUtils.createMailSession(url, connector);
 		session.setDebug(logger.isDebugEnabled());
 	}

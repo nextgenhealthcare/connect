@@ -22,133 +22,131 @@ import com.webreach.mirth.server.util.GlobalVariableStore;
 import com.webreach.mirth.util.Entities;
 
 public class TemplateValueReplacer {
-	private static final String UTF_8 = "utf-8";
-	private Logger logger = Logger.getLogger(this.getClass());
-	private long count = 1;
-	private URLDecoder decoder = new URLDecoder();
-	protected synchronized long getCount() {
-		return count++;
-	}
+    private Logger logger = Logger.getLogger(this.getClass());
+    private long count = 1;
 
-	public String replaceValues(String template, MessageObject messageObject) {
-		return replaceValues(template, messageObject, new String());
-	}
-	public String replaceValues(String template, MessageObject messageObject, String originalFilename){
-		VelocityContext context = new VelocityContext();
-		loadContext(context, messageObject, originalFilename);
-		StringWriter writer = new StringWriter();
+    public TemplateValueReplacer() {
+        // disable the logging
+        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
+    }
 
-		try {
-			// disable the logging
-			Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
-			Velocity.init();
-			Velocity.evaluate(context, writer, "LOG", template);
-		} catch (Exception e) {
-			logger.warn("could not replace template values", e);
-		}
+    protected synchronized long getCount() {
+        return count++;
+    }
 
-		return writer.toString();
-	}
-	public String replaceValues(String template, Map values) {
-		VelocityContext context = new VelocityContext();
-		for (Iterator iter = values.entrySet().iterator(); iter.hasNext();) {
-			Entry element = (Entry)iter.next();
-			context.put(element.getKey().toString(), element.getValue());
-		}
-		StringWriter writer = new StringWriter();
+    public static boolean hasReplaceableValues(String str) {
+        return ((str != null) && (str.indexOf("$") > -1));
+    }
 
-		try {
-			Velocity.init();
-			Velocity.evaluate(context, writer, "LOG", template);
-		} catch (Exception e) {
-			logger.warn("could not replace template values", e);
-		}
-		return writer.toString();
-	}
-	public String replaceValues(String template, String originalFilename) {
-		return replaceValues(template, null, originalFilename);
-	}
-	public String replaceValuesFromGlobal(String template, boolean checkValidTemplate){
-		if (checkValidTemplate){
-			if (template == null || template.indexOf('$') == -1){
-				return template;
-			}
-		}
-		VelocityContext context = new VelocityContext();
-		Map<String, Object> globalVariables = GlobalVariableStore.getInstance().getVariables();
-		for (Iterator iter = globalVariables.entrySet().iterator(); iter.hasNext();) {
-			Entry element = (Entry)iter.next();
-			context.put(element.getKey().toString(), element.getValue());
-		}
-		StringWriter writer = new StringWriter();
-		try {
-			Velocity.init();
-			Velocity.evaluate(context, writer, "LOG", template);
-		} catch (Exception e) {
-			logger.warn("could not replace template values", e);
-		}
-		return writer.toString();	
+    public String replaceValues(String template, String originalFilename) {
+        return replaceValues(template, null, originalFilename);
+    }
 
-	}
-	public String replaceURLValues(String template, MessageObject messageObject){
-		String host = "";
-		if (template != null && template.length() > 0){
-			try {
-				host = decoder.decode(template, UTF_8);
-			} catch (UnsupportedEncodingException e) {
-				try {
-					host = decoder.decode(template, "default");
-				} catch (UnsupportedEncodingException e1) {
-					host = decoder.decode(template);
-				}
-			}
-			if (host.indexOf('$') > -1){
-				host = replaceValues(host, messageObject);
-			}
-		}
-		return host;
-	}
-	private void loadContext(VelocityContext context, MessageObject messageObject, String originalFilename) {
-		// message variables
-		if (messageObject != null) {
-			context.put("message", messageObject);
-			// load variables from local map
-			for (Iterator iter = messageObject.getConnectorMap().entrySet().iterator(); iter.hasNext();) {
-				Entry entry = (Entry) iter.next();
-				context.put(entry.getKey().toString(), entry.getValue());
-			}
-			// load variabls from the channelMap
-			Map channelMap = messageObject.getChannelMap();
-			Object[] channelKeys = {};
-			channelKeys = channelMap.keySet().toArray(channelKeys);
-			for (int i = 0; i < channelKeys.length; i++) {
-				context.put(channelKeys[i].toString(),channelMap.get(channelKeys[i]));
-			}
-            context.put("DICOMMESSAGE", DICOMUtil.getDICOMRawData(messageObject));   
-            context.put("MESSAGEATTACH", DICOMUtil.reAttachMessage(messageObject));
+    public String replaceValues(String template, Map map) {
+        if (hasReplaceableValues(template)) {
+            VelocityContext context = new VelocityContext();
+            loadContextFromMap(context, map);
+            return evaluate(context, template);
+        } else {
+            return template;
         }
-		Map<String, Object> globalVariables = GlobalVariableStore.getInstance().getVariables();
-		for (Iterator iter = globalVariables.entrySet().iterator(); iter.hasNext();) {
-			Entry element = (Entry)iter.next();
-			context.put(element.getKey().toString(), element.getValue());
-		}
-		
-		//we might have the originalfilename in the context
-		if (context.get("originalFilename") != null){
-			originalFilename = (String)context.get("originalFilename");
-		} else if (originalFilename == null || originalFilename.length() == 0) {
-			originalFilename = System.currentTimeMillis() + ".dat";
-		}
+    }
 
-		// system variables
-		// Calendar today = Calendar.getInstance();
-		context.put("date", new DateTool());
-		context.put("DATE", Utility.getTimeStamp("dd-MM-yy_HH-mm-ss.SS"));
-		context.put("FORMATTER", new VelocityFormatter(context));
-		context.put("COUNT", String.valueOf(getCount()));
-		context.put("UUID", (new UUID()).getUUID());
-		context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
-		context.put("ORIGINALNAME", originalFilename);
-		context.put("encoder", Entities.getInstance());
-	}
+    public String replaceValues(String template, MessageObject messageObject) {
+        return replaceValues(template, messageObject, new String());
+    }
+
+    public String replaceValues(String template, MessageObject messageObject, String originalFilename) {
+        if (hasReplaceableValues(template)) {
+            VelocityContext context = new VelocityContext();
+            loadContextFromMessageObject(context, messageObject, originalFilename);
+            return evaluate(context, template);
+        } else {
+            return template;
+        }
+    }
+
+    public String replaceValues(String template) {
+        if (hasReplaceableValues(template)) {
+            VelocityContext context = new VelocityContext();
+            loadContextFromMap(context, GlobalVariableStore.getInstance().getVariables());
+            return evaluate(context, template);
+        } else {
+            return template;
+        }
+    }
+
+    private String evaluate(VelocityContext context, String template) {
+        StringWriter writer = new StringWriter();
+
+        try {
+            Velocity.init();
+            Velocity.evaluate(context, writer, "LOG", template);
+        } catch (Exception e) {
+            logger.warn("Could not replace template values", e);
+        }
+
+        return writer.toString();
+    }
+
+    public String replaceURLValues(String url, MessageObject messageObject) {
+        URLDecoder decoder = new URLDecoder();
+        String host = new String();
+
+        if ((url != null) && (url.length() > 0)) {
+            try {
+                host = decoder.decode(url, "utf-8");
+            } catch (UnsupportedEncodingException e) {
+                try {
+                    host = decoder.decode(url, "default");
+                } catch (UnsupportedEncodingException e1) {
+                    host = decoder.decode(url);
+                }
+            }
+
+            if (hasReplaceableValues(host)) {
+                host = replaceValues(host, messageObject);
+            }
+        }
+
+        return host;
+    }
+
+    private void loadContextFromMap(VelocityContext context, Map map) {
+        for (Iterator iter = map.entrySet().iterator(); iter.hasNext();) {
+            Entry element = (Entry) iter.next();
+            context.put(element.getKey().toString(), element.getValue());
+        }
+    }
+
+    private void loadContextFromMessageObject(VelocityContext context, MessageObject messageObject, String originalFilename) {
+        // message variables
+        if (messageObject != null) {
+            context.put("message", messageObject);
+            context.put("DICOMMESSAGE", DICOMUtil.getDICOMRawData(messageObject));
+            context.put("MESSAGEATTACH", DICOMUtil.reAttachMessage(messageObject));
+            loadContextFromMap(context, messageObject.getConnectorMap());
+            loadContextFromMap(context, messageObject.getChannelMap());
+        }
+
+        // load global map variables
+        loadContextFromMap(context, GlobalVariableStore.getInstance().getVariables());
+
+        // we might have the originalfilename in the context
+        if (context.get("originalFilename") != null) {
+            originalFilename = (String) context.get("originalFilename");
+        } else if (originalFilename == null || originalFilename.length() == 0) {
+            originalFilename = System.currentTimeMillis() + ".dat";
+        }
+
+        // system variables
+        context.put("date", new DateTool());
+        context.put("DATE", Utility.getTimeStamp("dd-MM-yy_HH-mm-ss.SS"));
+        context.put("FORMATTER", new VelocityFormatter(context));
+        context.put("COUNT", String.valueOf(getCount()));
+        context.put("UUID", (new UUID()).getUUID());
+        context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
+        context.put("ORIGINALNAME", originalFilename);
+        context.put("encoder", Entities.getInstance());
+    }
 }

@@ -579,8 +579,7 @@ public class AxisConnector extends QueueEnabledConnector implements ModelEventLi
 	}
 
 	public void setServiceName(String serviceName) {
-		//Run replacer
-		this.serviceName = replacer.replaceValuesFromGlobal(serviceName, true);
+		this.serviceName = replacer.replaceValues(serviceName);
 	}
 
 	public List getParameterMapping() {
