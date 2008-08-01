@@ -35,7 +35,9 @@ public class User implements Serializable {
 	private Integer id;
 	private String username;
 	private String email;
-	private String fullName;
+	private String firstName;
+	private String lastName;
+	private String organization;
 	private String description;
 	private String phoneNumber;
 	private Calendar lastLogin;
@@ -64,12 +66,28 @@ public class User implements Serializable {
 		this.email = email;
 	}
 	
-	public String getFullName() {
-		return this.fullName;
+	public String getFirstName() {
+		return this.firstName;
 	}
 
-	public void setFullName(String fullName) {
-		this.fullName = fullName;
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+	
+	public String getLastName() {
+		return this.lastName;
+	}
+	
+	public void setOrganization(String organization) {
+		this.organization = organization;
+	}
+	
+	public String getOrganization() {
+		return this.organization;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
 	
 	public String getDescription() {
@@ -111,7 +129,9 @@ public class User implements Serializable {
 			EqualsUtil.areEqual(this.getId(), user.getId()) &&
 			EqualsUtil.areEqual(this.getUsername(), user.getUsername()) &&
 			EqualsUtil.areEqual(this.getEmail(), user.getEmail()) &&
-			EqualsUtil.areEqual(this.getFullName(), user.getFullName()) &&
+			EqualsUtil.areEqual(this.getFirstName(), user.getFirstName()) &&
+			EqualsUtil.areEqual(this.getLastName(), user.getLastName()) &&
+			EqualsUtil.areEqual(this.getOrganization(), user.getOrganization()) &&
 			EqualsUtil.areEqual(this.getDescription(), user.getDescription()) &&
 			EqualsUtil.areEqual(this.getLastLogin(), user.getLastLogin()) &&
 			EqualsUtil.areEqual(this.getPhoneNumber(), user.getPhoneNumber());
@@ -123,7 +143,9 @@ public class User implements Serializable {
 		builder.append("id=" + getId() + ", ");
 		builder.append("username=" + getUsername() + ", ");
 		builder.append("email=" + getEmail() + ", ");
-		builder.append("fullname=" + getFullName() + ", ");
+		builder.append("firstname=" + getFirstName() + ", ");
+		builder.append("lastname=" + getLastName() + ", ");
+		builder.append("organization=" + getOrganization() + ", ");
 		builder.append("description=" + getDescription() + ", ");
 		builder.append("lastLogin=" + getLastLogin() + ", ");
 		builder.append("phonenumber=" + getPhoneNumber());

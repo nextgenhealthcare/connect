@@ -422,13 +422,13 @@ public class Shell {
 		out.println("ID\tUser Name\tName\t\t\tEmail");
 		for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
 			User user = iter.next();
-			out.println(user.getId() + "\t" + user.getUsername() + "\t\t" + user.getFullName() + "\t\t" + user.getEmail());
+			out.println(user.getId() + "\t" + user.getUsername() + "\t\t" + user.getFirstName() + "\t\t" + user.getLastName() + "\t\t" + user.getOrganization() + "\t\t" + user.getEmail());
 		}
 	}
 
 	private void commandUserAdd(Token[] arguments) throws ClientException {
-		if (arguments.length < 6) {
-			error("invalid number of arguments. Syntax is user add username \"password\" \"name\" \"email\"");
+		if (arguments.length < 8) {
+			error("invalid number of arguments. Syntax is user add username \"password\" \"firstName\" \"lastName\" \"organization\" \"email\"");
 			return;
 		}
 		String username = arguments[2].getText();
@@ -438,11 +438,15 @@ public class Shell {
 		}
 		
 		String password = arguments[3].getText();
-		String name = arguments[4].getText();
-		String email = arguments[5].getText();
+		String firstName = arguments[4].getText();
+		String lastName = arguments[5].getText();
+		String organization = arguments[6].getText();
+		String email = arguments[7].getText();
 		User user = new User();
 		user.setUsername(username);
-		user.setFullName(name);
+		user.setFirstName(firstName);
+		user.setLastName(lastName);
+		user.setOrganization(organization);
 		user.setEmail(email);
 		
 		List<User> users = client.getUser(null);

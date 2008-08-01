@@ -42,7 +42,9 @@ import com.webreach.mirth.model.User;
 public class UserAddTask extends AbstractMirthTask {
 	protected String userid = "";
 	protected String pswd = "";
-	protected String name = "";
+	protected String firstName = "";
+	protected String lastName = "";
+	protected String organization = "";
 	protected String email = "";
 
 	/**
@@ -60,10 +62,24 @@ public class UserAddTask extends AbstractMirthTask {
 	}
 
 	/**
-	 * @param name
+	 * @param firstName
 	 */
-	public void setName(String name) {
-		this.name = name;
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+	
+	/**
+	 * @param lastName
+	 */
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+	
+	/**
+	 * @param organization
+	 */
+	public void setOrganization(String organization) {
+		this.organization = organization;
 	}
 
 	/**
@@ -97,7 +113,9 @@ public class UserAddTask extends AbstractMirthTask {
 		User newUser = new User();
 
 		newUser.setUsername(userid);
-		newUser.setFullName(name);
+		newUser.setFirstName(firstName);
+		newUser.setLastName(lastName);
+		newUser.setOrganization(organization);
 		newUser.setEmail(email);
 
 		List<User> users = client.getUser(null);

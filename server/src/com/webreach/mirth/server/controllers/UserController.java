@@ -150,7 +150,9 @@ public class UserController {
 		}
 		
 		parameterMap.put("username", user.getUsername());
-		parameterMap.put("fullName", user.getFullName());	
+		parameterMap.put("firstName", user.getFirstName());
+		parameterMap.put("lastName", user.getLastName());
+		parameterMap.put("organization", user.getOrganization());
 		parameterMap.put("email", user.getEmail());
 		parameterMap.put("phoneNumber", user.getPhoneNumber());
 		parameterMap.put("description", user.getDescription());

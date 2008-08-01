@@ -60,11 +60,11 @@ public class UserListTask extends AbstractMirthTask {
 	private void commandUserList() throws ClientException {
 		List<User> users = client.getUser(null);
 
-		System.out.println("ID\tUser\t\tName\t\t\tEmail");
+		System.out.println("ID\tUser\t\tFirst Name\t\tLast Name\t\tOrganization\t\t\tEmail");
 
 		for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
 			User user = iter.next();
-			System.out.println(user.getId() + "\t\t" + user.getUsername() + "\t\t" + user.getFullName() + "\t\t\t" + user.getEmail());
+			System.out.println(user.getId() + "\t\t" + user.getUsername() + "\t\t" + user.getFirstName() + "\t\t" + user.getLastName() + "\t\t" + user.getOrganization() + "\t\t\t" + user.getEmail());
 		}
 	}
 

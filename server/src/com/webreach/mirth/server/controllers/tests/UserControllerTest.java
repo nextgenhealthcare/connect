@@ -31,7 +31,8 @@ public class UserControllerTest extends TestCase {
 		for (int i = 0; i < 10; i++) {
 			User sampleUser = new User();
 			sampleUser.setUsername("user" + i);
-			sampleUser.setFullName("User " + i);
+			sampleUser.setFirstName("User " + i);
+			sampleUser.setLastName("User " + i);
 			sampleUser.setEmail("user" + i + "@email.com");
 			sampleUserList.add(sampleUser);
 		}

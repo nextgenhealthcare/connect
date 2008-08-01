@@ -8,7 +8,9 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<resultMap class="com.webreach.mirth.model.User" id="get-user-result">
 		<result property="id" column="ID" jdbcType="INTEGER" />
 		<result property="username" column="USERNAME" />
-		<result property="fullName" column="FULLNAME" />
+		<result property="firstName" column="FIRSTNAME" />
+		<result property="lastName" column="LASTNAME" />
+		<result property="organization" column="ORGANIZATION" />
 		<result property="email" column="EMAIL" />
 		<result property="phoneNumber" column="PHONENUMBER" />
 		<result property="lastLogin" column="LAST_LOGIN" />
@@ -22,7 +24,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	</resultMap>
 
 	<select id="getUser" parameterClass="com.webreach.mirth.model.User" resultMap="get-user-result">
-		SELECT ID, USERNAME, FULLNAME, EMAIL, PHONENUMBER, LAST_LOGIN, DESCRIPTION
+		SELECT ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL, PHONENUMBER, LAST_LOGIN, DESCRIPTION
 		FROM PERSON
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="id">
@@ -42,8 +44,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	
 	<insert id="insertUser" parameterClass="java.util.Map">
 		INSERT INTO
-		PERSON (ID, USERNAME, PASSWORD, SALT, FULLNAME, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN)
-		VALUES (PERSON_SEQUENCE.NEXTVAL, #username#, #password#, #salt#, #fullName:VARCHAR#, #email:VARCHAR#, #phoneNumber:VARCHAR#, #description:VARCHAR#, 0)
+		PERSON (ID, USERNAME, PASSWORD, SALT, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL, PHONENUMBER, DESCRIPTION, LOGGED_IN)
+		VALUES (PERSON_SEQUENCE.NEXTVAL, #username#, #password#, #salt#, #firstName:VARCHAR#, #lastName:VARCHAR#, #organization:VARCHAR#, #email:VARCHAR#, #phoneNumber:VARCHAR#, #description:VARCHAR#, 0)
 	</insert>
 	
 	<update id="updateUser" parameterClass="java.util.Map">
@@ -51,7 +53,9 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		SET USERNAME = #username#,
 			PASSWORD = #password#,
 			SALT = #salt#,
-			FULLNAME = #fullName:VARCHAR#,
+			FIRSTNAME = #firstName:VARCHAR#,
+			LASTNAME = #lastName:VARCHAR#,
+			ORGANIZATION = #organization:VARCHAR#,
 			EMAIL = #email:VARCHAR#,
 			PHONENUMBER = #phoneNumber:VARCHAR#,
 			DESCRIPTION = #description:VARCHAR#
