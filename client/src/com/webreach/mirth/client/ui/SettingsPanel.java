@@ -122,9 +122,9 @@ public class SettingsPanel extends javax.swing.JPanel
         checkForUpdatesLabel = new javax.swing.JLabel();
         checkForUpdatesYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         checkForUpdatesNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        sendServerIdentLabel = new javax.swing.JLabel();
-        sendServerIdentYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        sendServerIdentNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        sendServerInfoLabel = new javax.swing.JLabel();
+        sendServerInfoYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        sendServerInfoNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         clientSettings = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
@@ -135,7 +135,6 @@ public class SettingsPanel extends javax.swing.JPanel
         jLabel3 = new javax.swing.JLabel();
         asteriskLabel = new javax.swing.JLabel();
         asteriskLabel1 = new javax.swing.JLabel();
-        serverIdentPanel = new com.webreach.mirth.client.ui.ServerIdentPanel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -342,28 +341,28 @@ public class SettingsPanel extends javax.swing.JPanel
             }
         });
 
-        sendServerIdentLabel.setText("Send server idenfication on update:");
+        sendServerInfoLabel.setText("Send server information on update:");
 
-        sendServerIdentYes.setBackground(new java.awt.Color(255, 255, 255));
-        sendServerIdentYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup5.add(sendServerIdentYes);
-        sendServerIdentYes.setSelected(true);
-        sendServerIdentYes.setText("Yes");
-        sendServerIdentYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        sendServerIdentYes.addActionListener(new java.awt.event.ActionListener() {
+        sendServerInfoYes.setBackground(new java.awt.Color(255, 255, 255));
+        sendServerInfoYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup5.add(sendServerInfoYes);
+        sendServerInfoYes.setSelected(true);
+        sendServerInfoYes.setText("Yes");
+        sendServerInfoYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        sendServerInfoYes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                sendServerIdentYesActionPerformed(evt);
+                sendServerInfoYesActionPerformed(evt);
             }
         });
 
-        sendServerIdentNo.setBackground(new java.awt.Color(255, 255, 255));
-        sendServerIdentNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup5.add(sendServerIdentNo);
-        sendServerIdentNo.setText("No");
-        sendServerIdentNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        sendServerIdentNo.addActionListener(new java.awt.event.ActionListener() {
+        sendServerInfoNo.setBackground(new java.awt.Color(255, 255, 255));
+        sendServerInfoNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup5.add(sendServerInfoNo);
+        sendServerInfoNo.setText("No");
+        sendServerInfoNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        sendServerInfoNo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                sendServerIdentNoActionPerformed(evt);
+                sendServerInfoNoActionPerformed(evt);
             }
         });
 
@@ -376,7 +375,7 @@ public class SettingsPanel extends javax.swing.JPanel
                 .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, checkForUpdatesLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, sendServerIdentLabel))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, sendServerInfoLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(serverSettingsLayout.createSequentialGroup()
@@ -388,10 +387,10 @@ public class SettingsPanel extends javax.swing.JPanel
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(checkForUpdatesNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(serverSettingsLayout.createSequentialGroup()
-                        .add(sendServerIdentYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(sendServerInfoYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(sendServerIdentNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(50, Short.MAX_VALUE))
+                        .add(sendServerInfoNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(51, Short.MAX_VALUE))
         );
         serverSettingsLayout.setVerticalGroup(
             serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -407,9 +406,9 @@ public class SettingsPanel extends javax.swing.JPanel
                     .add(checkForUpdatesNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(sendServerIdentLabel)
-                    .add(sendServerIdentYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(sendServerIdentNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(sendServerInfoLabel)
+                    .add(sendServerInfoYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(sendServerInfoNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -493,12 +492,11 @@ public class SettingsPanel extends javax.swing.JPanel
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, clientSettings, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, serverSettings, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, serverIdentPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, backupPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(clientSettings, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(serverSettings, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(backupPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -510,8 +508,6 @@ public class SettingsPanel extends javax.swing.JPanel
                 .add(serverSettings, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(serverIdentPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(backupPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -662,13 +658,13 @@ private void checkForUpdatesNoActionPerformed(java.awt.event.ActionEvent evt) {/
 // TODO add your handling code here:
 }//GEN-LAST:event_checkForUpdatesNoActionPerformed
 
-private void sendServerIdentYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendServerIdentYesActionPerformed
+private void sendServerInfoYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendServerInfoYesActionPerformed
 // TODO add your handling code here:
-}//GEN-LAST:event_sendServerIdentYesActionPerformed
+}//GEN-LAST:event_sendServerInfoYesActionPerformed
 
-private void sendServerIdentNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendServerIdentNoActionPerformed
+private void sendServerInfoNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendServerInfoNoActionPerformed
 // TODO add your handling code here:
-}//GEN-LAST:event_sendServerIdentNoActionPerformed
+}//GEN-LAST:event_sendServerInfoNoActionPerformed
 
     private void requireAuthenticationNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_requireAuthenticationNoActionPerformed
     {// GEN-HEADEREND:event_requireAuthenticationNoActionPerformed
@@ -760,15 +756,15 @@ private void sendServerIdentNoActionPerformed(java.awt.event.ActionEvent evt) {/
             else
             	checkForUpdatesYes.setSelected(true);
             
-            if(serverProperties.getProperty("sendServerIdent") != null)
+            if(serverProperties.getProperty("sendServerInfo") != null)
             {
-                if(serverProperties.getProperty("sendServerIdent").equals(UIConstants.YES_OPTION))
-                    sendServerIdentYes.setSelected(true);
+                if(serverProperties.getProperty("sendServerInfo").equals(UIConstants.YES_OPTION))
+                    sendServerInfoYes.setSelected(true);
                 else
-                	sendServerIdentNo.setSelected(true);
+                	sendServerInfoNo.setSelected(true);
             }
             else
-            	sendServerIdentYes.setSelected(true);
+            	sendServerInfoYes.setSelected(true);
 
             if (serverProperties.getProperty("smtp.username") != null)
                 smtpUsername.setText((String) serverProperties.getProperty("smtp.username"));
@@ -779,8 +775,6 @@ private void sendServerIdentNoActionPerformed(java.awt.event.ActionEvent evt) {/
                 smtpPassword.setText((String) serverProperties.getProperty("smtp.password"));
             else
                 smtpPassword.setText("");
-            
-            serverIdentPanel.loadSettings(serverProperties);
             
             lastBackup.setText(userPreferences.get("lastBackup", "None"));
         }
@@ -803,13 +797,7 @@ private void sendServerIdentNoActionPerformed(java.awt.event.ActionEvent evt) {/
             parent.alertWarning(this, "Please enter a valid message browser page size.");
             return;
         }
-        
-        String serverIdentValidationMessage = serverIdentPanel.validateServerIdentSettings();
-        if (serverIdentValidationMessage != null) {
-        	parent.alertWarning(this, serverIdentValidationMessage);
-        	return;
-        }
-        
+
         int interval = Integer.parseInt(intervalTime.getText());
         int messageBrowserPageSize = Integer.parseInt(messageBrowserPageSizeField.getText());
         
@@ -833,7 +821,7 @@ private void sendServerIdentNoActionPerformed(java.awt.event.ActionEvent evt) {/
             else
                 serverProperties.put("checkForUpdates", UIConstants.YES_OPTION);
             
-            if(sendServerIdentNo.isSelected())
+            if(sendServerInfoNo.isSelected())
                 serverProperties.put("sendServerIdent", UIConstants.NO_OPTION);
             else
                 serverProperties.put("sendServerIdent", UIConstants.YES_OPTION);
@@ -855,8 +843,6 @@ private void sendServerIdentNoActionPerformed(java.awt.event.ActionEvent evt) {/
                 serverProperties.put("smtp.password", "");
             }
             
-            serverIdentPanel.saveSettings(serverProperties);
-
             try
             {
                 parent.mirthClient.setServerProperties(serverProperties);
@@ -905,10 +891,9 @@ private void sendServerIdentNoActionPerformed(java.awt.event.ActionEvent evt) {/
     private javax.swing.JButton restoreButton;
     private com.webreach.mirth.client.ui.components.MirthRadioButton rowHighlightNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton rowHighlightYes;
-    private javax.swing.JLabel sendServerIdentLabel;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton sendServerIdentNo;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton sendServerIdentYes;
-    private com.webreach.mirth.client.ui.ServerIdentPanel serverIdentPanel;
+    private javax.swing.JLabel sendServerInfoLabel;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton sendServerInfoNo;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton sendServerInfoYes;
     private javax.swing.JPanel serverSettings;
     private com.webreach.mirth.client.ui.components.MirthTextField smtpHost;
     private com.webreach.mirth.client.ui.components.MirthPasswordField smtpPassword;

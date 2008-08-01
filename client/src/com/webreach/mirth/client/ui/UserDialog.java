@@ -22,61 +22,65 @@
  *   Gerald Bortis <geraldb@webreachinc.com>
  *
  * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.Properties;
+import com.webreach.mirth.model.User;
 
-import com.webreach.mirth.client.core.ClientException;
+/**
+ * A dialog for creating a new user or editing a current user
+ */
+public class UserDialog extends javax.swing.JDialog implements UserDialogInterface {
 
-public class ServerIdentDialog extends javax.swing.JDialog
-{
     private Frame parent;
+    private boolean editingLoggedInUser;
 
-    /** Creates new form ServerIdentDialog */
-    public ServerIdentDialog()
-    {
+    /** Creates new form UserDialog */
+    public UserDialog(User currentUser) {
         super(PlatformUI.MIRTH_FRAME);
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
-        
-		try {
-			Properties serverProperties = parent.mirthClient.getServerProperties();
-			serverIdentPanel.loadSettings(serverProperties);
-		} catch (ClientException e) {
-			parent.alertException(this, e.getStackTrace(), e.getMessage());
-		}
-		
-		// Don't display the dialog if the ident settings are already valid.
-		if (serverIdentPanel.validateServerIdentSettings() == null) {
-			this.dispose();
-			return;
-		}
-		
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        this.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                finishButtonActionPerformed(null);
+        finishButton.setEnabled(false);
+
+        if (currentUser != null) {
+            if (currentUser.getUsername().equals(PlatformUI.USER_NAME)) {
+            	editingLoggedInUser = true;
+            } else {
+            	editingLoggedInUser = false;
             }
-        });
+        	
+            jLabel2.setText("Edit User");            
+        } else {
+        	currentUser = new User();
+            jLabel2.setText("New User");
+        }
         
+        userEditPanel.setUser(this, currentUser);
+
+        jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         setModal(true);
         pack();
         Dimension dlgSize = getPreferredSize();
         Dimension frmSize = parent.getSize();
         Point loc = parent.getLocation();
-        
+
         if ((frmSize.width == 0 && frmSize.height == 0) || (loc.x == 0 && loc.y == 0)) {
-        	setLocationRelativeTo(null);
+            setLocationRelativeTo(null);
         } else {
-	        setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+            setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         }
-        
+
         setVisible(true);
+        this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+    }
+
+    public void setFinishButtonEnabled(boolean enabled) {
+        finishButton.setEnabled(enabled);
+    }
+
+    public void triggerFinishButton() {
+        finishButtonActionPerformed(null);
     }
 
     /**
@@ -88,19 +92,20 @@ public class ServerIdentDialog extends javax.swing.JDialog
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
+        channelOverview = new javax.swing.JPanel();
         finishButton = new javax.swing.JButton();
+        cancelButton = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
         mirthHeadingPanel1 = new com.webreach.mirth.client.ui.MirthHeadingPanel();
         jLabel2 = new javax.swing.JLabel();
-        serverIdentPanel = new com.webreach.mirth.client.ui.ServerIdentPanel();
+        userEditPanel = new com.webreach.mirth.client.ui.UserEditPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Server Identification");
+        setTitle("User");
         setResizable(false);
 
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel1.setName(""); // NOI18N
+        channelOverview.setBackground(new java.awt.Color(255, 255, 255));
+        channelOverview.setName(""); // NOI18N
 
         finishButton.setText("Finish");
         finishButton.addActionListener(new java.awt.event.ActionListener() {
@@ -109,9 +114,16 @@ public class ServerIdentDialog extends javax.swing.JDialog
             }
         });
 
+        cancelButton.setText("Cancel");
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelButtonActionPerformed(evt);
+            }
+        });
+
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18));
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("Server Identification");
+        jLabel2.setText("User");
 
         org.jdesktop.layout.GroupLayout mirthHeadingPanel1Layout = new org.jdesktop.layout.GroupLayout(mirthHeadingPanel1);
         mirthHeadingPanel1.setLayout(mirthHeadingPanel1Layout);
@@ -119,8 +131,8 @@ public class ServerIdentDialog extends javax.swing.JDialog
             mirthHeadingPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(mirthHeadingPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jLabel2)
-                .addContainerGap(182, Short.MAX_VALUE))
+                .add(jLabel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 135, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(234, Short.MAX_VALUE))
         );
         mirthHeadingPanel1Layout.setVerticalGroup(
             mirthHeadingPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -130,36 +142,41 @@ public class ServerIdentDialog extends javax.swing.JDialog
                 .addContainerGap())
         );
 
-        serverIdentPanel.setBorder(null);
-
-        org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(311, Short.MAX_VALUE)
+        org.jdesktop.layout.GroupLayout channelOverviewLayout = new org.jdesktop.layout.GroupLayout(channelOverview);
+        channelOverview.setLayout(channelOverviewLayout);
+        channelOverviewLayout.setHorizontalGroup(
+            channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(channelOverviewLayout.createSequentialGroup()
+                .addContainerGap(234, Short.MAX_VALUE)
+                .add(cancelButton)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(finishButton)
                 .add(9, 9, 9))
-            .add(mirthHeadingPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 379, Short.MAX_VALUE)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
+            .add(mirthHeadingPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 379, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, channelOverviewLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 359, Short.MAX_VALUE)
                 .addContainerGap())
-            .add(jPanel1Layout.createSequentialGroup()
+            .add(channelOverviewLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(serverIdentPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(61, Short.MAX_VALUE))
+                .add(userEditPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(37, Short.MAX_VALUE))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
+
+        channelOverviewLayout.linkSize(new java.awt.Component[] {cancelButton, finishButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
+        channelOverviewLayout.setVerticalGroup(
+            channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, channelOverviewLayout.createSequentialGroup()
                 .add(mirthHeadingPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 51, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(serverIdentPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(userEditPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(finishButton)
+                .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(cancelButton)
+                    .add(finishButton))
                 .addContainerGap())
         );
 
@@ -167,45 +184,46 @@ public class ServerIdentDialog extends javax.swing.JDialog
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .add(channelOverview, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 373, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .add(channelOverview, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-    
+
     /**
      * An action for when the finish button is pressed. Checks and saves all of
      * the information.
      */
 private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_finishButtonActionPerformed
-    	String serverIdentValidationMessage = serverIdentPanel.validateServerIdentSettings();
-    	if (serverIdentValidationMessage != null) {
-    		parent.alertWarning(this, serverIdentValidationMessage);
-    		return;
-    	}
-    	
-    	try {
-    		Properties serverProperties = parent.mirthClient.getServerProperties();
-    		serverIdentPanel.saveSettings(serverProperties);
-    		parent.mirthClient.setServerProperties(serverProperties);
-    	} catch (ClientException e) {
-    		parent.alertException(this, e.getStackTrace(), e.getMessage());
-    	}
-    	
-    	this.dispose();
+	finishButton.requestFocus();
+	String validateUserMessage = userEditPanel.validateUser();
+    if (validateUserMessage != null) {
+        parent.alertWarning(this, validateUserMessage);
+    } else {
+        User user = userEditPanel.getUser();
+        if (editingLoggedInUser) {
+        	parent.updateAndSwitchUser(this, user, user.getUsername(), userEditPanel.getPassword());
+        } else {
+        	parent.updateUser(this, user, userEditPanel.getPassword());
+        }
+        this.dispose();
+    }
 }//GEN-LAST:event_finishButtonActionPerformed
 
+private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+    this.dispose();
+}//GEN-LAST:event_cancelButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton cancelButton;
+    private javax.swing.JPanel channelOverview;
     private javax.swing.JButton finishButton;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JSeparator jSeparator1;
     private com.webreach.mirth.client.ui.MirthHeadingPanel mirthHeadingPanel1;
-    private com.webreach.mirth.client.ui.ServerIdentPanel serverIdentPanel;
+    private com.webreach.mirth.client.ui.UserEditPanel userEditPanel;
     // End of variables declaration//GEN-END:variables
-
 }

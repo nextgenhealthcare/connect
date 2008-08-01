@@ -29,7 +29,9 @@ public class UserPanel extends javax.swing.JPanel
 {
     private final String USER_EMAIL_COLUMN_NAME = "Email";
     private final String USERNAME_COLUMN_NAME = "Username";
-    private final String USERFULLNAME_COLUMN_NAME = "Full Name";
+    private final String USERFIRSTNAME_COLUMN_NAME = "First Name";
+    private final String USERLASTNAME_COLUMN_NAME = "Last Name";
+    private final String USERORGANIZATION_COLUMN_NAME = "Organization";
     private final String USERPHONENUMBER_COLUMN_NAME = "Phone Number";
     private final String USERDESCRIPTION_COLUMN_NAME = "Description";
     private final String USERLASTLOGIN_COLUMN_NAME = "Last Login";
@@ -77,7 +79,11 @@ public class UserPanel extends javax.swing.JPanel
         usersTable.getColumnExt(USER_EMAIL_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
 
         usersTable.getColumnExt(USERNAME_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
-        usersTable.getColumnExt(USERFULLNAME_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        usersTable.getColumnExt(USERFIRSTNAME_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        usersTable.getColumnExt(USERLASTNAME_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        usersTable.getColumnExt(USERORGANIZATION_COLUMN_NAME).setMinWidth(125);
+        usersTable.getColumnExt(USERORGANIZATION_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        usersTable.getColumnExt(USER_EMAIL_COLUMN_NAME).setMinWidth(150);
         usersTable.getColumnExt(USER_EMAIL_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         usersTable.getColumnExt(USERPHONENUMBER_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         usersTable.getColumnExt(USERLASTLOGIN_COLUMN_NAME).setMinWidth(125);
@@ -127,18 +133,20 @@ public class UserPanel extends javax.swing.JPanel
 
         if (parent.users != null)
         {
-            tableData = new Object[parent.users.size()][6];
+            tableData = new Object[parent.users.size()][8];
 
             for (int i = 0; i < parent.users.size(); i++)
             {
                 User temp = parent.users.get(i);
 
                 tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user.png")), temp.getUsername());
-                tableData[i][1] = temp.getFullName();
-                tableData[i][2] = temp.getEmail();
-                tableData[i][3] = temp.getPhoneNumber();
-                tableData[i][4] = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(temp.getLastLogin().getTime());
-                tableData[i][5] = temp.getDescription();
+                tableData[i][1] = temp.getFirstName();
+                tableData[i][2] = temp.getLastName();
+                tableData[i][3] = temp.getOrganization();
+                tableData[i][4] = temp.getEmail();
+                tableData[i][5] = temp.getPhoneNumber();
+                tableData[i][6] = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(temp.getLastLogin().getTime());
+                tableData[i][7] = temp.getDescription();
             }
         }
 
@@ -151,9 +159,9 @@ public class UserPanel extends javax.swing.JPanel
         else
         {
             usersTable = new MirthTable();
-            usersTable.setModel(new RefreshTableModel(tableData, new String[] { USERNAME_COLUMN_NAME, USERFULLNAME_COLUMN_NAME, USER_EMAIL_COLUMN_NAME, USERPHONENUMBER_COLUMN_NAME, USERLASTLOGIN_COLUMN_NAME, USERDESCRIPTION_COLUMN_NAME })
+            usersTable.setModel(new RefreshTableModel(tableData, new String[] { USERNAME_COLUMN_NAME, USERFIRSTNAME_COLUMN_NAME, USERLASTNAME_COLUMN_NAME, USERORGANIZATION_COLUMN_NAME, USER_EMAIL_COLUMN_NAME, USERPHONENUMBER_COLUMN_NAME, USERLASTLOGIN_COLUMN_NAME, USERDESCRIPTION_COLUMN_NAME })
             {
-                boolean[] canEdit = new boolean[] { false, false, false, false, false, false };
+                boolean[] canEdit = new boolean[] { false, false, false, false, false, false, false, false };
 
                 public boolean isCellEditable(int rowIndex, int columnIndex)
                 {

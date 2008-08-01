@@ -1242,12 +1242,52 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                userPanel.updateUserTable();
-                setWorking("", false);
+            	userPanel.updateUserTable();
+            	setWorking("", false);
             }
         };
 
         worker.execute();
+    }
+    
+    public void updateAndSwitchUser(Component parentComponent, final User curr, String newUsername, String newPassword)
+    {
+    	setWorking("Saving user...", true);
+    	
+    	try
+    	{
+            mirthClient.updateUser(curr, newPassword);
+            users = mirthClient.getUser(null);
+        }
+    	catch (ClientException e)
+    	{
+            alertException(parentComponent, e.getStackTrace(), e.getMessage());
+        }
+    	finally
+    	{
+        	// The userPanel will be null if the user panel has not been viewed (i.e. registration).
+        	if (userPanel != null)
+        		userPanel.updateUserTable();
+        	
+            setWorking("", false);
+        }
+    	
+    	setWorking("Switching User...", true);
+    	
+    	try
+    	{
+    		mirthClient.logout();
+    		mirthClient.login(newUsername, newPassword, PlatformUI.CLIENT_VERSION);
+    		PlatformUI.USER_NAME = newUsername;
+    	}
+    	catch (ClientException e)
+    	{
+    		alertException(parentComponent, e.getStackTrace(), e.getMessage());
+    	}
+    	finally
+    	{
+    		setWorking("", false);
+    	}
     }
 
     /**
@@ -2392,7 +2432,7 @@ public class Frame extends JXFrame
 
     public void doNewUser()
     {
-        new UserWizard(null);
+        new UserDialog(null);
     }
 
     public void doEditUser()
@@ -2403,7 +2443,7 @@ public class Frame extends JXFrame
             alertWarning(this, "User no longer exists.");
         else
         {
-            new UserWizard(users.get(index));
+            new UserDialog(users.get(index));
         }
     }
 

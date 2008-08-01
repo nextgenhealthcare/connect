@@ -34,16 +34,12 @@ import org.jdesktop.swingx.util.SwingWorker;
 import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.core.VersionMismatchException;
-import com.webreach.mirth.model.Channel;
 
 /** Creates the new channel wizard dialog */
 public class LoginPanel extends javax.swing.JFrame
 {
-    private Frame parent;
-    private Channel channel;
     private Client client;
 
-    /** Creates new form WizardDialog */
     public LoginPanel(String mirthServer, String version, String user, String pass)
     {
         PlatformUI.CLIENT_VERSION = version;

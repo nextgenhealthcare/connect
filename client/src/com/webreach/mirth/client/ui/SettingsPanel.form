@@ -37,16 +37,15 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
+          <Group type="102" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="clientSettings" alignment="0" max="32767" attributes="2"/>
                   <Component id="serverSettings" alignment="0" max="32767" attributes="2"/>
                   <Component id="jPanel1" alignment="0" max="32767" attributes="2"/>
-                  <Component id="serverIdentPanel" alignment="0" max="32767" attributes="2"/>
                   <Component id="backupPanel" alignment="0" max="32767" attributes="2"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -59,8 +58,6 @@
               <Component id="serverSettings" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="serverIdentPanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="backupPanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
@@ -359,7 +356,7 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="checkForUpdatesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                       <Component id="jLabel2" alignment="1" min="-2" max="-2" attributes="0"/>
-                      <Component id="sendServerIdentLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="sendServerInfoLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
@@ -374,12 +371,12 @@
                           <Component id="checkForUpdatesNo" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="sendServerIdentYes" min="-2" max="-2" attributes="0"/>
+                          <Component id="sendServerInfoYes" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="sendServerIdentNo" min="-2" max="-2" attributes="0"/>
+                          <Component id="sendServerInfoNo" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace pref="50" max="32767" attributes="0"/>
+                  <EmptySpace pref="51" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -399,9 +396,9 @@
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="sendServerIdentLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="sendServerIdentYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="sendServerIdentNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="sendServerInfoLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="sendServerInfoYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="sendServerInfoNo" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
@@ -509,12 +506,12 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkForUpdatesNoActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JLabel" name="sendServerIdentLabel">
+        <Component class="javax.swing.JLabel" name="sendServerInfoLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Send server idenfication on update:"/>
+            <Property name="text" type="java.lang.String" value="Send server information on update:"/>
           </Properties>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="sendServerIdentYes">
+        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="sendServerInfoYes">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -534,10 +531,10 @@
             </Property>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sendServerIdentYesActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sendServerInfoYesActionPerformed"/>
           </Events>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="sendServerIdentNo">
+        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="sendServerInfoNo">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -556,7 +553,7 @@
             </Property>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sendServerIdentNoActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sendServerInfoNoActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>
@@ -714,7 +711,5 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="com.webreach.mirth.client.ui.ServerIdentPanel" name="serverIdentPanel">
-    </Component>
   </SubComponents>
 </Form>

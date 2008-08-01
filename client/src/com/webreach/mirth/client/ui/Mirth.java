@@ -27,6 +27,8 @@ package com.webreach.mirth.client.ui;
 
 import java.awt.Color;
 import java.io.IOException;
+import java.util.List;
+import java.util.Properties;
 import java.util.prefs.Preferences;
 
 import javax.imageio.ImageIO;
@@ -42,6 +44,8 @@ import org.jdesktop.swingx.plaf.windows.WindowsLookAndFeelAddons;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
 import com.webreach.mirth.client.core.Client;
+import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.model.User;
 
 /**
  * The main mirth class. Sets up the login and then authenticates the login
@@ -49,7 +53,6 @@ import com.webreach.mirth.client.core.Client;
  */
 public class Mirth
 {
-    public Client client;
     private static Preferences userPreferences;
     private static LoginPanel login;
 
@@ -88,8 +91,24 @@ public class Mirth
 
         PlatformUI.MIRTH_FRAME.setVisible(true);
         
-        new ServerIdentDialog();
-        
+        try {
+			Properties serverProperties = m.getServerProperties();
+			String registered = serverProperties.getProperty("registered");
+			if (registered == null || registered.equals(UIConstants.NO_OPTION)) {
+				
+				PlatformUI.MIRTH_FRAME.users = m.getUser(null);
+				User currentUser = null;
+				for (User user : PlatformUI.MIRTH_FRAME.users) {
+					if (user.getUsername().equals(PlatformUI.USER_NAME)) {
+						currentUser = user;
+					}
+				}
+				
+				new FirstUserDialog(currentUser);
+			}
+		} catch (ClientException e) {
+			PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+		}        
     }
 
     /**
