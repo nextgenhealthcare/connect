@@ -790,13 +790,13 @@ public class Frame extends JXFrame
         addTask("doRefreshMessages", "Refresh", "Refresh the list of messages with the given filter.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), messageTasks, messagePopupMenu);
         addTask("doSendMessage", "Send Message", "Send a message to the channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_go.png")), messageTasks, messagePopupMenu);
         addTask("doImportMessages", "Import Messages", "Import messages from a file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")), messageTasks, messagePopupMenu);
-        addTask("doExportMessages", "Export Filtered Messages", "Export all currently viewed messages.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), messageTasks, messagePopupMenu);
-        addTask("doRemoveAllMessages", "Remove All Messages", "Remove all Message Events in this channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_delete.png")), messageTasks, messagePopupMenu);
-        addTask("doRemoveFilteredMessages", "Remove Filtered Messages", "Remove all Message Events in the current filter.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_delete.png")), messageTasks, messagePopupMenu);
+        addTask("doExportMessages", "Export Search Results", "Export all messages in the current search.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), messageTasks, messagePopupMenu);
+        addTask("doRemoveAllMessages", "Remove All Messages", "Remove all messages in this channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_delete.png")), messageTasks, messagePopupMenu);
+        addTask("doRemoveFilteredMessages", "Remove Search Results", "Remove all messages in the current search.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_delete.png")), messageTasks, messagePopupMenu);
         addTask("doRemoveMessage", "Remove Message", "Remove the selected Message.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), messageTasks, messagePopupMenu);
-        addTask("doReprocessFilteredMessages", "Reprocess Filtered Messages", "Reprocess all Message Events in the current filter.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png")), messageTasks, messagePopupMenu);
-        addTask("doReprocessMessage", "Reprocess Message", "Reprocess the selected Message.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deploy.png")), messageTasks, messagePopupMenu);
-        addTask("viewImage", "View Attachment", "View Attachment", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/attach.png")), messageTasks, messagePopupMenu);
+        addTask("doReprocessFilteredMessages", "Reprocess Search Results", "Reprocess all messages in the current search.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png")), messageTasks, messagePopupMenu);
+        addTask("doReprocessMessage", "Reprocess Message", "Reprocess the selected message.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deploy.png")), messageTasks, messagePopupMenu);
+        addTask("viewImage", "View Attachment", "View Attachment", "View the attachment for the selected message.", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/attach.png")), messageTasks, messagePopupMenu);
 
         setNonFocusable(messageTasks);
         setVisibleTasks(messageTasks, messagePopupMenu, 6, -1, false);
