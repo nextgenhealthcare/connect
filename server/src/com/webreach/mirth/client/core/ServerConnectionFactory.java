@@ -23,11 +23,14 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.client.core;
 
 public class ServerConnectionFactory {
-	public static ServerConnection createServerConnection(String address) {
-		return new ServerConnection(address);
-	}
+    public static ServerConnection createServerConnection(String address) {
+        return new ServerConnection(address);
+    }
+
+    public static ServerConnection createServerConnection(String address, int timeout) {
+        return new ServerConnection(address, timeout);
+    }
 }

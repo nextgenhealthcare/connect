@@ -39,6 +39,7 @@ import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
+import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 
 import com.webreach.mirth.client.core.ssl.EasySSLProtocolSocketFactory;
@@ -48,10 +49,20 @@ public class ServerConnection {
 	private String address;
 
 	public ServerConnection(String address) {
-		this.address = address;
-		client = new HttpClient();
-		Protocol mirthHttps = new Protocol("https", new EasySSLProtocolSocketFactory(), 8443);
-		Protocol.registerProtocol("https", mirthHttps);
+	    this(address, -1);
+	}
+	
+	public ServerConnection(String address, int timeout) {
+        this.address = address;
+        HttpClientParams params = new HttpClientParams();
+
+        if (timeout > -1) {
+            params.setSoTimeout(timeout);
+        }
+        
+        client = new HttpClient(params);
+        Protocol mirthHttps = new Protocol("https", new EasySSLProtocolSocketFactory(), 8443);
+        Protocol.registerProtocol("https", mirthHttps);
 	}
 
 	/**

@@ -49,12 +49,13 @@ import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.model.filters.SystemEventFilter;
-import com.webreach.mirth.model.ws.WSDefinition;
 
 public class Client {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 	private ServerConnection serverConnection;
+	private String address;
+	private int timeout;
 
 	public final static String USER_SERVLET = "/users";
 	public final static String CHANNEL_SERVLET = "/channels";
@@ -74,7 +75,23 @@ public class Client {
 	 * @param address
 	 */
 	public Client(String address) {
+	    this.address = address;
 		serverConnection = ServerConnectionFactory.createServerConnection(address);
+	}
+	
+	public Client(String address, int timeout) {
+	    this.address = address;
+	    this.timeout = timeout;
+	    serverConnection = ServerConnectionFactory.createServerConnection(address, this.timeout);
+	}
+	
+	public void setTimeout(int timeout) {
+	    this.timeout = timeout;
+	    serverConnection = ServerConnectionFactory.createServerConnection(address, this.timeout);
+	}
+	
+	public int getTimeout() {
+	    return timeout;
 	}
 
 	/**
@@ -337,7 +354,7 @@ public class Client {
 	 * @return
 	 * @throws ClientException
 	 */
-	public boolean authorizeUser(User user, String password) throws ClientException {
+	public boolean authenticateUser(User user, String password) throws ClientException {
 		logger.debug("authorizing user: " + user);
 		NameValuePair[] params = { new NameValuePair("op", "authorizeUser"), new NameValuePair("user", serializer.toXML(user)), new NameValuePair("password", password) };
 		return Boolean.valueOf(serverConnection.executePostMethod(USER_SERVLET, params));
