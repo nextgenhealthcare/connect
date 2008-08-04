@@ -2098,7 +2098,7 @@ public class Frame extends JXFrame
                             plugin.tableUpdate(status);
                         }
 
-                        tableData = new Object[status.size()][7 + loadedColumnPluginsAfterStats.size() + loadedColumnPluginsBeforeStatus.size()];
+                        tableData = new Object[status.size()][8 + loadedColumnPluginsAfterStats.size() + loadedColumnPluginsBeforeStatus.size()];
                         for (int i = 0; i < status.size(); i++)
                         {
                             ChannelStatus tempStatus = status.get(i);
@@ -2119,6 +2119,7 @@ public class Frame extends JXFrame
                                 tableData[i][++j] = tempStats.getQueued();
                                 tableData[i][++j] = tempStats.getSent();
                                 tableData[i][++j] = tempStats.getError();
+                                tableData[i][++j] = tempStats.getAlerted();
                                 j++;
                                 for (DashboardColumnPlugin plugin : loadedColumnPluginsAfterStats.values())
                                 {
@@ -3120,7 +3121,7 @@ public class Frame extends JXFrame
                     }
                     setWorking("", false);
                     setWorking("Clearing statistics...", true);
-                    clearStatsAllChannels(true, true, true, true, true);
+                    clearStatsAllChannels(true, true, true, true, true, true);
                     setWorking("", false);
 
                     return null;
@@ -3138,7 +3139,7 @@ public class Frame extends JXFrame
 
     }
 
-    public void clearStatsAllChannels(final boolean deleteReceived, final boolean deleteFiltered, final boolean deleteQueued, final boolean deleteSent, final boolean deleteErrored)
+    public void clearStatsAllChannels(final boolean deleteReceived, final boolean deleteFiltered, final boolean deleteQueued, final boolean deleteSent, final boolean deleteErrored, final boolean deleteAlerted)
     {
 
         setWorking("Clearing statistics...", true);
@@ -3152,7 +3153,7 @@ public class Frame extends JXFrame
                 {
                     try
                     {
-                        mirthClient.clearStatistics(status.get(i).getChannelId(), deleteReceived, deleteFiltered, deleteQueued, deleteSent, deleteErrored);
+                        mirthClient.clearStatistics(status.get(i).getChannelId(), deleteReceived, deleteFiltered, deleteQueued, deleteSent, deleteErrored, deleteAlerted);
                     }
                     catch (ClientException e)
                     {
@@ -3201,7 +3202,7 @@ public class Frame extends JXFrame
                     if (currentContentPage == dashboardPanel)
                     {
                         if (alertOption(PlatformUI.MIRTH_FRAME, "Would you also like to clear all statistics?"))
-                            clearStats(dashboardPanel.getSelectedStatus(), true, true, true, true, true);
+                            clearStats(dashboardPanel.getSelectedStatus(), true, true, true, true, true, true);
                         doRefreshStatuses();
                     }
                     else if (currentContentPage == messageBrowser)
@@ -3231,7 +3232,7 @@ public class Frame extends JXFrame
 
     }
 
-    public void clearStats(final int statusToClear, final boolean deleteReceived, final boolean deleteFiltered, final boolean deleteQueued, final boolean deleteSent, final boolean deleteErrored)
+    public void clearStats(final int statusToClear, final boolean deleteReceived, final boolean deleteFiltered, final boolean deleteQueued, final boolean deleteSent, final boolean deleteErrored, final boolean deleteAlerted)
     {
         setWorking("Clearing statistics...", true);
 
@@ -3241,7 +3242,7 @@ public class Frame extends JXFrame
             {
                 try
                 {
-                    mirthClient.clearStatistics(status.get(statusToClear).getChannelId(), deleteReceived, deleteFiltered, deleteQueued, deleteSent, deleteErrored);
+                    mirthClient.clearStatistics(status.get(statusToClear).getChannelId(), deleteReceived, deleteFiltered, deleteQueued, deleteSent, deleteErrored, deleteAlerted);
                 }
                 catch (ClientException e)
                 {

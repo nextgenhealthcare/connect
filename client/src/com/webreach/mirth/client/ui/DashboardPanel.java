@@ -47,6 +47,7 @@ public class DashboardPanel extends javax.swing.JPanel
     private final String SENT_COLUMN_NAME = "Sent";
     private final String ERROR_COLUMN_NAME = "Errored";
     private final String FILTERED_COLUMN_NAME = "Filtered";
+    private final String ALERTED_COLUMN_NAME = "Alerted";
     private int lastRow;
     private Frame parent;
     private Map<String, DashboardColumnPlugin> loadedColumnPluginsBeforeStatus = new HashMap<String, DashboardColumnPlugin>();
@@ -275,6 +276,7 @@ public class DashboardPanel extends javax.swing.JPanel
         statusTable.getColumnExt(ERROR_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         statusTable.getColumnExt(FILTERED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         statusTable.getColumnExt(QUEUED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
+        statusTable.getColumnExt(ALERTED_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         
         statusTable.getColumnExt(STATUS_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
@@ -282,6 +284,7 @@ public class DashboardPanel extends javax.swing.JPanel
         statusTable.getColumnExt(ERROR_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(FILTERED_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(QUEUED_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
+        statusTable.getColumnExt(ALERTED_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         statusTable.getColumnExt(NAME_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
         
         statusTable.getColumnExt(STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
@@ -290,13 +293,14 @@ public class DashboardPanel extends javax.swing.JPanel
         statusTable.getColumnExt(ERROR_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
         statusTable.getColumnExt(FILTERED_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
         statusTable.getColumnExt(QUEUED_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
+        statusTable.getColumnExt(ALERTED_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
         
         statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
         statusTable.getColumnExt(SENT_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
         statusTable.getColumnExt(ERROR_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
         statusTable.getColumnExt(FILTERED_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
         statusTable.getColumnExt(QUEUED_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
-        
+        statusTable.getColumnExt(ALERTED_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
         
         for(DashboardColumnPlugin plugin : loadedColumnPluginsAfterStats.values())
         {
@@ -358,7 +362,7 @@ public class DashboardPanel extends javax.swing.JPanel
             String[] defaultColumns = new String[] { STATUS_COLUMN_NAME,
             NAME_COLUMN_NAME, RECEIVED_COLUMN_NAME,
             FILTERED_COLUMN_NAME, QUEUED_COLUMN_NAME,
-            SENT_COLUMN_NAME, ERROR_COLUMN_NAME };
+            SENT_COLUMN_NAME, ERROR_COLUMN_NAME, ALERTED_COLUMN_NAME };
             ArrayList<String> columns = new ArrayList<String>();
             for (DashboardColumnPlugin plugin : loadedColumnPluginsBeforeStatus.values())
             {
