@@ -12,7 +12,6 @@ import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileInputStream;
 import jcifs.smb.SmbFileOutputStream;
 import jcifs.smb.SmbFilenameFilter;
-import jcifs.smb.SmbSession;
 
 import org.mule.MuleException;
 import org.mule.config.i18n.Message;
