@@ -57,7 +57,8 @@ public class ChannelStatisticsServlet extends MirthServlet {
                     boolean deleteQueued = Boolean.valueOf(request.getParameter("deleteQueued"));
                     boolean deleteSent = Boolean.valueOf(request.getParameter("deleteSent"));
                     boolean deleteErrored = Boolean.valueOf(request.getParameter("deleteErrored"));
-					statisticsController.clearStatistics(channelId, deleteReceived, deleteFiltered, deleteQueued, deleteSent, deleteErrored);
+                    boolean deleteAlerted = Boolean.valueOf(request.getParameter("deleteAlerted"));
+					statisticsController.clearStatistics(channelId, deleteReceived, deleteFiltered, deleteQueued, deleteSent, deleteErrored, deleteAlerted);
 				}
 			} catch (Exception e) {
 				throw new ServletException(e);

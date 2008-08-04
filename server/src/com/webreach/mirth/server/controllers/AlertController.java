@@ -49,6 +49,7 @@ import com.webreach.mirth.util.PropertyLoader;
 public class AlertController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
+	private ChannelStatisticsController statisticsController = ChannelStatisticsController.getInstance();
 	private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
 
 	private static AlertController instance = null;
@@ -188,7 +189,8 @@ public class AlertController {
 				Alert alert = (Alert) iter.next();
 
 				if (alert.isEnabled() && isAlertCondition(alert.getExpression(), errorMessage)) {
-					sentAlertEmails(alert.getEmails(), alert.getTemplate(), errorMessage, channelId);
+					statisticsController.incrementAlertedCount(channelId);
+					sendAlertEmails(alert.getEmails(), alert.getTemplate(), errorMessage, channelId);
 				}
 			}
 		} catch (ControllerException ce) {
@@ -208,7 +210,7 @@ public class AlertController {
 		}
 	}
 
-	private void sentAlertEmails(List<String> emails, String template, String errorMessage, String channelId) throws ControllerException {
+	private void sendAlertEmails(List<String> emails, String template, String errorMessage, String channelId) throws ControllerException {
 		try {
 			Properties properties = ConfigurationController.getInstance().getServerProperties();
 			String fromAddress = PropertyLoader.getProperty(properties, "smtp.from");

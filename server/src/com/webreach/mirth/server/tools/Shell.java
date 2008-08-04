@@ -1014,7 +1014,7 @@ public class Shell {
 	
 		for (Iterator iter = channels.iterator(); iter.hasNext();) {
 			Channel channel = (Channel) iter.next();
-			client.clearStatistics(channel.getId(), true, true, true, true, true);
+			client.clearStatistics(channel.getId(), true, true, true, true, true, true);
 		}
 	}
 

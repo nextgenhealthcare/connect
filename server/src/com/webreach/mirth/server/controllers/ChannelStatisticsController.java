@@ -163,6 +163,11 @@ public class ChannelStatisticsController {
 		statsCache.getCache().get(channelId).setQueued(statsCache.getCache().get(channelId).getQueued() + 1);
 		statsChanged = true;
 	}
+	
+	public synchronized void incrementAlertedCount(String channelId) {
+		statsCache.getCache().get(channelId).setAlerted(statsCache.getCache().get(channelId).getAlerted() + 1);
+		statsChanged = true;
+	}
 
 	public synchronized void decrementQueuedCount(String channelId) {
 		if (statsCache.getCache().get(channelId).getQueued() > 0) {
@@ -196,7 +201,7 @@ public class ChannelStatisticsController {
 		}
 	}
 
-	public void clearStatistics(String channelId, boolean received, boolean filtered, boolean queued, boolean sent, boolean errored) throws ControllerException {
+	public void clearStatistics(String channelId, boolean received, boolean filtered, boolean queued, boolean sent, boolean errored, boolean alerted) throws ControllerException {
 		if (received)
 			statsCache.getCache().get(channelId).setReceived(0);
 		if (filtered)
@@ -207,6 +212,8 @@ public class ChannelStatisticsController {
 			statsCache.getCache().get(channelId).setSent(0);
 		if (errored)
 			statsCache.getCache().get(channelId).setError(0);
+		if (alerted)
+			statsCache.getCache().get(channelId).setAlerted(0);
 
 		updateStatistics(channelId);
 	}

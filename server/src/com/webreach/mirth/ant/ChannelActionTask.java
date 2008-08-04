@@ -245,7 +245,7 @@ public class ChannelActionTask extends AbstractMirthTask {
 		connectClient();
 
 		for (Channel channel : getMatchingChannels(selector)) {
-			client.clearStatistics(channel.getId(), true, true, true, true, true);
+			client.clearStatistics(channel.getId(), true, true, true, true, true, true);
 			System.out.println("Channel '" + channel.getName() + "' Stats Reset");
 		}
 

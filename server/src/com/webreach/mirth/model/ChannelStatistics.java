@@ -37,6 +37,7 @@ public class ChannelStatistics implements Serializable {
 	private int error = 0;
 	private int filtered = 0;
 	private int queued = 0;
+	private int alerted = 0;
 	
 
     public String getServerId()
@@ -96,6 +97,14 @@ public class ChannelStatistics implements Serializable {
     public void setError(int errorCount) {
         this.error = errorCount;
     }
+    
+    public int getAlerted() {
+        return this.alerted;
+    }
+
+    public void setAlerted(int alerted) {
+        this.alerted = alerted;
+    }
 
 	public boolean equals(Object that) {
 		if (this == that) {
@@ -115,7 +124,8 @@ public class ChannelStatistics implements Serializable {
 			EqualsUtil.areEqual(this.getSent(), statistic.getSent()) &&
 			EqualsUtil.areEqual(this.getError(), statistic.getError()) &&
 			EqualsUtil.areEqual(this.getFiltered(), statistic.getReceived()) &&
-			EqualsUtil.areEqual(this.getQueued(), statistic.getQueued());
+			EqualsUtil.areEqual(this.getQueued(), statistic.getQueued()) &&
+			EqualsUtil.areEqual(this.getAlerted(), statistic.getAlerted());
 	}	
 
 	public String toString() {
@@ -127,7 +137,8 @@ public class ChannelStatistics implements Serializable {
 		builder.append("filtered=" + getFiltered() + ", ");
 		builder.append("sent=" + getSent() + ", ");
 		builder.append("queued=" + getQueued() + ", ");
-		builder.append("error=" + getError());
+		builder.append("error=" + getError() + ", ");
+		builder.append("alerted=" + getAlerted());
 		builder.append("]");
 		return builder.toString();
 	}
