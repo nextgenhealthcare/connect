@@ -26,6 +26,7 @@
 package com.webreach.mirth.client.ui;
 
 import java.awt.Cursor;
+import java.util.Properties;
 
 import javax.swing.ImageIcon;
 
@@ -34,6 +35,7 @@ import org.jdesktop.swingx.util.SwingWorker;
 import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.core.VersionMismatchException;
+import com.webreach.mirth.model.User;
 
 /** Creates the new channel wizard dialog */
 public class LoginPanel extends javax.swing.JFrame
@@ -378,6 +380,25 @@ public class LoginPanel extends javax.swing.JFrame
                         setStatus("Authenticated...");
                         new Mirth(client);
                         thisPanel.dispose();
+                        
+                        try {
+                			Properties serverProperties = client.getServerProperties();
+                			String registered = serverProperties.getProperty("registered");
+                			if (registered == null || registered.equals(UIConstants.NO_OPTION)) {
+                				
+                				PlatformUI.MIRTH_FRAME.users = client.getUser(null);
+                				User currentUser = null;
+                				for (User user : PlatformUI.MIRTH_FRAME.users) {
+                					if (user.getUsername().equals(PlatformUI.USER_NAME)) {
+                						currentUser = user;
+                					}
+                				}
+                				
+                				new FirstUserDialog(currentUser);
+                			}
+                		} catch (ClientException e) {
+                			PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                		}        
                     }
                     else
                     {
