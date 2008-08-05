@@ -60,18 +60,21 @@ public class UserEditPanel extends javax.swing.JPanel {
     /**
      * This method checks if the finish button can now be enabled
      */
-    public boolean checkIfAbleToFinish() {
-        if (String.valueOf(password.getPassword()).trim().equals("") || String.valueOf(confirmPassword.getPassword()).trim().equals("") || username.getText().trim().equals("") || organization.getText().trim().equals("") || email.getText().trim().equals("")) {
+    public boolean checkIfAbleToFinish(boolean checkPasswords) {
+        if (organization.getText().trim().equals("") || email.getText().trim().equals("")) {
             dialog.setFinishButtonEnabled(false);
+            return false;
+        } else if (checkPasswords && (String.valueOf(password.getPassword()).trim().equals("") || String.valueOf(confirmPassword.getPassword()).trim().equals("") || username.getText().trim().equals(""))) {
+        	dialog.setFinishButtonEnabled(false);
+            return false;
         } else {
             dialog.setFinishButtonEnabled(true);
             return true;
         }
-        return false;
     }
 
-    public String validateUser() {
-        if (!checkIfAbleToFinish()) {
+    public String validateUser(boolean checkPasswords) {
+        if (!checkIfAbleToFinish(checkPasswords)) {
             return "Please fill in all required information.";
         }
         
@@ -84,7 +87,7 @@ public class UserEditPanel extends javax.swing.JPanel {
             }
         }
 
-        if (!String.valueOf(password.getPassword()).equals(String.valueOf(confirmPassword.getPassword()))) {
+        if (checkPasswords && !String.valueOf(password.getPassword()).equals(String.valueOf(confirmPassword.getPassword()))) {
             return "Passwords must be the same.";
         }
 
@@ -92,7 +95,7 @@ public class UserEditPanel extends javax.swing.JPanel {
     }
 
     private void checkAndTriggerFinishButton(java.awt.event.KeyEvent evt) {
-        if (!checkIfAbleToFinish()) {
+        if (!checkIfAbleToFinish(true)) {
             return;
         } else if (evt.getKeyCode() == evt.VK_ENTER) {
             dialog.triggerFinishButton();

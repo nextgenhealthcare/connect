@@ -28,11 +28,9 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Properties;
 
 import javax.swing.JDialog;
 
-import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.model.User;
 
 /**
@@ -50,6 +48,11 @@ public class FirstUserDialog extends javax.swing.JDialog implements UserDialogIn
         finishButton.setEnabled(false);
 
         userEditPanel.setUser(this, currentUser);
+        
+        if (userEditPanel.validateUser(false) == null) {
+        	this.dispose();
+        	return;
+        }
 
         jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         setModal(true);
@@ -204,21 +207,12 @@ public class FirstUserDialog extends javax.swing.JDialog implements UserDialogIn
      */
 private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_finishButtonActionPerformed
     finishButton.requestFocus();
-	String validateUserMessage = userEditPanel.validateUser();
+	String validateUserMessage = userEditPanel.validateUser(true);
     if (validateUserMessage != null) {
         parent.alertWarning(this, validateUserMessage);
     } else {
         User user = userEditPanel.getUser();
         parent.updateAndSwitchUser(this, user, user.getUsername(), userEditPanel.getPassword());
-        
-        try {
-			Properties serverProperties = parent.mirthClient.getServerProperties();
-			serverProperties.put("registered", UIConstants.YES_OPTION);
-			parent.mirthClient.setServerProperties(serverProperties);
-		} catch (ClientException e) {
-			parent.alertException(this, e.getStackTrace(), e.getMessage());
-		}
-        
 		this.dispose();
     }
 }//GEN-LAST:event_finishButtonActionPerformed

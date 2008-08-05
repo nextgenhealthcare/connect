@@ -200,7 +200,7 @@ public class UserDialog extends javax.swing.JDialog implements UserDialogInterfa
      */
 private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_finishButtonActionPerformed
 	finishButton.requestFocus();
-	String validateUserMessage = userEditPanel.validateUser();
+	String validateUserMessage = userEditPanel.validateUser(true);
     if (validateUserMessage != null) {
         parent.alertWarning(this, validateUserMessage);
     } else {
