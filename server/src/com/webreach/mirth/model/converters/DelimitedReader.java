@@ -19,7 +19,6 @@
  * the Initial Developer. All Rights Reserved.
  *
  * Contributor(s):
- *   Andy Thorson <andyt@webreachinc.com>
  *
  * ***** END LICENSE BLOCK ***** */
 package com.webreach.mirth.model.converters;
