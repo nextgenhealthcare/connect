@@ -1,16 +1,3 @@
-/*
- * $Header: /home/projects/mule/scm/mule/providers/jdbc/src/java/org/mule/providers/jdbc/JdbcMessageReceiver.java,v 1.10 2005/10/23 15:21:21 holger Exp $
- * $Revision: 1.10 $
- * $Date: 2005/10/23 15:21:21 $
- * ------------------------------------------------------------------------------------------------------
- *
- * Copyright (c) SymphonySoft Limited. All rights reserved.
- * http://www.symphonysoft.com
- *
- * The software in this package is published under the terms of the BSD
- * style license a copy of which has been included with this distribution in
- * the LICENSE.txt file.
- */
 package com.webreach.mirth.connectors.jdbc;
 
 import java.sql.Connection;
@@ -53,221 +40,214 @@ import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
 import com.webreach.mirth.server.util.CompiledScriptCache;
 import com.webreach.mirth.server.util.JavaScriptScopeUtil;
 
-/**
- * @author Guillaume Nodet
- * @version $Revision: 1.10 $
- */
 public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
-	Logger scriptLogger = Logger.getLogger("jdbc-receiver");
-	private JdbcConnector connector;
-	private String readStmt;
-	private String ackStmt;
-	private List readParams;
-	private List ackParams;
-	private Map jdbcMap;
-	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
-	private AlertController alertController = AlertController.getInstance();
-	private MonitoringController monitoringController = MonitoringController.getInstance();
-	private JavaScriptPostprocessor postprocessor = new JavaScriptPostprocessor();
-	private ConnectorType connectorType = ConnectorType.READER;
-	public JdbcMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
-		super(connector, component, endpoint, new Long(((JdbcConnector) connector).getPollingFrequency()));
+    Logger scriptLogger = Logger.getLogger("jdbc-receiver");
+    private JdbcConnector connector;
+    private String readStmt;
+    private String ackStmt;
+    private List readParams;
+    private List ackParams;
+    private Map jdbcMap;
+    private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
+    private AlertController alertController = AlertController.getInstance();
+    private MonitoringController monitoringController = MonitoringController.getInstance();
+    private JavaScriptPostprocessor postprocessor = new JavaScriptPostprocessor();
+    private ConnectorType connectorType = ConnectorType.READER;
+    private Connection connection = null;
 
-		if (((JdbcConnector) connector).getPollingType().equals(JdbcConnector.POLLING_TYPE_TIME))
-			setTime(((JdbcConnector) connector).getPollingTime());
-		else
-			setFrequency(((JdbcConnector) connector).getPollingFrequency());
+    public JdbcMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
+        super(connector, component, endpoint, new Long(((JdbcConnector) connector).getPollingFrequency()));
 
-		this.receiveMessagesInTransaction = false;
-		this.connector = (JdbcConnector) connector;
-		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
-	}
+        if (((JdbcConnector) connector).getPollingType().equals(JdbcConnector.POLLING_TYPE_TIME)) {
+            setTime(((JdbcConnector) connector).getPollingTime());
+        } else {
+            setFrequency(((JdbcConnector) connector).getPollingFrequency());
+        }
 
-	public JdbcMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, String readStmt, String ackStmt) throws InitialisationException {
-		super(connector, component, endpoint, new Long(((JdbcConnector) connector).getPollingFrequency()));
+        this.receiveMessagesInTransaction = false;
+        this.connector = (JdbcConnector) connector;
+        monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
+    }
 
-		this.receiveMessagesInTransaction = false;
-		this.connector = (JdbcConnector) connector;
+    public JdbcMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, String readStmt, String ackStmt) throws InitialisationException {
+        super(connector, component, endpoint, new Long(((JdbcConnector) connector).getPollingFrequency()));
 
-		if (((JdbcConnector) connector).getPollingType().equals(JdbcConnector.POLLING_TYPE_TIME))
-			setTime(((JdbcConnector) connector).getPollingTime());
-		else
-			setFrequency(((JdbcConnector) connector).getPollingFrequency());
+        if (((JdbcConnector) connector).getPollingType().equals(JdbcConnector.POLLING_TYPE_TIME)) {
+            setTime(((JdbcConnector) connector).getPollingTime());
+        } else {
+            setFrequency(((JdbcConnector) connector).getPollingFrequency());
+        }
 
-		this.readParams = new ArrayList();
-		this.readStmt = JdbcUtils.parseStatement(readStmt, this.readParams);
-		this.ackParams = new ArrayList();
-		this.ackStmt = JdbcUtils.parseStatement(ackStmt, this.ackParams);
-		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
-	}
+        this.receiveMessagesInTransaction = false;
+        this.connector = (JdbcConnector) connector;
+        
+        // handle read and ack params
+        this.readParams = new ArrayList();
+        this.readStmt = JdbcUtils.parseStatement(readStmt, this.readParams);
+        this.ackParams = new ArrayList();
+        this.ackStmt = JdbcUtils.parseStatement(ackStmt, this.ackParams);
+        
+        monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
+    }
 
-	public void doConnect() throws Exception {
-		if (!connector.isUseScript()) {
-			Connection con = null;
-			try {
-				con = this.connector.getConnection(null);
-			} catch (Exception e) {
-				throw new ConnectException(e, this);
-			} finally {
-				JdbcUtils.close(con);
-			}
-		}
-	}
+    public void doConnect() throws Exception {
+        if (!connector.isUseScript()) {
+            try {
+                connection = connector.getConnection(null);
+            } catch (Exception e) {
+                logger.error(e);
+                throw new ConnectException(e, this);
+            }
+        }
+    }
 
-	public void doDisconnect() throws ConnectException {
-	// noop
-	}
+    public void doDisconnect() throws ConnectException {
+        if (!connector.isUseScript()) {
+            try {
+                JdbcUtils.close(connection);
+            } catch (SQLException e) {
+                throw new ConnectException(e, this);
+            }
+        }
+    }
 
-	public void processMessage(Object message) throws Exception {
-		try {
-			monitoringController.updateStatus(connector, connectorType, Event.BUSY);
-			if (this.connector.isUseScript() && connector.isUseAck()) {
-				// dispatch messages
-				UMOMessageAdapter msgAdapter = this.connector.getMessageAdapter(message);
-				UMOMessage umoMessage = new MuleMessage(msgAdapter);
-				// we should get an MO back (if we're synchronized...)
-				umoMessage = routeMessage(umoMessage, endpoint.isSynchronous());
+    public void processMessage(Object message) throws Exception {
+        try {
+            monitoringController.updateStatus(connector, connectorType, Event.BUSY);
 
-				Context context = Context.enter();
-				Scriptable scope = new ImporterTopLevel(context);
-				// load variables in JavaScript scope
-				JavaScriptScopeUtil.buildScope(scope, connector.getName(), scriptLogger);
-				scope.put("dbMap", scope, jdbcMap);
-				scope.put("resultMap", scope, message);
-				if (umoMessage != null) {
-					MessageObject messageObject = (MessageObject) umoMessage.getPayload();
-					postprocessor.doPostProcess(messageObject);
-					scope.put("responseMap", scope, messageObject.getResponseMap());
-				}
-				// get the script from the cache and execute it
-				Script compiledScript = compiledScriptCache.getCompiledScript(this.connector.getAckScriptId());
-				if (compiledScript == null) {
-					logger.error("Database query update could not be found in cache");
-					throw new Exception("Database query update script could not be found in cache");
-				} else {
-					compiledScript.exec(context, scope);
-				}
-			} else {
-				Connection con = null;
-				UMOTransaction tx = TransactionCoordination.getInstance().getTransaction();
-				Exception ackException = null;
+            if (connector.isUseScript() && connector.isUseAck()) {
+                // dispatch messages
+                UMOMessageAdapter msgAdapter = connector.getMessageAdapter(message);
+                UMOMessage umoMessage = new MuleMessage(msgAdapter);
+                // we should get an MO back (if we're synchronized...)
+                umoMessage = routeMessage(umoMessage, endpoint.isSynchronous());
 
-				try {
-					try {
-						if (connector.isUseAck() && this.ackStmt != null) {
-							con = this.connector.getConnection(null);
-							Object[] ackParams = JdbcUtils.getParams(getEndpointURI(), this.ackParams, message);
-							int nbRows = new QueryRunner().update(con, this.ackStmt, ackParams);
-							if (nbRows != 1) {
-								logger.warn("Row count for ack should be 1 and not " + nbRows);
-							}
-						}
-					} catch (Exception ue) {
-						logger.error("Error in the ACK sentence of the JDBC connection, but the message is being sent anyway" + ue);
-						ackException = ue;
-					}
-					UMOMessageAdapter msgAdapter = this.connector.getMessageAdapter(message);
-					UMOMessage umoMessage = new MuleMessage(msgAdapter);
-					UMOMessage retMessage = routeMessage(umoMessage, tx, tx != null || endpoint.isSynchronous());
-					if (retMessage != null){
-						//prevents errors if synchronous is not checked
-						postprocessor.doPostProcess(retMessage.getPayload());
-					}
-					if (ackException != null)
-						throw ackException;
-				} catch (ConnectException ce) {
-					throw new Exception(((ConnectException) ce).getCause());
-				} finally {
-					if (tx == null) {
-						if (con != null)
-							JdbcUtils.close(con);
-					}
-				}
-			}
-		} catch (Exception e) {
-			alertController.sendAlerts(((JdbcConnector) connector).getChannelId(), Constants.ERROR_406, null, e);
-			throw e;
-		}finally{
-			monitoringController.updateStatus(connector, connectorType, Event.DONE);
-		}
-	}
+                Context context = Context.enter();
+                Scriptable scope = new ImporterTopLevel(context);
+                // load variables in JavaScript scope
+                JavaScriptScopeUtil.buildScope(scope, connector.getName(), scriptLogger);
+                scope.put("dbMap", scope, jdbcMap);
+                scope.put("resultMap", scope, message);
 
-	public List getMessages() throws Exception {
-		monitoringController.updateStatus(connector, connectorType, Event.CONNECTED);
-		try {
-			if (this.connector.isUseScript()) {
-				Context context = Context.enter();
-				Scriptable scope = new ImporterTopLevel(context);
+                if (umoMessage != null) {
+                    MessageObject messageObject = (MessageObject) umoMessage.getPayload();
+                    postprocessor.doPostProcess(messageObject);
+                    scope.put("responseMap", scope, messageObject.getResponseMap());
+                }
 
-				// load variables in JavaScript scope
-				JavaScriptScopeUtil.buildScope(scope, connector.getName(), scriptLogger);
-				// each time we poll, we want to clear the map.
-				// we need to document this
-				jdbcMap = new HashMap();
-				scope.put("dbMap", scope, jdbcMap);
-				// get the script from the cache and execute it
-				Script compiledScript = compiledScriptCache.getCompiledScript(this.connector.getScriptId());
+                // get the script from the cache and execute it
+                Script compiledScript = compiledScriptCache.getCompiledScript(connector.getAckScriptId());
 
-				if (compiledScript == null) {
-					logger.error("Database script could not be found in cache");
-					throw new Exception("Database script could not be found in cache");
-				} else {
-					Object result = null;
-					try{
-						result = compiledScript.exec(context, scope);
-					} catch (Exception e){
-						logger.error(e);
-						alertController.sendAlerts(((JdbcConnector) connector).getChannelId(), Constants.ERROR_406, null, e);
-						return null;
-					}
-					if (result instanceof NativeJavaObject) {
-						Object javaRetVal = ((NativeJavaObject) result).unwrap();
+                if (compiledScript == null) {
+                    logger.error("Database query update could not be found in cache");
+                    throw new Exception("Database query update script could not be found in cache");
+                } else {
+                    compiledScript.exec(context, scope);
+                }
+            } else {
+                UMOTransaction tx = TransactionCoordination.getInstance().getTransaction();
+                Exception ackException = null;
 
-						if (javaRetVal instanceof CachedRowSet) {
-							MapListHandler handler = new MapListHandler();
-							Object rows = handler.handle((CachedRowSet) javaRetVal);
-							return (List) rows;
-						} else if (javaRetVal instanceof RowSet) {
-							MapListHandler handler = new MapListHandler();
-							Object rows = handler.handle((RowSet) javaRetVal);
-							return (List) rows;
-						} else if (javaRetVal instanceof List) {
-							return (List) javaRetVal;
-						} else {
-							logger.error("Got a result of: " + javaRetVal.toString());
-						}
-					} else {
-						logger.error("Got a result of: " + result.toString());
-					}
+                try {
+                    try {
+                        if (connector.isUseAck() && ackStmt != null) {
+                            int numRows = new QueryRunner().update(connection, ackStmt, JdbcUtils.getParams(getEndpointURI(), ackParams, message));
 
-					Script ackScript = compiledScriptCache.getCompiledScript(this.connector.getAckScriptId());
+                            if (numRows != 1) {
+                                logger.warn("Row count for ack should be 1 and not " + numRows);
+                            }
+                        }
+                    } catch (Exception ue) {
+                        logger.error("Error in the ACK sentence of the JDBC connection, but the message is being sent anyway" + ue);
+                        ackException = ue;
+                    }
 
-					return null;
-				}
-			} else {
-				Connection con = null;
+                    UMOMessageAdapter msgAdapter = this.connector.getMessageAdapter(message);
+                    UMOMessage umoMessage = new MuleMessage(msgAdapter);
+                    UMOMessage retMessage = routeMessage(umoMessage, tx, tx != null || endpoint.isSynchronous());
 
-				try {
-					try {
-						con = this.connector.getConnection(null);
-					} catch (SQLException e) {
-						throw new ConnectException(e, this);
-					}
+                    if (retMessage != null) {
+                        // prevents errors if synchronous is not checked
+                        postprocessor.doPostProcess(retMessage.getPayload());
+                    }
 
-					Object[] readParams = JdbcUtils.getParams(getEndpointURI(), this.readParams, null);
-					Object results = new QueryRunner().query(con, this.readStmt, readParams, new MapListHandler());
-					return (List) results;
-				} finally {
-					JdbcUtils.close(con);
-				}
-			}
+                    if (ackException != null) {
+                        throw ackException;
+                    }
+                } catch (ConnectException ce) {
+                    throw new Exception(((ConnectException) ce).getCause());
+                }
+            }
+        } catch (Exception e) {
+            alertController.sendAlerts(((JdbcConnector) connector).getChannelId(), Constants.ERROR_406, null, e);
+            throw e;
+        } finally {
+            monitoringController.updateStatus(connector, connectorType, Event.DONE);
+        }
+    }
 
-		} catch (Exception e) {
-			alertController.sendAlerts(((JdbcConnector) connector).getChannelId(), Constants.ERROR_406, null, e);
-			throw e;
-		}finally{
-			monitoringController.updateStatus(connector, connectorType, Event.DONE);
-		}
-	}
+    public List getMessages() throws Exception {
+        monitoringController.updateStatus(connector, connectorType, Event.CONNECTED);
+
+        try {
+            if (this.connector.isUseScript()) {
+                Context context = Context.enter();
+                Scriptable scope = new ImporterTopLevel(context);
+
+                // load variables in JavaScript scope
+                JavaScriptScopeUtil.buildScope(scope, connector.getName(), scriptLogger);
+                // each time we poll, we want to clear the map.
+                // we need to document this
+                jdbcMap = new HashMap();
+                scope.put("dbMap", scope, jdbcMap);
+                // get the script from the cache and execute it
+                Script compiledScript = compiledScriptCache.getCompiledScript(connector.getScriptId());
+
+                if (compiledScript == null) {
+                    logger.error("Database script could not be found in cache");
+                    throw new Exception("Database script could not be found in cache");
+                } else {
+                    Object result = null;
+
+                    try {
+                        result = compiledScript.exec(context, scope);
+                    } catch (Exception e) {
+                        logger.error(e);
+                        alertController.sendAlerts(((JdbcConnector) connector).getChannelId(), Constants.ERROR_406, null, e);
+                        return null;
+                    }
+
+                    if (result instanceof NativeJavaObject) {
+                        Object javaRetVal = ((NativeJavaObject) result).unwrap();
+
+                        if (javaRetVal instanceof CachedRowSet) {
+                            MapListHandler handler = new MapListHandler();
+                            Object rows = handler.handle((CachedRowSet) javaRetVal);
+                            return (List) rows;
+                        } else if (javaRetVal instanceof RowSet) {
+                            MapListHandler handler = new MapListHandler();
+                            Object rows = handler.handle((RowSet) javaRetVal);
+                            return (List) rows;
+                        } else if (javaRetVal instanceof List) {
+                            return (List) javaRetVal;
+                        } else {
+                            logger.error("Got a result of: " + javaRetVal.toString());
+                        }
+                    } else {
+                        logger.error("Got a result of: " + result.toString());
+                    }
+
+                    return null;
+                }
+            } else {
+                return (List) new QueryRunner().query(connection, readStmt, JdbcUtils.getParams(getEndpointURI(), readParams, null), new MapListHandler());
+            }
+        } catch (Exception e) {
+            alertController.sendAlerts(((JdbcConnector) connector).getChannelId(), Constants.ERROR_406, null, e);
+            throw e;
+        } finally {
+            monitoringController.updateStatus(connector, connectorType, Event.DONE);
+        }
+    }
 
 }
