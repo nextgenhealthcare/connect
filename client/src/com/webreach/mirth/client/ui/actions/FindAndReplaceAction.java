@@ -6,6 +6,7 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
+import javax.swing.SwingUtilities;
 
 import org.syntax.jedit.JEditTextArea;
 
@@ -15,17 +16,17 @@ public class FindAndReplaceAction extends AbstractAction
 {
     JEditTextArea comp;
     FindRplDialog find;
-    Window owner;
 
-    public FindAndReplaceAction(Window owner, JEditTextArea comp)
+    public FindAndReplaceAction(JEditTextArea comp)
     {
         super("Find/Replace");
         this.comp = comp;
-        this.owner = owner;
     }
 
     public void actionPerformed(ActionEvent e)
     {
+    	Window owner = SwingUtilities.windowForComponent(comp);
+    	
     	if (owner instanceof Frame) {
     		find = new FindRplDialog((Frame)owner,true,comp);
     	} else { // window instanceof Dialog
