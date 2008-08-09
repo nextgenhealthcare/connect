@@ -1,25 +1,26 @@
 <connectorMetaData>
-  <name>TCP Sender</name>
-  <author>WebReach, Inc.</author>
-  <pluginVersion>@mirthversion</pluginVersion>
-  <mirthVersion>1.7.1</mirthVersion>
-  <updateUrl><![CDATA[http://extensions.mirthproject.org/updates/?mirthversion=${mirthVersion}&version=${version}&name=${name}&serverid=${serverid}]]></updateUrl>
-  <url>http://extensions.mirthproject.org</url>
-  <description>This connector allows Mirth to send messages to a TCP server.</description>
-  <clientClassName>com.webreach.mirth.connectors.tcp.TCPSender</clientClassName>
-  <serverClassName>com.webreach.mirth.connectors.tcp.TcpConnector</serverClassName>
-  <sharedClassName>com.webreach.mirth.connectors.tcp.TCPSenderProperties</sharedClassName>
-  <transformers></transformers>
-  <protocol>tcp</protocol>
-  <type>SENDER</type>
-  <enabled>true</enabled>
-  <mule-properties>
-      <property name="connector">com.webreach.mirth.connectors.tcp.TcpConnector</property>
-      <property name="dispatcher.factory">com.webreach.mirth.connectors.tcp.TcpMessageDispatcherFactory</property>
-      <property name="message.receiver">com.webreach.mirth.connectors.tcp.TcpMessageReceiver</property>
-      <property name="message.adapter">com.webreach.mirth.connectors.tcp.TcpMessageAdapter</property>
-      <property name="inbound.transformer">org.mule.transformers.simple.ByteArrayToString</property>
-      <property name="outbound.transformer">org.mule.transformers.simple.StringToByteArray</property>
-      <property name="endpoint.builder">org.mule.impl.endpoint.SocketEndpointBuilder</property>
-  </mule-properties>
+	<id>35b94810-52c9-4267-b869-faac500f9bee</id>
+	<name>TCP Sender</name>
+	<author>WebReach, Inc.</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>1.7.1</mirthVersion>
+	<updateUrl><![CDATA[http://extensions.mirthproject.org/updates/?mirthversion=${mirthVersion}&version=${version}&name=${name}&serverid=${serverid}]]></updateUrl>
+	<url>http://extensions.mirthproject.org</url>
+	<description>This connector allows Mirth to send messages to a TCP server.</description>
+	<clientClassName>com.webreach.mirth.connectors.tcp.TCPSender</clientClassName>
+	<serverClassName>com.webreach.mirth.connectors.tcp.TcpConnector</serverClassName>
+	<sharedClassName>com.webreach.mirth.connectors.tcp.TCPSenderProperties</sharedClassName>
+	<transformers></transformers>
+	<protocol>tcp</protocol>
+	<type>SENDER</type>
+	<enabled>true</enabled>
+	<mule-properties>
+		<property name="connector">com.webreach.mirth.connectors.tcp.TcpConnector</property>
+		<property name="dispatcher.factory">com.webreach.mirth.connectors.tcp.TcpMessageDispatcherFactory</property>
+		<property name="message.receiver">com.webreach.mirth.connectors.tcp.TcpMessageReceiver</property>
+		<property name="message.adapter">com.webreach.mirth.connectors.tcp.TcpMessageAdapter</property>
+		<property name="inbound.transformer">org.mule.transformers.simple.ByteArrayToString</property>
+		<property name="outbound.transformer">org.mule.transformers.simple.StringToByteArray</property>
+		<property name="endpoint.builder">org.mule.impl.endpoint.SocketEndpointBuilder</property>
+	</mule-properties>
 </connectorMetaData>

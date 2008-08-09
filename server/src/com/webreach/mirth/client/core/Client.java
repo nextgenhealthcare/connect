@@ -754,6 +754,30 @@ public class Client {
 	}
 
 	/**
+     * Returns a Map of user prefereneces.
+     * 
+     * @return
+     * @throws ClientException
+     */
+    public Map<String, String> getUserPreferences(User user) throws ClientException {
+        logger.debug("retrieving user preferences");
+        NameValuePair[] params = { new NameValuePair("op", "getUserPreferences"), new NameValuePair("user", serializer.toXML(user)) };
+        return (Map<String, String>) serializer.fromXML(serverConnection.executePostMethod(USER_SERVLET, params));
+    }
+
+    /**
+     * Sets a user preference.
+     * 
+     * @return
+     * @throws ClientException
+     */
+    public void setUserPreference(User user, String name, String value) throws ClientException {
+        logger.debug("setting user preference");
+        NameValuePair[] params = { new NameValuePair("op", "setUserPreference"), new NameValuePair("user", serializer.toXML(user)), new NameValuePair("name", name), new NameValuePair("op", value) };
+        serverConnection.executePostMethod(USER_SERVLET, params);
+    }
+
+	/**
 	 * Submits an error message to the Mirth Project.
 	 * 
 	 * @param message
@@ -811,5 +835,8 @@ public class Client {
 		NameValuePair[] params = { new NameValuePair("op", "shutdown") };
 		serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
 	}
-
+	
+	public UpdateClient getUpdateClient(User requestUser) {
+	    return new UpdateClient(this, requestUser);
+	}
 }

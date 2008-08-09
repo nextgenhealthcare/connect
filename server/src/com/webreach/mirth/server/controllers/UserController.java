@@ -27,7 +27,9 @@ package com.webreach.mirth.server.controllers;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -40,132 +42,154 @@ import com.webreach.mirth.util.EncryptionException;
 import com.webreach.mirth.util.FIPSEncrypter;
 
 public class UserController {
-	private Logger logger = Logger.getLogger(this.getClass());
-	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
-	private FIPSEncrypter encrypter = FIPSEncrypter.getInstance();
+    private Logger logger = Logger.getLogger(this.getClass());
+    private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
+    private FIPSEncrypter encrypter = FIPSEncrypter.getInstance();
 
-	private static UserController instance = null;
-	
-	private UserController() {
-		
-	}
-	
-	public static UserController getInstance() {
-		synchronized (UserController.class) {
-			if (instance == null) {
-				instance = new UserController();
-			}
-			
-			return instance;
-		}
-	}   
-	
-	public void initialize() {
-		try {
-			sqlMap.update("resetUserStatus");
-		} catch (SQLException e) {
-			logger.error("Could not reset user status.");
-		}
-	}
+    private static UserController instance = null;
 
-	public List<User> getUser(User user) throws ControllerException {
-		logger.debug("getting user: " + user);
+    private UserController() {
 
-		try {
-			return sqlMap.queryForList("getUser", user);
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		}
-	}
+    }
 
-	public void updateUser(User user, String plainTextPassword) throws ControllerException {
-		try {
-			if (user.getId() == null) {
-				logger.debug("adding user: " + user);
-				sqlMap.insert("insertUser", getUserMap(user, plainTextPassword));
-			} else {
-				logger.debug("updating user: " + user);
-				sqlMap.update("updateUser", getUserMap(user, plainTextPassword));
-			}
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		}
-	}
-	
-	public void removeUser(User user) throws ControllerException {
-		logger.debug("removing user: " + user);
+    public static UserController getInstance() {
+        synchronized (UserController.class) {
+            if (instance == null) {
+                instance = new UserController();
+            }
 
-		try {
-			sqlMap.delete("deleteUser", user);
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		}
-	}
-	
-	public boolean authorizeUser(User user, String plainTextPassword) throws ControllerException {
-		try {
-			Credentials credentials = (Credentials) sqlMap.queryForObject("getUserCredentials", user);
-            
-            if(credentials != null) {
+            return instance;
+        }
+    }
+
+    public void initialize() {
+        try {
+            sqlMap.update("resetUserStatus");
+        } catch (SQLException e) {
+            logger.error("Could not reset user status.");
+        }
+    }
+
+    public List<User> getUser(User user) throws ControllerException {
+        logger.debug("getting user: " + user);
+
+        try {
+            return sqlMap.queryForList("getUser", user);
+        } catch (SQLException e) {
+            throw new ControllerException(e);
+        }
+    }
+
+    public void updateUser(User user, String plainTextPassword) throws ControllerException {
+        try {
+            if (user.getId() == null) {
+                logger.debug("adding user: " + user);
+                sqlMap.insert("insertUser", getUserMap(user, plainTextPassword));
+            } else {
+                logger.debug("updating user: " + user);
+                sqlMap.update("updateUser", getUserMap(user, plainTextPassword));
+            }
+        } catch (SQLException e) {
+            throw new ControllerException(e);
+        }
+    }
+
+    public void removeUser(User user) throws ControllerException {
+        logger.debug("removing user: " + user);
+
+        try {
+            sqlMap.delete("deleteUser", user);
+        } catch (SQLException e) {
+            throw new ControllerException(e);
+        }
+    }
+
+    public boolean authorizeUser(User user, String plainTextPassword) throws ControllerException {
+        try {
+            Credentials credentials = (Credentials) sqlMap.queryForObject("getUserCredentials", user);
+
+            if (credentials != null) {
                 String checkPasswordHash = encrypter.getHash(plainTextPassword, credentials.getSalt());
                 return checkPasswordHash.equals(credentials.getPassword());
             }
-            
-            return false;
-		} catch (Exception e) {
-			throw new ControllerException(e);
-		}
-	}
-	
-	public void loginUser(User user) throws ControllerException {
-		try {
-			sqlMap.update("loginUser", user.getId());
-		} catch (Exception e) {
-			throw new ControllerException(e);
-		}
-	}
-	
-	public void logoutUser(User user) throws ControllerException {
-		try {
-			sqlMap.update("logoutUser", user.getId());
-		} catch (Exception e) {
-			throw new ControllerException(e);
-		}
 
-	}
-	
-	public boolean isUserLoggedIn(User user) throws ControllerException {
-		try {
-			return (Boolean) sqlMap.queryForObject("isUserLoggedIn", user.getId());
-		} catch (Exception e) {
-			throw new ControllerException(e);
-		}
-	}
-	
-	private Map getUserMap(User user, String plainTextPassword) {
-		Map parameterMap = new HashMap();
-		
-		if (user.getId() != null) {
-			parameterMap.put("id", user.getId());	
-		}
-		
-		parameterMap.put("username", user.getUsername());
-		parameterMap.put("firstName", user.getFirstName());
-		parameterMap.put("lastName", user.getLastName());
-		parameterMap.put("organization", user.getOrganization());
-		parameterMap.put("email", user.getEmail());
-		parameterMap.put("phoneNumber", user.getPhoneNumber());
-		parameterMap.put("description", user.getDescription());
-		
-		// hash the user's password before storing it in the database
-		try {
-			String salt = encrypter.getSalt();
-			parameterMap.put("password", encrypter.getHash(plainTextPassword, salt));
-			parameterMap.put("salt", salt);
-		} catch (EncryptionException ee) {
-			// ignore this
-		}
-		
-		return parameterMap;
-	}
+            return false;
+        } catch (Exception e) {
+            throw new ControllerException(e);
+        }
+    }
+
+    public void loginUser(User user) throws ControllerException {
+        try {
+            sqlMap.update("loginUser", user.getId());
+        } catch (Exception e) {
+            throw new ControllerException(e);
+        }
+    }
+
+    public void logoutUser(User user) throws ControllerException {
+        try {
+            sqlMap.update("logoutUser", user.getId());
+        } catch (Exception e) {
+            throw new ControllerException(e);
+        }
+
+    }
+
+    public boolean isUserLoggedIn(User user) throws ControllerException {
+        try {
+            return (Boolean) sqlMap.queryForObject("isUserLoggedIn", user.getId());
+        } catch (Exception e) {
+            throw new ControllerException(e);
+        }
+    }
+
+    private Map getUserMap(User user, String plainTextPassword) {
+        Map parameterMap = new HashMap();
+
+        if (user.getId() != null) {
+            parameterMap.put("id", user.getId());
+        }
+
+        parameterMap.put("username", user.getUsername());
+        parameterMap.put("firstName", user.getFirstName());
+        parameterMap.put("lastName", user.getLastName());
+        parameterMap.put("organization", user.getOrganization());
+        parameterMap.put("email", user.getEmail());
+        parameterMap.put("phoneNumber", user.getPhoneNumber());
+        parameterMap.put("description", user.getDescription());
+
+        // hash the user's password before storing it in the database
+        try {
+            String salt = encrypter.getSalt();
+            parameterMap.put("password", encrypter.getHash(plainTextPassword, salt));
+            parameterMap.put("salt", salt);
+        } catch (EncryptionException ee) {
+            // ignore this
+        }
+
+        return parameterMap;
+    }
+
+    public Map<String, String> getUserPreferences(User user) throws ControllerException {
+        try {
+            return (Map<String, String>) sqlMap.queryForMap("getUserPreferences", user.getId(), "name", "value");
+        } catch (Exception e) {
+            throw new ControllerException(e);
+        }
+    }
+
+    public void setUserPreference(User user, String name, String value) throws ControllerException {
+        try {
+            Map parameterMap = new HashMap();
+            parameterMap.put("personId", user.getId().toString());
+            parameterMap.put("name", name);
+            parameterMap.put("value", value);
+
+            sqlMap.update("insertUserPreference", parameterMap);
+        } catch (Exception e) {
+            throw new ControllerException(e);
+        }
+    }
+
 }

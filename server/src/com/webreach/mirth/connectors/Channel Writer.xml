@@ -1,23 +1,24 @@
 <connectorMetaData>
-  <name>Channel Writer</name>
-  <author>WebReach, Inc.</author>
-  <pluginVersion>@mirthversion</pluginVersion>
-  <mirthVersion>1.7.1</mirthVersion>
-  <updateUrl><![CDATA[http://extensions.mirthproject.org/updates/?mirthversion=${mirthVersion}&version=${version}&name=${name}&serverid=${serverid}]]></updateUrl>
-  <url>http://extensions.mirthproject.org</url>
-  <description>This connector allows Mirth to send events to other channels in the same Mirth instance.</description>
-  <clientClassName>com.webreach.mirth.connectors.vm.ChannelWriter</clientClassName>
-  <serverClassName>com.webreach.mirth.connectors.vm.VMConnector</serverClassName>
-  <sharedClassName>com.webreach.mirth.connectors.vm.ChannelWriterProperties</sharedClassName>
-  <transformers></transformers>
-  <protocol>vm</protocol>
-  <type>SENDER</type>
-  <enabled>true</enabled>
-  <mule-properties>
-      <property name="connector">com.webreach.mirth.connectors.vm.VMConnector</property>
-      <property name="dispatcher.factory">com.webreach.mirth.connectors.vm.VMMessageDispatcherFactory</property>
-      <property name="message.receiver">com.webreach.mirth.connectors.vm.VMMessageReceiver</property>
-      <property name="message.adapter">com.webreach.mirth.connectors.vm.VMMessageAdapter</property>
-      <property name="endpoint.builder">org.mule.impl.endpoint.ResourceNameEndpointBuilder</property>
-  </mule-properties>
+	<id>7e1409a5-10f6-4924-a76b-aab6a70d9fae</id>
+	<name>Channel Writer</name>
+	<author>WebReach, Inc.</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>1.7.1</mirthVersion>
+	<updateUrl><![CDATA[http://extensions.mirthproject.org/updates/?mirthversion=${mirthVersion}&version=${version}&name=${name}&serverid=${serverid}]]></updateUrl>
+	<url>http://extensions.mirthproject.org</url>
+	<description>This connector allows Mirth to send events to other channels in the same Mirth instance.</description>
+	<clientClassName>com.webreach.mirth.connectors.vm.ChannelWriter</clientClassName>
+	<serverClassName>com.webreach.mirth.connectors.vm.VMConnector</serverClassName>
+	<sharedClassName>com.webreach.mirth.connectors.vm.ChannelWriterProperties</sharedClassName>
+	<transformers></transformers>
+	<protocol>vm</protocol>
+	<type>SENDER</type>
+	<enabled>true</enabled>
+	<mule-properties>
+		<property name="connector">com.webreach.mirth.connectors.vm.VMConnector</property>
+		<property name="dispatcher.factory">com.webreach.mirth.connectors.vm.VMMessageDispatcherFactory</property>
+		<property name="message.receiver">com.webreach.mirth.connectors.vm.VMMessageReceiver</property>
+		<property name="message.adapter">com.webreach.mirth.connectors.vm.VMMessageAdapter</property>
+		<property name="endpoint.builder">org.mule.impl.endpoint.ResourceNameEndpointBuilder</property>
+	</mule-properties>
 </connectorMetaData>

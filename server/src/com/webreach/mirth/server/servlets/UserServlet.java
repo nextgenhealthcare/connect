@@ -28,6 +28,7 @@ package com.webreach.mirth.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -89,7 +90,16 @@ public class UserServlet extends MirthServlet {
 					response.setContentType("text/plain");
 					User user = (User) serializer.fromXML(request.getParameter("user"));
 					out.print(userController.isUserLoggedIn(user));
-				} 
+				} else if (operation.equals("getUserPreferences")) {
+                    response.setContentType("text/plain");
+                    User user = (User) serializer.fromXML(request.getParameter("user"));
+                    out.println(serializer.toXML(userController.getUserPreferences(user)));
+                } else if (operation.equals("setUserPreference")) {
+                    User user = (User) serializer.fromXML(request.getParameter("user"));
+                    String name = (String) serializer.fromXML(request.getParameter("name"));
+                    String value = (String) serializer.fromXML(request.getParameter("value"));
+                    userController.setUserPreference(user, name, value);
+                } 
 			} catch (Exception e) {
 				throw new ServletException(e);
 			}
