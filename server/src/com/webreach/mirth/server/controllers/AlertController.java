@@ -31,10 +31,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.mule.providers.TemplateValueReplacer;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.Alert;
@@ -43,209 +43,200 @@ import com.webreach.mirth.server.builders.ErrorMessageBuilder;
 import com.webreach.mirth.server.util.SMTPConnection;
 import com.webreach.mirth.server.util.SMTPConnectionFactory;
 import com.webreach.mirth.server.util.SqlConfig;
-import com.webreach.mirth.server.util.TemplateEvaluator;
 import com.webreach.mirth.util.PropertyLoader;
 
 public class AlertController {
-	private Logger logger = Logger.getLogger(this.getClass());
-	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
-	private ChannelStatisticsController statisticsController = ChannelStatisticsController.getInstance();
-	private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
+    private Logger logger = Logger.getLogger(this.getClass());
+    private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
+    private ChannelStatisticsController statisticsController = ChannelStatisticsController.getInstance();
+    private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
 
-	private static AlertController instance = null;
+    private static AlertController instance = null;
 
-	private AlertController() {
-		
-	}
-	
-	public static AlertController getInstance() {
-		synchronized (AlertController.class) {
-			if (instance == null) {
-				instance = new AlertController();
-			}
-			
-			return instance;
-		}
-	}
-	
-	public List<Alert> getAlert(Alert alert) throws ControllerException {
-		logger.debug("getting alert: " + alert);
+    private AlertController() {
 
-		try {
-			List<Alert> alerts = sqlMap.queryForList("getAlert", alert);
+    }
 
-			for (Iterator iter = alerts.iterator(); iter.hasNext();) {
-				Alert currentAlert = (Alert) iter.next();
+    public static AlertController getInstance() {
+        synchronized (AlertController.class) {
+            if (instance == null) {
+                instance = new AlertController();
+            }
 
-				List<String> channelIds = sqlMap.queryForList("getChannelIdsByAlertId", currentAlert.getId());
-				currentAlert.setChannels(channelIds);
+            return instance;
+        }
+    }
 
-				List<String> emails = sqlMap.queryForList("getEmailsByAlertId", currentAlert.getId());
-				currentAlert.setEmails(emails);
-			}
+    public List<Alert> getAlert(Alert alert) throws ControllerException {
+        logger.debug("getting alert: " + alert);
 
-			return alerts;
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		}
-	}
+        try {
+            List<Alert> alerts = sqlMap.queryForList("getAlert", alert);
 
-	public List<Alert> getAlertByChannelId(String channelId) throws ControllerException {
-		logger.debug("getting alert by channel id: " + channelId);
+            for (Iterator iter = alerts.iterator(); iter.hasNext();) {
+                Alert currentAlert = (Alert) iter.next();
 
-		try {
-			List<Alert> alerts = sqlMap.queryForList("getAlertByChannelId", channelId);
+                List<String> channelIds = sqlMap.queryForList("getChannelIdsByAlertId", currentAlert.getId());
+                currentAlert.setChannels(channelIds);
 
-			for (Iterator iter = alerts.iterator(); iter.hasNext();) {
-				Alert currentAlert = (Alert) iter.next();
+                List<String> emails = sqlMap.queryForList("getEmailsByAlertId", currentAlert.getId());
+                currentAlert.setEmails(emails);
+            }
 
-				List<String> channelIds = sqlMap.queryForList("getChannelIdsByAlertId", currentAlert.getId());
-				currentAlert.setChannels(channelIds);
+            return alerts;
+        } catch (SQLException e) {
+            throw new ControllerException(e);
+        }
+    }
 
-				List<String> emails = sqlMap.queryForList("getEmailsByAlertId", currentAlert.getId());
-				currentAlert.setEmails(emails);
-			}
+    public List<Alert> getAlertByChannelId(String channelId) throws ControllerException {
+        logger.debug("getting alert by channel id: " + channelId);
 
-			return alerts;
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		}
-	}
+        try {
+            List<Alert> alerts = sqlMap.queryForList("getAlertByChannelId", channelId);
 
-	public void updateAlerts(List<Alert> alerts) throws ControllerException {
-		// remove all alerts
-		removeAlert(null);
+            for (Iterator iter = alerts.iterator(); iter.hasNext();) {
+                Alert currentAlert = (Alert) iter.next();
 
-		for (Iterator iter = alerts.iterator(); iter.hasNext();) {
-			Alert alert = (Alert) iter.next();
-			insertAlert(alert);
-		}
-	}
+                List<String> channelIds = sqlMap.queryForList("getChannelIdsByAlertId", currentAlert.getId());
+                currentAlert.setChannels(channelIds);
 
-	private void insertAlert(Alert alert) throws ControllerException {
-		try {
-			Alert alertFilter = new Alert();
-			alertFilter.setId(alert.getId());
+                List<String> emails = sqlMap.queryForList("getEmailsByAlertId", currentAlert.getId());
+                currentAlert.setEmails(emails);
+            }
 
-			try {
-				sqlMap.startTransaction();
+            return alerts;
+        } catch (SQLException e) {
+            throw new ControllerException(e);
+        }
+    }
 
-				// insert the alert and its properties
-				logger.debug("adding alert: " + alert);
-				sqlMap.insert("insertAlert", alert);
+    public void updateAlerts(List<Alert> alerts) throws ControllerException {
+        // remove all alerts
+        removeAlert(null);
 
-				// insert the channel ID list
-				logger.debug("adding channel alerts");
+        for (Alert alert : alerts) {
+            insertAlert(alert);
+        }
+    }
 
-				List<String> channelIds = alert.getChannels();
+    private void insertAlert(Alert alert) throws ControllerException {
+        try {
+            Alert alertFilter = new Alert();
+            alertFilter.setId(alert.getId());
 
-				for (Iterator iter = channelIds.iterator(); iter.hasNext();) {
-					String channelId = (String) iter.next();
-					Map params = new HashMap();
-					params.put("alertId", alert.getId());
-					params.put("channelId", channelId);
-					sqlMap.insert("insertChannelAlert", params);
-				}
+            try {
+                sqlMap.startTransaction();
 
-				// insert the email address list
-				logger.debug("adding alert emails");
+                // insert the alert and its properties
+                logger.debug("adding alert: " + alert);
+                sqlMap.insert("insertAlert", alert);
 
-				List<String> emails = alert.getEmails();
+                // insert the channel ID list
+                logger.debug("adding channel alerts");
 
-				for (Iterator iter = emails.iterator(); iter.hasNext();) {
-					String email = (String) iter.next();
-					Map params = new HashMap();
-					params.put("alertId", alert.getId());
-					params.put("email", email);
-					sqlMap.insert("insertAlertEmail", params);
-				}
+                List<String> channelIds = alert.getChannels();
 
-				sqlMap.commitTransaction();
-			} finally {
-				sqlMap.endTransaction();
-			}
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		}
-	}
+                for (Iterator iter = channelIds.iterator(); iter.hasNext();) {
+                    String channelId = (String) iter.next();
+                    Map params = new HashMap();
+                    params.put("alertId", alert.getId());
+                    params.put("channelId", channelId);
+                    sqlMap.insert("insertChannelAlert", params);
+                }
 
-	public void removeAlert(Alert alert) throws ControllerException {
-		logger.debug("removing alert: " + alert);
+                // insert the email address list
+                logger.debug("adding alert emails");
 
-		try {
-			sqlMap.delete("deleteAlert", alert);
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		}
-	}
+                List<String> emails = alert.getEmails();
 
-	public void sendAlerts(String channelId, String errorType, String customMessage, Throwable e) {
-		String errorMessage = errorBuilder.buildErrorMessage(errorType, customMessage, e);
-		
-		try {
-			List<Alert> alerts = getAlertByChannelId(channelId);
-			
-			for (Iterator iter = alerts.iterator(); iter.hasNext();) {
-				Alert alert = (Alert) iter.next();
+                for (Iterator iter = emails.iterator(); iter.hasNext();) {
+                    String email = (String) iter.next();
+                    Map params = new HashMap();
+                    params.put("alertId", alert.getId());
+                    params.put("email", email);
+                    sqlMap.insert("insertAlertEmail", params);
+                }
 
-				if (alert.isEnabled() && isAlertCondition(alert.getExpression(), errorMessage)) {
-					statisticsController.incrementAlertedCount(channelId);
-					sendAlertEmails(alert.getEmails(), alert.getTemplate(), errorMessage, channelId);
-				}
-			}
-		} catch (ControllerException ce) {
-			logger.error(ce);
-		}
-	}
+                sqlMap.commitTransaction();
+            } finally {
+                sqlMap.endTransaction();
+            }
+        } catch (SQLException e) {
+            throw new ControllerException(e);
+        }
+    }
 
-	private boolean isAlertCondition(String expression, String errorMessage) {
-		if ((expression == null) || !(expression.length() > 0)) {
-			return false;
-		} else {
-			Pattern p = Pattern.compile(expression);
-	        // Create a matcher with an input string
-	        Matcher m = p.matcher(errorMessage);
-	        boolean result = m.find();
-			return result;
-		}
-	}
+    public void removeAlert(Alert alert) throws ControllerException {
+        logger.debug("removing alert: " + alert);
 
-	private void sendAlertEmails(List<String> emails, String template, String errorMessage, String channelId) throws ControllerException {
-		try {
-			Properties properties = ConfigurationController.getInstance().getServerProperties();
-			String fromAddress = PropertyLoader.getProperty(properties, "smtp.from");
-			String toAddressList = generateEmailList(emails);
-			String body = errorMessage;
-			
-			if (template != null) {
-	            TemplateEvaluator evaluator = new TemplateEvaluator();
-	            Map<String, Object> context = new HashMap<String, Object>();
-	            Channel filterChannel = new Channel();
-	            filterChannel.setId(channelId);
-	            Channel channel = ChannelController.getInstance().getChannel(filterChannel).get(0);
-	            
-	            context.put("channelName", channel.getName());
-	            context.put("ERROR", errorMessage);
-	            context.put("error", errorMessage);
-	            context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
-	            body = evaluator.evaluate(template, context);
-			}
+        try {
+            sqlMap.delete("deleteAlert", alert);
+        } catch (SQLException e) {
+            throw new ControllerException(e);
+        }
+    }
 
-			SMTPConnection connection = SMTPConnectionFactory.createSMTPConnection();
-			connection.send(toAddressList, null, fromAddress, "Mirth Alert", body);
-		} catch (Exception e) {
-			throw new ControllerException(e);
-		}
-	}
+    public void sendAlerts(String channelId, String errorType, String customMessage, Throwable e) {
+        String errorMessage = errorBuilder.buildErrorMessage(errorType, customMessage, e);
 
-	private String generateEmailList(List<String> emails) {
-		StringBuilder emailAddressList = new StringBuilder();
+        try {
+            for (Alert alert : getAlertByChannelId(channelId)) {
+                if (alert.isEnabled() && isAlertableError(alert.getExpression(), errorMessage)) {
+                    statisticsController.incrementAlertedCount(channelId);
+                    sendAlertEmails(alert.getEmails(), alert.getTemplate(), errorMessage, channelId);
+                }
+            }
+        } catch (ControllerException ce) {
+            logger.error(ce);
+        }
+    }
 
-		for (Iterator iter = emails.iterator(); iter.hasNext();) {
-			String email = (String) iter.next();
-			emailAddressList.append(email + ",");
-		}
+    private boolean isAlertableError(String expression, String errorMessage) {
+        if ((expression != null) && (expression.length() > 0)) {
+            return Pattern.compile(expression).matcher(errorMessage).find();
+        } else {
+            return false;
+        }
+    }
 
-		return emailAddressList.toString();
-	}
+    private void sendAlertEmails(List<String> emails, String template, String errorMessage, String channelId) throws ControllerException {
+        try {
+            Properties properties = ConfigurationController.getInstance().getServerProperties();
+            String fromAddress = PropertyLoader.getProperty(properties, "smtp.from");
+            String toAddresses = generateEmailList(emails);
+            String body = errorMessage;
+
+            if (template != null) {
+                Channel filterChannel = new Channel();
+                filterChannel.setId(channelId);
+                Channel channel = ChannelController.getInstance().getChannel(filterChannel).get(0);
+
+                Map<String, Object> context = new HashMap<String, Object>();
+                context.put("channelName", channel.getName());
+                context.put("ERROR", errorMessage);
+                context.put("error", errorMessage);
+                context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
+
+                TemplateValueReplacer replacer = new TemplateValueReplacer();
+                body = replacer.replaceValues(template, context);
+            }
+
+            SMTPConnection connection = SMTPConnectionFactory.createSMTPConnection();
+            connection.send(toAddresses, null, fromAddress, "Mirth Alert", body);
+        } catch (Exception e) {
+            logger.error(e);
+            throw new ControllerException("Could not send alert email.", e);
+        }
+    }
+
+    private String generateEmailList(List<String> emails) {
+        StringBuilder builder = new StringBuilder();
+
+        for (String email : emails) {
+            builder.append(email + ",");
+        }
+
+        return builder.toString();
+    }
 }

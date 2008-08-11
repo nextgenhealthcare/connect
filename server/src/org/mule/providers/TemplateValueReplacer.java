@@ -114,8 +114,8 @@ public class TemplateValueReplacer {
 
     private void loadContextFromMap(VelocityContext context, Map map) {
         for (Iterator iter = map.entrySet().iterator(); iter.hasNext();) {
-            Entry element = (Entry) iter.next();
-            context.put(element.getKey().toString(), element.getValue());
+            Entry entry = (Entry) iter.next();
+            context.put(entry.getKey().toString(), entry.getValue());
         }
     }
 
