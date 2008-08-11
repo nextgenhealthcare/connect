@@ -1,17 +1,4 @@
-/*
- * $Header: /home/projects/mule/scm/mule/providers/dicom/src/java/org/mule/providers/dicom/DICOMMessageReceiver.java,v 1.23 2005/11/05 12:23:27 aperepel Exp $
- * $Revision: 1.23 $
- * $Date: 2005/11/05 12:23:27 $
- * ------------------------------------------------------------------------------------------------------
- *
- * Copyright (c) SymphonySoft Limited. All rights reserved.
- * http://www.symphonysoft.com
- *
- * The software in this package is published under the terms of the BSD
- * style license a copy of which has been included with this distribution in
- * the LICENSE.txt file.
- *
- */
+
 package com.webreach.mirth.connectors.dimse;
 
 import java.io.BufferedOutputStream;
@@ -34,7 +21,6 @@ import org.mule.config.i18n.Message;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.AbstractMessageReceiver;
 import org.mule.providers.ConnectException;
-import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpoint;
@@ -45,7 +31,6 @@ import sun.misc.BASE64Encoder;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.DICOMSerializer;
-import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
@@ -63,10 +48,8 @@ public class DICOMMessageReceiver extends AbstractMessageReceiver {
     // --- DICOM Specific Variables ---
     DcmRcv2 dcmrcv = new DcmRcv2(); 
     protected DICOMConnector connector;
-	private AlertController alertController = AlertController.getInstance();
 	private MonitoringController monitoringController = MonitoringController.getInstance();
 	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
-	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	private ConnectorType connectorType = ConnectorType.LISTENER;
 	public DICOMMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
 		super(connector, component, endpoint);

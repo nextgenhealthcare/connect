@@ -46,8 +46,7 @@ public class UpdateClient {
         ServerInfo serverInfo = new ServerInfo();
         Map<String, String> components = new HashMap<String, String>();
 
-        for (Iterator iterator = plugins.values().iterator(); iterator.hasNext();) {
-            PluginMetaData pmd = (PluginMetaData) iterator.next();
+        for (PluginMetaData pmd : plugins.values()) {
             components.put(pmd.getId(), pmd.getPluginVersion());
         }
 
@@ -57,8 +56,7 @@ public class UpdateClient {
 
         Map<String, String> contacts = new HashMap<String, String>();
 
-        for (Iterator iterator = users.iterator(); iterator.hasNext();) {
-            User user = (User) iterator.next();
+        for (User user : users) {
             contacts.put(user.getEmail(), user.getOrganization());
         }
 
@@ -71,9 +69,7 @@ public class UpdateClient {
         try {
             updates = getUpdatesFromFeed();
 
-            for (Iterator iterator = updates.iterator(); iterator.hasNext();) {
-                UpdateInfo updateInfo = (UpdateInfo) iterator.next();
-
+            for (UpdateInfo updateInfo : updates) {
                 if (ignore.contains(updateInfo.getId())) {
                     updates.remove(updateInfo);
                 }
