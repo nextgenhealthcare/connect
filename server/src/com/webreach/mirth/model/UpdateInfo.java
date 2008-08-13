@@ -12,6 +12,7 @@ public class UpdateInfo {
     private String uri;
     private Type type;
     private boolean ignored;
+    private boolean isNew;
     private String author;
 
 	public String getId() {
@@ -77,5 +78,12 @@ public class UpdateInfo {
 	public void setAuthor(String author) {
 		this.author = author;
 	}
+	
+	public boolean isNew() {
+	    return isNew;
+	}
 
+	public void setNew(boolean isNew) {
+	    this.isNew = isNew;
+	}
 }

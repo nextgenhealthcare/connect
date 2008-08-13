@@ -1,7 +1,7 @@
 package com.webreach.mirth.client.core;
 
-import java.net.URL;
-import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -13,15 +13,9 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
 
-import com.sun.syndication.feed.synd.SyndCategory;
-import com.sun.syndication.feed.synd.SyndEntry;
-import com.sun.syndication.feed.synd.SyndFeed;
-import com.sun.syndication.io.SyndFeedInput;
-import com.sun.syndication.io.XmlReader;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.UpdateInfo;
 import com.webreach.mirth.model.User;
-import com.webreach.mirth.model.UpdateInfo.Type;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.util.PropertyLoader;
 
@@ -37,11 +31,10 @@ public class UpdateClient {
         this.requestUser = requestUser;
     }
 
-    public List<UpdateInfo> getUpdates(boolean includeNew) throws ClientException {
+    public List<UpdateInfo> getUpdates() throws ClientException {
         Map<String, PluginMetaData> plugins = client.getPluginMetaData();
         String serverId = client.getServerId();
         String version = client.getVersion();
-        List<User> users = client.getUser(null);
 
         ServerInfo serverInfo = new ServerInfo();
         Map<String, String> components = new HashMap<String, String>();
@@ -53,23 +46,25 @@ public class UpdateClient {
         components.put(MIRTH_GUID, version);
         serverInfo.setComponents(components);
         serverInfo.setServerId(serverId);
-        serverInfo.setIncludeNew(includeNew);
 
         Map<String, String> contacts = new HashMap<String, String>();
 
-        for (User user : users) {
-            contacts.put(user.getEmail(), user.getOrganization());
+
+        if (Boolean.valueOf(PropertyLoader.getProperty(client.getServerProperties(), "update.register"))) {
+            List<User> users = client.getUser(null);
+
+            for (User user : users) {
+                contacts.put(user.getEmail(), user.getOrganization());
+            }
+
+            serverInfo.setContacts(contacts);    
         }
-
-        serverInfo.setContacts(contacts);
-        List<UpdateInfo> updates = null;
         
-        try {
-            // check if the doNotSendUpdates property is set
-            submitServerInfo(serverInfo);
+        List<UpdateInfo> updates = null;
 
+        try {
             List<String> ignore = getIgnoredComponentIds();
-            updates = getUpdatesFromFeed();
+            updates = getUpdatesFromUri(serverInfo);
 
             for (UpdateInfo updateInfo : updates) {
                 if (ignore.contains(updateInfo.getId())) {
@@ -82,7 +77,7 @@ public class UpdateClient {
 
         return updates;
     }
-    
+
     public void setIgnoredComponentIds(List<String> ignoredComponentIds) throws ClientException {
         StringBuilder builder = new StringBuilder();
 
@@ -99,32 +94,36 @@ public class UpdateClient {
         client.setUserPreference(requestUser, USER_PREF_IGNORED_IDS, builder.toString());
     }
 
-    private List<UpdateInfo> getUpdatesFromFeed() throws Exception {
-        List<UpdateInfo> updates = new ArrayList<UpdateInfo>();
+    private List<UpdateInfo> getUpdatesFromUri(ServerInfo serverInfo) throws Exception {
+        HttpClient httpClient = new HttpClient();
+        PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url"));
+        NameValuePair[] params = { new NameValuePair("serverInfo", serializer.toXML(serverInfo)) };
+        post.setRequestBody(params);
 
-        for (SyndEntry entry : getSyndEntries()) {
-            UpdateInfo updateInfo = new UpdateInfo();
-            updateInfo.setId(entry.getTitle());
-            updateInfo.setDescription(entry.getDescription().getValue());
-            updateInfo.setUri(entry.getLink());
-            updateInfo.setAuthor(entry.getAuthor());
-            
-            if (entry.getTitle().equals(MIRTH_GUID)) {
-                updateInfo.setType(Type.SERVER);
-            } else {
-                SyndCategory category = (SyndCategory) entry.getCategories().get(0);
-                updateInfo.setType(Type.valueOf(category.getName().toUpperCase()));
+        try {
+            int statusCode = httpClient.executeMethod(post);
+
+            if ((statusCode != HttpStatus.SC_OK) && (statusCode != HttpStatus.SC_MOVED_TEMPORARILY)) {
+                throw new Exception("Failed to connect to update server: " + post.getStatusLine());
+            }
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(post.getResponseBodyAsStream()));
+            StringBuilder result = new StringBuilder();
+            String input = new String();
+
+            while ((input = reader.readLine()) != null) {
+                result.append(input);
+                result.append('\n');
+            }
+
+            return (List<UpdateInfo>) serializer.fromXML(result.toString());
+        } catch (Exception e) {
+            throw new Exception("Failed to connect to update server.");
+        } finally {
+            if (post != null) {
+                post.releaseConnection();
             }
         }
-
-        return updates;
-    }
-
-    private List<SyndEntry> getSyndEntries() throws Exception {
-        URL feedSource = new URL(PropertyLoader.getProperty(client.getServerProperties(), "update.url"));
-        SyndFeedInput input = new SyndFeedInput();
-        SyndFeed feed = input.build(new XmlReader(feedSource));
-        return feed.getEntries();
     }
 
     private List<String> getIgnoredComponentIds() throws Exception {
@@ -139,27 +138,6 @@ public class UpdateClient {
                 throw new Exception("Could not find user preference: " + USER_PREF_IGNORED_IDS);
             } else {
                 return Arrays.asList(ignoredComponentIds.split(","));
-            }
-        }
-    }
-
-    private void submitServerInfo(ServerInfo serverInfo) throws Exception {
-        HttpClient httpClient = new HttpClient();
-        PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url"));
-        NameValuePair[] params = { new NameValuePair("identification", serializer.toXML(serverInfo)) };
-        post.setRequestBody(params);
-
-        try {
-            int statusCode = httpClient.executeMethod(post);
-
-            if ((statusCode != HttpStatus.SC_OK) && (statusCode != HttpStatus.SC_MOVED_TEMPORARILY)) {
-                throw new Exception("Failed to connect to update server: " + post.getStatusLine());
-            }
-        } catch (Exception e) {
-            throw new Exception("Failed to connect to update server.");
-        } finally {
-            if (post != null) {
-                post.releaseConnection();
             }
         }
     }
