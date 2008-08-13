@@ -37,7 +37,7 @@ public class UpdateClient {
         this.requestUser = requestUser;
     }
 
-    public List<UpdateInfo> getUpdates() throws Exception {
+    public List<UpdateInfo> getUpdates() throws ClientException {
         Map<String, PluginMetaData> plugins = client.getPluginMetaData();
         String serverId = client.getServerId();
         String version = client.getVersion();
@@ -61,14 +61,13 @@ public class UpdateClient {
         }
 
         serverInfo.setContacts(contacts);
-        
-        // check if the doNotSendUpdates property is set
-        submitServerInfo(serverInfo);
-
-        List<String> ignore = getIgnoredComponentIds();
         List<UpdateInfo> updates = null;
-
+        
         try {
+            // check if the doNotSendUpdates property is set
+            submitServerInfo(serverInfo);
+
+            List<String> ignore = getIgnoredComponentIds();
             updates = getUpdatesFromFeed();
 
             for (UpdateInfo updateInfo : updates) {
@@ -77,13 +76,13 @@ public class UpdateClient {
                 }
             }
         } catch (Exception e) {
-            throw new Exception("Could not retrieve update list from server.", e);
+            throw new ClientException("Could not retrieve update list from server.", e);
         }
 
         return updates;
     }
     
-    public void setIgnoredComponentIds(List<String> ignoredComponentIds) throws Exception {
+    public void setIgnoredComponentIds(List<String> ignoredComponentIds) throws ClientException {
         StringBuilder builder = new StringBuilder();
 
         for (ListIterator iterator = ignoredComponentIds.listIterator(); iterator.hasNext();) {
