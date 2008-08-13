@@ -12,8 +12,9 @@ public class UpdateInfo {
     private String uri;
     private Type type;
     private boolean ignored;
+    private String author;
 
-    public String getId() {
+	public String getId() {
         return id;
     }
 
@@ -68,5 +69,13 @@ public class UpdateInfo {
     public void setIgnored(boolean ignored) {
         this.ignored = ignored;
     }
+    
+    public String getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(String author) {
+		this.author = author;
+	}
 
 }
