@@ -32,8 +32,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.io.File;
-import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
@@ -48,9 +46,7 @@ import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.RefreshTableModel;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.MetaData;
-import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 
 /** Creates the About Mirth dialog. The content is loaded from about.txt. */
@@ -298,7 +294,7 @@ public class UpdateDialog extends javax.swing.JDialog
             {
                 statusLabel.setText("Checking: " + metaData.getName());
                 String url = pluginUtil.getDynamicURL(metaData.getUpdateUrl(), metaData.getPluginVersion(), metaData.getName());
-                String updateText = pluginUtil.getStringFromURL(url);
+                String updateText = pluginUtil.getURLContents(url);
                 //System.out.println(updateText);
                 if (updateText.length() > 0)
                 {

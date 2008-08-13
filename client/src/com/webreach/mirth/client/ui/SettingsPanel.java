@@ -717,9 +717,9 @@ private void sendServerInfoNoActionPerformed(java.awt.event.ActionEvent evt) {//
             else
                 defaultFrom.setText("");
 
-            if (serverProperties.getProperty("smtp.requireAuthentication") != null)
+            if (serverProperties.getProperty("smtp.auth") != null)
             {
-                if (serverProperties.getProperty("smtp.requireAuthentication").equals(UIConstants.YES_OPTION))
+                if (serverProperties.getProperty("smtp.auth").equals(UIConstants.YES_OPTION))
                 {
                     requireAuthenticationYes.setSelected(true);
                     requireAuthenticationYesActionPerformed(null);
@@ -736,9 +736,9 @@ private void sendServerInfoNoActionPerformed(java.awt.event.ActionEvent evt) {//
                 requireAuthenticationNoActionPerformed(null);
             }
             
-            if(serverProperties.getProperty("clearGlobal") != null)
+            if(serverProperties.getProperty("server.resetglobalvariables") != null)
             {
-                if(serverProperties.getProperty("clearGlobal").equals(UIConstants.YES_OPTION))
+                if(serverProperties.getProperty("server.resetglobalvariables").equals(UIConstants.YES_OPTION))
                     clearGlobalMapYes.setSelected(true);
                 else
                     clearGlobalMapNo.setSelected(true);
@@ -812,9 +812,9 @@ private void sendServerInfoNoActionPerformed(java.awt.event.ActionEvent evt) {//
             userPreferences.putBoolean("highlightRows", rowHighlightYes.isSelected());
             
             if(clearGlobalMapNo.isSelected())
-                serverProperties.put("clearGlobal", UIConstants.NO_OPTION);
+                serverProperties.put("server.resetglobalvariables", UIConstants.NO_OPTION);
             else
-                serverProperties.put("clearGlobal", UIConstants.YES_OPTION);
+                serverProperties.put("server.resetglobalvariables", UIConstants.YES_OPTION);
             
             if(checkForUpdatesNo.isSelected())
                 serverProperties.put("checkForUpdates", UIConstants.NO_OPTION);
@@ -832,13 +832,13 @@ private void sendServerInfoNoActionPerformed(java.awt.event.ActionEvent evt) {//
 
             if (requireAuthenticationYes.isSelected())
             {
-                serverProperties.put("smtp.requireAuthentication", UIConstants.YES_OPTION);
+                serverProperties.put("smtp.auth", UIConstants.YES_OPTION);
                 serverProperties.put("smtp.username", smtpUsername.getText());
                 serverProperties.put("smtp.password", new String(smtpPassword.getPassword()));
             }
             else
             {
-                serverProperties.put("smtp.requireAuthentication", UIConstants.NO_OPTION);
+                serverProperties.put("smtp.auth", UIConstants.NO_OPTION);
                 serverProperties.put("smtp.username", "");
                 serverProperties.put("smtp.password", "");
             }

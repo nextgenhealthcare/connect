@@ -25,33 +25,19 @@
 
 package com.webreach.mirth.plugins.extensionmanager;
 
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import java.awt.Dimension;
-import java.awt.Event;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
 import org.jdesktop.swingworker.SwingWorker;
-import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
 
@@ -61,9 +47,8 @@ import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.RefreshTableModel;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.MetaData;
-import com.webreach.mirth.model.PluginMetaData;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 
 /** Creates the About Mirth dialog. The content is loaded from about.txt. */
 public class RepositoryDialog extends javax.swing.JDialog
@@ -284,10 +269,9 @@ public class RepositoryDialog extends javax.swing.JDialog
     public void updateLoadedExtensionsTable()
     {
         Object[][] tableData = null;
-        ArrayList<String> updateVersion = new ArrayList<String>();
         statusLabel.setText("Retrieving extension list...");
         progressBar.setIndeterminate(true);
-        String extensionInfoXML = pluginUtil.getStringFromURL(pluginUtil.getDynamicURL("http://extensions.mirthproject.org/repository/?mirthversion=${mirthVersion}&serverid=${serverid}", "",""));
+        String extensionInfoXML = pluginUtil.getURLContents(pluginUtil.getDynamicURL("http://extensions.mirthproject.org/repository/?mirthversion=${mirthVersion}&serverid=${serverid}", "",""));
         ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[]{ExtensionInfo.class});
         ExtensionInfo[] extensionInfo = null;
         
