@@ -35,9 +35,10 @@ public class SMTPConnectionFactory {
         Properties properties = ConfigurationController.getInstance().getServerProperties();
         String host = PropertyLoader.getProperty(properties, "smtp.host");
         int port = Integer.valueOf(PropertyLoader.getProperty(properties, "smtp.port")).intValue();
-        boolean auth = PropertyLoader.getProperty(properties, "smtp.requireAuthentication").equals("1");
+        boolean auth = PropertyLoader.getProperty(properties, "smtp.auth").equals("1");
+        boolean ssl = PropertyLoader.getProperty(properties, "smtp.ssl").equals("1");
         String username = PropertyLoader.getProperty(properties, "smtp.username");
         String password = PropertyLoader.getProperty(properties, "smtp.password");
-        return new SMTPConnection(host, port, auth, username, password);
+        return new SMTPConnection(host, port, auth, ssl, username, password);
     }
 }

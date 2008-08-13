@@ -213,7 +213,7 @@ public class Mirth extends Thread {
 		try {
 			// clear global map and do channel deploy scripts if the user
 			// specified to
-			if (configurationController.getServerProperties().getProperty("clearGlobal") == null || configurationController.getServerProperties().getProperty("clearGlobal").equals("1"))
+			if (configurationController.getServerProperties().getProperty("server.resetglobalvariables") == null || configurationController.getServerProperties().getProperty("server.resetglobalvariables").equals("1"))
 				GlobalVariableStore.getInstance().globalVariableMap.clear();
 		} catch (Exception e) {
 			logger.warn("Could not clear the global map.", e);
