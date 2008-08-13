@@ -746,9 +746,9 @@ private void sendServerInfoNoActionPerformed(java.awt.event.ActionEvent evt) {//
             else
                 clearGlobalMapYes.setSelected(true);
             
-            if(serverProperties.getProperty("checkForUpdates") != null)
+            if(serverProperties.getProperty("updates.enabled") != null)
             {
-                if(serverProperties.getProperty("checkForUpdates").equals(UIConstants.YES_OPTION))
+                if(serverProperties.getProperty("updates.enabled").equals(UIConstants.YES_OPTION))
                     checkForUpdatesYes.setSelected(true);
                 else
                 	checkForUpdatesNo.setSelected(true);
@@ -756,9 +756,9 @@ private void sendServerInfoNoActionPerformed(java.awt.event.ActionEvent evt) {//
             else
             	checkForUpdatesYes.setSelected(true);
             
-            if(serverProperties.getProperty("sendServerInfo") != null)
+            if(serverProperties.getProperty("updates.ident") != null)
             {
-                if(serverProperties.getProperty("sendServerInfo").equals(UIConstants.YES_OPTION))
+                if(serverProperties.getProperty("updates.ident").equals(UIConstants.YES_OPTION))
                     sendServerInfoYes.setSelected(true);
                 else
                 	sendServerInfoNo.setSelected(true);
@@ -817,14 +817,14 @@ private void sendServerInfoNoActionPerformed(java.awt.event.ActionEvent evt) {//
                 serverProperties.put("server.resetglobalvariables", UIConstants.YES_OPTION);
             
             if(checkForUpdatesNo.isSelected())
-                serverProperties.put("checkForUpdates", UIConstants.NO_OPTION);
+                serverProperties.put("updates.enabled", UIConstants.NO_OPTION);
             else
-                serverProperties.put("checkForUpdates", UIConstants.YES_OPTION);
+                serverProperties.put("updates.enabled", UIConstants.YES_OPTION);
             
             if(sendServerInfoNo.isSelected())
-                serverProperties.put("sendServerIdent", UIConstants.NO_OPTION);
+                serverProperties.put("updates.ident", UIConstants.NO_OPTION);
             else
-                serverProperties.put("sendServerIdent", UIConstants.YES_OPTION);
+                serverProperties.put("updates.ident", UIConstants.YES_OPTION);
             
             serverProperties.put("smtp.host", smtpHost.getText());
             serverProperties.put("smtp.port", smtpPort.getText());
