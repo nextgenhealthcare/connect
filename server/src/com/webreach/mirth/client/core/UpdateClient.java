@@ -4,7 +4,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -14,6 +13,7 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
 
+import com.sun.syndication.feed.synd.SyndCategory;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.SyndFeedInput;
@@ -106,11 +106,13 @@ public class UpdateClient {
             updateInfo.setId(entry.getTitle());
             updateInfo.setDescription(entry.getDescription().getValue());
             updateInfo.setUri(entry.getLink());
+            updateInfo.setAuthor(entry.getAuthor());
             
             if (entry.getTitle().equals(MIRTH_GUID)) {
                 updateInfo.setType(Type.SERVER);
             } else {
-                updateInfo.setType(Type.EXTENSION);
+                SyndCategory category = (SyndCategory) entry.getCategories().get(0);
+                updateInfo.setType(Type.valueOf(category.getName().toUpperCase()));
             }
         }
 

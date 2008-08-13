@@ -2,7 +2,7 @@ package com.webreach.mirth.model;
 
 public class UpdateInfo {
     public enum Type {
-        SERVER, ADMINISTRATOR, EXTENSION;
+        SERVER, CONNECTOR, PLUGIN
     };
 
     private String id;
