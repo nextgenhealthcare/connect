@@ -37,7 +37,7 @@ public class UpdateClient {
         this.requestUser = requestUser;
     }
 
-    public List<UpdateInfo> getUpdates() throws ClientException {
+    public List<UpdateInfo> getUpdates(boolean includeNew) throws ClientException {
         Map<String, PluginMetaData> plugins = client.getPluginMetaData();
         String serverId = client.getServerId();
         String version = client.getVersion();
@@ -53,6 +53,7 @@ public class UpdateClient {
         components.put(MIRTH_GUID, version);
         serverInfo.setComponents(components);
         serverInfo.setServerId(serverId);
+        serverInfo.setIncludeNew(includeNew);
 
         Map<String, String> contacts = new HashMap<String, String>();
 

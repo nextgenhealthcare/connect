@@ -6,6 +6,7 @@ public class ServerInfo {
     private Map<String, String> components;
     private Map<String, String> contacts;
     private String serverId;
+    private boolean includeNew;
 
     public Map<String, String> getComponents() {
         return components;
@@ -29,6 +30,14 @@ public class ServerInfo {
 
     public void setServerId(String serverId) {
         this.serverId = serverId;
+    }
+
+    public boolean isIncludeNew() {
+        return includeNew;
+    }
+
+    public void setIncludeNew(boolean includeNew) {
+        this.includeNew = includeNew;
     }
 
 }
