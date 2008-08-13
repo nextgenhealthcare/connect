@@ -11,6 +11,7 @@ public class UpdateInfo {
     private String description;
     private String uri;
     private Type type;
+    private boolean ignored;
 
     public String getId() {
         return id;
@@ -58,6 +59,14 @@ public class UpdateInfo {
 
     public void setType(Type type) {
         this.type = type;
+    }
+
+    public boolean isIgnored() {
+        return ignored;
+    }
+
+    public void setIgnored(boolean ignored) {
+        this.ignored = ignored;
     }
 
 }

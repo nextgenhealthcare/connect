@@ -61,6 +61,8 @@ public class UpdateClient {
         }
 
         serverInfo.setContacts(contacts);
+        
+        // check if the doNotSendUpdates property is set
         submitServerInfo(serverInfo);
 
         List<String> ignore = getIgnoredComponentIds();
@@ -71,7 +73,7 @@ public class UpdateClient {
 
             for (UpdateInfo updateInfo : updates) {
                 if (ignore.contains(updateInfo.getId())) {
-                    updates.remove(updateInfo);
+                    updateInfo.setIgnored(true);
                 }
             }
         } catch (Exception e) {
