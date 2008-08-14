@@ -99,8 +99,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	
 	<select id="getUserPreferences" parameterClass="java.lang.Integer" resultClass="java.util.Map">
 		SELECT NAME, VALUE
-		FROM PERSON
-		WHERE ID = #id#
+		FROM PREFERENCES
+		WHERE PERSON_ID = #id#
 	</select>
 	
 	<insert id="insertUserPreference" parameterClass="java.util.Map">
