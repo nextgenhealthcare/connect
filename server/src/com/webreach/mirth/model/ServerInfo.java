@@ -1,4 +1,4 @@
-package com.webreach.mirth.client.core;
+package com.webreach.mirth.model;
 
 import java.util.Map;
 

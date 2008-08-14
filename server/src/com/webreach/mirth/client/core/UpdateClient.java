@@ -14,6 +14,7 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
 
 import com.webreach.mirth.model.PluginMetaData;
+import com.webreach.mirth.model.ServerInfo;
 import com.webreach.mirth.model.UpdateInfo;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
