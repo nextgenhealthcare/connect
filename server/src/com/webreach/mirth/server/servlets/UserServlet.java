@@ -96,8 +96,8 @@ public class UserServlet extends MirthServlet {
                     out.println(serializer.toXML(userController.getUserPreferences(user)));
                 } else if (operation.equals("setUserPreference")) {
                     User user = (User) serializer.fromXML(request.getParameter("user"));
-                    String name = (String) serializer.fromXML(request.getParameter("name"));
-                    String value = (String) serializer.fromXML(request.getParameter("value"));
+                    String name = (String) request.getParameter("name");
+                    String value = (String) request.getParameter("value");
                     userController.setUserPreference(user, name, value);
                 } 
 			} catch (Exception e) {
