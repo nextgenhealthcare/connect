@@ -2,6 +2,7 @@ package com.webreach.mirth.client.core;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -51,7 +52,7 @@ public class UpdateClient {
         Map<String, String> contacts = new HashMap<String, String>();
 
 
-        if (Boolean.valueOf(PropertyLoader.getProperty(client.getServerProperties(), "update.ident"))) {
+        if (PropertyLoader.getProperty(client.getServerProperties(), "update.ident").equals("1")) {
             List<User> users = client.getUser(null);
 
             for (User user : users) {
@@ -131,7 +132,7 @@ public class UpdateClient {
         Map<String, String> userPreferences = client.getUserPreferences(requestUser);
 
         if (userPreferences == null) {
-            throw new Exception("Could not load user preferences.");
+            return new ArrayList<String>();
         } else {
             String ignoredComponentIds = userPreferences.get(USER_PREF_IGNORED_IDS);
 
