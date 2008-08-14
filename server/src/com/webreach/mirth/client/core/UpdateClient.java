@@ -137,7 +137,7 @@ public class UpdateClient {
             String ignoredComponentIds = userPreferences.get(USER_PREF_IGNORED_IDS);
 
             if (ignoredComponentIds == null) {
-                throw new Exception("Could not find user preference: " + USER_PREF_IGNORED_IDS);
+                return new ArrayList<String>();
             } else {
                 return Arrays.asList(ignoredComponentIds.split(","));
             }
