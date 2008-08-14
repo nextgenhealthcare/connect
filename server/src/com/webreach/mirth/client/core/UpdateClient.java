@@ -74,7 +74,7 @@ public class UpdateClient {
                 }
             }
         } catch (Exception e) {
-            throw new ClientException("Could not retrieve update list from server.", e);
+            throw new ClientException(e);
         }
 
         return updates;
@@ -120,7 +120,7 @@ public class UpdateClient {
 
             return (List<UpdateInfo>) serializer.fromXML(result.toString());
         } catch (Exception e) {
-            throw new Exception("Failed to connect to update server.");
+            throw e;
         } finally {
             if (post != null) {
                 post.releaseConnection();
