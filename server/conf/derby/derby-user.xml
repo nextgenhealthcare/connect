@@ -106,6 +106,6 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<insert id="insertUserPreference" parameterClass="java.util.Map">
 		INSERT INTO
 		PREFERENCES (PERSON_ID, NAME, VALUE)
-		VALUES (#id#, #name#, #value#);
+		VALUES (#id#, #name#, #value#)
 	</insert>	
 </sqlMap>
