@@ -180,7 +180,7 @@ public class UserController {
     public void setUserPreference(User user, String name, String value) throws ControllerException {
         try {
             Map parameterMap = new HashMap();
-            parameterMap.put("personId", user.getId());
+            parameterMap.put("id", user.getId());
             parameterMap.put("name", name);
             parameterMap.put("value", value);
 
