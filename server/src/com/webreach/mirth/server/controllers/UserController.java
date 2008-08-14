@@ -171,7 +171,7 @@ public class UserController {
 
     public Map<String, String> getUserPreferences(User user) throws ControllerException {
         try {
-            return (Map<String, String>) sqlMap.queryForMap("getUserPreferences", user.getId(), "name", "value");
+            return (Map<String, String>) sqlMap.queryForMap("getUserPreferences", user.getId(), null, "name");
         } catch (Exception e) {
             throw new ControllerException(e);
         }
