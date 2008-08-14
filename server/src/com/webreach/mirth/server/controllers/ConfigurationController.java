@@ -166,7 +166,28 @@ public class ConfigurationController {
 
     private void loadDefaultProperties() throws Exception {
         Properties serverProperties = getServerProperties();
+
+        // update.url
+        String updateUrl = serverProperties.getProperty("update.url");
         
+        if ((updateUrl != null) && (updateUrl.length() > 0)) {
+            serverProperties.setProperty("update.url", "http://updates.mirthproject.org");
+        }
+
+        // update.enabled
+        String updateEnabled = serverProperties.getProperty("update.enabled");
+        
+        if ((updateEnabled != null) && (updateEnabled.length() > 0)) {
+            serverProperties.setProperty("update.enabled", "1");
+        }
+
+        // update.ident
+        String updateIdent = serverProperties.getProperty("update.ident");
+        
+        if ((updateIdent != null) && (updateIdent.length() > 0)) {
+            serverProperties.setProperty("update.ident", "1");
+        }
+
         // server.resetglobalvariables
         String clearGlobal = serverProperties.getProperty("clearGlobal");
         

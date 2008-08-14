@@ -51,7 +51,7 @@ public class UpdateClient {
         Map<String, String> contacts = new HashMap<String, String>();
 
 
-        if (Boolean.valueOf(PropertyLoader.getProperty(client.getServerProperties(), "update.register"))) {
+        if (Boolean.valueOf(PropertyLoader.getProperty(client.getServerProperties(), "update.ident"))) {
             List<User> users = client.getUser(null);
 
             for (User user : users) {
