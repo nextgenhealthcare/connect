@@ -4,7 +4,7 @@ import java.util.Map;
 
 public class ServerInfo {
     private Map<String, String> components;
-    private Map<String, String> contacts;
+    private User user;
     private String serverId;
 
     public Map<String, String> getComponents() {
@@ -15,12 +15,12 @@ public class ServerInfo {
         this.components = components;
     }
 
-    public Map<String, String> getContacts() {
-        return contacts;
+    public User getUser() {
+        return user;
     }
 
-    public void setContacts(Map<String, String> contacts) {
-        this.contacts = contacts;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getServerId() {

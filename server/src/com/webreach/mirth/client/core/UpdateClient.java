@@ -55,17 +55,8 @@ public class UpdateClient {
         serverInfo.setComponents(components);
         serverInfo.setServerId(serverId);
 
-        Map<String, String> contacts = new HashMap<String, String>();
-
-
         if (PropertyLoader.getProperty(client.getServerProperties(), "update.ident").equals("1")) {
-            List<User> users = client.getUser(null);
-
-            for (User user : users) {
-                contacts.put(user.getEmail(), user.getOrganization());
-            }
-
-            serverInfo.setContacts(contacts);    
+            serverInfo.setUser(requestUser);    
         }
         
         List<UpdateInfo> updates = null;
