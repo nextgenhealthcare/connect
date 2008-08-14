@@ -27,9 +27,7 @@ package com.webreach.mirth.server.controllers;
 
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -182,7 +180,7 @@ public class UserController {
     public void setUserPreference(User user, String name, String value) throws ControllerException {
         try {
             Map parameterMap = new HashMap();
-            parameterMap.put("personId", user.getId().toString());
+            parameterMap.put("personId", user.getId());
             parameterMap.put("name", name);
             parameterMap.put("value", value);
 
