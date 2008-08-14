@@ -14,6 +14,7 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
 
+import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.ServerInfo;
 import com.webreach.mirth.model.UpdateInfo;
@@ -35,6 +36,7 @@ public class UpdateClient {
 
     public List<UpdateInfo> getUpdates() throws ClientException {
         Map<String, PluginMetaData> plugins = client.getPluginMetaData();
+        Map<String, ConnectorMetaData> connectors = client.getConnectorMetaData();
         String serverId = client.getServerId();
         String version = client.getVersion();
 
@@ -43,6 +45,10 @@ public class UpdateClient {
 
         for (PluginMetaData pmd : plugins.values()) {
             components.put(pmd.getId(), pmd.getPluginVersion());
+        }
+        
+        for (ConnectorMetaData cmd : connectors.values()) {
+            components.put(cmd.getId(), cmd.getPluginVersion());
         }
 
         components.put(MIRTH_GUID, version);
