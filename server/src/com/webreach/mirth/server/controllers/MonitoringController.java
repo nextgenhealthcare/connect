@@ -15,7 +15,7 @@ import com.webreach.mirth.plugins.ConnectorStatusPlugin;
 
 public class MonitoringController {
 	public enum Event {
-		CONNECTED, DISCONNECTED, INITIALIZED, BUSY, DONE
+		CONNECTED, DISCONNECTED, INITIALIZED, BUSY, DONE, ATTEMPTING_TO_CONNECT
 	};
 
 	public enum ConnectorType {

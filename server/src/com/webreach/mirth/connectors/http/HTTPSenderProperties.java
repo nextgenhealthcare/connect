@@ -57,4 +57,8 @@ public class HTTPSenderProperties extends QueuedSenderProperties
         properties.put(CHANNEL_NAME, "None");
         return properties;
     }
+
+    public static String getInformation(Properties properties) {
+        return "Host: " + properties.getProperty(HTTP_URL) + "   Method: " + properties.getProperty(HTTP_METHOD);
+    }
 }

@@ -135,19 +135,25 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 				int retryCount = -1;
 				int maxRetries = connector.getMaxRetryCount();
 				while (!success && !disposed && (retryCount < maxRetries)) {
-					if (maxRetries != TcpConnector.KEEP_RETRYING_INDEFINETLY) {
+
+                    monitoringController.updateStatus(connector, connectorType, Event.ATTEMPTING_TO_CONNECT, socket);
+
+                    if (maxRetries != TcpConnector.KEEP_RETRYING_INDEFINETLY) {
 						retryCount++;
 					}
 					try {
-
 						if (!connector.isKeepSendSocketOpen()) {
 							socket = initSocket(host);
-							writeTemplatedData(socket, messageObject);
+
+
+                            writeTemplatedData(socket, messageObject);
 							success = true;
 						} else {
 							socket = connectedSockets.get(host);
-							if (socket != null && !socket.isClosed()) {
-								try {
+                            if (socket != null && !socket.isClosed()) {
+
+                                
+                                try {
 									writeTemplatedData(socket, messageObject);
 									success = true;
 								} catch (Exception e) {
@@ -160,7 +166,9 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 								}
 							} else {
 								socket = initSocket(host);
-								writeTemplatedData(socket, messageObject);
+
+                                
+                                writeTemplatedData(socket, messageObject);
 								success = true;
 							}
 						}
@@ -169,7 +177,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 							if (socket != null) {
 								doDispose(socket);
 							}
-							logger.warn("Can't connect to the endopint,waiting" + new Float(connector.getReconnectMillisecs() / 1000) + "seconds for reconnecting \r\n(" + exs + ")");
+							logger.warn("Can't connect to the endopint, waiting " + new Float(connector.getReconnectMillisecs() / 1000) + " seconds for reconnecting \r\n(" + exs + ")");
 							try {
 								Thread.sleep(connector.getReconnectMillisecs());
 							} catch (Throwable t) {
@@ -182,7 +190,6 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 							exceptionMessage = "Unable to connect to destination";
 							logger.error("Can't connect to the endopint: payload not sent");
 							exceptionWriting = exs;
-
 						}
 					}
 				}

@@ -58,4 +58,10 @@ public class EmailSenderProperties implements ComponentProperties
         properties.put(EMAIL_BODY, "");
         return properties;
     }
+
+    public static String getInformation(Properties properties) {
+        return "From: " + properties.getProperty(EMAIL_FROM) +
+               "   To: " + properties.getProperty(EMAIL_TO) +
+               "   SMTP Info: " + properties.getProperty(EMAIL_ADDRESS) + ":" + properties.getProperty(EMAIL_PORT);
+    }
 }

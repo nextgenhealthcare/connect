@@ -71,4 +71,8 @@ public class JMSWriterProperties implements ComponentProperties
         properties.put(JMS_TEMPLATE, "${message.encodedData}");
         return properties;
     }
+
+    public static String getInformation(Properties properties) {
+        return "URL: " + properties.getProperty(JMS_URL);
+    }
 }

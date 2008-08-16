@@ -30,7 +30,6 @@ import com.webreach.mirth.server.controllers.MonitoringController.Event;
 public class DashboardConnectorStatusMonitor implements ServerPlugin
 {
     private Logger logger = Logger.getLogger(this.getClass());
-    private ChannelController channelController = ChannelController.getInstance();
     private static final String UNKNOWN = "Unknown";
 	private static final String BLACK = "black";
 	private static final String IDLE = "Idle";
@@ -38,12 +37,15 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
 	private static final String READING = "Reading";
 	private static final String POLLING = "Polling";
 	private static final String NOT_POLLING = "Not Polling";
-	private static final String YELLOW = "yellow";
+    private static final String WRITING = "Writing";
+    private static final String SENDING = "Sending";
+    private static final String YELLOW = "yellow";
 	private static final String GREEN = "green";
 	private static final String RED = "red";
 	private static final String WAITING = "Waiting";
 	private static final String CONNECTED = "Connected";
 	private static final String DISCONNECTED = "Disconnected";
+    private static final String ATTEMPTING_TO_CONNECT = "Attempting to Connect";
 	private static final String GET_STATES = "getStates";
     private static final String GET_CONNECTION_INFO_LOGS = "getConnectionInfoLogs";
     private static final String REMOVE_SESSIONID = "removeSessionId";
@@ -63,21 +65,23 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
 
 		String stateImage = BLACK;
 		String statusText = UNKNOWN;
-		boolean updateState = false;
-		switch (event) {
+        boolean updateStatus = false;
+
+        switch (event) {
 			case INITIALIZED:
 				switch (type) {
 					case LISTENER:
 						stateImage = YELLOW;
 						statusText = WAITING;
-						break;
+                        updateStatus = true;
+                        break;
 					case READER:
 						stateImage = YELLOW;
 						statusText = IDLE;
-						break;
+                        updateStatus = true;
+                        break;
 				}
-				updateState = true;
-				break;
+                break;
 			case CONNECTED:
 				switch (type) {
 					case LISTENER:
@@ -89,14 +93,15 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
 							stateImage = GREEN;
 							statusText = CONNECTED;
 						}
-						break;
+                        updateStatus = true;
+                        break;
 					case READER:
 						stateImage = GREEN;
 						statusText = POLLING;
-						break;
+                        updateStatus = true;
+                        break;
 				}
-				updateState = true;
-				break;
+                break;
 			case DISCONNECTED:
 				switch (type) {
 					case LISTENER:
@@ -115,63 +120,87 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
 							stateImage = RED;
 							statusText = DISCONNECTED;
 						}
-						break;
+                        updateStatus = true;
+                        break;
 					case READER:
 						stateImage = RED;
 						statusText = NOT_POLLING;
-						break;
+                        updateStatus = true;
+                        break;
 					case WRITER:
 						stateImage = RED;
 						statusText = DISCONNECTED;
-						break;
+                        updateStatus = true;
+                        break;
 					case SENDER:
                         stateImage = RED;
 						statusText = DISCONNECTED;
-						break;                    
+                        updateStatus = true;
+                        break;
                 }
-				updateState = true;
-				break;
+                break;
 			case BUSY:
 				switch (type) {
 					case READER:
 						stateImage = GREEN;
 						statusText = READING;
-						updateState = true;
-						break;
+                        updateStatus = true;
+                        break;
 					case LISTENER:
 						stateImage = GREEN;
 						statusText = RECEIVING;
-						updateState = true;
-						break;
-				}
-				break;
+                        updateStatus = true;
+                        break;
+                    case WRITER:
+						stateImage = YELLOW;
+						statusText = WRITING;
+                        updateStatus = true;
+                        break;
+					case SENDER:
+                        stateImage = YELLOW;
+						statusText = SENDING;
+                        updateStatus = true;
+                        break;
+                }
+                break;
 			case DONE:
 				switch (type) {
 					case READER:
 						stateImage = YELLOW;
 						statusText = IDLE;
-						updateState = true;
-						break;
+                        updateStatus = true;
+                        break;
 					case LISTENER:
-						if (socket != null){
+						if (socket != null) {
 							stateImage = GREEN;
 							statusText = CONNECTED + " (" + getSocketSetCount(connectorId) + ")";
-							updateState = true;
-							break;
 						} else {
 							stateImage = YELLOW;
 							statusText = WAITING;
-							updateState = true;
-							break;
 						}
-				}
+                        updateStatus = true;
+                        break;
+                }
+                break;
+            case ATTEMPTING_TO_CONNECT:
+                switch (type) {
+                    case WRITER:
+						stateImage = YELLOW;
+						statusText = ATTEMPTING_TO_CONNECT;
+                        updateStatus = true;
+                        break;
+					case SENDER:
+                        stateImage = YELLOW;
+						statusText = ATTEMPTING_TO_CONNECT;
+                        updateStatus = true;
+                        break;
+                }
+                break;
+            default:
 				break;
-			default:
-				break;
-		
 		}
 
-        if (updateState) {
+        if (updateStatus) {
 
             Timestamp ts = new Timestamp(System.currentTimeMillis());
             SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
@@ -195,7 +224,7 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
             if (channelsFromCache.containsKey(channelId)) { //  redundant check as the channelId MUST exist in the channelCache. but just for a safety measure...
 
                 Channel channel = channelsFromCache.get(channelId);
-                        
+
                 channelName = channel.getName();
 
                 // grab the channel's log from the HashMap, if not exist, create one.
@@ -219,44 +248,38 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
                         destinationIndex = Integer.valueOf(st.nextToken()) - 1;     // destinationId begins from 1, so subtract by 1 for the arrayIndex.
                         connector = channel.getDestinationConnectors().get(destinationIndex);
                         connectorType = "Destination: " + connector.getTransportName() + " - " + connector.getName();
-
                         if (connector.getTransportName().equals(FileWriterProperties.name)) {
                             // Destination - File Writer.
-                            information = FileWriterProperties.getInformation(connector.getProperties());
+                            switch (event) {
+                                case BUSY:
+                                    information = FileWriterProperties.getInformation(connector.getProperties());
+                                    break;
+                            }
                         } else if (connector.getTransportName().equals(DatabaseWriterProperties.name)) {
                             // Destination - Database Writer.
-                            information = "URL: " + connector.getProperties().getProperty(DatabaseWriterProperties.DATABASE_URL);
+                            information = DatabaseWriterProperties.getInformation(connector.getProperties());
                         } else if (connector.getTransportName().equals(JMSWriterProperties.name)) {
                             // Destination - JMS Writer.
-                            information = "URL: " + JMSWriterProperties.JMS_URL;
+                            information = JMSWriterProperties.getInformation(connector.getProperties());
                         } else if (connector.getTransportName().equals(ChannelWriterProperties.name)) {
                             // Destination - Channel Writer.
-                            information = "Target Channel: " + connector.getProperties().getProperty(ChannelWriterProperties.CHANNEL_NAME);
+                            information = ChannelWriterProperties.getInformation(connector.getProperties());
                         } else if (connector.getTransportName().equals(DocumentWriterProperties.name)) {
                             // Destination - Document Writer.
-                            if (connector.getProperties().getProperty(DocumentWriterProperties.DOCUMENT_PASSWORD_PROTECTED).equals("0")) {
-                                information = connector.getProperties().getProperty(DocumentWriterProperties.DOCUMENT_TYPE) + " Document Type Result written to: " +
-                                              connector.getProperties().getProperty(DocumentWriterProperties.FILE_DIRECTORY) + "/" + connector.getProperties().getProperty(DocumentWriterProperties.FILE_NAME);
-                            } else {
-                                information = "Encrypted " + connector.getProperties().getProperty(DocumentWriterProperties.DOCUMENT_TYPE) + " Document Type Result written to: " +
-                                              connector.getProperties().getProperty(DocumentWriterProperties.FILE_DIRECTORY) + "/" + connector.getProperties().getProperty(DocumentWriterProperties.FILE_NAME);
-                            }
+                            information = DocumentWriterProperties.getInformation(connector.getProperties());
                         }
                         break;
                     case SENDER:
                         st.nextToken();
-                        destinationIndex = Integer.valueOf(st.nextToken()) - 1;     // destinationId begins from 1, so subtract by 1 for the arrayIndex.                        
+                        destinationIndex = Integer.valueOf(st.nextToken()) - 1;     // destinationId begins from 1, so subtract by 1 for the arrayIndex.
                         connector = channel.getDestinationConnectors().get(destinationIndex);
                         connectorType = "Destination: " + connector.getTransportName() + " - " + connector.getName();
-
                         if (connector.getTransportName().equals(HTTPSenderProperties.name)) {
                             // Destination - HTTP Sender.
-                            information = "Host: " + connector.getProperties().getProperty(HTTPSenderProperties.HTTP_URL) + "   Method: " + connector.getProperties().getProperty(HTTPSenderProperties.HTTP_METHOD);
+                            information = HTTPSenderProperties.getInformation(connector.getProperties());
                         } else if (connector.getTransportName().equals(EmailSenderProperties.name)) {
                             // Destination - Email Sender.
-                            information = "From: " + connector.getProperties().getProperty(EmailSenderProperties.EMAIL_FROM) +
-                                          "   To: " + connector.getProperties().getProperty(EmailSenderProperties.EMAIL_TO) +
-                                          "   SMTP Info: " + connector.getProperties().getProperty(EmailSenderProperties.EMAIL_ADDRESS) + ":" + connector.getProperties().getProperty(EmailSenderProperties.EMAIL_PORT);
+                            information = EmailSenderProperties.getInformation(connector.getProperties());
                         } else if (connector.getTransportName().equals(TCPSenderProperties.name)) {
                             // Destination - TCP Sender.
                             // The useful info for TCP Sender - host:port will be taken care of by the socket below.
@@ -288,7 +311,6 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
             }
 
             if (channelLog != null) {
-
                 synchronized(this) {
                     if (channelLog.size() == LOG_SIZE) {
                         channelLog.removeLast();
@@ -309,7 +331,7 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
 
             this.currentStates.put(connectorId, new String[]{stateImage, statusText});
         }
-	}
+    }
 
 	private synchronized void addConnectionToSocketSet(Socket socket, String connectorId) {
 		if (socket != null){

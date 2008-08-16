@@ -58,4 +58,8 @@ public class DatabaseWriterProperties implements ComponentProperties
         properties.put(DATABASE_JS_SQL_STATEMENT, "");
         return properties;
     }
+
+    public static String getInformation(Properties properties) {
+        return "URL: " + properties.getProperty(DATABASE_URL);
+    }
 }

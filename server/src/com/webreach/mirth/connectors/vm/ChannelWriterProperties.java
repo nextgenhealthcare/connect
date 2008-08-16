@@ -32,7 +32,6 @@ import com.webreach.mirth.model.ComponentProperties;
 public class ChannelWriterProperties implements ComponentProperties
 {
 	public static final String name = "Channel Writer";
-	
     public static final String DATATYPE = "DataType";
     public static final String CHANNEL_ID = "host";
     public static final String CHANNEL_NAME = "channelName";
@@ -48,5 +47,9 @@ public class ChannelWriterProperties implements ComponentProperties
         properties.put(CHANNEL_SYNCHRONOUS, "0");
         properties.put(CHANNEL_TEMPLATE, "${message.encodedData}");
         return properties;
+    }
+
+    public static String getInformation(Properties properties) {
+        return "Target Channel: " + properties.getProperty(CHANNEL_NAME);
     }
 }

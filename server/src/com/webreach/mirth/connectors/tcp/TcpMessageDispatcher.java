@@ -139,7 +139,10 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
 				int retryCount = -1;
 				int maxRetries = connector.getMaxRetryCount();
 				while (!success && !disposed && (retryCount < maxRetries)) {
-					if (maxRetries != TcpConnector.KEEP_RETRYING_INDEFINETLY) {
+
+                    monitoringController.updateStatus(connector, connectorType, Event.ATTEMPTING_TO_CONNECT, socket);
+
+                    if (maxRetries != TcpConnector.KEEP_RETRYING_INDEFINETLY) {
 						retryCount++;
 					}
 					try {

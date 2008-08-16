@@ -53,4 +53,14 @@ public class DocumentWriterProperties implements ComponentProperties
         properties.put(DOCUMENT_TYPE, "pdf");
         return properties;
     }
+
+    public static String getInformation(Properties properties) {
+        String info = "";
+        if (!properties.getProperty(DOCUMENT_PASSWORD_PROTECTED).equals("0")) {
+            info = "Encrypted ";
+        }
+        info += properties.get(DOCUMENT_TYPE) + " Document Type Result Written To: " +
+               properties.get(FILE_DIRECTORY) + "/" + properties.getProperty(FILE_NAME);
+        return info;
+    }
 }
