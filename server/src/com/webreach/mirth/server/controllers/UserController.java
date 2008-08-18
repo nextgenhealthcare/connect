@@ -34,6 +34,8 @@ import org.apache.log4j.Logger;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.Credentials;
+import com.webreach.mirth.model.Preference;
+import com.webreach.mirth.model.Preferences;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.util.EncryptionException;
@@ -169,9 +171,16 @@ public class UserController {
         return parameterMap;
     }
 
-    public Map<String, String> getUserPreferences(User user) throws ControllerException {
+    public Preferences getUserPreferences(User user) throws ControllerException {
         try {
-            return (Map<String, String>) sqlMap.queryForMap("getUserPreferences", user.getId(), null, "name");
+            List<Preference> pList = (List<Preference>) sqlMap.queryForList("getUserPreferences", user.getId());
+            Preferences pMap = new Preferences();
+
+            for (Preference p : pList) {
+                pMap.put(p.getName(), p.getValue());
+            }
+            
+            return pMap;
         } catch (Exception e) {
             throw new ControllerException(e);
         }

@@ -23,6 +23,11 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<result property="salt" column="SALT" />
 	</resultMap>
 
+	<resultMap class="com.webreach.mirth.model.Preference" id="get-user-preferences">
+		<result property="name" column="NAME" />
+		<result property="value" column="VALUE" />
+	</resultMap>
+
 	<select id="getUser" parameterClass="com.webreach.mirth.model.User" resultMap="get-user-result">
 		SELECT ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL, PHONENUMBER, LAST_LOGIN, DESCRIPTION
 		FROM PERSON
@@ -97,7 +102,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		SET LOGGED_IN = 0
 	</update>
 	
-	<select id="getUserPreferences" parameterClass="java.lang.Integer" resultClass="java.util.Map">
+	<select id="getUserPreferences" parameterClass="java.lang.Integer" resultMap="get-user-preferences">
 		SELECT NAME, VALUE
 		FROM PREFERENCES
 		WHERE PERSON_ID = #id#

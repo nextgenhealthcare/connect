@@ -16,6 +16,7 @@ import org.apache.commons.httpclient.methods.PostMethod;
 
 import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.PluginMetaData;
+import com.webreach.mirth.model.Preferences;
 import com.webreach.mirth.model.ServerInfo;
 import com.webreach.mirth.model.UpdateInfo;
 import com.webreach.mirth.model.User;
@@ -126,7 +127,7 @@ public class UpdateClient {
     }
 
     private List<String> getIgnoredComponentIds() throws Exception {
-        Map<String, String> userPreferences = client.getUserPreferences(requestUser);
+        Preferences userPreferences = client.getUserPreferences(requestUser);
 
         if (userPreferences == null) {
             return new ArrayList<String>();

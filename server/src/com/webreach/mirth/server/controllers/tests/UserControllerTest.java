@@ -3,10 +3,14 @@ package com.webreach.mirth.server.controllers.tests;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import com.webreach.mirth.model.Preference;
+import com.webreach.mirth.model.Preferences;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
@@ -101,6 +105,22 @@ public class UserControllerTest extends TestCase {
 			User sampleUser = (User) iter.next();
 			userController.updateUser(sampleUser, "password");
 		}
+	}
+	
+	public void testGetUserPreferences() throws ControllerException {
+	    insertSampleUsers();
+	    
+	    User testUser = userController.getUser(null).get(0);
+	    userController.setUserPreference(testUser, "test.property", "Hello world!");
+	    Preferences preferences = userController.getUserPreferences(testUser);
+	    assertFalse(preferences.isEmpty());
+	}
+	
+	public void testSetUserPreference() throws ControllerException {
+	    insertSampleUsers();
+	    
+	    User testUser = userController.getUser(null).get(0);
+	    userController.setUserPreference(testUser, "test.property", "Hello world!");
 	}
 
 }
