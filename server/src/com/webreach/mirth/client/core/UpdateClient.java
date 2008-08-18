@@ -84,7 +84,7 @@ public class UpdateClient {
         for (ListIterator iterator = ignoredComponentIds.listIterator(); iterator.hasNext();) {
             String componentId = (String) iterator.next();
 
-            if (iterator.nextIndex() != ignoredComponentIds.size()) {
+            if (iterator.nextIndex() == ignoredComponentIds.size()) {
                 builder.append(componentId);
             } else {
                 builder.append(componentId + ",");
