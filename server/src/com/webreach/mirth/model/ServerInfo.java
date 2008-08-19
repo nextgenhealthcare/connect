@@ -3,8 +3,8 @@ package com.webreach.mirth.model;
 import java.util.Map;
 
 public class ServerInfo {
+    private Statistics statistics;
     private Map<String, String> components;
-    private User user;
     private String serverId;
 
     public Map<String, String> getComponents() {
@@ -15,14 +15,6 @@ public class ServerInfo {
         this.components = components;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
     public String getServerId() {
         return serverId;
     }
@@ -31,4 +23,11 @@ public class ServerInfo {
         this.serverId = serverId;
     }
 
+    public Statistics getStatistics() {
+        return statistics;
+    }
+
+    public void setStatistics(Statistics statistics) {
+        this.statistics = statistics;
+    }
 }

@@ -18,6 +18,7 @@ import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.Preferences;
 import com.webreach.mirth.model.ServerInfo;
+import com.webreach.mirth.model.Statistics;
 import com.webreach.mirth.model.UpdateInfo;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
@@ -56,8 +57,8 @@ public class UpdateClient {
         serverInfo.setComponents(components);
         serverInfo.setServerId(serverId);
 
-        if (PropertyLoader.getProperty(client.getServerProperties(), "update.ident").equals("1")) {
-            serverInfo.setUser(requestUser);    
+        if (PropertyLoader.getProperty(client.getServerProperties(), "update.stats").equals("1")) {
+            serverInfo.setStatistics(new Statistics());    
         }
         
         List<UpdateInfo> updates = null;
@@ -94,6 +95,28 @@ public class UpdateClient {
         client.setUserPreference(requestUser, USER_PREF_IGNORED_IDS, builder.toString());
     }
 
+    public void registerUser(User user) throws Exception {
+        HttpClient httpClient = new HttpClient();
+        PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url"));
+        NameValuePair[] params = { new NameValuePair("serverId", client.getServerId()), new NameValuePair("user", serializer.toXML(requestUser)) };
+        post.setRequestBody(params);
+
+        try {
+            int statusCode = httpClient.executeMethod(post);
+
+            if ((statusCode != HttpStatus.SC_OK) && (statusCode != HttpStatus.SC_MOVED_TEMPORARILY)) {
+                throw new Exception("Failed to connect to update server: " + post.getStatusLine());
+            }
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            if (post != null) {
+                post.releaseConnection();
+            }
+        }
+    }
+
+    
     private List<UpdateInfo> getUpdatesFromUri(ServerInfo serverInfo) throws Exception {
         HttpClient httpClient = new HttpClient();
         PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url"));
