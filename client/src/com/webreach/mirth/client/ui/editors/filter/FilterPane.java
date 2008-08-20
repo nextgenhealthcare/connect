@@ -1066,7 +1066,17 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
     public void importFilter(File importFile)
     {
         String filterXML = "";
-
+        
+        Filter previousFilter = connector.getFilter();
+		
+		boolean append = false;
+		
+		if(previousFilter.getRules().size() > 0) {	
+			if(parent.alertOption(parent, "Would you like to append the rules from the imported filter to the existing filter?")) {
+				append = true;
+			}
+		}
+        
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         try
         {
@@ -1074,7 +1084,14 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
             Filter importFilter = (Filter) serializer.fromXML(filterXML);
             prevSelRow = -1;
             modified = true;
-            connector.setFilter(importFilter);
+            
+            if(append) {
+            	previousFilter.getRules().addAll(importFilter.getRules());
+            	importFilter = previousFilter;
+				connector.setFilter(importFilter);
+			} 
+			connector.setFilter(importFilter);
+
             load(connector, importFilter, transformer, modified);
         }
         catch (Exception e)
