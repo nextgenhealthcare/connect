@@ -447,7 +447,7 @@ public class ImportConverter {
 			builder = factory.newDocumentBuilder();
 			document = builder.parse(filter);
 
-			updateFilterFor1_4((Element) document.getElementsByTagName("filter"));
+			updateFilterFor1_4(document.getDocumentElement());
 			updateFilterFor1_7(document);
 
 			DocumentSerializer docSerializer = new DocumentSerializer();
