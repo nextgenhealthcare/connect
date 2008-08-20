@@ -34,34 +34,59 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import com.sun.mail.smtp.SMTPSSLTransport;
-import com.sun.mail.smtp.SMTPTransport;
-
 public class SMTPConnection {
+    private static final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
+    private static final String PROTOCOL_SMTP = "smtp";
+    private static final String PROTOCOL_SMTPS = "smtps";
+    
     private String host;
     private int port;
     private boolean auth;
     private boolean ssl;
+    private boolean tls;
     private String username;
     private String password;
 
-    public SMTPConnection(String host, int port, boolean auth, boolean ssl, String username, String password) {
+    public SMTPConnection(String host, int port, boolean auth, boolean ssl, boolean tls, String username, String password) {
         this.host = host;
         this.port = port;
         this.auth = auth;
         this.ssl = ssl;
+        this.tls = tls;
         this.username = username;
         this.password = password;
     }
 
     public void send(String toAddresses, String ccAddresses, String fromAddress, String subject, String body) throws Exception {
-        Properties properties = System.getProperties();
-        properties.put("mail.smtp.host", host);
-        properties.put("mail.smtp.port", port);
-        properties.put("mail.smtp.auth", auth);
-        properties.put("mail.debug", false);
+        Properties properties = new Properties();
 
-        Session session = Session.getInstance(properties, null);
+        if (ssl) {
+            if (auth) {
+                properties.put("mail.smtps.auth", "true");    
+            }
+
+            if (tls) {
+                properties.put("mail.smtps.starttls.enable", "true");    
+            }
+
+            properties.put("mail.smtps.host", host); 
+            properties.put("mail.smtps.socketFactory.port", port);
+            properties.put("mail.smtps.socketFactory.class", SSL_FACTORY);
+            properties.put("mail.smtps.socketFactory.fallback", "false");
+        } else {
+            if (auth) {
+                properties.put("mail.smtp.auth", "true");    
+            }
+            
+            if (tls) {
+                properties.put("mail.smtp.starttls.enable", "true");    
+            }
+
+            properties.put("mail.smtp.host", host);
+            properties.put("mail.smtp.port", port);
+        }
+        
+        Session session = Session.getInstance(properties);
         Message message = new MimeMessage(session);
 
         if ((fromAddress != null) && (fromAddress.length() > 0)) {
@@ -83,21 +108,22 @@ public class SMTPConnection {
         message.setSubject(subject);
         message.setText(body);
         message.setSentDate(new Date());
-
-        if (auth) {
-            Transport transport = null;
-
-            if (ssl) {
-                transport = (SMTPSSLTransport) session.getTransport("smtps");
-            } else {
-                transport = (SMTPTransport) session.getTransport("smtp");
-            }
-
-            transport.connect(host, username, password);
-            transport.sendMessage(message, message.getAllRecipients());
-            transport.close();
+        
+        Transport transport = null;
+        
+        if (ssl) {
+            transport = session.getTransport(PROTOCOL_SMTPS);
         } else {
-            Transport.send(message);
+            transport = session.getTransport(PROTOCOL_SMTP);
         }
+        
+        if (auth) {
+            transport.connect(username, password);
+        } else {
+            transport.connect();
+        }
+
+        transport.sendMessage(message, message.getAllRecipients());
+        transport.close();
     }
 }

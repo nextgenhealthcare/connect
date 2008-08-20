@@ -215,6 +215,13 @@ public class ConfigurationController {
             serverProperties.setProperty("smtp.ssl", "0");
         }
 
+        // smtp.tls
+        String tls = serverProperties.getProperty("smtp.tls");
+
+        if ((tls == null) || (tls.length() == 0)) {
+            serverProperties.setProperty("smtp.tls", "1");
+        }
+
         setServerProperties(serverProperties);
     }
 
