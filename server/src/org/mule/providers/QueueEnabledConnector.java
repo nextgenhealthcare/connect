@@ -53,7 +53,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 			queueThread.setName(getName() + "_queue_thread");
 			queueThread.start();
 		} catch (Exception e) {
-			logger.error("Error starting queuing thread:\n " + e);
+			logger.error("Error starting queuing thread", e);
 		}
 	}
 
@@ -64,7 +64,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 				queueThread.interrupt();
 				queueThread.join();
 			} catch (Exception e) {
-				logger.error("Could not stop queue thread: " + e);
+				logger.error("Could not stop queue thread", e);
 			}
 		}
 	}
@@ -87,7 +87,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 		try {
 			this.queue = getQueue();
 		} catch (Exception e) {
-			logger.error("Error setting queues to the endpoint\n" + e);
+			logger.error("Error setting queues to the endpoint\n", e);
 		}
 	}
 
@@ -102,7 +102,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 			queue.put(queuedMessage);
 		} catch (Exception e) {
 			String exceptionMessage = "Can't save payload to queue";
-			logger.error("Can't save payload to queue", e);
+			logger.error(exceptionMessage, e);
 			messageObjectController.setError(messageObject, getConnectorErrorCode(), exceptionMessage, e);
 			alertController.sendAlerts(messageObject.getChannelId(), getConnectorErrorCode(), exceptionMessage, e);
 			return;
@@ -131,7 +131,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 				} catch (InterruptedException e) {
 					throw e;
 				} catch (Exception e) {
-					logger.error("Could not rotate message in queue: " + e);
+					logger.error("Could not rotate message in queue", e);
 					alertController.sendAlerts(tempMessage.getMessageObject().getChannelId(), getConnectorErrorCode(), null, e);
 					messageObjectController.setError(tempMessage.getMessageObject(), getConnectorErrorCode(), "Could not rotate message in queue", e);
 				}
@@ -186,7 +186,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 										MessageObjectController.getInstance().resetQueuedStatus(thePayload.getMessageObject());
 									} else {
 										if (!interrupted) {
-											logger.warn("Error reading message off the queue. Queue out of sync with filesystem: ", t);
+											logger.warn("Error reading message off the queue. Queue out of sync with filesystem", t);
 											queueSession.resyncQueue(getName());
 										}
 									}
