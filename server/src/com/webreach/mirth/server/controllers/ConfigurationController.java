@@ -181,11 +181,18 @@ public class ConfigurationController {
             serverProperties.setProperty("update.enabled", "1");
         }
 
-        // update.ident
-        String updateIdent = serverProperties.getProperty("update.ident");
+        // stats.enabled
+        String updateIdent = serverProperties.getProperty("stats.enabled");
         
         if ((updateIdent == null) || (updateIdent.length() == 0)) {
-            serverProperties.setProperty("update.ident", "1");
+            serverProperties.setProperty("stats.enabled", "1");
+        }
+
+        // firstlogin
+        String firstLogin = serverProperties.getProperty("firstlogin");
+        
+        if ((firstLogin == null) || (firstLogin.length() == 0)) {
+            serverProperties.setProperty("firstlogin", "1");
         }
 
         // server.resetglobalvariables
