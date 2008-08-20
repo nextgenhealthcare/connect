@@ -143,7 +143,14 @@ public class FileConnection implements FileSystemConnection {
 		throws Exception
 	{
 		OutputStream os = null;
-		File dst = new File(toDir, file);
+		File dstDir = new File(toDir);
+		
+		if (!dstDir.exists()) {
+		    dstDir.mkdirs();
+		}
+		
+		File dst = new File(dstDir, file);
+		
 		try {
 			os = new FileOutputStream(dst, append);
 			os.write(message);
