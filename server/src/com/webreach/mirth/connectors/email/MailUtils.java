@@ -72,7 +72,7 @@ public class MailUtils
 
         if(secure) {
             System.setProperty("mail." + protocol + ".socketFactory.port", String.valueOf(port));
-
+            System.setProperty("mail." + protocol + ".starttls.enable", "true");
         }
         Session session;
         if (url.getPassword() != null) {
