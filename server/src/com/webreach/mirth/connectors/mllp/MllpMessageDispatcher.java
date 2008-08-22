@@ -394,7 +394,10 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 		} catch (SocketTimeoutException e) {
 			// we don't necessarily expect to receive a response here
 			logger.info("Socket timed out normally while doing a synchronous receive on endpointUri: " + endpointUri);
-			return null;
+            //dans: in case the ack times out it is necessary to get a 
+            // new socket so that the next message does not use ack of previous message
+			doDispose(socket);
+            return null;
 		} catch (Exception ex) {
 			logger.info("Socket error while doing a synchronous receive on endpointUri: " + endpointUri);
 			return null;
