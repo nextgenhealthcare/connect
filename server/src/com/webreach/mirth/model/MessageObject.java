@@ -27,6 +27,7 @@ package com.webreach.mirth.model;
 
 import java.io.Serializable;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -64,11 +65,16 @@ public class MessageObject implements Serializable {
 	private Map connectorMap;
 	private Map responseMap;
 	private Map channelMap;
-
+	
+	private Map<String, Object> context;
+	
 	public MessageObject() {
 		this.connectorMap = new ConcurrentHashMap();
 		this.responseMap = new ConcurrentHashMap();
 		this.channelMap = new ConcurrentHashMap();
+		
+		this.context = new HashMap<String, Object>();
+		
 		this.status = Status.UNKNOWN;
 	}
 
@@ -300,6 +306,7 @@ public class MessageObject implements Serializable {
 			EqualsUtil.areEqual(this.getConnectorMap(), messageObject.getConnectorMap()) &&
 			EqualsUtil.areEqual(this.getResponseMap(), messageObject.getResponseMap()) &&
             EqualsUtil.areEqual(this.getChannelMap(), messageObject.getChannelMap()) &&
+            EqualsUtil.areEqual(this.getContext(), messageObject.getContext()) &&
             EqualsUtil.areEqual(this.isAttachment(), messageObject.isAttachment());
 	}
 
@@ -311,6 +318,14 @@ public class MessageObject implements Serializable {
 		this.correlationId = correlationId;
 	}
 
+	public Map<String, Object> getContext() {
+		return context;
+	}
+
+	public void setContext(Map<String, Object> context) {
+		this.context = context;
+	}
+	
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(this.getClass().getName() + "[");
