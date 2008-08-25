@@ -303,7 +303,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 					source = StringUtil.convertLFtoCR((String) source);
 				}
 
-				messageObject = adaptor.getMessage((String) source, channelId, encryptData, inboundProperties, emptyFilterAndTransformer);
+				messageObject = adaptor.getMessage((String) source, channelId, encryptData, inboundProperties, emptyFilterAndTransformer, context.getMessage().getProperties());
 
 				// Grab and process our attachments
 				List<Attachment> attachments = (List<Attachment>) context.getProperties().get("attachments");
@@ -328,7 +328,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				}
 
 				Adaptor adaptor = AdaptorFactory.getAdaptor(Protocol.valueOf(inboundProtocol));
-				messageObject = adaptor.convertMessage(incomingMessageObject, this.getConnectorName(), channelId, encryptData, inboundProperties, emptyFilterAndTransformer);
+				messageObject = adaptor.convertMessage(incomingMessageObject, getConnectorName(), channelId, encryptData, inboundProperties, emptyFilterAndTransformer);
 				messageObject.setEncodedDataProtocol(Protocol.valueOf(outboundProtocol));
 			}
 		} catch (Exception e) {
@@ -353,7 +353,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				if (this.getMode().equals(Mode.SOURCE.toString())) {
 					// only update on the source - it doesn't matter on each
 					// destination
-					messageObjectController.updateMessage(finalMessageObject, false);
+				    messageObjectController.setTransformed(finalMessageObject);
 				}
 
 				return finalMessageObject;

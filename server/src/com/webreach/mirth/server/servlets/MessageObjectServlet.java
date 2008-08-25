@@ -56,8 +56,7 @@ public class MessageObjectServlet extends MirthServlet {
                 if (request.getParameter("uid") != null && !request.getParameter("uid").equals("")) {
                     uid = request.getParameter("uid");
                     useNewTempTable = true;
-                }
-                else {
+                } else {
                     uid = request.getSession().getId();
                 }
 
@@ -87,8 +86,10 @@ public class MessageObjectServlet extends MirthServlet {
                     String channelId = request.getParameter("data");
                     messageObjectController.clearMessages(channelId);
                 } else if (operation.equals("reprocessMessages")) {
-                    String filter = request.getParameter("filter");
-                    messageObjectController.reprocessMessages((MessageObjectFilter) serializer.fromXML(filter));
+                    MessageObjectFilter filter = (MessageObjectFilter) serializer.fromXML(request.getParameter("filter"));
+                    boolean replace = Boolean.valueOf(request.getParameter("replace"));
+                    List<String> destinations = (List<String>) serializer.fromXML(request.getParameter("destinations"));
+                    messageObjectController.reprocessMessages(filter, replace, destinations);
                 } else if (operation.equals("processMessage")) {
                     String message = request.getParameter("message");
                     messageObjectController.processMessage((MessageObject) serializer.fromXML(message));
@@ -99,26 +100,26 @@ public class MessageObjectServlet extends MirthServlet {
                     response.setContentType("application/xml");
                     Attachment attachment = messageObjectController.getAttachment((String) request.getParameter("attachmentId"));
                     out.println(serializer.toXML(attachment));
-                } else if(operation.equals("getAttachmentsByMessageId")){
+                } else if (operation.equals("getAttachmentsByMessageId")) {
                     response.setContentType("application/xml");
                     List<Attachment> list = messageObjectController.getAttachmentsByMessageId((String) request.getParameter("messageId"));
                     out.println(serializer.toXML(list));
-                } else if(operation.equals("getAttachmentIdsByMessageId")){
+                } else if (operation.equals("getAttachmentIdsByMessageId")) {
                     response.setContentType("application/xml");
                     List<Attachment> list = messageObjectController.getAttachmentIdsByMessageId((String) request.getParameter("messageId"));
                     out.println(serializer.toXML(list));
-                } else if(operation.equals("insertAttachment")) {
+                } else if (operation.equals("insertAttachment")) {
                     String attachment = request.getParameter("attachment");
                     messageObjectController.insertAttachment((Attachment) serializer.fromXML(attachment));
-                } else if(operation.equals("getDICOMMessage")) {
-                    //response.setContentType("application/xml");
+                } else if (operation.equals("getDICOMMessage")) {
+                    // response.setContentType("application/xml");
                     String message = request.getParameter("message");
                     String dicomMessage = DICOMUtil.getDICOMRawData((MessageObject) serializer.fromXML(message));
                     out.println(dicomMessage);
-                } else if(operation.equals("deleteAttachments")) {
+                } else if (operation.equals("deleteAttachments")) {
                     String message = request.getParameter("message");
                     messageObjectController.deleteAttachments((MessageObject) serializer.fromXML(message));
-                } else if(operation.equals("deleteUnusedAttachments")) {
+                } else if (operation.equals("deleteUnusedAttachments")) {
                     messageObjectController.deleteUnusedAttachments();
                 }
             } catch (Exception e) {

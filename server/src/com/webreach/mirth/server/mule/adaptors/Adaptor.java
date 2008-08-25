@@ -16,81 +16,91 @@ import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.UUIDGenerator;
 
 public abstract class Adaptor {
-	private Logger logger = Logger.getLogger(this.getClass());
-	protected MessageObject messageObject;
-	protected String source;
-	protected Map properties;
-	protected IXMLSerializer<String> serializer;
-	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-	private ConfigurationController configurationController = ConfigurationController.getInstance();
-	private AlertController alertController = AlertController.getInstance();
+    private Logger logger = Logger.getLogger(this.getClass());
+    protected MessageObject messageObject;
+    protected String source;
+    protected Map properties;
+    protected IXMLSerializer<String> serializer;
+    private MessageObjectController messageObjectController = MessageObjectController.getInstance();
+    private ConfigurationController configurationController = ConfigurationController.getInstance();
+    private AlertController alertController = AlertController.getInstance();
 
-	public MessageObject getMessage(String source, String channelId, boolean encryptData, Map properties, boolean emptyFilterAndTransformer) throws AdaptorException {
-		this.source = source;
-		this.properties = properties;
-		this.serializer = getSerializer(properties);
-		messageObject = new MessageObject();
-		messageObject.setId(UUIDGenerator.getUUID());
-		messageObject.setServerId(configurationController.getServerId());
-		messageObject.setChannelId(channelId);
-		messageObject.setDateCreated(Calendar.getInstance());
-		messageObject.setConnectorName("Source");
-		messageObject.setEncrypted(encryptData);
-		messageObject.setRawData(source);
+    public MessageObject getMessage(String source, String channelId, boolean encryptData, Map properties, boolean emptyFilterAndTransformer, Map context) throws AdaptorException {
+        this.source = source;
+        this.properties = properties;
+        this.serializer = getSerializer(properties);
+        messageObject = new MessageObject();
 
-		populateMessage(emptyFilterAndTransformer);
+        if ((context.get("replace") != null) && context.get("replace").equals("true")) {
+            messageObject.getContext().put("replace", "true");
+        }
+        
+        if (context.get("messageId") != null) {
+            messageObject.setId((String) context.get("messageId"));
+        } else {
+            messageObject.setId(UUIDGenerator.getUUID());
+        }
 
-		messageObject.setStatus(MessageObject.Status.RECEIVED);
-		// messageObjectController.updateMessage(messageObject);
-		return messageObject;
-	}
+        messageObject.setServerId(configurationController.getServerId());
+        messageObject.setChannelId(channelId);
+        messageObject.setDateCreated(Calendar.getInstance());
+        messageObject.setConnectorName("Source");
+        messageObject.setEncrypted(encryptData);
+        messageObject.setRawData(source);
 
-	/**
-	 * Converts a message for destination transformers
-	 * 
-	 * @throws
-	 */
-	public MessageObject convertMessage(MessageObject incomingMessageObject, String connectorName, String channelId, boolean encryptData, Map properties, boolean emptyFilterAndTransformer) throws AdaptorException {
-		// The source is the encoded data
-		this.messageObject = messageObjectController.cloneMessageObjectForBroadcast(incomingMessageObject, connectorName);
-		this.source = this.messageObject.getRawData();
-		this.properties = properties;
-		this.serializer = getSerializer(properties);
-		populateMessage(emptyFilterAndTransformer);
-		doConvertMessage(emptyFilterAndTransformer);
-		this.messageObject.setStatus(MessageObject.Status.RECEIVED);
-		return this.messageObject;
-	}
+        populateMessage(emptyFilterAndTransformer);
 
-	protected void handleException(Throwable e) throws AdaptorException {
-		logger.warn("error adapting message", e);
-		messageObjectController.setError(messageObject, Constants.ERROR_301, "Error adapting message", e);
-		alertController.sendAlerts(messageObject.getChannelId(), Constants.ERROR_301, "Error adapting message", e);
-		throw new AdaptorException(e);
-	}
+        messageObject.setStatus(MessageObject.Status.RECEIVED);
+        // messageObjectController.updateMessage(messageObject);
+        return messageObject;
+    }
 
-	protected void populateMetadataFromXML(String source) throws SerializerException {
-		Map<String, String> metadata = serializer.getMetadataFromXML(source);
-		messageObject.setType(metadata.get("type"));
-		messageObject.setVersion(metadata.get("version"));
-		messageObject.setSource(metadata.get("source"));
-	}
+    /**
+     * Converts a message for destination transformers
+     * 
+     * @throws
+     */
+    public MessageObject convertMessage(MessageObject incomingMessageObject, String connectorName, String channelId, boolean encryptData, Map properties, boolean emptyFilterAndTransformer) throws AdaptorException {
+        // The source is the encoded data
+        this.messageObject = messageObjectController.cloneMessageObjectForBroadcast(incomingMessageObject, connectorName);
+        this.source = this.messageObject.getRawData();
+        this.properties = properties;
+        this.serializer = getSerializer(properties);
+        populateMessage(emptyFilterAndTransformer);
+        doConvertMessage(emptyFilterAndTransformer);
+        this.messageObject.setStatus(MessageObject.Status.RECEIVED);
+        return this.messageObject;
+    }
 
-	protected void populateMetadataFromEncoded(String source) throws SerializerException {
-		Map metadata = serializer.getMetadataFromEncoded(source);
-		messageObject.setType((String) metadata.get("type"));
-		messageObject.setVersion((String) metadata.get("version"));
-		messageObject.setSource((String) metadata.get("source"));
-	}
+    protected void handleException(Throwable e) throws AdaptorException {
+        logger.warn("error adapting message", e);
+        messageObjectController.setError(messageObject, Constants.ERROR_301, "Error adapting message", e);
+        alertController.sendAlerts(messageObject.getChannelId(), Constants.ERROR_301, "Error adapting message", e);
+        throw new AdaptorException(e);
+    }
 
-	protected MessageObject doConvertMessage(boolean emptyFilterAndTransformer) throws AdaptorException {
-		return messageObject;
-	}
+    protected void populateMetadataFromXML(String source) throws SerializerException {
+        Map<String, String> metadata = serializer.getMetadataFromXML(source);
+        messageObject.setType(metadata.get("type"));
+        messageObject.setVersion(metadata.get("version"));
+        messageObject.setSource(metadata.get("source"));
+    }
 
-	public IXMLSerializer<String> getSerializer(Map properties) {
-		return new DefaultXMLSerializer();
-	}
+    protected void populateMetadataFromEncoded(String source) throws SerializerException {
+        Map metadata = serializer.getMetadataFromEncoded(source);
+        messageObject.setType((String) metadata.get("type"));
+        messageObject.setVersion((String) metadata.get("version"));
+        messageObject.setSource((String) metadata.get("source"));
+    }
 
-	protected abstract void populateMessage(boolean flag) throws AdaptorException;
+    protected MessageObject doConvertMessage(boolean emptyFilterAndTransformer) throws AdaptorException {
+        return messageObject;
+    }
+
+    public IXMLSerializer<String> getSerializer(Map properties) {
+        return new DefaultXMLSerializer();
+    }
+
+    protected abstract void populateMessage(boolean flag) throws AdaptorException;
 
 }
