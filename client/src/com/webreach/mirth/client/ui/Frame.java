@@ -3407,7 +3407,7 @@ public class Frame extends JXFrame
         new AdvancedReprocessMessagesDialog(filter);
     }
     
-    public void advancedReprocessMessage(MessageObjectFilter filter, boolean replace, List<String> destinations) { 
+    public void advancedReprocessMessage(final MessageObjectFilter filter, final boolean replace, final List<String> destinations) { 
         setWorking("Reprocessing messages...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
