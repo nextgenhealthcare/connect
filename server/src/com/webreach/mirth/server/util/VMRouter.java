@@ -20,6 +20,7 @@ import org.mule.util.queue.QueueSession;
 import com.webreach.mirth.connectors.vm.VMConnector;
 import com.webreach.mirth.connectors.vm.VMMessageReceiver;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.server.controllers.ChannelController;
 
 public class VMRouter {
     private static transient Log logger = LogFactory.getLog(VMRouter.class);
