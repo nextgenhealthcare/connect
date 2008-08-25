@@ -358,6 +358,7 @@ public class MessageBrowser extends javax.swing.JPanel
         // use the start filters and make the table.
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, -1, false);
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, 7, true);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 9, 9, true);
         messageListHandler = null;
         
         statusComboBox.setSelectedIndex(0);
@@ -849,10 +850,10 @@ public class MessageBrowser extends javax.swing.JPanel
                 public void valueChanged(ListSelectionEvent evt)
                 {
                     if(attachmentTable != null && attachmentTable.getSelectedRow() != -1){
-                        parent.setVisibleTasks(parent.messageTasks,parent.messagePopupMenu, 9,9,true);
+                        parent.setVisibleTasks(parent.messageTasks,parent.messagePopupMenu, 11,11,true);
                     }
                     else {
-                        parent.setVisibleTasks(parent.messageTasks,parent.messagePopupMenu,9,9,false);
+                        parent.setVisibleTasks(parent.messageTasks,parent.messagePopupMenu,11,11,false);
                     }
                 }
             }); 
@@ -970,6 +971,7 @@ public class MessageBrowser extends javax.swing.JPanel
     {
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 6, -1, false);
         parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, 7, true);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 9, 9, true);
         if (messageTable != null)
         {
             messageTable.clearSelection();
@@ -982,7 +984,7 @@ public class MessageBrowser extends javax.swing.JPanel
      */
     public void deselectAttachmentRows()
     {
-        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 9, 9, false);
+        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 11, 11, false);
 //        parent.setVisibleTasks(parent.messageTasks, parent.messagePopupMenu, 7, 7, true);
         if (attachmentTable != null)
         {
@@ -1085,7 +1087,7 @@ public class MessageBrowser extends javax.swing.JPanel
                 updateMappingsTable(tableData, false);
                 
                 if(attachmentTable == null || attachmentTable.getSelectedRow() == -1 || descriptionTabbedPane.indexOfTab("Attachments") == -1){
-                    parent.setVisibleTasks(parent.messageTasks,parent.messagePopupMenu, 9,9,false);
+                    parent.setVisibleTasks(parent.messageTasks,parent.messagePopupMenu, 11,11,false);
                 }                
                 this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
             }

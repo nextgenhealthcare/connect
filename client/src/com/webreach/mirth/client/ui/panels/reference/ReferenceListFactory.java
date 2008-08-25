@@ -325,15 +325,4 @@ public class ReferenceListFactory
 
         return variablelistItems;
     }
-
-    private ArrayList<CodeTemplate> setupPlugin()
-    {
-        ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
-        variablelistItems.add(new CodeTemplate("Get Date Object From Pattern", "Parse a date according to specified pattern", "var date = DateUtil.getDate(pattern, date);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Format Date Object", "Formats a date object based on specified format", "var dateString = DateUtil.formatDate(pattern, date);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Convert Date String", "Parse a date and return a newly formatted date", "var datestring = DateUtil.convertDate(inpattern, outpattern, date);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Get Current Date", "Returns the current date/time in specified format", "var dateString = DateUtil.getCurrentDate(pattern);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
-
-        return variablelistItems;
-    }
 }

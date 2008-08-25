@@ -790,17 +790,20 @@ public class Frame extends JXFrame
         addTask("doRefreshMessages", "Refresh", "Refresh the list of messages with the given filter.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), messageTasks, messagePopupMenu);
         addTask("doSendMessage", "Send Message", "Send a message to the channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_go.png")), messageTasks, messagePopupMenu);
         addTask("doImportMessages", "Import Messages", "Import messages from a file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")), messageTasks, messagePopupMenu);
-        addTask("doExportMessages", "Export Search Results", "Export all messages in the current search.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), messageTasks, messagePopupMenu);
+        addTask("doExportMessages", "Export Results", "Export all messages in the current search.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), messageTasks, messagePopupMenu);
         addTask("doRemoveAllMessages", "Remove All Messages", "Remove all messages in this channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_delete.png")), messageTasks, messagePopupMenu);
-        addTask("doRemoveFilteredMessages", "Remove Search Results", "Remove all messages in the current search.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_delete.png")), messageTasks, messagePopupMenu);
+        addTask("doRemoveFilteredMessages", "Remove Results", "Remove all messages in the current search.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_delete.png")), messageTasks, messagePopupMenu);
         addTask("doRemoveMessage", "Remove Message", "Remove the selected Message.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), messageTasks, messagePopupMenu);
-        addTask("doReprocessFilteredMessages", "Reprocess Search Results", "Reprocess all messages in the current search.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png")), messageTasks, messagePopupMenu);
+        addTask("doReprocessFilteredMessages", "Reprocess Results", "Reprocess all messages in the current search.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png")), messageTasks, messagePopupMenu);
         addTask("doReprocessMessage", "Reprocess Message", "Reprocess the selected message.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deploy.png")), messageTasks, messagePopupMenu);
+        addTask("doAdvancedReprocessFilteredMessages", "Adv. Reprocess Results", "Advanced Reprocess all messages in the current search.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png")), messageTasks, messagePopupMenu);
+        addTask("doAdvancedReprocessMessage", "Adv. Reprocess Message", "Advanced Reprocess the selected message.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deploy.png")), messageTasks, messagePopupMenu);
         addTask("viewImage", "View Attachment", "View Attachment", "View the attachment for the selected message.", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/attach.png")), messageTasks, messagePopupMenu);
 
         setNonFocusable(messageTasks);
         setVisibleTasks(messageTasks, messagePopupMenu, 6, -1, false);
         setVisibleTasks(messageTasks, messagePopupMenu, 7, 7, true);
+        setVisibleTasks(messageTasks, messagePopupMenu, 9, 9, true);
         taskPaneContainer.add(messageTasks);
     }
 
@@ -3343,7 +3346,7 @@ public class Frame extends JXFrame
             {
                 try
                 {
-                    mirthClient.reprocessMessages(messageBrowser.getCurrentFilter());
+                    mirthClient.reprocessMessages(messageBrowser.getCurrentFilter(), false, null);
                 }
                 catch (ClientException e)
                 {
@@ -3373,7 +3376,7 @@ public class Frame extends JXFrame
                 {
                     MessageObjectFilter filter = new MessageObjectFilter();
                     filter.setId(messageBrowser.getSelectedMessageID());
-                    mirthClient.reprocessMessages(filter);
+                    mirthClient.reprocessMessages(filter, false, null);
                 }
                 catch (ClientException e)
                 {
@@ -3391,7 +3394,47 @@ public class Frame extends JXFrame
 
         worker.execute();
     }
+    
+    public void doAdvancedReprocessFilteredMessages()
+    {
+        new AdvancedReprocessMessagesDialog(messageBrowser.getCurrentFilter());
+    }
 
+    public void doAdvancedReprocessMessage()
+    {
+        MessageObjectFilter filter = new MessageObjectFilter();
+        filter.setId(messageBrowser.getSelectedMessageID());
+        new AdvancedReprocessMessagesDialog(filter);
+    }
+    
+    public void advancedReprocessMessage(MessageObjectFilter filter, boolean replace, List<String> destinations) { 
+        setWorking("Reprocessing messages...", true);
+
+        SwingWorker worker = new SwingWorker<Void, Void>()
+        {
+            public Void doInBackground()
+            {
+                try
+                {
+                     mirthClient.reprocessMessages(filter, replace, destinations);
+                }
+                catch (ClientException e)
+                {
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                }
+                return null;
+            }
+
+            public void done()
+            {
+                messageBrowser.refresh();
+                setWorking("", false);
+            }
+        };
+
+        worker.execute();
+    }
+    
     public void viewImage()
     {
         setWorking("Opening attachment...", true);
