@@ -110,7 +110,7 @@ public class UpdateClient {
         client.setUserPreference(requestUser, USER_PREF_IGNORED_IDS, builder.toString());
     }
 
-    public void registerUser(User user) throws Exception {
+    public void registerUser(User user) throws ClientException {
         HttpClient httpClient = new HttpClient();
         PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url") + URL_REGISTRATION);
         NameValuePair[] params = { new NameValuePair("serverId", client.getServerId()), new NameValuePair("user", serializer.toXML(requestUser)) };
@@ -123,7 +123,7 @@ public class UpdateClient {
                 throw new Exception("Failed to connect to update server: " + post.getStatusLine());
             }
         } catch (Exception e) {
-            throw e;
+            throw new ClientException(e);
         } finally {
             if (post != null) {
                 post.releaseConnection();
