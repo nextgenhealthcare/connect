@@ -42,7 +42,7 @@ public class FilteringMulticastingRouter extends FilteringOutboundRouter {
                 for (int i = 0; i < endpoints.size(); i++) {
                     UMOEndpoint endpoint = (UMOEndpoint) endpoints.get(i);
 
-                    if (destinations == null || destinations.isEmpty() || destinations.contains(endpoint.getConnector().getName())) {
+                    if (destinations == null || destinations.contains(endpoint.getConnector().getName())) {
                         if ((endpoint.getFilter() == null) || endpoint.getFilter().accept(message)) {
                             if (synchronous) {
                                 // Were we have multiple outbound endpoints

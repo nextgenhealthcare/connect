@@ -332,7 +332,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
 			String sendingFacility = "";
 			if (document.getElementsByTagName("MSH.4.1").getLength() > 0) {
 				Node sender = document.getElementsByTagName("MSH.4.1").item(0);
-				if (sender != null) {
+				if (sender != null && sender.getFirstChild() != null) {
 					sendingFacility = sender.getFirstChild().getTextContent();
 				}
 			}
