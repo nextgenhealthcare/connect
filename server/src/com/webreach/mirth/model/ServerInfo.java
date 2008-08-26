@@ -3,7 +3,7 @@ package com.webreach.mirth.model;
 import java.util.Map;
 
 public class ServerInfo {
-    private Statistics statistics;
+    private Map<String, String> usageData;
     private Map<String, String> components;
     private String serverId;
 
@@ -23,11 +23,11 @@ public class ServerInfo {
         this.serverId = serverId;
     }
 
-    public Statistics getStatistics() {
-        return statistics;
+    public Map<String, String> getUsageData() {
+        return usageData;
     }
 
-    public void setStatistics(Statistics statistics) {
-        this.statistics = statistics;
+    public void setUsageData(Map<String, String> usageData) {
+        this.usageData = usageData;
     }
 }

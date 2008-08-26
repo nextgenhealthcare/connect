@@ -14,18 +14,24 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
 
+import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.ChannelStatistics;
+import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.Preferences;
 import com.webreach.mirth.model.ServerInfo;
-import com.webreach.mirth.model.Statistics;
+import com.webreach.mirth.model.Step;
 import com.webreach.mirth.model.UpdateInfo;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.webreach.mirth.server.controllers.ChannelStatisticsController;
 import com.webreach.mirth.util.PropertyLoader;
 
 public class UpdateClient {
     private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+    private final static String URL_REGISTRATION = "/RegistrationServlet";
+    private final static String URL_UPDATES = "/UpdateServlet";
     private final static String MIRTH_GUID = "23f1841f-b172-445f-8f45-45d2204d3908";
     private final static String USER_PREF_IGNORED_IDS = "ignored.component.ids";
     private Client client;
@@ -48,7 +54,7 @@ public class UpdateClient {
         for (PluginMetaData pmd : plugins.values()) {
             components.put(pmd.getId(), pmd.getPluginVersion());
         }
-        
+
         for (ConnectorMetaData cmd : connectors.values()) {
             components.put(cmd.getId(), cmd.getPluginVersion());
         }
@@ -58,9 +64,13 @@ public class UpdateClient {
         serverInfo.setServerId(serverId);
 
         if (PropertyLoader.getProperty(client.getServerProperties(), "update.stats").equals("1")) {
-            serverInfo.setStatistics(new Statistics());    
+            try {
+                serverInfo.setUsageData(getUsageData());
+            } catch (Exception e) {
+                // ignore if we can't get usage data
+            }
         }
-        
+
         List<UpdateInfo> updates = null;
 
         try {
@@ -79,6 +89,11 @@ public class UpdateClient {
         return updates;
     }
 
+    /*
+     * GB: This method iterates through the list of ignored component IDs,
+     * creates a comma-seperated string, and sets the associated user preference
+     * value.
+     */
     public void setIgnoredComponentIds(List<String> ignoredComponentIds) throws ClientException {
         StringBuilder builder = new StringBuilder();
 
@@ -97,7 +112,7 @@ public class UpdateClient {
 
     public void registerUser(User user) throws Exception {
         HttpClient httpClient = new HttpClient();
-        PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url"));
+        PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url") + URL_REGISTRATION);
         NameValuePair[] params = { new NameValuePair("serverId", client.getServerId()), new NameValuePair("user", serializer.toXML(requestUser)) };
         post.setRequestBody(params);
 
@@ -116,10 +131,9 @@ public class UpdateClient {
         }
     }
 
-    
     private List<UpdateInfo> getUpdatesFromUri(ServerInfo serverInfo) throws Exception {
         HttpClient httpClient = new HttpClient();
-        PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url"));
+        PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url") + URL_UPDATES);
         NameValuePair[] params = { new NameValuePair("serverInfo", serializer.toXML(serverInfo)) };
         post.setRequestBody(params);
 
@@ -149,6 +163,10 @@ public class UpdateClient {
         }
     }
 
+    /*
+     * GB: Retrieves the ignored component ID user preference, which is a
+     * comma-seperated list of IDs, and returns the list of IDs.
+     */
     private List<String> getIgnoredComponentIds() throws Exception {
         Preferences userPreferences = client.getUserPreferences(requestUser);
 
@@ -162,6 +180,59 @@ public class UpdateClient {
             } else {
                 return Arrays.asList(ignoredComponentIds.split(","));
             }
+        }
+    }
+
+    private Map<String, String> getUsageData() throws Exception {
+        Map<String, String> usageData = new HashMap<String, String>();
+        List<Channel> channels = client.getChannel(null);
+        usageData.put("channels", String.valueOf(channels.size()));
+        int channelIndex = 1;
+
+        for (Channel channel : channels) {
+            String channelId = "channel" + channelIndex;
+
+            // number of destinations
+            usageData.put(channelId + ".destinations", String.valueOf(channel.getDestinationConnectors().size()));
+
+            // message counts
+            ChannelStatistics statistics = ChannelStatisticsController.getInstance().getStatistics(channel.getId());
+
+            if (statistics != null) {
+                usageData.put(channelId + ".received", String.valueOf(statistics.getReceived()));
+                usageData.put(channelId + ".filtered", String.valueOf(statistics.getFiltered()));
+                usageData.put(channelId + ".sent", String.valueOf(statistics.getSent()));
+                usageData.put(channelId + ".errored", String.valueOf(statistics.getError()));
+            }
+
+            // connector and protocol counts
+            updateCount(usageData, channel.getSourceConnector().getTransportName());
+            updateCount(usageData, channel.getSourceConnector().getTransformer().getInboundProtocol().name());
+            updateCount(usageData, channel.getSourceConnector().getTransformer().getOutboundProtocol().name());
+
+            for (Connector connector : channel.getDestinationConnectors()) {
+                updateCount(usageData, connector.getTransportName());
+                updateCount(usageData, connector.getTransformer().getInboundProtocol().name());
+                updateCount(usageData, connector.getTransformer().getOutboundProtocol().name());
+
+                for (Step step : connector.getTransformer().getSteps()) {
+                    updateCount(usageData, step.getType());
+                }
+            }
+
+            channelIndex++;
+        }
+
+        return usageData;
+    }
+
+    private void updateCount(Map<String, String> usageData, String key) {
+        String count = usageData.get(key);
+
+        if (count == null) {
+            usageData.put(key, "1");
+        } else {
+            usageData.put(key, String.valueOf(Integer.valueOf(count) + 1));
         }
     }
 }
