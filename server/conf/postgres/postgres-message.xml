@@ -269,4 +269,15 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
         DELETE FROM ATTACHMENT WHERE MESSAGE_ID NOT IN (SELECT ID FROM MESSAGE UNION SELECT CORRELATION_ID FROM MESSAGE WHERE CORRELATION_ID IS NOT NULL)
     </delete>
     
+	<select id="lookupMessageId" parameterClass="java.util.Map" resultClass="java.lang.String">
+		SELECT ID
+		FROM MESSAGE
+		WHERE CORRELATION_ID = #correlationId# AND CONNECTOR_NAME = #connectorName#
+    </select>    
+
+	<select id="lookupMessageStatus" parameterClass="java.lang.String" resultClass="java.lang.String">
+		SELECT STATUS
+		FROM MESSAGE
+		WHERE ID = '$id$'
+    </select>    
 </sqlMap>
