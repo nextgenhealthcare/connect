@@ -63,7 +63,7 @@ public class UpdateClient {
         serverInfo.setComponents(components);
         serverInfo.setServerId(serverId);
 
-        if (PropertyLoader.getProperty(client.getServerProperties(), "update.stats").equals("1")) {
+        if (PropertyLoader.getProperty(client.getServerProperties(), "stats.enabled").equals("1")) {
             try {
                 serverInfo.setUsageData(getUsageData());
             } catch (Exception e) {
