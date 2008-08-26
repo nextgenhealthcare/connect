@@ -45,10 +45,11 @@ public class AdvancedReprocessMessagesDialog extends javax.swing.JDialog {
 
     private Frame parent;
     
-    private MessageObjectFilter filter;
+    private MessageObjectFilter filter = null;
     
     private final String INCLUDED_DESTINATION_NAME_COLUMN_NAME = "Destination";
     private final String INCLUDED_STATUS_COLUMN_NAME = "Include";
+    private final String INCLUDED_ID_COLUMN_NAME = "Id";
     
     /**
      * Creates new form ViewContentDialog
@@ -82,7 +83,8 @@ public class AdvancedReprocessMessagesDialog extends javax.swing.JDialog {
      * be added as well.
      */
     public void makeIncludedDestinationsTable() {
-        updateIncludedDestinationsTable(null);
+    	parent.retrieveChannels();
+        updateIncludedDestinationsTable(parent.channels.get(parent.getSelectedChannelIdFromDashboard()));
 
         includedDestinationsTable.setDragEnabled(false);
         includedDestinationsTable.setRowSelectionAllowed(false);
@@ -94,7 +96,8 @@ public class AdvancedReprocessMessagesDialog extends javax.swing.JDialog {
 
         includedDestinationsTable.getColumnExt(INCLUDED_STATUS_COLUMN_NAME).setMaxWidth(50);
         includedDestinationsTable.getColumnExt(INCLUDED_STATUS_COLUMN_NAME).setMinWidth(50);
-
+        includedDestinationsTable.getColumnExt(INCLUDED_ID_COLUMN_NAME).setVisible(false);
+        
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             HighlighterPipeline highlighter = new HighlighterPipeline();
             highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
@@ -133,20 +136,21 @@ public class AdvancedReprocessMessagesDialog extends javax.swing.JDialog {
         
         List<Connector> enabledDestinations = new LinkedList<Connector>(); 
         
-        for (Connector connector : channel.getDestinationConnectors()) { 
-            if(connector.isEnabled()) { 
-               enabledDestinations.add(connector);
-            }
-        }
-        
         if (channel != null) {
+	        for (Connector connector : channel.getDestinationConnectors()) { 
+	            if(connector.isEnabled()) { 
+	               enabledDestinations.add(connector);
+	            }
+	        }
+        
             tableSize = channel.getDestinationConnectors().size();
-            tableData = new Object[tableSize][2];
+            tableData = new Object[tableSize][3];
 
             int i = 0;
             for (Connector connector : enabledDestinations) {
                 tableData[i][0] = connector.getName();
                 tableData[i][1] = Boolean.TRUE;
+                tableData[i][2] = channel.getId() + "_destination_" + (i+1) + "_connector";
                 i++;
             }
         }
@@ -156,9 +160,9 @@ public class AdvancedReprocessMessagesDialog extends javax.swing.JDialog {
             model.refreshDataVector(tableData);
         } else {
             includedDestinationsTable = new MirthTable();
-            includedDestinationsTable.setModel(new RefreshTableModel(tableData, new String[]{INCLUDED_DESTINATION_NAME_COLUMN_NAME, INCLUDED_STATUS_COLUMN_NAME,}) {
+            includedDestinationsTable.setModel(new RefreshTableModel(tableData, new String[]{INCLUDED_DESTINATION_NAME_COLUMN_NAME, INCLUDED_STATUS_COLUMN_NAME, INCLUDED_ID_COLUMN_NAME}) {
 
-                boolean[] canEdit = new boolean[]{false, true};
+                boolean[] canEdit = new boolean[]{false, true, false};
 
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
@@ -179,7 +183,7 @@ public class AdvancedReprocessMessagesDialog extends javax.swing.JDialog {
         {
             if (((Boolean) includedDestinationsTable.getModel().getValueAt(i, 1)).booleanValue())
             {
-                connectors.add((String) includedDestinationsTable.getModel().getValueAt(i, 0));
+                connectors.add((String) includedDestinationsTable.getModel().getValueAt(i, 2));
             }
         }
         return connectors;
@@ -201,7 +205,7 @@ public class AdvancedReprocessMessagesDialog extends javax.swing.JDialog {
         jSeparator1 = new javax.swing.JSeparator();
         reprocessOriginal = new javax.swing.JCheckBox();
         includedDestinationsPane = new javax.swing.JScrollPane();
-        includedDestinationsTable = new com.webreach.mirth.client.ui.components.MirthTable();
+        includedDestinationsTable = null;
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -227,7 +231,6 @@ public class AdvancedReprocessMessagesDialog extends javax.swing.JDialog {
         reprocessOriginal.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         reprocessOriginal.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        includedDestinationsTable.setModel(null);
         includedDestinationsPane.setViewportView(includedDestinationsTable);
 
         jLabel1.setText("Reprocess to the following destinations:");

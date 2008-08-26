@@ -3403,6 +3403,7 @@ public class Frame extends JXFrame
     public void doAdvancedReprocessMessage()
     {
         MessageObjectFilter filter = new MessageObjectFilter();
+        filter.setChannelId(getSelectedChannelIdFromDashboard());
         filter.setId(messageBrowser.getSelectedMessageID());
         new AdvancedReprocessMessagesDialog(filter);
     }
@@ -4077,5 +4078,9 @@ public class Frame extends JXFrame
     {
         return this.dashboardPanel.getLoadedPanelPlugins();
     }
-
+    
+    public String getSelectedChannelIdFromDashboard() {
+    	return status.get(dashboardPanel.getSelectedStatus()).getChannelId();
+    }
+    
 }

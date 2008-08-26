@@ -409,7 +409,7 @@ public class MessageBrowser extends javax.swing.JPanel
         
         int returnVal = importFileChooser.showOpenDialog(this);
         File importFile = null;
-        String channelId = parent.status.get(parent.dashboardPanel.getSelectedStatus()).getChannelId();
+        String channelId = parent.getSelectedChannelIdFromDashboard();
         
         if (returnVal == JFileChooser.APPROVE_OPTION)
         {
@@ -1662,7 +1662,7 @@ public class MessageBrowser extends javax.swing.JPanel
             
         }
 
-        messageObjectFilter.setChannelId(parent.status.get(parent.dashboardPanel.getSelectedStatus()).getChannelId());
+        messageObjectFilter.setChannelId(parent.getSelectedChannelIdFromDashboard());
 
         if (!((String) statusComboBox.getSelectedItem()).equalsIgnoreCase("ALL"))
         {
