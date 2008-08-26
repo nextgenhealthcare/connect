@@ -101,10 +101,10 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 				CHANNEL_ID = '$channelId$'
 			</isNotNull>
 			<isNotNull prepend="AND" property="source">
-				SOURCE = '$source$'
+				SOURCE LIKE '%$source$%'
 			</isNotNull>
 			<isNotNull prepend="AND" property="type">
-				TYPE = '$type$'
+				TYPE LIKE '%$type$%'
 			</isNotNull>
 			<isNotNull prepend="AND" property="status">
 				STATUS = '$status$'
@@ -113,7 +113,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 				RAW_DATA_PROTOCOL = '$protocol$'
 			</isNotNull>			
 			<isNotNull prepend="AND" property="connectorName">
-				CONNECTOR_NAME = '$connectorName$'
+				CONNECTOR_NAME LIKE '%$connectorName$%'
 			</isNotNull>
 			<isNotNull prepend="AND" property="startDate">
 				DATE_CREATED <![CDATA[ >= ]]> '$startDate$'
