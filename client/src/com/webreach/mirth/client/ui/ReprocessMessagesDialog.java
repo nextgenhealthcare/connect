@@ -41,7 +41,7 @@ import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
 
 /** Creates the About Mirth dialog. The content is loaded from about.txt. */
-public class AdvancedReprocessMessagesDialog extends javax.swing.JDialog {
+public class ReprocessMessagesDialog extends javax.swing.JDialog {
 
     private Frame parent;
     
@@ -54,7 +54,7 @@ public class AdvancedReprocessMessagesDialog extends javax.swing.JDialog {
     /**
      * Creates new form ViewContentDialog
      */
-    public AdvancedReprocessMessagesDialog(MessageObjectFilter filter) {
+    public ReprocessMessagesDialog(MessageObjectFilter filter) {
         super(PlatformUI.MIRTH_FRAME);
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
@@ -74,7 +74,23 @@ public class AdvancedReprocessMessagesDialog extends javax.swing.JDialog {
         }
 
         makeIncludedDestinationsTable();
+        okButton.requestFocus();
+        okButton.addKeyListener(new KeyListener(){
 
+			public void keyPressed(KeyEvent e) {
+				// TODO Auto-generated method stub
+			}
+
+			public void keyReleased(KeyEvent e) {
+				if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+					okButtonActionPerformed(null);
+				}
+			}
+
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+			}
+        });
         setVisible(true);
     }
 
@@ -209,7 +225,7 @@ public class AdvancedReprocessMessagesDialog extends javax.swing.JDialog {
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Advanced Reprocessing Options");
+        setTitle("Reprocessing Options");
 
         jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
@@ -240,24 +256,16 @@ public class AdvancedReprocessMessagesDialog extends javax.swing.JDialog {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(includedDestinationsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE))
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, includedDestinationsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE)
                     .add(jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
                         .add(okButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(cancelButton))
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(reprocessOriginal))
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(jLabel1)))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, reprocessOriginal)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jLabel1))
                 .addContainerGap())
         );
 
@@ -295,15 +303,14 @@ public class AdvancedReprocessMessagesDialog extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void okButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_okButtonActionPerformed
-    {//GEN-HEADEREND:event_okButtonActionPerformed
-        parent.advancedReprocessMessage(filter, isReprocessOriginal(), getConnectors());
-        this.dispose();
-    }//GEN-LAST:event_okButtonActionPerformed
-
 private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
     this.dispose();
 }//GEN-LAST:event_cancelButtonActionPerformed
+
+private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
+    parent.reprocessMessage(filter, isReprocessOriginal(), getConnectors());
+    this.dispose();
+}//GEN-LAST:event_okButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;

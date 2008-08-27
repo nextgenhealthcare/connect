@@ -796,14 +796,11 @@ public class Frame extends JXFrame
         addTask("doRemoveMessage", "Remove Message", "Remove the selected Message.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), messageTasks, messagePopupMenu);
         addTask("doReprocessFilteredMessages", "Reprocess Results", "Reprocess all messages in the current search.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png")), messageTasks, messagePopupMenu);
         addTask("doReprocessMessage", "Reprocess Message", "Reprocess the selected message.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deploy.png")), messageTasks, messagePopupMenu);
-        addTask("doAdvancedReprocessFilteredMessages", "Adv. Reprocess Results", "Advanced Reprocess all messages in the current search.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png")), messageTasks, messagePopupMenu);
-        addTask("doAdvancedReprocessMessage", "Adv. Reprocess Message", "Advanced Reprocess the selected message.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deploy.png")), messageTasks, messagePopupMenu);
         addTask("viewImage", "View Attachment", "View Attachment", "View the attachment for the selected message.", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/attach.png")), messageTasks, messagePopupMenu);
 
         setNonFocusable(messageTasks);
         setVisibleTasks(messageTasks, messagePopupMenu, 6, -1, false);
         setVisibleTasks(messageTasks, messagePopupMenu, 7, 7, true);
-        setVisibleTasks(messageTasks, messagePopupMenu, 9, 9, true);
         taskPaneContainer.add(messageTasks);
     }
 
@@ -3335,80 +3332,21 @@ public class Frame extends JXFrame
             worker.execute();
         }
     }
-
+    
     public void doReprocessFilteredMessages()
     {
-        setWorking("Reprocessing messages...", true);
-
-        SwingWorker worker = new SwingWorker<Void, Void>()
-        {
-            public Void doInBackground()
-            {
-                try
-                {
-                    mirthClient.reprocessMessages(messageBrowser.getCurrentFilter(), false, null);
-                }
-                catch (ClientException e)
-                {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                }
-                return null;
-            }
-
-            public void done()
-            {
-                setWorking("", false);
-            }
-        };
-
-        worker.execute();
+        new ReprocessMessagesDialog(messageBrowser.getCurrentFilter());
     }
 
     public void doReprocessMessage()
     {
-        setWorking("Reprocessing message...", true);
-
-        SwingWorker worker = new SwingWorker<Void, Void>()
-        {
-            public Void doInBackground()
-            {
-                try
-                {
-                    MessageObjectFilter filter = new MessageObjectFilter();
-                    filter.setId(messageBrowser.getSelectedMessageID());
-                    mirthClient.reprocessMessages(filter, false, null);
-                }
-                catch (ClientException e)
-                {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                }
-                return null;
-            }
-
-            public void done()
-            {
-                messageBrowser.refresh();
-                setWorking("", false);
-            }
-        };
-
-        worker.execute();
-    }
-    
-    public void doAdvancedReprocessFilteredMessages()
-    {
-        new AdvancedReprocessMessagesDialog(messageBrowser.getCurrentFilter());
-    }
-
-    public void doAdvancedReprocessMessage()
-    {
         MessageObjectFilter filter = new MessageObjectFilter();
         filter.setChannelId(getSelectedChannelIdFromDashboard());
         filter.setId(messageBrowser.getSelectedMessageID());
-        new AdvancedReprocessMessagesDialog(filter);
+        new ReprocessMessagesDialog(filter);
     }
     
-    public void advancedReprocessMessage(final MessageObjectFilter filter, final boolean replace, final List<String> destinations) { 
+    public void reprocessMessage(final MessageObjectFilter filter, final boolean replace, final List<String> destinations) { 
         setWorking("Reprocessing messages...", true);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
