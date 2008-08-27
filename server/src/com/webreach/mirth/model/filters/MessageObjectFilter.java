@@ -48,6 +48,7 @@ public class MessageObjectFilter implements Serializable {
 	private boolean searchRawData;
 	private boolean searchTransformedData;
 	private boolean searchEncodedData;
+	private String quickSearch;
 	private String searchCriteria;
 	private String type;
 	private Protocol protocol;
@@ -155,6 +156,14 @@ public class MessageObjectFilter implements Serializable {
 	public void setSource(String source) {
 		this.source = source;
 	}
+
+	public String getQuickSearch() {
+		return quickSearch;
+	}
+
+	public void setQuickSearch(String quickSearch) {
+		this.quickSearch = quickSearch;
+	}
 	
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -172,6 +181,7 @@ public class MessageObjectFilter implements Serializable {
 		builder.append("searchRawData=" + isSearchRawData() + ", ");
 		builder.append("searchTransformedData=" + isSearchTransformedData() + ", ");
 		builder.append("connectorName=" + getConnectorName());
+		builder.append("quickSearch=" + getQuickSearch());
 		builder.append("]");
 		return builder.toString();
 	}
