@@ -1,5 +1,6 @@
 package com.webreach.mirth.connectors.jdbc;
 
+import java.net.URI;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import com.webreach.mirth.connectors.ConnectorService;
 
@@ -20,14 +22,14 @@ public class JdbcConnectorService implements ConnectorService {
             ResultSet tableResult = null;
 
             try {
-                Map<String, String> properties = (Map<String, String>) object;
+                Properties properties = (Properties) object;
                 Map<String, List<String>> schemaInfo = new HashMap<String, List<String>>();
 
-                String driver = properties.get("driver");
-                String address = properties.get("address");
-                String user = properties.get("user");
-                String password = properties.get("password");
-                String schema = properties.get("schema");
+                String driver = properties.getProperty(DatabaseReaderProperties.DATABASE_DRIVER);
+                String address = properties.getProperty(DatabaseReaderProperties.DATABASE_URL);
+                String user = properties.getProperty(DatabaseReaderProperties.DATABASE_USERNAME);
+                String password = properties.getProperty(DatabaseReaderProperties.DATABASE_PASSWORD);
+                String schema = new URI(address).getPath();
 
                 Class.forName(driver);
                 connection = DriverManager.getConnection(address, user, password);
@@ -61,9 +63,17 @@ public class JdbcConnectorService implements ConnectorService {
             } catch (Exception e) {
                 throw new Exception("Could not retrieve database tables and columns.", e);
             } finally {
-                tableResult.close();
-                tableStatement.close();
-                connection.close();
+                if (tableResult != null) {
+                    tableResult.close();    
+                }
+                
+                if (tableStatement != null) {
+                    tableStatement.close();    
+                }
+                
+                if (connection != null) {
+                    connection.close();    
+                }
             }
         }
 

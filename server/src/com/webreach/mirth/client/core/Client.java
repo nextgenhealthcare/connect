@@ -280,9 +280,9 @@ public class Client {
      * @return
      * @throws ClientException
      */
-    public Object invokePluginMethod(String name, String method, Object object) throws ClientException {
-        logger.debug("invoking method " + method + " on " + name);
-        NameValuePair[] params = { new NameValuePair("op", "invoke"), new NameValuePair("name", name), new NameValuePair("method", method), new NameValuePair("object", serializer.toXML(object)) };
+    public Object invokePluginMethod(String pluginName, String method, Object object) throws ClientException {
+        logger.debug("invoking method " + method + " on " + pluginName);
+        NameValuePair[] params = { new NameValuePair("op", "invoke"), new NameValuePair("name", pluginName), new NameValuePair("method", method), new NameValuePair("object", serializer.toXML(object)) };
         return (Object) serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params));
     }
 
@@ -292,9 +292,9 @@ public class Client {
      * @return
      * @throws ClientException
      */
-    public Object invokeConnectorService(String name, String method, Object object) throws ClientException {
-        logger.debug("invoking connector service " + method + " on " + name);
-        NameValuePair[] params = { new NameValuePair("op", "invokeConnectorService"), new NameValuePair("name", name), new NameValuePair("method", method), new NameValuePair("object", serializer.toXML(object)) };
+    public Object invokeConnectorService(String connectorName, String method, Object object) throws ClientException {
+        logger.debug("invoking connector service " + method + " on " + connectorName);
+        NameValuePair[] params = { new NameValuePair("op", "invokeConnectorService"), new NameValuePair("name", connectorName), new NameValuePair("method", method), new NameValuePair("object", serializer.toXML(object)) };
         return (Object) serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params));
     }
 
