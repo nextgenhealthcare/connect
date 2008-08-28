@@ -18,10 +18,6 @@ public class FilteringMulticastingRouter extends FilteringOutboundRouter {
         UMOMessage result = null;
         List<String> destinations = (List<String>) message.getProperty("destinations");
 
-        if (destinations == null) {
-            destinations = new ArrayList<String>();
-        }
-
         if (endpoints == null || endpoints.size() == 0) {
             throw new RoutePathNotFoundException(new Message(Messages.NO_ENDPOINTS_FOR_ROUTER), message, null);
         }
