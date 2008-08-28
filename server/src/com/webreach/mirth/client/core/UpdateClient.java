@@ -32,6 +32,7 @@ public class UpdateClient {
     private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
     private final static String URL_REGISTRATION = "/RegistrationServlet";
     private final static String URL_UPDATES = "/UpdateServlet";
+    private final static String URL_USAGE_STATISTICS = "/UsageDataServlet";
     private final static String MIRTH_GUID = "23f1841f-b172-445f-8f45-45d2204d3908";
     private final static String USER_PREF_IGNORED_IDS = "ignored.component.ids";
     private Client client;
@@ -63,14 +64,6 @@ public class UpdateClient {
         serverInfo.setComponents(components);
         serverInfo.setServerId(serverId);
 
-        if (PropertyLoader.getProperty(client.getServerProperties(), "stats.enabled").equals("1")) {
-            try {
-                serverInfo.setUsageData(getUsageData());
-            } catch (Exception e) {
-                // ignore if we can't get usage data
-            }
-        }
-
         List<UpdateInfo> updates = null;
 
         try {
@@ -89,25 +82,33 @@ public class UpdateClient {
         return updates;
     }
 
-    /*
-     * GB: This method iterates through the list of ignored component IDs,
-     * creates a comma-seperated string, and sets the associated user preference
-     * value.
-     */
-    public void setIgnoredComponentIds(List<String> ignoredComponentIds) throws ClientException {
-        StringBuilder builder = new StringBuilder();
+    public void sendUsageStatistics() throws ClientException {
+        Map<String, String> usageData = null;
 
-        for (ListIterator iterator = ignoredComponentIds.listIterator(); iterator.hasNext();) {
-            String componentId = (String) iterator.next();
-
-            if (iterator.nextIndex() == ignoredComponentIds.size()) {
-                builder.append(componentId);
-            } else {
-                builder.append(componentId + ",");
-            }
+        try {
+            usageData = getUsageData();
+        } catch (Exception e) {
+            throw new ClientException(e);
         }
 
-        client.setUserPreference(requestUser, USER_PREF_IGNORED_IDS, builder.toString());
+        HttpClient httpClient = new HttpClient();
+        PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url") + URL_USAGE_STATISTICS);
+        NameValuePair[] params = { new NameValuePair("serverId", client.getServerId()), new NameValuePair("data", serializer.toXML(usageData)) };
+        post.setRequestBody(params);
+
+        try {
+            int statusCode = httpClient.executeMethod(post);
+
+            if ((statusCode != HttpStatus.SC_OK) && (statusCode != HttpStatus.SC_MOVED_TEMPORARILY)) {
+                throw new Exception("Failed to connect to update server: " + post.getStatusLine());
+            }
+        } catch (Exception e) {
+            throw new ClientException(e);
+        } finally {
+            if (post != null) {
+                post.releaseConnection();
+            }
+        }
     }
 
     public void registerUser(User user) throws ClientException {
@@ -129,6 +130,27 @@ public class UpdateClient {
                 post.releaseConnection();
             }
         }
+    }
+
+    /*
+     * GB: This method iterates through the list of ignored component IDs,
+     * creates a comma-seperated string, and sets the associated user preference
+     * value.
+     */
+    public void setIgnoredComponentIds(List<String> ignoredComponentIds) throws ClientException {
+        StringBuilder builder = new StringBuilder();
+
+        for (ListIterator iterator = ignoredComponentIds.listIterator(); iterator.hasNext();) {
+            String componentId = (String) iterator.next();
+
+            if (iterator.nextIndex() == ignoredComponentIds.size()) {
+                builder.append(componentId);
+            } else {
+                builder.append(componentId + ",");
+            }
+        }
+
+        client.setUserPreference(requestUser, USER_PREF_IGNORED_IDS, builder.toString());
     }
 
     private List<UpdateInfo> getUpdatesFromUri(ServerInfo serverInfo) throws Exception {
