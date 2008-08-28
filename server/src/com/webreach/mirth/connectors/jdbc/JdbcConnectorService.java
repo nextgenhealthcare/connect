@@ -1,9 +1,10 @@
 package com.webreach.mirth.connectors.jdbc;
 
-import java.net.URI;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,7 +19,6 @@ public class JdbcConnectorService implements ConnectorService {
     public Object invoke(String method, Object object, String sessionsId) throws Exception {
         if (method.equals("getInformationSchema")) {
             Connection connection = null;
-            Statement tableStatement = null;
             ResultSet tableResult = null;
 
             try {
@@ -29,33 +29,29 @@ public class JdbcConnectorService implements ConnectorService {
                 String address = properties.getProperty(DatabaseReaderProperties.DATABASE_URL);
                 String user = properties.getProperty(DatabaseReaderProperties.DATABASE_USERNAME);
                 String password = properties.getProperty(DatabaseReaderProperties.DATABASE_PASSWORD);
-                String schema = new URI(address).getPath();
 
                 Class.forName(driver);
                 connection = DriverManager.getConnection(address, user, password);
-                tableStatement = connection.createStatement();
-                tableResult = tableStatement.executeQuery("SELECT table_name FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' AND TABLE_SCHEMA='" + schema + "'");
+                DatabaseMetaData dbMetaData = connection.getMetaData();
+                tableResult = dbMetaData.getTables(null, null, null, new String[] { "TABLE" });
 
                 while (tableResult.next()) {
-                    String tableName = tableResult.getString("table_name");
-                    schemaInfo.put(tableName, new ArrayList<String>());
-
-                    Statement columnStatement = null;
+                    String tableName = tableResult.getString("TABLE_NAME");
                     ResultSet columnResult = null;
-
+                    
                     try {
-                        columnStatement = connection.createStatement();
-                        columnResult = columnStatement.executeQuery("SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME='" + tableName + "'");
-
+                        columnResult = dbMetaData.getColumns(null, null, tableName, null);
+                        List<String> columnNames = new ArrayList<String>();
+                            
                         while (columnResult.next()) {
-                            String columnName = columnResult.getString("column_name");
-                            schemaInfo.get(tableName).add(columnName);
+                            columnNames.add(columnResult.getString("COLUMN_NAME"));
                         }
-                    } catch (Exception e) {
-                        throw e;
+                        
+                        schemaInfo.put(tableName, columnNames);
                     } finally {
-                        columnStatement.close();
-                        columnResult.close();
+                        if (columnResult != null) {
+                            columnResult.close();
+                        }
                     }
                 }
 
@@ -64,20 +60,15 @@ public class JdbcConnectorService implements ConnectorService {
                 throw new Exception("Could not retrieve database tables and columns.", e);
             } finally {
                 if (tableResult != null) {
-                    tableResult.close();    
+                    tableResult.close();
                 }
-                
-                if (tableStatement != null) {
-                    tableStatement.close();    
-                }
-                
+
                 if (connection != null) {
-                    connection.close();    
+                    connection.close();
                 }
             }
         }
 
         return null;
     }
-
 }
