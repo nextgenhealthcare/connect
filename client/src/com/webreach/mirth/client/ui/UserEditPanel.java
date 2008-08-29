@@ -61,16 +61,34 @@ public class UserEditPanel extends javax.swing.JPanel {
      * This method checks if the finish button can now be enabled
      */
     public boolean checkIfAbleToFinish(boolean checkPasswords) {
-        if (organization.getText().trim().equals("") || email.getText().trim().equals("")) {
+    	if (firstNameAsteriskLabel.isVisible() && firstName.getText().trim().equals("")) {
+    		dialog.setFinishButtonEnabled(false);
+            return false;
+    	} else if (lastNameAsteriskLabel.isVisible() && lastName.getText().trim().equals("")) {
+    		dialog.setFinishButtonEnabled(false);
+            return false;
+    	} else if (emailAsteriskLabel.isVisible() && email.getText().trim().equals("")) {
+    		dialog.setFinishButtonEnabled(false);
+            return false;
+    	} else if (organizationAsteriskLabel.isVisible() && organization.getText().trim().equals("")) {
             dialog.setFinishButtonEnabled(false);
             return false;
-        } else if (checkPasswords && (String.valueOf(password.getPassword()).trim().equals("") || String.valueOf(confirmPassword.getPassword()).trim().equals("") || username.getText().trim().equals(""))) {
+    	} else if (checkPasswords && (String.valueOf(password.getPassword()).trim().equals("") || String.valueOf(confirmPassword.getPassword()).trim().equals("") || username.getText().trim().equals(""))) {
         	dialog.setFinishButtonEnabled(false);
             return false;
         } else {
             dialog.setFinishButtonEnabled(true);
             return true;
         }
+    }
+    
+    public void setRequiredFields(boolean firstName, boolean lastName, boolean email, boolean organization) {
+    	firstNameAsteriskLabel.setVisible(firstName);
+    	lastNameAsteriskLabel.setVisible(lastName);
+    	emailAsteriskLabel.setVisible(email);
+    	organizationAsteriskLabel.setVisible(organization);
+    	
+    	checkIfAbleToFinish(true);
     }
 
     public String validateUser(boolean checkPasswords) {
@@ -135,6 +153,8 @@ public class UserEditPanel extends javax.swing.JPanel {
         confirmPassword = new javax.swing.JPasswordField();
         confirmPasswordAsteriskLabel = new javax.swing.JLabel();
         emailAsteriskLabel = new javax.swing.JLabel();
+        firstNameAsteriskLabel = new javax.swing.JLabel();
+        lastNameAsteriskLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -234,6 +254,12 @@ public class UserEditPanel extends javax.swing.JPanel {
         emailAsteriskLabel.setForeground(new java.awt.Color(255, 0, 0));
         emailAsteriskLabel.setText("*");
 
+        firstNameAsteriskLabel.setForeground(new java.awt.Color(255, 0, 0));
+        firstNameAsteriskLabel.setText("*");
+
+        lastNameAsteriskLabel.setForeground(new java.awt.Color(255, 0, 0));
+        lastNameAsteriskLabel.setText("*");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -263,12 +289,14 @@ public class UserEditPanel extends javax.swing.JPanel {
                     .add(jScrollPane1))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                    .add(lastNameAsteriskLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(emailAsteriskLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(organizationAsteriskLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(passwordAsteriskLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(usernameAsteriskLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(confirmPasswordAsteriskLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .add(18, 18, 18))
+                    .add(confirmPasswordAsteriskLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(firstNameAsteriskLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(18, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -291,11 +319,13 @@ public class UserEditPanel extends javax.swing.JPanel {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(firstNameLabel)
-                    .add(firstName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(firstName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(firstNameAsteriskLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(lastNameLabel)
-                    .add(lastName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(lastName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(lastNameAsteriskLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(organizationLabel)
@@ -363,9 +393,11 @@ private void descriptionKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:ev
     private javax.swing.JLabel emailAsteriskLabel;
     private javax.swing.JLabel emailLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField firstName;
+    private javax.swing.JLabel firstNameAsteriskLabel;
     private javax.swing.JLabel firstNameLabel;
     private javax.swing.JScrollPane jScrollPane1;
     private com.webreach.mirth.client.ui.components.MirthTextField lastName;
+    private javax.swing.JLabel lastNameAsteriskLabel;
     private javax.swing.JLabel lastNameLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField organization;
     private javax.swing.JLabel organizationAsteriskLabel;

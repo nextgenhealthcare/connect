@@ -76,6 +76,7 @@ import org.syntax.jedit.JEditTextArea;
 
 import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.core.UpdateClient;
 import com.webreach.mirth.client.ui.browsers.event.EventBrowser;
 import com.webreach.mirth.client.ui.browsers.message.MessageBrowser;
 import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
@@ -92,6 +93,7 @@ import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.PluginMetaData;
+import com.webreach.mirth.model.UpdateInfo;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
 import com.webreach.mirth.model.converters.ObjectCloner;
@@ -102,6 +104,8 @@ import com.webreach.mirth.model.filters.SystemEventFilter;
 import com.webreach.mirth.model.util.ImportConverter;
 import com.webreach.mirth.plugins.DashboardColumnPlugin;
 import com.webreach.mirth.plugins.DashboardPanelPlugin;
+import com.webreach.mirth.plugins.extensionmanager.ExtensionManagerClient;
+import com.webreach.mirth.plugins.extensionmanager.ExtensionUpdateDialog;
 import com.webreach.mirth.util.PropertyVerifier;
 
 /**
@@ -178,6 +182,7 @@ public class Frame extends JXFrame
     public LinkedHashMap<MessageObject.Protocol, String> protocols;
     private Map<String, PluginMetaData> loadedPlugins;
     private Map<String, ConnectorMetaData> loadedConnectors;
+    private UpdateClient updateClient = null;
 
     public Frame()
     {
@@ -1279,6 +1284,7 @@ public class Frame extends JXFrame
     		mirthClient.logout();
     		mirthClient.login(newUsername, newPassword, PlatformUI.CLIENT_VERSION);
     		PlatformUI.USER_NAME = newUsername;
+    		updateClient = null; // Reset the update client so it uses the new user next time it is called.
     	}
     	catch (ClientException e)
     	{
@@ -1288,6 +1294,146 @@ public class Frame extends JXFrame
     	{
     		setWorking("", false);
     	}
+    }
+    
+    public User getCurrentUser(Component parentComponent) {
+		User currentUser = null;
+		
+        try {
+			users = mirthClient.getUser(null);
+			for (User user : users) {
+				if (user.getUsername().equals(PlatformUI.USER_NAME)) {
+					currentUser = user;
+				}
+			}
+		} catch (ClientException e) {
+			alertException(parentComponent, e.getStackTrace(), e.getMessage());
+		}
+		
+		return currentUser;
+    }
+    
+    public UpdateClient getUpdateClient(Component parentComponent) {
+       	if (updateClient == null) {
+    		User currentUser = PlatformUI.MIRTH_FRAME.getCurrentUser(parentComponent);
+            updateClient = PlatformUI.MIRTH_FRAME.mirthClient.getUpdateClient(currentUser);
+    	}
+       	
+    	return updateClient;
+    }
+    
+    public void checkForUpdates() {
+    	setWorking("Checking for updates...", true);
+
+        SwingWorker worker = new SwingWorker<Void, Void>()
+        {
+            public Void doInBackground()
+            {
+            	Properties serverProperties = null;
+            	try {
+        			serverProperties = mirthClient.getServerProperties();
+        		} catch (ClientException e) {
+        			alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+        		}
+        		
+            	if ((serverProperties != null) && (serverProperties.getProperty("update.enabled") != null) && serverProperties.getProperty("update.enabled").equals(UIConstants.YES_OPTION)) {
+        	    	try {
+        				List<UpdateInfo> updateInfoList = getUpdateClient(PlatformUI.MIRTH_FRAME).getUpdates();
+        				
+        				boolean newUpdates = false;
+        				boolean extensionManager = mirthClient.isExtensionEnabled(PluginPanel.EXTENSION_MANAGER);
+        				
+        				String serverUrl = "";
+        				String serverId = "";
+        				for (UpdateInfo updateInfo : updateInfoList) {
+    						if ((extensionManager || updateInfo.getType().equals(UpdateInfo.Type.SERVER)) && !updateInfo.isIgnored()) {
+    							newUpdates = true;
+    							
+    							if (updateInfo.getType().equals(UpdateInfo.Type.SERVER)) {
+    								serverUrl = updateInfo.getUri();
+    								serverId = updateInfo.getId();
+    							}
+    						}
+    					}
+        				
+        				if (newUpdates) {
+        					if (extensionManager) {
+        						new ExtensionUpdateDialog((ExtensionManagerClient)pluginPanel.loadedPlugins.get(PluginPanel.EXTENSION_MANAGER), updateInfoList);
+        					} else {
+        						String[] options = {"Download", "Ignore", "Remind Me Later"};
+        						String question = "A Mirth update is available. You can download it now from:\n" + serverUrl;
+        						int result = JOptionPane.showOptionDialog(PlatformUI.MIRTH_FRAME, question, "Server Update", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+        						
+        						if (result == 0) {
+                    				BareBonesBrowserLaunch.openURL(serverUrl);
+                    			} else if (result == 1) {
+                    		        List<String> ignoredComponentIds = new ArrayList<String>();
+                    		        
+                    		        for (UpdateInfo updateInfo : updateInfoList) {
+                    		        	if (updateInfo.isIgnored()) {
+                    		        		ignoredComponentIds.add(updateInfo.getId());
+                    		        	}
+                					}
+                    		        
+                    		        ignoredComponentIds.add(serverId);
+                    		        
+                    		        try {
+                    					getUpdateClient(PlatformUI.MIRTH_FRAME).setIgnoredComponentIds(ignoredComponentIds);
+                    				} catch (ClientException e) {
+                    					alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    				}
+                    			}
+        					}
+        				}
+        			} catch (ClientException e) {
+        				// ignore errors connecting to update/stats server
+        			}
+            	}
+            	
+            	return null;
+            }
+
+            public void done()
+            {
+            	setWorking("", false);
+            }
+        };
+
+        worker.execute();
+    }
+    
+    public void sendUsageStatistics() {
+    	setWorking("Sending usage statistics...", true);
+
+        SwingWorker worker = new SwingWorker<Void, Void>()
+        {
+            public Void doInBackground()
+            {
+            	Properties serverProperties = null;
+            	try {
+        			serverProperties = mirthClient.getServerProperties();
+        		} catch (ClientException e) {
+        			alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+        		}
+        		
+            	if ((serverProperties != null) && (serverProperties.getProperty("stats.enabled") != null) && serverProperties.getProperty("stats.enabled").equals(UIConstants.YES_OPTION)) {
+        	    	try {
+        				getUpdateClient(PlatformUI.MIRTH_FRAME).sendUsageStatistics();
+        			} catch (ClientException e) {
+        				// ignore errors connecting to update/stats server
+        			}
+            	}
+            	
+            	return null;
+            }
+
+            public void done()
+            {
+            	setWorking("", false);
+            }
+        };
+
+        worker.execute();
     }
 
     /**

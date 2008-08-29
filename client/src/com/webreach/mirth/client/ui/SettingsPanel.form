@@ -102,7 +102,7 @@
                           <Component id="lastBackup" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace pref="130" max="32767" attributes="0"/>
+                  <EmptySpace pref="189" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -199,7 +199,7 @@
                           <Component id="smtpHost" linkSize="1" alignment="0" min="-2" pref="117" max="-2" attributes="1"/>
                       </Group>
                   </Group>
-                  <EmptySpace min="-2" pref="63" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="122" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -236,7 +236,7 @@
                       <Component id="passwordLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="smtpPassword" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace max="32767" attributes="0"/>
+                  <EmptySpace pref="12" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -351,12 +351,13 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" attributes="0">
+              <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="103" groupAlignment="1" attributes="0">
                       <Component id="checkForUpdatesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                       <Component id="jLabel2" alignment="1" min="-2" max="-2" attributes="0"/>
-                      <Component id="sendServerInfoLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="sendUsageStatsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Component id="updateUrlLabel" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
@@ -371,12 +372,13 @@
                           <Component id="checkForUpdatesNo" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
-                          <Component id="sendServerInfoYes" min="-2" max="-2" attributes="0"/>
+                          <Component id="sendUsageStatsYes" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="sendServerInfoNo" min="-2" max="-2" attributes="0"/>
+                          <Component id="sendUsageStatsNo" min="-2" max="-2" attributes="0"/>
                       </Group>
+                      <Component id="updateUrl" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
                   </Group>
-                  <EmptySpace pref="51" max="32767" attributes="0"/>
+                  <EmptySpace pref="18" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -396,9 +398,14 @@
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="sendServerInfoLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="sendServerInfoYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="sendServerInfoNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="sendUsageStatsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="sendUsageStatsYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="sendUsageStatsNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="updateUrl" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="updateUrlLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="32767" attributes="0"/>
               </Group>
@@ -458,7 +465,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="checkForUpdatesLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Automatically check for updates:"/>
+            <Property name="text" type="java.lang.String" value="Check for updates:"/>
           </Properties>
         </Component>
         <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="checkForUpdatesYes">
@@ -506,12 +513,12 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkForUpdatesNoActionPerformed"/>
           </Events>
         </Component>
-        <Component class="javax.swing.JLabel" name="sendServerInfoLabel">
+        <Component class="javax.swing.JLabel" name="sendUsageStatsLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Send server information on update:"/>
+            <Property name="text" type="java.lang.String" value="Send server info on update:"/>
           </Properties>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="sendServerInfoYes">
+        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="sendUsageStatsYes">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -531,10 +538,10 @@
             </Property>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sendServerInfoYesActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sendUsageStatsYesActionPerformed"/>
           </Events>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="sendServerInfoNo">
+        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="sendUsageStatsNo">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -553,8 +560,15 @@
             </Property>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sendServerInfoNoActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sendUsageStatsNoActionPerformed"/>
           </Events>
+        </Component>
+        <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="updateUrl">
+        </Component>
+        <Component class="javax.swing.JLabel" name="updateUrlLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Update URL:"/>
+          </Properties>
         </Component>
       </SubComponents>
     </Container>
@@ -605,7 +619,7 @@
                           <Component id="asteriskLabel" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace pref="23" max="32767" attributes="0"/>
+                  <EmptySpace pref="82" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>

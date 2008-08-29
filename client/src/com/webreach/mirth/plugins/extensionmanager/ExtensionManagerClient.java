@@ -18,8 +18,6 @@ import javax.swing.ImageIcon;
 
 import org.jdesktop.swingworker.SwingWorker;
 
-import sun.misc.BASE64Encoder;
-
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.plugins.ClientPanelPlugin;
@@ -39,49 +37,27 @@ public class ExtensionManagerClient extends ClientPanelPlugin
         
         addTask("doRefresh", "Refresh", "Refresh loaded plugins.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")));
         addTask("doSave", "Save", "Save plugin settings.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")));
-        addTask("doShowRepository", "Download Extensions", "Browse the public Mirth Extension Repository.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/database_gear.png")));
         addTask("doCheckAllForUpdates", "Check All for Updates", "Checks all extensions for updates.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/world_link.png")));
         
-        addTask("doCheckForUpdates", "Check for Updates", "Checks for updates.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/plugin_link.png")));
         addTask("doEnable","Enable Extension","Enable the currently selected extension.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")));
         addTask("doDisable","Disable Extension","Disable the currently selected extension.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")));
         addTask("doShowProperties","Show Properties","Display the currently selected extension properties.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_view_list.png")));
-        setVisibleTasks(0, 3, true);
-        setVisibleTasks(4, -1, false);
+        setVisibleTasks(0, 2, true);
+        setVisibleTasks(3, -1, false);
         
         getComponent().addMouseListener(getPopupMenuMouseAdapter());
     }
+    
     public void doShowProperties()
     {
         ((ExtensionManagerPanel) getComponent()).showExtensionProperties();
     }
+    
     public void doCheckAllForUpdates()
     {
         try
         {
-            new UpdateDialog(this);
-        }
-        catch (ClientException e)
-        {
-        	alertException(parent, e.getStackTrace(), e.getMessage());
-        }
-    }
-    public void doCheckForUpdates()
-    {
-        try
-        {
-            new UpdateDialog(this, ((ExtensionManagerPanel) getComponent()).getSelectedExtension());
-        }
-        catch (ClientException e)
-        {
-        	alertException(parent, e.getStackTrace(), e.getMessage());
-        }
-    }
-    public void doShowRepository()
-    {
-        try
-        {
-            new RepositoryDialog(this);
+            new ExtensionUpdateDialog(this);
         }
         catch (ClientException e)
         {

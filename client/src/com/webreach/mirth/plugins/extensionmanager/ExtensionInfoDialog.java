@@ -28,8 +28,6 @@ package com.webreach.mirth.plugins.extensionmanager;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
 import com.webreach.mirth.client.ui.BareBonesBrowserLaunch;
 import com.webreach.mirth.client.ui.PlatformUI;
@@ -43,7 +41,6 @@ public class ExtensionInfoDialog extends javax.swing.JDialog
     public ExtensionInfoDialog(String name,
             String type,
             String author,
-            String mirthVersion,
             String pluginVersion,
             String url,
             String description)
@@ -55,7 +52,6 @@ public class ExtensionInfoDialog extends javax.swing.JDialog
         nameLabel.setText(name);
         typeLabel.setText(type);
         authorLabel.setText(author);
-        mirthVersionLabel.setText(mirthVersion);
         pluginVersionLabel.setText(pluginVersion);
         descriptionLabel.setText(description);
         urlLabel.setText(url);
@@ -81,20 +77,19 @@ public class ExtensionInfoDialog extends javax.swing.JDialog
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         nameLabel = new javax.swing.JLabel();
         typeLabel = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         authorLabel = new javax.swing.JLabel();
-        mirthVersionLabel = new javax.swing.JLabel();
         pluginVersionLabel = new javax.swing.JLabel();
         urlLabel = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
@@ -105,40 +100,38 @@ public class ExtensionInfoDialog extends javax.swing.JDialog
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Extension Information");
         setResizable(false);
+
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setFont(new java.awt.Font("Tahoma", 1, 11));
         jPanel1.setMaximumSize(null);
-        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 11));
+
+        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel2.setLabelFor(nameLabel);
         jLabel2.setText("Name:");
 
-        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel3.setLabelFor(nameLabel);
         jLabel3.setText("Author:");
 
-        jLabel4.setFont(new java.awt.Font("Tahoma", 1, 11));
-        jLabel4.setLabelFor(nameLabel);
-        jLabel4.setText("Mirth Version:");
-
-        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel5.setLabelFor(nameLabel);
-        jLabel5.setText("Version:");
+        jLabel5.setText("Plugin Version:");
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel6.setLabelFor(nameLabel);
         jLabel6.setText("Description:");
 
-        jLabel7.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel7.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel7.setLabelFor(nameLabel);
-        jLabel7.setText("Extension URL:");
+        jLabel7.setText("Plugin URL:");
 
         jLabel8.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel8.setLabelFor(nameLabel);
         jLabel8.setText("Type:");
 
-        urlLabel.setFont(new java.awt.Font("Tahoma", 1, 11));
+        urlLabel.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         urlLabel.setForeground(new java.awt.Color(0, 51, 204));
-        urlLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/webreach/mirth/client/ui/images/world_go.png")));
+        urlLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/webreach/mirth/client/ui/images/world_go.png"))); // NOI18N
         urlLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 urlLabelMouseClicked(evt);
@@ -148,6 +141,7 @@ public class ExtensionInfoDialog extends javax.swing.JDialog
         jPanel2.setBackground(new java.awt.Color(255, 255, 255));
         jPanel2.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)));
         jPanel2.setForeground(new java.awt.Color(153, 153, 153));
+
         closeButton.setText("Close");
         closeButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -172,6 +166,7 @@ public class ExtensionInfoDialog extends javax.swing.JDialog
         );
 
         jScrollPane1.setBorder(null);
+
         descriptionLabel.setBorder(null);
         descriptionLabel.setEditable(false);
         descriptionLabel.setDisabledTextColor(new java.awt.Color(0, 0, 0));
@@ -185,28 +180,28 @@ public class ExtensionInfoDialog extends javax.swing.JDialog
             .add(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(jPanel1Layout.createSequentialGroup()
+                        .add(40, 40, 40)
                         .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(jLabel7)
-                            .add(jLabel5)
-                            .add(jLabel4)
                             .add(jLabel3)
                             .add(jLabel2)
-                            .add(jLabel8)
-                            .add(jLabel6))
+                            .add(jLabel8))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(nameLabel)
                             .add(typeLabel)
-                            .add(authorLabel)
-                            .add(mirthVersionLabel)
+                            .add(authorLabel)))
+                    .add(jPanel1Layout.createSequentialGroup()
+                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(jLabel7)
+                            .add(jLabel5)
+                            .add(jLabel6))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(pluginVersionLabel)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
-                                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                                    .add(org.jdesktop.layout.GroupLayout.LEADING, jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 266, Short.MAX_VALUE)
-                                    .add(urlLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 266, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))))
+                            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 266, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, urlLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 266, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -226,10 +221,6 @@ public class ExtensionInfoDialog extends javax.swing.JDialog
                     .add(authorLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel4)
-                    .add(mirthVersionLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel5)
                     .add(pluginVersionLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -241,7 +232,8 @@ public class ExtensionInfoDialog extends javax.swing.JDialog
                     .add(jLabel6)
                     .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 71, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
@@ -254,6 +246,7 @@ public class ExtensionInfoDialog extends javax.swing.JDialog
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
         );
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
     
@@ -273,7 +266,6 @@ public class ExtensionInfoDialog extends javax.swing.JDialog
     private javax.swing.JTextPane descriptionLabel;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
@@ -281,7 +273,6 @@ public class ExtensionInfoDialog extends javax.swing.JDialog
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JLabel mirthVersionLabel;
     private javax.swing.JLabel nameLabel;
     private javax.swing.JLabel pluginVersionLabel;
     private javax.swing.JLabel typeLabel;

@@ -122,9 +122,11 @@ public class SettingsPanel extends javax.swing.JPanel
         checkForUpdatesLabel = new javax.swing.JLabel();
         checkForUpdatesYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         checkForUpdatesNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        sendServerInfoLabel = new javax.swing.JLabel();
-        sendServerInfoYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        sendServerInfoNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        sendUsageStatsLabel = new javax.swing.JLabel();
+        sendUsageStatsYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        sendUsageStatsNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        updateUrl = new com.webreach.mirth.client.ui.components.MirthTextField();
+        updateUrlLabel = new javax.swing.JLabel();
         clientSettings = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
@@ -175,7 +177,7 @@ public class SettingsPanel extends javax.swing.JPanel
                         .add(jLabel4)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(lastBackup)))
-                .addContainerGap(130, Short.MAX_VALUE))
+                .addContainerGap(189, Short.MAX_VALUE))
         );
         backupPanelLayout.setVerticalGroup(
             backupPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -253,7 +255,7 @@ public class SettingsPanel extends javax.swing.JPanel
                             .add(requireAuthenticationNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .add(smtpPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 44, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .add(smtpHost, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 117, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .add(63, 63, 63))
+                .add(122, 122, 122))
         );
 
         jPanel1Layout.linkSize(new java.awt.Component[] {defaultFrom, smtpHost, smtpPassword, smtpUsername}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
@@ -285,7 +287,7 @@ public class SettingsPanel extends javax.swing.JPanel
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(passwordLabel)
                     .add(smtpPassword, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(12, Short.MAX_VALUE))
         );
 
         serverSettings.setBackground(new java.awt.Color(255, 255, 255));
@@ -316,7 +318,7 @@ public class SettingsPanel extends javax.swing.JPanel
             }
         });
 
-        checkForUpdatesLabel.setText("Automatically check for updates:");
+        checkForUpdatesLabel.setText("Check for updates:");
 
         checkForUpdatesYes.setBackground(new java.awt.Color(255, 255, 255));
         checkForUpdatesYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -341,30 +343,32 @@ public class SettingsPanel extends javax.swing.JPanel
             }
         });
 
-        sendServerInfoLabel.setText("Send server information on update:");
+        sendUsageStatsLabel.setText("Send server info on update:");
 
-        sendServerInfoYes.setBackground(new java.awt.Color(255, 255, 255));
-        sendServerInfoYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup5.add(sendServerInfoYes);
-        sendServerInfoYes.setSelected(true);
-        sendServerInfoYes.setText("Yes");
-        sendServerInfoYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        sendServerInfoYes.addActionListener(new java.awt.event.ActionListener() {
+        sendUsageStatsYes.setBackground(new java.awt.Color(255, 255, 255));
+        sendUsageStatsYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup5.add(sendUsageStatsYes);
+        sendUsageStatsYes.setSelected(true);
+        sendUsageStatsYes.setText("Yes");
+        sendUsageStatsYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        sendUsageStatsYes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                sendServerInfoYesActionPerformed(evt);
+                sendUsageStatsYesActionPerformed(evt);
             }
         });
 
-        sendServerInfoNo.setBackground(new java.awt.Color(255, 255, 255));
-        sendServerInfoNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup5.add(sendServerInfoNo);
-        sendServerInfoNo.setText("No");
-        sendServerInfoNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        sendServerInfoNo.addActionListener(new java.awt.event.ActionListener() {
+        sendUsageStatsNo.setBackground(new java.awt.Color(255, 255, 255));
+        sendUsageStatsNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup5.add(sendUsageStatsNo);
+        sendUsageStatsNo.setText("No");
+        sendUsageStatsNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        sendUsageStatsNo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                sendServerInfoNoActionPerformed(evt);
+                sendUsageStatsNoActionPerformed(evt);
             }
         });
+
+        updateUrlLabel.setText("Update URL:");
 
         org.jdesktop.layout.GroupLayout serverSettingsLayout = new org.jdesktop.layout.GroupLayout(serverSettings);
         serverSettings.setLayout(serverSettingsLayout);
@@ -372,10 +376,11 @@ public class SettingsPanel extends javax.swing.JPanel
             serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(serverSettingsLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, checkForUpdatesLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, sendServerInfoLabel))
+                .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(checkForUpdatesLabel)
+                    .add(jLabel2)
+                    .add(sendUsageStatsLabel)
+                    .add(updateUrlLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(serverSettingsLayout.createSequentialGroup()
@@ -387,10 +392,11 @@ public class SettingsPanel extends javax.swing.JPanel
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(checkForUpdatesNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(serverSettingsLayout.createSequentialGroup()
-                        .add(sendServerInfoYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(sendUsageStatsYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(sendServerInfoNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(51, Short.MAX_VALUE))
+                        .add(sendUsageStatsNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(updateUrl, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(18, Short.MAX_VALUE))
         );
         serverSettingsLayout.setVerticalGroup(
             serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -406,9 +412,13 @@ public class SettingsPanel extends javax.swing.JPanel
                     .add(checkForUpdatesNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(sendServerInfoLabel)
-                    .add(sendServerInfoYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(sendServerInfoNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(sendUsageStatsLabel)
+                    .add(sendUsageStatsYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(sendUsageStatsNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(updateUrl, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(updateUrlLabel))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -464,7 +474,7 @@ public class SettingsPanel extends javax.swing.JPanel
                         .add(intervalTime, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 78, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(asteriskLabel)))
-                .addContainerGap(23, Short.MAX_VALUE))
+                .addContainerGap(82, Short.MAX_VALUE))
         );
         clientSettingsLayout.setVerticalGroup(
             clientSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -658,13 +668,13 @@ private void checkForUpdatesNoActionPerformed(java.awt.event.ActionEvent evt) {/
 // TODO add your handling code here:
 }//GEN-LAST:event_checkForUpdatesNoActionPerformed
 
-private void sendServerInfoYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendServerInfoYesActionPerformed
+private void sendUsageStatsYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendUsageStatsYesActionPerformed
 // TODO add your handling code here:
-}//GEN-LAST:event_sendServerInfoYesActionPerformed
+}//GEN-LAST:event_sendUsageStatsYesActionPerformed
 
-private void sendServerInfoNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendServerInfoNoActionPerformed
+private void sendUsageStatsNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendUsageStatsNoActionPerformed
 // TODO add your handling code here:
-}//GEN-LAST:event_sendServerInfoNoActionPerformed
+}//GEN-LAST:event_sendUsageStatsNoActionPerformed
 
     private void requireAuthenticationNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_requireAuthenticationNoActionPerformed
     {// GEN-HEADEREND:event_requireAuthenticationNoActionPerformed
@@ -746,9 +756,9 @@ private void sendServerInfoNoActionPerformed(java.awt.event.ActionEvent evt) {//
             else
                 clearGlobalMapYes.setSelected(true);
             
-            if(serverProperties.getProperty("updates.enabled") != null)
+            if(serverProperties.getProperty("update.enabled") != null)
             {
-                if(serverProperties.getProperty("updates.enabled").equals(UIConstants.YES_OPTION))
+                if(serverProperties.getProperty("update.enabled").equals(UIConstants.YES_OPTION))
                     checkForUpdatesYes.setSelected(true);
                 else
                 	checkForUpdatesNo.setSelected(true);
@@ -756,15 +766,20 @@ private void sendServerInfoNoActionPerformed(java.awt.event.ActionEvent evt) {//
             else
             	checkForUpdatesYes.setSelected(true);
             
-            if(serverProperties.getProperty("updates.ident") != null)
+            if(serverProperties.getProperty("stats.enabled") != null)
             {
-                if(serverProperties.getProperty("updates.ident").equals(UIConstants.YES_OPTION))
-                    sendServerInfoYes.setSelected(true);
+                if(serverProperties.getProperty("stats.enabled").equals(UIConstants.YES_OPTION))
+                    sendUsageStatsYes.setSelected(true);
                 else
-                	sendServerInfoNo.setSelected(true);
+                	sendUsageStatsNo.setSelected(true);
             }
             else
-            	sendServerInfoYes.setSelected(true);
+            	sendUsageStatsYes.setSelected(true);
+            
+            if (serverProperties.getProperty("update.url") != null)
+                updateUrl.setText((String) serverProperties.getProperty("update.url"));
+            else
+            	updateUrl.setText("");
 
             if (serverProperties.getProperty("smtp.username") != null)
                 smtpUsername.setText((String) serverProperties.getProperty("smtp.username"));
@@ -817,14 +832,16 @@ private void sendServerInfoNoActionPerformed(java.awt.event.ActionEvent evt) {//
                 serverProperties.put("server.resetglobalvariables", UIConstants.YES_OPTION);
             
             if(checkForUpdatesNo.isSelected())
-                serverProperties.put("updates.enabled", UIConstants.NO_OPTION);
+                serverProperties.put("update.enabled", UIConstants.NO_OPTION);
             else
-                serverProperties.put("updates.enabled", UIConstants.YES_OPTION);
+                serverProperties.put("update.enabled", UIConstants.YES_OPTION);
             
-            if(sendServerInfoNo.isSelected())
-                serverProperties.put("updates.ident", UIConstants.NO_OPTION);
+            if(sendUsageStatsNo.isSelected())
+                serverProperties.put("stats.enabled", UIConstants.NO_OPTION);
             else
-                serverProperties.put("updates.ident", UIConstants.YES_OPTION);
+                serverProperties.put("stats.enabled", UIConstants.YES_OPTION);
+            
+            serverProperties.put("update.url", updateUrl.getText());
             
             serverProperties.put("smtp.host", smtpHost.getText());
             serverProperties.put("smtp.port", smtpPort.getText());
@@ -891,14 +908,16 @@ private void sendServerInfoNoActionPerformed(java.awt.event.ActionEvent evt) {//
     private javax.swing.JButton restoreButton;
     private com.webreach.mirth.client.ui.components.MirthRadioButton rowHighlightNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton rowHighlightYes;
-    private javax.swing.JLabel sendServerInfoLabel;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton sendServerInfoNo;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton sendServerInfoYes;
+    private javax.swing.JLabel sendUsageStatsLabel;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton sendUsageStatsNo;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton sendUsageStatsYes;
     private javax.swing.JPanel serverSettings;
     private com.webreach.mirth.client.ui.components.MirthTextField smtpHost;
     private com.webreach.mirth.client.ui.components.MirthPasswordField smtpPassword;
     private com.webreach.mirth.client.ui.components.MirthTextField smtpPort;
     private com.webreach.mirth.client.ui.components.MirthTextField smtpUsername;
+    private com.webreach.mirth.client.ui.components.MirthTextField updateUrl;
+    private javax.swing.JLabel updateUrlLabel;
     private javax.swing.JLabel usernameLabel;
     // End of variables declaration//GEN-END:variables
 

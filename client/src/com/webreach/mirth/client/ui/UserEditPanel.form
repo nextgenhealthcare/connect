@@ -45,15 +45,17 @@
                   <Component id="firstName" alignment="0" pref="200" max="32767" attributes="1"/>
                   <Component id="jScrollPane1" alignment="0" max="32767" attributes="3"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Component id="lastNameAsteriskLabel" max="32767" attributes="1"/>
                   <Component id="emailAsteriskLabel" max="32767" attributes="1"/>
                   <Component id="organizationAsteriskLabel" max="32767" attributes="1"/>
                   <Component id="passwordAsteriskLabel" max="32767" attributes="1"/>
                   <Component id="usernameAsteriskLabel" alignment="0" max="32767" attributes="1"/>
                   <Component id="confirmPasswordAsteriskLabel" alignment="0" max="32767" attributes="1"/>
+                  <Component id="firstNameAsteriskLabel" alignment="0" max="32767" attributes="1"/>
               </Group>
-              <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
+              <EmptySpace pref="18" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -82,11 +84,13 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="firstNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="firstName" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="firstNameAsteriskLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="lastNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="lastName" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="lastNameAsteriskLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -268,6 +272,22 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="emailAsteriskLabel">
+      <Properties>
+        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="0" green="0" red="ff" type="rgb"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="*"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="firstNameAsteriskLabel">
+      <Properties>
+        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="0" green="0" red="ff" type="rgb"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="*"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="lastNameAsteriskLabel">
       <Properties>
         <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="0" green="0" red="ff" type="rgb"/>

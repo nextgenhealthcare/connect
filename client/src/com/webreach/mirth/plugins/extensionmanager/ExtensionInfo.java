@@ -1,7 +1,6 @@
 package com.webreach.mirth.plugins.extensionmanager;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.webreach.mirth.model.ExtensionPoint;
 @XStreamAlias("extensionInfo")
 public class ExtensionInfo
 {

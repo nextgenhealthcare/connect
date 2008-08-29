@@ -30,7 +30,7 @@ import com.webreach.mirth.plugins.DashboardPanelPlugin;
 public class PluginPanel extends javax.swing.JPanel
 {
     
-    private static final String EXTENSION_MANAGER = "Extension Manager";
+    public static final String EXTENSION_MANAGER = "Extension Manager";
     Frame parent;
     Map<String, ClientPanelPlugin> loadedPlugins;
     Map<String, DashboardPanelPlugin> loadedDashboardPanelPlugins;

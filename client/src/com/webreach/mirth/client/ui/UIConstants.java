@@ -145,4 +145,7 @@ public class UIConstants
     public static final ImageIcon YELLOW_BULLET = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_yellow.png"));
     public static final ImageIcon RED_BULLET = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_red.png"));
 
+    // for privacy
+    public static final String PRIVACY_URL = "http://www.webreachinc.com/privacy";
+    public static final String PRIVACY_TOOLTIP = "Privacy Information";
 }

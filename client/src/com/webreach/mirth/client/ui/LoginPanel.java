@@ -382,18 +382,21 @@ public class LoginPanel extends javax.swing.JFrame
                         thisPanel.dispose();
                         
                         try {
-            				PlatformUI.MIRTH_FRAME.users = client.getUser(null);
-            				User currentUser = null;
-            				for (User user : PlatformUI.MIRTH_FRAME.users) {
-            					if (user.getUsername().equals(PlatformUI.USER_NAME)) {
-            						currentUser = user;
-            					}
-            				}
-            				
-            				new FirstUserDialog(currentUser);
+                			Properties serverProperties = client.getServerProperties();
+                			String registered = serverProperties.getProperty("firstlogin");
+                			if (registered == null || registered.equals(UIConstants.YES_OPTION)) {
+                                User currentUser = PlatformUI.MIRTH_FRAME.getCurrentUser(PlatformUI.MIRTH_FRAME);
+                                
+                                if (currentUser != null) {
+                                	new FirstLoginDialog(currentUser);
+                                }
+                			}
                 		} catch (ClientException e) {
                 			PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                		}        
+                		}
+                        
+                        PlatformUI.MIRTH_FRAME.checkForUpdates();
+                        PlatformUI.MIRTH_FRAME.sendUsageStatistics();
                     }
                     else
                     {

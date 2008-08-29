@@ -24,35 +24,33 @@
  * ***** END LICENSE BLOCK ***** */
 package com.webreach.mirth.client.ui;
 
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Properties;
 
 import javax.swing.JDialog;
 
+import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.model.User;
 
 /**
  * A dialog for creating a new user or editing a current user
  */
-public class FirstUserDialog extends javax.swing.JDialog implements UserDialogInterface {
+public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogInterface {
 
     private Frame parent;
 
     /** Creates new form UserDialog */
-    public FirstUserDialog(User currentUser) {
+    public FirstLoginDialog(User currentUser) {
         super(PlatformUI.MIRTH_FRAME);
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
         finishButton.setEnabled(false);
 
         userEditPanel.setUser(this, currentUser);
-        
-        if (userEditPanel.validateUser(false) == null) {
-        	this.dispose();
-        	return;
-        }
 
         jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         setModal(true);
@@ -77,8 +75,11 @@ public class FirstUserDialog extends javax.swing.JDialog implements UserDialogIn
             setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         }
 
+        
+        usageStatsMoreInfoLabel.setToolTipText(UIConstants.PRIVACY_TOOLTIP);
+        usageStatsMoreInfoLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
         setVisible(true);
-        this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     }
 
     public void setFinishButtonEnabled(boolean enabled) {
@@ -106,9 +107,12 @@ public class FirstUserDialog extends javax.swing.JDialog implements UserDialogIn
         userEditPanel = new com.webreach.mirth.client.ui.UserEditPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextPane1 = new javax.swing.JTextPane();
+        registerCheckBox = new javax.swing.JCheckBox();
+        usageStatsCheckBox = new javax.swing.JCheckBox();
+        usageStatsMoreInfoLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("User");
+        setTitle("Welcome to Mirth");
         setResizable(false);
 
         channelOverview.setBackground(new java.awt.Color(255, 255, 255));
@@ -123,7 +127,7 @@ public class FirstUserDialog extends javax.swing.JDialog implements UserDialogIn
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18));
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("Create First User");
+        jLabel2.setText("Welcome to Mirth");
 
         org.jdesktop.layout.GroupLayout mirthHeadingPanel1Layout = new org.jdesktop.layout.GroupLayout(mirthHeadingPanel1);
         mirthHeadingPanel1.setLayout(mirthHeadingPanel1Layout);
@@ -132,7 +136,7 @@ public class FirstUserDialog extends javax.swing.JDialog implements UserDialogIn
             .add(mirthHeadingPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jLabel2)
-                .addContainerGap(219, Short.MAX_VALUE))
+                .addContainerGap(209, Short.MAX_VALUE))
         );
         mirthHeadingPanel1Layout.setVerticalGroup(
             mirthHeadingPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -144,11 +148,31 @@ public class FirstUserDialog extends javax.swing.JDialog implements UserDialogIn
 
         jTextPane1.setBackground(new java.awt.Color(250, 250, 210));
         jTextPane1.setEditable(false);
-        jTextPane1.setText("This is the first time you have logged into this Mirth Server. For security reasons you must create your first Mirth account. We also recommend changing your password to something other than the default \"admin\".");
+        jTextPane1.setText("You have recently installed or upgraded this Mirth Server, and may now customize your Mirth user account information. You also have the option of changing your account password.");
         jTextPane1.setAutoscrolls(false);
         jTextPane1.setDisabledTextColor(new java.awt.Color(0, 0, 0));
         jTextPane1.setEnabled(false);
         jScrollPane1.setViewportView(jTextPane1);
+
+        registerCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        registerCheckBox.setSelected(true);
+        registerCheckBox.setText("Sign me up for the Mirth Project mailing list");
+        registerCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                registerCheckBoxActionPerformed(evt);
+            }
+        });
+
+        usageStatsCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        usageStatsCheckBox.setSelected(true);
+        usageStatsCheckBox.setText("Provide the Mirth Project with usage statistics");
+
+        usageStatsMoreInfoLabel.setText("<html><font color=blue><u>More Info</u></font></html>");
+        usageStatsMoreInfoLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                usageStatsMoreInfoLabelMouseClicked(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout channelOverviewLayout = new org.jdesktop.layout.GroupLayout(channelOverview);
         channelOverview.setLayout(channelOverviewLayout);
@@ -165,12 +189,18 @@ public class FirstUserDialog extends javax.swing.JDialog implements UserDialogIn
                 .addContainerGap())
             .add(channelOverviewLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(userEditPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(37, Short.MAX_VALUE))
-            .add(channelOverviewLayout.createSequentialGroup()
-                .addContainerGap()
                 .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 359, Short.MAX_VALUE)
                 .addContainerGap())
+            .add(channelOverviewLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(registerCheckBox)
+                    .add(userEditPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(channelOverviewLayout.createSequentialGroup()
+                        .add(usageStatsCheckBox)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(usageStatsMoreInfoLabel)))
+                .addContainerGap(37, Short.MAX_VALUE))
         );
         channelOverviewLayout.setVerticalGroup(
             channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -180,7 +210,13 @@ public class FirstUserDialog extends javax.swing.JDialog implements UserDialogIn
                 .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(userEditPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(registerCheckBox)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(usageStatsCheckBox)
+                    .add(usageStatsMoreInfoLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 6, Short.MAX_VALUE)
                 .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(finishButton)
@@ -213,9 +249,42 @@ private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     } else {
         User user = userEditPanel.getUser();
         parent.updateAndSwitchUser(this, user, user.getUsername(), userEditPanel.getPassword());
+        
+        if (registerCheckBox.isSelected()) {
+        	try {
+				parent.getUpdateClient(this).registerUser(user);
+			} catch (ClientException e) {
+				parent.alertException(this, e.getStackTrace(), e.getMessage());
+			}
+        }
+        
+        try {
+			Properties serverProperties = parent.mirthClient.getServerProperties();
+			
+			if (usageStatsCheckBox.isSelected()) {
+				serverProperties.put("stats.enabled", UIConstants.YES_OPTION);
+			} else {
+				serverProperties.put("stats.enabled", UIConstants.NO_OPTION);
+			}
+			
+			serverProperties.put("firstlogin", UIConstants.NO_OPTION);
+			parent.mirthClient.setServerProperties(serverProperties);
+		} catch (ClientException e) {
+			parent.alertException(this, e.getStackTrace(), e.getMessage());
+		}
+        
 		this.dispose();
     }
 }//GEN-LAST:event_finishButtonActionPerformed
+
+private void registerCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerCheckBoxActionPerformed
+    boolean selected = registerCheckBox.isSelected();
+	userEditPanel.setRequiredFields(selected, selected, selected, selected);
+}//GEN-LAST:event_registerCheckBoxActionPerformed
+
+private void usageStatsMoreInfoLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_usageStatsMoreInfoLabelMouseClicked
+	BareBonesBrowserLaunch.openURL(UIConstants.PRIVACY_URL);
+}//GEN-LAST:event_usageStatsMoreInfoLabelMouseClicked
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel channelOverview;
@@ -225,6 +294,9 @@ private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTextPane jTextPane1;
     private com.webreach.mirth.client.ui.MirthHeadingPanel mirthHeadingPanel1;
+    private javax.swing.JCheckBox registerCheckBox;
+    private javax.swing.JCheckBox usageStatsCheckBox;
+    private javax.swing.JLabel usageStatsMoreInfoLabel;
     private com.webreach.mirth.client.ui.UserEditPanel userEditPanel;
     // End of variables declaration//GEN-END:variables
 }
