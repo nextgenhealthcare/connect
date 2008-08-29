@@ -1,9 +1,9 @@
 <pluginMetaData>
+  <id>f456ace8-e1d2-4ee7-80a5-07b44f4288f1</id>
   <name>Mapper Transformer Step</name>
   <author>WebReach, Inc.</author>
   <pluginVersion>@mirthversion</pluginVersion>
   <mirthVersion>1.7.1</mirthVersion>
-  <updateUrl><![CDATA[http://extensions.mirthproject.org/updates/?mirthversion=${mirthVersion}&version=${version}&name=${name}&serverid=${serverid}]]></updateUrl>
   <url>http://extensions.mirthproject.org</url>
   <description>This plugin provides a Mapping step type for Mirth transformers</description>
   <enabled>true</enabled>

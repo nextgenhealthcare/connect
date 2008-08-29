@@ -1,9 +1,9 @@
 <pluginMetaData>
+  <id>04d9c9dd-7774-42f9-a4b2-13759990c090</id>
   <name>PDF Viewer</name>
   <author>WebReach, Inc.</author>
   <pluginVersion>@mirthversion</pluginVersion>
   <mirthVersion>1.7.1</mirthVersion>
-  <updateUrl><![CDATA[http://extensions.mirthproject.org/updates/?mirthversion=${mirthVersion}&version=${version}&name=${name}&serverid=${serverid}]]></updateUrl>
   <url>http://extensions.mirthproject.org</url>
   <description>This plugin provides PDF attachment viewing capability in message browser.</description>
   <enabled>true</enabled>

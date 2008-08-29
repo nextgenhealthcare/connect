@@ -774,7 +774,7 @@ public class Client {
      */
     public void setUserPreference(User user, String name, String value) throws ClientException {
         logger.debug("setting user preference");
-        NameValuePair[] params = { new NameValuePair("op", "setUserPreference"), new NameValuePair("user", serializer.toXML(user)), new NameValuePair("name", name), new NameValuePair("op", value) };
+        NameValuePair[] params = { new NameValuePair("op", "setUserPreference"), new NameValuePair("user", serializer.toXML(user)), new NameValuePair("name", name), new NameValuePair("value", value) };
         serverConnection.executePostMethod(USER_SERVLET, params);
     }
 

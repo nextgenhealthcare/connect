@@ -137,8 +137,7 @@ public class ConnectorMetaData extends MetaData implements Serializable {
 			EqualsUtil.areEqual(this.getTransformers(), transport.getTransformers()) &&
 			EqualsUtil.areEqual(this.getType(), transport.getType()) &&
 			EqualsUtil.areEqual(this.getDescription(), transport.getDescription()) &&
-			EqualsUtil.areEqual(this.getProperties(), transport.getProperties()) &&
-			EqualsUtil.areEqual(this.getUpdateUrl(), transport.getUpdateUrl());
+			EqualsUtil.areEqual(this.getProperties(), transport.getProperties());
 	}
 
 	public String toString() {
@@ -156,7 +155,6 @@ public class ConnectorMetaData extends MetaData implements Serializable {
 		builder.append("enabled=" + isEnabled() + ", ");
 		builder.append("pluginVersion=" + getPluginVersion() + ", ");
 		builder.append("mirthVersion=" + getMirthVersion() + ", ");
-		builder.append("updateUrl=" + getUpdateUrl() + ", ");
 		builder.append("description=" + getDescription());
 		builder.append("]");
 		return builder.toString();

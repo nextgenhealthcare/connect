@@ -19,7 +19,6 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.fileupload.FileItem;
 
-import com.webreach.mirth.model.ArchiveMetaData;
 import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.MetaData;
 import com.webreach.mirth.model.PluginMetaData;
@@ -51,7 +50,7 @@ public class ExtensionUtil {
 				File extensionFile = extensionFiles[i];
 				String xml = FileUtil.read(extensionFile.getAbsolutePath());
 				MetaData extensionMetadata = (MetaData) serializer.fromXML(xml);
-				extensionMap.put(extensionMetadata.getName(), extensionMetadata);
+				extensionMap.put(extensionMetadata.getId(), extensionMetadata);
 			}
 		} catch (IOException ioe) {
 			throw new ControllerException(ioe);
@@ -67,7 +66,8 @@ public class ExtensionUtil {
 			Iterator i = metaData.entrySet().iterator();
 			while (i.hasNext()) {
 				Entry entry = (Entry) i.next();
-				FileUtil.write(location + entry.getKey().toString() + ".xml", false, serializer.toXML(metaData.get(entry.getKey())));
+				String name = ((MetaData)entry.getValue()).getName();
+				FileUtil.write(location + name + ".xml", false, serializer.toXML(metaData.get(entry.getKey())));
 
 			}
 		} catch (IOException ioe) {

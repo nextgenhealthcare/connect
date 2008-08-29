@@ -7,7 +7,6 @@ public abstract class MetaData {
     private String mirthVersion;
     private String pluginVersion;
     private String url;
-    private String updateUrl;
     private String description;
     private boolean enabled;
 
@@ -57,14 +56,6 @@ public abstract class MetaData {
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public String getUpdateUrl() {
-        return updateUrl;
-    }
-
-    public void setUpdateUrl(String updateUrl) {
-        this.updateUrl = updateUrl;
     }
 
     public String getDescription() {

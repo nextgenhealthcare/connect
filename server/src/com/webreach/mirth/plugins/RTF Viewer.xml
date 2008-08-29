@@ -1,9 +1,9 @@
 <pluginMetaData>
+  <id>f95204c8-7088-464b-84ba-1a1d6be1811e</id>
   <name>RTF Viewer</name>
   <author>WebReach, Inc.</author>
   <pluginVersion>@mirthversion</pluginVersion>
   <mirthVersion>1.7.1</mirthVersion>
-  <updateUrl><![CDATA[http://extensions.mirthproject.org/updates/?mirthversion=${mirthVersion}&version=${version}&name=${name}&serverid=${serverid}]]></updateUrl>
   <url>http://extensions.mirthproject.org</url>
   <description>This plugin provides RTF attachment viewing capability in message browser.</description>
   <enabled>true</enabled>

@@ -1,9 +1,9 @@
 <pluginMetaData>
+  <id>0676cb63-3f24-456e-a648-e259f2a810af</id>
   <name>Javascript Filter Rule</name>
   <author>WebReach, Inc.</author>
   <pluginVersion>@mirthversion</pluginVersion>
   <mirthVersion>1.7.1</mirthVersion>
-  <updateUrl><![CDATA[http://extensions.mirthproject.org/updates/?mirthversion=${mirthVersion}&version=${version}&name=${name}&serverid=${serverid}]]></updateUrl>
   <url>http://extensions.mirthproject.org</url>
   <description>This plugin provides a JavaScript rule-type for Mirth filters</description>
   <enabled>true</enabled>

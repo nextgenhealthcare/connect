@@ -65,7 +65,6 @@ public class PluginMetaData extends MetaData implements Serializable {
 			EqualsUtil.areEqual(this.getMirthVersion(), plugin.getMirthVersion()) &&
 			EqualsUtil.areEqual(this.isEnabled(), plugin.isEnabled()) &&
 			EqualsUtil.areEqual(this.getExtensionPoints(), plugin.getExtensionPoints()) &&
-			EqualsUtil.areEqual(this.getUpdateUrl(), plugin.getUpdateUrl()) &&
 			EqualsUtil.areEqual(this.getDescription(), plugin.getDescription());
 	}
 
@@ -82,7 +81,6 @@ public class PluginMetaData extends MetaData implements Serializable {
 			builder.append("extention-point" + iter.nextIndex() + "=" + extensionPoint.toString() + ", ");
 		}
 		
-		builder.append("updateUrl=" + getUpdateUrl() + ", ");
 		builder.append("description=" + getDescription() + ", ");
 		builder.append("enabled=" + isEnabled() + "]");
 		return builder.toString();
