@@ -25,28 +25,34 @@ import com.webreach.mirth.server.controllers.ChannelController;
 public class VMRouter {
     private static transient Log logger = LogFactory.getLog(VMRouter.class);
 
-	public void routeMessage(String channelName, String message) {
-		routeMessage(channelName, message, true);
-	}
+    public void routeMessage(String channelName, String message) {
+        routeMessage(channelName, message, true);
+    }
 
-	public void routeMessage(String channelName, String message, boolean useQueue) {
-		String channelId = ChannelController.getChannelId(channelName);
-		routeMessageByChannelId(channelId, message, useQueue, true);
-	}
+    public void routeMessage(String channelName, String message, boolean useQueue) {
+        String channelId = ChannelController.getChannelId(channelName);
+        routeMessageByChannelId(channelId, message, useQueue, true);
+    }
 
-	public void routeMessage(String channelName, String message, boolean useQueue, boolean synchronised) {
-		String channelId = ChannelController.getChannelId(channelName);
-		routeMessageByChannelId(channelId, message, useQueue, synchronised);
-	}
+    public void routeMessage(String channelName, String message, boolean useQueue, boolean synchronised) {
+        String channelId = ChannelController.getChannelId(channelName);
+        routeMessageByChannelId(channelId, message, useQueue, synchronised);
+    }
 
     public void routeMessageByChannelId(String channelId, Object message, boolean useQueue, boolean synchronised) {
-        MessageObject messageObject = (MessageObject) message;
-        UMOMessage umoMessage = new MuleMessage(messageObject.getRawData());
+        UMOMessage umoMessage = null;
 
-        // set the properties from the context
-        for (Iterator iterator = messageObject.getContext().entrySet().iterator(); iterator.hasNext();) {
-            Entry entry = (Entry) iterator.next();
-            umoMessage.setProperty(entry.getKey(), entry.getValue());
+        if (message instanceof MessageObject) {
+            MessageObject messageObject = (MessageObject) message;
+            umoMessage = new MuleMessage(messageObject.getRawData());
+
+            // set the properties from the context
+            for (Iterator iterator = messageObject.getContext().entrySet().iterator(); iterator.hasNext();) {
+                Entry entry = (Entry) iterator.next();
+                umoMessage.setProperty(entry.getKey(), entry.getValue());
+            }
+        } else {
+            umoMessage = new MuleMessage(message);
         }
 
         VMMessageReceiver receiver = VMRegistry.getInstance().get(channelId);
@@ -65,7 +71,7 @@ public class VMRouter {
         if (endpointUri == null) {
             throw new DispatchException(new Message(Messages.X_IS_NULL, "Endpoint"), event.getMessage(), event.getEndpoint());
         }
-        
+
         if (useQueue) {
             QueueSession session = ((VMConnector) receiver.getConnector()).getQueueSession();
             Queue queue = session.getQueue(endpointUri.getAddress());
@@ -75,10 +81,10 @@ public class VMRouter {
                 logger.warn("No receiver for endpointUri: " + event.getEndpoint().getEndpointURI());
                 return;
             }
-            
+
             receiver.routeMessage(event.getMessage(), synchronised);
         }
-        
+
         if (logger.isDebugEnabled()) {
             logger.debug("dispatched Event on endpointUri: " + endpointUri);
         }
