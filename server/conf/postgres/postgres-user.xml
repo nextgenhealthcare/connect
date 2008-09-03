@@ -22,6 +22,11 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<result property="password" column="PASSWORD" />
 		<result property="salt" column="SALT" />
 	</resultMap>
+	
+	<resultMap class="com.webreach.mirth.model.Preference" id="get-user-preferences">
+		<result property="name" column="NAME" />
+		<result property="value" column="VALUE" />
+	</resultMap>
 
 	<select id="getUser" parameterClass="com.webreach.mirth.model.User" resultMap="get-user-result">
 		SELECT ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL, PHONENUMBER, LAST_LOGIN, DESCRIPTION
