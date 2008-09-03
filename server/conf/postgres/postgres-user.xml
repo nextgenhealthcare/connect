@@ -96,4 +96,16 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		UPDATE PERSON
 		SET LOGGED_IN = FALSE
 	</update>	
+	
+	<select id="getUserPreferences" parameterClass="java.lang.Integer" resultMap="get-user-preferences">
+		SELECT NAME, VALUE
+		FROM PREFERENCES
+		WHERE PERSON_ID = #id#
+	</select>
+	
+	<insert id="insertUserPreference" parameterClass="java.util.Map">
+		INSERT INTO
+		PREFERENCES (PERSON_ID, NAME, VALUE)
+		VALUES (#id#, #name#, #value#)
+	</insert>	
 </sqlMap>
