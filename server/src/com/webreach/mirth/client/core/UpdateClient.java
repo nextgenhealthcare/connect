@@ -218,7 +218,7 @@ public class UpdateClient {
             usageData.put(channelId + ".destinations", String.valueOf(channel.getDestinationConnectors().size()));
 
             // message counts
-            ChannelStatistics statistics = ChannelStatisticsController.getInstance().getStatistics(channel.getId());
+            ChannelStatistics statistics = client.getStatistics(channel.getId());
 
             if (statistics != null) {
                 usageData.put(channelId + ".received", String.valueOf(statistics.getReceived()));
