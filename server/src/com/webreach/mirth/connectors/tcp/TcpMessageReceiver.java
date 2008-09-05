@@ -55,6 +55,7 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
@@ -74,8 +75,8 @@ import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 public class TcpMessageReceiver extends AbstractMessageReceiver implements Work {
 	protected ServerSocket serverSocket = null;
 	protected TcpConnector connector;
-	private AlertController alertController = AlertController.getInstance();
-	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+	private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
 	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	private TcpWorker work;

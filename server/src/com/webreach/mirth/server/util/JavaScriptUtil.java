@@ -43,12 +43,13 @@ import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
 import com.webreach.mirth.server.MirthJavascriptTransformerException;
 import com.webreach.mirth.server.controllers.CodeTemplateController;
 import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.SystemLogger;
 
 public class JavaScriptUtil {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
-	private CodeTemplateController codeTemplateController = CodeTemplateController.getInstance();
+	private CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
 	private static ScriptableObject sealedSharedScope;
 
 	// singleton pattern
@@ -111,7 +112,7 @@ public class JavaScriptUtil {
 		try {
 			executeScript(scriptId, scriptType, channelId, null);
 		} catch (Exception e) {
-			SystemLogger systemLogger = SystemLogger.getInstance();
+			SystemLogger systemLogger = ControllerFactory.getFactory().createSystemLogger();
 			SystemEvent event = new SystemEvent("Exception occured in " + scriptType + " script");
 			event.setLevel(SystemEvent.Level.NORMAL);
 			event.setDescription(StackTracePrinter.stackTraceToString(e));

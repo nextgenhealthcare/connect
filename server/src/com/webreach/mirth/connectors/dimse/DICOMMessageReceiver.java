@@ -31,6 +31,7 @@ import sun.misc.BASE64Encoder;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.DICOMSerializer;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
@@ -48,7 +49,7 @@ public class DICOMMessageReceiver extends AbstractMessageReceiver {
     // --- DICOM Specific Variables ---
     DcmRcv2 dcmrcv = new DcmRcv2(); 
     protected DICOMConnector connector;
-	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
 	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
 	private ConnectorType connectorType = ConnectorType.LISTENER;
 	public DICOMMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {

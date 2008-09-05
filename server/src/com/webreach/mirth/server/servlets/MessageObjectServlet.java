@@ -37,6 +37,7 @@ import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.DICOMUtil;
 
@@ -46,7 +47,7 @@ public class MessageObjectServlet extends MirthServlet {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         } else {
             try {
-                MessageObjectController messageObjectController = MessageObjectController.getInstance();
+                MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 PrintWriter out = response.getWriter();
                 String operation = request.getParameter("op");

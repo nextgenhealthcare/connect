@@ -31,6 +31,7 @@ import org.mule.umo.provider.UMOConnector;
 import org.mule.util.queue.Queue;
 import org.mule.util.queue.QueueSession;
 
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
@@ -50,7 +51,7 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
 	private VMConnector vmConnector;
 	private String componentName;
 	private Object lock = new Object();
-	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
 	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
 	private ConnectorType connectorType = ConnectorType.LISTENER;
 

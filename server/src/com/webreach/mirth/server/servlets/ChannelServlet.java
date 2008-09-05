@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.ChannelController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 
 public class ChannelServlet extends MirthServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -44,7 +45,7 @@ public class ChannelServlet extends MirthServlet {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
 			try {
-				ChannelController channelController = ChannelController.getInstance();
+				ChannelController channelController = ControllerFactory.getFactory().createChannelController();
 				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");

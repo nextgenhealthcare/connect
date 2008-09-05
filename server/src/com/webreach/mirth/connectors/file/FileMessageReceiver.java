@@ -41,6 +41,7 @@ import com.webreach.mirth.connectors.file.filesystems.FileSystemConnection;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
@@ -67,8 +68,8 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 	private String filenamePattern = null;
 	private boolean routingError = false;
 
-	private AlertController alertController = AlertController.getInstance();
-	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+	private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
 	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	private ConnectorType connectorType = ConnectorType.READER;

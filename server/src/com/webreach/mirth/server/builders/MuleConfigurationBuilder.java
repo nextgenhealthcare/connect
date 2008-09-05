@@ -52,6 +52,7 @@ import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.ConfigurationController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.controllers.TemplateController;
 import com.webreach.mirth.server.mule.adaptors.AdaptorFactory;
@@ -72,7 +73,7 @@ public class MuleConfigurationBuilder {
 	private List<Channel> channels = null;
 	private Map<String, ConnectorMetaData> transports = null;
 	private JavaScriptBuilder scriptBuilder = new JavaScriptBuilder();
-	private ScriptController scriptController = ScriptController.getInstance();
+	private ScriptController scriptController = ControllerFactory.getFactory().createScriptContorller();
 
 	public MuleConfigurationBuilder(List<Channel> channels, Map<String, ConnectorMetaData> transports) {
 		this.channels = channels;
@@ -131,7 +132,7 @@ public class MuleConfigurationBuilder {
 
 			// set the Mule working directory
 			String muleQueue = PropertyLoader.getProperty(properties, "mule.queue");
-			muleQueue = StringUtils.replace(muleQueue, "${mirthHomeDir}", ConfigurationController.mirthHomeDir);
+			muleQueue = StringUtils.replace(muleQueue, "${mirthHomeDir}", ControllerFactory.getFactory().createConfigurationController().getBaseDir());
 			Element muleEnvironmentPropertiesElement = (Element) muleConfigurationElement.getElementsByTagName("mule-environment-properties").item(0);
 			muleEnvironmentPropertiesElement.setAttribute("workingDirectory", muleQueue);
 
@@ -379,7 +380,7 @@ public class MuleConfigurationBuilder {
 
 			// put the outbound template in the templates table
 			if (transformer.getOutboundTemplate() != null) {
-				TemplateController templateController = TemplateController.getInstance();
+				TemplateController templateController = ControllerFactory.getFactory().createTemplateController();
 				IXMLSerializer<String> serializer = AdaptorFactory.getAdaptor(transformer.getOutboundProtocol()).getSerializer(transformer.getOutboundProperties());
 				String templateId = UUIDGenerator.getUUID();
 
@@ -415,7 +416,7 @@ public class MuleConfigurationBuilder {
 			transformersElement.appendChild(transformerElement);
 			
 			// Add the "batchScript" property to the script table
-			ScriptController scriptController = ScriptController.getInstance();
+			ScriptController scriptController = ControllerFactory.getFactory().createScriptContorller();
 			if (transformer.getInboundProperties() != null &&
 					transformer.getInboundProperties().getProperty("batchScript") != null) {
 				

@@ -49,6 +49,7 @@ import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ChannelStatisticsController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.ExtensionController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MigrationController;
@@ -75,16 +76,17 @@ public class Mirth extends Thread {
 	private HttpServer httpServer = null;
 	private HttpServer servletContainer = null;
 	private CommandQueue commandQueue = CommandQueue.getInstance();
-	private SystemLogger systemLogger = SystemLogger.getInstance();
 	private MirthManager manager = new MirthManager();
-	private ConfigurationController configurationController = ConfigurationController.getInstance();
-	private ChannelController channelController = ChannelController.getInstance();
-	private UserController userController = UserController.getInstance();
-	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-	private ChannelStatisticsController channelStatisticsController = ChannelStatisticsController.getInstance();
-	private ExtensionController extensionController = ExtensionController.getInstance();
-	private MigrationController migrationController = MigrationController.getInstance();
-	private MonitoringController monitoringController = MonitoringController.getInstance();
+	
+	private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+	private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
+	private UserController userController = ControllerFactory.getFactory().createUserController();
+	private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
+	private ChannelStatisticsController channelStatisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
+	private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+	private MigrationController migrationController = ControllerFactory.getFactory().createMigrationController();
+	private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
+    private SystemLogger systemLogger = ControllerFactory.getFactory().createSystemLogger();
 
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();
@@ -306,7 +308,7 @@ public class Mirth extends Thread {
 			}
 
 			sslListener.setPort(Integer.valueOf(PropertyLoader.getProperty(mirthProperties, "https.port")).intValue());
-			sslListener.setKeystore(ConfigurationController.mirthHomeDir + System.getProperty("file.separator") + PropertyLoader.getProperty(mirthProperties, "https.keystore"));
+			sslListener.setKeystore(ControllerFactory.getFactory().createConfigurationController().getBaseDir() + System.getProperty("file.separator") + PropertyLoader.getProperty(mirthProperties, "https.keystore"));
 			sslListener.setPassword(PropertyLoader.getProperty(mirthProperties, "https.password"));
 			sslListener.setKeyPassword(PropertyLoader.getProperty(mirthProperties, "https.keypassword"));
 			servletContainer.addListener(sslListener);
@@ -331,7 +333,7 @@ public class Mirth extends Thread {
 			// Serve static content from the lib context
 			File connectors = new File(ClassPathResource.getResourceURI("connectors"));
 			File plugins = new File(ClassPathResource.getResourceURI("plugins"));
-			String libPath = ConfigurationController.mirthHomeDir + System.getProperty("file.separator") + "client-lib";
+			String libPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + System.getProperty("file.separator") + "client-lib";
 
 			libContext.setResourceBase(libPath);
 			libContext.addHandler(new ResourceHandler());
@@ -361,7 +363,7 @@ public class Mirth extends Thread {
 			publicContext.setContextPath(contextPath + "/");
 			httpServer.addContext(publicContext);
 
-			String publicPath = ConfigurationController.mirthHomeDir + System.getProperty("file.separator") + "public_html";
+			String publicPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + System.getProperty("file.separator") + "public_html";
 			publicContext.setResourceBase(publicPath);
 			publicContext.addHandler(new ResourceHandler());
 

@@ -12,6 +12,7 @@ import com.webreach.mirth.model.converters.SerializerException;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.UUIDGenerator;
 
@@ -21,9 +22,9 @@ public abstract class Adaptor {
     protected String source;
     protected Map properties;
     protected IXMLSerializer<String> serializer;
-    private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-    private ConfigurationController configurationController = ConfigurationController.getInstance();
-    private AlertController alertController = AlertController.getInstance();
+    private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+    private AlertController alertController = ControllerFactory.getFactory().createAlertController();
 
     public MessageObject getMessage(String source, String channelId, boolean encryptData, Map properties, boolean emptyFilterAndTransformer, Map context) throws AdaptorException {
         this.source = source;

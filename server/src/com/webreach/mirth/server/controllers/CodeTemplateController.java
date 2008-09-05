@@ -25,85 +25,14 @@
 
 package com.webreach.mirth.server.controllers;
 
-import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
-import com.ibatis.sqlmap.client.SqlMapClient;
 import com.webreach.mirth.model.CodeTemplate;
-import com.webreach.mirth.server.util.SqlConfig;
 
-public class CodeTemplateController {
-	private Logger logger = Logger.getLogger(this.getClass());
-	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
-	private static CodeTemplateController instance = null;
+public interface CodeTemplateController {
+    public List<CodeTemplate> getCodeTemplate(CodeTemplate codeTemplate) throws ControllerException;
 
-	private CodeTemplateController() {
-		
-	}
-	
-	public static CodeTemplateController getInstance() {
-		synchronized (CodeTemplateController.class) {
-			if (instance == null) {
-				instance = new CodeTemplateController();
-			}
-			
-			return instance;
-		}
-	}
-	
-	public List<CodeTemplate> getCodeTemplate(CodeTemplate codeTemplate) throws ControllerException {
-		logger.debug("getting codeTemplate: " + codeTemplate);
+    public void updateCodeTemplates(List<CodeTemplate> codeTemplates) throws ControllerException;
 
-		try {
-			List<CodeTemplate> codeTemplates = sqlMap.queryForList("getCodeTemplate", codeTemplate);
-
-			return codeTemplates;
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		}
-	}
-
-	public void updateCodeTemplates(List<CodeTemplate> codeTemplates) throws ControllerException {
-		// remove all codeTemplates
-		removeCodeTemplate(null);
-
-		for (Iterator iter = codeTemplates.iterator(); iter.hasNext();) {
-			CodeTemplate codeTemplate = (CodeTemplate) iter.next();
-			insertCodeTemplate(codeTemplate);
-		}
-	}
-
-	private void insertCodeTemplate(CodeTemplate codeTemplate) throws ControllerException {
-		try {
-			CodeTemplate codeTemplateFilter = new CodeTemplate();
-			codeTemplateFilter.setId(codeTemplate.getId());
-
-			try {
-				sqlMap.startTransaction();
-
-				// insert the codeTemplate and its properties
-				logger.debug("adding codeTemplate: " + codeTemplate);
-				sqlMap.insert("insertCodeTemplate", codeTemplate);
-				
-				sqlMap.commitTransaction();
-			} finally {
-				sqlMap.endTransaction();
-			}
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		}
-	}
-
-	public void removeCodeTemplate(CodeTemplate codeTemplate) throws ControllerException {
-		logger.debug("removing codeTemplate: " + codeTemplate);
-
-		try {
-			sqlMap.delete("deleteCodeTemplate", codeTemplate);
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		}
-	}
+    public void removeCodeTemplate(CodeTemplate codeTemplate) throws ControllerException;
 }

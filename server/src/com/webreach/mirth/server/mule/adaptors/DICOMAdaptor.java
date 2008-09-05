@@ -8,7 +8,7 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.DICOMSerializer;
 import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.model.converters.SerializerFactory;
-import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class DICOMAdaptor extends Adaptor {
@@ -29,7 +29,6 @@ public class DICOMAdaptor extends Adaptor {
             else
                 messageObject.setRawData("");
             // Create attachment
-            MessageObjectController moc = MessageObjectController.getInstance();
             if(dSerializer.getPixelData() != null && !dSerializer.getPixelData().isEmpty()) {
                 Iterator<String> i = dSerializer.getPixelData().iterator();
                 Attachment attachment = new Attachment();
@@ -40,7 +39,7 @@ public class DICOMAdaptor extends Adaptor {
                     attachment.setAttachmentId(UUIDGenerator.getUUID());
                     attachment.setData(image.getBytes());
                     attachment.setSize(image.length());
-                    moc.insertAttachment(attachment);
+                    ControllerFactory.getFactory().createMessageObjectController().insertAttachment(attachment);
                 }
                 messageObject.setAttachment(true);
             }

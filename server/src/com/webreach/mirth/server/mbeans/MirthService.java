@@ -6,6 +6,7 @@ import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
 import com.webreach.mirth.server.Mirth;
 import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.ExtensionController;
 
 public class MirthService implements MirthServiceMBean {
@@ -26,7 +27,7 @@ public class MirthService implements MirthServiceMBean {
 	}
 	
 	private void createProperties() {
-		ExtensionController extensionController = ExtensionController.getInstance();
+		ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
 		Properties props = null;
 		
 		try {

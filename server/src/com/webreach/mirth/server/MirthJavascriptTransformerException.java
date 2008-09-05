@@ -4,6 +4,7 @@ import org.mozilla.javascript.RhinoException;
 
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.server.controllers.ChannelController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 
 public class MirthJavascriptTransformerException extends Exception {
 	private static final long serialVersionUID = 1L;
@@ -18,7 +19,7 @@ public class MirthJavascriptTransformerException extends Exception {
 		StringBuilder sBuilder = new StringBuilder();
 		sBuilder.append(lineSeperator);
 		if (channelId != null) {
-			Channel channel = ChannelController.getChannelCache().get(channelId);
+			Channel channel = ControllerFactory.getFactory().createChannelController().getChannelCache().get(channelId);
 			if (channel != null) {
 				sBuilder.append("CHANNEL:\t").append(channel.getName());
 				sBuilder.append(lineSeperator);

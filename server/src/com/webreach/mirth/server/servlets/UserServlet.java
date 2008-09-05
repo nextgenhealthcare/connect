@@ -39,6 +39,7 @@ import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.SystemLogger;
 import com.webreach.mirth.server.controllers.UserController;
@@ -48,8 +49,8 @@ public class UserServlet extends MirthServlet {
 	public static final String SESSION_AUTHORIZED = "authorized";
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		UserController userController = UserController.getInstance();
-		SystemLogger systemLogger = SystemLogger.getInstance();
+		UserController userController = ControllerFactory.getFactory().createUserController();
+		SystemLogger systemLogger = ControllerFactory.getFactory().createSystemLogger();
 		PrintWriter out = response.getWriter();
 		String operation = request.getParameter("op");
 		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
@@ -107,7 +108,7 @@ public class UserServlet extends MirthServlet {
 
 	private boolean login(HttpServletRequest request, HttpServletResponse response, UserController userController, SystemLogger systemLogger, String username, String password, String version) throws ServletException {
 		try {
-			ConfigurationController configurationController = ConfigurationController.getInstance();
+			ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 			
 			// if the version of the client in is not the same as the server and the version is not 0.0.0 (bypass)
 			if (!version.equals(configurationController.getServerVersion()) && !version.equals("0.0.0")) {
@@ -176,8 +177,7 @@ public class UserServlet extends MirthServlet {
 		}
 		
 		// delete any temp tables created for this session
-		MessageObjectController messageObjectController = MessageObjectController.getInstance();
-		messageObjectController.removeFilterTable(sessionId);
+		ControllerFactory.getFactory().createMessageObjectController().removeFilterTable(sessionId);
 		systemLogger.removeFilterTable(sessionId);
 		
 		// log the event

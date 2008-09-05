@@ -24,6 +24,7 @@ import com.webreach.mirth.model.converters.ObjectCloner;
 import com.webreach.mirth.model.converters.ObjectClonerException;
 import com.webreach.mirth.plugins.ServerPlugin;
 import com.webreach.mirth.server.controllers.ChannelController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
 
@@ -219,7 +220,7 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
 
             LinkedList<String[]> channelLog = null;
 
-            HashMap<String, Channel> channelsFromCache = ChannelController.getChannelCache();    // HashMap(ChannelID, Channel)
+            HashMap<String, Channel> channelsFromCache = ControllerFactory.getFactory().createChannelController().getChannelCache();    // HashMap(ChannelID, Channel)
 
             if (channelsFromCache.containsKey(channelId)) { //  redundant check as the channelId MUST exist in the channelCache. but just for a safety measure...
 

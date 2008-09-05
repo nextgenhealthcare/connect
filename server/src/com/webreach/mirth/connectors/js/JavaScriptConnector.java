@@ -22,6 +22,7 @@ import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOMessageReceiver;
 
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.util.CompiledScriptCache;
 
@@ -32,7 +33,7 @@ import com.webreach.mirth.server.util.CompiledScriptCache;
 public class JavaScriptConnector extends AbstractServiceEnabledConnector {
 
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
-	private ScriptController scriptController = ScriptController.getInstance();
+	private ScriptController scriptController = ControllerFactory.getFactory().createScriptContorller();
 
 	public static final String PROPERTY_POLLING_FREQUENCY = "pollingFrequency";
 

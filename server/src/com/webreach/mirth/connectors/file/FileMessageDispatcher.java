@@ -9,23 +9,8 @@
 
 package com.webreach.mirth.connectors.file;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
 
-import org.mule.MuleException;
-import org.mule.MuleManager;
-import org.mule.config.i18n.Message;
-import org.mule.impl.MuleMessage;
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.TemplateValueReplacer;
 import org.mule.providers.VariableFilenameParser;
@@ -33,17 +18,14 @@ import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpointURI;
-import org.mule.util.Utility;
 
 import sun.misc.BASE64Decoder;
 
-import com.jcraft.jsch.ChannelSftp;
-import com.webreach.mirth.connectors.file.filesystems.FileInfo;
 import com.webreach.mirth.connectors.file.filesystems.FileSystemConnection;
-import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
@@ -60,9 +42,9 @@ import com.webreach.mirth.server.controllers.MonitoringController.Event;
 public class FileMessageDispatcher extends AbstractMessageDispatcher {
 	private FileConnector connector;
 
-	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-	private AlertController alertController = AlertController.getInstance();
-	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
+	private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+	private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
 	private ConnectorType connectorType = ConnectorType.WRITER;
 	public FileMessageDispatcher(FileConnector connector) {
 		super(connector);

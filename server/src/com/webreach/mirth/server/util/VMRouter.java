@@ -21,6 +21,7 @@ import com.webreach.mirth.connectors.vm.VMConnector;
 import com.webreach.mirth.connectors.vm.VMMessageReceiver;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.ChannelController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 
 public class VMRouter {
     private static transient Log logger = LogFactory.getLog(VMRouter.class);
@@ -30,12 +31,12 @@ public class VMRouter {
     }
 
     public void routeMessage(String channelName, String message, boolean useQueue) {
-        String channelId = ChannelController.getChannelId(channelName);
+        String channelId = ControllerFactory.getFactory().createChannelController().getChannelId(channelName);
         routeMessageByChannelId(channelId, message, useQueue, true);
     }
 
     public void routeMessage(String channelName, String message, boolean useQueue, boolean synchronised) {
-        String channelId = ChannelController.getChannelId(channelName);
+        String channelId = ControllerFactory.getFactory().createChannelController().getChannelId(channelName);
         routeMessageByChannelId(channelId, message, useQueue, synchronised);
     }
 

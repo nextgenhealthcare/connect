@@ -46,14 +46,15 @@ import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.tools.ScriptRunner;
 import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class MessageObjectControllerTest extends TestCase {
-    private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-    private ConfigurationController configurationController = ConfigurationController.getInstance();
-    private ChannelController channelController = ChannelController.getInstance();
+    private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+    private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private List<MessageObject> sampleMessageObjectList;
     private String channelId;
 

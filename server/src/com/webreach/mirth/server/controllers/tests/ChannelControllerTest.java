@@ -13,11 +13,12 @@ import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.tools.ScriptRunner;
 
 public class ChannelControllerTest extends TestCase {
-	private ChannelController channelController = ChannelController.getInstance();
-	private ConfigurationController configurationController = ConfigurationController.getInstance();
+	private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
+	private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 	private List<Channel> sampleChannelList;
 	
 	protected void setUp() throws Exception {

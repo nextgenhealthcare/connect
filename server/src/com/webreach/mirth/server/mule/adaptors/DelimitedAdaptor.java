@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Map;
-import java.util.Scanner;
 
 import org.apache.log4j.Logger;
 import org.mule.umo.MessagingException;
@@ -14,7 +13,7 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.DelimitedSerializer;
 import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.model.converters.SerializerFactory;
-import com.webreach.mirth.server.controllers.ScriptController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.util.JavaScriptUtil;
 
 public class DelimitedAdaptor extends Adaptor implements BatchAdaptor {
@@ -51,7 +50,7 @@ public class DelimitedAdaptor extends Adaptor implements BatchAdaptor {
 			String batchScriptId = (String) properties.get("batchScriptId");
 			StringBuilder batchScript = new StringBuilder();
 			batchScript.append("function doBatchScript() {\n");
-			batchScript.append(ScriptController.getInstance().getScript(batchScriptId));
+			batchScript.append(ControllerFactory.getFactory().createScriptContorller().getScript(batchScriptId));
 			batchScript.append("\n}\n");
 			batchScript.append("return doBatchScript();\n");
 			JavaScriptUtil.getInstance().compileAndAddScript(batchScriptId, batchScript.toString(), null, true);

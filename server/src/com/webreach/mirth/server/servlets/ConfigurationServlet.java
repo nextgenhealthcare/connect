@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.webreach.mirth.model.ServerConfiguration;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.ConfigurationController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 
 public class ConfigurationServlet extends MirthServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -46,11 +47,11 @@ public class ConfigurationServlet extends MirthServlet {
 
             if (operation.equals("getStatus")) {
                 response.setContentType("text/plain");
-                out.println(ConfigurationController.getInstance().getStatus());
+                out.println(ControllerFactory.getFactory().createConfigurationController().getStatus());
             } else if (!isUserLoggedIn(request)) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             } else {
-                ConfigurationController configurationController = ConfigurationController.getInstance();
+                ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
                 if (operation.equals("getAvaiableCharsetEncodings")) {

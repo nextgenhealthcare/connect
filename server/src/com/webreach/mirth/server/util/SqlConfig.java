@@ -7,32 +7,32 @@ import com.ibatis.common.logging.LogFactory;
 import com.ibatis.common.resources.Resources;
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.ibatis.sqlmap.client.SqlMapClientBuilder;
-import com.webreach.mirth.server.controllers.ConfigurationController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.util.PropertyLoader;
 
 public class SqlConfig {
-	private static Properties mirthProperties = PropertyLoader.loadProperties("mirth");
-	private static final SqlMapClient sqlMap;
+    private static final SqlMapClient sqlMapClient;
 
-	static {
-		try {
-			String database = PropertyLoader.getProperty(mirthProperties, "database");
-			String resource = database + System.getProperty("file.separator") + database + "-SqlMapConfig.xml";
-			LogFactory.selectLog4JLogging();
-			Reader reader = Resources.getResourceAsReader(resource);
-			if (database.equalsIgnoreCase("derby")) {
-				Properties props = PropertyLoader.loadProperties(database + "-SqlMapConfig");
-				props.setProperty("mirthHomeDir", ConfigurationController.mirthHomeDir);
-				sqlMap = SqlMapClientBuilder.buildSqlMapClient(reader, props);
-			} else {			
-				sqlMap = SqlMapClientBuilder.buildSqlMapClient(reader);
-			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+    static {
+        try {
+            String database = PropertyLoader.getProperty(PropertyLoader.loadProperties("mirth"), "database");
+            String resource = database + System.getProperty("file.separator") + database + "-SqlMapConfig.xml";
+            LogFactory.selectLog4JLogging();
+            Reader reader = Resources.getResourceAsReader(resource);
 
-	public static SqlMapClient getSqlMapInstance() {
-		return sqlMap;
-	}
+            if (database.equalsIgnoreCase("derby")) {
+                Properties props = PropertyLoader.loadProperties(database + "-SqlMapConfig");
+                props.setProperty("mirthHomeDir", ControllerFactory.getFactory().createConfigurationController().getBaseDir());
+                sqlMapClient = SqlMapClientBuilder.buildSqlMapClient(reader, props);
+            } else {
+                sqlMapClient = SqlMapClientBuilder.buildSqlMapClient(reader);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static SqlMapClient getSqlMapClient() {
+        return sqlMapClient;
+    }
 }

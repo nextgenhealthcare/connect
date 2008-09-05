@@ -26,14 +26,13 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.plugins.ServerPlugin;
 import com.webreach.mirth.server.controllers.ChannelController;
-import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.util.PropertyLoader;
 
 public class MessagePrunerService implements ServerPlugin, Job
 {
     private Logger logger = Logger.getLogger(this.getClass());
-    private ChannelController channelController = ChannelController.getInstance();
-    private MessageObjectController messageObjectController = MessageObjectController.getInstance();
+    private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private Scheduler sched = null;
     private SchedulerFactory schedFact = null;
     private JobDetail jobDetail = null;
@@ -204,7 +203,7 @@ public class MessagePrunerService implements ServerPlugin, Job
                         filter.setChannelId(channel.getId());
                         filter.setEndDate(endDate);
                         
-                        int result = messageObjectController.removeMessages(filter);
+                        int result = ControllerFactory.getFactory().createMessageObjectController().removeMessages(filter);
                         
                         Calendar calendar = Calendar.getInstance();
                         calendar.setTime(calendar.getTime());

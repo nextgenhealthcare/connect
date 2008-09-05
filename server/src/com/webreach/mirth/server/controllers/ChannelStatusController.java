@@ -44,7 +44,7 @@ import com.webreach.mirth.server.util.JMXConnectionFactory;
 
 public class ChannelStatusController {
 	private Logger logger = Logger.getLogger(this.getClass());
-	private SystemLogger systemLogger = SystemLogger.getInstance();
+	private SystemLogger systemLogger = ControllerFactory.getFactory().createSystemLogger();
     
 	private static ChannelStatusController instance = null;
 
@@ -210,7 +210,7 @@ public class ChannelStatusController {
 
 				// check if the channel is running but has been removed from the
 				// channel list
-				HashMap<String, Channel> channelCache = ChannelController.getChannelCache();
+				HashMap<String, Channel> channelCache = ControllerFactory.getFactory().createChannelController().getChannelCache();
 
 				if ((channelCache != null) && channelCache.containsKey(channelId)) {
 					Channel cachedChannel = channelCache.get(channelId);

@@ -9,11 +9,12 @@ import junit.framework.TestCase;
 
 import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.ExtensionController;
 import com.webreach.mirth.server.tools.ScriptRunner;
 
 public class PluginControllerTest extends TestCase {
-	private ExtensionController pluginController = ExtensionController.getInstance();
+	private ExtensionController pluginController = ControllerFactory.getFactory().createExtensionController();
 
 	protected void setUp() throws Exception {
 		super.setUp();

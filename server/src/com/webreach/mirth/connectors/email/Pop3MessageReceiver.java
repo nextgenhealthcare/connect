@@ -43,6 +43,7 @@ import org.mule.util.Utility;
 
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 
 /**
  * <code>Pop3MessageReceiver</code> polls a pop3 mailbox for messages removes
@@ -56,7 +57,7 @@ public class Pop3MessageReceiver extends PollingMessageReceiver implements Messa
 	private Folder folder = null;
 	private String backupFolder = null;
 	protected Session session;
-	private AlertController alertController = AlertController.getInstance();
+	private AlertController alertController = ControllerFactory.getFactory().createAlertController();
 
 	public Pop3MessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, Long checkFrequency, String backupFolder) throws InitialisationException {
 		super(connector, component, endpoint, checkFrequency);

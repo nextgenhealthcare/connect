@@ -38,6 +38,7 @@ import org.mule.util.queue.QueueSession;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
@@ -59,9 +60,9 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
     private static transient Log logger = LogFactory.getLog(VMMessageDispatcher.class);
 
     private VMConnector connector;
-    private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-    private AlertController alertController = AlertController.getInstance();
-    private MonitoringController monitoringController = MonitoringController.getInstance();
+    private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
+    private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private ConnectorType connectorType = ConnectorType.SENDER;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     public VMMessageDispatcher(VMConnector connector)

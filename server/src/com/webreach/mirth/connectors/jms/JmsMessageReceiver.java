@@ -38,6 +38,7 @@ import org.mule.util.PropertiesHelper;
 import com.webreach.mirth.connectors.jms.filters.JmsSelectorFilter;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
@@ -55,8 +56,8 @@ public class JmsMessageReceiver extends AbstractMessageReceiver implements Messa
     protected RedeliveryHandler redeliveryHandler;
     protected MessageConsumer consumer;
     protected Session session;
-    private AlertController alertController = AlertController.getInstance();
-    private MonitoringController monitoringController = MonitoringController.getInstance();
+    private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
     private ConnectorType connectorType = ConnectorType.READER;
     public JmsMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint)

@@ -3,23 +3,21 @@ package com.webreach.mirth.server.controllers.tests;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import com.webreach.mirth.model.Preference;
 import com.webreach.mirth.model.Preferences;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.UserController;
 import com.webreach.mirth.server.tools.ScriptRunner;
 
 public class UserControllerTest extends TestCase {
-	private UserController userController = UserController.getInstance();
-	private ConfigurationController configurationController = ConfigurationController.getInstance();
+	private UserController userController = ControllerFactory.getFactory().createUserController();
+	private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 	private List<User> sampleUserList;
 	
 	protected void setUp() throws Exception {

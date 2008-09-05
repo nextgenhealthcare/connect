@@ -41,20 +41,21 @@ import com.webreach.mirth.server.controllers.ChannelStatisticsController;
 import com.webreach.mirth.server.controllers.ChannelStatusController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.ExtensionController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.SystemLogger;
 import com.webreach.mirth.server.controllers.UserController;
 
 public class MirthManager {
-	private ChannelController channelController = ChannelController.getInstance();
+	private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
 	private ChannelStatusController channelStatusController = ChannelStatusController.getInstance();
-	private ChannelStatisticsController channelStatisticsController = ChannelStatisticsController.getInstance();
-	private ConfigurationController configurationController = ConfigurationController.getInstance();
-	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-	private SystemLogger systemLogger = SystemLogger.getInstance();
-    private ExtensionController extensionController = ExtensionController.getInstance();
-	private UserController userController = UserController.getInstance();
+	private ChannelStatisticsController channelStatisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
+	private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+	private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
+	private SystemLogger systemLogger = ControllerFactory.getFactory().createSystemLogger();
+    private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+	private UserController userController = ControllerFactory.getFactory().createUserController();
 
 	/**
 	 * Returns a List of all channels.

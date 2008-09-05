@@ -18,7 +18,7 @@ import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 
-import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
 
@@ -32,7 +32,6 @@ public abstract class PollingMessageReceiver extends AbstractMessageReceiver imp
 	private String time = DEFAULT_TIME;
 	private boolean useTime = false;
 	private boolean workDone = false;
-	private MonitoringController monitoringController = MonitoringController.getInstance();
 	private ConnectorType connectorType = ConnectorType.READER;
 
 	public PollingMessageReceiver(UMOConnector connector, UMOComponent component, final UMOEndpoint endpoint, Long frequency) throws InitialisationException {
@@ -99,7 +98,7 @@ public abstract class PollingMessageReceiver extends AbstractMessageReceiver imp
 			}
 		} catch (InterruptedException e) {
 		} finally {
-			monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED);
+		    ControllerFactory.getFactory().createMonitoringController().updateStatus(connector, connectorType, Event.DISCONNECTED);
 		}
 	}
 

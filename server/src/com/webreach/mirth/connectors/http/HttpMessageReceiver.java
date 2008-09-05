@@ -46,6 +46,7 @@ import org.mule.util.monitor.Expirable;
 
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
@@ -59,8 +60,8 @@ import com.webreach.mirth.server.controllers.MonitoringController.Event;
  */
 public class HttpMessageReceiver extends TcpMessageReceiver {
     //private ExpiryMonitor keepAliveMonitor;
-	private AlertController alertController = AlertController.getInstance();
-	private MonitoringController monitoringController = MonitoringController.getInstance();
+    private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+	private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
 	private ConnectorType connectorType = ConnectorType.LISTENER;
     public HttpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint)
             throws InitialisationException {

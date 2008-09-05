@@ -5,12 +5,13 @@ import junit.framework.TestCase;
 
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.TemplateController;
 import com.webreach.mirth.server.tools.ScriptRunner;
 
 public class TemplateControllerTest extends TestCase {
-	private TemplateController templateController = TemplateController.getInstance();
-	private ConfigurationController configurationController = ConfigurationController.getInstance();
+	private TemplateController templateController = ControllerFactory.getFactory().createTemplateController();
+	private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
 	protected void setUp() throws Exception {
 		super.setUp();

@@ -47,6 +47,7 @@ import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
 import com.webreach.mirth.server.controllers.CodeTemplateController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.util.CompiledScriptCache;
 import com.webreach.mirth.server.util.GlobalVariableStore;
@@ -55,8 +56,8 @@ import com.webreach.mirth.server.util.VMRouter;
 public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 	private String preprocessingScriptId;
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
-	private ScriptController scriptController = ScriptController.getInstance();
-	private CodeTemplateController codeTemplateController = CodeTemplateController.getInstance();
+	private ScriptController scriptController = ControllerFactory.getFactory().createScriptContorller();
+	private CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
 	private static String LOCAL_DEFAULT_SCRIPT = "return message;";
 
 	public String getPreprocessingScriptId() {

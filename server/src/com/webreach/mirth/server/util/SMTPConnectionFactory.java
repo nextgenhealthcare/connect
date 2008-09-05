@@ -27,12 +27,12 @@ package com.webreach.mirth.server.util;
 
 import java.util.Properties;
 
-import com.webreach.mirth.server.controllers.ConfigurationController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.util.PropertyLoader;
 
 public class SMTPConnectionFactory {
     public static SMTPConnection createSMTPConnection() throws Exception {
-        Properties properties = ConfigurationController.getInstance().getServerProperties();
+        Properties properties = ControllerFactory.getFactory().createConfigurationController().getServerProperties();
         String host = PropertyLoader.getProperty(properties, "smtp.host");
         int port = Integer.valueOf(PropertyLoader.getProperty(properties, "smtp.port")).intValue();
         boolean auth = PropertyLoader.getProperty(properties, "smtp.auth").equals("1");

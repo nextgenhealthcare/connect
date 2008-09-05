@@ -42,6 +42,7 @@ import org.mule.util.PropertiesHelper;
 import org.mule.util.SpiHelper;
 
 import com.webreach.mirth.model.ConnectorMetaData;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.ExtensionController;
 
 /**
@@ -251,7 +252,7 @@ public class ConnectorFactory
     {
         ConnectorServiceDescriptor csd = (ConnectorServiceDescriptor) csdCache.get(new CSDKey(protocol, overrides));
         if (csd == null) {
-        	ExtensionController extensionController = ExtensionController.getInstance();
+        	ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
         	ConnectorMetaData connectorMetaData = extensionController.getConnectorMetaDataByProtocol(protocol);
         	if (connectorMetaData != null && connectorMetaData.getProperties() != null){
         		csd = loadCsdFromProperties(protocol, overrides, null, (Properties) connectorMetaData.getProperties().clone());

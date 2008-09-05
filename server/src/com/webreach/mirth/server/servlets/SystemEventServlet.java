@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.SystemEventFilter;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.SystemLogger;
 
 public class SystemEventServlet extends MirthServlet {
@@ -43,7 +44,7 @@ public class SystemEventServlet extends MirthServlet {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
 			try {
-				SystemLogger systemLogger = SystemLogger.getInstance();
+				SystemLogger systemLogger = ControllerFactory.getFactory().createSystemLogger();
 				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");

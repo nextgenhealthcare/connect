@@ -44,6 +44,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.ExtensionController;
 
 public class ExtensionServlet extends MirthServlet {
@@ -52,7 +53,7 @@ public class ExtensionServlet extends MirthServlet {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
 			try {
-				ExtensionController extensionController = ExtensionController.getInstance();
+				ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
 				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 				PrintWriter out = response.getWriter();
 				FileItem multiPartFile = null;

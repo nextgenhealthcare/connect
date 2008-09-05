@@ -36,6 +36,7 @@ import com.webreach.mirth.connectors.soap.axis.AxisConnector;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
 import com.webreach.mirth.model.MessageObject.Status;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
@@ -136,7 +137,7 @@ public class ServiceProxy {
 		protected static Log logger = LogFactory.getLog(AxisServiceHandler.class);
 		private AbstractMessageReceiver receiver;
 		private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
-		private MonitoringController monitoringController = MonitoringController.getInstance();
+		private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
 		private ConnectorType connectorType = ConnectorType.LISTENER;
 		private boolean synchronous = true;
 

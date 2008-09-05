@@ -10,11 +10,8 @@ import org.mule.umo.transformer.TransformerException;
 
 import com.webreach.mirth.connectors.jms.JmsConnector;
 import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.util.StackTracePrinter;
 
 public class MessageObjectToJMSMessage extends AbstractJmsTransformer {
-	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
     private static transient Log logger = LogFactory.getLog(MessageObjectToJMSMessage.class);
     private JmsConnector connector;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();

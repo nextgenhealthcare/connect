@@ -15,6 +15,7 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.util.FileUtil;
@@ -27,10 +28,10 @@ import com.webreach.mirth.server.util.FileUtil;
  */
 public class DICOMMessageDispatcher extends AbstractMessageDispatcher {
     private static char[] SECRET = { 's', 'e', 'c', 'r', 'e', 't' };
-	private MessageObjectController messageObjectController = MessageObjectController.getInstance();    
-    private MonitoringController monitoringController = MonitoringController.getInstance();
+	private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();    
+    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
 	private MonitoringController.ConnectorType connectorType = MonitoringController.ConnectorType.SENDER;
-	private AlertController alertController = AlertController.getInstance();
+	private AlertController alertController = ControllerFactory.getFactory().createAlertController();
     
         private HashMap as2ts = new HashMap();
  

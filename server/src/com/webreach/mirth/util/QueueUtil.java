@@ -14,6 +14,7 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.QueuedSenderProperties;
 import com.webreach.mirth.server.controllers.ChannelController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 
 public class QueueUtil {
 	private Log logger = LogFactory.getLog(getClass());
@@ -56,7 +57,7 @@ public class QueueUtil {
 
 	public void removeAllQueues() {
 		try {
-			List<Channel> channels = ChannelController.getInstance().getChannel(null);
+			List<Channel> channels = ControllerFactory.getFactory().createChannelController().getChannel(null);
 
 			for (Channel channel : channels) {
 				removeQueue(channel.getId());

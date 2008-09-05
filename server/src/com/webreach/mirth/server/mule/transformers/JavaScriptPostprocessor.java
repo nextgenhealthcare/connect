@@ -6,8 +6,7 @@ import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.server.controllers.ChannelController;
-import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.util.JavaScriptUtil;
 
 public class JavaScriptPostprocessor {
@@ -18,7 +17,7 @@ public class JavaScriptPostprocessor {
 		JavaScriptUtil.getInstance().executeScript("Postprocessor", "postprocessor", messageObject);
 		String channelId = messageObject.getChannelId();
 		
-		HashMap<String, Channel> channelCache = ChannelController.getChannelCache();
+		HashMap<String, Channel> channelCache = ControllerFactory.getFactory().createChannelController().getChannelCache();
 		
 		// Check the cache for the channel
 		if (channelCache != null && channelCache.containsKey(channelId)) {
@@ -26,7 +25,7 @@ public class JavaScriptPostprocessor {
 			if (channel.getProperties().containsKey("store_messages")) {
 				if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
 					// message is not stored, remove attachment
-					MessageObjectController.getInstance().deleteAttachments(messageObject);
+					ControllerFactory.getFactory().createMessageObjectController().deleteAttachments(messageObject);
 				}
 			}
 		}

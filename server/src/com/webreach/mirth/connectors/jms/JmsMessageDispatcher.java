@@ -41,6 +41,7 @@ import com.webreach.mirth.connectors.jms.transformers.MessageObjectToJMSMessage;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
@@ -62,9 +63,9 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
 
     private JmsConnector connector;
     private Session delegateSession;
-	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-	private AlertController alertController = AlertController.getInstance();
-	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
+	private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+	private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	private ConnectorType connectorType = ConnectorType.WRITER;
     public JmsMessageDispatcher(JmsConnector connector) {

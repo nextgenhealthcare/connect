@@ -58,6 +58,7 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
@@ -86,9 +87,9 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 	private StringBuffer buffer = new StringBuffer();
 	// (usually same as end of record)
 	private MllpConnector connector;
-	private AlertController alertController = AlertController.getInstance();
+	private AlertController alertController = ControllerFactory.getFactory().createAlertController();
 	private TcpWorker work;
-	private MonitoringController monitoringController = MonitoringController.getInstance();
+	private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
 	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	private ConnectorType connectorType = ConnectorType.LISTENER;

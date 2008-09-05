@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.webreach.mirth.model.Alert;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 
 public class AlertServlet extends MirthServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -43,7 +44,7 @@ public class AlertServlet extends MirthServlet {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		} else {
 			try {
-				AlertController alertController = AlertController.getInstance();
+				AlertController alertController = ControllerFactory.getFactory().createAlertController();
 				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 				PrintWriter out = response.getWriter();
 				String operation = request.getParameter("op");

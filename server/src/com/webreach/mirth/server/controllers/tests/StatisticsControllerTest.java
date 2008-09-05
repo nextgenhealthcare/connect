@@ -9,12 +9,13 @@ import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ChannelStatisticsController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.tools.ScriptRunner;
 
 public class StatisticsControllerTest extends TestCase {
-	private ChannelStatisticsController statisticsController = ChannelStatisticsController.getInstance();
-	private ChannelController channelController = ChannelController.getInstance();
-	private ConfigurationController configurationController = ConfigurationController.getInstance();
+	private ChannelStatisticsController statisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
+	private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
+	private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 	private Channel sampleChannel;
 
 	protected void setUp() throws Exception {

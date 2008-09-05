@@ -18,11 +18,12 @@ import org.mule.util.queue.QueueSession;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.QueuedMessage;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 
 public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
-	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-	private AlertController alertController = AlertController.getInstance();
+	private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
+	private AlertController alertController = ControllerFactory.getFactory().createAlertController();
 
 	protected Queue queue = null;
 	protected QueueSession queueSession = null;
@@ -171,7 +172,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 										if (isRotateQueue()) {
 											rotateCurrentMessage();
 										}
-										MessageObjectController.getInstance().resetQueuedStatus(thePayload.getMessageObject());
+										messageObjectController.resetQueuedStatus(thePayload.getMessageObject());
 									}
 								} catch (Throwable t) {
 									if (t instanceof InterruptedException) {
@@ -183,7 +184,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 											rotateCurrentMessage();
 										}
 										logger.debug("Conection error [" + t + "] " + " at " + thePayload.getEndpointUri().toString() + " queue size " + new Integer(queue.size()).toString());
-										MessageObjectController.getInstance().resetQueuedStatus(thePayload.getMessageObject());
+										messageObjectController.resetQueuedStatus(thePayload.getMessageObject());
 									} else {
 										if (!interrupted) {
 											logger.warn("Error reading message off the queue. Queue out of sync with filesystem", t);

@@ -11,12 +11,13 @@ import com.webreach.mirth.model.Alert;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.tools.ScriptRunner;
 import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class AlertControllerTest extends TestCase {
-	private AlertController alertController = AlertController.getInstance();
-	private ConfigurationController configurationController = ConfigurationController.getInstance();
+	private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+	private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 	private List<Alert> sampleAlertList;
 	
 	protected void setUp() throws Exception {

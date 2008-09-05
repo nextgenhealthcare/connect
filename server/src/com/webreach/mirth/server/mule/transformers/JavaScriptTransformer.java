@@ -55,6 +55,7 @@ import com.webreach.mirth.server.builders.ErrorMessageBuilder;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.CodeTemplateController;
 import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.controllers.TemplateController;
@@ -67,12 +68,12 @@ import com.webreach.mirth.util.StringUtil;
 
 public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	private Logger logger = Logger.getLogger(this.getClass());
-	private MessageObjectController messageObjectController = MessageObjectController.getInstance();
-	private AlertController alertController = AlertController.getInstance();
-	private TemplateController templateController = TemplateController.getInstance();
+	private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
+	private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+	private TemplateController templateController = ControllerFactory.getFactory().createTemplateController();
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
-	private ScriptController scriptController = ScriptController.getInstance();
-	private CodeTemplateController codeTemplateController = CodeTemplateController.getInstance();
+	private ScriptController scriptController = ControllerFactory.getFactory().createScriptContorller();
+	private CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
 	private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
 
 	private String inboundProtocol;
@@ -314,7 +315,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 						Attachment attachment = (Attachment) iter.next();
 						attachment.setMessageId(messageObject.getId());
 						messageObject.setAttachment(true);
-						MessageObjectController.getInstance().insertAttachment(attachment);
+						messageObjectController.insertAttachment(attachment);
 					}
 				}
 
@@ -517,13 +518,13 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 		// Helper function to get attachments
 		newScript.append("function getAttachments() {");
-		newScript.append("return Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().getAttachmentsByMessageId(messageObject.getId());");
+		newScript.append("return Packages.com.webreach.mirth.server.controllers.ControllerFactory.getFactory().createMessageObjectController().getAttachmentsByMessageId(messageObject.getId());");
 		newScript.append("}");
 
 		// Helper function to set attachment
 		newScript.append("function addAttachment(data, type) {");
-		newScript.append("var attachment = Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().createAttachment(data, type, messageObject);messageObject.setAttachment(true);");
-		newScript.append("Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().insertAttachment(attachment);\n");
+		newScript.append("var attachment = Packages.com.webreach.mirth.server.controllers.ControllerFactory.getFactory().createMessageObjectController().createAttachment(data, type, messageObject);messageObject.setAttachment(true);");
+		newScript.append("Packages.com.webreach.mirth.server.controllers.ControllerFactory.getFactory().createMessageObjectController().insertAttachment(attachment);\n");
 		newScript.append("return attachment;\n");
 		newScript.append("}\n");
 

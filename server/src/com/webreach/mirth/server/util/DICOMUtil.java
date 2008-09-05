@@ -4,6 +4,7 @@ import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.DICOMSerializer;
 import com.webreach.mirth.model.converters.SerializerException;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import ij.plugin.DICOM;
 import sun.misc.BASE64Decoder;
@@ -30,7 +31,7 @@ public class DICOMUtil {
     public static String getDICOMRawData(MessageObject message) {
         String mergedMessage;
         if(message.isAttachment()){
-            MessageObjectController mos = MessageObjectController.getInstance();
+            MessageObjectController mos = ControllerFactory.getFactory().createMessageObjectController();
             try {
                 List<Attachment> attachments = null;
                 if(message.getCorrelationId() != null)
@@ -90,7 +91,7 @@ public class DICOMUtil {
     public static List<Attachment> getMessageAttachments(MessageObject message) throws SerializerException {
         List<Attachment> attachments = null;
         if(message.isAttachment()){
-            MessageObjectController mos = MessageObjectController.getInstance();
+            MessageObjectController mos = ControllerFactory.getFactory().createMessageObjectController();
             try {
                 if(message.getCorrelationId() != null)
                     attachments = mos.getAttachmentsByMessageId(message.getCorrelationId());
@@ -136,7 +137,7 @@ public class DICOMUtil {
     
     public static String reAttachMessage(MessageObject message){
         String messageData = message.getEncodedData();
-        MessageObjectController mos = MessageObjectController.getInstance();
+        MessageObjectController mos = ControllerFactory.getFactory().createMessageObjectController();
         try {
             List<Attachment> list  = mos.getAttachmentsByMessageId(message.getCorrelationId());
             for(Attachment attachment : list){

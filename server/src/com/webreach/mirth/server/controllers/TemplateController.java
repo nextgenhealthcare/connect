@@ -25,85 +25,26 @@
 
 package com.webreach.mirth.server.controllers;
 
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.apache.log4j.Logger;
+public interface TemplateController {
+    /**
+     * Adds a template with the specified id to the database. If a template with
+     * the id already exists it will be overwritten.
+     * 
+     * @param id
+     * @param template
+     * @throws ControllerException
+     */
+    public void putTemplate(String id, String template) throws ControllerException;
 
-import com.ibatis.sqlmap.client.SqlMapClient;
-import com.webreach.mirth.server.util.SqlConfig;
+    /**
+     * Returns the template with the specified id, null otherwise.
+     * 
+     * @param id
+     * @return
+     * @throws ControllerException
+     */
+    public String getTemplate(String id) throws ControllerException;
 
-public class TemplateController {
-	private Logger logger = Logger.getLogger(this.getClass());
-	private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
-
-	private static TemplateController instance = null;
-	
-	private TemplateController() {
-		
-	}
-	
-	public static TemplateController getInstance() {
-		synchronized (TemplateController.class) {
-			if (instance == null) {
-				instance = new TemplateController();
-			}
-			
-			return instance;
-		}
-	}   
-	
-	/**
-	 * Adds a template with the specified id to the database. If a template with
-	 * the id already exists it will be overwritten.
-	 * 
-	 * @param id
-	 * @param template
-	 * @throws ControllerException
-	 */
-	public void putTemplate(String id, String template) throws ControllerException {
-		logger.debug("adding template: id=" + id);
-
-		try {
-			Map parameterMap = new HashMap();
-			parameterMap.put("id", id);
-			parameterMap.put("template", template);
-
-			if (getTemplate(id) == null) {
-				sqlMap.insert("insertTemplate", parameterMap);
-			} else {
-				sqlMap.update("updateTemplate", parameterMap);
-			}
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		}
-	}
-
-	/**
-	 * Returns the template with the specified id, null otherwise.
-	 * 
-	 * @param id
-	 * @return
-	 * @throws ControllerException
-	 */
-	public String getTemplate(String id) throws ControllerException {
-		logger.debug("retrieving template: id=" + id);
-
-		try {
-			return (String) sqlMap.queryForObject("getTemplate", id);
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		}
-	}
-	
-	public void clearTemplates() throws ControllerException {
-		logger.debug("clearing templates table");
-		
-		try {
-			sqlMap.delete("deleteTemplate", null);
-		} catch (SQLException e) {
-			throw new ControllerException("error clearing templates", e);
-		}
-	}
+    public void clearTemplates() throws ControllerException;
 }

@@ -43,6 +43,7 @@ import org.w3c.dom.Element;
 
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.server.controllers.ConfigurationController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.ExtensionController;
 import com.webreach.mirth.server.tools.ClassPathResource;
 import com.webreach.mirth.util.PropertyLoader;
@@ -58,8 +59,7 @@ public class WebStartServlet extends HttpServlet {
     
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
-			ConfigurationController configurationController = ConfigurationController.getInstance();
-            ExtensionController pluginController = ExtensionController.getInstance();
+            ExtensionController pluginController = ControllerFactory.getFactory().createExtensionController();
             
 			DocumentSerializer docSerializer = new DocumentSerializer();
 			PrintWriter out = response.getWriter();

@@ -94,7 +94,7 @@ public class DatabaseUtil {
 	}
     
     public static void executeScript(File script) throws Exception {
-        SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
+        SqlMapClient sqlMap = SqlConfig.getSqlMapClient();
         
         Connection conn = null;
         ResultSet resultSet = null;

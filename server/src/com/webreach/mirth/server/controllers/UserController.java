@@ -25,178 +25,29 @@
 
 package com.webreach.mirth.server.controllers;
 
-import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.log4j.Logger;
-
-import com.ibatis.sqlmap.client.SqlMapClient;
-import com.webreach.mirth.model.Credentials;
-import com.webreach.mirth.model.Preference;
 import com.webreach.mirth.model.Preferences;
 import com.webreach.mirth.model.User;
-import com.webreach.mirth.server.util.SqlConfig;
-import com.webreach.mirth.util.EncryptionException;
-import com.webreach.mirth.util.FIPSEncrypter;
 
-public class UserController {
-    private Logger logger = Logger.getLogger(this.getClass());
-    private SqlMapClient sqlMap = SqlConfig.getSqlMapInstance();
-    private FIPSEncrypter encrypter = FIPSEncrypter.getInstance();
+public interface UserController {
+    public void initialize();
 
-    private static UserController instance = null;
+    public List<User> getUser(User user) throws ControllerException;
 
-    private UserController() {
+    public void updateUser(User user, String plainTextPassword) throws ControllerException;
 
-    }
+    public void removeUser(User user) throws ControllerException;
 
-    public static UserController getInstance() {
-        synchronized (UserController.class) {
-            if (instance == null) {
-                instance = new UserController();
-            }
+    public boolean authorizeUser(User user, String plainTextPassword) throws ControllerException;
 
-            return instance;
-        }
-    }
+    public void loginUser(User user) throws ControllerException;
 
-    public void initialize() {
-        try {
-            sqlMap.update("resetUserStatus");
-        } catch (SQLException e) {
-            logger.error("Could not reset user status.");
-        }
-    }
+    public void logoutUser(User user) throws ControllerException;
 
-    public List<User> getUser(User user) throws ControllerException {
-        logger.debug("getting user: " + user);
+    public boolean isUserLoggedIn(User user) throws ControllerException;
 
-        try {
-            return sqlMap.queryForList("getUser", user);
-        } catch (SQLException e) {
-            throw new ControllerException(e);
-        }
-    }
+    public Preferences getUserPreferences(User user) throws ControllerException;
 
-    public void updateUser(User user, String plainTextPassword) throws ControllerException {
-        try {
-            if (user.getId() == null) {
-                logger.debug("adding user: " + user);
-                sqlMap.insert("insertUser", getUserMap(user, plainTextPassword));
-            } else {
-                logger.debug("updating user: " + user);
-                sqlMap.update("updateUser", getUserMap(user, plainTextPassword));
-            }
-        } catch (SQLException e) {
-            throw new ControllerException(e);
-        }
-    }
-
-    public void removeUser(User user) throws ControllerException {
-        logger.debug("removing user: " + user);
-
-        try {
-            sqlMap.delete("deleteUser", user);
-        } catch (SQLException e) {
-            throw new ControllerException(e);
-        }
-    }
-
-    public boolean authorizeUser(User user, String plainTextPassword) throws ControllerException {
-        try {
-            Credentials credentials = (Credentials) sqlMap.queryForObject("getUserCredentials", user);
-
-            if (credentials != null) {
-                String checkPasswordHash = encrypter.getHash(plainTextPassword, credentials.getSalt());
-                return checkPasswordHash.equals(credentials.getPassword());
-            }
-
-            return false;
-        } catch (Exception e) {
-            throw new ControllerException(e);
-        }
-    }
-
-    public void loginUser(User user) throws ControllerException {
-        try {
-            sqlMap.update("loginUser", user.getId());
-        } catch (Exception e) {
-            throw new ControllerException(e);
-        }
-    }
-
-    public void logoutUser(User user) throws ControllerException {
-        try {
-            sqlMap.update("logoutUser", user.getId());
-        } catch (Exception e) {
-            throw new ControllerException(e);
-        }
-
-    }
-
-    public boolean isUserLoggedIn(User user) throws ControllerException {
-        try {
-            return (Boolean) sqlMap.queryForObject("isUserLoggedIn", user.getId());
-        } catch (Exception e) {
-            throw new ControllerException(e);
-        }
-    }
-
-    private Map getUserMap(User user, String plainTextPassword) {
-        Map parameterMap = new HashMap();
-
-        if (user.getId() != null) {
-            parameterMap.put("id", user.getId());
-        }
-
-        parameterMap.put("username", user.getUsername());
-        parameterMap.put("firstName", user.getFirstName());
-        parameterMap.put("lastName", user.getLastName());
-        parameterMap.put("organization", user.getOrganization());
-        parameterMap.put("email", user.getEmail());
-        parameterMap.put("phoneNumber", user.getPhoneNumber());
-        parameterMap.put("description", user.getDescription());
-
-        // hash the user's password before storing it in the database
-        try {
-            String salt = encrypter.getSalt();
-            parameterMap.put("password", encrypter.getHash(plainTextPassword, salt));
-            parameterMap.put("salt", salt);
-        } catch (EncryptionException ee) {
-            // ignore this
-        }
-
-        return parameterMap;
-    }
-
-    public Preferences getUserPreferences(User user) throws ControllerException {
-        try {
-            List<Preference> pList = (List<Preference>) sqlMap.queryForList("getUserPreferences", user.getId());
-            Preferences pMap = new Preferences();
-
-            for (Preference p : pList) {
-                pMap.put(p.getName(), p.getValue());
-            }
-            
-            return pMap;
-        } catch (Exception e) {
-            throw new ControllerException(e);
-        }
-    }
-
-    public void setUserPreference(User user, String name, String value) throws ControllerException {
-        try {
-            Map parameterMap = new HashMap();
-            parameterMap.put("id", user.getId());
-            parameterMap.put("name", name);
-            parameterMap.put("value", value);
-
-            sqlMap.update("insertUserPreference", parameterMap);
-        } catch (Exception e) {
-            throw new ControllerException(e);
-        }
-    }
-
+    public void setUserPreference(User user, String name, String value) throws ControllerException;
 }
