@@ -50,7 +50,7 @@ public class ExtensionUtil {
 				File extensionFile = extensionFiles[i];
 				String xml = FileUtil.read(extensionFile.getAbsolutePath());
 				MetaData extensionMetadata = (MetaData) serializer.fromXML(xml);
-				extensionMap.put(extensionMetadata.getId(), extensionMetadata);
+				extensionMap.put(extensionMetadata.getName(), extensionMetadata);
 			}
 		} catch (IOException ioe) {
 			throw new ControllerException(ioe);
