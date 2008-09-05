@@ -725,7 +725,6 @@ public class DefaultConfigurationController implements ConfigurationController{
         ServerConfiguration serverConfiguration = new ServerConfiguration();
         serverConfiguration.setChannels(channelController.getChannel(null));
         serverConfiguration.setAlerts(alertController.getAlert(null));
-        serverConfiguration.setUsers(userController.getUser(null));
         serverConfiguration.setCodeTempaltes(codeTemplateController.getCodeTemplate(null));
         serverConfiguration.setProperties(getServerProperties());
         serverConfiguration.setGlobalScripts(getGlobalScripts());
