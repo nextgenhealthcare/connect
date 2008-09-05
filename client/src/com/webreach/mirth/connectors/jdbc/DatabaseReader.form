@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<Form version="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+<Form version="1.3" maxVersion="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <NonVisualComponents>
     <Component class="javax.swing.ButtonGroup" name="buttonGroup1">
     </Component>
@@ -20,7 +20,10 @@
     </Property>
   </Properties>
   <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
     <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
@@ -59,21 +62,20 @@
                               <Component id="databaseUsernameField" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
                               <Component id="databaseURLField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
                               <Component id="databaseDriverCombobox" alignment="0" min="-2" max="-2" attributes="1"/>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Component id="databaseSQLTextPane" pref="362" max="32767" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                              </Group>
                               <Group type="102" alignment="1" attributes="0">
-                                  <Group type="103" groupAlignment="1" attributes="0">
-                                      <Group type="102" alignment="0" attributes="0">
-                                          <Component id="readOnUpdateYes" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace max="-2" attributes="0"/>
-                                          <Component id="readOnUpdateNo" min="-2" max="-2" attributes="0"/>
-                                          <EmptySpace pref="54" max="32767" attributes="0"/>
-                                          <Component id="insertUpdateConnections" min="-2" max="-2" attributes="0"/>
-                                      </Group>
-                                      <Component id="databaseUpdateSQLTextPane" alignment="1" pref="261" max="32767" attributes="0"/>
-                                  </Group>
+                                  <Component id="readOnUpdateYes" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="readOnUpdateNo" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace pref="78" max="32767" attributes="0"/>
+                                  <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="generateUpdateConnection" linkSize="2" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="generateUpdateSelect" linkSize="2" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <Component id="databaseSQLTextPane" alignment="0" pref="383" max="32767" attributes="0"/>
+                              <Group type="102" attributes="0">
+                                  <Component id="databaseUpdateSQLTextPane" pref="282" max="32767" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jScrollPane1" min="-2" pref="95" max="-2" attributes="0"/>
                               </Group>
@@ -84,15 +86,23 @@
                       <Group type="102" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" alignment="0" attributes="0">
-                                  <Component id="useJavaScriptYes" min="-2" max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="useJavaScriptYes" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                          <Component id="useJavaScriptNo" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <Component id="pollingTime" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <EmptySpace pref="68" max="32767" attributes="0"/>
+                                  <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="useJavaScriptNo" min="-2" max="-2" attributes="0"/>
+                                  <Component id="generateConnection" linkSize="1" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="generateSelect" linkSize="1" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <Component id="pollingFrequency" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                              <Component id="pollingTime" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace pref="145" max="32767" attributes="0"/>
-                          <Component id="generateConnection" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -147,25 +157,31 @@
                           <Component id="useJavaScriptNo" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <Component id="generateConnection" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" alignment="1" groupAlignment="3" attributes="0">
+                      <Component id="generateSelect" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="generateConnection" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel7" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="sqlLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="databaseSQLTextPane" pref="91" max="32767" attributes="0"/>
+                  <Component id="databaseSQLTextPane" pref="99" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel8" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="readOnUpdateYes" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="readOnUpdateNo" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="insertUpdateConnections" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="generateUpdateConnection" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="generateUpdateSelect" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel9" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="databaseUpdateSQLTextPane" pref="100" max="32767" attributes="0"/>
                   <Component id="onUpdateLabel" min="-2" pref="14" max="-2" attributes="0"/>
-                  <Component id="databaseUpdateSQLTextPane" pref="91" max="32767" attributes="0"/>
-                  <Component id="jScrollPane1" pref="91" max="32767" attributes="0"/>
+                  <Component id="jScrollPane1" pref="100" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -375,18 +391,18 @@
     </Component>
     <Component class="javax.swing.JButton" name="generateConnection">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Generate Connection"/>
+        <Property name="text" type="java.lang.String" value="Connection"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateConnectionActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="insertUpdateConnections">
+    <Component class="javax.swing.JButton" name="generateUpdateConnection">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Generate Connection"/>
+        <Property name="text" type="java.lang.String" value="Connection"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="insertUpdateConnectionsActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateUpdateConnectionActionPerformed"/>
       </Events>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="pollingTimeButton">
@@ -444,6 +460,32 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTimePicker" name="pollingTime">
+    </Component>
+    <Component class="javax.swing.JButton" name="generateSelect">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Select"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateSelectActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel7">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Generate:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JButton" name="generateUpdateSelect">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Update"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateUpdateSelectActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel9">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Generate:"/>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>
