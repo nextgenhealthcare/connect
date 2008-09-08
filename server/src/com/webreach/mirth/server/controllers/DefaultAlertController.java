@@ -126,30 +126,21 @@ public class DefaultAlertController implements AlertController {
             try {
                 SqlConfig.getSqlMapClient().startTransaction();
 
-                // insert the alert and its properties
                 logger.debug("adding alert: " + alert);
                 SqlConfig.getSqlMapClient().insert("insertAlert", alert);
 
-                // insert the channel ID list
                 logger.debug("adding channel alerts");
 
-                List<String> channelIds = alert.getChannels();
-
-                for (Iterator iter = channelIds.iterator(); iter.hasNext();) {
-                    String channelId = (String) iter.next();
+                for (String channelId : alert.getChannels()) {
                     Map params = new HashMap();
                     params.put("alertId", alert.getId());
                     params.put("channelId", channelId);
                     SqlConfig.getSqlMapClient().insert("insertChannelAlert", params);
                 }
 
-                // insert the email address list
                 logger.debug("adding alert emails");
 
-                List<String> emails = alert.getEmails();
-
-                for (Iterator iter = emails.iterator(); iter.hasNext();) {
-                    String email = (String) iter.next();
+                for (String email : alert.getEmails()) {
                     Map params = new HashMap();
                     params.put("alertId", alert.getId());
                     params.put("email", email);
