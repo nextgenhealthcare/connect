@@ -45,8 +45,8 @@ public class DefaultControllerFactory extends ControllerFactory {
         return DefaultScriptController.getInstance();
     }
 
-    public SystemLogger createSystemLogger() {
-        return DefaultSystemLogger.getInstance();
+    public EventController createEventController() {
+        return DefaultEventController.getInstance();
     }
 
     public TemplateController createTemplateController() {

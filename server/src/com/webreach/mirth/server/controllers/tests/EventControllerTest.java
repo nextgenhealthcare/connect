@@ -12,11 +12,11 @@ import com.webreach.mirth.model.filters.SystemEventFilter;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.SystemLogger;
+import com.webreach.mirth.server.controllers.EventController;
 import com.webreach.mirth.server.tools.ScriptRunner;
 
 public class EventControllerTest extends TestCase {
-	private SystemLogger eventController = ControllerFactory.getFactory().createSystemLogger();
+	private EventController eventController = ControllerFactory.getFactory().createEventController();
 	private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 	private List<SystemEvent> sampleEventList;
 

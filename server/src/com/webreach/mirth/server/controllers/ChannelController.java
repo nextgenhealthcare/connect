@@ -50,7 +50,7 @@ public interface ChannelController {
 
     public void setChannelCache(HashMap<String, Channel> channelCache);
 
-    public void updateChannelCache(List<Channel> channels) throws ControllerException;
+    public void refreshChannelCache(List<Channel> channels) throws ControllerException;
 
     // utility methods
     public String getChannelId(String channelName);

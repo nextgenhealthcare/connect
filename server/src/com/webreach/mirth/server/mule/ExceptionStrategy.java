@@ -32,7 +32,7 @@ import org.mule.providers.FatalConnectException;
 
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.SystemLogger;
+import com.webreach.mirth.server.controllers.EventController;
 import com.webreach.mirth.server.util.StackTracePrinter;
 
 public class ExceptionStrategy extends DefaultComponentExceptionStrategy {
@@ -65,7 +65,7 @@ public class ExceptionStrategy extends DefaultComponentExceptionStrategy {
 	}
 
 	protected void logException(Throwable t) {
-		SystemLogger systemLogger = ControllerFactory.getFactory().createSystemLogger();
+		EventController systemLogger = ControllerFactory.getFactory().createEventController();
 		SystemEvent event = new SystemEvent("Exception occured in channel.");
 		event.setDescription(StackTracePrinter.stackTraceToString(t));
 		systemLogger.logSystemEvent(event);

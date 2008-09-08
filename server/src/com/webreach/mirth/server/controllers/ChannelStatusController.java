@@ -44,7 +44,7 @@ import com.webreach.mirth.server.util.JMXConnectionFactory;
 
 public class ChannelStatusController {
 	private Logger logger = Logger.getLogger(this.getClass());
-	private SystemLogger systemLogger = ControllerFactory.getFactory().createSystemLogger();
+	private EventController systemLogger = ControllerFactory.getFactory().createEventController();
     
 	private static ChannelStatusController instance = null;
 

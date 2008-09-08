@@ -54,7 +54,7 @@ import com.webreach.mirth.server.controllers.ExtensionController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MigrationController;
 import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.SystemLogger;
+import com.webreach.mirth.server.controllers.EventController;
 import com.webreach.mirth.server.controllers.UserController;
 import com.webreach.mirth.server.tools.ClassPathResource;
 import com.webreach.mirth.server.util.GlobalVariableStore;
@@ -86,7 +86,7 @@ public class Mirth extends Thread {
 	private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
 	private MigrationController migrationController = ControllerFactory.getFactory().createMigrationController();
 	private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
-    private SystemLogger systemLogger = ControllerFactory.getFactory().createSystemLogger();
+    private EventController systemLogger = ControllerFactory.getFactory().createEventController();
 
 	public static void main(String[] args) {
 		Mirth mirth = new Mirth();

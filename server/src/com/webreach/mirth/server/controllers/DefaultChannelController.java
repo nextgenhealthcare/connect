@@ -69,7 +69,7 @@ public class DefaultChannelController implements ChannelController {
 
 	public void initialize() {
 		try {
-			updateChannelCache(getChannel(null));
+			refreshChannelCache(getChannel(null));
 
 			for (Channel channel : channelCache.values()) {
 				if (!channel.getVersion().equals(configurationController.getServerVersion())) {
@@ -90,7 +90,7 @@ public class DefaultChannelController implements ChannelController {
 		}
 	}
 
-	public void updateChannelCache(List<Channel> channels) throws ControllerException {
+	public void refreshChannelCache(List<Channel> channels) throws ControllerException {
 		channelCache = new HashMap<String, Channel>();
 		channelIdLookup = new HashMap<String, String>();
 

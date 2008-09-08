@@ -41,7 +41,7 @@ import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.controllers.SystemLogger;
+import com.webreach.mirth.server.controllers.EventController;
 import com.webreach.mirth.server.controllers.UserController;
 
 public class UserServlet extends MirthServlet {
@@ -50,7 +50,7 @@ public class UserServlet extends MirthServlet {
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		UserController userController = ControllerFactory.getFactory().createUserController();
-		SystemLogger systemLogger = ControllerFactory.getFactory().createSystemLogger();
+		EventController systemLogger = ControllerFactory.getFactory().createEventController();
 		PrintWriter out = response.getWriter();
 		String operation = request.getParameter("op");
 		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
@@ -106,7 +106,7 @@ public class UserServlet extends MirthServlet {
 		}
 	}
 
-	private boolean login(HttpServletRequest request, HttpServletResponse response, UserController userController, SystemLogger systemLogger, String username, String password, String version) throws ServletException {
+	private boolean login(HttpServletRequest request, HttpServletResponse response, UserController userController, EventController systemLogger, String username, String password, String version) throws ServletException {
 		try {
 			ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 			
@@ -152,7 +152,7 @@ public class UserServlet extends MirthServlet {
 		}
 	}
 
-	private void logout(HttpServletRequest request, UserController userController, SystemLogger systemLogger) throws ServletException {
+	private void logout(HttpServletRequest request, UserController userController, EventController systemLogger) throws ServletException {
 		HttpSession session = request.getSession();
 
 		// save the session id before removing them from the session

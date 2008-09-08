@@ -30,7 +30,7 @@ import java.util.List;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.filters.SystemEventFilter;
 
-public interface SystemLogger {
+public interface EventController {
     public void initialize();
 
 

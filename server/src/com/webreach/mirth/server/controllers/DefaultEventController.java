@@ -44,18 +44,18 @@ import com.webreach.mirth.model.filters.SystemEventFilter;
 import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.server.util.SqlConfig;
 
-public class DefaultSystemLogger implements SystemLogger {
+public class DefaultEventController implements EventController {
 	private Logger logger = Logger.getLogger(this.getClass());
-	private static DefaultSystemLogger instance = null;
+	private static DefaultEventController instance = null;
 	
-	private DefaultSystemLogger() {
+	private DefaultEventController() {
 
 	}
 	
-	public static SystemLogger getInstance() {
-		synchronized (DefaultSystemLogger.class) {
+	public static EventController getInstance() {
+		synchronized (DefaultEventController.class) {
 			if (instance == null) {
-				instance = new DefaultSystemLogger();
+				instance = new DefaultEventController();
 			}
 			
 			return instance;

@@ -44,7 +44,7 @@ import com.webreach.mirth.server.MirthJavascriptTransformerException;
 import com.webreach.mirth.server.controllers.CodeTemplateController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.SystemLogger;
+import com.webreach.mirth.server.controllers.EventController;
 
 public class JavaScriptUtil {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -112,7 +112,7 @@ public class JavaScriptUtil {
 		try {
 			executeScript(scriptId, scriptType, channelId, null);
 		} catch (Exception e) {
-			SystemLogger systemLogger = ControllerFactory.getFactory().createSystemLogger();
+			EventController systemLogger = ControllerFactory.getFactory().createEventController();
 			SystemEvent event = new SystemEvent("Exception occured in " + scriptType + " script");
 			event.setLevel(SystemEvent.Level.NORMAL);
 			event.setDescription(StackTracePrinter.stackTraceToString(e));

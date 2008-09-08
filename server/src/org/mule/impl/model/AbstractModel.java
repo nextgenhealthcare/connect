@@ -50,7 +50,7 @@ import org.mule.umo.routing.UMORouter;
 import com.webreach.mirth.connectors.vm.VMConnector;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.SystemLogger;
+import com.webreach.mirth.server.controllers.EventController;
 import com.webreach.mirth.server.util.StackTracePrinter;
 
 import edu.emory.mathcs.backport.java.util.concurrent.ConcurrentHashMap;
@@ -381,7 +381,7 @@ public abstract class AbstractModel implements UMOModel {
 					SystemEvent event = new SystemEvent("Error starting the channel cannot be activated due to a problem at one of the endpoint " + temp.getDescriptor().getName());
 					event.setLevel(SystemEvent.Level.HIGH);
 					event.setDescription(StackTracePrinter.stackTraceToString(e));
-					SystemLogger sl = ControllerFactory.getFactory().createSystemLogger();
+					EventController sl = ControllerFactory.getFactory().createEventController();
 					sl.logSystemEvent(event);
 				}
 
@@ -481,7 +481,7 @@ public abstract class AbstractModel implements UMOModel {
 				SystemEvent event = new SystemEvent("Error starting the channel cannot be activated due to a problem at one of the endpoint " + component.getDescriptor().getName());
 				event.setLevel(SystemEvent.Level.HIGH);
 				event.setDescription(StackTracePrinter.stackTraceToString(e));
-				SystemLogger sl = ControllerFactory.getFactory().createSystemLogger();;
+				EventController sl = ControllerFactory.getFactory().createEventController();;
 				sl.logSystemEvent(event);
 			}
 		}

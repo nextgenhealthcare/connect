@@ -50,7 +50,7 @@ public abstract class ControllerFactory {
 
     public abstract ScriptController createScriptContorller();
 
-    public abstract SystemLogger createSystemLogger();
+    public abstract EventController createEventController();
 
     public abstract TemplateController createTemplateController();
 

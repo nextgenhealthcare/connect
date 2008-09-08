@@ -89,7 +89,7 @@ public class DefaultConfigurationController implements ConfigurationController{
     private static final String GLOBAL_SHUTDOWN_DEFAULT_SCRIPT = "// This script executes once when the mule engine is stopped\n// You only have access to the globalMap here to persist data\nreturn;";
 
     private Logger logger = Logger.getLogger(this.getClass());
-    private SystemLogger systemLogger = ControllerFactory.getFactory().createSystemLogger();
+    private EventController systemLogger = ControllerFactory.getFactory().createEventController();
     private String baseDir = new File(ClassPathResource.getResourceURI("mirth.properties")).getParentFile().getParent();
     private File serverPropertiesFile = new File(baseDir + System.getProperty("file.separator") + "server.properties");
     private File serverIdPropertiesFile = new File(baseDir + System.getProperty("file.separator") + "server.id");
@@ -345,7 +345,7 @@ public class DefaultConfigurationController implements ConfigurationController{
             addConfiguration(builder.getConfiguration());
 
             // update the storeMessages reference
-            channelController.updateChannelCache(channels);
+            channelController.refreshChannelCache(channels);
 
             ControllerFactory.getFactory().createExtensionController().deployTriggered();
             // restart the mule engine which will grab the latest configuration

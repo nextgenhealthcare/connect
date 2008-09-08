@@ -44,7 +44,7 @@ import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.ExtensionController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.controllers.SystemLogger;
+import com.webreach.mirth.server.controllers.EventController;
 import com.webreach.mirth.server.controllers.UserController;
 
 public class MirthManager {
@@ -53,7 +53,7 @@ public class MirthManager {
 	private ChannelStatisticsController channelStatisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
 	private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 	private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
-	private SystemLogger systemLogger = ControllerFactory.getFactory().createSystemLogger();
+	private EventController systemLogger = ControllerFactory.getFactory().createEventController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
 	private UserController userController = ControllerFactory.getFactory().createUserController();
 

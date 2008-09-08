@@ -45,7 +45,7 @@ import com.webreach.mirth.connectors.file.filesystems.FileSystemConnectionFactor
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.SystemLogger;
+import com.webreach.mirth.server.controllers.EventController;
 
 /**
  * <code>FileConnector</code> is used for setting up listeners on a directory
@@ -599,7 +599,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 			// exception
 			this.charsetEncoding = java.nio.charset.Charset.defaultCharset().name();
 			logger.error("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
-			SystemLogger systemLogger = ControllerFactory.getFactory().createSystemLogger();
+			EventController systemLogger = ControllerFactory.getFactory().createEventController();
 			SystemEvent event = new SystemEvent("Exception occured in channel.");
 			event.setDescription("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
 			systemLogger.logSystemEvent(event);
