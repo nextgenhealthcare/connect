@@ -33,7 +33,7 @@ import com.webreach.mirth.server.util.CompiledScriptCache;
 public class JavaScriptConnector extends AbstractServiceEnabledConnector {
 
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
-	private ScriptController scriptController = ControllerFactory.getFactory().createScriptContorller();
+	private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
 
 	public static final String PROPERTY_POLLING_FREQUENCY = "pollingFrequency";
 

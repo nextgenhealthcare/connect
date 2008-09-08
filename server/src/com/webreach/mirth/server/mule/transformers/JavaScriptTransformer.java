@@ -72,7 +72,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 	private AlertController alertController = ControllerFactory.getFactory().createAlertController();
 	private TemplateController templateController = ControllerFactory.getFactory().createTemplateController();
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
-	private ScriptController scriptController = ControllerFactory.getFactory().createScriptContorller();
+	private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
 	private CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
 	private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
 

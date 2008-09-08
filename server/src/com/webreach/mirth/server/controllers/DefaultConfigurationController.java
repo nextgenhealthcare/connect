@@ -103,7 +103,7 @@ public class DefaultConfigurationController implements ConfigurationController{
 
     private JavaScriptUtil javaScriptUtil = JavaScriptUtil.getInstance();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
-    private ScriptController scriptController = ControllerFactory.getFactory().createScriptContorller();
+    private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
 
     // singleton pattern
     private static ConfigurationController instance = null;

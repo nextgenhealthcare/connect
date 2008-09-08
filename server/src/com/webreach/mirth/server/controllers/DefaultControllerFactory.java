@@ -41,7 +41,7 @@ public class DefaultControllerFactory extends ControllerFactory {
         return DefaultMonitoringController.getInstance();
     }
 
-    public ScriptController createScriptContorller() {
+    public ScriptController createScriptController() {
         return DefaultScriptController.getInstance();
     }
 

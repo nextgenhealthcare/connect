@@ -56,7 +56,7 @@ import com.webreach.mirth.server.util.VMRouter;
 public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 	private String preprocessingScriptId;
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
-	private ScriptController scriptController = ControllerFactory.getFactory().createScriptContorller();
+	private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
 	private CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
 	private static String LOCAL_DEFAULT_SCRIPT = "return message;";
 

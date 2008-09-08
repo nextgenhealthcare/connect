@@ -73,7 +73,7 @@ public class MuleConfigurationBuilder {
 	private List<Channel> channels = null;
 	private Map<String, ConnectorMetaData> transports = null;
 	private JavaScriptBuilder scriptBuilder = new JavaScriptBuilder();
-	private ScriptController scriptController = ControllerFactory.getFactory().createScriptContorller();
+	private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
 
 	public MuleConfigurationBuilder(List<Channel> channels, Map<String, ConnectorMetaData> transports) {
 		this.channels = channels;
@@ -416,7 +416,7 @@ public class MuleConfigurationBuilder {
 			transformersElement.appendChild(transformerElement);
 			
 			// Add the "batchScript" property to the script table
-			ScriptController scriptController = ControllerFactory.getFactory().createScriptContorller();
+			ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
 			if (transformer.getInboundProperties() != null &&
 					transformer.getInboundProperties().getProperty("batchScript") != null) {
 				
