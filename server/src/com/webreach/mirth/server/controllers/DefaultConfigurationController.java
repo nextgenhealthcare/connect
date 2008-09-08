@@ -719,7 +719,6 @@ public class DefaultConfigurationController implements ConfigurationController{
     public ServerConfiguration getServerConfiguration() throws ControllerException {
         ChannelController channelController = ControllerFactory.getFactory().createChannelController();
         AlertController alertController = ControllerFactory.getFactory().createAlertController();
-        UserController userController = ControllerFactory.getFactory().createUserController();
         CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
 
         ServerConfiguration serverConfiguration = new ServerConfiguration();
