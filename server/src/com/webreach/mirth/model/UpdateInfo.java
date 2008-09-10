@@ -5,8 +5,7 @@ public class UpdateInfo {
         SERVER, CONNECTOR, PLUGIN
     };
 
-    private String id;
-    private String component;
+    private String name;
     private String version;
     private String description;
     private String uri;
@@ -15,20 +14,12 @@ public class UpdateInfo {
     private boolean isNew;
     private String author;
 
-	public String getId() {
-        return id;
+    public String getName() {
+        return name;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getComponent() {
-        return component;
-    }
-
-    public void setComponent(String component) {
-        this.component = component;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getVersion() {
@@ -70,20 +61,20 @@ public class UpdateInfo {
     public void setIgnored(boolean ignored) {
         this.ignored = ignored;
     }
-    
+
     public String getAuthor() {
-		return author;
-	}
+        return author;
+    }
 
-	public void setAuthor(String author) {
-		this.author = author;
-	}
-	
-	public boolean isNew() {
-	    return isNew;
-	}
+    public void setAuthor(String author) {
+        this.author = author;
+    }
 
-	public void setNew(boolean isNew) {
-	    this.isNew = isNew;
-	}
+    public boolean isNew() {
+        return isNew;
+    }
+
+    public void setNew(boolean isNew) {
+        this.isNew = isNew;
+    }
 }

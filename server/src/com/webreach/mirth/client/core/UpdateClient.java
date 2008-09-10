@@ -2,11 +2,9 @@ package com.webreach.mirth.client.core;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -25,7 +23,6 @@ import com.webreach.mirth.model.Step;
 import com.webreach.mirth.model.UpdateInfo;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.server.controllers.ChannelStatisticsController;
 import com.webreach.mirth.util.PropertyLoader;
 
 public class UpdateClient {
@@ -53,11 +50,11 @@ public class UpdateClient {
         Map<String, String> components = new HashMap<String, String>();
 
         for (PluginMetaData pmd : plugins.values()) {
-            components.put(pmd.getId(), pmd.getPluginVersion());
+            components.put(pmd.getName(), pmd.getPluginVersion());
         }
 
         for (ConnectorMetaData cmd : connectors.values()) {
-            components.put(cmd.getId(), cmd.getPluginVersion());
+            components.put(cmd.getName(), cmd.getPluginVersion());
         }
 
         components.put(MIRTH_GUID, version);
@@ -67,11 +64,11 @@ public class UpdateClient {
         List<UpdateInfo> updates = null;
 
         try {
-            List<String> ignore = getIgnoredComponentIds();
+            Map<String, String> ignore = getIgnoredComponents();
             updates = getUpdatesFromUri(serverInfo);
 
             for (UpdateInfo updateInfo : updates) {
-                if (ignore.contains(updateInfo.getId())) {
+                if (ignore.containsValue(updateInfo.getName()) && ignore.get(updateInfo.getName()).equals(updateInfo.getVersion())) {
                     updateInfo.setIgnored(true);
                 }
             }
@@ -132,22 +129,11 @@ public class UpdateClient {
         }
     }
 
-    /*
-     * GB: This method iterates through the list of ignored component IDs,
-     * creates a comma-seperated string, and sets the associated user preference
-     * value.
-     */
-    public void setIgnoredComponentIds(List<String> ignoredComponentIds) throws ClientException {
+    public void setIgnoredComponents(Map<String, String> ignoredComponents) throws ClientException {
         StringBuilder builder = new StringBuilder();
 
-        for (ListIterator iterator = ignoredComponentIds.listIterator(); iterator.hasNext();) {
-            String componentId = (String) iterator.next();
-
-            if (iterator.nextIndex() == ignoredComponentIds.size()) {
-                builder.append(componentId);
-            } else {
-                builder.append(componentId + ",");
-            }
+        for (String componentName : ignoredComponents.keySet()) {
+            builder.append(componentName + ":" + ignoredComponents.get(componentName));
         }
 
         client.setUserPreference(requestUser, USER_PREF_IGNORED_IDS, builder.toString());
@@ -185,22 +171,26 @@ public class UpdateClient {
         }
     }
 
-    /*
-     * GB: Retrieves the ignored component ID user preference, which is a
-     * comma-seperated list of IDs, and returns the list of IDs.
-     */
-    private List<String> getIgnoredComponentIds() throws Exception {
+    public Map<String, String> getIgnoredComponents() throws Exception {
         Preferences userPreferences = client.getUserPreferences(requestUser);
 
         if (userPreferences == null) {
-            return new ArrayList<String>();
+            return new HashMap<String, String>();
         } else {
             String ignoredComponentIds = userPreferences.get(USER_PREF_IGNORED_IDS);
 
             if (ignoredComponentIds == null) {
-                return new ArrayList<String>();
+                return new HashMap<String, String>();
             } else {
-                return Arrays.asList(ignoredComponentIds.split(","));
+                Map<String, String> ignoredComponents = new HashMap<String, String>();
+                
+                for(String component : Arrays.asList(ignoredComponentIds.split(","))) {
+                    String name = component.split(":")[0];
+                    String version = component.split(":")[1];
+                    ignoredComponents.put(name, version);
+                }
+                
+                return ignoredComponents;
             }
         }
     }

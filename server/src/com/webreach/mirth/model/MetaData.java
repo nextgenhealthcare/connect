@@ -1,7 +1,6 @@
 package com.webreach.mirth.model;
 
 public abstract class MetaData {
-    private String id;
     private String name;
     private String author;
     private String mirthVersion;
@@ -9,14 +8,6 @@ public abstract class MetaData {
     private String url;
     private String description;
     private boolean enabled;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getName() {
         return this.name;
