@@ -2,6 +2,7 @@ package com.webreach.mirth.client.core;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -64,11 +65,11 @@ public class UpdateClient {
         List<UpdateInfo> updates = null;
 
         try {
-            Map<String, String> ignore = getIgnoredComponents();
+            List<IgnoredComponent> ignore = getIgnoredComponents();
             updates = getUpdatesFromUri(serverInfo);
 
             for (UpdateInfo updateInfo : updates) {
-                if (ignore.containsValue(updateInfo.getName()) && ignore.get(updateInfo.getName()).equals(updateInfo.getVersion())) {
+                if (ignore.contains(new IgnoredComponent(updateInfo.getName(), updateInfo.getVersion()))) {
                     updateInfo.setIgnored(true);
                 }
             }
@@ -129,16 +130,6 @@ public class UpdateClient {
         }
     }
 
-    public void setIgnoredComponents(Map<String, String> ignoredComponents) throws ClientException {
-        StringBuilder builder = new StringBuilder();
-
-        for (String componentName : ignoredComponents.keySet()) {
-            builder.append(componentName + ":" + ignoredComponents.get(componentName));
-        }
-
-        client.setUserPreference(requestUser, USER_PREF_IGNORED_IDS, builder.toString());
-    }
-
     private List<UpdateInfo> getUpdatesFromUri(ServerInfo serverInfo) throws Exception {
         HttpClient httpClient = new HttpClient();
         PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url") + URL_UPDATES);
@@ -171,25 +162,35 @@ public class UpdateClient {
         }
     }
 
-    public Map<String, String> getIgnoredComponents() throws ClientException {
+    public void setIgnoredComponents(List<IgnoredComponent> ignoredComponents) throws ClientException {
+        StringBuilder builder = new StringBuilder();
+
+        for (IgnoredComponent component : ignoredComponents) {
+            builder.append(component.toString() + ",");
+        }
+
+        client.setUserPreference(requestUser, USER_PREF_IGNORED_IDS, builder.toString());
+    }
+
+    public List<IgnoredComponent> getIgnoredComponents() throws ClientException {
         Preferences userPreferences = client.getUserPreferences(requestUser);
 
         if (userPreferences == null) {
-            return new HashMap<String, String>();
+            return new ArrayList<IgnoredComponent>();
         } else {
             String ignoredComponentIds = userPreferences.get(USER_PREF_IGNORED_IDS);
 
             if (ignoredComponentIds == null) {
-                return new HashMap<String, String>();
+                return new ArrayList<IgnoredComponent>();
             } else {
-                Map<String, String> ignoredComponents = new HashMap<String, String>();
-                
-                for(String component : Arrays.asList(ignoredComponentIds.split(","))) {
+                List<IgnoredComponent> ignoredComponents = new ArrayList<IgnoredComponent>();
+
+                for (String component : Arrays.asList(ignoredComponentIds.split(","))) {
                     String name = component.split(":")[0];
                     String version = component.split(":")[1];
-                    ignoredComponents.put(name, version);
+                    ignoredComponents.add(new IgnoredComponent(name, version));
                 }
-                
+
                 return ignoredComponents;
             }
         }
