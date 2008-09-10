@@ -31,7 +31,9 @@ public class UpdateClient {
     private final static String URL_REGISTRATION = "/RegistrationServlet";
     private final static String URL_UPDATES = "/UpdateServlet";
     private final static String URL_USAGE_STATISTICS = "/UsageDataServlet";
-    private final static String USER_PREF_IGNORED_IDS = "ignored.component.ids";
+    private final static String USER_PREF_IGNORED_IDS = "ignoredcomponents";
+    private final static String COMPONENT_PREFERENCE_SEPARATOR = ",";
+    private final static String COMPONENT_NAME_VERSION_SEPARATOR = ":";
     private Client client;
     private User requestUser;
 
@@ -165,7 +167,7 @@ public class UpdateClient {
         StringBuilder builder = new StringBuilder();
 
         for (IgnoredComponent component : ignoredComponents) {
-            builder.append(component.toString() + ",");
+            builder.append(component.toString() + COMPONENT_PREFERENCE_SEPARATOR);
         }
 
         client.setUserPreference(requestUser, USER_PREF_IGNORED_IDS, builder.toString());
@@ -177,17 +179,17 @@ public class UpdateClient {
         if (userPreferences == null) {
             return new ArrayList<IgnoredComponent>();
         } else {
-            String ignoredComponentIds = userPreferences.get(USER_PREF_IGNORED_IDS);
+            String ignoredComponentsPreference = userPreferences.get(USER_PREF_IGNORED_IDS);
 
-            if (ignoredComponentIds == null) {
+            if (ignoredComponentsPreference == null) {
                 return new ArrayList<IgnoredComponent>();
             } else {
                 List<IgnoredComponent> ignoredComponents = new ArrayList<IgnoredComponent>();
 
-                for (String component : Arrays.asList(ignoredComponentIds.split(","))) {
+                for (String component : Arrays.asList(ignoredComponentsPreference.split(COMPONENT_PREFERENCE_SEPARATOR))) {
                     if ((component != null) && (component.length() > 0)) {
-                        String name = component.split(":")[0];
-                        String version = component.split(":")[1];
+                        String name = component.split(COMPONENT_NAME_VERSION_SEPARATOR)[0];
+                        String version = component.split(COMPONENT_NAME_VERSION_SEPARATOR)[1];
                         ignoredComponents.add(new IgnoredComponent(name, version));
                     }
                 }
