@@ -3,6 +3,7 @@ package com.webreach.mirth.client.core;
 import com.webreach.mirth.util.EqualsUtil;
 
 public class IgnoredComponent {
+    public final static String COMPONENT_NAME_VERSION_SEPARATOR = ":";
     private String name;
     private String version;
 
@@ -28,7 +29,7 @@ public class IgnoredComponent {
     }
 
     public String toString() {
-        return name + ":" + version;
+        return name + COMPONENT_NAME_VERSION_SEPARATOR + version;
     }
 
     public boolean equals(Object that) {

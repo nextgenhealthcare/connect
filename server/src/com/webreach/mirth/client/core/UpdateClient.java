@@ -33,7 +33,7 @@ public class UpdateClient {
     private final static String URL_USAGE_STATISTICS = "/UsageDataServlet";
     private final static String USER_PREF_IGNORED_IDS = "ignoredcomponents";
     private final static String COMPONENT_PREFERENCE_SEPARATOR = ",";
-    private final static String COMPONENT_NAME_VERSION_SEPARATOR = ":";
+    
     private Client client;
     private User requestUser;
 
@@ -188,8 +188,8 @@ public class UpdateClient {
 
                 for (String component : Arrays.asList(ignoredComponentsPreference.split(COMPONENT_PREFERENCE_SEPARATOR))) {
                     if ((component != null) && (component.length() > 0)) {
-                        String name = component.split(COMPONENT_NAME_VERSION_SEPARATOR)[0];
-                        String version = component.split(COMPONENT_NAME_VERSION_SEPARATOR)[1];
+                        String name = component.split(IgnoredComponent.COMPONENT_NAME_VERSION_SEPARATOR)[0];
+                        String version = component.split(IgnoredComponent.COMPONENT_NAME_VERSION_SEPARATOR)[1];
                         ignoredComponents.add(new IgnoredComponent(name, version));
                     }
                 }
