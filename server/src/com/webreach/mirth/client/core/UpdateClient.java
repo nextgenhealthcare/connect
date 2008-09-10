@@ -31,7 +31,6 @@ public class UpdateClient {
     private final static String URL_REGISTRATION = "/RegistrationServlet";
     private final static String URL_UPDATES = "/UpdateServlet";
     private final static String URL_USAGE_STATISTICS = "/UsageDataServlet";
-    private final static String MIRTH_GUID = "23f1841f-b172-445f-8f45-45d2204d3908";
     private final static String USER_PREF_IGNORED_IDS = "ignored.component.ids";
     private Client client;
     private User requestUser;
@@ -58,7 +57,7 @@ public class UpdateClient {
             components.put(cmd.getName(), cmd.getPluginVersion());
         }
 
-        components.put(MIRTH_GUID, version);
+        components.put("Mirth", version);
         serverInfo.setComponents(components);
         serverInfo.setServerId(serverId);
 
@@ -186,9 +185,11 @@ public class UpdateClient {
                 List<IgnoredComponent> ignoredComponents = new ArrayList<IgnoredComponent>();
 
                 for (String component : Arrays.asList(ignoredComponentIds.split(","))) {
-                    String name = component.split(":")[0];
-                    String version = component.split(":")[1];
-                    ignoredComponents.add(new IgnoredComponent(name, version));
+                    if ((component != null) && (component.length() > 0)) {
+                        String name = component.split(":")[0];
+                        String version = component.split(":")[1];
+                        ignoredComponents.add(new IgnoredComponent(name, version));
+                    }
                 }
 
                 return ignoredComponents;
