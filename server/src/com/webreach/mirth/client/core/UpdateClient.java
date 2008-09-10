@@ -171,7 +171,7 @@ public class UpdateClient {
         }
     }
 
-    public Map<String, String> getIgnoredComponents() throws Exception {
+    public Map<String, String> getIgnoredComponents() throws ClientException {
         Preferences userPreferences = client.getUserPreferences(requestUser);
 
         if (userPreferences == null) {
