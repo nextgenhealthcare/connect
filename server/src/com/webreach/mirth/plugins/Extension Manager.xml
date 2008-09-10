@@ -1,16 +1,16 @@
 <pluginMetaData>
-  <id>428759d0-af3a-4fc1-b822-f44c103e5a7c</id>
-  <name>Extension Manager</name>
-  <author>WebReach, Inc.</author>
-  <pluginVersion>@mirthversion</pluginVersion>
-  <mirthVersion>1.7.1</mirthVersion>
-  <url>http://extensions.mirthproject.org</url>
-  <description>This plugin provides a GUI to manager, install and update Mirth extensions</description>
-  <enabled>true</enabled>
-  <extensionPoint>
-  	<name>Extension Manager</name>
-    <type>CLIENT_PANEL</type>
-    <className>com.webreach.mirth.plugins.extensionmanager.ExtensionManagerClient</className>
-    <mode>CLIENT</mode>
-  </extensionPoint>
+	<name>Extension Manager</name>
+	<author>WebReach, Inc.</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>1.7.1</mirthVersion>
+	<url>http://extensions.mirthproject.org</url>
+	<description>This plugin provides a GUI to manager, install and update Mirth extensions</description>
+	<enabled>true</enabled>
+	<extensionPoint>
+		<name>Extension Manager</name>
+		<type>CLIENT_PANEL</type>
+		<className>com.webreach.mirth.plugins.extensionmanager.ExtensionManagerClient</className>
+		<mode>CLIENT</mode>
+	</extensionPoint>
+	<library>extension-mananger-client.jar</library>
 </pluginMetaData>

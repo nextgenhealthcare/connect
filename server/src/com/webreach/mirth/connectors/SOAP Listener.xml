@@ -1,5 +1,4 @@
 <connectorMetaData>
-	<id>e86bed86-c785-456f-a91b-0ea0b39f67c6</id>
 	<name>SOAP Listener</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
@@ -9,6 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.soap.SOAPListener</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.soap.axis.AxisConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.soap.SOAPListenerProperties</sharedClassName>
+	<library>soap-client.jar</library>
+	<library>soap-shared.jar</library>
+	<library>soap-server.jar</library>
 	<transformers>SOAPRequestToString</transformers>
 	<protocol>soap</protocol>
 	<type>LISTENER</type>

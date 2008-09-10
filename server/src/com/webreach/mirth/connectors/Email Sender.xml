@@ -1,5 +1,4 @@
 <connectorMetaData>
-	<id>076c842f-d8a0-4267-8ce1-f82441fb73d6</id>
 	<name>Email Sender</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
@@ -9,6 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.email.EmailSender</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.email.SmtpConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.email.EmailSenderProperties</sharedClassName>
+	<library>email-client.jar</library>
+	<library>email-shared.jar</library>
+	<library>email-server.jar</library>
 	<transformers></transformers>
 	<protocol>smtp</protocol>
 	<type>SENDER</type>

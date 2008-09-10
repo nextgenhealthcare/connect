@@ -1,5 +1,4 @@
 <connectorMetaData>
-	<id>c2da26b2-da99-4122-942e-3693b3e615ee</id>
 	<name>Database Writer</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
@@ -10,6 +9,9 @@
 	<serverClassName>com.webreach.mirth.connectors.jdbc.JdbcConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.jdbc.DatabaseWriterProperties</sharedClassName>
 	<serviceClassName>com.webreach.mirth.connectors.jdbc.JdbcConnectorService</serviceClassName>
+	<library>jdbc-client.jar</library>
+	<library>jdbc-shared.jar</library>
+	<library>jdbc-server.jar</library>
 	<transformers></transformers>
 	<protocol>jdbc</protocol>
 	<type>SENDER</type>

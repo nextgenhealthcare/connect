@@ -30,14 +30,18 @@ import java.util.List;
 import java.util.ListIterator;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamImplicitCollection;
+import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import com.webreach.mirth.util.EqualsUtil;
 
 @XStreamAlias("pluginMetaData")
-@XStreamImplicitCollection(value = "extensionPoints", item = "extensionPoint")
 public class PluginMetaData extends MetaData implements Serializable {
-
+    @XStreamAlias("extensionsPoints")
+    @XStreamImplicit(itemFieldName="extensionPoint")
 	private List<ExtensionPoint> extensionPoints;
+
+    @XStreamAlias("libraries")
+	@XStreamImplicit(itemFieldName="library")
+    private List<String> libraries;
 
 	public List<ExtensionPoint> getExtensionPoints() {
 		return extensionPoints;
@@ -47,7 +51,15 @@ public class PluginMetaData extends MetaData implements Serializable {
 		this.extensionPoints = plugins;
 	}
 
-	public boolean equals(Object that) {
+	public List<String> getLibraries() {
+        return libraries;
+    }
+
+    public void setLibraries(List<String> libraries) {
+        this.libraries = libraries;
+    }
+
+    public boolean equals(Object that) {
 		if (this == that) {
 			return true;
 		}

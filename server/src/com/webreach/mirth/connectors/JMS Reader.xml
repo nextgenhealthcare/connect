@@ -1,5 +1,4 @@
 <connectorMetaData>
-	<id>4d20fd2a-fe79-4db6-b9de-355c999f5b2d</id>
 	<name>JMS Reader</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
@@ -9,6 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.jms.JMSReader</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.jms.JmsConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.jms.JMSReaderProperties</sharedClassName>
+	<library>jms-client.jar</library>
+	<library>jms-shared.jar</library>
+	<library>jms-server.jar</library>
 	<transformers>JMSMessageToObject ObjectToString</transformers>
 	<protocol>jms</protocol>
 	<type>LISTENER</type>

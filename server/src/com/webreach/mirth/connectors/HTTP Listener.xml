@@ -1,5 +1,4 @@
 <connectorMetaData>
-	<id>3db9bd83-bcc6-44a0-8fce-c61aaef5be2d</id>
 	<name>HTTP Listener</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
@@ -9,6 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.http.HTTPListener</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.http.HttpConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.http.HTTPListenerProperties</sharedClassName>
+	<library>http-client.jar</library>
+	<library>http-shared.jar</library>
+	<library>http-server.jar</library>
 	<transformers>HttpRequestToString HttpStringToXML</transformers>
 	<protocol>http</protocol>
 	<type>LISTENER</type>

@@ -1,5 +1,4 @@
 <connectorMetaData>
-	<id>d0239c43-09ee-4e42-a4a4-3dc749dde251</id>
 	<name>LLP Listener</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
@@ -9,6 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.mllp.LLPListener</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.mllp.MllpConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.mllp.LLPListenerProperties</sharedClassName>
+	<library>mllp-client.jar</library>
+	<library>mllp-shared.jar</library>
+	<library>mllp-server.jar</library>
 	<transformers>ByteArrayToString</transformers>
 	<protocol>mllp</protocol>
 	<type>LISTENER</type>

@@ -26,9 +26,11 @@
 package com.webreach.mirth.model;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Properties;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import com.webreach.mirth.util.EqualsUtil;
 
 @XStreamAlias("connectorMetaData")
@@ -43,10 +45,14 @@ public class ConnectorMetaData extends MetaData implements Serializable {
 	private String serviceClassName;
 	private String transformers;
 	private String protocol;
-
 	private Type type;
+	
 	@XStreamAlias("mule-properties")
 	private Properties properties;
+
+	@XStreamAlias("libraries")
+	@XStreamImplicit(itemFieldName="library")
+	private List<String> libraries;
 
 	public String getServerClassName() {
 		return this.serverClassName;
@@ -112,7 +118,15 @@ public class ConnectorMetaData extends MetaData implements Serializable {
 		this.properties = properties;
 	}
 
-	public boolean equals(Object that) {
+	public List<String> getLibraries() {
+        return libraries;
+    }
+
+    public void setLibraries(List<String> libraries) {
+        this.libraries = libraries;
+    }
+
+    public boolean equals(Object that) {
 		if (this == that) {
 			return true;
 		}

@@ -1,5 +1,4 @@
 <connectorMetaData>
-	<id>6540d98e-c1e0-4e82-a87f-b13a4fbb83b3</id>
 	<name>HTTP Sender</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
@@ -9,6 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.http.HTTPSender</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.http.HttpConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.http.HTTPSenderProperties</sharedClassName>
+	<library>http-client.jar</library>
+	<library>http-shared.jar</library>
+	<library>http-server.jar</library>
 	<transformers></transformers>
 	<protocol>http</protocol>
 	<type>SENDER</type>

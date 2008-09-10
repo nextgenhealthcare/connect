@@ -1,5 +1,4 @@
 <connectorMetaData>
-	<id>930f3f3b-df16-4b37-8686-d71356b7784e</id>
 	<name>DICOM Sender</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
@@ -9,6 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.dimse.DICOMSender</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.dimse.DICOMConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.dimse.DICOMSenderProperties</sharedClassName>
+	<library>dicom-client.jar</library>
+	<library>dicom-shared.jar</library>
+	<library>dicom-server.jar</library>
 	<transformers></transformers>
 	<protocol>dicom</protocol>
 	<type>SENDER</type>

@@ -1,5 +1,4 @@
 <connectorMetaData>
-	<id>38217624-7092-4ad8-899e-3e777da6d4e3</id>
 	<name>JMS Writer</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
@@ -9,6 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.jms.JMSWriter</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.jms.JmsConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.jms.JMSWriterProperties</sharedClassName>
+	<library>jms-client.jar</library>
+	<library>jms-shared.jar</library>
+	<library>jms-server.jar</library>
 	<transformers></transformers>
 	<protocol>jms</protocol>
 	<type>SENDER</type>

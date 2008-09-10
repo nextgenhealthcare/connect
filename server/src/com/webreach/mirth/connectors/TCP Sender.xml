@@ -1,5 +1,4 @@
 <connectorMetaData>
-	<id>35b94810-52c9-4267-b869-faac500f9bee</id>
 	<name>TCP Sender</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
@@ -9,6 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.tcp.TCPSender</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.tcp.TcpConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.tcp.TCPSenderProperties</sharedClassName>
+	<library>tcp-client.jar</library>
+	<library>tcp-shared.jar</library>
+	<library>tcp-server.jar</library>
 	<transformers></transformers>
 	<protocol>tcp</protocol>
 	<type>SENDER</type>

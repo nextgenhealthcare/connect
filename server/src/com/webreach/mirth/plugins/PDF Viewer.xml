@@ -1,16 +1,16 @@
 <pluginMetaData>
-  <id>04d9c9dd-7774-42f9-a4b2-13759990c090</id>
-  <name>PDF Viewer</name>
-  <author>WebReach, Inc.</author>
-  <pluginVersion>@mirthversion</pluginVersion>
-  <mirthVersion>1.7.1</mirthVersion>
-  <url>http://extensions.mirthproject.org</url>
-  <description>This plugin provides PDF attachment viewing capability in message browser.</description>
-  <enabled>true</enabled>
-  <extensionPoint>
-  	<name>PDF Viewer</name>
-    <type>ATTACHMENT_VIEWER</type>
-    <className>com.webreach.mirth.plugins.pdfviewer.PDFViewer</className>
-    <mode>CLIENT</mode>
-  </extensionPoint>
+	<name>PDF Viewer</name>
+	<author>WebReach, Inc.</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>1.7.1</mirthVersion>
+	<url>http://extensions.mirthproject.org</url>
+	<description>This plugin provides PDF attachment viewing capability in message browser.</description>
+	<enabled>true</enabled>
+	<extensionPoint>
+		<name>PDF Viewer</name>
+		<type>ATTACHMENT_VIEWER</type>
+		<className>com.webreach.mirth.plugins.pdfviewer.PDFViewer</className>
+		<mode>CLIENT</mode>
+	</extensionPoint>
+	<library>pdf-viewer-client.jar</library>
 </pluginMetaData>

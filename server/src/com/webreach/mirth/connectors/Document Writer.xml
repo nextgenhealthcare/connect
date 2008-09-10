@@ -1,5 +1,4 @@
 <connectorMetaData>
-	<id>663a5b73-f40b-4c22-8863-cc74b6294743</id>
 	<name>Document Writer</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
@@ -9,6 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.doc.DocumentWriter</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.doc.DocumentConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.doc.DocumentWriterProperties</sharedClassName>
+	<library>doc-client.jar</library>
+	<library>doc-shared.jar</library>
+	<library>doc-server.jar</library>
 	<transformers></transformers>
 	<protocol>doc</protocol>
 	<type>SENDER</type>

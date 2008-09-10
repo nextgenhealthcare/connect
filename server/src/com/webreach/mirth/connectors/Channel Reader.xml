@@ -1,5 +1,4 @@
 <connectorMetaData>
-	<id>630e6287-9d5c-480f-a8a3-859e779890c6</id>
 	<name>Channel Reader</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
@@ -9,6 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.vm.ChannelReader</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.vm.VMConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.vm.ChannelReaderProperties</sharedClassName>
+	<library>vm-client.jar</library>
+	<library>vm-shared.jar</library>
+	<library>vm-server.jar</library>
 	<transformers></transformers>
 	<protocol>vm</protocol>
 	<type>LISTENER</type>

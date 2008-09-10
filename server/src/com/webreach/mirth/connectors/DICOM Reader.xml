@@ -1,5 +1,4 @@
 <connectorMetaData>
-	<id>bfc8f625-4d4a-46ac-b8bb-a3cf22518a8f</id>
 	<name>DICOM Listener</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
@@ -9,6 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.dimse.DICOMListener</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.dimse.DICOMConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.dimse.DICOMListenerProperties</sharedClassName>
+	<library>dicom-client.jar</library>
+	<library>dicom-shared.jar</library>
+	<library>dicom-server.jar</library>
 	<transformers></transformers>
 	<protocol>dicom</protocol>
 	<type>LISTENER</type>

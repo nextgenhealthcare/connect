@@ -1,5 +1,4 @@
 <connectorMetaData>
-	<id>09c7d21a-be1c-4e66-88e8-1c2ff5bbde32</id>
 	<name>SOAP Sender</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
@@ -10,6 +9,9 @@
 	<serverClassName>com.webreach.mirth.connectors.soap.axis.AxisConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.soap.SOAPSenderProperties</sharedClassName>
 	<serviceClassName>com.webreach.mirth.connectors.soap.SoapConnectorService</serviceClassName>
+	<library>soap-client.jar</library>
+	<library>soap-shared.jar</library>
+	<library>soap-server.jar</library>
 	<transformers></transformers>
 	<protocol>axis</protocol>
 	<type>SENDER</type>

@@ -1,22 +1,23 @@
 <pluginMetaData>
-  <id>c61ed000-e73e-4f59-bc93-b418609dd729</id>
-  <name>Message Pruner</name>
-  <author>WebReach, Inc.</author>
-  <pluginVersion>@mirthversion</pluginVersion>
-  <mirthVersion>1.7.1</mirthVersion>
-  <url>http://extensions.mirthproject.org</url>
-  <description>This plugin provides a message pruning function for messages stored in Mirth</description>
-  <enabled>true</enabled>
-  <extensionPoint>
-  	<name>Message Pruner</name>
-    <type>CLIENT_PANEL</type>
-    <className>com.webreach.mirth.plugins.messagepruner.MessagePrunerClient</className>
-    <mode>CLIENT</mode>
-  </extensionPoint>
-  <extensionPoint>
-  	<name>Message Pruner</name>
-    <type>SERVER_PLUGIN</type>
-    <className>com.webreach.mirth.plugins.messagepruner.MessagePrunerService</className>
-    <mode>SERVER</mode>
-  </extensionPoint>
+	<name>Message Pruner</name>
+	<author>WebReach, Inc.</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>1.7.1</mirthVersion>
+	<url>http://extensions.mirthproject.org</url>
+	<description>This plugin provides a message pruning function for messages stored in Mirth</description>
+	<enabled>true</enabled>
+	<extensionPoint>
+		<name>Message Pruner</name>
+		<type>CLIENT_PANEL</type>
+		<className>com.webreach.mirth.plugins.messagepruner.MessagePrunerClient</className>
+		<mode>CLIENT</mode>
+	</extensionPoint>
+	<extensionPoint>
+		<name>Message Pruner</name>
+		<type>SERVER_PLUGIN</type>
+		<className>com.webreach.mirth.plugins.messagepruner.MessagePrunerService</className>
+		<mode>SERVER</mode>
+	</extensionPoint>
+	<library>message-pruner-client.jar</library>
+	<library>message-pruner-server.jar</library>
 </pluginMetaData>

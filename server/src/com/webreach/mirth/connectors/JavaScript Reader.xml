@@ -1,5 +1,4 @@
 <connectorMetaData>
-	<id>9d426d47-8cb9-4131-b76a-c2a7d35a9296</id>
 	<name>JavaScript Reader</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
@@ -9,6 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.js.JavaScriptReader</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.js.JavaScriptConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.js.JavaScriptReaderProperties</sharedClassName>
+	<library>js-client.jar</library>
+	<library>js-shared.jar</library>
+	<library>js-server.jar</library>
 	<transformers>ResultMapToXML</transformers>
 	<protocol>js</protocol>
 	<type>LISTENER</type>

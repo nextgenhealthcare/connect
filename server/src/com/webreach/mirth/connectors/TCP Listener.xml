@@ -1,5 +1,4 @@
 <connectorMetaData>
-	<id>339c1061-1ea2-4d22-83e9-f28bcba8ed31</id>
 	<name>TCP Listener</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
@@ -9,6 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.tcp.TCPListener</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.tcp.TcpConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.tcp.TCPListenerProperties</sharedClassName>
+	<library>tcp-client.jar</library>
+	<library>tcp-shared.jar</library>
+	<library>tcp-server.jar</library>
 	<transformers>ByteArrayToString</transformers>
 	<protocol>tcp</protocol>
 	<type>LISTENER</type>

@@ -1,5 +1,4 @@
 <connectorMetaData>
-	<id>13848abd-fbbf-4ee4-ad5d-41e502da0866</id>
 	<name>File Writer</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
@@ -9,6 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.file.FileWriter</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.file.FileConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.file.FileWriterProperties</sharedClassName>
+	<library>file-client.jar</library>
+	<library>file-shared.jar</library>
+	<library>file-server.jar</library>
 	<transformers></transformers>
 	<protocol>file</protocol>
 	<type>SENDER</type>

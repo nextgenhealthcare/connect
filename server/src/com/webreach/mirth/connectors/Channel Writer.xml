@@ -1,5 +1,4 @@
 <connectorMetaData>
-	<id>7e1409a5-10f6-4924-a76b-aab6a70d9fae</id>
 	<name>Channel Writer</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
@@ -9,6 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.vm.ChannelWriter</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.vm.VMConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.vm.ChannelWriterProperties</sharedClassName>
+	<library>vm-client.jar</library>
+	<library>vm-shared.jar</library>
+	<library>vm-server.jar</library>
 	<transformers></transformers>
 	<protocol>vm</protocol>
 	<type>SENDER</type>

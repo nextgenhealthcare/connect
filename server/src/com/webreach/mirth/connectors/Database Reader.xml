@@ -1,5 +1,4 @@
 <connectorMetaData>
-	<id>6478185c-2d81-42dc-8421-abcfc7e2b662</id>
 	<name>Database Reader</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
@@ -10,6 +9,9 @@
 	<serverClassName>com.webreach.mirth.connectors.jdbc.JdbcConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.jdbc.DatabaseReaderProperties</sharedClassName>
 	<serviceClassName>com.webreach.mirth.connectors.jdbc.JdbcConnectorService</serviceClassName>
+	<library>jdbc-client.jar</library>
+	<library>jdbc-shared.jar</library>
+	<library>jdbc-server.jar</library>
 	<transformers>ResultMapToXML</transformers>
 	<protocol>jdbc</protocol>
 	<type>LISTENER</type>

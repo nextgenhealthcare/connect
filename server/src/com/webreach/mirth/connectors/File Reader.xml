@@ -1,5 +1,4 @@
 <connectorMetaData>
-	<id>08ad1014-011c-42eb-bae6-7af3a5516872</id>
 	<name>File Reader</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
@@ -9,6 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.file.FileReader</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.file.FileConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.file.FileReaderProperties</sharedClassName>
+	<library>file-client.jar</library>
+	<library>file-shared.jar</library>
+	<library>file-server.jar</library>
 	<transformers>ByteArrayToString</transformers>
 	<protocol>file</protocol>
 	<type>LISTENER</type>

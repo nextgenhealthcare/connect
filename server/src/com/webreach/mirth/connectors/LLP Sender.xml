@@ -1,5 +1,4 @@
 <connectorMetaData>
-	<id>4e6d0b04-095f-43ab-889c-63ae4f469a58</id>
 	<name>LLP Sender</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
@@ -9,6 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.mllp.LLPSender</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.mllp.MllpConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.mllp.LLPSenderProperties</sharedClassName>
+	<library>mllp-client.jar</library>
+	<library>mllp-shared.jar</library>
+	<library>mllp-server.jar</library>
 	<transformers></transformers>
 	<protocol>mllp</protocol>
 	<type>SENDER</type>

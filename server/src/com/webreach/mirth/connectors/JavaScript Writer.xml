@@ -1,5 +1,4 @@
 <connectorMetaData>
-	<id>6ac6d66c-f39c-47b2-aaf0-352d304231f0</id>
 	<name>JavaScript Writer</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
@@ -9,6 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.js.JavaScriptWriter</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.js.JavaScriptConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.js.JavaScriptWriterProperties</sharedClassName>
+	<library>js-client.jar</library>
+	<library>js-shared.jar</library>
+	<library>js-server.jar</library>
 	<transformers></transformers>
 	<protocol>js</protocol>
 	<type>SENDER</type>
