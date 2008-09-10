@@ -57,15 +57,14 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
 
 	private ExtensionManagerClient parent;
     
-	private final String PLUGIN_ID_COLUMN_NAME = "Plugin ID";
     private final String PLUGIN_STATUS_COLUMN_NAME = "Status";
     private final String PLUGIN_NAME_COLUMN_NAME = "Name";
     private final String PLUGIN_AUTHOR_COLUMN_NAME = "Author";
     private final String PLUGIN_URL_COLUMN_NAME = "URL";
     private final String PLUGIN_VERSION_COLUMN_NAME = "Version";
     
-    private final int PLUGIN_ID_COLUMN_NUMBER = 0;
-    private final int NUMBER_OF_COLUMNS = 6;
+    private final int PLUGIN_NAME_COLUMN_NUMBER = 1;
+    private final int NUMBER_OF_COLUMNS = 5;
     
     private int lastConnectorRow = -1;
     private int lastPluginRow = -1;
@@ -96,7 +95,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
             
             if (selectedRow != -1)
             {
-                String extensionName = (String) loadedConnectorsTable.getModel().getValueAt(loadedConnectorsTable.convertRowIndexToModel(selectedRow), PLUGIN_ID_COLUMN_NUMBER);
+                String extensionName = (String) loadedConnectorsTable.getModel().getValueAt(loadedConnectorsTable.convertRowIndexToModel(selectedRow), PLUGIN_NAME_COLUMN_NUMBER);
                 return connectorData.get(extensionName);
             }
         }
@@ -106,8 +105,8 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
             
             if (selectedRow != -1)
             {
-                String extensionId = (String) loadedPluginsTable.getModel().getValueAt(loadedPluginsTable.convertRowIndexToModel(selectedRow), PLUGIN_ID_COLUMN_NUMBER);
-                return pluginData.get(extensionId);
+                String extensionName = (String) loadedPluginsTable.getModel().getValueAt(loadedPluginsTable.convertRowIndexToModel(selectedRow), PLUGIN_NAME_COLUMN_NUMBER);
+                return pluginData.get(extensionName);
             }
         }
         
@@ -168,8 +167,6 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
         loadedConnectorsTable.setOpaque(true);
         loadedConnectorsTable.getTableHeader().setReorderingAllowed(true);
         loadedConnectorsTable.setSortable(true);
-        
-        loadedConnectorsTable.getColumnExt(PLUGIN_ID_COLUMN_NAME).setVisible(false);
         
         loadedConnectorsTable.getColumnExt(PLUGIN_VERSION_COLUMN_NAME).setMaxWidth(75);
         loadedConnectorsTable.getColumnExt(PLUGIN_VERSION_COLUMN_NAME).setMinWidth(75);
@@ -249,18 +246,16 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
             
             int i = 0;
             for (ConnectorMetaData metaData : connectorData.values())
-            {
-            	tableData[i][0] = metaData.getId();
-            	
+            {            	
                 if (metaData.isEnabled())
-                    tableData[i][1] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
+                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
                 else
-                    tableData[i][1] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
+                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
                 
-                tableData[i][2] = metaData.getName();
-                tableData[i][3] = metaData.getAuthor();
-                tableData[i][4] = metaData.getUrl();
-                tableData[i][5] = metaData.getPluginVersion();
+                tableData[i][1] = metaData.getName();
+                tableData[i][2] = metaData.getAuthor();
+                tableData[i][3] = metaData.getUrl();
+                tableData[i][4] = metaData.getPluginVersion();
                 
                 i++;
             }
@@ -275,9 +270,9 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
         else
         {
             loadedConnectorsTable = new MirthTable();
-            loadedConnectorsTable.setModel(new RefreshTableModel(tableData, new String[] { PLUGIN_ID_COLUMN_NAME, PLUGIN_STATUS_COLUMN_NAME, PLUGIN_NAME_COLUMN_NAME, PLUGIN_AUTHOR_COLUMN_NAME, PLUGIN_URL_COLUMN_NAME, PLUGIN_VERSION_COLUMN_NAME })
+            loadedConnectorsTable.setModel(new RefreshTableModel(tableData, new String[] { PLUGIN_STATUS_COLUMN_NAME, PLUGIN_NAME_COLUMN_NAME, PLUGIN_AUTHOR_COLUMN_NAME, PLUGIN_URL_COLUMN_NAME, PLUGIN_VERSION_COLUMN_NAME })
             {
-                boolean[] canEdit = new boolean[] { false, false, false, false, false, false, false };
+                boolean[] canEdit = new boolean[] { false, false, false, false, false, false };
                 
                 public boolean isCellEditable(int rowIndex, int columnIndex)
                 {
@@ -362,8 +357,6 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
         loadedPluginsTable.getTableHeader().setReorderingAllowed(true);
         loadedPluginsTable.setSortable(true);
         
-        loadedPluginsTable.getColumnExt(PLUGIN_ID_COLUMN_NAME).setVisible(false);
-        
         loadedPluginsTable.getColumnExt(PLUGIN_VERSION_COLUMN_NAME).setMaxWidth(75);
         loadedPluginsTable.getColumnExt(PLUGIN_VERSION_COLUMN_NAME).setMinWidth(75);
         
@@ -443,18 +436,16 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
             
             int i = 0;
             for (PluginMetaData metaData : pluginData.values())
-            {
-            	tableData[i][0] = metaData.getId();
-            	
+            {            	
                 if (metaData.isEnabled())
-                    tableData[i][1] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
+                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
                 else
-                    tableData[i][1] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
+                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
                 
-                tableData[i][2] = metaData.getName();
-                tableData[i][3] = metaData.getAuthor();
-                tableData[i][4] = metaData.getUrl();
-                tableData[i][5] = metaData.getPluginVersion();
+                tableData[i][1] = metaData.getName();
+                tableData[i][2] = metaData.getAuthor();
+                tableData[i][3] = metaData.getUrl();
+                tableData[i][4] = metaData.getPluginVersion();
                 
                 i++;
             }
@@ -469,9 +460,9 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
         else
         {
             loadedPluginsTable = new MirthTable();
-            loadedPluginsTable.setModel(new RefreshTableModel(tableData, new String[] { PLUGIN_ID_COLUMN_NAME, PLUGIN_STATUS_COLUMN_NAME, PLUGIN_NAME_COLUMN_NAME, PLUGIN_AUTHOR_COLUMN_NAME, PLUGIN_URL_COLUMN_NAME, PLUGIN_VERSION_COLUMN_NAME })
+            loadedPluginsTable.setModel(new RefreshTableModel(tableData, new String[] { PLUGIN_STATUS_COLUMN_NAME, PLUGIN_NAME_COLUMN_NAME, PLUGIN_AUTHOR_COLUMN_NAME, PLUGIN_URL_COLUMN_NAME, PLUGIN_VERSION_COLUMN_NAME })
             {
-                boolean[] canEdit = new boolean[] { false, false, false, false, false, false, false };
+                boolean[] canEdit = new boolean[] { false, false, false, false, false, false };
                 
                 public boolean isCellEditable(int rowIndex, int columnIndex)
                 {

@@ -48,6 +48,7 @@ import org.jdesktop.swingx.decorator.HighlighterPipeline;
 import org.jdesktop.swingx.decorator.PatternFilter;
 
 import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.core.IgnoredComponent;
 import com.webreach.mirth.client.ui.BareBonesBrowserLaunch;
 import com.webreach.mirth.client.ui.Mirth;
 import com.webreach.mirth.client.ui.PlatformUI;
@@ -62,7 +63,6 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
 {
     private ExtensionManagerClient parent;
     
-    private final String EXTENSION_ID_COLUMN_NAME = "Extension ID";
     private final String EXTENSION_NEW_COLUMN_NAME = "New Extension";
     private final String EXTENSION_INSTALL_COLUMN_NAME = "Install";
     private final String EXTENSION_TYPE_COLUMN_NAME = "Type";
@@ -70,12 +70,13 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
     private final String EXTENSION_INSTALLED_VERSION_COLUMN_NAME = "Installed Version";
     private final String EXTENSION_UPDATE_VERSION_COLUMN_NAME = "Update Version";
     private final String EXTENSION_IGNORE_COLUMN_NAME = "Ignore";
-    private final int EXTENSION_TABLE_NUMBER_OF_COLUMNS = 8;
-    private final int EXTENSION_ID_COLUMN_NUMBER = 0;
-    private final int EXTENSION_NEW_COLUMN_NUMBER = 1;
-    private final int EXTENSION_INSTALL_COLUMN_NUMBER = 2;
-    private final int EXTENSION_TYPE_COLUMN_NUMBER = 3;
-    private final int EXTENSION_IGNORE_COLUMN_NUMBER = 7;
+    private final int EXTENSION_TABLE_NUMBER_OF_COLUMNS = 7;
+    private final int EXTENSION_NEW_COLUMN_NUMBER = 0;
+    private final int EXTENSION_INSTALL_COLUMN_NUMBER = 1;
+    private final int EXTENSION_TYPE_COLUMN_NUMBER = 2;
+    private final int EXTENSION_NAME_COLUMN_NUMBER = 3;
+    private final int EXTENSION_UPDATE_VERSION_COLUMN_NUMBER = 5;
+    private final int EXTENSION_IGNORE_COLUMN_NUMBER = 6;
     private Map<String, MetaData> extensions = new HashMap<String, MetaData>();
     private Map<String, UpdateInfo> extensionUpdates = new HashMap<String, UpdateInfo>();
     private ExtensionUtil pluginUtil = new ExtensionUtil();
@@ -122,7 +123,7 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
         } else {
         	extensionUpdates = new HashMap<String, UpdateInfo>();
         	for (UpdateInfo updateInfo : updateInfoList) {
-            	extensionUpdates.put(updateInfo.getId(), updateInfo);
+            	extensionUpdates.put(updateInfo.getName(), updateInfo);
             }
         	
         	updateExtensionsTable();
@@ -138,9 +139,9 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
     {
         
         loadedExtensionTable = new MirthTable();
-        loadedExtensionTable.setModel(new RefreshTableModel(new Object[][]{}, new String[] { EXTENSION_ID_COLUMN_NAME, EXTENSION_NEW_COLUMN_NAME, EXTENSION_INSTALL_COLUMN_NAME, EXTENSION_TYPE_COLUMN_NAME, EXTENSION_NAME_COLUMN_NAME, EXTENSION_INSTALLED_VERSION_COLUMN_NAME,  EXTENSION_UPDATE_VERSION_COLUMN_NAME, EXTENSION_IGNORE_COLUMN_NAME })
+        loadedExtensionTable.setModel(new RefreshTableModel(new Object[][]{}, new String[] { EXTENSION_NEW_COLUMN_NAME, EXTENSION_INSTALL_COLUMN_NAME, EXTENSION_TYPE_COLUMN_NAME, EXTENSION_NAME_COLUMN_NAME, EXTENSION_INSTALLED_VERSION_COLUMN_NAME,  EXTENSION_UPDATE_VERSION_COLUMN_NAME, EXTENSION_IGNORE_COLUMN_NAME })
         {
-            boolean[] canEdit = new boolean[] { false, false, true, false, false, false, false, true };
+            boolean[] canEdit = new boolean[] { false, true, false, false, false, false, true };
             
             public boolean isCellEditable(int rowIndex, int columnIndex)
             {
@@ -155,8 +156,6 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
         loadedExtensionTable.getTableHeader().setReorderingAllowed(true);
         loadedExtensionTable.setSortable(true);
         loadedExtensionTable.setSelectionMode(0);
-        
-        loadedExtensionTable.getColumnExt(EXTENSION_ID_COLUMN_NAME).setVisible(false);
         
         loadedExtensionTable.getColumnExt(EXTENSION_NEW_COLUMN_NAME).setVisible(false);
         
@@ -191,9 +190,9 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
                     int row = loadedExtensionTable.convertRowIndexToModel(loadedExtensionTable.getSelectedRow());
                     if (row > -1 && extensionUpdates != null)
                     {
-                        UpdateInfo updateInfo = extensionUpdates.get(loadedExtensionTable.getModel().getValueAt(row, EXTENSION_ID_COLUMN_NUMBER));
+                        UpdateInfo updateInfo = extensionUpdates.get(loadedExtensionTable.getModel().getValueAt(row, EXTENSION_NAME_COLUMN_NUMBER));
                         String type = updateInfo.getType().toString();
-                        String name =  updateInfo.getComponent();
+                        String name =  updateInfo.getName();
                         String version =  updateInfo.getVersion();
                         String author =  updateInfo.getAuthor();
                         String url =  updateInfo.getUri();
@@ -242,8 +241,8 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
                 {
                 	if (loadedExtensionTable.getModel().getValueAt(i,EXTENSION_TYPE_COLUMN_NUMBER).equals(UpdateInfo.Type.SERVER)) {
                 		if (((Boolean)loadedExtensionTable.getModel().getValueAt(i,EXTENSION_INSTALL_COLUMN_NUMBER)).booleanValue()) {
-                			String serverId = (String) loadedExtensionTable.getModel().getValueAt(i, EXTENSION_ID_COLUMN_NUMBER);
-                			String serverUrl = extensionUpdates.get(serverId).getUri();
+                			String serverName = (String) loadedExtensionTable.getModel().getValueAt(i, EXTENSION_NAME_COLUMN_NUMBER);
+                			String serverUrl = extensionUpdates.get(serverName).getUri();
                 			boolean downloadServer = parent.alertOkCancel(progressBar, "The server cannot be automatically upgraded. Press OK to download it now from:\n" + serverUrl);
                 			
                 			if (downloadServer) {
@@ -259,9 +258,9 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
                     boolean install = ((Boolean)loadedExtensionTable.getModel().getValueAt(i,EXTENSION_INSTALL_COLUMN_NUMBER)).booleanValue();
                     if (install)
                     {
-                        String id = (String)loadedExtensionTable.getModel().getValueAt(i, EXTENSION_ID_COLUMN_NUMBER);
-                        UpdateInfo plugin = extensionUpdates.get(id);
-                        statusLabel.setText("Downloading extension: " + plugin.getComponent());
+                        String name = (String)loadedExtensionTable.getModel().getValueAt(i, EXTENSION_NAME_COLUMN_NUMBER);
+                        UpdateInfo plugin = extensionUpdates.get(name);
+                        statusLabel.setText("Downloading extension: " + plugin.getName());
                         if (cancel)
                         {
                             break;
@@ -273,7 +272,7 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
                         {
                             break;
                         }
-                        statusLabel.setText("Updating extension: " + plugin.getComponent());
+                        statusLabel.setText("Updating extension: " + plugin.getName());
                         parent.install(plugin.getType().toString().toLowerCase() + "s", file);
                         installedUpdates = true;
                     }
@@ -317,7 +316,7 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
         		}
                 
                 for (UpdateInfo updateInfo : updateInfoList) {
-                	extensionUpdates.put(updateInfo.getId(), updateInfo);
+                	extensionUpdates.put(updateInfo.getName(), updateInfo);
                 }
                 
                 return null;
@@ -352,22 +351,21 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
         int i = 0;
         for (UpdateInfo updateInfo: extensionUpdates.values())
         {
-        	tableData[i][0] = updateInfo.getId();
-        	tableData[i][1] = updateInfo.isNew();
-       		tableData[i][2] = !updateInfo.isIgnored();
-            tableData[i][3] = updateInfo.getType();
-            tableData[i][4] = updateInfo.getComponent();
+        	tableData[i][0] = updateInfo.isNew();
+       		tableData[i][1] = !updateInfo.isIgnored();
+            tableData[i][2] = updateInfo.getType();
+            tableData[i][3] = updateInfo.getName();
             
             String installedVersion = "";
             if (updateInfo.getType().equals(UpdateInfo.Type.SERVER)) {
             	installedVersion = PlatformUI.SERVER_VERSION;
             } else if (!updateInfo.isNew()){
-            	installedVersion = extensions.get(updateInfo.getId()).getPluginVersion();
+            	installedVersion = extensions.get(updateInfo.getName()).getPluginVersion();
             }
             
-            tableData[i][5] = installedVersion;
-            tableData[i][6] = updateInfo.getVersion();
-            tableData[i][7] = updateInfo.isIgnored();
+            tableData[i][4] = installedVersion;
+            tableData[i][5] = updateInfo.getVersion();
+            tableData[i][6] = updateInfo.isIgnored();
             i++;
         }
         
@@ -471,7 +469,7 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
         loadedExtensionScrollPane.setMinimumSize(null);
         loadedExtensionScrollPane.setPreferredSize(new java.awt.Dimension(350, 200));
 
-        loadedExtensionTable.setModel(new RefreshTableModel(new Object[][]{}, new String[] { EXTENSION_ID_COLUMN_NAME, EXTENSION_INSTALL_COLUMN_NAME, EXTENSION_TYPE_COLUMN_NAME, EXTENSION_NAME_COLUMN_NAME, EXTENSION_INSTALLED_VERSION_COLUMN_NAME,  EXTENSION_UPDATE_VERSION_COLUMN_NAME, EXTENSION_IGNORE_COLUMN_NAME }));
+        loadedExtensionTable.setModel(new RefreshTableModel(new Object[][]{}, new String[] { EXTENSION_INSTALL_COLUMN_NAME, EXTENSION_TYPE_COLUMN_NAME, EXTENSION_NAME_COLUMN_NAME, EXTENSION_INSTALLED_VERSION_COLUMN_NAME,  EXTENSION_UPDATE_VERSION_COLUMN_NAME, EXTENSION_IGNORE_COLUMN_NAME }));
         loadedExtensionScrollPane.setViewportView(loadedExtensionTable);
 
         ignoredCheckBox.setBackground(new java.awt.Color(255, 255, 255));
@@ -595,16 +593,21 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
     {//GEN-HEADEREND:event_closeButtonActionPerformed
         cancel = true;
         
-        List<String> ignoredComponentIds = new ArrayList<String>();
-        
-        for (int i = 0; i < loadedExtensionTable.getModel().getRowCount(); i++) {
-        	if ((Boolean)loadedExtensionTable.getModel().getValueAt(i, EXTENSION_IGNORE_COLUMN_NUMBER)) {
-        		ignoredComponentIds.add((String)loadedExtensionTable.getModel().getValueAt(i, EXTENSION_ID_COLUMN_NUMBER));
-        	}
-        }
-        
         try {
-			PlatformUI.MIRTH_FRAME.getUpdateClient(this).setIgnoredComponentIds(ignoredComponentIds);
+	        List<IgnoredComponent> ignoredComponents = PlatformUI.MIRTH_FRAME.getUpdateClient(this).getIgnoredComponents();
+	        
+	        for (int i = 0; i < loadedExtensionTable.getModel().getRowCount(); i++) {
+	        	String componentName = (String)loadedExtensionTable.getModel().getValueAt(i, EXTENSION_NAME_COLUMN_NUMBER);
+	        	String componentVersion = (String)loadedExtensionTable.getModel().getValueAt(i, EXTENSION_UPDATE_VERSION_COLUMN_NUMBER);
+	        	IgnoredComponent component = new IgnoredComponent(componentName, componentVersion);
+	        	if ((Boolean)loadedExtensionTable.getModel().getValueAt(i, EXTENSION_IGNORE_COLUMN_NUMBER) && !ignoredComponents.contains(component)) {
+	        		ignoredComponents.add(component);
+	        	} else if (ignoredComponents.contains(component)) {
+	        		ignoredComponents.remove(component);
+	        	}
+	        }
+	        
+			PlatformUI.MIRTH_FRAME.getUpdateClient(this).setIgnoredComponents(ignoredComponents);
 		} catch (ClientException e) {
 			parent.alertException(this, e.getStackTrace(), e.getMessage());
 		}

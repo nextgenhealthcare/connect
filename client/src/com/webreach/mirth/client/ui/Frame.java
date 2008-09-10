@@ -76,6 +76,7 @@ import org.syntax.jedit.JEditTextArea;
 
 import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.core.IgnoredComponent;
 import com.webreach.mirth.client.core.UpdateClient;
 import com.webreach.mirth.client.ui.browsers.event.EventBrowser;
 import com.webreach.mirth.client.ui.browsers.message.MessageBrowser;
@@ -1344,14 +1345,16 @@ public class Frame extends JXFrame
         				boolean extensionManager = mirthClient.isExtensionEnabled(PluginPanel.EXTENSION_MANAGER);
         				
         				String serverUrl = "";
-        				String serverId = "";
+        				String serverName = "";
+        				String serverVersion = "";
         				for (UpdateInfo updateInfo : updateInfoList) {
     						if ((extensionManager || updateInfo.getType().equals(UpdateInfo.Type.SERVER)) && !updateInfo.isIgnored()) {
     							newUpdates = true;
     							
     							if (updateInfo.getType().equals(UpdateInfo.Type.SERVER)) {
     								serverUrl = updateInfo.getUri();
-    								serverId = updateInfo.getId();
+    								serverName = updateInfo.getName();
+    								serverVersion = updateInfo.getVersion();
     							}
     						}
     					}
@@ -1367,18 +1370,10 @@ public class Frame extends JXFrame
         						if (result == 0) {
                     				BareBonesBrowserLaunch.openURL(serverUrl);
                     			} else if (result == 1) {
-                    		        List<String> ignoredComponentIds = new ArrayList<String>();
-                    		        
-                    		        for (UpdateInfo updateInfo : updateInfoList) {
-                    		        	if (updateInfo.isIgnored()) {
-                    		        		ignoredComponentIds.add(updateInfo.getId());
-                    		        	}
-                					}
-                    		        
-                    		        ignoredComponentIds.add(serverId);
-                    		        
-                    		        try {
-                    					getUpdateClient(PlatformUI.MIRTH_FRAME).setIgnoredComponentIds(ignoredComponentIds);
+									try {
+										List<IgnoredComponent> ignoredComponents = getUpdateClient(PlatformUI.MIRTH_FRAME).getIgnoredComponents();
+										ignoredComponents.add(new IgnoredComponent(serverName, serverVersion));
+										getUpdateClient(PlatformUI.MIRTH_FRAME).setIgnoredComponents(ignoredComponents);
                     				} catch (ClientException e) {
                     					alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                     				}
