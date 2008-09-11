@@ -22,27 +22,23 @@ import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.plugins.ClientPanelPlugin;
 
-/**
- *
- * @author brendanh
- */
 public class ExtensionManagerClient extends ClientPanelPlugin
 {
     public ExtensionManagerClient(String name)
     {
-        super(name);
+        super(name, true, true);
         
         getTaskPane().setTitle("Manager Tasks");
         setComponent(new ExtensionManagerPanel(this));
         
-        addTask("doRefresh", "Refresh", "Refresh loaded plugins.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")));
-        addTask("doSave", "Save", "Save plugin settings.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")));
-        addTask("doCheckAllForUpdates", "Check All for Updates", "Checks all extensions for updates.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/world_link.png")));
+        addTask("doCheckForUpdates", "Check for Updates", "Checks all extensions for updates.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/world_link.png")));
         
         addTask("doEnable","Enable Extension","Enable the currently selected extension.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")));
         addTask("doDisable","Disable Extension","Disable the currently selected extension.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")));
         addTask("doShowProperties","Show Properties","Display the currently selected extension properties.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_view_list.png")));
-        setVisibleTasks(0, 2, true);
+        setVisibleTasks(getRefreshIndex(), getRefreshIndex(), true);
+        setVisibleTasks(getSaveIndex(), getSaveIndex(), false);
+        setVisibleTasks(2, 2, true);
         setVisibleTasks(3, -1, false);
         
         getComponent().addMouseListener(getPopupMenuMouseAdapter());
@@ -53,7 +49,7 @@ public class ExtensionManagerClient extends ClientPanelPlugin
         ((ExtensionManagerPanel) getComponent()).showExtensionProperties();
     }
     
-    public void doCheckAllForUpdates()
+    public void doCheckForUpdates()
     {
         try
         {
@@ -75,6 +71,8 @@ public class ExtensionManagerClient extends ClientPanelPlugin
             {
                 try
                 {
+                	if (!confirmLeave())
+                		return null;
                     refresh();
                 }
                 catch (ClientException e)
@@ -115,6 +113,7 @@ public class ExtensionManagerClient extends ClientPanelPlugin
             
             public void done()
             {
+            	disableSave();
                 setWorking("", false);
             }
         };
@@ -125,11 +124,13 @@ public class ExtensionManagerClient extends ClientPanelPlugin
     public void doEnable()
     {
         ((ExtensionManagerPanel) getComponent()).enableExtension();
+        enableSave();
     }
     
     public void doDisable()
     {
         ((ExtensionManagerPanel) getComponent()).disableExtension();
+        enableSave();
     }
     
     public void refresh() throws ClientException
@@ -140,8 +141,8 @@ public class ExtensionManagerClient extends ClientPanelPlugin
     
     public void save() throws ClientException
     {
-        PlatformUI.MIRTH_FRAME.mirthClient.setPluginMetaData(((ExtensionManagerPanel) getComponent()).getPluginData());
-        PlatformUI.MIRTH_FRAME.mirthClient.setConnectorMetaData(((ExtensionManagerPanel) getComponent()).getConnectorData());
+        ((ExtensionManagerPanel) getComponent()).savePluginData();
+        ((ExtensionManagerPanel) getComponent()).saveConnectorData();
     }
     
     public boolean install(String location, File file)
@@ -242,13 +243,6 @@ public class ExtensionManagerClient extends ClientPanelPlugin
     
     public void display()
     {
-        try
-        {
-            refresh();
-        }
-        catch(ClientException e)
-        {
-            
-        }
+        doRefresh();
     }
 }
