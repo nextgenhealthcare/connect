@@ -10,29 +10,22 @@
 package com.webreach.mirth.plugins.messagepruner;
 
 import java.util.LinkedList;
-import java.util.Properties;
-
-import javax.swing.ImageIcon;
 
 import org.jdesktop.swingworker.SwingWorker;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.plugins.ClientPanelPlugin;
 
-/**
- * 
- * @author brendanh
- */
 public class MessagePrunerClient extends ClientPanelPlugin
 {
     public MessagePrunerClient(String name)
     {
-        super(name);
+        super(name, true, true);
 
         getTaskPane().setTitle("Pruner Tasks");
         setComponent(new MessagePrunerPanel());
-        addTask("doRefresh", "Refresh", "Refresh pruner properties", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")));
-        addTask("doSave", "Save", "Save pruner properties", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")));
+        setVisibleTasks(getRefreshIndex(), getRefreshIndex(), true);
+        setVisibleTasks(getSaveIndex(), getSaveIndex(), false);
         getComponent().addMouseListener(getPopupMenuMouseAdapter());
     }
 
@@ -46,6 +39,8 @@ public class MessagePrunerClient extends ClientPanelPlugin
             {
                 try
                 {
+                	if (!confirmLeave())
+                		return null;
                     refresh();
                 }
                 catch (ClientException e)
@@ -85,6 +80,7 @@ public class MessagePrunerClient extends ClientPanelPlugin
 
             public void done()
             {
+            	disableSave();
                 setWorking("", false);
             }
         };
@@ -114,13 +110,6 @@ public class MessagePrunerClient extends ClientPanelPlugin
     
     public void display()
     {
-        try
-        {
-            refresh();
-        }
-        catch (ClientException e)
-        {
-            
-        }
+    	doRefresh();
     }
 }

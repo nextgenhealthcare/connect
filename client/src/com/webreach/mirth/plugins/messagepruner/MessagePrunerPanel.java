@@ -6,20 +6,23 @@
 
 package com.webreach.mirth.plugins.messagepruner;
 
+import java.util.Calendar;
+import java.util.LinkedList;
+import java.util.Properties;
+import java.util.prefs.Preferences;
+
+import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
+import org.jdesktop.swingx.decorator.HighlighterPipeline;
+
 import com.webreach.mirth.client.ui.CenterCellRenderer;
 import com.webreach.mirth.client.ui.Mirth;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.RefreshTableModel;
 import com.webreach.mirth.client.ui.UIConstants;
+import com.webreach.mirth.client.ui.components.MirthRadioButton;
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.client.ui.components.MirthTimePicker;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import java.util.Calendar;
-import java.util.LinkedList;
-import java.util.Properties;
-import java.util.prefs.Preferences;
-import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
-import org.jdesktop.swingx.decorator.HighlighterPipeline;
 
 /**
  *
@@ -182,10 +185,10 @@ public class MessagePrunerPanel extends javax.swing.JPanel
     {
         buttonGroup1 = new javax.swing.ButtonGroup();
         jPanel1 = new javax.swing.JPanel();
-        dayButton = new javax.swing.JRadioButton();
-        weekButton = new javax.swing.JRadioButton();
-        monthButton = new javax.swing.JRadioButton();
-        hourButton = new javax.swing.JRadioButton();
+        dayButton = new MirthRadioButton();
+        weekButton = new MirthRadioButton();
+        monthButton = new MirthRadioButton();
+        hourButton = new MirthRadioButton();
         jLabel1 = new javax.swing.JLabel();
         dayOfWeekLabel = new javax.swing.JLabel();
         dayOfMonthLabel = new javax.swing.JLabel();
@@ -465,18 +468,18 @@ public class MessagePrunerPanel extends javax.swing.JPanel
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.JRadioButton dayButton;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton dayButton;
     private com.webreach.mirth.client.ui.components.MirthTimePicker dayOfMonth;
     private javax.swing.JLabel dayOfMonthLabel;
     private com.webreach.mirth.client.ui.components.MirthTimePicker dayOfWeek;
     private javax.swing.JLabel dayOfWeekLabel;
-    private javax.swing.JRadioButton hourButton;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton hourButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane logPane;
     private com.webreach.mirth.client.ui.components.MirthTable logTable;
-    private javax.swing.JRadioButton monthButton;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton monthButton;
     private javax.swing.JLabel monthlyAtLabel;
     private com.webreach.mirth.client.ui.components.MirthTimePicker timeOfDay;
     private javax.swing.JLabel timeOfDayLabel;
@@ -484,7 +487,7 @@ public class MessagePrunerPanel extends javax.swing.JPanel
     private javax.swing.JLabel timeOfDayMonthlyLabel;
     private com.webreach.mirth.client.ui.components.MirthTimePicker timeOfDayWeekly;
     private javax.swing.JLabel timeOfDayWeeklyLabel;
-    private javax.swing.JRadioButton weekButton;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton weekButton;
     private javax.swing.JLabel weeklyAtLabel;
     // End of variables declaration//GEN-END:variables
     
