@@ -54,7 +54,7 @@
 		<jar download="eager" href="client-lib/wsif.jar" />
 		<jar download="eager" href="client-lib/xercesImpl.jar" />
 		<jar download="eager" href="client-lib/xpp3_min-1.1.3.4.O.jar" />
-		<jar download="eager" href="client-lib/xstream-1.2.jar" />
+		<jar download="eager" href="client-lib/xstream-1.2.2.jar" />
 	</resources>
 	
 	<application-desc main-class="com.webreach.mirth.client.ui.Mirth" />
