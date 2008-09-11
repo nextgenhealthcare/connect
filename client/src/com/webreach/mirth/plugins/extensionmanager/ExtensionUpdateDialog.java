@@ -602,7 +602,7 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
 	        	IgnoredComponent component = new IgnoredComponent(componentName, componentVersion);
 	        	if ((Boolean)loadedExtensionTable.getModel().getValueAt(i, EXTENSION_IGNORE_COLUMN_NUMBER) && !ignoredComponents.contains(component)) {
 	        		ignoredComponents.add(component);
-	        	} else if (ignoredComponents.contains(component)) {
+	        	} else if (!(Boolean)loadedExtensionTable.getModel().getValueAt(i, EXTENSION_IGNORE_COLUMN_NUMBER) && ignoredComponents.contains(component)) {
 	        		ignoredComponents.remove(component);
 	        	}
 	        }
