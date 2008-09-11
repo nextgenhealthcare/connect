@@ -72,7 +72,7 @@ public class MessageObjectServlet extends MirthServlet {
                     String pageSize = request.getParameter("pageSize");
                     String maxMessages = request.getParameter("maxMessages");
                     response.setContentType("application/xml");
-                    out.print(serializer.toXML(messageObjectController.getMessagesByPage(Integer.parseInt(page), Integer.parseInt(pageSize), Integer.parseInt(maxMessages), uid)));
+                    out.print(serializer.toXML(messageObjectController.getMessagesByPage(Integer.parseInt(page), Integer.parseInt(pageSize), Integer.parseInt(maxMessages), uid, true)));
                 } else if (operation.equals("getMessagesByPageLimit")) {
                     String page = request.getParameter("page");
                     String pageSize = request.getParameter("pageSize");

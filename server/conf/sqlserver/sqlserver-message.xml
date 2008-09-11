@@ -179,7 +179,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 					</isNotNull>
 				</isNotNull>
 			</dynamic>
-		ORDER BY TEMP_TABLE.DATE_CREATED DESC
+		ORDER BY TEMP_TABLE.DATE_CREATED $order$
 	</select>
 
 <!-- Uncomment to enable fast paging by limit.  However, there will be no "last page", because the last pages will always display the last $pageSize$ results.

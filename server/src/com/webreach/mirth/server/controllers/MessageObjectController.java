@@ -48,7 +48,7 @@ public interface MessageObjectController {
 
     public List<MessageObject> getMessagesByPageLimit(int page, int pageSize, int maxMessages, String uid, MessageObjectFilter filter) throws ControllerException;
 
-    public List<MessageObject> getMessagesByPage(int page, int pageSize, int maxMessages, String uid) throws ControllerException;
+    public List<MessageObject> getMessagesByPage(int page, int pageSize, int maxMessages, String uid, boolean descending) throws ControllerException;
 
     public int removeMessages(MessageObjectFilter filter) throws ControllerException;
 

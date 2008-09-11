@@ -130,7 +130,7 @@ public class MessageObjectControllerTest extends TestCase {
         MessageObjectFilter testFilter = new MessageObjectFilter();
         testFilter.setId(sampleMessageObject.getId());
         messageObjectController.createMessagesTempTable(testFilter, "test", false);
-        List<MessageObject> testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1, 0, "test");
+        List<MessageObject> testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1, 0, "test", true);
         MessageObject testMessageObject = testMessageObjectList.get(0);
 
         Assert.assertEquals(1, testMessageObjectList.size());
@@ -146,7 +146,7 @@ public class MessageObjectControllerTest extends TestCase {
         testFilter.setEndDate(Calendar.getInstance());
 
         messageObjectController.createMessagesTempTable(testFilter, "test", false);
-        List<MessageObject> testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1, 0, "test");
+        List<MessageObject> testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1, 0, "test", true);
 
         for (Iterator iter = sampleMessageObjectList.iterator(); iter.hasNext();) {
             MessageObject sampleMessageObject = (MessageObject) iter.next();
@@ -165,14 +165,14 @@ public class MessageObjectControllerTest extends TestCase {
         testFilter.setStartDate(Calendar.getInstance());
         testFilter.setEndDate(Calendar.getInstance());
         messageObjectController.createMessagesTempTable(testFilter, "test", false);
-        testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1, 0, "test");
+        testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1, 0, "test", true);
         Assert.assertEquals(10, testMessageObjectList.size());
 
         testFilter = new MessageObjectFilter();
         testFilter.setType("ADT-A01");
         testFilter.setSource("SendingFacility1");
         messageObjectController.createMessagesTempTable(testFilter, "test", false);
-        testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1, 0, "test");
+        testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1, 0, "test", true);
         Assert.assertEquals(1, testMessageObjectList.size());
     }
 
@@ -182,7 +182,7 @@ public class MessageObjectControllerTest extends TestCase {
         MessageObjectFilter testFilter = new MessageObjectFilter();
         testFilter.setChannelId(channelId);
         messageObjectController.createMessagesTempTable(testFilter, "test", false);
-        List<MessageObject> testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1, 0, "test");
+        List<MessageObject> testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1, 0, "test", true);
         Assert.assertEquals(testMessageObjectList.size(), messageObjectController.createMessagesTempTable(testFilter, "test", false));
     }
 
@@ -198,7 +198,7 @@ public class MessageObjectControllerTest extends TestCase {
         MessageObjectFilter testFilter = new MessageObjectFilter();
         testFilter.setChannelId(channelId);
         messageObjectController.createMessagesTempTable(testFilter, "test", false);
-        List<MessageObject> testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1, 0, "test");
+        List<MessageObject> testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1, 0, "test", true);
 
         Assert.assertEquals(sampleMessageObjectList.size() - 1, testMessageObjectList.size());
     }
@@ -210,7 +210,7 @@ public class MessageObjectControllerTest extends TestCase {
         MessageObjectFilter testFilter = new MessageObjectFilter();
         testFilter.setChannelId(channelId);
         messageObjectController.createMessagesTempTable(testFilter, "test", false);
-        List<MessageObject> testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1, 0, "test");
+        List<MessageObject> testMessageObjectList = messageObjectController.getMessagesByPage(-1, -1, 0, "test", true);
 
         Assert.assertEquals(0, testMessageObjectList.size());
     }

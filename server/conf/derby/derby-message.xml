@@ -179,7 +179,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 					</isNotNull>
 				</isNotNull>
 			</dynamic>
-		ORDER BY TEMP_TABLE.DATE_CREATED DESC WITH UR
+		ORDER BY TEMP_TABLE.DATE_CREATED $order$ WITH UR
 	</select>
 
 	<statement id="dropTempMessageTable" parameterClass="java.lang.String">

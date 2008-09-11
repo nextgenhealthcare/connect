@@ -309,12 +309,20 @@ public class DefaultMessageObjectController implements MessageObjectController {
     }
 
     // ast: allow ordering with derby
-    public List<MessageObject> getMessagesByPage(int page, int pageSize, int maxMessages, String uid) throws ControllerException {
+    public List<MessageObject> getMessagesByPage(int page, int pageSize, int maxMessages, String uid, boolean descending) throws ControllerException {
         logger.debug("retrieving messages by page: page=" + page);
 
         try {
             Map parameterMap = new HashMap();
             parameterMap.put("uid", uid);
+            
+            // Use descending for most queries, use ascending for
+            // reprocessing messages in the correct order.
+            if (descending) {
+            	parameterMap.put("order", "DESC");
+            } else {
+            	parameterMap.put("order", "ASC");
+            }
 
             if ((page != -1) && (pageSize != -1)) {
                 int last = maxMessages - (page * pageSize);
@@ -359,7 +367,7 @@ public class DefaultMessageObjectController implements MessageObjectController {
         int interval = 10;
 
         while ((page * interval) < size) {
-            for (MessageObject message : getMessagesByPage(page, interval, size, uid)) {
+            for (MessageObject message : getMessagesByPage(page, interval, size, uid, true)) {
                 String connectorId = ControllerFactory.getFactory().createChannelController().getConnectorId(message.getChannelId(), message.getConnectorName());
                 String queueName = QueueUtil.getInstance().getQueueName(message.getChannelId(), connectorId);
                 QueueUtil.getInstance().removeMessageFromQueue(queueName, message.getId());
@@ -434,7 +442,7 @@ public class DefaultMessageObjectController implements MessageObjectController {
                         VMRouter router = new VMRouter();
 
                         while ((page * interval) < size) {
-                            List<MessageObject> messages = getMessagesByPage(page, interval, size, sessionId);
+                            List<MessageObject> messages = getMessagesByPage(page, interval, size, sessionId, false);
 
                             try {
                                 for (MessageObject message : messages) {
