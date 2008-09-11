@@ -429,6 +429,7 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
         ignoredCheckBox = new javax.swing.JCheckBox();
         newCheckBox = new javax.swing.JCheckBox();
         updatesCheckBox = new javax.swing.JCheckBox();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Mirth Updater");
@@ -499,6 +500,8 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
             }
         });
 
+        jLabel1.setText("Show:");
+
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -508,7 +511,9 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel1Layout.createSequentialGroup()
                         .add(jLabel2)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 252, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 222, Short.MAX_VALUE)
+                        .add(jLabel1)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(updatesCheckBox)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(newCheckBox)
@@ -534,7 +539,8 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
                     .add(jLabel2)
                     .add(ignoredCheckBox)
                     .add(newCheckBox)
-                    .add(updatesCheckBox))
+                    .add(updatesCheckBox)
+                    .add(jLabel1))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(loadedExtensionScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 304, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -632,6 +638,7 @@ private void ignoredCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//G
     private javax.swing.JButton closeButton;
     private javax.swing.JCheckBox ignoredCheckBox;
     private javax.swing.JButton installSelectedButton;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane loadedExtensionScrollPane;
