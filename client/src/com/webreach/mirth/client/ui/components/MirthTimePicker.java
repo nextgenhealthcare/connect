@@ -1,12 +1,3 @@
-/*
- * NewClass.java
- *
- * Created on June 28, 2007, 12:37 PM
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
-
 package com.webreach.mirth.client.ui.components;
 
 import com.webreach.mirth.client.ui.Frame;
@@ -82,7 +73,7 @@ public class MirthTimePicker extends JSpinner
         {
             public void stateChanged(ChangeEvent event)
             {
-                parent.enableSave();           
+                parent.enableSave();
             }
         });
     }

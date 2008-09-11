@@ -17,6 +17,7 @@ import java.util.Properties;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
@@ -26,19 +27,31 @@ import org.jdesktop.swingx.action.BoundAction;
 
 import com.webreach.mirth.client.core.ClientException;
 
-/**
- *
- * @author brendanh
- */
 public abstract class ClientPanelPlugin extends ClientPlugin
 {
     private JComponent component = new JPanel();
     private JXTaskPane pane = new JXTaskPane();
     private JPopupMenu menu = new JPopupMenu();
+    private int refreshIndex = -1;
+    private int saveIndex = -1;
+    private int reservedTasksCount = 0;
     
-    public ClientPanelPlugin(String name)
+    public ClientPanelPlugin(String name, boolean refresh, boolean save)
     {
         this.name = name;
+        
+        if (refresh) {
+        	addTask("doRefresh", "Refresh", "Refresh loaded plugins.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")));
+        	refreshIndex = reservedTasksCount;
+        	reservedTasksCount++;
+        }
+        
+        if (save) {
+        	addTask("doSave", "Save", "Save plugin settings.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")));
+        	saveIndex = reservedTasksCount;
+        	reservedTasksCount++;
+        }
+        
         getTaskPane().setTitle(name + " Tasks");
         getTaskPane().setFocusable(false);
     }
@@ -161,6 +174,57 @@ public abstract class ClientPanelPlugin extends ClientPlugin
     public void setPropertiesToServer(Properties properties) throws ClientException
     {
         parent.mirthClient.setPluginProperties(name, properties);
+    }
+    
+    public void doRefresh() {
+    	
+    }
+    
+    public void doSave() {
+    	
+    }
+    
+    public void enableRefresh() {
+    	setVisibleTasks(refreshIndex, refreshIndex, true);
+    }
+    
+    public void disableRefresh() {
+    	setVisibleTasks(refreshIndex, refreshIndex, false);
+    }
+    
+    public void enableSave() {
+    	parent.enableSave();
+    }
+    
+    public void disableSave() {
+    	parent.disableSave();
+    }
+    
+    public int getRefreshIndex() {
+    	return refreshIndex;
+    }
+    
+    public int getSaveIndex() {
+    	return saveIndex;
+    }
+    
+    public int getReservedTasksCount() {
+    	return reservedTasksCount;
+    }
+    
+    public boolean confirmLeave() {
+    	return parent.confirmLeave();
+    }
+    
+    public boolean pluginConfirmLeave() {
+        int option = JOptionPane.showConfirmDialog(parent, "Would you like to save the plugin changes?");
+
+        if (option == JOptionPane.YES_OPTION)
+            doSave();
+        else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION)
+            return false;
+        
+        return true;
     }
     
     // used for starting processes in the plugin when the program is started

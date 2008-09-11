@@ -23,10 +23,6 @@ import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.plugins.ClientPanelPlugin;
 import com.webreach.mirth.plugins.DashboardPanelPlugin;
 
-/**
- *
- * @author  brendanh
- */
 public class PluginPanel extends javax.swing.JPanel
 {
     
@@ -34,6 +30,11 @@ public class PluginPanel extends javax.swing.JPanel
     Frame parent;
     Map<String, ClientPanelPlugin> loadedPlugins;
     Map<String, DashboardPanelPlugin> loadedDashboardPanelPlugins;
+    
+    private int oldTabIndex = -1;
+    private boolean cancelTabChange = false;
+    
+    private ClientPanelPlugin currentPanelPlugin = null;
     
     /** Creates new form PluginPanel */
     public PluginPanel()
@@ -47,8 +48,27 @@ public class PluginPanel extends javax.swing.JPanel
             public void stateChanged(ChangeEvent changeEvent)
             {
                 JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
-                int index = sourceTabbedPane.getSelectedIndex();
-                loadPlugin(sourceTabbedPane.getTitleAt(index));
+                
+                /*
+                 * There is no way to cancel a tab change, so instead we
+                 * save the old tab's index and set that tab as selected
+                 * again if the tab change is canceled.  When setting the
+                 * tab back we don't want to execute any tab changed actions,
+                 * so we set a cancelTabChange flag.
+                 * 
+                 */
+                if (cancelTabChange) {
+                	cancelTabChange = false;
+                } else {
+	                if (!parent.confirmLeave()) {
+	                	cancelTabChange = true;
+	            		sourceTabbedPane.setSelectedIndex(oldTabIndex);
+	                } else {
+		                int index = sourceTabbedPane.getSelectedIndex();
+		                oldTabIndex = index;
+		                loadPlugin(sourceTabbedPane.getTitleAt(index));
+	                }
+                }
             }
         };
         tabs.addChangeListener(changeListener);
@@ -149,6 +169,8 @@ public class PluginPanel extends javax.swing.JPanel
     public void loadPlugin(String pluginName)
     {
         ClientPanelPlugin plugin = loadedPlugins.get(pluginName);
+        currentPanelPlugin = plugin;
+        
         if(plugin != null)
         {
             parent.setFocus(plugin.getTaskPane());
@@ -156,6 +178,10 @@ public class PluginPanel extends javax.swing.JPanel
         }
         else
             parent.setFocus(null);
+    }
+    
+    public ClientPanelPlugin getCurrentPanelPlugin() {
+    	return currentPanelPlugin;
     }
     
     public void setBlankPanel()

@@ -1193,6 +1193,18 @@ public class Frame extends JXFrame
             else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION)
                 return false;
         }
+        else if (pluginPanel != null && currentContentPage == pluginPanel && pluginPanel.getCurrentPanelPlugin() != null)
+        {
+        	int saveIndex = pluginPanel.getCurrentPanelPlugin().getSaveIndex();
+        	
+        	if (saveIndex != -1 && pluginPanel.getCurrentPanelPlugin().getTaskPane().getContentPane().getComponent(saveIndex).isVisible())
+        	{
+        		if (!pluginPanel.getCurrentPanelPlugin().pluginConfirmLeave())
+        		{
+        			return false;
+        		}
+        	}
+        }
 
         disableSave();
         return true;
@@ -1517,6 +1529,13 @@ public class Frame extends JXFrame
             globalScriptsTasks.getContentPane().getComponent(0).setVisible(true);
         else if (codeTemplatePanel != null && currentContentPage == codeTemplatePanel)
             codeTemplateTasks.getContentPane().getComponent(1).setVisible(true);
+        else if (pluginPanel != null && currentContentPage == pluginPanel && pluginPanel.getCurrentPanelPlugin() != null)
+        {
+        	int saveIndex = pluginPanel.getCurrentPanelPlugin().getSaveIndex();
+        	
+        	if (saveIndex != -1)
+        		pluginPanel.getCurrentPanelPlugin().getTaskPane().getContentPane().getComponent(saveIndex).setVisible(true);
+        }
     }
 
     /**
@@ -1538,6 +1557,13 @@ public class Frame extends JXFrame
             globalScriptsTasks.getContentPane().getComponent(0).setVisible(false);
         else if (codeTemplatePanel != null && currentContentPage == codeTemplatePanel)
             codeTemplateTasks.getContentPane().getComponent(1).setVisible(false);
+        else if (pluginPanel != null && currentContentPage == pluginPanel && pluginPanel.getCurrentPanelPlugin() != null)
+        {
+        	int saveIndex = pluginPanel.getCurrentPanelPlugin().getSaveIndex();
+        	
+        	if (saveIndex != -1)
+        		pluginPanel.getCurrentPanelPlugin().getTaskPane().getContentPane().getComponent(saveIndex).setVisible(false);
+        }
     }
 
     // ////////////////////////////////////////////////////////////
@@ -4104,6 +4130,14 @@ public class Frame extends JXFrame
         else if (currentContentPage == alertPanel)
         {
             doSaveAlerts();
+        }
+        else if (currentContentPage == pluginPanel && pluginPanel.getCurrentPanelPlugin() != null)
+        {
+        	int saveIndex = pluginPanel.getCurrentPanelPlugin().getSaveIndex();
+        	
+        	// Make sure the save button is actually visible for plugins.
+        	if (saveIndex != -1 && pluginPanel.getCurrentPanelPlugin().getTaskPane().getContentPane().getComponent(saveIndex).isVisible())
+        		pluginPanel.getCurrentPanelPlugin().doSave();
         }
     }
 
