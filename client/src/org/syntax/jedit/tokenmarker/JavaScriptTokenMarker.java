@@ -80,6 +80,7 @@ public class JavaScriptTokenMarker extends CTokenMarker
             javaScriptKeywords.add("DateUtil", Token.KEYWORD3);
             
             javaScriptKeywords.add("createSegment", Token.KEYWORD3);
+            javaScriptKeywords.add("createSegmentAfter", Token.KEYWORD3);
             javaScriptKeywords.add("addAttachment", Token.KEYWORD3);
             javaScriptKeywords.add("getAttachments", Token.KEYWORD3);
             javaScriptKeywords.add("ABS", Token.KEYWORD3);
