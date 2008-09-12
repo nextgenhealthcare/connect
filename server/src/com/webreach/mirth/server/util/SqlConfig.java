@@ -11,28 +11,34 @@ import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.util.PropertyLoader;
 
 public class SqlConfig {
-    private static final SqlMapClient sqlMapClient;
+    private static SqlMapClient sqlMapClient = null;
 
-    static {
-        try {
-            String database = PropertyLoader.getProperty(PropertyLoader.loadProperties("mirth"), "database");
-            String resource = database + System.getProperty("file.separator") + database + "-SqlMapConfig.xml";
-            LogFactory.selectLog4JLogging();
-            Reader reader = Resources.getResourceAsReader(resource);
+    private SqlConfig() {
 
-            if (database.equalsIgnoreCase("derby")) {
-                Properties props = PropertyLoader.loadProperties(database + "-SqlMapConfig");
-                props.setProperty("mirthHomeDir", ControllerFactory.getFactory().createConfigurationController().getBaseDir());
-                sqlMapClient = SqlMapClientBuilder.buildSqlMapClient(reader, props);
-            } else {
-                sqlMapClient = SqlMapClientBuilder.buildSqlMapClient(reader);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public static SqlMapClient getSqlMapClient() {
-        return sqlMapClient;
+        synchronized (SqlConfig.class) {
+            if (sqlMapClient == null) {
+                try {
+                    String database = PropertyLoader.getProperty(PropertyLoader.loadProperties("mirth"), "database");
+                    String resource = database + System.getProperty("file.separator") + database + "-SqlMapConfig.xml";
+                    LogFactory.selectLog4JLogging();
+                    Reader reader = Resources.getResourceAsReader(resource);
+
+                    if (database.equalsIgnoreCase("derby")) {
+                        Properties props = PropertyLoader.loadProperties(database + "-SqlMapConfig");
+                        props.setProperty("mirthHomeDir", ControllerFactory.getFactory().createConfigurationController().getBaseDir());
+                        sqlMapClient = SqlMapClientBuilder.buildSqlMapClient(reader, props);
+                    } else {
+                        sqlMapClient = SqlMapClientBuilder.buildSqlMapClient(reader);
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            return sqlMapClient;
+        }
     }
 }
