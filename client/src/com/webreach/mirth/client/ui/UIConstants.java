@@ -84,6 +84,9 @@ public class UIConstants
     public static final Font BANNER_FONT = new Font("Arial", Font.BOLD, 36);
     public static final Font DIALOG_FONT = new Font("Dialog", Font.PLAIN, 12);
 
+    // issue link
+    public static final String ISSUE_TRACKER_LOCATION = "http://www.mirthproject.org/jira";
+    
     // help link
     public static final String HELP_LOCATION = "http://www.mirthproject.org/index.php?option=com_jd-wiki&Itemid=44&id=";
     public static final String CHANNEL_HELP_LOCATION = "channeleditor";
