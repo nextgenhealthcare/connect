@@ -510,7 +510,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 		// Helper function to create segments after specefied field
 		newScript.append("function createSegmentAfter(name, segment) {");
-		newScript.append("msg[segment] += new XML('<' + name + '></' + name + '>');");
+		newScript.append("msg.insertChildAfter(segment[0], new XML('<' + name + '></' + name + '>'));");
 		newScript.append("}");
 
 		// TODO: Look into optimizing. Potentially moving p.c.wr.m.s.c.MOC to an
