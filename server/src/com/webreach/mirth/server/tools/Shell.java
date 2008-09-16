@@ -58,6 +58,7 @@ import com.webreach.mirth.client.core.SystemEventListHandler;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatistics;
 import com.webreach.mirth.model.ChannelStatus;
+import com.webreach.mirth.model.CodeTemplate;
 import com.webreach.mirth.model.ServerConfiguration;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.User;
@@ -237,6 +238,10 @@ public class Shell {
                     commandImportScript(arguments);
                 } else if (arg1 == Token.EXPORTSCRIPT) {
                     commandExportScript(arguments);
+                } else if (arg1 == Token.IMPORTCODETEMPLATES) {
+                    commandImportCodeTemplates(arguments);
+                } else if (arg1 == Token.EXPORTCODETEMPLATES) {
+                    commandExportCodeTemplates(arguments);
                 } else if (arg1 == Token.STATUS) {
                     commandStatus(arguments);
                 } else if (arg1 == Token.EXPORT) {
@@ -563,10 +568,10 @@ public class Shell {
             int limit = 60; // 30 second limit
             if (arguments.length > 1 && arguments[1] instanceof IntToken) {
                 limit = ((IntToken) arguments[1]).getValue() * 2; // multiply
-                                                                    // by two
-                                                                    // because
-                                                                    // our sleep
-                                                                    // is 500ms
+                // by two
+                // because
+                // our sleep
+                // is 500ms
             }
             while (channelStatus.size() == 0 && limit > 0) {
                 try {
@@ -702,6 +707,44 @@ public class Shell {
             doImportScript(name, fXml);
         }
         out.println(name + " script import complete");
+    }
+
+    private void commandExportCodeTemplates(Token[] arguments) throws ClientException {
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        String path = arguments[1].getText();
+
+        try {
+            List<CodeTemplate> codeTemplates = client.getCodeTemplate(null);
+            File fXml = new File(path);
+            out.println("Exporting code templates");
+            String codeTemplatesXML = serializer.toXML(codeTemplates);
+            writeFile(fXml, codeTemplatesXML, false);
+        } catch (IOException e) {
+            error("unable to write file " + path + ": " + e);
+        }
+
+        out.println("Code Templates Export Complete.");
+    }
+
+    private void commandImportCodeTemplates(Token[] arguments) throws ClientException {
+        String path = arguments[1].getText();
+        File fXml = new File(path);
+
+        if (!fXml.exists()) {
+            error("" + path + " not found");
+        } else if (!fXml.canRead()) {
+            error("cannot read " + path);
+        } else {
+            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+            try {
+                client.updateCodeTemplates((List<CodeTemplate>) serializer.fromXML(readFile(fXml)));
+            } catch (IOException e) {
+                error("cannot read " + path);
+                e.printStackTrace();
+                return;
+            }
+        }
+        out.println("Code Templates Import Complete");
     }
 
     private void commandStatus(Token[] arguments) throws ClientException {
