@@ -49,6 +49,7 @@ public class DatabaseReaderProperties implements ComponentProperties
     public static final String DATABASE_USE_ACK = "useAck";
     public static final String DATABASE_ACK = "ack";
     public static final String DATABASE_JS_ACK = "ackScript";
+    public static final String DATABASE_LOGIN_TIMEOUT = "loginTimeout";
  
     public Properties getDefaults()
     {
@@ -68,6 +69,7 @@ public class DatabaseReaderProperties implements ComponentProperties
         properties.put(DATABASE_USE_ACK, "0");
         properties.put(DATABASE_ACK, "UPDATE");
         properties.put(DATABASE_JS_ACK, "");
+        properties.put(DATABASE_LOGIN_TIMEOUT, "10");
         return properties;
     }
 }

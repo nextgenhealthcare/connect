@@ -42,7 +42,8 @@ public class DatabaseWriterProperties implements ComponentProperties
     public static final String DATABASE_PASSWORD = "password";
     public static final String DATABASE_SQL_STATEMENT = "query";
     public static final String DATABASE_JS_SQL_STATEMENT = "script";
-    public static final String DATABASE_USE_JS = "useScript";        
+    public static final String DATABASE_USE_JS = "useScript";   
+    public static final String DATABASE_LOGIN_TIMEOUT = "loginTimeout";
 
     public Properties getDefaults()
     {
@@ -56,6 +57,7 @@ public class DatabaseWriterProperties implements ComponentProperties
         properties.put(DATABASE_SQL_STATEMENT, "INSERT INTO");
         properties.put(DATABASE_USE_JS, "0");
         properties.put(DATABASE_JS_SQL_STATEMENT, "");
+        properties.put(DATABASE_LOGIN_TIMEOUT, "10");
         return properties;
     }
 

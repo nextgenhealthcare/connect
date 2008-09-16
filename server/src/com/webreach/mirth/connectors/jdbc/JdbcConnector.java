@@ -1,6 +1,7 @@
 package com.webreach.mirth.connectors.jdbc;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -47,6 +48,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
     private String scriptId;
     private String ackScriptId;
     private String channelId;
+    private int loginTimeout = 10;
 
     public String getChannelId() {
         return this.channelId;
@@ -162,6 +164,14 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 
     public void setPollingType(String pollingType) {
         this.pollingType = pollingType;
+    }
+
+    public int getLoginTimeout() {
+        return loginTimeout;
+    }
+
+    public void setLoginTimeout(int loginTimeout) {
+        this.loginTimeout = loginTimeout;
     }
 
     public UMOMessageReceiver createReceiver(UMOComponent component, UMOEndpoint endpoint) throws Exception {
@@ -370,7 +380,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
                 URL = replacer.replaceValues(URL);
             }
 
-            setupDataSource(URL, driver, username, password);
+            setupDataSource(URL, driver, username, password, loginTimeout);
         }
 
         logger.debug("Retrieving new connection from datasource: " + URL + " using driver: " + driver);
@@ -389,12 +399,13 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
     }
 
 
-    private void setupDataSource(String address, String driver, String username, String password) {
+    private void setupDataSource(String address, String driver, String username, String password, int loginTimeout) throws SQLException {
         BasicDataSource basicDataSource = new BasicDataSource();
         basicDataSource.setDriverClassName(driver);
         basicDataSource.setUsername(username);
         basicDataSource.setPassword(password);
         basicDataSource.setUrl(address);
+        basicDataSource.setLoginTimeout(loginTimeout);
         dataSource = basicDataSource;
     }
 
@@ -409,7 +420,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
         
         // if we don't plan on replacing the values, setup the datasource
         if (!TemplateValueReplacer.hasReplaceableValues(URL) && !TemplateValueReplacer.hasReplaceableValues(username) && !TemplateValueReplacer.hasReplaceableValues(password)) {
-            setupDataSource(URL, driver, username, password);
+            setupDataSource(URL, driver, username, password, loginTimeout);
         }
     }
     
