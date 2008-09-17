@@ -14,7 +14,7 @@ public class DefaultControllerFactory extends ControllerFactory {
     }
 
     public ChannelStatusController createChannelStatusController() {
-        return ChannelStatusController.getInstance();
+        return DefaultChannelStatusController.getInstance();
     }
 
     public CodeTemplateController createCodeTemplateController() {

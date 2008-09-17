@@ -31,6 +31,6 @@ package com.webreach.mirth.server.controllers;
  * @author geraldb
  * 
  */
-public interface MigrationController {
-    public void initialize();
+public interface MigrationController extends Controller {
+
 }

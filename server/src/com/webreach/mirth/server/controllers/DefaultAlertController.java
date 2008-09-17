@@ -49,10 +49,19 @@ public class DefaultAlertController implements AlertController {
     private ChannelStatisticsController statisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
     private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
 
-    private static AlertController instance = null;
+    private static DefaultAlertController instance = null;
 
     private DefaultAlertController() {
 
+    }
+
+    public void initialize() {
+        // no initialization required
+    }
+
+
+    public boolean isInitialized() {
+        return true;
     }
 
     public static AlertController getInstance() {

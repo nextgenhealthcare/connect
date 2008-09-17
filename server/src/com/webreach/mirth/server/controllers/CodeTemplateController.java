@@ -29,7 +29,7 @@ import java.util.List;
 
 import com.webreach.mirth.model.CodeTemplate;
 
-public interface CodeTemplateController {
+public interface CodeTemplateController extends Controller {
     public List<CodeTemplate> getCodeTemplate(CodeTemplate codeTemplate) throws ControllerException;
 
     public void updateCodeTemplates(List<CodeTemplate> codeTemplates) throws ControllerException;

@@ -33,7 +33,7 @@ import com.webreach.mirth.model.ChannelStatistics;
  * @author GeraldB
  * 
  */
-public interface ChannelStatisticsController {
+public interface ChannelStatisticsController extends Controller {
     public void initialize();
 
     public void shutdown();

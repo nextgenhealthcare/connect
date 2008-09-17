@@ -44,7 +44,8 @@ public class DefaultUserController implements UserController {
     private Logger logger = Logger.getLogger(this.getClass());
     private FIPSEncrypter encrypter = FIPSEncrypter.getInstance();
 
-    private static UserController instance = null;
+    private static DefaultUserController instance = null;
+    private static boolean initialized = false;
 
     private DefaultUserController() {
 
@@ -66,6 +67,12 @@ public class DefaultUserController implements UserController {
         } catch (SQLException e) {
             logger.error("Could not reset user status.");
         }
+        
+        initialized = true;
+    }
+    
+    public boolean isInitialized() {
+        return initialized;
     }
 
     public List<User> getUser(User user) throws ControllerException {

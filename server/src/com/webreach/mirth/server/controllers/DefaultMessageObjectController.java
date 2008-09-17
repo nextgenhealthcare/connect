@@ -69,7 +69,8 @@ public class DefaultMessageObjectController implements MessageObjectController {
     private String lineSeperator = System.getProperty("line.separator");
     private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
 
-    private static MessageObjectController instance = null;
+    private static DefaultMessageObjectController instance = null;
+    private static boolean initialized = false;
 
     private DefaultMessageObjectController() {
 
@@ -87,6 +88,11 @@ public class DefaultMessageObjectController implements MessageObjectController {
 
     public void initialize() {
         removeAllFilterTables();
+        initialized = true;
+    }
+    
+    public boolean isInitialized() {
+        return initialized;
     }
 
     public void removeAllFilterTables() {

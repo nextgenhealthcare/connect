@@ -30,10 +30,7 @@ import java.util.List;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.filters.SystemEventFilter;
 
-public interface EventController {
-    public void initialize();
-
-
+public interface EventController extends Controller {
     /**
      * Adds a new system event.
      * 

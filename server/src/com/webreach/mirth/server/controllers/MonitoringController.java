@@ -7,7 +7,7 @@ import org.mule.umo.provider.UMOConnector;
 import com.webreach.mirth.model.ExtensionPoint;
 import com.webreach.mirth.model.ExtensionPointDefinition;
 
-public interface MonitoringController {
+public interface MonitoringController extends Controller {
     public enum Event {
         CONNECTED, DISCONNECTED, INITIALIZED, BUSY, DONE, ATTEMPTING_TO_CONNECT
     };
@@ -15,8 +15,6 @@ public interface MonitoringController {
     public enum ConnectorType {
         LISTENER, SENDER, READER, WRITER
     };
-
-    public void initialize();
 
     public void updateStatus(String connectorName, ConnectorType type, Event event, Socket socket);
 

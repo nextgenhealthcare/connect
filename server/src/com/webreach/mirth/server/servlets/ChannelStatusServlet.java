@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.servlets;
 
 import java.io.IOException;
@@ -36,33 +35,34 @@ import javax.servlet.http.HttpServletResponse;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.ChannelStatusController;
 import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 
 public class ChannelStatusServlet extends MirthServlet {
-	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (!isUserLoggedIn(request)) {
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-		} else {
-			try {
-				ChannelStatusController channelStatusController = ChannelStatusController.getInstance();
-				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-				PrintWriter out = response.getWriter();
-				String operation = request.getParameter("op");
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        if (!isUserLoggedIn(request)) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+        } else {
+            try {
+                ChannelStatusController channelStatusController = ControllerFactory.getFactory().createChannelStatusController();
+                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                PrintWriter out = response.getWriter();
+                String operation = request.getParameter("op");
 
-				if (operation.equals("startChannel")) {
-					channelStatusController.startChannel(request.getParameter("id"));
-				} else if (operation.equals("stopChannel")) {
-					channelStatusController.stopChannel(request.getParameter("id"));
-				} else if (operation.equals("pauseChannel")) {
-					channelStatusController.pauseChannel(request.getParameter("id"));
-				} else if (operation.equals("resumeChannel")) {
-					channelStatusController.resumeChannel(request.getParameter("id"));
-				} else if (operation.equals("getChannelStatusList")) {
-					response.setContentType("application/xml");
-					out.print(serializer.toXML(channelStatusController.getChannelStatusList()));
-				}
-			} catch (ControllerException e) {
-				throw new ServletException(e);
-			}
-		}
-	}
+                if (operation.equals("startChannel")) {
+                    channelStatusController.startChannel(request.getParameter("id"));
+                } else if (operation.equals("stopChannel")) {
+                    channelStatusController.stopChannel(request.getParameter("id"));
+                } else if (operation.equals("pauseChannel")) {
+                    channelStatusController.pauseChannel(request.getParameter("id"));
+                } else if (operation.equals("resumeChannel")) {
+                    channelStatusController.resumeChannel(request.getParameter("id"));
+                } else if (operation.equals("getChannelStatusList")) {
+                    response.setContentType("application/xml");
+                    out.print(serializer.toXML(channelStatusController.getChannelStatusList()));
+                }
+            } catch (ControllerException e) {
+                throw new ServletException(e);
+            }
+        }
+    }
 }

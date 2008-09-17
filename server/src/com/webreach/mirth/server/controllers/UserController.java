@@ -30,9 +30,7 @@ import java.util.List;
 import com.webreach.mirth.model.Preferences;
 import com.webreach.mirth.model.User;
 
-public interface UserController {
-    public void initialize();
-
+public interface UserController extends Controller {
     public List<User> getUser(User user) throws ControllerException;
 
     public void updateUser(User user, String plainTextPassword) throws ControllerException;

@@ -51,7 +51,8 @@ public class DefaultChannelController implements ChannelController {
 	private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
 	private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
-	private static ChannelController instance = null;
+	private static DefaultChannelController instance = null;
+	private static boolean initialized = false;
 
 	private DefaultChannelController() {
 
@@ -88,7 +89,13 @@ public class DefaultChannelController implements ChannelController {
 		} catch (Exception e) {
 			logger.warn(e);
 		}
+
+        initialized = true;
 	}
+
+    public boolean isInitialized() {
+        return initialized;
+    }
 
 	public void refreshChannelCache(List<Channel> channels) throws ControllerException {
 		channelCache = new HashMap<String, Channel>();

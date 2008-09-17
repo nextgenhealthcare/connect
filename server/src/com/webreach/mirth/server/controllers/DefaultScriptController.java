@@ -107,4 +107,12 @@ public class DefaultScriptController implements ScriptController {
             throw new ControllerException("error clearing scripts", e);
         }
     }
+
+    public void initialize() {
+        // no initialized
+    }
+
+    public boolean isInitialized() {
+        return true;
+    }
 }

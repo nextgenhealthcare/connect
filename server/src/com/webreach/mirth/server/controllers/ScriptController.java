@@ -26,7 +26,7 @@
 package com.webreach.mirth.server.controllers;
 
 
-public interface ScriptController {
+public interface ScriptController extends Controller {
     /**
      * Adds a script with the specified id to the database. If a script with the
      * id already exists it will be overwritten.

@@ -49,7 +49,7 @@ import com.webreach.mirth.server.controllers.UserController;
 
 public class MirthManager {
 	private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
-	private ChannelStatusController channelStatusController = ChannelStatusController.getInstance();
+	private ChannelStatusController channelStatusController = ControllerFactory.getFactory().createChannelStatusController();
 	private ChannelStatisticsController channelStatisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
 	private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 	private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();

@@ -106,7 +106,8 @@ public class DefaultConfigurationController implements ConfigurationController{
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
 
     // singleton pattern
-    private static ConfigurationController instance = null;
+    private static DefaultConfigurationController instance = null;
+    private static boolean initialized = false;
 
     private DefaultConfigurationController() {
 
@@ -150,6 +151,12 @@ public class DefaultConfigurationController implements ConfigurationController{
         } catch (Exception e) {
             logger.error("could not initialize configuration settings", e);
         }
+        
+        initialized = true;
+    }
+
+    public boolean isInitialized() {
+        return initialized;
     }
 
     private void loadDefaultProperties() throws Exception {
@@ -472,12 +479,8 @@ public class DefaultConfigurationController implements ConfigurationController{
     }
 
     private void stopAllChannels() throws ControllerException {
-        ChannelStatusController channelStatusController = ChannelStatusController.getInstance();
-        List<ChannelStatus> deployedChannels = channelStatusController.getChannelStatusList();
-
-        for (Iterator iter = deployedChannels.iterator(); iter.hasNext();) {
-            ChannelStatus status = (ChannelStatus) iter.next();
-            channelStatusController.stopChannel(status.getChannelId());
+        for (ChannelStatus status : ControllerFactory.getFactory().createChannelStatusController().getChannelStatusList()) {
+            ControllerFactory.getFactory().createChannelStatusController().stopChannel(status.getChannelId());
         }
     }
 

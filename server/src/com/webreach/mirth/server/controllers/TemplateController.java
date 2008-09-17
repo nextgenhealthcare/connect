@@ -26,7 +26,7 @@
 package com.webreach.mirth.server.controllers;
 
 
-public interface TemplateController {
+public interface TemplateController extends Controller {
     /**
      * Adds a template with the specified id to the database. If a template with
      * the id already exists it will be overwritten.

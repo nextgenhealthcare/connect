@@ -42,7 +42,7 @@ import com.webreach.mirth.model.ServerConfiguration;
  * @author geraldb
  * 
  */
-public interface ConfigurationController {
+public interface ConfigurationController extends Controller {
     public static final String GLOBAL_POSTPROCESSOR_KEY = "Postprocessor";
     public static final String GLOBAL_PREPROCESSOR_KEY = "Preprocessor";
     public static final String GLOBAL_SHUTDOWN_KEY = "Shutdown";
@@ -53,8 +53,6 @@ public interface ConfigurationController {
     public static final int STATUS_OK = 0;
     public static final int STATUS_UNAVAILABLE = 1;
     public static final int STATUS_ENGINE_STARTING = 2;
-
-    public void initialize();
 
     public void shutdown();
 

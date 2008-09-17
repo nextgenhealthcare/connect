@@ -29,7 +29,7 @@ import java.util.List;
 
 import com.webreach.mirth.model.Alert;
 
-public interface AlertController {
+public interface AlertController extends Controller {
     public List<Alert> getAlert(Alert alert) throws ControllerException;
 
     public List<Alert> getAlertByChannelId(String channelId) throws ControllerException;

@@ -47,6 +47,7 @@ public class DefaultMigrationController implements MigrationController {
 
     // singleton pattern
     private static DefaultMigrationController instance = null;
+    private static boolean initialized = false;
 
     private DefaultMigrationController() {
 
@@ -110,6 +111,12 @@ public class DefaultMigrationController implements MigrationController {
         } catch (Exception e) {
             logger.error("Could not initialize migration controller.", e);
         }
+        
+        initialized = true;
+    }
+    
+    public boolean isInitialized() {
+        return initialized;
     }
 
     private void migrate(int oldVersion, int newVersion) throws Exception {

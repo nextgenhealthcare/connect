@@ -43,9 +43,7 @@ import com.webreach.mirth.plugins.ServerPlugin;
  * @author brendanh
  * 
  */
-public interface ExtensionController {
-    public void initialize();
-
+public interface ExtensionController extends Controller {
     // Extension point for ExtensionPoint.Type.SERVER_PLUGIN
     @ExtensionPointDefinition(mode = ExtensionPoint.Mode.SERVER, type = ExtensionPoint.Type.SERVER_PLUGIN)
     public void initPlugins();

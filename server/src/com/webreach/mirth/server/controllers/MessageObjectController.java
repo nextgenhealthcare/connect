@@ -35,9 +35,7 @@ import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 
-public interface MessageObjectController {
-    public void initialize();
-
+public interface MessageObjectController extends Controller {
     public void removeAllFilterTables();
 
     public void updateMessage(MessageObject incomingMessageObject, boolean checkIfMessageExists);

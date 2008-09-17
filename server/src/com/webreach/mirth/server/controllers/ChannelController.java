@@ -32,7 +32,7 @@ import java.util.Map;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelSummary;
 
-public interface ChannelController {
+public interface ChannelController extends Controller {
     public void initialize();
 
     public List<Channel> getChannel(Channel channel) throws ControllerException;

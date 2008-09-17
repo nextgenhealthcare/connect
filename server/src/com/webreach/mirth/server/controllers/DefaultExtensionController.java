@@ -66,7 +66,8 @@ public class DefaultExtensionController implements ExtensionController {
 
     // singleton pattern
     private static DefaultExtensionController instance = null;
-
+    private static boolean initialized = false;
+    
     public static ExtensionController getInstance() {
         synchronized (DefaultExtensionController.class) {
             if (instance == null)
@@ -92,6 +93,11 @@ public class DefaultExtensionController implements ExtensionController {
         }
 
         initPlugins();
+        initialized = true;
+    }
+    
+    public boolean isInitialized() {
+        return initialized;
     }
 
     // Extension point for ExtensionPoint.Type.SERVER_PLUGIN

@@ -50,7 +50,8 @@ public class DefaultChannelStatisticsController implements ChannelStatisticsCont
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private static boolean running = true;
 
-    private static ChannelStatisticsController instance = null;
+    private static DefaultChannelStatisticsController instance = null;
+    private static boolean initialized = false;
 
     private DefaultChannelStatisticsController() {
 
@@ -94,6 +95,11 @@ public class DefaultChannelStatisticsController implements ChannelStatisticsCont
         statsUpdater = new StatisticsUpdater();
         updaterThread = new Thread(statsUpdater);
         updaterThread.start();
+        initialized = true;
+    }
+    
+    public boolean isInitialized() {
+        return initialized;
     }
 
     public void reloadLocalCache() {

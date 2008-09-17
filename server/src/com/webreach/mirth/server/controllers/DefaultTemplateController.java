@@ -36,7 +36,7 @@ import com.webreach.mirth.server.util.SqlConfig;
 public class DefaultTemplateController implements TemplateController {
 	private Logger logger = Logger.getLogger(this.getClass());
 
-	private static TemplateController instance = null;
+	private static DefaultTemplateController instance = null;
 	
 	private DefaultTemplateController() {
 		
@@ -104,4 +104,12 @@ public class DefaultTemplateController implements TemplateController {
 			throw new ControllerException("error clearing templates", e);
 		}
 	}
+
+    public void initialize() {
+        // no initialization
+    }
+
+    public boolean isInitialized() {
+        return true;
+    }
 }
