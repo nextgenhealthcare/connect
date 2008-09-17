@@ -31,8 +31,12 @@ import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
+import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.mule.config.i18n.Message;
@@ -172,10 +176,9 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher imple
 
 	protected HttpMethod execute(UMOEndpointURI endpointURI, boolean closeConnection, MessageObject messageObject) throws Exception {
 		MuleEndpointURI uri = new MuleEndpointURI(replacer.replaceURLValues(endpointURI.toString(), messageObject));
-
 		HttpMethod httpMethod = null;
-
 		Map requestVariables = connector.getRequestVariables();
+		
 		if (connector.getMethod().equals("post")) {
 			// We add all the paramerters from the connector to the post
 			PostMethod postMethod = new PostMethod(uri.toString());
@@ -215,11 +218,18 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher imple
 				}
 			}
 			httpMethod = new GetMethod(urlBuilder.toString());
+		} else if (connector.getMethod().equals("put")) {
+		    PutMethod putMethod = new PutMethod(replacer.replaceValues(uri.toString(), messageObject));
+		    putMethod.setRequestEntity(new ByteArrayRequestEntity(requestVariables.get(PAYLOAD_KEY).toString().getBytes()));
+		    httpMethod = putMethod;
+		} else if (connector.getMethod().equals("delete")) {
+		    httpMethod = new DeleteMethod(replacer.replaceValues(uri.toString(), messageObject));
 		} else {
 			throw new Exception("Invalid HTTP Method: " + connector.getMethod());
 		}
-		if (httpMethod != null)
-			httpMethod.getParams().setCookiePolicy(org.apache.commons.httpclient.cookie.CookiePolicy.IGNORE_COOKIES);
+
+		// ignore cookies
+	    httpMethod.getParams().setCookiePolicy(org.apache.commons.httpclient.cookie.CookiePolicy.IGNORE_COOKIES);
 
 		/*
 		 * this is not used with Mirth, however it will be helpful if we add
