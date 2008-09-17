@@ -30,75 +30,48 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import com.webreach.mirth.util.PropertyLoader;
-
 public class DatabaseConnectionFactory {
-	public static DatabaseConnection createDatabaseConnection() throws SQLException {
-		Properties properties = PropertyLoader.loadProperties("mirth");
+    public static DatabaseConnection createDatabaseConnection(String driver, String address, String username, String password) throws SQLException {
+        try {
+            Class.forName(driver);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-		try {
-			Class.forName(PropertyLoader.getProperty(properties, "database.driver"));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        Properties info = new Properties();
+        info.setProperty("user", username);
+        info.setProperty("password", password);
+        return new DatabaseConnection(address, info);
+    }
 
-		Properties info = new Properties();
-		info.setProperty("user", PropertyLoader.getProperty(properties, "database.user"));
-		info.setProperty("password", PropertyLoader.getProperty(properties, "database.password"));
-		return new DatabaseConnection(PropertyLoader.getProperty(properties, "database.url"), info);
-	}
+    public static DatabaseConnection createDatabaseConnection(String driver, String address) throws SQLException {
+        try {
+            Class.forName(driver);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-	public static DatabaseConnection createDatabaseConnection(String driver, String address, String username, String password) throws SQLException {
-		try {
-			Class.forName(driver);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        return new DatabaseConnection(address);
+    }
 
-		Properties info = new Properties();
-		info.setProperty("user", username);
-		info.setProperty("password", password);
-		
-		// this property should only be set if it's for embedded database
-		info.setProperty("shutdown", "true");
+    public static Connection createConnection(String driver, String address, String username, String password) throws SQLException {
+        try {
+            Class.forName(driver);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-		return new DatabaseConnection(address, info);
-	}
-	
-	public static DatabaseConnection createDatabaseConnection(String driver, String address) throws SQLException {
-		try {
-			Class.forName(driver);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        Properties info = new Properties();
+        info.setProperty("user", username);
+        info.setProperty("password", password);
 
-		Properties info = new Properties();
-		
-		// this property should only be set if it's for embedded database
-		info.setProperty("shutdown", "true");
+        return DriverManager.getConnection(address, info);
+    }
 
-		return new DatabaseConnection(address, info);
-	}
-
-	public static Connection createConnection(String driver, String address, String username, String password) throws SQLException {
-		try {
-			Class.forName(driver);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		Properties info = new Properties();
-		info.setProperty("user", username);
-		info.setProperty("password", password);
-		
-		// this property should only be set if it's for embedded database
-		info.setProperty("shutdown", "true");
-		
-		return DriverManager.getConnection(address, info);
-	}
-	//Initializes the specified Driver. This is used for JS function that can't call
-	// "Class.forName"
-	public static void initializeDriver(String driver) throws Exception {
-		Class.forName(driver);
-	}
+    // Initializes the specified Driver. This is used for JS function that can't
+    // call
+    // "Class.forName"
+    public static void initializeDriver(String driver) throws Exception {
+        Class.forName(driver);
+    }
 }

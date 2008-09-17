@@ -23,7 +23,6 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.util;
 
 import java.sql.Connection;
@@ -49,321 +48,332 @@ import com.sun.rowset.CachedRowSetImpl;
  * 
  */
 public class DatabaseConnection {
-	private Logger logger = Logger.getLogger(this.getClass());
-	private Connection connection;
-	private String address;
+    private Logger logger = Logger.getLogger(this.getClass());
+    private Connection connection;
+    private String address;
 
-	/**
-	 * Initiliazes a database connection.
-	 * 
-	 * @throws SQLException
-	 */
-	public DatabaseConnection(String address, Properties info) throws SQLException {
-		logger.debug("creating new database connection: address=" + address + ", " + info);
-		this.address = address;
-		connection = DriverManager.getConnection(address, info);
-	}
+    /**
+     * Initiliazes a database connection.
+     * 
+     * @throws SQLException
+     */
+    public DatabaseConnection(String address) throws SQLException {
+        logger.debug("creating new database connection: address=" + address);
+        this.address = address;
+        connection = DriverManager.getConnection(address);
+    }
 
-	/**
-	 * Returns the database address.
-	 * 
-	 * @return
-	 */
-	public String getAddress() {
-		return this.address;
-	}
+    /**
+     * Initiliazes a database connection.
+     * 
+     * @throws SQLException
+     */
+    public DatabaseConnection(String address, Properties info) throws SQLException {
+        logger.debug("creating new database connection: address=" + address + ", " + info);
+        this.address = address;
+        connection = DriverManager.getConnection(address, info);
+    }
 
-	/**
-	 * Executes a query on the database and returns a ResultSet.
-	 * 
-	 * @param expression
-	 *            the query expression to be executed.
-	 * @return the result of the query.
-	 * @throws SQLException
-	 */
-	public ResultSet executeQuery(String expression) throws SQLException {
-		Statement statement = null;
+    /**
+     * Returns the database address.
+     * 
+     * @return
+     */
+    public String getAddress() {
+        return this.address;
+    }
 
-		try {
-			statement = connection.createStatement();
-			logger.debug("executing query:\n" + expression);
-			return statement.executeQuery(expression);
-		} catch (SQLException e) {
-			throw e;
-		} finally {
-			DatabaseUtil.close(statement);
-		}
-	}
+    /**
+     * Executes a query on the database and returns a ResultSet.
+     * 
+     * @param expression
+     *            the query expression to be executed.
+     * @return the result of the query.
+     * @throws SQLException
+     */
+    public ResultSet executeQuery(String expression) throws SQLException {
+        Statement statement = null;
 
-	/**
-	 * Executes a query on the database and returns a CachedRowSet.
-	 * 
-	 * @param expression
-	 *            the query expression to be executed.
-	 * @return the result of the query.
-	 * @throws SQLException
-	 */
-	public CachedRowSet executeCachedQuery(String expression) throws SQLException {
-		Statement statement = null;
+        try {
+            statement = connection.createStatement();
+            logger.debug("executing query:\n" + expression);
+            return statement.executeQuery(expression);
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            DatabaseUtil.close(statement);
+        }
+    }
 
-		try {
-			statement = connection.createStatement();
-			logger.debug("executing query:\n" + expression);
-			ResultSet result = statement.executeQuery(expression);
-			CachedRowSetImpl crs = new CachedRowSetImpl();
-			crs.populate(result);
-			DatabaseUtil.close(result);
-			return crs;
-		} catch (SQLException e) {
-			throw e;
-		} finally {
-			DatabaseUtil.close(statement);
-		}
-	}
+    /**
+     * Executes a query on the database and returns a CachedRowSet.
+     * 
+     * @param expression
+     *            the query expression to be executed.
+     * @return the result of the query.
+     * @throws SQLException
+     */
+    public CachedRowSet executeCachedQuery(String expression) throws SQLException {
+        Statement statement = null;
 
-	/**
-	 * Executes an update on the database and returns the row count.
-	 * 
-	 * @param expression
-	 *            the update query to be executed.
-	 * @return a count of the number of updated rows.
-	 * @throws SQLException
-	 */
-	public int executeUpdate(String expression) throws SQLException {
-		Statement statement = null;
+        try {
+            statement = connection.createStatement();
+            logger.debug("executing query:\n" + expression);
+            ResultSet result = statement.executeQuery(expression);
+            CachedRowSetImpl crs = new CachedRowSetImpl();
+            crs.populate(result);
+            DatabaseUtil.close(result);
+            return crs;
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            DatabaseUtil.close(statement);
+        }
+    }
 
-		try {
-			statement = connection.createStatement();
-			logger.debug("executing update:\n" + expression);
-			boolean results = statement.execute(expression);
-			if (results){
-				return 1;
-			}else{
-				return 0;
-			}
-		} catch (SQLException e) {
-			throw e;
-		} finally {
-			DatabaseUtil.close(statement);
-		}
-	}
+    /**
+     * Executes an update on the database and returns the row count.
+     * 
+     * @param expression
+     *            the update query to be executed.
+     * @return a count of the number of updated rows.
+     * @throws SQLException
+     */
+    public int executeUpdate(String expression) throws SQLException {
+        Statement statement = null;
 
-	/**
-	 * Executes a prepared statement on the database and returns the row count.
-	 * 
-	 * @param expression
-	 *            the prepared statement to be executed
-	 * @param parameters
-	 *            the parameteres for the prepared statement
-	 * @return a count of the number of updated rows.
-	 * @throws SQLException
-	 */
-	public int executeUpdate(String expression, List<Object> parameters) throws SQLException {
-		PreparedStatement statement = null;
+        try {
+            statement = connection.createStatement();
+            logger.debug("executing update:\n" + expression);
+            boolean results = statement.execute(expression);
+            if (results) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            DatabaseUtil.close(statement);
+        }
+    }
 
-		try {
-			statement = connection.prepareStatement(expression);
-			logger.debug("executing prepared statement:\n" + expression);
+    /**
+     * Executes a prepared statement on the database and returns the row count.
+     * 
+     * @param expression
+     *            the prepared statement to be executed
+     * @param parameters
+     *            the parameteres for the prepared statement
+     * @return a count of the number of updated rows.
+     * @throws SQLException
+     */
+    public int executeUpdate(String expression, List<Object> parameters) throws SQLException {
+        PreparedStatement statement = null;
 
-			ListIterator<Object> iterator = parameters.listIterator();
+        try {
+            statement = connection.prepareStatement(expression);
+            logger.debug("executing prepared statement:\n" + expression);
 
-			while (iterator.hasNext()) {
-				int index = iterator.nextIndex() + 1;
-				Object value = iterator.next();
-				logger.debug("adding parameter: index=" + index + ", value=" + value);
-				statement.setObject(index, value);
-			}
+            ListIterator<Object> iterator = parameters.listIterator();
 
-			boolean results = statement.execute();
-			if (results){
-				return 1;
-			}else{
-				return 0;
-			}
-		} catch (SQLException e) {
-			throw e;
-		} finally {
-			DatabaseUtil.close(statement);
-		}
-	}
-	
-	/**
-	 * Executes a prepared statement on the database and returns the row count.
-	 * 
-	 * @param expression
-	 *            the prepared statement to be executed
-	 * @param parameters
-	 *            the parameteres for the prepared statement
-	 * @return a count of the number of updated rows.
-	 * @throws SQLException
-	 */
-	public ResultSet executeQuery(String expression, List<Object> parameters) throws SQLException {
-		PreparedStatement statement = null;
+            while (iterator.hasNext()) {
+                int index = iterator.nextIndex() + 1;
+                Object value = iterator.next();
+                logger.debug("adding parameter: index=" + index + ", value=" + value);
+                statement.setObject(index, value);
+            }
 
-		try {
-			statement = connection.prepareStatement(expression);
-			logger.debug("executing prepared statement:\n" + expression);
+            boolean results = statement.execute();
+            if (results) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            DatabaseUtil.close(statement);
+        }
+    }
 
-			ListIterator<Object> iterator = parameters.listIterator();
+    /**
+     * Executes a prepared statement on the database and returns the row count.
+     * 
+     * @param expression
+     *            the prepared statement to be executed
+     * @param parameters
+     *            the parameteres for the prepared statement
+     * @return a count of the number of updated rows.
+     * @throws SQLException
+     */
+    public ResultSet executeQuery(String expression, List<Object> parameters) throws SQLException {
+        PreparedStatement statement = null;
 
-			while (iterator.hasNext()) {
-				int index = iterator.nextIndex() + 1;
-				Object value = iterator.next();
-				logger.debug("adding parameter: index=" + index + ", value=" + value);
-				statement.setObject(index, value);
-			}
+        try {
+            statement = connection.prepareStatement(expression);
+            logger.debug("executing prepared statement:\n" + expression);
 
-			return statement.executeQuery();
-		} catch (SQLException e) {
-			throw e;
-		} finally {
-			DatabaseUtil.close(statement);
-		}
-	}
+            ListIterator<Object> iterator = parameters.listIterator();
 
-	/**
-	 * Executes a prepared statement on the database and returns the row count.
-	 * 
-	 * @param expression
-	 *            the prepared statement to be executed
-	 * @param parameters
-	 *            the parameteres for the prepared statement
-	 * @return a count of the number of updated rows.
-	 * @throws SQLException
-	 */
-	public CachedRowSet executeCachedQuery(String expression, List<Object> parameters) throws SQLException {
-		PreparedStatement statement = null;
+            while (iterator.hasNext()) {
+                int index = iterator.nextIndex() + 1;
+                Object value = iterator.next();
+                logger.debug("adding parameter: index=" + index + ", value=" + value);
+                statement.setObject(index, value);
+            }
 
-		try {
-			statement = connection.prepareStatement(expression);
-			logger.debug("executing prepared statement:\n" + expression);
+            return statement.executeQuery();
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            DatabaseUtil.close(statement);
+        }
+    }
 
-			ListIterator<Object> iterator = parameters.listIterator();
+    /**
+     * Executes a prepared statement on the database and returns the row count.
+     * 
+     * @param expression
+     *            the prepared statement to be executed
+     * @param parameters
+     *            the parameteres for the prepared statement
+     * @return a count of the number of updated rows.
+     * @throws SQLException
+     */
+    public CachedRowSet executeCachedQuery(String expression, List<Object> parameters) throws SQLException {
+        PreparedStatement statement = null;
 
-			while (iterator.hasNext()) {
-				int index = iterator.nextIndex() + 1;
-				Object value = iterator.next();
-				logger.debug("adding parameter: index=" + index + ", value=" + value);
-				statement.setObject(index, value);
-			}
-			ResultSet result = statement.executeQuery();
-			CachedRowSetImpl crs = new CachedRowSetImpl();
-			crs.populate(result);
-			DatabaseUtil.close(result);
-			return crs;
-		} catch (SQLException e) {
-			throw e;
-		} finally {
-			DatabaseUtil.close(statement);
-		}
-	}
+        try {
+            statement = connection.prepareStatement(expression);
+            logger.debug("executing prepared statement:\n" + expression);
 
-	
-	/**
-	 * Closes the database connection.
-	 * 
-	 */
-	public void close() {
-		try {
-			if ((connection != null) && (!connection.isClosed())) {
-				logger.debug("closing database connection");
-				connection.close();
-			} else {
-				logger.warn("connection is null or already closed");
-			}
-		} catch (SQLException e) {
-			logger.warn(e);
-		}
-	}
+            ListIterator<Object> iterator = parameters.listIterator();
 
-	/**
-	 * Sets this connection's auto-commit mode to the given state.
-	 * 
-	 * @param autoCommit
-	 * @throws SQLException
-	 */
-	public void setAutoCommit(boolean autoCommit) throws SQLException {
-		connection.setAutoCommit(autoCommit);
-	}
+            while (iterator.hasNext()) {
+                int index = iterator.nextIndex() + 1;
+                Object value = iterator.next();
+                logger.debug("adding parameter: index=" + index + ", value=" + value);
+                statement.setObject(index, value);
+            }
+            ResultSet result = statement.executeQuery();
+            CachedRowSetImpl crs = new CachedRowSetImpl();
+            crs.populate(result);
+            DatabaseUtil.close(result);
+            return crs;
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            DatabaseUtil.close(statement);
+        }
+    }
 
-	/**
-	 * Undoes all changes made in the current transaction and releases any
-	 * database locks currently held by this Connection object.
-	 * 
-	 * @throws SQLException
-	 */
-	public void rollback() throws SQLException {
-		connection.rollback();
-	}
+    /**
+     * Closes the database connection.
+     * 
+     */
+    public void close() {
+        try {
+            if ((connection != null) && (!connection.isClosed())) {
+                logger.debug("closing database connection");
+                connection.close();
+            } else {
+                logger.warn("connection is null or already closed");
+            }
+        } catch (SQLException e) {
+            logger.warn(e);
+        }
+    }
 
-	/**
-	 * Makes all changes made since the previous commit/rollback permanent and
-	 * releases any database locks currently held by this DatabaseConnection
-	 * object.
-	 * 
-	 * @throws SQLException
-	 */
-	public void commit() throws SQLException {
-		connection.commit();
-	}
-	
-	/**
-	 * Executes an update on the database and returns a ResultSet containing the generated keys.
-	 * 
-	 * @param expression
-	 *            the update query to be executed.
-	 * @return a count of the number of updated rows.
-	 * @throws SQLException
-	 */
-	public ResultSet executeUpdateAndReturnGeneratedKeys(String expression) throws SQLException {
-		Statement statement = null;
+    /**
+     * Sets this connection's auto-commit mode to the given state.
+     * 
+     * @param autoCommit
+     * @throws SQLException
+     */
+    public void setAutoCommit(boolean autoCommit) throws SQLException {
+        connection.setAutoCommit(autoCommit);
+    }
 
-		try {
-			statement = connection.createStatement();
-			logger.debug("executing update:\n" + expression);
-			statement.executeUpdate(expression);
-			return statement.getGeneratedKeys();
-		} catch (SQLException e) {
-			throw e;
-		} finally {
-			DatabaseUtil.close(statement);
-		}
-	}
-	
-	
-	/**
-	 * Executes a prepared statement on the database and returns a ResultSet containing the generated keys.
-	 * 
-	 * @param expression
-	 *            the prepared statement to be executed
-	 * @param parameters
-	 *            the parameteres for the prepared statement
-	 * @return a count of the number of updated rows.
-	 * @throws SQLException
-	 */
-	public ResultSet executeUpdateAndGetGeneratedKeys(String expression, List<Object> parameters) throws SQLException {
-		PreparedStatement statement = null;
+    /**
+     * Undoes all changes made in the current transaction and releases any
+     * database locks currently held by this Connection object.
+     * 
+     * @throws SQLException
+     */
+    public void rollback() throws SQLException {
+        connection.rollback();
+    }
 
-		try {
-			statement = connection.prepareStatement(expression);
-			logger.debug("executing prepared statement:\n" + expression);
+    /**
+     * Makes all changes made since the previous commit/rollback permanent and
+     * releases any database locks currently held by this DatabaseConnection
+     * object.
+     * 
+     * @throws SQLException
+     */
+    public void commit() throws SQLException {
+        connection.commit();
+    }
 
-			ListIterator<Object> iterator = parameters.listIterator();
+    /**
+     * Executes an update on the database and returns a ResultSet containing the
+     * generated keys.
+     * 
+     * @param expression
+     *            the update query to be executed.
+     * @return a count of the number of updated rows.
+     * @throws SQLException
+     */
+    public ResultSet executeUpdateAndReturnGeneratedKeys(String expression) throws SQLException {
+        Statement statement = null;
 
-			while (iterator.hasNext()) {
-				int index = iterator.nextIndex() + 1;
-				Object value = iterator.next();
-				logger.debug("adding parameter: index=" + index + ", value=" + value);
-				statement.setObject(index, value);
-			}
+        try {
+            statement = connection.createStatement();
+            logger.debug("executing update:\n" + expression);
+            statement.executeUpdate(expression);
+            return statement.getGeneratedKeys();
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            DatabaseUtil.close(statement);
+        }
+    }
 
-			statement.executeUpdate();
-			return statement.getGeneratedKeys();
-		} catch (SQLException e) {
-			throw e;
-		} finally {
-			DatabaseUtil.close(statement);
-		}
-	}
+    /**
+     * Executes a prepared statement on the database and returns a ResultSet
+     * containing the generated keys.
+     * 
+     * @param expression
+     *            the prepared statement to be executed
+     * @param parameters
+     *            the parameteres for the prepared statement
+     * @return a count of the number of updated rows.
+     * @throws SQLException
+     */
+    public ResultSet executeUpdateAndGetGeneratedKeys(String expression, List<Object> parameters) throws SQLException {
+        PreparedStatement statement = null;
+
+        try {
+            statement = connection.prepareStatement(expression);
+            logger.debug("executing prepared statement:\n" + expression);
+
+            ListIterator<Object> iterator = parameters.listIterator();
+
+            while (iterator.hasNext()) {
+                int index = iterator.nextIndex() + 1;
+                Object value = iterator.next();
+                logger.debug("adding parameter: index=" + index + ", value=" + value);
+                statement.setObject(index, value);
+            }
+
+            statement.executeUpdate();
+            return statement.getGeneratedKeys();
+        } catch (SQLException e) {
+            throw e;
+        } finally {
+            DatabaseUtil.close(statement);
+        }
+    }
 
 }
