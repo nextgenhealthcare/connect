@@ -66,12 +66,13 @@ public class DefaultExtensionController implements ExtensionController {
 
     // singleton pattern
     private static DefaultExtensionController instance = null;
-    private static boolean initialized = false;
     
     public static ExtensionController getInstance() {
         synchronized (DefaultExtensionController.class) {
-            if (instance == null)
+            if (instance == null) {
                 instance = new DefaultExtensionController();
+                instance.loadExtensions();
+            }
 
             return instance;
         }
@@ -81,7 +82,7 @@ public class DefaultExtensionController implements ExtensionController {
 
     }
 
-    public void initialize() {
+    private void loadExtensions() {
         try {
             loadConnectorMetaData();
             loadConnectorLibraries();
@@ -93,13 +94,8 @@ public class DefaultExtensionController implements ExtensionController {
         }
 
         initPlugins();
-        initialized = true;
     }
     
-    public boolean isInitialized() {
-        return initialized;
-    }
-
     // Extension point for ExtensionPoint.Type.SERVER_PLUGIN
     @ExtensionPointDefinition(mode = ExtensionPoint.Mode.SERVER, type = ExtensionPoint.Type.SERVER_PLUGIN)
     public void initPlugins() {

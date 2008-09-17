@@ -47,7 +47,6 @@ import com.webreach.mirth.server.util.SqlConfig;
 public class DefaultEventController implements EventController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private static DefaultEventController instance = null;
-	private static boolean initialized = false;
 	
 	private DefaultEventController() {
 
@@ -62,15 +61,6 @@ public class DefaultEventController implements EventController {
 			return instance;
 		}
 	} 
-	
-	public void initialize() {
-		removeAllFilterTables();
-		initialized = true;
-	}
-	
-    public boolean isInitialized() {
-        return initialized;
-    }
 	
 	public void removeAllFilterTables() {
 		Connection conn = null;

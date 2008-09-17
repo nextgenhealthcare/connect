@@ -20,9 +20,6 @@ public class PluginControllerTest extends TestCase {
 		super.setUp();
 		// clear all database tables
 		ScriptRunner.runScript("derby-database.sql");
-
-		// initialize the configuration controller to cache encryption key
-		pluginController.initialize();
 	}
 
 	protected void tearDown() throws Exception {

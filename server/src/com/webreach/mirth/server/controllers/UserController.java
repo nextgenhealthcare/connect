@@ -31,6 +31,8 @@ import com.webreach.mirth.model.Preferences;
 import com.webreach.mirth.model.User;
 
 public interface UserController extends Controller {
+    public void resetUserStatus();
+    
     public List<User> getUser(User user) throws ControllerException;
 
     public void updateUser(User user, String plainTextPassword) throws ControllerException;

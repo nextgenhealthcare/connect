@@ -24,10 +24,6 @@ public class EventControllerTest extends TestCase {
 		super.setUp();
 		// clear all database tables
 		ScriptRunner.runScript("derby-database.sql");
-
-		// initialize the configuration controller to cache encryption key
-		configurationController.initialize();
-		
 		sampleEventList = new ArrayList<SystemEvent>();
 		
 		for(int i = 0; i < 10; i++) {

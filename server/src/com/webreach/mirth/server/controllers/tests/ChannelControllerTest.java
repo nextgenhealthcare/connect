@@ -25,10 +25,6 @@ public class ChannelControllerTest extends TestCase {
 		super.setUp();
 		// clear all database tables
 		ScriptRunner.runScript("derby-database.sql");
-
-		// initialize the configuration controller to cache encryption key
-		configurationController.initialize();
-
 		sampleChannelList = new ArrayList<Channel>();
 		
 		for (int i = 0; i < 10; i++) {

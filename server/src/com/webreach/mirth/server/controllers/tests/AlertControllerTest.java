@@ -24,10 +24,6 @@ public class AlertControllerTest extends TestCase {
 		super.setUp();
 		// clear all database tables
 		ScriptRunner.runScript("derby-database.sql");
-
-		// initialize the configuration controller to cache encryption key
-		configurationController.initialize();
-
 		sampleAlertList = new ArrayList<Alert>();
 		
 		for (int i = 0; i < 10; i++) {

@@ -51,7 +51,6 @@ public class DefaultChannelStatisticsController implements ChannelStatisticsCont
     private static boolean running = true;
 
     private static DefaultChannelStatisticsController instance = null;
-    private static boolean initialized = false;
 
     private DefaultChannelStatisticsController() {
 
@@ -86,7 +85,7 @@ public class DefaultChannelStatisticsController implements ChannelStatisticsCont
         }
     }
 
-    public void initialize() {
+    public void start() {
         logger.debug("initialzing statistics controller");
 
         statsCache = ChannelStatisticsCache.getInstance();
@@ -95,13 +94,8 @@ public class DefaultChannelStatisticsController implements ChannelStatisticsCont
         statsUpdater = new StatisticsUpdater();
         updaterThread = new Thread(statsUpdater);
         updaterThread.start();
-        initialized = true;
     }
     
-    public boolean isInitialized() {
-        return initialized;
-    }
-
     public void reloadLocalCache() {
         try {
             Map parameterMap = new HashMap();

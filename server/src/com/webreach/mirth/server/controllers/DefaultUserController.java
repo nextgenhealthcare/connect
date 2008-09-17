@@ -45,7 +45,6 @@ public class DefaultUserController implements UserController {
     private FIPSEncrypter encrypter = FIPSEncrypter.getInstance();
 
     private static DefaultUserController instance = null;
-    private static boolean initialized = false;
 
     private DefaultUserController() {
 
@@ -61,18 +60,12 @@ public class DefaultUserController implements UserController {
         }
     }
 
-    public void initialize() {
+    public void resetUserStatus() {
         try {
             SqlConfig.getSqlMapClient().update("resetUserStatus");
         } catch (SQLException e) {
             logger.error("Could not reset user status.");
         }
-        
-        initialized = true;
-    }
-    
-    public boolean isInitialized() {
-        return initialized;
     }
 
     public List<User> getUser(User user) throws ControllerException {
@@ -184,7 +177,7 @@ public class DefaultUserController implements UserController {
             for (Preference p : pList) {
                 pMap.put(p.getName(), p.getValue());
             }
-            
+
             return pMap;
         } catch (Exception e) {
             throw new ControllerException(e);

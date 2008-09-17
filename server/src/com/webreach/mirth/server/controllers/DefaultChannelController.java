@@ -44,278 +44,269 @@ import com.webreach.mirth.util.PropertyVerifier;
 import com.webreach.mirth.util.QueueUtil;
 
 public class DefaultChannelController implements ChannelController {
-	private Logger logger = Logger.getLogger(this.getClass());
-	private static HashMap<String, Channel> channelCache = new HashMap<String, Channel>();
-	private static HashMap<String, String> channelIdLookup = new HashMap<String, String>();
-	private ChannelStatisticsController statisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
-	private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
-	private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+    private Logger logger = Logger.getLogger(this.getClass());
+    private static HashMap<String, Channel> channelCache = new HashMap<String, Channel>();
+    private static HashMap<String, String> channelIdLookup = new HashMap<String, String>();
+    private ChannelStatisticsController statisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
+    private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
-	private static DefaultChannelController instance = null;
-	private static boolean initialized = false;
+    private static DefaultChannelController instance = null;
 
-	private DefaultChannelController() {
+    private DefaultChannelController() {
 
-	}
-
-	public static ChannelController getInstance() {
-		synchronized (DefaultChannelController.class) {
-			if (instance == null) {
-				instance = new DefaultChannelController();
-			}
-
-			return instance;
-		}
-	}
-
-	public void initialize() {
-		try {
-			refreshChannelCache(getChannel(null));
-
-			for (Channel channel : channelCache.values()) {
-				if (!channel.getVersion().equals(configurationController.getServerVersion())) {
-					Channel updatedChannel = ImportConverter.convertChannelObject(channel);
-					PropertyVerifier.checkChannelProperties(updatedChannel);
-					PropertyVerifier.checkConnectorProperties(updatedChannel, extensionController.getConnectorMetaData());
-					updatedChannel.setVersion(configurationController.getServerVersion());
-					updateChannel(updatedChannel, true);
-				}
-				if (!statisticsController.checkIfStatisticsExist(channel.getId())) {
-					statisticsController.createStatistics(channel.getId());
-				}
-			}
-
-			statisticsController.reloadLocalCache();
-		} catch (Exception e) {
-			logger.warn(e);
-		}
-
-        initialized = true;
-	}
-
-    public boolean isInitialized() {
-        return initialized;
     }
 
-	public void refreshChannelCache(List<Channel> channels) throws ControllerException {
-		channelCache = new HashMap<String, Channel>();
-		channelIdLookup = new HashMap<String, String>();
+    public static ChannelController getInstance() {
+        synchronized (DefaultChannelController.class) {
+            if (instance == null) {
+                instance = new DefaultChannelController();
+            }
 
-		Iterator<Channel> it = channels.iterator();
+            return instance;
+        }
+    }
 
-		while (it.hasNext()) {
-			Channel channel = it.next();
-			updateChannelInCache(channel);
-		}
-	}
+    public void loadChannelCache() {
+        try {
+            refreshChannelCache(getChannel(null));
 
-	public String getChannelId(String channelName) {
-		return channelIdLookup.get(channelName.toUpperCase());
-	}
+            for (Channel channel : channelCache.values()) {
+                if (!channel.getVersion().equals(configurationController.getServerVersion())) {
+                    Channel updatedChannel = ImportConverter.convertChannelObject(channel);
+                    PropertyVerifier.checkChannelProperties(updatedChannel);
+                    PropertyVerifier.checkConnectorProperties(updatedChannel, extensionController.getConnectorMetaData());
+                    updatedChannel.setVersion(configurationController.getServerVersion());
+                    updateChannel(updatedChannel, true);
+                }
 
-	public String getDestinationName(String id) {
-		// String format: channelid_destination_index
-		String destinationName = id; // if we can't parse the name, just use
-		// the id
-		String channelId = id.substring(0, id.indexOf('_'));
-		String strIndex = id.substring(id.indexOf("destination_") + 12, id.indexOf("_connector"));
-		int index = Integer.parseInt(strIndex) - 1;
-		Channel channel = channelCache.get(channelId);
+                if (!statisticsController.checkIfStatisticsExist(channel.getId())) {
+                    statisticsController.createStatistics(channel.getId());
+                }
+            }
 
-		if (channel != null) {
-			if (index < channel.getDestinationConnectors().size())
-				destinationName = channel.getDestinationConnectors().get(index).getName();
-		}
+            statisticsController.reloadLocalCache();
+        } catch (Exception e) {
+            logger.warn(e);
+        }
+    }
 
-		return destinationName;
-	}
-	
-	public String getConnectorId(String channelId, String connectorName) throws Exception {
-		Channel filterChannel = new Channel();
-		filterChannel.setId(channelId);
-		int index = 1;
-		
-		for (Connector connector : getChannel(filterChannel).get(0).getDestinationConnectors()) {
-			if (connector.getName().equals(connectorName)) {
-				return String.valueOf(index);
-			} else {
-				index++;
-			}
-		}
-		
-		throw new Exception("Connector name not found");
-	}
+    public void refreshChannelCache(List<Channel> channels) throws ControllerException {
+        channelCache = new HashMap<String, Channel>();
+        channelIdLookup = new HashMap<String, String>();
 
-	public List<Channel> getChannel(Channel channel) throws ControllerException {
-		logger.debug("getting channel");
+        for (Channel channel : channels) {
+            updateChannelInCache(channel);
+        }
+    }
 
-		try {
-			return SqlConfig.getSqlMapClient().queryForList("getChannel", channel);
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		}
-	}
+    public String getChannelId(String channelName) {
+        return channelIdLookup.get(channelName.toUpperCase());
+    }
 
-	public List<Channel> getEnabledChannels() throws ControllerException {
-		List<Channel> channels = getChannel(null);
+    public String getDestinationName(String id) {
+        // String format: channelid_destination_index
+        String destinationName = id;
+        // if we can't parse the name, just use the id
+        String channelId = id.substring(0, id.indexOf('_'));
+        String strIndex = id.substring(id.indexOf("destination_") + 12, id.indexOf("_connector"));
+        int index = Integer.parseInt(strIndex) - 1;
+        Channel channel = channelCache.get(channelId);
 
-		for (int i = 0; i < channels.size(); i++) {
-			if (!channels.get(i).isEnabled())
-				channels.remove(i);
-		}
+        if (channel != null) {
+            if (index < channel.getDestinationConnectors().size())
+                destinationName = channel.getDestinationConnectors().get(index).getName();
+        }
 
-		return channels;
-	}
+        return destinationName;
+    }
 
-	public List<ChannelSummary> getChannelSummary(Map<String, Integer> cachedChannels) throws ControllerException {
-		logger.debug("getting channel summary");
-		List<ChannelSummary> channelSummaries = new ArrayList<ChannelSummary>();
+    public String getConnectorId(String channelId, String connectorName) throws Exception {
+        Channel filterChannel = new Channel();
+        filterChannel.setId(channelId);
+        int index = 1;
 
-		try {
-			Map<String, Integer> serverChannels = SqlConfig.getSqlMapClient().queryForMap("getChannelRevision", null, "id", "revision");
+        for (Connector connector : getChannel(filterChannel).get(0).getDestinationConnectors()) {
+            if (connector.getName().equals(connectorName)) {
+                return String.valueOf(index);
+            } else {
+                index++;
+            }
+        }
 
-			/*
-			 * Iterate through the cached channel list and check if a channel
-			 * with the id exists on the server. If it does, and the revision
-			 * numbers aren't equal, then add the channel to the updated list.
-			 * Otherwise, if the channel is not found, add it to the deleted
-			 * list.
-			 * 
-			 */
-			for (Iterator iter = cachedChannels.keySet().iterator(); iter.hasNext();) {
-				String cachedChannelId = (String) iter.next();
-				boolean channelExistsOnServer = false;
+        throw new Exception("Connector name not found");
+    }
 
-				// iterate through all of the channels on the server
-				for (Iterator iterator = serverChannels.entrySet().iterator(); iterator.hasNext() && !channelExistsOnServer;) {
-					Entry entry = (Entry) iterator.next();
-					String id = (String) entry.getKey();
-					Integer revision = (Integer) entry.getValue();
+    public List<Channel> getChannel(Channel channel) throws ControllerException {
+        logger.debug("getting channel");
 
-					// if the channel with the cached id exists
-					if (id.equals(cachedChannelId)) {
-						// and the revision numbers aren't equal, add it as
-						// updated
-						if (!revision.equals(cachedChannels.get(cachedChannelId))) {
-							ChannelSummary summary = new ChannelSummary();
-							summary.setId(id);
-							channelSummaries.add(summary);
-						}
+        try {
+            return SqlConfig.getSqlMapClient().queryForList("getChannel", channel);
+        } catch (SQLException e) {
+            throw new ControllerException(e);
+        }
+    }
 
-						channelExistsOnServer = true;
-					}
-				}
+    public List<Channel> getEnabledChannels() throws ControllerException {
+        List<Channel> channels = getChannel(null);
 
-				// if a channel with the id is never found on the server, add it
-				// as deleted
-				if (!channelExistsOnServer) {
-					ChannelSummary summary = new ChannelSummary();
-					summary.setId(cachedChannelId);
-					summary.setDeleted(true);
-					channelSummaries.add(summary);
-				}
-			}
+        for (int i = 0; i < channels.size(); i++) {
+            if (!channels.get(i).isEnabled())
+                channels.remove(i);
+        }
 
-			/*
-			 * Iterate through the server channel list, check if every id exists
-			 * in the cached channel list. If it doesn't, add it to the summary
-			 * list as added.
-			 * 
-			 */
-			for (Iterator iter = serverChannels.entrySet().iterator(); iter.hasNext();) {
-				Entry entry = (Entry) iter.next();
-				String id = (String) entry.getKey();
+        return channels;
+    }
 
-				if (!cachedChannels.keySet().contains(id)) {
-					ChannelSummary summary = new ChannelSummary();
-					summary.setId(id);
-					summary.setAdded(true);
-					channelSummaries.add(summary);
-				}
-			}
+    public List<ChannelSummary> getChannelSummary(Map<String, Integer> cachedChannels) throws ControllerException {
+        logger.debug("getting channel summary");
+        List<ChannelSummary> channelSummaries = new ArrayList<ChannelSummary>();
 
-			return channelSummaries;
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		}
-	}
+        try {
+            Map<String, Integer> serverChannels = SqlConfig.getSqlMapClient().queryForMap("getChannelRevision", null, "id", "revision");
 
-	public boolean updateChannel(Channel channel, boolean override) throws ControllerException {
-		// if it's not a new channel, and its version is different from the one
-		// in the database, and override is not enabled
-		if ((channel.getRevision() > 0) && !getChannel(channel).isEmpty() && (!getChannel(channel).get(0).getVersion().equals(channel.getVersion())) && !override) {
-			return false;
-		} else {
-			channel.setRevision(channel.getRevision() + 1);
-		}
+            /*
+             * Iterate through the cached channel list and check if a channel
+             * with the id exists on the server. If it does, and the revision
+             * numbers aren't equal, then add the channel to the updated list.
+             * Otherwise, if the channel is not found, add it to the deleted
+             * list.
+             * 
+             */
+            for (Iterator iter = cachedChannels.keySet().iterator(); iter.hasNext();) {
+                String cachedChannelId = (String) iter.next();
+                boolean channelExistsOnServer = false;
 
-		ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-		channel.setVersion(configurationController.getServerVersion());
+                // iterate through all of the channels on the server
+                for (Iterator iterator = serverChannels.entrySet().iterator(); iterator.hasNext() && !channelExistsOnServer;) {
+                    Entry entry = (Entry) iterator.next();
+                    String id = (String) entry.getKey();
+                    Integer revision = (Integer) entry.getValue();
 
-		try {
+                    // if the channel with the cached id exists
+                    if (id.equals(cachedChannelId)) {
+                        // and the revision numbers aren't equal, add it as
+                        // updated
+                        if (!revision.equals(cachedChannels.get(cachedChannelId))) {
+                            ChannelSummary summary = new ChannelSummary();
+                            summary.setId(id);
+                            channelSummaries.add(summary);
+                        }
 
-			updateChannelInCache(channel);
+                        channelExistsOnServer = true;
+                    }
+                }
 
-			Channel channelFilter = new Channel();
-			channelFilter.setId(channel.getId());
+                // if a channel with the id is never found on the server, add it
+                // as deleted
+                if (!channelExistsOnServer) {
+                    ChannelSummary summary = new ChannelSummary();
+                    summary.setId(cachedChannelId);
+                    summary.setDeleted(true);
+                    channelSummaries.add(summary);
+                }
+            }
 
-			if (getChannel(channelFilter).isEmpty()) {
-				logger.debug("adding channel");
-				SqlConfig.getSqlMapClient().insert("insertChannel", channel);
-			} else {
-				logger.debug("updating channel");
-				SqlConfig.getSqlMapClient().update("updateChannel", channel);
-			}
-			return true;
-		} catch (SQLException e) {
-			throw new ControllerException(e);
-		}
-	}
+            /*
+             * Iterate through the server channel list, check if every id exists
+             * in the cached channel list. If it doesn't, add it to the summary
+             * list as added.
+             * 
+             */
+            for (Iterator iter = serverChannels.entrySet().iterator(); iter.hasNext();) {
+                Entry entry = (Entry) iter.next();
+                String id = (String) entry.getKey();
 
-	/**
-	 * Removes a channel. If the channel is NULL, then all channels are removed.
-	 * 
-	 * @param channel
-	 * @throws ControllerException
-	 */
-	public void removeChannel(Channel channel) throws ControllerException {
-		logger.debug("removing channel");
+                if (!cachedChannels.keySet().contains(id)) {
+                    ChannelSummary summary = new ChannelSummary();
+                    summary.setId(id);
+                    summary.setAdded(true);
+                    channelSummaries.add(summary);
+                }
+            }
 
-		try {
-			if (channel != null) {
-				QueueUtil.getInstance().removeAllQueuesForChannel(channel);
-				removeChannelFromCache(channel.getId());
-			} else {
-				QueueUtil.getInstance().removeAllQueues();
-				clearChannelCache();
-			}
+            return channelSummaries;
+        } catch (SQLException e) {
+            throw new ControllerException(e);
+        }
+    }
 
-			SqlConfig.getSqlMapClient().delete("deleteChannel", channel);
-		} catch (Exception e) {
-			throw new ControllerException(e);
-		}
-	}
+    public boolean updateChannel(Channel channel, boolean override) throws ControllerException {
+        // if it's not a new channel, and its version is different from the one
+        // in the database, and override is not enabled
+        if ((channel.getRevision() > 0) && !getChannel(channel).isEmpty() && (!getChannel(channel).get(0).getVersion().equals(channel.getVersion())) && !override) {
+            return false;
+        } else {
+            channel.setRevision(channel.getRevision() + 1);
+        }
 
-	public HashMap<String, Channel> getChannelCache() {
-		return channelCache;
-	}
+        ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+        channel.setVersion(configurationController.getServerVersion());
 
-	private void removeChannelFromCache(String channelId) {
-		channelCache.remove(channelId);
-		channelIdLookup.remove(channelId);
-	}
+        try {
 
-	private void clearChannelCache() {
-		channelCache.clear();
-		channelIdLookup.clear();
-	}
+            updateChannelInCache(channel);
 
-	private void updateChannelInCache(Channel channel) {
-		channelCache.put(channel.getId(), channel);
-		channelIdLookup.put(channel.getName().toUpperCase(), channel.getId());
-	}
+            Channel channelFilter = new Channel();
+            channelFilter.setId(channel.getId());
 
-	public void setChannelCache(HashMap<String, Channel> channelCache) {
-		DefaultChannelController.channelCache = channelCache;
-	}
+            if (getChannel(channelFilter).isEmpty()) {
+                logger.debug("adding channel");
+                SqlConfig.getSqlMapClient().insert("insertChannel", channel);
+            } else {
+                logger.debug("updating channel");
+                SqlConfig.getSqlMapClient().update("updateChannel", channel);
+            }
+            return true;
+        } catch (SQLException e) {
+            throw new ControllerException(e);
+        }
+    }
+
+    /**
+     * Removes a channel. If the channel is NULL, then all channels are removed.
+     * 
+     * @param channel
+     * @throws ControllerException
+     */
+    public void removeChannel(Channel channel) throws ControllerException {
+        logger.debug("removing channel");
+
+        try {
+            if (channel != null) {
+                QueueUtil.getInstance().removeAllQueuesForChannel(channel);
+                removeChannelFromCache(channel.getId());
+            } else {
+                QueueUtil.getInstance().removeAllQueues();
+                clearChannelCache();
+            }
+
+            SqlConfig.getSqlMapClient().delete("deleteChannel", channel);
+        } catch (Exception e) {
+            throw new ControllerException(e);
+        }
+    }
+
+    public HashMap<String, Channel> getChannelCache() {
+        return channelCache;
+    }
+
+    private void removeChannelFromCache(String channelId) {
+        channelCache.remove(channelId);
+        channelIdLookup.remove(channelId);
+    }
+
+    private void clearChannelCache() {
+        channelCache.clear();
+        channelIdLookup.clear();
+    }
+
+    private void updateChannelInCache(Channel channel) {
+        channelCache.put(channel.getId(), channel);
+        channelIdLookup.put(channel.getName().toUpperCase(), channel.getId());
+    }
+
+    public void setChannelCache(HashMap<String, Channel> channelCache) {
+        DefaultChannelController.channelCache = channelCache;
+    }
 }

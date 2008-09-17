@@ -70,7 +70,6 @@ public class DefaultMessageObjectController implements MessageObjectController {
     private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
 
     private static DefaultMessageObjectController instance = null;
-    private static boolean initialized = false;
 
     private DefaultMessageObjectController() {
 
@@ -84,15 +83,6 @@ public class DefaultMessageObjectController implements MessageObjectController {
 
             return instance;
         }
-    }
-
-    public void initialize() {
-        removeAllFilterTables();
-        initialized = true;
-    }
-    
-    public boolean isInitialized() {
-        return initialized;
     }
 
     public void removeAllFilterTables() {

@@ -17,9 +17,6 @@ public class ScriptControllerTest extends TestCase {
 		super.setUp();
 		// clear all database tables
 		ScriptRunner.runScript("derby-database.sql");
-
-		// initialize the configuration controller to cache encryption key
-		configurationController.initialize();
 	}
 
 	protected void tearDown() throws Exception {

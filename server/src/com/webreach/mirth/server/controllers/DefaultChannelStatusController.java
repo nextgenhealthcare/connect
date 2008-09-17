@@ -62,14 +62,6 @@ public class DefaultChannelStatusController implements ChannelStatusController {
         }
     }
 
-    public void initialize() {
-    // no initialization required
-    }
-
-    public boolean isInitialized() {
-        return true;
-    }
-
     /**
      * Starts the channel with the specified id.
      * 

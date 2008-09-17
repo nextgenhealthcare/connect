@@ -100,12 +100,4 @@ public class DefaultCodeTemplateController implements CodeTemplateController {
             throw new ControllerException(e);
         }
     }
-
-    public void initialize() {
-    // no initialization
-    }
-
-    public boolean isInitialized() {
-        return true;
-    }
 }

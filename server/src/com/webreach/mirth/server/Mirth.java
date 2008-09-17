@@ -50,11 +50,11 @@ import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ChannelStatisticsController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerFactory;
+import com.webreach.mirth.server.controllers.EventController;
 import com.webreach.mirth.server.controllers.ExtensionController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MigrationController;
 import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.EventController;
 import com.webreach.mirth.server.controllers.UserController;
 import com.webreach.mirth.server.tools.ClassPathResource;
 import com.webreach.mirth.server.util.GlobalVariableStore;
@@ -68,397 +68,389 @@ import com.webreach.mirth.util.PropertyLoader;
  * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  */
 public class Mirth extends Thread {
-	private Logger logger = Logger.getLogger(this.getClass());
-	private boolean running = false;
-	private Properties mirthProperties = null;
-	private Properties versionProperties = null;
-	private MuleManager muleManager = null;
-	private HttpServer httpServer = null;
-	private HttpServer servletContainer = null;
-	private CommandQueue commandQueue = CommandQueue.getInstance();
-	private MirthManager manager = new MirthManager();
-	
-	private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-	private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
-	private UserController userController = ControllerFactory.getFactory().createUserController();
-	private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
-	private ChannelStatisticsController channelStatisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
-	private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
-	private MigrationController migrationController = ControllerFactory.getFactory().createMigrationController();
-	private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
-    private EventController systemLogger = ControllerFactory.getFactory().createEventController();
+    private Logger logger = Logger.getLogger(this.getClass());
+    private boolean running = false;
+    private Properties mirthProperties = null;
+    private Properties versionProperties = null;
+    private MuleManager muleManager = null;
+    private HttpServer httpServer = null;
+    private HttpServer servletContainer = null;
+    private CommandQueue commandQueue = CommandQueue.getInstance();
+    private MirthManager manager = new MirthManager();
 
-	public static void main(String[] args) {
-		Mirth mirth = new Mirth();
-		mirth.run();
-		System.exit(0);
-	}
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+    private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
+    private UserController userController = ControllerFactory.getFactory().createUserController();
+    private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
+    private ChannelStatisticsController channelStatisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
+    private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+    private MigrationController migrationController = ControllerFactory.getFactory().createMigrationController();
+    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
+    private EventController eventController = ControllerFactory.getFactory().createEventController();
+    
+    public static void main(String[] args) {
+        Mirth mirth = new Mirth();
+        mirth.run();
+        System.exit(0);
+    }
 
-	public MirthManager getManager() {
-		return this.manager;
-	}
+    public MirthManager getManager() {
+        return this.manager;
+    }
 
-	public void run() {
-		if (initResources()) {
-			logger.info("starting mirth server...");
-			running = true;
+    public void run() {
+        if (initResources()) {
+            logger.info("starting mirth server...");
+            running = true;
 
-			// add the start command to the queue
-			CommandQueue.getInstance().clear();
-			CommandQueue.getInstance().addCommand(new Command(Command.Operation.START_SERVER));
+            // add the start command to the queue
+            CommandQueue.getInstance().clear();
+            CommandQueue.getInstance().addCommand(new Command(Command.Operation.START_SERVER));
 
-			Runtime.getRuntime().addShutdownHook(new ShutdownHook());
+            Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 
-			// pulls commands off of the command queue
-			while (running) {
-				Command command = commandQueue.getCommand();
+            // pulls commands off of the command queue
+            while (running) {
+                Command command = commandQueue.getCommand();
 
-				if (command.getOperation().equals(Command.Operation.START_SERVER)) {
-					startup();
-				} else if (command.getOperation().equals(Command.Operation.SHUTDOWN_SERVER)) {
-					shutdown();
-				} else if (command.getOperation().equals(Command.Operation.START_ENGINE)) {
-					startMule();
-				} else if (command.getOperation().equals(Command.Operation.STOP_ENGINE)) {
-					stopMule();
-				} else if (command.getOperation().equals(Command.Operation.RESTART_ENGINE)) {
-					restartMule();
-				}
-			}
-		} else {
-			logger.error("could not initialize resources");
-		}
-	}
+                if (command.getOperation().equals(Command.Operation.START_SERVER)) {
+                    startup();
+                } else if (command.getOperation().equals(Command.Operation.SHUTDOWN_SERVER)) {
+                    shutdown();
+                } else if (command.getOperation().equals(Command.Operation.START_ENGINE)) {
+                    startMule();
+                } else if (command.getOperation().equals(Command.Operation.STOP_ENGINE)) {
+                    stopMule();
+                } else if (command.getOperation().equals(Command.Operation.RESTART_ENGINE)) {
+                    restartMule();
+                }
+            }
+        } else {
+            logger.error("could not initialize resources");
+        }
+    }
 
-	/**
-	 * Returns true if the resources required by the server have been
-	 * sucessfully loaded
-	 * 
-	 * @return true if the resources required by the server have been
-	 *         sucessfully loaded
-	 */
-	public boolean initResources() {
-		mirthProperties = PropertyLoader.loadProperties("mirth");
-		versionProperties = PropertyLoader.loadProperties("version");
+    /**
+     * Returns true if the resources required by the server have been
+     * sucessfully loaded
+     * 
+     * @return true if the resources required by the server have been
+     *         sucessfully loaded
+     */
+    public boolean initResources() {
+        mirthProperties = PropertyLoader.loadProperties("mirth");
+        versionProperties = PropertyLoader.loadProperties("version");
 
-		return (mirthProperties != null);
-	}
+        return (mirthProperties != null);
+    }
 
-	/**
-	 * Starts up the server.
-	 * 
-	 */
-	public void startup() {
-		startWebServer();
+    /**
+     * Starts up the server.
+     * 
+     */
+    public void startup() {
+        startWebServer();
+        messageObjectController.removeAllFilterTables();
+        eventController.removeAllFilterTables();
+        channelStatisticsController.start();
+        migrationController.migrate();
+        channelController.loadChannelCache();
+        userController.resetUserStatus();
+        monitoringController.initPlugins();
+        extensionController.startPlugins();
+        
+        startMule();
+        printSplashScreen();
+    }
 
-		// initialize controllers
-		messageObjectController.initialize();
-		systemLogger.initialize();
-		channelStatisticsController.initialize();
-		configurationController.initialize();
-		migrationController.initialize();
-		extensionController.initialize();
-		channelController.initialize();
-		userController.initialize();
-		monitoringController.initialize();
+    /**
+     * Shuts down the server.
+     * 
+     */
+    public void shutdown() {
+        logger.info("shutting down mirth due to normal request");
+        stopMule();
+        channelStatisticsController.updateAllStatistics();
+        // do one last update to the stats table
+        stopWebServer();
+        extensionController.stopPlugins();
+        channelStatisticsController.shutdown();
+        stopDatabase();
+        running = false;
+    }
 
-		extensionController.startPlugins();
+    /**
+     * Restarts the Mule server. This is accomplished by stopping and starting
+     * the server.
+     * 
+     */
+    private void restartMule() {
+        logger.debug("retarting mule");
+        stopMule();
+        startMule();
+    }
 
-		startMule();
+    /**
+     * Starts the Mule server.
+     * 
+     */
+    private void startMule() {
+        String configurationFilePath = null;
 
-		printSplashScreen();
-	}
+        try {
+            configurationFilePath = configurationController.getLatestConfiguration().getAbsolutePath();
+        } catch (Exception e) {
+            logger.error("Could not retrieve latest configuration.", e);
+            return;
+        }
 
-	/**
-	 * Shuts down the server.
-	 * 
-	 */
-	public void shutdown() {
-		logger.info("shutting down mirth due to normal request");
-		stopMule();
-		channelStatisticsController.updateAllStatistics(); // do one last
-		// update to the
-		// stats table
-		stopWebServer();
-		extensionController.stopPlugins();
-		channelStatisticsController.shutdown();
-		stopDatabase();
-		running = false;
-	}
+        try {
+            // clear global map and do channel deploy scripts if the user
+            // specified to
+            if (configurationController.getServerProperties().getProperty("server.resetglobalvariables") == null || configurationController.getServerProperties().getProperty("server.resetglobalvariables").equals("1"))
+                GlobalVariableStore.getInstance().globalVariableMap.clear();
+        } catch (Exception e) {
+            logger.warn("Could not clear the global map.", e);
+        }
 
-	/**
-	 * Restarts the Mule server. This is accomplished by stopping and starting
-	 * the server.
-	 * 
-	 */
-	private void restartMule() {
-		logger.debug("retarting mule");
-		stopMule();
-		startMule();
-	}
+        configurationController.setEngineStarting(true);
 
-	/**
-	 * Starts the Mule server.
-	 * 
-	 */
-	private void startMule() {
+        try {
+            logger.debug("starting mule with configuration file: " + configurationFilePath);
 
-		String configurationFilePath = null;
+            // disables validation of Mule configuration files
+            System.setProperty("org.mule.xml.validate", "false");
+            VMRegistry.getInstance().rebuild();
+            MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
 
-		try {
-			configurationFilePath = configurationController.getLatestConfiguration().getAbsolutePath();
-		} catch (Exception e) {
-			logger.error("Could not retrieve latest configuration.", e);
-			return;
-		}
+            List<Channel> channels = channelController.getChannel(null);
+            configurationController.compileScripts(channels);
 
-		try {
-			// clear global map and do channel deploy scripts if the user
-			// specified to
-			if (configurationController.getServerProperties().getProperty("server.resetglobalvariables") == null || configurationController.getServerProperties().getProperty("server.resetglobalvariables").equals("1"))
-				GlobalVariableStore.getInstance().globalVariableMap.clear();
-		} catch (Exception e) {
-			logger.warn("Could not clear the global map.", e);
-		}
+            configurationController.executeGlobalDeployScript();
+            configurationController.executeChannelDeployScripts(channelController.getChannel(null));
 
-		configurationController.setEngineStarting(true);
+            muleManager = (MuleManager) builder.configure(configurationFilePath);
 
-		try {
-			logger.debug("starting mule with configuration file: " + configurationFilePath);
+        } catch (Exception e) {
+            logger.warn("Error deploying channels.", e);
 
-			// disables validation of Mule configuration files
-			System.setProperty("org.mule.xml.validate", "false");
-			VMRegistry.getInstance().rebuild();
-			MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
+            // if deploy fails, log to system events
+            SystemEvent event = new SystemEvent("Error deploying channels.");
+            event.setLevel(SystemEvent.Level.HIGH);
+            event.setDescription(StackTracePrinter.stackTraceToString(e));
+            eventController.logSystemEvent(event);
 
-			List<Channel> channels = channelController.getChannel(null);
-			configurationController.compileScripts(channels);
+            // remove the errant configuration
+            configurationController.deleteLatestConfiguration();
+        }
 
-			configurationController.executeGlobalDeployScript();
-			configurationController.executeChannelDeployScripts(channelController.getChannel(null));
+        configurationController.setEngineStarting(false);
+    }
 
-			muleManager = (MuleManager) builder.configure(configurationFilePath);
+    /**
+     * Stops the Mule server.
+     * 
+     */
+    private void stopMule() {
+        logger.debug("stopping mule");
 
-		} catch (Exception e) {
-			logger.warn("Error deploying channels.", e);
+        if (muleManager != null) {
+            try {
+                if (muleManager.isStarted()) {
+                    configurationController.executeChannelShutdownScripts(channelController.getChannel(null));
+                    configurationController.executeGlobalShutdownScript();
 
-			// if deploy fails, log to system events
-			SystemEvent event = new SystemEvent("Error deploying channels.");
-			event.setLevel(SystemEvent.Level.HIGH);
-			event.setDescription(StackTracePrinter.stackTraceToString(e));
-			systemLogger.logSystemEvent(event);
+                    muleManager.stop();
+                }
+            } catch (Exception e) {
+                logger.error(e);
+            } finally {
+                logger.debug("disposing mule instance");
+                muleManager.dispose();
+            }
+        }
+    }
 
-			// remove the errant configuration
-			configurationController.deleteLatestConfiguration();
-		}
+    /**
+     * Starts the Jetty web server.
+     * 
+     */
+    private void startWebServer() {
+        logger.debug("starting jetty web server");
 
-		configurationController.setEngineStarting(false);
-	}
+        try {
+            // this disables validaiton of the web.xml file
+            // which causes exceptions when Mirth is run
+            // behind a firewall and the resources cannot be
+            // accessed
+            System.setProperty("org.mortbay.xml.XmlParser.NotValidating", "true");
+            // this disables a "form too large" error for occuring by setting
+            // form size to infinite
+            System.setProperty("org.mortbay.http.HttpRequest.maxFormContentSize", "0");
 
-	/**
-	 * Stops the Mule server.
-	 * 
-	 */
-	private void stopMule() {
-		logger.debug("stopping mule");
+            httpServer = new HttpServer();
+            servletContainer = new HttpServer();
 
-		if (muleManager != null) {
-			try {
-				if (muleManager.isStarted()) {
-					configurationController.executeChannelShutdownScripts(channelController.getChannel(null));
-					configurationController.executeGlobalShutdownScript();
+            // add HTTPS listener
+            SslListener sslListener = new SslListener();
 
-					muleManager.stop();
-				}
-			} catch (Exception e) {
-				logger.error(e);
-			} finally {
-				logger.debug("disposing mule instance");
-				muleManager.dispose();
-			}
-		}
-	}
+            String ciphers = PropertyLoader.getProperty(mirthProperties, "https.ciphers");
+            if (ciphers != null && !ciphers.equals("")) {
+                sslListener.setCipherSuites(ciphers.split(","));
+            }
 
-	/**
-	 * Starts the Jetty web server.
-	 * 
-	 */
-	private void startWebServer() {
-		logger.debug("starting jetty web server");
+            sslListener.setPort(Integer.valueOf(PropertyLoader.getProperty(mirthProperties, "https.port")).intValue());
+            sslListener.setKeystore(ControllerFactory.getFactory().createConfigurationController().getBaseDir() + System.getProperty("file.separator") + PropertyLoader.getProperty(mirthProperties, "https.keystore"));
+            sslListener.setPassword(PropertyLoader.getProperty(mirthProperties, "https.password"));
+            sslListener.setKeyPassword(PropertyLoader.getProperty(mirthProperties, "https.keypassword"));
+            servletContainer.addListener(sslListener);
 
-		try {
-			// this disables validaiton of the web.xml file
-			// which causes exceptions when Mirth is run
-			// behind a firewall and the resources cannot be
-			// accessed
-			System.setProperty("org.mortbay.xml.XmlParser.NotValidating", "true");
-			// this disables a "form too large" error for occuring by setting
-			// form size to infinite
-			System.setProperty("org.mortbay.http.HttpRequest.maxFormContentSize", "0");
+            // add HTTP listener
+            SocketListener listener = new SocketListener();
+            listener.setPort(Integer.valueOf(PropertyLoader.getProperty(mirthProperties, "http.port")).intValue());
+            httpServer.addListener(listener);
 
-			httpServer = new HttpServer();
-			servletContainer = new HttpServer();
+            // Load the context path property and remove the last char if it is
+            // a '/'.
+            String contextPath = PropertyLoader.getProperty(mirthProperties, "context.path");
+            if (contextPath.lastIndexOf('/') == (contextPath.length() - 1)) {
+                contextPath = contextPath.substring(0, contextPath.length() - 1);
+            }
 
-			// add HTTPS listener
-			SslListener sslListener = new SslListener();
+            // Create the lib context
+            HttpContext libContext = new HttpContext();
+            libContext.setContextPath(contextPath + "/client-lib/");
+            httpServer.addContext(libContext);
 
-			String ciphers = PropertyLoader.getProperty(mirthProperties, "https.ciphers");
-			if (ciphers != null && !ciphers.equals("")) {
-				sslListener.setCipherSuites(ciphers.split(","));
-			}
+            // Serve static content from the lib context
+            File connectors = new File(ClassPathResource.getResourceURI("connectors"));
+            File plugins = new File(ClassPathResource.getResourceURI("plugins"));
+            String libPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + System.getProperty("file.separator") + "client-lib";
 
-			sslListener.setPort(Integer.valueOf(PropertyLoader.getProperty(mirthProperties, "https.port")).intValue());
-			sslListener.setKeystore(ControllerFactory.getFactory().createConfigurationController().getBaseDir() + System.getProperty("file.separator") + PropertyLoader.getProperty(mirthProperties, "https.keystore"));
-			sslListener.setPassword(PropertyLoader.getProperty(mirthProperties, "https.password"));
-			sslListener.setKeyPassword(PropertyLoader.getProperty(mirthProperties, "https.keypassword"));
-			servletContainer.addListener(sslListener);
+            libContext.setResourceBase(libPath);
+            libContext.addHandler(new ResourceHandler());
 
-			// add HTTP listener
-			SocketListener listener = new SocketListener();
-			listener.setPort(Integer.valueOf(PropertyLoader.getProperty(mirthProperties, "http.port")).intValue());
-			httpServer.addListener(listener);
+            // Create the connectors context
+            HttpContext connectorsContext = new HttpContext();
+            connectorsContext.setContextPath(contextPath + "/connectors/");
+            httpServer.addContext(connectorsContext);
 
-			// Load the context path property and remove the last char if it is
-			// a '/'.
-			String contextPath = PropertyLoader.getProperty(mirthProperties, "context.path");
-			if (contextPath.lastIndexOf('/') == (contextPath.length() - 1)) {
-				contextPath = contextPath.substring(0, contextPath.length() - 1);
-			}
+            // Serve static content from the connectors context
+            String connectorsPath = connectors.getPath();
+            connectorsContext.setResourceBase(connectorsPath);
+            connectorsContext.addHandler(new ResourceHandler());
 
-			// Create the lib context
-			HttpContext libContext = new HttpContext();
-			libContext.setContextPath(contextPath + "/client-lib/");
-			httpServer.addContext(libContext);
+            // Create the connectors context
+            HttpContext pluginsContext = new HttpContext();
+            pluginsContext.setContextPath(contextPath + "/plugins/");
+            httpServer.addContext(pluginsContext);
 
-			// Serve static content from the lib context
-			File connectors = new File(ClassPathResource.getResourceURI("connectors"));
-			File plugins = new File(ClassPathResource.getResourceURI("plugins"));
-			String libPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + System.getProperty("file.separator") + "client-lib";
+            // Serve static content from the connectors context
+            String pluginsPath = plugins.getPath();
+            pluginsContext.setResourceBase(pluginsPath);
+            pluginsContext.addHandler(new ResourceHandler());
 
-			libContext.setResourceBase(libPath);
-			libContext.addHandler(new ResourceHandler());
+            // Create the public_html context
+            HttpContext publicContext = new HttpContext();
+            publicContext.setContextPath(contextPath + "/");
+            httpServer.addContext(publicContext);
 
-			// Create the connectors context
-			HttpContext connectorsContext = new HttpContext();
-			connectorsContext.setContextPath(contextPath + "/connectors/");
-			httpServer.addContext(connectorsContext);
+            String publicPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + System.getProperty("file.separator") + "public_html";
+            publicContext.setResourceBase(publicPath);
+            publicContext.addHandler(new ResourceHandler());
 
-			// Serve static content from the connectors context
-			String connectorsPath = connectors.getPath();
-			connectorsContext.setResourceBase(connectorsPath);
-			connectorsContext.addHandler(new ResourceHandler());
+            // Create a normal servlet container
+            ServletHandler servlets = new ServletHandler();
+            HttpContext servletContext = new HttpContext();
+            servletContext.setContextPath(contextPath + "/");
+            servletContext.addHandler(servlets);
+            httpServer.addContext(servletContext);
+            servlets.addServlet("WebStart", "/webstart.jnlp", "com.webreach.mirth.server.servlets.WebStartServlet");
+            servlets.addServlet("Activation", "/activation.jnlp", "com.webreach.mirth.server.servlets.ActivationServlet");
+            // Servlets for backwards compatibility
+            servlets.addServlet("WebStart", "/webstart", "com.webreach.mirth.server.servlets.WebStartServlet");
+            servlets.addServlet("Activation", "/activation", "com.webreach.mirth.server.servlets.ActivationServlet");
 
-			// Create the connectors context
-			HttpContext pluginsContext = new HttpContext();
-			pluginsContext.setContextPath(contextPath + "/plugins/");
-			httpServer.addContext(pluginsContext);
+            // Create a secure servlet container
+            ServletHandler secureServlets = new ServletHandler();
+            HttpContext secureServletContext = new HttpContext();
+            secureServletContext.setContextPath(contextPath + "/");
+            secureServletContext.addHandler(secureServlets);
+            servletContainer.addContext(secureServletContext);
+            // Map a servlet onto the container
+            secureServlets.addServlet("Alerts", "/alerts", "com.webreach.mirth.server.servlets.AlertServlet");
+            secureServlets.addServlet("Channels", "/channels", "com.webreach.mirth.server.servlets.ChannelServlet");
+            secureServlets.addServlet("ChannelStatistics", "/channelstatistics", "com.webreach.mirth.server.servlets.ChannelStatisticsServlet");
+            secureServlets.addServlet("ChannelStatus", "/channelstatus", "com.webreach.mirth.server.servlets.ChannelStatusServlet");
+            secureServlets.addServlet("CodeTemplates", "/codetemplates", "com.webreach.mirth.server.servlets.CodeTemplateServlet");
+            secureServlets.addServlet("Configuration", "/configuration", "com.webreach.mirth.server.servlets.ConfigurationServlet");
+            secureServlets.addServlet("MessageObject", "/messages", "com.webreach.mirth.server.servlets.MessageObjectServlet");
+            secureServlets.addServlet("Extensions", "/extensions", "com.webreach.mirth.server.servlets.ExtensionServlet");
+            secureServlets.addServlet("SystemEvent", "/events", "com.webreach.mirth.server.servlets.SystemEventServlet");
+            secureServlets.addServlet("Users", "/users", "com.webreach.mirth.server.servlets.UserServlet");
 
-			// Serve static content from the connectors context
-			String pluginsPath = plugins.getPath();
-			pluginsContext.setResourceBase(pluginsPath);
-			pluginsContext.addHandler(new ResourceHandler());
+            // start the web server
+            httpServer.start();
+            servletContainer.start();
 
-			// Create the public_html context
-			HttpContext publicContext = new HttpContext();
-			publicContext.setContextPath(contextPath + "/");
-			httpServer.addContext(publicContext);
+            logger.debug("started jetty web server on ports: " + listener.getPort() + ", " + sslListener.getPort());
+        } catch (Exception e) {
+            logger.warn("Could not start web server.", e);
+        }
+    }
 
-			String publicPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + System.getProperty("file.separator") + "public_html";
-			publicContext.setResourceBase(publicPath);
-			publicContext.addHandler(new ResourceHandler());
+    /**
+     * Stops the Jetty web server.
+     * 
+     */
+    private void stopWebServer() {
+        logger.debug("stopping jetty web server");
 
-			// Create a normal servlet container
-			ServletHandler servlets = new ServletHandler();
-			HttpContext servletContext = new HttpContext();
-			servletContext.setContextPath(contextPath + "/");
-			servletContext.addHandler(servlets);
-			httpServer.addContext(servletContext);
-			servlets.addServlet("WebStart", "/webstart.jnlp", "com.webreach.mirth.server.servlets.WebStartServlet");
-			servlets.addServlet("Activation", "/activation.jnlp", "com.webreach.mirth.server.servlets.ActivationServlet");
-			// Servlets for backwards compatibility
-			servlets.addServlet("WebStart", "/webstart", "com.webreach.mirth.server.servlets.WebStartServlet");
-			servlets.addServlet("Activation", "/activation", "com.webreach.mirth.server.servlets.ActivationServlet");
+        try {
+            httpServer.stop();
+            servletContainer.stop();
+        } catch (Exception e) {
+            logger.warn("Could not stop web server.", e);
+        }
+    }
 
-			// Create a secure servlet container
-			ServletHandler secureServlets = new ServletHandler();
-			HttpContext secureServletContext = new HttpContext();
-			secureServletContext.setContextPath(contextPath + "/");
-			secureServletContext.addHandler(secureServlets);
-			servletContainer.addContext(secureServletContext);
-			// Map a servlet onto the container
-			secureServlets.addServlet("Alerts", "/alerts", "com.webreach.mirth.server.servlets.AlertServlet");
-			secureServlets.addServlet("Channels", "/channels", "com.webreach.mirth.server.servlets.ChannelServlet");
-			secureServlets.addServlet("ChannelStatistics", "/channelstatistics", "com.webreach.mirth.server.servlets.ChannelStatisticsServlet");
-			secureServlets.addServlet("ChannelStatus", "/channelstatus", "com.webreach.mirth.server.servlets.ChannelStatusServlet");
-			secureServlets.addServlet("CodeTemplates", "/codetemplates", "com.webreach.mirth.server.servlets.CodeTemplateServlet");
-			secureServlets.addServlet("Configuration", "/configuration", "com.webreach.mirth.server.servlets.ConfigurationServlet");
-			secureServlets.addServlet("MessageObject", "/messages", "com.webreach.mirth.server.servlets.MessageObjectServlet");
-			secureServlets.addServlet("Extensions", "/extensions", "com.webreach.mirth.server.servlets.ExtensionServlet");
-			secureServlets.addServlet("SystemEvent", "/events", "com.webreach.mirth.server.servlets.SystemEventServlet");
-			secureServlets.addServlet("Users", "/users", "com.webreach.mirth.server.servlets.UserServlet");
+    private void stopDatabase() {
+        String database = PropertyLoader.getProperty(mirthProperties, "database");
 
-			// start the web server
-			httpServer.start();
-			servletContainer.start();
+        if (database.equals("derby")) {
+            boolean gotException = false;
 
-			logger.debug("started jetty web server on ports: " + listener.getPort() + ", " + sslListener.getPort());
-		} catch (Exception e) {
-			logger.warn("Could not start web server.", e);
-		}
-	}
+            try {
+                DriverManager.getConnection("jdbc:derby:;shutdown=true");
+            } catch (SQLException sqle) {
+                if (sqle != null && sqle.getSQLState() != null && sqle.getSQLState().equals("XJ015")) {
+                    gotException = true;
+                }
+            }
 
-	/**
-	 * Stops the Jetty web server.
-	 * 
-	 */
-	private void stopWebServer() {
-		logger.debug("stopping jetty web server");
+            if (gotException) {
+                System.out.println("Database shut down normally.");
+            }
+        }
+    }
 
-		try {
-			httpServer.stop();
-			servletContainer.stop();
-		} catch (Exception e) {
-			logger.warn("Could not stop web server.", e);
-		}
-	}
+    private class ShutdownHook extends Thread {
+        public void run() {
+            shutdown();
+        }
+    }
 
-	private void stopDatabase() {
-		String database = PropertyLoader.getProperty(mirthProperties, "database");
-		
-		if (database.equals("derby")) {
-			boolean gotException = false;
-			
-			try {
-				DriverManager.getConnection("jdbc:derby:;shutdown=true");
-			} catch (SQLException sqle) {
-				if (sqle != null && sqle.getSQLState() != null && sqle.getSQLState().equals("XJ015")) {
-					gotException = true;
-				}
-			}
-
-			if (gotException) {
-				System.out.println("Database shut down normally.");
-			}
-		}
-	}
-
-	private class ShutdownHook extends Thread {
-		public void run() {
-			shutdown();
-		}
-	}
-
-	/**
-	 * Displays the splash screen information, including the server version and
-	 * build date, to the system console.
-	 * 
-	 */
-	private void printSplashScreen() {
-		String version = PropertyLoader.getProperty(versionProperties, "mirth.version");
-		String buildDate = PropertyLoader.getProperty(versionProperties, "mirth.date");
-		System.out.println("Mirth " + version + " (" + buildDate + ") server successfully started: " + (new Date()).toString());
-		System.out.println("This product was developed by WebReach, Inc. (http://www.webreachinc.com) and its contributors ©2005-" + Calendar.getInstance().get(Calendar.YEAR) + ".");
-		System.out.println("Running Java " + System.getProperty("java.version") + " on " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ", " + System.getProperty("os.arch") + ") with charset " + Charset.defaultCharset() + ".");
-	}
+    /**
+     * Displays the splash screen information, including the server version and
+     * build date, to the system console.
+     * 
+     */
+    private void printSplashScreen() {
+        String version = PropertyLoader.getProperty(versionProperties, "mirth.version");
+        String buildDate = PropertyLoader.getProperty(versionProperties, "mirth.date");
+        System.out.println("Mirth " + version + " (" + buildDate + ") server successfully started: " + (new Date()).toString());
+        System.out.println("This product was developed by WebReach, Inc. (http://www.webreachinc.com) and its contributors ©2005-" + Calendar.getInstance().get(Calendar.YEAR) + ".");
+        System.out.println("Running Java " + System.getProperty("java.version") + " on " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ", " + System.getProperty("os.arch") + ") with charset " + Charset.defaultCharset() + ".");
+    }
 
 }

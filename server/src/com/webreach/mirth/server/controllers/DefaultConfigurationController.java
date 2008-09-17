@@ -107,7 +107,6 @@ public class DefaultConfigurationController implements ConfigurationController{
 
     // singleton pattern
     private static DefaultConfigurationController instance = null;
-    private static boolean initialized = false;
 
     private DefaultConfigurationController() {
 
@@ -115,14 +114,16 @@ public class DefaultConfigurationController implements ConfigurationController{
 
     public static ConfigurationController getInstance() {
         synchronized (DefaultConfigurationController.class) {
-            if (instance == null)
+            if (instance == null) {
                 instance = new DefaultConfigurationController();
+                instance.initialize();
+            }
 
             return instance;
         }
     }
 
-    public void initialize() {
+    private void initialize() {
         try {
             if (mirthProperties.getProperty(CHARSET) != null) {
                 System.setProperty(CHARSET, mirthProperties.getProperty(CHARSET));
@@ -151,12 +152,6 @@ public class DefaultConfigurationController implements ConfigurationController{
         } catch (Exception e) {
             logger.error("could not initialize configuration settings", e);
         }
-        
-        initialized = true;
-    }
-
-    public boolean isInitialized() {
-        return initialized;
     }
 
     private void loadDefaultProperties() throws Exception {
@@ -341,12 +336,11 @@ public class DefaultConfigurationController implements ConfigurationController{
 
         try {
             ChannelController channelController = ControllerFactory.getFactory().createChannelController();
-            channelController.initialize();
+            channelController.loadChannelCache();
 
             // instantiate a new configuration builder given the current channel
             // and transport list
             List<Channel> channels = channelController.getChannel(null);
-
             MuleConfigurationBuilder builder = new MuleConfigurationBuilder(channels, extensionController.getConnectorMetaData());
             // add the newly generated configuration to the database
             addConfiguration(builder.getConfiguration());

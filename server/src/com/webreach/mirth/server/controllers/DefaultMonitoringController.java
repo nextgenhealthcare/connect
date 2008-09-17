@@ -18,7 +18,6 @@ public class DefaultMonitoringController implements MonitoringController {
     private Map<String, ConnectorStatusPlugin> loadedPlugins;
 
     private static DefaultMonitoringController instance = null;
-    private static boolean initialized = false;
 
     private DefaultMonitoringController() {
 
@@ -29,17 +28,9 @@ public class DefaultMonitoringController implements MonitoringController {
             if (instance == null) {
                 instance = new DefaultMonitoringController();
             }
+            
             return instance;
         }
-    }
-
-    public void initialize() {
-        initPlugins();
-        initialized = true;
-    }
-
-    public boolean isInitialized() {
-        return initialized;
     }
 
     public void updateStatus(String connectorName, ConnectorType type, Event event, Socket socket) {

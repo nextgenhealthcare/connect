@@ -33,8 +33,6 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelSummary;
 
 public interface ChannelController extends Controller {
-    public void initialize();
-
     public List<Channel> getChannel(Channel channel) throws ControllerException;
 
     public List<Channel> getEnabledChannels() throws ControllerException;
@@ -44,6 +42,8 @@ public interface ChannelController extends Controller {
     public boolean updateChannel(Channel channel, boolean override) throws ControllerException;
 
     public void removeChannel(Channel channel) throws ControllerException;
+    
+    public void loadChannelCache();
 
     // channel cache
     public HashMap<String, Channel> getChannelCache();

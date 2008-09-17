@@ -55,15 +55,6 @@ public class DefaultAlertController implements AlertController {
 
     }
 
-    public void initialize() {
-        // no initialization required
-    }
-
-
-    public boolean isInitialized() {
-        return true;
-    }
-
     public static AlertController getInstance() {
         synchronized (DefaultAlertController.class) {
             if (instance == null) {
@@ -80,9 +71,7 @@ public class DefaultAlertController implements AlertController {
         try {
             List<Alert> alerts = SqlConfig.getSqlMapClient().queryForList("getAlert", alert);
 
-            for (Iterator iter = alerts.iterator(); iter.hasNext();) {
-                Alert currentAlert = (Alert) iter.next();
-
+            for (Alert currentAlert : alerts) {
                 List<String> channelIds = SqlConfig.getSqlMapClient().queryForList("getChannelIdsByAlertId", currentAlert.getId());
                 currentAlert.setChannels(channelIds);
 

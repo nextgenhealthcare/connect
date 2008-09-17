@@ -17,17 +17,12 @@ import com.webreach.mirth.server.tools.ScriptRunner;
 
 public class UserControllerTest extends TestCase {
 	private UserController userController = ControllerFactory.getFactory().createUserController();
-	private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 	private List<User> sampleUserList;
 	
 	protected void setUp() throws Exception {
 		super.setUp();
 		// clear all database tables
 		ScriptRunner.runScript("derby-database.sql");
-
-		// initialize the configuration controller to cache encryption key
-		configurationController.initialize();
-
 		sampleUserList = new ArrayList<User>();
 		
 		for (int i = 0; i < 10; i++) {

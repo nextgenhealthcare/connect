@@ -23,9 +23,6 @@ public class StatisticsControllerTest extends TestCase {
 		// clear all database tables
 		ScriptRunner.runScript("derby-database.sql");
 
-		// initialize the configuration controller to cache encryption key
-		configurationController.initialize();
-
 		// create a sample channel
 		sampleChannel = new Channel();
 		sampleChannel.setId(configurationController.getGuid());

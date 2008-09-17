@@ -47,7 +47,6 @@ public class DefaultMigrationController implements MigrationController {
 
     // singleton pattern
     private static DefaultMigrationController instance = null;
-    private static boolean initialized = false;
 
     private DefaultMigrationController() {
 
@@ -55,14 +54,15 @@ public class DefaultMigrationController implements MigrationController {
 
     public static MigrationController getInstance() {
         synchronized (DefaultMigrationController.class) {
-            if (instance == null)
+            if (instance == null) {
                 instance = new DefaultMigrationController();
+            }
 
             return instance;
         }
     }
 
-    public void initialize() {
+    public void migrate() {
         try {
             int newSchemaVersion = configurationController.getSchemaVersion();
             int oldSchemaVersion;
@@ -96,14 +96,9 @@ public class DefaultMigrationController implements MigrationController {
                 try {
                     SqlConfig.getSqlMapClient().update("clearConfiguration");
                     File configurationFile = new File(configurationController.getMuleConfigurationPath());
-
-                    if (configurationFile != null)
-                        configurationFile.delete();
-
+                    configurationFile.delete();
                     File bootFile = new File(configurationController.getMuleBootPath());
-
-                    if (bootFile != null)
-                        bootFile.delete();
+                    bootFile.delete();
                 } catch (Exception e) {
                     logger.error("Could not remove previous configuration.", e);
                 }
@@ -111,12 +106,6 @@ public class DefaultMigrationController implements MigrationController {
         } catch (Exception e) {
             logger.error("Could not initialize migration controller.", e);
         }
-        
-        initialized = true;
-    }
-    
-    public boolean isInitialized() {
-        return initialized;
     }
 
     private void migrate(int oldVersion, int newVersion) throws Exception {
