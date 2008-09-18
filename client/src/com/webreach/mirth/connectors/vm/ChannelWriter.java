@@ -72,7 +72,6 @@ public class ChannelWriter extends ConnectorClass
         ArrayList<String> channelNameArray = new ArrayList<String>();
         channelList = new HashMap();
         channelList.put("None", "sink");
-        channelNameArray.add("None");
         
         String selectedChannelName = "None";
         
@@ -87,6 +86,9 @@ public class ChannelWriter extends ConnectorClass
 
         // sort the channels in alpha-numeric order.
         Collections.sort(channelNameArray);
+
+        // add "None" to the very top of the list.
+        channelNameArray.add(0, "None");
 
         channelNames.setModel(new javax.swing.DefaultComboBoxModel(channelNameArray.toArray()));
 
