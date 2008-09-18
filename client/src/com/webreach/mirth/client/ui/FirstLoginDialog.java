@@ -254,7 +254,7 @@ private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         	try {
 				parent.getUpdateClient(this).registerUser(user);
 			} catch (ClientException e) {
-				parent.alertException(this, e.getStackTrace(), e.getMessage());
+				// ignore errors connecting to update/stats server
 			}
         }
         
