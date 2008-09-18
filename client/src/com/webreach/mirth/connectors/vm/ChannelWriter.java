@@ -29,6 +29,7 @@ import com.webreach.mirth.client.ui.UIConstants;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.Collections;
 
 import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.model.Channel;
@@ -83,6 +84,10 @@ public class ChannelWriter extends ConnectorClass
             channelList.put(channel.getName(), channel.getId());
             channelNameArray.add(channel.getName());
         }
+
+        // sort the channels in alpha-numeric order.
+        Collections.sort(channelNameArray);
+
         channelNames.setModel(new javax.swing.DefaultComboBoxModel(channelNameArray.toArray()));
 
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
