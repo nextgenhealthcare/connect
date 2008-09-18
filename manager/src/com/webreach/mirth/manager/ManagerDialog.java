@@ -103,7 +103,7 @@ public class ManagerDialog extends javax.swing.JDialog
         
         webreachLink.setToolTipText("Visit WebReach's website.");
         webreachLink.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
+        
         loadServerProperties();
     }
 
