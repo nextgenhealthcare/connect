@@ -54,7 +54,6 @@ public class SOAPSenderProperties extends QueuedSenderProperties
     public static final String SOAP_GENERATE_ENVELOPE = "soapGenerateEnvelope";
     public static final String SOAP_ACTION_URI = "soapActionURI";
     public static final String CHANNEL_ID = "replyChannelId";
-    public static final String CHANNEL_NAME = "channelName";
 
     public Properties getDefaults()
     {
@@ -74,7 +73,6 @@ public class SOAPSenderProperties extends QueuedSenderProperties
         properties.put(SOAP_GENERATE_ENVELOPE, "1");
         properties.put(SOAP_ACTION_URI, "");
         properties.put(CHANNEL_ID, "sink");
-        properties.put(CHANNEL_NAME, "None");
         return properties;
     }
 	public static String zipAndEncodeDefinition(WSDefinition definition) throws IOException {

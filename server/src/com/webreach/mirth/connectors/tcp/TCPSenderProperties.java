@@ -45,7 +45,6 @@ public class TCPSenderProperties extends QueuedSenderProperties
     public static final String TCP_ACK_TIMEOUT = "ackTimeout";
     public static final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
     public static final String CHANNEL_ID = "replyChannelId";
-    public static final String CHANNEL_NAME = "channelName";
     public static final String TCP_TYPE = "binary";
 
     public Properties getDefaults()
@@ -63,7 +62,6 @@ public class TCPSenderProperties extends QueuedSenderProperties
         properties.put(CONNECTOR_CHARSET_ENCODING, "DEFAULT_ENCODING");
         properties.put(TCP_TEMPLATE, "${message.encodedData}");
         properties.put(CHANNEL_ID, "sink");
-        properties.put(CHANNEL_NAME, "None");
         properties.put(TCP_TYPE, "0");
         return properties;
     }

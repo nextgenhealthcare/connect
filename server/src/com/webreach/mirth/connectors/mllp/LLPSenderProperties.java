@@ -52,7 +52,6 @@ public class LLPSenderProperties extends QueuedSenderProperties
     public static final String LLP_HL7_ACK_RESPONSE = "hl7AckResponse";
     public static final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
     public static final String CHANNEL_ID = "replyChannelId";
-    public static final String CHANNEL_NAME = "channelName";
     
     public Properties getDefaults()
     {
@@ -75,7 +74,6 @@ public class LLPSenderProperties extends QueuedSenderProperties
         properties.put(CONNECTOR_CHARSET_ENCODING, "DEFAULT_ENCODING");
         properties.put(LLP_TEMPLATE, "${message.encodedData}");
         properties.put(CHANNEL_ID, "sink");
-        properties.put(CHANNEL_NAME, "None");
         return properties;
     }
 }
