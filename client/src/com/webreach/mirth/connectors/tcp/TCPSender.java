@@ -33,6 +33,7 @@ import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.connectors.mllp.LLPSenderProperties;
+import com.webreach.mirth.connectors.vm.ChannelWriterProperties;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.QueuedSenderProperties;
 
@@ -96,7 +97,7 @@ public class TCPSender extends ConnectorClass
         
         properties.put(TCPSenderProperties.TCP_TEMPLATE, template.getText());
         properties.put(TCPSenderProperties.CHANNEL_ID, channelList.get((String) channelNames.getSelectedItem()));
-        properties.put(TCPSenderProperties.CHANNEL_NAME, (String) channelNames.getSelectedItem());
+        
         return properties;
     }
 
@@ -161,8 +162,14 @@ public class TCPSender extends ConnectorClass
         channelList = new HashMap();
         channelList.put("None", "sink");
         channelNameArray.add("None");
+        
+        String selectedChannelName = "None";
+        
         for (Channel channel : parent.channels.values())
         {
+        	if (((String) props.get(TCPSenderProperties.CHANNEL_ID)).equalsIgnoreCase(channel.getId()))
+        		selectedChannelName = channel.getName();
+        	
             channelList.put(channel.getName(), channel.getId());
             channelNameArray.add(channel.getName());
         }
@@ -170,8 +177,7 @@ public class TCPSender extends ConnectorClass
 
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
 
-        if (props.get(TCPSenderProperties.CHANNEL_NAME) != null)
-            channelNames.setSelectedItem((String) props.get(TCPSenderProperties.CHANNEL_NAME));
+        channelNames.setSelectedItem(selectedChannelName);
 
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }

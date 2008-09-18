@@ -67,6 +67,7 @@ import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.BeanBinder;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.connectors.ConnectorClass;
+import com.webreach.mirth.connectors.vm.ChannelWriterProperties;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.QueuedSenderProperties;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
@@ -156,7 +157,7 @@ public class SOAPSender extends ConnectorClass
 
         properties.put(SOAPSenderProperties.SOAP_ACTION_URI, soapActionURI.getText());
         properties.put(SOAPSenderProperties.CHANNEL_ID, channelList.get((String) channelNames.getSelectedItem()));
-        properties.put(SOAPSenderProperties.CHANNEL_NAME, (String) channelNames.getSelectedItem());
+        
         return properties;
     }
 
@@ -247,8 +248,14 @@ public class SOAPSender extends ConnectorClass
         channelList = new HashMap();
         channelList.put("None", "sink");
         channelNameArray.add("None");
+        
+        String selectedChannelName = "None";
+        
         for (Channel channel : parent.channels.values())
         {
+        	if (((String) props.get(SOAPSenderProperties.CHANNEL_ID)).equalsIgnoreCase(channel.getId()))
+        		selectedChannelName = channel.getName();
+        	
             channelList.put(channel.getName(), channel.getId());
             channelNameArray.add(channel.getName());
         }
@@ -256,8 +263,7 @@ public class SOAPSender extends ConnectorClass
 
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
 
-        if (props.get(SOAPSenderProperties.CHANNEL_NAME) != null)
-            channelNames.setSelectedItem((String) props.get(SOAPSenderProperties.CHANNEL_NAME));
+        channelNames.setSelectedItem(selectedChannelName);
 
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }

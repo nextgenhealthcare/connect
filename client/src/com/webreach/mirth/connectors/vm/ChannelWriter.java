@@ -54,8 +54,6 @@ public class ChannelWriter extends ConnectorClass
         Properties properties = new Properties();
         properties.put(ChannelWriterProperties.DATATYPE, name);
         properties.put(ChannelWriterProperties.CHANNEL_ID, channelList.get((String) channelNames.getSelectedItem()));
-        properties.put(ChannelWriterProperties.CHANNEL_NAME, (String) channelNames.getSelectedItem());
-        
         properties.put(ChannelWriterProperties.CHANNEL_TEMPLATE, template.getText());
         
         if(channelResponseYes.isSelected())
@@ -74,8 +72,14 @@ public class ChannelWriter extends ConnectorClass
         channelList = new HashMap();
         channelList.put("None", "sink");
         channelNameArray.add("None");
+        
+        String selectedChannelName = "None";
+        
         for (Channel channel : parent.channels.values())
         {
+        	if (((String) props.get(ChannelWriterProperties.CHANNEL_ID)).equalsIgnoreCase(channel.getId()))
+        		selectedChannelName = channel.getName();
+        	
             channelList.put(channel.getName(), channel.getId());
             channelNameArray.add(channel.getName());
         }
@@ -83,7 +87,7 @@ public class ChannelWriter extends ConnectorClass
 
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
 
-        channelNames.setSelectedItem((String) props.get(ChannelWriterProperties.CHANNEL_NAME));
+        channelNames.setSelectedItem(selectedChannelName);
 
         if(((String) props.get(ChannelWriterProperties.CHANNEL_SYNCHRONOUS)).equals(UIConstants.YES_OPTION))
             channelResponseYes.setSelected(true);

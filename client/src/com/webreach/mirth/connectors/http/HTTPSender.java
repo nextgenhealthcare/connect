@@ -52,6 +52,7 @@ import com.webreach.mirth.client.ui.Mirth;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.connectors.ConnectorClass;
+import com.webreach.mirth.connectors.vm.ChannelWriterProperties;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.QueuedSenderProperties;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
@@ -116,7 +117,6 @@ public class HTTPSender extends ConnectorClass
             properties.put(HTTPSenderProperties.HTTP_EXCLUDE_HEADERS, UIConstants.YES_OPTION);
         
         properties.put(HTTPSenderProperties.CHANNEL_ID, channelList.get((String) channelNames.getSelectedItem()));
-        properties.put(HTTPSenderProperties.CHANNEL_NAME, (String) channelNames.getSelectedItem());
         
         properties.put(QueuedSenderProperties.RECONNECT_INTERVAL, reconnectInterval.getText());
         
@@ -188,15 +188,20 @@ public class HTTPSender extends ConnectorClass
         channelList = new HashMap();
         channelList.put("None", "sink");
         channelNameArray.add("None");
+        
+        String selectedChannelName = "None";
+        
         for (Channel channel : parent.channels.values())
         {
+        	if (((String) props.get(HTTPSenderProperties.CHANNEL_ID)).equalsIgnoreCase(channel.getId()))
+        		selectedChannelName = channel.getName();
+        	
             channelList.put(channel.getName(), channel.getId());
             channelNameArray.add(channel.getName());
         }
         channelNames.setModel(new javax.swing.DefaultComboBoxModel(channelNameArray.toArray()));
         
-        if (props.get(HTTPSenderProperties.CHANNEL_NAME) != null)
-            channelNames.setSelectedItem((String) props.get(HTTPSenderProperties.CHANNEL_NAME));
+        channelNames.setSelectedItem(selectedChannelName);
         
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }

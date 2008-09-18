@@ -32,6 +32,8 @@ import java.util.Properties;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.connectors.ConnectorClass;
+import com.webreach.mirth.connectors.http.HTTPSenderProperties;
+import com.webreach.mirth.connectors.vm.ChannelWriterProperties;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.QueuedSenderProperties;
 
@@ -109,7 +111,7 @@ public class LLPSender extends ConnectorClass
         properties.put(LLPSenderProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
         properties.put(LLPSenderProperties.LLP_TEMPLATE, template.getText());
         properties.put(LLPSenderProperties.CHANNEL_ID, channelList.get((String) channelNames.getSelectedItem()));
-        properties.put(LLPSenderProperties.CHANNEL_NAME, (String) channelNames.getSelectedItem());
+        
         return properties;
     }
 
@@ -178,8 +180,14 @@ public class LLPSender extends ConnectorClass
         channelList = new HashMap();
         channelList.put("None", "sink");
         channelNameArray.add("None");
+        
+        String selectedChannelName = "None";
+        
         for (Channel channel : parent.channels.values())
         {
+        	if (((String) props.get(LLPSenderProperties.CHANNEL_ID)).equalsIgnoreCase(channel.getId()))
+        		selectedChannelName = channel.getName();
+        	
             channelList.put(channel.getName(), channel.getId());
             channelNameArray.add(channel.getName());
         }
@@ -187,8 +195,7 @@ public class LLPSender extends ConnectorClass
 
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
 
-        if (props.get(LLPSenderProperties.CHANNEL_NAME) != null)
-            channelNames.setSelectedItem((String) props.get(LLPSenderProperties.CHANNEL_NAME));
+        channelNames.setSelectedItem(selectedChannelName);
 
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
