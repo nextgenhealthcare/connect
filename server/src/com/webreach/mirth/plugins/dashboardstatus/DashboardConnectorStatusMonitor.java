@@ -266,14 +266,6 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
                         } else if (connector.getTransportName().equals(JMSWriterProperties.name)) {
                             // Destination - JMS Writer.
                             information = JMSWriterProperties.getInformation(connector.getProperties());
-                        } else if (connector.getTransportName().equals(ChannelWriterProperties.name)) {
-                            // Destination - Channel Writer.
-                        	Channel cachedChannel = ControllerFactory.getFactory().createChannelController().getChannelCache().get(ChannelWriterProperties.getInformation(connector.getProperties()));
-                        	if (cachedChannel == null) {
-                        		information = "Target Channel: None";
-                        	} else {
-                        		information = "Target Channel: " + cachedChannel.getName();
-                        	}
                         } else if (connector.getTransportName().equals(DocumentWriterProperties.name)) {
                             // Destination - Document Writer.
                             information = DocumentWriterProperties.getInformation(connector.getProperties());
@@ -287,6 +279,14 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
                         if (connector.getTransportName().equals(HTTPSenderProperties.name)) {
                             // Destination - HTTP Sender.
                             information = HTTPSenderProperties.getInformation(connector.getProperties());
+                        } else if (connector.getTransportName().equals(ChannelWriterProperties.name)) {
+                            // Destination - Channel Writer.
+                        	Channel cachedChannel = ControllerFactory.getFactory().createChannelController().getChannelCache().get(ChannelWriterProperties.getInformation(connector.getProperties()));
+                        	if (cachedChannel == null) {
+                        		information = "Target Channel: None";
+                        	} else {
+                        		information = "Target Channel: " + cachedChannel.getName();
+                        	}
                         } else if (connector.getTransportName().equals(EmailSenderProperties.name)) {
                             // Destination - Email Sender.
                             information = EmailSenderProperties.getInformation(connector.getProperties());
