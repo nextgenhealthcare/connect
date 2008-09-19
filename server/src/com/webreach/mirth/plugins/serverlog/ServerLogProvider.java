@@ -45,18 +45,29 @@ public class ServerLogProvider implements ServerPlugin
         initialize();
     }
 
-    public void newServerLogReceived(String logMessage) {        
-        synchronized(this) {
-            if (serverLogs.size() == LOG_SIZE) {
-                serverLogs.removeLast();
-            }
-            serverLogs.addFirst(new String[] { String.valueOf(logId), logMessage });
-            logId++;
+    public synchronized void newServerLogReceived(String logMessage) {
+        if (serverLogs.size() == LOG_SIZE) {
+            serverLogs.removeLast();
         }
+        serverLogs.addFirst(new String[] { String.valueOf(logId), logMessage });
+        logId++;
     }
 
     public synchronized Object invoke(String method, Object object, String sessionId) {
         if (method.equals(GET_SERVER_LOGS)) {
+
+            // work with deep copied clone of the static server logs object in order to avoid multiple threads ConcurrentModificationException.
+            LinkedList<String[]> serverLogsCloned = new LinkedList<String[]>();
+            try {
+                serverLogsCloned = (LinkedList<String[]>) ObjectCloner.deepCopy(serverLogs);
+            } catch (ObjectClonerException oce) {
+                // ignore potential OptionalDataException.
+                // even if the Exception may be thrown, the logs will properly be retrieved to the Dashboard next time it refreshes (by default set to every second).
+                // this error is purely relevant to the display only. i.e. the only time/chance it may occur is when the Mirth Administrator is open.
+                // this error won't affect the server and any other running process.
+                // It is also pointless anyway since it'll be impossible to keep track or view a single specific error, if there are that many new errors constantly being displayed on the Dashboard.
+            }
+
             if (lastDisplayedServerLogIdBySessionId.containsKey(sessionId)) {
                 // client exist with the sessionId.
                 // -> only display new log entries.
@@ -64,7 +75,7 @@ public class ServerLogProvider implements ServerPlugin
 
                 LinkedList<String[]> newServerLogEntries = new LinkedList<String[]>();
                 // FYI, channelLog.size() will never be larger than LOG_SIZE = 100.
-                for (String[] aServerLog : serverLogs) {
+                for (String[] aServerLog : serverLogsCloned) {
                     if (lastDisplayedServerLogId < Long.parseLong(aServerLog[0])) {
                         newServerLogEntries.addLast(aServerLog);
                     }
@@ -80,21 +91,23 @@ public class ServerLogProvider implements ServerPlugin
                 } catch (ObjectClonerException oce) {
                     logger.error("Error: ServerLogProvider.java", oce);
                 }
+
             } else {
                 // brand new client. i.e. brand new session id, and all log entries are new.
                 // -> display all log entries.
-                if (serverLogs.size() > 0) {
-                    lastDisplayedServerLogIdBySessionId.put(sessionId, Long.parseLong(serverLogs.get(0)[0]));
+                if (serverLogsCloned.size() > 0) {
+                    lastDisplayedServerLogIdBySessionId.put(sessionId, Long.parseLong(serverLogsCloned.get(0)[0]));
                 } else {
                     // no log exist at all. put the currentLogId-1, which is the very latest logId.
                     lastDisplayedServerLogIdBySessionId.put(sessionId, logId-1);
                 }
                 try {
-                    return ObjectCloner.deepCopy(serverLogs);
+                    return ObjectCloner.deepCopy(serverLogsCloned);
                 } catch (ObjectClonerException oce) {
                     logger.error("Error: ServerLogProvider.java", oce);
                 }
             }
+
         } else if (method.equals(REMOVE_SESSIONID)) {
             // client shut down, or user logged out -> remove everything involving this sessionId.
             if (lastDisplayedServerLogIdBySessionId.containsKey(sessionId)) {
