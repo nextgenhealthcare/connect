@@ -28,6 +28,7 @@ package com.webreach.mirth.server.util;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Scanner;
 
@@ -93,7 +94,7 @@ public class DatabaseUtil {
 		}
 	}
     
-    public static void executeScript(File script) throws Exception {
+    public static void executeScript(File script, boolean ignoreErrors) throws Exception {
         SqlMapClient sqlMap = SqlConfig.getSqlMapClient();
         
         Connection conn = null;
@@ -122,8 +123,16 @@ public class DatabaseUtil {
                 String statmentString = sb.toString().trim();
                 if(statmentString.length() > 0)
                 {
-                	statement.execute(statmentString);
-                	conn.commit(); 
+                	try { 
+                		statement.execute(statmentString);
+                		conn.commit(); 
+                	} catch (SQLException se) { 
+                		if(!ignoreErrors) { 
+                			throw se;
+                		} else { 
+                			conn.rollback();
+                		}
+                	}
                 }
             }          
                             

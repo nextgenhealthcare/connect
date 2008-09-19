@@ -26,6 +26,9 @@
 package com.webreach.mirth.server.controllers;
 
 import java.io.File;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
@@ -63,7 +66,45 @@ public class DefaultMigrationController implements MigrationController {
     }
 
     public void migrate() {
+        // check for one of the tables to see if we should run the create script
+    	
+    	Connection conn = null;
+        ResultSet resultSet = null;
+
         try {
+        	conn = SqlConfig.getSqlMapClient().getDataSource().getConnection();
+            // Gets the database metadata
+            DatabaseMetaData dbmd = conn.getMetaData();
+
+            // Specify the type of object; in this case we want tables
+            String[] types = { "TABLE" };
+            String tablePattern = "CONFIGURATION"; // this is a table that has remained unchanged since day 1
+            resultSet = dbmd.getTables(null, null, tablePattern, types);
+
+            boolean resultFound = resultSet.next();
+
+            // Some databases only accept lowercase table names
+            if (!resultFound) {
+                resultSet = dbmd.getTables(null, null, tablePattern.toLowerCase(), types);
+                resultFound = resultSet.next();
+            }
+            
+            // If missing this table we can assume that they don't have the schema installed
+            if (!resultFound) { 
+            	createSchema(conn);
+            	return;
+            }
+        }
+        catch (Exception e) {
+            logger.error("Could not create schema on the configured database.", e);
+            return;
+        } finally {
+            DatabaseUtil.close(resultSet);
+            DatabaseUtil.close(conn);
+        }
+        
+        // otherwise proceed with migration if necessary    	
+    	try {
             int newSchemaVersion = configurationController.getSchemaVersion();
             int oldSchemaVersion;
 
@@ -107,7 +148,15 @@ public class DefaultMigrationController implements MigrationController {
             logger.error("Could not initialize migration controller.", e);
         }
     }
-
+    
+    private void createSchema(Connection conn) throws Exception{ 
+    	 File baseDir = new File(configurationController.getBaseDir());
+    	 String databaseType = configurationController.getDatabaseType();
+    	 File creationScript = new File(baseDir.getPath() + System.getProperty("file.separator") + databaseType + "-database.sql");
+    	 
+    	 DatabaseUtil.executeScript(creationScript, true);
+    }
+    
     private void migrate(int oldVersion, int newVersion) throws Exception {
         File deltaFolder = new File(ClassPathResource.getResourceURI(DELTA_FOLDER));
         String deltaPath = deltaFolder.getPath() + System.getProperty("file.separator");
@@ -116,7 +165,7 @@ public class DefaultMigrationController implements MigrationController {
         while (oldVersion < newVersion) {
             // gets the correct migration script based on dbtype and versions
             File migrationFile = new File(deltaPath + databaseType + "-" + oldVersion + "-" + ++oldVersion + ".sql");
-            DatabaseUtil.executeScript(migrationFile);
+            DatabaseUtil.executeScript(migrationFile, false);
         }
     }
 }

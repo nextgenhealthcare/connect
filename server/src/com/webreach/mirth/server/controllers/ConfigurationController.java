@@ -57,7 +57,9 @@ public interface ConfigurationController extends Controller {
     public void shutdown();
 
     public void deployChannels() throws ControllerException;
-
+    
+    public void loadEncryptionKey();
+    
     // scripts
 
     public Map<String, String> getGlobalScripts() throws ControllerException;

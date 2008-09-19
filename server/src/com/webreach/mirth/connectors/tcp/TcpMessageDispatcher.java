@@ -113,7 +113,6 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
 		return socket;
 	}
 
-	// ast:Code changes to allow queues
 	/*
 	 * As doSend is never called, all the changes are made to the doSispatch
 	 * method
@@ -250,17 +249,11 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
 		bos.flush();
 	}
 
-	// ast: split the doSend code into three functions: sendPayload (sending)
-	// and doTheRemoteSyncStuff (for remote-sync)
-
 	public UMOMessage doSend(UMOEvent event) throws Exception {
 		doDispatch(event);
 		return event.getMessage();
 	}
 
-
-	// ast: sendPayload is called from the doSend method, or from
-	// MessageResponseQueued
 	public boolean sendPayload(QueuedMessage thePayload) throws Exception {
 		Boolean result = false;
 		Exception sendException = null;
@@ -298,7 +291,9 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
 						result = true;
 					}
 				}
-			} catch (Exception ers) {
+			} catch (InterruptedException ie) {
+				throw ie;
+			}catch (Exception ers) {
 				logger.warn("Write raised exception: '" + e.getMessage() + "' ceasing reconnecting.");
 				sendException = ers;
 			}

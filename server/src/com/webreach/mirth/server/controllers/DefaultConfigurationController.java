@@ -145,13 +145,6 @@ public class DefaultConfigurationController implements ConfigurationController{
         } catch (Exception e) {
             logger.warn(e);
         }
-
-        // critical steps
-        try {
-            loadEncryptionKey();
-        } catch (Exception e) {
-            logger.error("could not initialize configuration settings", e);
-        }
     }
 
     private void loadDefaultProperties() throws Exception {
@@ -578,7 +571,7 @@ public class DefaultConfigurationController implements ConfigurationController{
         return encryptionKey;
     }
 
-    private void loadEncryptionKey() throws ControllerException {
+    public void loadEncryptionKey()  {
         logger.debug("loading encryption key");
 
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
@@ -599,7 +592,7 @@ public class DefaultConfigurationController implements ConfigurationController{
                 SqlConfig.getSqlMapClient().insert("insertKey", serializer.toXML(encryptionKey));
             }
         } catch (Exception e) {
-            throw new ControllerException("error loading encryption key", e);
+            logger.error("error loading encryption key", e);
         }
     }
 
