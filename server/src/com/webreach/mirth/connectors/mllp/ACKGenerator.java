@@ -39,7 +39,14 @@ public class ACKGenerator {
 			errorMessage = new String();
 		}
 
-		String mshString = message.substring(0, message.indexOf(String.valueOf(segmentDelim)));
+		// Handle single line messages without any segment delimiters
+		int firstSegmentDelim = message.indexOf(String.valueOf(segmentDelim));
+		String mshString;
+		if (firstSegmentDelim != -1) {
+			mshString = message.substring(0, firstSegmentDelim);
+		} else {
+			mshString = message;
+		}
 
 		Pattern fieldPattern = Pattern.compile(Pattern.quote(String.valueOf(fieldDelim)));
 		Pattern elementPattern = Pattern.compile(Pattern.quote(String.valueOf(elementDelim)));
