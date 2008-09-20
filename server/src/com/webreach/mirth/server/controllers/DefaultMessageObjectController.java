@@ -628,7 +628,7 @@ public class DefaultMessageObjectController implements MessageObjectController {
     }
 
     private void setStatus(MessageObject messageObject, MessageObject.Status newStatus, Response.Status responseStatus, String responseMessage) {
-        if (messageObject.getResponseMap() != null) {
+    	if (messageObject.getResponseMap() != null) {
             Response response = new Response(responseStatus, responseMessage);
             messageObject.getResponseMap().put(messageObject.getConnectorName(), response);
         }
@@ -680,6 +680,12 @@ public class DefaultMessageObjectController implements MessageObjectController {
     public void resetQueuedStatus(MessageObject messageObject) {
 
         if (messageObject != null) {
+        	Map<String, Response> responseMap = messageObject.getResponseMap();
+        	if (responseMap != null && responseMap.get(messageObject.getConnectorName()) != null) {
+                Response response = (Response) responseMap.get(messageObject.getConnectorName());
+                response.setStatus(Response.Status.QUEUED);
+            }
+        	
             messageObject.setStatus(Status.QUEUED);
             updateMessage(messageObject, true);
             statisticsController.decrementErrorCount(messageObject.getChannelId());
