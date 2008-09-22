@@ -88,16 +88,16 @@ public class UIConstants
     public static final String ISSUE_TRACKER_LOCATION = "http://www.mirthproject.org/jira";
     
     // help link
-    public static final String HELP_LOCATION = "http://www.mirthproject.org/index.php?option=com_jd-wiki&Itemid=44&id=";
-    public static final String CHANNEL_HELP_LOCATION = "channeleditor";
-    public static final String TRANFORMER_HELP_LOCATION = "transformereditor";
-    public static final String FILTER_HELP_LOCATION = "filtereditor";
-    public static final String CHANNELS_HELP_LOCATION = "channellist";
-    public static final String DASHBOARD_HELP_LOCATION = "statuslist";
-    public static final String MESSAGE_BROWSER_HELP_LOCATION = "messagebrowser";
-    public static final String SYSTEM_EVENT_HELP_LOCATION = "systemevents";
-    public static final String CONFIGURATION_HELP_LOCATION = "administration";
-
+    public static final String HELP_LOCATION = "http://www.webreachinc.com/wiki/display/mirthguide/";
+    public static final String CHANNEL_HELP_LOCATION = "Edit+Channel";
+    public static final String TRANFORMER_HELP_LOCATION = "Transformers";
+    public static final String FILTER_HELP_LOCATION = "Filters";
+    public static final String CHANNELS_HELP_LOCATION = "Channels";
+    public static final String DASHBOARD_HELP_LOCATION = "Dashboard";
+    public static final String MESSAGE_BROWSER_HELP_LOCATION = "Message+Browser";
+    public static final String SYSTEM_EVENT_HELP_LOCATION = "Events";
+    public static final String SETTINGS_HELP_LOCATION = "Settings";
+    public static final String PLUGINS_HELP_LOCATION = "Plugins";
     // for JTrees
     public static final ImageIcon LEAF_ICON = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_green.png"));
     public static final ImageIcon OPEN_ICON = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_yellow.png"));

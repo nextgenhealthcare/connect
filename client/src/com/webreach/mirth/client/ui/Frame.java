@@ -4174,12 +4174,14 @@ public class Frame extends JXFrame
         else if (currentContentPage == eventBrowser)
             BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.SYSTEM_EVENT_HELP_LOCATION);
         else if (currentContentPage == settingsPane)
-            BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.CONFIGURATION_HELP_LOCATION);
+            BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.SETTINGS_HELP_LOCATION);
         else if (currentContentPage == channelEditPanel.transformerPane)
             BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.TRANFORMER_HELP_LOCATION);
         else if (currentContentPage == channelEditPanel.filterPane)
             BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.FILTER_HELP_LOCATION);
-        else
+        else if (currentContentPage == pluginPanel)
+        	BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.PLUGINS_HELP_LOCATION);
+    	else
             BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION);
     }
 
