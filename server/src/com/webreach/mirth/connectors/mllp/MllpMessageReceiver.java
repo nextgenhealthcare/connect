@@ -346,6 +346,10 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 						if (!socket.getKeepAlive()) {
 							break;
 						}
+					} catch (ConnectException e) { 
+						throw e;
+					} catch (Exception e) { 
+						handleException(e);
 					} finally {
 						monitoringController.updateStatus(connector, connectorType, Event.DONE, socket);
 					}
