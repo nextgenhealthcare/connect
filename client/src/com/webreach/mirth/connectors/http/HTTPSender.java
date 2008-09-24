@@ -108,8 +108,12 @@ public class HTTPSender extends ConnectorClass
         
         if (post.isSelected())
             properties.put(HTTPSenderProperties.HTTP_METHOD, "post");
-        else
+        else if(get.isSelected())
             properties.put(HTTPSenderProperties.HTTP_METHOD, "get");
+        else if(put.isSelected())
+            properties.put(HTTPSenderProperties.HTTP_METHOD, "put");
+        else if(delete.isSelected())
+            properties.put(HTTPSenderProperties.HTTP_METHOD, "delete");
         
         if (responseHeadersIncludeButton.isSelected())
             properties.put(HTTPSenderProperties.HTTP_EXCLUDE_HEADERS, UIConstants.NO_OPTION);
@@ -146,8 +150,12 @@ public class HTTPSender extends ConnectorClass
         
         if (((String) props.get(HTTPSenderProperties.HTTP_METHOD)).equalsIgnoreCase("post"))
             post.setSelected(true);
-        else
+        else if (((String) props.get(HTTPSenderProperties.HTTP_METHOD)).equalsIgnoreCase("get"))
             get.setSelected(true);
+        else if (((String) props.get(HTTPSenderProperties.HTTP_METHOD)).equalsIgnoreCase("put"))
+            put.setSelected(true);
+        else if (((String) props.get(HTTPSenderProperties.HTTP_METHOD)).equalsIgnoreCase("delete"))
+            delete.setSelected(true);
         
         if (((String) props.get(HTTPSenderProperties.HTTP_EXCLUDE_HEADERS)).equals(UIConstants.YES_OPTION))
             responseHeadersExcludeButton.setSelected(true);
@@ -631,6 +639,8 @@ public class HTTPSender extends ConnectorClass
         jLabel36 = new javax.swing.JLabel();
         reconnectIntervalLabel = new javax.swing.JLabel();
         reconnectInterval = new com.webreach.mirth.client.ui.components.MirthTextField();
+        put = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        delete = new com.webreach.mirth.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -751,6 +761,18 @@ public class HTTPSender extends ConnectorClass
 
         reconnectIntervalLabel.setText("Reconnect Interval (ms):");
 
+        put.setBackground(new java.awt.Color(255, 255, 255));
+        put.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        methodButtonGroup.add(put);
+        put.setText("Put");
+        put.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        delete.setBackground(new java.awt.Color(255, 255, 255));
+        delete.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        methodButtonGroup.add(delete);
+        delete.setText("Delete");
+        delete.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -784,7 +806,11 @@ public class HTTPSender extends ConnectorClass
                     .add(layout.createSequentialGroup()
                         .add(post, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(get, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(get, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(put, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(delete, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(channelNames, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
                         .add(responseHeadersIncludeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -812,7 +838,9 @@ public class HTTPSender extends ConnectorClass
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel1)
                     .add(post, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(get, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(get, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(put, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(delete, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(URL1)
@@ -923,6 +951,7 @@ reconnectIntervalLabel.setEnabled(true);
     private javax.swing.JLabel URL1;
     private javax.swing.ButtonGroup buttonGroup1;
     private com.webreach.mirth.client.ui.components.MirthComboBox channelNames;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton delete;
     private javax.swing.JButton deleteButton;
     private com.webreach.mirth.client.ui.components.MirthRadioButton get;
     private javax.swing.JButton headerDeleteButton;
@@ -940,6 +969,7 @@ reconnectIntervalLabel.setEnabled(true);
     private com.webreach.mirth.client.ui.components.MirthRadioButton post;
     private javax.swing.JScrollPane propertiesPane;
     private com.webreach.mirth.client.ui.components.MirthTable propertiesTable;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton put;
     private com.webreach.mirth.client.ui.components.MirthTextField reconnectInterval;
     private javax.swing.JLabel reconnectIntervalLabel;
     private javax.swing.ButtonGroup responseHeadersButtonGroup;

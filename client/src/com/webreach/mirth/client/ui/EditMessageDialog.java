@@ -172,18 +172,6 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
                 else if (protocol.equals(MessageObject.Protocol.XML) || protocol.equals(Protocol.HL7V3))
                 {
                     newDoc.setTokenMarker(new XMLTokenMarker());
-                    DocumentSerializer serializer = new DocumentSerializer();
-                    serializer.setPreserveSpace(false);
-                    
-                    try
-                    {
-                        Document doc = serializer.fromXML(message);
-                        message = serializer.toXML(doc);
-                    }
-                    catch(Exception e)
-                    {
-                        System.out.println(e.getMessage());
-                    }
                 }
                 else if (protocol.equals(MessageObject.Protocol.X12))
                 {
