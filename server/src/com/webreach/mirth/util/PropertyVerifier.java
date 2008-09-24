@@ -10,6 +10,8 @@ import com.webreach.mirth.model.ChannelProperties;
 import com.webreach.mirth.model.ComponentProperties;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.ConnectorMetaData;
+import com.webreach.mirth.model.Waypoint;
+import com.webreach.mirth.model.WaypointProperties;
 
 public class PropertyVerifier
 {
@@ -31,6 +33,12 @@ public class PropertyVerifier
                 return false;
         }
         return true;
+    }
+    
+    /** A method to add default properties to a waypoint. */
+    public static void checkWaypointProperties(Waypoint waypoint)
+    {
+        fixMissingOrInvalidProperties(new WaypointProperties().getDefaults(), waypoint.getProperties());
     }
     
     /** A method to add default properties to a channel. */
