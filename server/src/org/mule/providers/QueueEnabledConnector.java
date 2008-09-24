@@ -172,6 +172,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 										if (isRotateQueue()) {
 											rotateCurrentMessage();
 										}
+										connected = false;
 										messageObjectController.resetQueuedStatus(thePayload.getMessageObject());
 									}
 								} catch (Throwable t) {
