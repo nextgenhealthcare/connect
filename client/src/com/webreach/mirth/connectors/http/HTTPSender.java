@@ -678,13 +678,13 @@ public class HTTPSender extends ConnectorClass
         post.setBackground(new java.awt.Color(255, 255, 255));
         post.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         methodButtonGroup.add(post);
-        post.setText("Post");
+        post.setText("POST");
         post.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         get.setBackground(new java.awt.Color(255, 255, 255));
         get.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         methodButtonGroup.add(get);
-        get.setText("Get");
+        get.setText("GET");
         get.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         channelNames.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
@@ -764,13 +764,13 @@ public class HTTPSender extends ConnectorClass
         put.setBackground(new java.awt.Color(255, 255, 255));
         put.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         methodButtonGroup.add(put);
-        put.setText("Put");
+        put.setText("PUT");
         put.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         delete.setBackground(new java.awt.Color(255, 255, 255));
         delete.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         methodButtonGroup.add(delete);
-        delete.setText("Delete");
+        delete.setText("DELETE");
         delete.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
