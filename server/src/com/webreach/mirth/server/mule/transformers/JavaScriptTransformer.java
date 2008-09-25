@@ -263,9 +263,10 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			emptyFilterAndTransformer = true;
 
 			// Check the conditions for skipping transformation
-			// 1. Script is empty
-			// 2. Protcols are different
-			// 3. Properties are different than the protocol defaults.
+			// 1. Script is not empty
+			// 2. Protocols are different
+			// 3. Properties are different than the protocol defaults
+			// 4. The outbound template is not empty
 			if (script != null || !this.inboundProtocol.equals(this.outboundProtocol)) {
 				emptyFilterAndTransformer = false;
 			} else if (this.inboundProperties != null) {
@@ -284,6 +285,8 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				if (!this.outboundProperties.equals(defaultProperties)) {
 					emptyFilterAndTransformer = false;
 				}
+			} else if (template != null && !template.equalsIgnoreCase("")) {
+				emptyFilterAndTransformer = false;
 			}
 
 			// hack to get around cr/lf conversion issue see MIRTH-739
@@ -400,7 +403,12 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				Map encodedDataProperties;
 
 				if (template != null && template.length() > 0) {
-					transformedData = scope.get("tmp", scope);
+					// This check is in case there is an outbound template but no script.
+					if (compiledScript == null) {
+						transformedData = template;
+					} else {
+						transformedData = scope.get("tmp", scope);
+					}
 					encodedDataProtocol = Protocol.valueOf(this.getOutboundProtocol());
 					encodedDataProperties = this.getOutboundProperties();
 				} else {
