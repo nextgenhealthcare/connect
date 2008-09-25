@@ -433,7 +433,25 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 		}
 
 		private UMOMessage processHL7Data(String data, UMOMessage returnMessage) throws MessagingException, UnsupportedEncodingException, IOException, Exception {
-			data = data.trim(); // Trim the SOM and EOM characters on all LLP messages.
+			
+			// Remove the SOM and EOM characters on all LLP messages.
+			int startIndex = 0;
+			int endIndex = data.length() - 1;
+			
+			if (data.charAt(startIndex) == START_MESSAGE) {
+				startIndex++;
+			}
+			
+			if (data.charAt(endIndex) == END_OF_RECORD) {
+				endIndex--;
+			}
+			
+			if (data.charAt(endIndex) == END_MESSAGE) {
+				endIndex--;
+			}
+			
+			data = data.substring(startIndex, endIndex + 1);
+			
 			OutputStream os;
 			UMOMessageAdapter adapter = connector.getMessageAdapter(data);
 			if (socket.isClosed()){
