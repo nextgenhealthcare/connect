@@ -13,7 +13,6 @@ import org.mule.util.queue.QueueSession;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.QueuedSenderProperties;
-import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 
 public class QueueUtil {

@@ -91,9 +91,7 @@ public class DefaultAlertController implements AlertController {
         try {
             List<Alert> alerts = SqlConfig.getSqlMapClient().queryForList("getAlertByChannelId", channelId);
 
-            for (Iterator iter = alerts.iterator(); iter.hasNext();) {
-                Alert currentAlert = (Alert) iter.next();
-
+            for (Alert currentAlert : alerts) {
                 List<String> channelIds = SqlConfig.getSqlMapClient().queryForList("getChannelIdsByAlertId", currentAlert.getId());
                 currentAlert.setChannels(channelIds);
 
