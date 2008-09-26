@@ -1,4 +1,4 @@
-package com.webreach.mirth.plugins.transformer.step.messagebuilder;
+package com.webreach.mirth.plugins.messagebuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;

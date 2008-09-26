@@ -32,7 +32,7 @@ import org.jdesktop.swingx.decorator.HighlighterPipeline;
 import com.webreach.mirth.client.ui.Mirth;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.plugins.filter.rule.rulebuilder.RuleBuilderPlugin;
+import com.webreach.mirth.plugins.rulebuilder.RuleBuilderPlugin;
 
 /**
  *

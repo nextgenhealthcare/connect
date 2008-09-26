@@ -1,4 +1,4 @@
-package com.webreach.mirth.plugins.filter.rule.javascript;
+package com.webreach.mirth.plugins.javascriptrule;
 
 import java.util.Map;
 

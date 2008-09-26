@@ -1,4 +1,4 @@
-package com.webreach.mirth.plugins.filter.rule.rulebuilder;
+package com.webreach.mirth.plugins.rulebuilder;
 
 import java.util.ArrayList;
 import java.util.Iterator;

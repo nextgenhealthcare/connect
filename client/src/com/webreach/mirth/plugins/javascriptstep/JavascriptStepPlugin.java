@@ -1,4 +1,4 @@
-package com.webreach.mirth.plugins.transformer.step.javascript;
+package com.webreach.mirth.plugins.javascriptstep;
 
 import java.util.Map;
 

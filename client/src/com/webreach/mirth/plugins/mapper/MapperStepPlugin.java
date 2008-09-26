@@ -1,4 +1,4 @@
-package com.webreach.mirth.plugins.transformer.step.mapper;
+package com.webreach.mirth.plugins.mapper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
