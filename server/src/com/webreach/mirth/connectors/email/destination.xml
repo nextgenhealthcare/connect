@@ -13,7 +13,7 @@
 	<library type="server" path="email-server.jar" />
 	<transformers></transformers>
 	<protocol>smtp</protocol>
-	<type>SENDER</type>
+	<type>DESTINATION</type>
 	<enabled>true</enabled>
 	<mule-properties>
 		<property name="connector">com.webreach.mirth.connectors.email.SmtpConnector</property>

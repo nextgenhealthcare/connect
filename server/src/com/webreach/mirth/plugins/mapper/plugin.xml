@@ -12,5 +12,5 @@
 		<className>com.webreach.mirth.plugins.transformer.step.mapper.MapperStepPlugin</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
-	<library>mapper-transformer-step-client.jar</library>
+	<library type="CLIENT" path="mapper-client.jar" />
 </pluginMetaData>

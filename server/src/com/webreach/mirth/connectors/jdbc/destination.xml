@@ -14,7 +14,7 @@
 	<library type="server" path="jdbc-server.jar" />
 	<transformers></transformers>
 	<protocol>jdbc</protocol>
-	<type>SENDER</type>
+	<type>DESTINATION</type>
 	<enabled>true</enabled>
 	<mule-properties>
 		<property name="connector">com.webreach.mirth.connectors.jdbc.JdbcConnector</property>

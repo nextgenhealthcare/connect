@@ -8,12 +8,12 @@
 	<clientClassName>com.webreach.mirth.connectors.doc.DocumentWriter</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.doc.DocumentConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.doc.DocumentWriterProperties</sharedClassName>
-	<library type="client" path="doc-client.jar" />
-	<library type="shared" path="doc-shared.jar" />
-	<library type="server" path="doc-server.jar" />
+	<library type="CLIENT" path="doc-client.jar" />
+	<library type="SHARED" path="doc-shared.jar" />
+	<library type="SERVER" path="doc-server.jar" />
 	<transformers></transformers>
 	<protocol>doc</protocol>
-	<type>SENDER</type>
+	<type>DESTINATION</type>
 	<enabled>true</enabled>
 	<mule-properties>
 		<property name="connector">com.webreach.mirth.connectors.doc.DocumentConnector</property>

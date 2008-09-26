@@ -18,6 +18,6 @@
 		<className>com.webreach.mirth.plugins.messagepruner.MessagePrunerService</className>
 		<mode>SERVER</mode>
 	</extensionPoint>
-	<library>message-pruner-client.jar</library>
-	<library>message-pruner-server.jar</library>
+	<library type="CLIENT" path="messagepruner-client.jar" />
+	<library type="SERVER" path="messagepruner-server.jar" />
 </pluginMetaData>

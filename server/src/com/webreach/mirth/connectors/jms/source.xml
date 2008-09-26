@@ -8,12 +8,12 @@
 	<clientClassName>com.webreach.mirth.connectors.jms.JMSReader</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.jms.JmsConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.jms.JMSReaderProperties</sharedClassName>
-	<library type="client" path="jms-client.jar" />
-	<library type="shared" path="jms-shared.jar" />
-	<library type="server" path="jms-server.jar" />
+	<library type="CLIENT" path="jms-client.jar" />
+	<library type="SHARED" path="jms-shared.jar" />
+	<library type="SERVER" path="jms-server.jar" />
 	<transformers>JMSMessageToObject ObjectToString</transformers>
 	<protocol>jms</protocol>
-	<type>LISTENER</type>
+	<type>SOURCE</type>
 	<enabled>true</enabled>
 	<mule-properties>
 		<property name="connector">com.webreach.mirth.connectors.jms.JmsConnector</property>

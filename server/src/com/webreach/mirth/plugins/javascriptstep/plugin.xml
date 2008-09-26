@@ -12,5 +12,5 @@
 		<className>com.webreach.mirth.plugins.transformer.step.javascript.JavascriptStepPlugin</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
-	<library>javascript-transformer-step-client.jar</library>
+	<library type="CLIENT" path="javascriptstep-client.jar" />
 </pluginMetaData>

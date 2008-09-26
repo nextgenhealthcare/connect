@@ -8,12 +8,12 @@
 	<clientClassName>com.webreach.mirth.connectors.js.JavaScriptReader</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.js.JavaScriptConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.js.JavaScriptReaderProperties</sharedClassName>
-	<library type="" path="js-client.jar" />
-	<library type="" path="js-shared.jar" />
-	<library type="" path="js-server.jar" />
+	<library type="CLIENT" path="js-client.jar" />
+	<library type="SHARED" path="js-shared.jar" />
+	<library type="SERVER" path="js-server.jar" />
 	<transformers>ResultMapToXML</transformers>
 	<protocol>js</protocol>
-	<type>LISTENER</type>
+	<type>SOURCE</type>
 	<enabled>true</enabled>
 	<mule-properties>
 		<property name="connector">com.webreach.mirth.connectors.js.JavaScriptConnector</property>

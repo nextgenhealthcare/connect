@@ -12,5 +12,5 @@
 		<className>com.webreach.mirth.plugins.extensionmanager.ExtensionManagerClient</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
-	<library>extension-mananger-client.jar</library>
+	<library type="CLIENT" path="extensionmananger-client.jar" />
 </pluginMetaData>

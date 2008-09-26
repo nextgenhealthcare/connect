@@ -8,12 +8,12 @@
 	<clientClassName>com.webreach.mirth.connectors.soap.SOAPListener</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.soap.axis.AxisConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.soap.SOAPListenerProperties</sharedClassName>
-	<library type="client" path="soap-client.jar" />
-	<library type="shared" path="soap-shared.jar" />
-	<library type="server" path="soap-server.jar" />
+	<library type="CLIENT" path="soap-client.jar" />
+	<library type="SHARED" path="soap-shared.jar" />
+	<library type="SERVER" path="soap-server.jar" />
 	<transformers>SOAPRequestToString</transformers>
 	<protocol>soap</protocol>
-	<type>LISTENER</type>
+	<type>SOURCE</type>
 	<enabled>true</enabled>
 	<mule-properties>
 		<property name="connector">com.webreach.mirth.connectors.soap.axis.transport.http.SoapConnector</property>

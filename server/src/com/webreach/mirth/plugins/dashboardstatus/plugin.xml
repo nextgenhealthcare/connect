@@ -30,6 +30,5 @@
 		<className>com.webreach.mirth.plugins.dashboardstatus.DashboardConnectorStatusClient</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
-	<library>dashboard-status-monitor-server.jar</library>
-	<library>dashboard-status-monitor-server-client.jar</library>
+	<library type="SERVER" path="dashboardmonitor-server.jar" />
 </pluginMetaData>

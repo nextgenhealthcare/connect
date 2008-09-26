@@ -8,12 +8,12 @@
 	<clientClassName>com.webreach.mirth.connectors.file.FileReader</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.file.FileConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.file.FileReaderProperties</sharedClassName>
-	<library type="client" path="file-client.jar" />
-	<library type="shared" path="file-shared.jar" />
-	<library type="server" path="file-server.jar" />
+	<library type="CLIENT" path="file-client.jar" />
+	<library type="SHARED" path="file-shared.jar" />
+	<library type="SERVER" path="file-server.jar" />
 	<transformers>ByteArrayToString</transformers>
 	<protocol>file</protocol>
-	<type>LISTENER</type>
+	<type>SOURCE</type>
 	<enabled>true</enabled>
 	<mule-properties>
 		<property name="connector">com.webreach.mirth.connectors.file.FileConnector</property>

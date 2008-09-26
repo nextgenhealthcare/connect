@@ -12,5 +12,5 @@
 		<className>com.webreach.mirth.plugins.dicomviewer.DICOMViewer</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
-	<library>dicom-viewer-client.jar</library>
+	<library type="CLIENT" path="dicomviewer-client.jar" />
 </pluginMetaData>

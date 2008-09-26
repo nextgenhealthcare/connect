@@ -12,5 +12,5 @@
 		<className>com.webreach.mirth.plugins.filter.rule.javascript.JavascriptRulePlugin</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
-	<library>javascript-filter-rule-client.jar</library>
+	<library type="CLIENT" path="javascriptrule-client.jar" />
 </pluginMetaData>

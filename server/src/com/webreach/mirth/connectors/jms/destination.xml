@@ -13,7 +13,7 @@
 	<library type="server" path="jms-server.jar" />
 	<transformers></transformers>
 	<protocol>jms</protocol>
-	<type>SENDER</type>
+	<type>DESTINATION</type>
 	<enabled>true</enabled>
 	<mule-properties>
 		<property name="connector">com.webreach.mirth.connectors.jms.JmsConnector</property>

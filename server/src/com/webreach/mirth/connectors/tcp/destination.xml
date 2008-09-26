@@ -13,7 +13,7 @@
 	<library type="server" path="tcp-server.jar" />
 	<transformers></transformers>
 	<protocol>tcp</protocol>
-	<type>SENDER</type>
+	<type>DESTINATION</type>
 	<enabled>true</enabled>
 	<mule-properties>
 		<property name="connector">com.webreach.mirth.connectors.tcp.TcpConnector</property>
