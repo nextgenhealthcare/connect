@@ -43,6 +43,7 @@
 		<property name="plugins.rtfviewer" value="${extensions}/com.webreach.mirth.plugins.rtfviewer" />
 		<property name="plugins.rulebuilder" value="${extensions}/com.webreach.mirth.plugins.rulebuilder" />
 		<property name="plugins.serverlog" value="${extensions}/com.webreach.mirth.plugins.serverlog" />
+		<property name="plugins.scriptfilestep" value="${extensions}/com.webreach.mirth.plugins.scriptfilestep" />
 	</target>
 
 	<target name="clean" depends="init">
@@ -205,6 +206,11 @@
 		<mkdir dir="${plugins.serverlog}" />
 		<jar destfile="${plugins.serverlog}/serverlog-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/serverlog/**" />
+		</jar>
+
+		<mkdir dir="${plugins.scriptfilestep}" />
+		<jar destfile="${plugins.scriptfilestep}/scriptfilestep-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/plugins/scriptfilestep/**" />
 		</jar>
 
 		<!-- copy source files -->
