@@ -5,17 +5,21 @@ import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 
 @XStreamAlias("library")
 public class ExtensionLibrary {
+    public enum Type {
+        SERVER, CLIENT, SHARED
+    }
+
     private String path;
 
     @XStreamAlias("type")
     @XStreamAsAttribute
-    private String type;
+    private Type type;
 
-    public String getType() {
+    public Type getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Type type) {
         this.type = type;
     }
 
@@ -26,6 +30,5 @@ public class ExtensionLibrary {
     public void setPath(String path) {
         this.path = path;
     }
-    
-    
+
 }

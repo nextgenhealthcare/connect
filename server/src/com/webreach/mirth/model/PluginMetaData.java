@@ -40,10 +40,6 @@ public class PluginMetaData extends MetaData implements Serializable {
     @XStreamImplicit(itemFieldName="extensionPoint")
 	private List<ExtensionPoint> extensionPoints;
 
-    @XStreamAlias("libraries")
-	@XStreamImplicit(itemFieldName="library")
-    private List<ExtensionLibrary> libraries;
-
     @XStreamAlias("sqlCreateScripts")
     private Map<String, String> sqlCreateScripts;
 
@@ -57,14 +53,6 @@ public class PluginMetaData extends MetaData implements Serializable {
 	public void setExtensionPoints(List<ExtensionPoint> plugins) {
 		this.extensionPoints = plugins;
 	}
-
-    public List<ExtensionLibrary> getLibraries() {
-        return libraries;
-    }
-
-    public void setLibraries(List<ExtensionLibrary> libraries) {
-        this.libraries = libraries;
-    }
 
     public Map<String, String> getSqlCreateScripts() {
         return sqlCreateScripts;

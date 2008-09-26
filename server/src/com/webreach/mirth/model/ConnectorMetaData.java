@@ -26,18 +26,16 @@
 package com.webreach.mirth.model;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Properties;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import com.webreach.mirth.util.EqualsUtil;
 
 @XStreamAlias("connectorMetaData")
 public class ConnectorMetaData extends MetaData implements Serializable {
 	public enum Type {
-		LISTENER, SENDER
-	};
+		SOURCE, DESTINATION
+	}
 
 	private String serverClassName;
 	private String sharedClassName;
@@ -49,10 +47,6 @@ public class ConnectorMetaData extends MetaData implements Serializable {
 	
 	@XStreamAlias("mule-properties")
 	private Properties properties;
-
-	@XStreamAlias("libraries")
-	@XStreamImplicit(itemFieldName="library")
-	private List<ExtensionLibrary> libraries;
 
 	public String getServerClassName() {
 		return this.serverClassName;
@@ -117,14 +111,6 @@ public class ConnectorMetaData extends MetaData implements Serializable {
 	public void setProperties(Properties properties) {
 		this.properties = properties;
 	}
-
-	public List<ExtensionLibrary> getLibraries() {
-        return libraries;
-    }
-
-    public void setLibraries(List<ExtensionLibrary> libraries) {
-        this.libraries = libraries;
-    }
 
     public boolean equals(Object that) {
 		if (this == that) {

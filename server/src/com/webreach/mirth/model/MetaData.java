@@ -1,5 +1,10 @@
 package com.webreach.mirth.model;
 
+import java.util.List;
+
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamImplicit;
+
 public abstract class MetaData {
     private String name;
     private String author;
@@ -8,6 +13,10 @@ public abstract class MetaData {
     private String url;
     private String description;
     private boolean enabled;
+
+    @XStreamAlias("libraries")
+    @XStreamImplicit(itemFieldName = "library")
+    private List<ExtensionLibrary> libraries;
 
     public String getName() {
         return this.name;
@@ -63,5 +72,13 @@ public abstract class MetaData {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public List<ExtensionLibrary> getLibraries() {
+        return libraries;
+    }
+
+    public void setLibraries(List<ExtensionLibrary> libraries) {
+        this.libraries = libraries;
     }
 }

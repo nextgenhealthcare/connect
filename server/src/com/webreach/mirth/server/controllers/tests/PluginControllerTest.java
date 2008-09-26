@@ -33,7 +33,7 @@ public class PluginControllerTest extends TestCase {
 		sampleConnector.setServerClassName("com.webreach.mirth.server.mule.providers.ftp.FtpConnector");
 		sampleConnector.setProtocol("ftp");
 		sampleConnector.setTransformers("ByteArrayToString");
-		sampleConnector.setType(ConnectorMetaData.Type.LISTENER);
+		sampleConnector.setType(ConnectorMetaData.Type.SOURCE);
 		Map<String, ConnectorMetaData> testTransportList = pluginController.getConnectorMetaData();
 
 		Assert.assertTrue(testTransportList.containsValue(sampleConnector));
