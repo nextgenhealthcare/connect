@@ -12,4 +12,5 @@
 		<className>com.webreach.mirth.plugins.scriptfilestep.ExternalScriptPlugin</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
+	<library type="CLIENT" path="scriptfilestep-client.jar" />
 </pluginMetaData>

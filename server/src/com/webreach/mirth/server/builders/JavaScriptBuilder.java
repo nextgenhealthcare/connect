@@ -1,6 +1,6 @@
 package com.webreach.mirth.server.builders;
 
-import java.util.Iterator;
+import java.io.IOException;
 import java.util.ListIterator;
 
 import org.apache.log4j.Logger;
@@ -10,6 +10,7 @@ import com.webreach.mirth.model.Filter;
 import com.webreach.mirth.model.Rule;
 import com.webreach.mirth.model.Step;
 import com.webreach.mirth.model.Transformer;
+import com.webreach.mirth.server.util.FileUtil;
 
 public class JavaScriptBuilder {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -55,10 +56,18 @@ public class JavaScriptBuilder {
 			//Set the phase and also reset the logger to transformer (it was filter before)
 			builder.append("function doTransform() { phase = 'transformer'; logger = Packages.org.apache.log4j.Logger.getLogger(phase);");
 
-			for (Iterator iter = transformer.getSteps().iterator(); iter.hasNext();) {
-				Step step = (Step) iter.next();
-				logger.debug("adding step: " + step.getScript());
-				builder.append(step.getScript() + "\n");
+			for (Step step : transformer.getSteps()) {
+				logger.debug("adding step: " + step.getName());
+				
+				if (step.getType().equals("File")) {
+				    try {
+	                    builder.append(FileUtil.read(step.getScript()) + "\n");
+				    } catch (IOException e) {
+				        throw new BuilderException("Could not add script file.", e);
+				    }
+				} else {
+				    builder.append(step.getScript() + "\n");    
+				}
 			}
 
 			builder.append("}\n");

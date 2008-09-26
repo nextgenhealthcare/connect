@@ -39,6 +39,8 @@
 		<property name="plugins.rtfviewer" value="${extensions}/com.webreach.mirth.plugins.rtfviewer" />
 		<property name="plugins.rulebuilder" value="${extensions}/com.webreach.mirth.plugins.rulebuilder" />
 		<property name="plugins.serverlog" value="${extensions}/com.webreach.mirth.plugins.serverlog" />
+		<property name="plugins.scriptfilestep" value="${extensions}/com.webreach.mirth.plugins.scriptfilestep" />
+		
 	</target>
 
 	<target name="clean" depends="init">
@@ -735,13 +737,9 @@
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.plugins}/external-script-transformer-step-${version}.zip">
-			<fileset dir="${plugins}">
-				<include name="external-script-transformer-step-client.jar" />
-				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="External Script Transformer Step.xml" />
+		<zip destfile="${dist.extensions}/scriptfilestep-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${plugins.scriptfilestep}" />
 			</fileset>
 		</zip>
 
