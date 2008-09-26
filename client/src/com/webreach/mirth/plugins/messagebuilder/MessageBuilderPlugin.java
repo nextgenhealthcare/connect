@@ -49,7 +49,7 @@ public class MessageBuilderPlugin extends TransformerStepPlugin {
 
 			msg += "\nPlease enter a new mapping field name.\n";
 
-			((TransformerPane) parent).getParentFrame().alertWarning(parent, msg);
+			((TransformerPane) parent).getParentFrame().alertWarning(parent.parent, msg);
 		} else {
 			((TransformerPane) parent).setInvalidVar(false);
 		}
