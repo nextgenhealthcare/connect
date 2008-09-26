@@ -164,8 +164,10 @@
 		<jar destfile="${plugins.messagebuilder}/messagebuilder-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/messagebuilder/**" />
 		</jar>
-		<jar destfile="${dist}/plugins/externalscript-transformer-step-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/plugins/scriptfile/step/**" />
+		
+		<mkdir dir="${plugins.scriptfilestep}" />
+		<jar destfile="${plugins.scriptfilestep}/scriptfilestep-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/plugins/scriptfilestep/**" />
 		</jar>
 
 		<mkdir dir="${plugins.javascriptrule}" />
