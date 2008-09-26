@@ -141,7 +141,7 @@ public class ChannelSetup extends javax.swing.JPanel
             
             	ConnectorMetaData metaData = transports.get(entry.getKey());
            
-                if (metaData.getType() == ConnectorMetaData.Type.LISTENER && metaData.isEnabled())
+                if (metaData.getType() == ConnectorMetaData.Type.SOURCE && metaData.isEnabled())
                 {
                     sourceConnectors.add(metaData.getName());
                     
@@ -154,7 +154,7 @@ public class ChannelSetup extends javax.swing.JPanel
                         parent.alertError(this, "Could not load class: " + metaData.getClientClassName());
                     }
                 }
-                if (metaData.getType() == ConnectorMetaData.Type.SENDER && metaData.isEnabled())
+                if (metaData.getType() == ConnectorMetaData.Type.DESTINATION && metaData.isEnabled())
                 {                    
                     try
                     {
