@@ -163,6 +163,9 @@
 		<jar destfile="${plugins.messagebuilder}/messagebuilder-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/messagebuilder/**" />
 		</jar>
+		<jar destfile="${dist}/plugins/externalscript-transformer-step-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/plugins/scriptfile/step/**" />
+		</jar>
 
 		<mkdir dir="${plugins.javascriptrule}" />
 		<jar destfile="${plugins.javascriptrule}/javascript-filter-rule-client.jar" basedir="${classes}">

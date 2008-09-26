@@ -735,6 +735,16 @@
 			</fileset>
 		</zip>
 
+		<zip destfile="${dist.plugins}/external-script-transformer-step-${version}.zip">
+			<fileset dir="${plugins}">
+				<include name="external-script-transformer-step-client.jar" />
+				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
+			</fileset>
+			<fileset dir="${dist.extensions}">
+				<include name="External Script Transformer Step.xml" />
+			</fileset>
+		</zip>
+
 		<zip destfile="${dist.extensions}/rulebuilder-${version}.zip">
 			<fileset dir="${extensions}">
 				<include name="${plugins.rulebuilder}" />
