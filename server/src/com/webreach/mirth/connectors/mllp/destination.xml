@@ -8,9 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.mllp.LLPSender</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.mllp.MllpConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.mllp.LLPSenderProperties</sharedClassName>
-	<library>mllp-client.jar</library>
-	<library>mllp-shared.jar</library>
-	<library>mllp-server.jar</library>
+	<library type="client" path="mllp-client.jar" />
+	<library type="shared" path="mllp-shared.jar" />
+	<library type="server" path="mllp-server.jar" />
 	<transformers></transformers>
 	<protocol>mllp</protocol>
 	<type>SENDER</type>

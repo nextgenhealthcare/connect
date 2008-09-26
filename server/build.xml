@@ -10,6 +10,35 @@
 		<path id="classpath">
 			<fileset dir="${lib}" includes="**/*.jar" />
 		</path>
+
+		<!-- connectors -->
+		<property name="connectors.doc" value="${extensions}/com.webreach.mirth.connectors.doc" />
+		<property name="connectors.email" value="${extensions}/com.webreach.mirth.connectors.email" />
+		<property name="connectors.file" value="${extensions}/com.webreach.mirth.connectors.file" />
+		<property name="connectors.http" value="${extensions}/com.webreach.mirth.connectors.http" />
+		<property name="connectors.jdbc" value="${extensions}/com.webreach.mirth.connectors.jdbc" />
+		<property name="connectors.jms" value="${extensions}/com.webreach.mirth.connectors.jms" />
+		<property name="connectors.js" value="${extensions}/com.webreach.mirth.connectors.js" />
+		<property name="connectors.mllp" value="${extensions}/com.webreach.mirth.connectors.mllp" />
+		<property name="connectors.soap" value="${extensions}/com.webreach.mirth.connectors.soap" />
+		<property name="connectors.tcp" value="${extensions}/com.webreach.mirth.connectors.tcp" />
+		<property name="connectors.dicom" value="${extensions}/com.webreach.mirth.connectors.dicom" />
+		<property name="connectors.vm" value="${extensions}/com.webreach.mirth.connectors.vm" />
+
+		<!-- plugins -->
+		<property name="plugins.dashboardstatus" value="${extensions}/com.webreach.mirth.plugins.dashboardstatus" />
+		<property name="plugins.dicomviewer" value="${extensions}/com.webreach.mirth.plugins.dicomviewer" />
+		<property name="plugins.extensionmanager" value="${extensions}/com.webreach.mirth.plugins.extensionmanager" />
+		<property name="plugins.imageviewer" value="${extensions}/com.webreach.mirth.plugins.imageviewer" />
+		<property name="plugins.javascriptrule" value="${extensions}/com.webreach.mirth.plugins.javascriptrule" />
+		<property name="plugins.javascriptstep" value="${extensions}/com.webreach.mirth.plugins.javascriptstep" />
+		<property name="plugins.mapper" value="${extensions}/com.webreach.mirth.plugins.mapper" />
+		<property name="plugins.messagebuilder" value="${extensions}/com.webreach.mirth.plugins.messagebuilder" />
+		<property name="plugins.messagepruner" value="${extensions}/com.webreach.mirth.plugins.messagepruner" />
+		<property name="plugins.pdfviewer" value="${extensions}/com.webreach.mirth.plugins.pdfviewer" />
+		<property name="plugins.rtfviewer" value="${extensions}/com.webreach.mirth.plugins.rtfviewer" />
+		<property name="plugins.rulebuilder" value="${extensions}/com.webreach.mirth.plugins.rulebuilder" />
+		<property name="plugins.serverlog" value="${extensions}/com.webreach.mirth.plugins.serverlog" />
 	</target>
 
 	<target name="clean" depends="init">
@@ -48,26 +77,6 @@
 		<copy todir="${classes}/com/webreach/mirth/model/x12/xml">
 			<fileset dir="${src}/com/webreach/mirth/model/x12/xml" />
 		</copy>
-
-		<copy todir="${classes}/com/webreach/mirth/connectors">
-			<fileset dir="${src}/com/webreach/mirth/connectors">
-				<include name="*.xml" />
-			</fileset>
-		</copy>
-
-		<copy todir="${classes}/com/webreach/mirth/plugins">
-			<fileset dir="${src}/com/webreach/mirth/plugins">
-				<include name="*.xml" />
-			</fileset>
-		</copy>
-
-		<replace dir="${classes}/com/webreach/mirth/connectors" token="@mirthversion" value="${version}">
-			<include name="*.xml" />
-		</replace>
-
-		<replace dir="${classes}/com/webreach/mirth/plugins" token="@mirthversion" value="${version}">
-			<include name="*.xml" />
-		</replace>
 	</target>
 
 	<target name="create-client-core" depends="compile">
@@ -80,41 +89,52 @@
 	</target>
 
 	<target name="create-connectors" depends="create-client-core">
-		<delete dir="${connectors}" />
-		<mkdir dir="${connectors}" />
-
-		<copy todir="${connectors}">
-			<fileset dir="${classes}/com/webreach/mirth/connectors">
+		<!-- connectors.doc -->
+		<mkdir dir="${connectors.doc}" />
+		<copy todir="${connectors.doc}">
+			<fileset dir="${src}/com/webreach/mirth/connectors/doc">
 				<include name="*.xml" />
-				<exclude name="archive-metadata.xml" />
 			</fileset>
 		</copy>
-
-		<jar destfile="${connectors}/doc-shared.jar" basedir="${classes}">
+		<jar destfile="${connectors.doc}/doc-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/doc/DocumentWriterProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/doc-server.jar">
+		<jar destfile="${connectors.doc}/doc-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/doc/**" />
 				<exclude name="com/webreach/mirth/connectors/doc/DocumentWriterProperties.class" />
 			</fileset>
 		</jar>
 
-		<jar destfile="${connectors}/email-shared.jar" basedir="${classes}">
+		<!-- connectors.email -->
+		<mkdir dir="${connectors.email}" />
+		<copy todir="${connectors.email}">
+			<fileset dir="${src}/com/webreach/mirth/connectors/email">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<jar destfile="${connectors.email}/email-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/email/EmailSenderProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/email-server.jar">
+		<jar destfile="${connectors.email}/email-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/email/**" />
 				<exclude name="com/webreach/mirth/connectors/email/EmailSenderProperties.class" />
 			</fileset>
 		</jar>
 
-		<jar destfile="${connectors}/file-shared.jar" basedir="${classes}">
+		<!-- connectors.file -->
+		<mkdir dir="${connectors.file}" />
+		<copy todir="${connectors.file}">
+			<fileset dir="${src}/com/webreach/mirth/connectors/file">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<jar destfile="${connectors.file}/file-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/file/FileReaderProperties.class" />
 			<include name="com/webreach/mirth/connectors/file/FileWriterProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/file-server.jar">
+		<jar destfile="${connectors.file}/file-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/file/**" />
 				<exclude name="com/webreach/mirth/connectors/file/FileReaderProperties.class" />
@@ -122,11 +142,18 @@
 			</fileset>
 		</jar>
 
-		<jar destfile="${connectors}/http-shared.jar" basedir="${classes}">
+		<!-- connectors.http -->
+		<mkdir dir="${connectors.http}" />
+		<copy todir="${connectors.http}">
+			<fileset dir="${src}/com/webreach/mirth/connectors/http">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<jar destfile="${connectors.http}/http-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/http/HTTPListenerProperties.class" />
 			<include name="com/webreach/mirth/connectors/http/HTTPSenderProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/http-server.jar">
+		<jar destfile="${connectors.http}/http-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/http/**" />
 				<exclude name="com/webreach/mirth/connectors/http/HTTPListenerProperties.class" />
@@ -134,11 +161,18 @@
 			</fileset>
 		</jar>
 
-		<jar destfile="${connectors}/jdbc-shared.jar" basedir="${classes}">
+		<!-- connectors.jdbc -->
+		<mkdir dir="${connectors.jdbc}" />
+		<copy todir="${connectors.jdbc}">
+			<fileset dir="${src}/com/webreach/mirth/connectors/jdbc">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<jar destfile="${connectors.jdbc}/jdbc-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/jdbc/DatabaseReaderProperties.class" />
 			<include name="com/webreach/mirth/connectors/jdbc/DatabaseWriterProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/jdbc-server.jar">
+		<jar destfile="${connectors.jdbc}/jdbc-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/jdbc/**" />
 				<exclude name="com/webreach/mirth/connectors/jdbc/DatabaseReaderProperties.class" />
@@ -146,11 +180,18 @@
 			</fileset>
 		</jar>
 
-		<jar destfile="${connectors}/jms-shared.jar" basedir="${classes}">
+		<!-- connectors.jms -->
+		<mkdir dir="${connectors.jms}" />
+		<copy todir="${connectors.jms}">
+			<fileset dir="${src}/com/webreach/mirth/connectors/jms">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<jar destfile="${connectors.jms}/jms-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/jms/JMSReaderProperties.class" />
 			<include name="com/webreach/mirth/connectors/jms/JMSWriterProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/jms-server.jar">
+		<jar destfile="${connectors.jms}/jms-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/jms/**" />
 				<exclude name="com/webreach/mirth/connectors/jms/JMSReaderProperties.class" />
@@ -158,11 +199,18 @@
 			</fileset>
 		</jar>
 
-		<jar destfile="${connectors}/js-shared.jar" basedir="${classes}">
+		<!-- connectors.js -->
+		<mkdir dir="${connectors.js}" />
+		<copy todir="${connectors.js}">
+			<fileset dir="${src}/com/webreach/mirth/connectors/js">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<jar destfile="${connectors.js}/js-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/js/JavaScriptReaderProperties.class" />
 			<include name="com/webreach/mirth/connectors/js/JavaScriptWriterProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/js-server.jar">
+		<jar destfile="${connectors.js}/js-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/js/**" />
 				<exclude name="com/webreach/mirth/connectors/js/JavaScriptReaderProperties.class" />
@@ -170,11 +218,18 @@
 			</fileset>
 		</jar>
 
-		<jar destfile="${connectors}/mllp-shared.jar" basedir="${classes}">
+		<!-- connectors.mllp -->
+		<mkdir dir="${connectors.mllp}" />
+		<copy todir="${connectors.mllp}">
+			<fileset dir="${src}/com/webreach/mirth/connectors/mllp">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<jar destfile="${connectors.mllp}/mllp-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/mllp/LLPListenerProperties.class" />
 			<include name="com/webreach/mirth/connectors/mllp/LLPSenderProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/mllp-server.jar">
+		<jar destfile="${connectors.mllp}/mllp-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/mllp/**" />
 				<exclude name="com/webreach/mirth/connectors/mllp/LLPListenerProperties.class" />
@@ -182,11 +237,18 @@
 			</fileset>
 		</jar>
 
-		<jar destfile="${connectors}/soap-shared.jar" basedir="${classes}">
+		<!-- connectors.soap -->
+		<mkdir dir="${connectors.soap}" />
+		<copy todir="${connectors.soap}">
+			<fileset dir="${src}/com/webreach/mirth/connectors/soap">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<jar destfile="${connectors.soap}/soap-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/soap/SOAPListenerProperties.class" />
 			<include name="com/webreach/mirth/connectors/soap/SOAPSenderProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/soap-server.jar">
+		<jar destfile="${connectors.soap}/soap-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/soap/**" />
 				<exclude name="com/webreach/mirth/connectors/soap/SOAPListenerProperties.class" />
@@ -194,22 +256,37 @@
 			</fileset>
 		</jar>
 
-		<jar destfile="${connectors}/tcp-shared.jar" basedir="${classes}">
+		<!-- connectors.tcp -->
+		<mkdir dir="${connectors.tcp}" />
+		<copy todir="${connectors.tcp}">
+			<fileset dir="${src}/com/webreach/mirth/connectors/tcp">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<jar destfile="${connectors.tcp}/tcp-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/tcp/TCPListenerProperties.class" />
 			<include name="com/webreach/mirth/connectors/tcp/TCPSenderProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/tcp-server.jar">
+		<jar destfile="${connectors.tcp}/tcp-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/tcp/**" />
 				<exclude name="com/webreach/mirth/connectors/tcp/TCPListenerProperties.class" />
 				<exclude name="com/webreach/mirth/connectors/tcp/TCPSenderProperties.class" />
 			</fileset>
 		</jar>
-		<jar destfile="${connectors}/dicom-shared.jar" basedir="${classes}">
+
+		<!-- connectors.dicom -->
+		<mkdir dir="${connectors.dicom}" />
+		<copy todir="${connectors.dicom}">
+			<fileset dir="${src}/com/webreach/mirth/connectors/dimse">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<jar destfile="${connectors.dicom}/dicom-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/dimse/DICOMListenerProperties.class" />
 			<include name="com/webreach/mirth/connectors/dimse/DICOMSenderProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/dicom-server.jar">
+		<jar destfile="${connectors.dicom}/dicom-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/dimse/**" />
 				<exclude name="com/webreach/mirth/connectors/dimse/DICOMListenerProperties.class" />
@@ -217,39 +294,134 @@
 			</fileset>
 		</jar>
 
-		<jar destfile="${connectors}/vm-shared.jar" basedir="${classes}">
+		<!-- connectors.vm -->
+		<mkdir dir="${connectors.vm}" />
+		<copy todir="${connectors.vm}">
+			<fileset dir="${src}/com/webreach/mirth/connectors/vm">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<jar destfile="${connectors.vm}/vm-shared.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/connectors/vm/ChannelReaderProperties.class" />
 			<include name="com/webreach/mirth/connectors/vm/ChannelWriterProperties.class" />
 		</jar>
-		<jar destfile="${connectors}/vm-server.jar">
+		<jar destfile="${connectors.vm}/vm-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/webreach/mirth/connectors/vm/**" />
 				<exclude name="com/webreach/mirth/connectors/vm/ChannelReaderProperties.class" />
 				<exclude name="com/webreach/mirth/connectors/vm/ChannelWriterProperties.class" />
 			</fileset>
 		</jar>
+
+		<!-- set the version on all connectors -->
+		<replace dir="${extensions}" token="@mirthversion" value="${version}">
+			<include name="**/*.xml" />
+		</replace>
 	</target>
 
 	<target name="create-plugins" depends="create-connectors">
-		<delete dir="${plugins}" />
-		<mkdir dir="${plugins}" />
-
-		<copy todir="${plugins}">
-			<fileset dir="${classes}/com/webreach/mirth/plugins">
+		<!-- plugins.dashboardstatus -->
+		<mkdir dir="${plugins.dashboardstatus}" />
+		<copy todir="${plugins.dashboardstatus}">
+			<fileset dir="${src}/com/webreach/mirth/plugins/dashboardstatus">
 				<include name="*.xml" />
-				<exclude name="archive-metadata.xml" />
 			</fileset>
 		</copy>
-
-		<jar destfile="${plugins}/message-pruner-server.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/plugins/messagepruner/**" />
-		</jar>
-
-		<jar destfile="${plugins}/dashboard-status-monitor-server.jar" basedir="${classes}">
+		<jar destfile="${plugins.dashboardstatus}/dashboard-status-monitor-server.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/dashboardstatus/**" />
 		</jar>
 
-		<jar destfile="${plugins}/serverlog-server.jar" basedir="${classes}">
+		<!-- plugins.dicomviewer -->
+		<mkdir dir="${plugins.dicomviewer}" />
+		<copy todir="${plugins.dicomviewer}">
+			<fileset dir="${src}/com/webreach/mirth/plugins/dicomviewer">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+
+		<!-- plugins.extensionmanager -->
+		<mkdir dir="${plugins.extensionmanager}" />
+		<copy todir="${plugins.extensionmanager}">
+			<fileset dir="${src}/com/webreach/mirth/plugins/extensionmanager">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+
+		<!-- plugins.imageviewer -->
+		<mkdir dir="${plugins.imageviewer}" />
+		<copy todir="${plugins.imageviewer}">
+			<fileset dir="${src}/com/webreach/mirth/plugins/imageviewer">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+
+		<!-- plugins.javascriptrule -->
+		<mkdir dir="${plugins.javascriptrule}" />
+		<copy todir="${plugins.javascriptrule}">
+			<fileset dir="${src}/com/webreach/mirth/plugins/javascriptrule">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+
+		<!-- plugins.mapper -->
+		<mkdir dir="${plugins.mapper}" />
+		<copy todir="${plugins.mapper}">
+			<fileset dir="${src}/com/webreach/mirth/plugins/mapper">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+
+		<!-- plugins.messagebuilder -->
+		<mkdir dir="${plugins.messagebuilder}" />
+		<copy todir="${plugins.messagebuilder}">
+			<fileset dir="${src}/com/webreach/mirth/plugins/messagebuilder">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+
+		<!-- plugins.messagepruner -->
+		<mkdir dir="${plugins.messagepruner}" />
+		<copy todir="${plugins.messagepruner}">
+			<fileset dir="${src}/com/webreach/mirth/plugins/messagepruner">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<jar destfile="${plugins.messagepruner}/message-pruner-server.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/plugins/messagepruner/**" />
+		</jar>
+
+		<!-- plugins.pdfviewer -->
+		<mkdir dir="${plugins.pdfviewer}" />
+		<copy todir="${plugins.pdfviewer}">
+			<fileset dir="${src}/com/webreach/mirth/plugins/pdfviewer">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+
+		<!-- plugins.rtfviewer -->
+		<mkdir dir="${plugins.rtfviewer}" />
+		<copy todir="${plugins.rtfviewer}">
+			<fileset dir="${src}/com/webreach/mirth/plugins/rtfviewer">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+
+		<!-- plugins.rulebuilder -->
+		<mkdir dir="${plugins.rulebuilder}" />
+		<copy todir="${plugins.rulebuilder}">
+			<fileset dir="${src}/com/webreach/mirth/plugins/rulebuilder">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+
+		<!-- plugins.serverlog -->
+		<mkdir dir="${plugins.serverlog}" />
+		<copy todir="${plugins.serverlog}">
+			<fileset dir="${src}/com/webreach/mirth/plugins/serverlog">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<jar destfile="${plugins.serverlog}/serverlog-server.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/serverlog/**" />
 		</jar>
 	</target>
@@ -261,19 +433,17 @@
 				<exclude name="activation.jar" />
 				<include name="*.jar" />
 			</fileset>
-			<fileset file="${connectors}/*.jar" />
-			<fileset file="${plugins}/*-client.jar" />
+			<fileset file="${extensions}/*-shared.jar" />
+			<fileset file="${extensions}/*-client.jar" />
 		</signjar>
 	</target>
-
 
 	<target name="create-setup" depends="create-client-lib">
 		<!-- create the setup directory -->
 		<mkdir dir="${setup}" />
 		<mkdir dir="${setup.conf}" />
-		<mkdir dir="${setup.plugins}" />
+		<mkdir dir="${setup.extensions}" />
 		<mkdir dir="${setup.public_html}" />
-		<mkdir dir="${setup.connectors}" />
 		<mkdir dir="${setup.lib}" />
 		<mkdir dir="${setup.client.lib}" />
 		<mkdir dir="${setup.source}" />
@@ -302,19 +472,14 @@
 			</fileset>
 		</copy>
 
-		<!-- copy connector files -->
+		<!-- copy public html files -->
 		<copy todir="${setup.public_html}">
 			<fileset dir="${public_html}" />
 		</copy>
 
-		<!-- copy connector files -->
-		<copy todir="${setup.connectors}">
-			<fileset dir="${connectors}" />
-		</copy>
-
-		<!-- copy plugins files -->
-		<copy todir="${setup.plugins}">
-			<fileset dir="${plugins}" />
+		<!-- copy extensions files -->
+		<copy todir="${setup.extensions}">
+			<fileset dir="${extensions}" />
 		</copy>
 
 		<!-- create version.properties file -->
@@ -460,302 +625,151 @@
 
 	<target name="create-extension-zips" depends="create-setup">
 		<delete dir="${dist.extensions}" />
-		<mkdir dir="${dist.connectors}" />
-		<mkdir dir="${dist.plugins}" />
+		<mkdir dir="${dist.extensions}" />
 
-		<copy todir="${dist.extensions}">
-			<fileset dir="${src}/com/webreach/mirth/connectors">
-				<include name="*.xml" />
-			</fileset>
-		</copy>
-		<copy todir="${dist.extensions}">
-			<fileset dir="${src}/com/webreach/mirth/plugins">
-				<include name="*.xml" />
-			</fileset>
-		</copy>
-		<replace dir="${dist.extensions}" token="@mirthversion" value="${version}">
-			<include name="*.xml" />
-		</replace>
-
-		<zip destfile="${dist.connectors}/doc-${version}.zip">
-			<fileset dir="${connectors}">
-				<include name="doc-shared.jar" />
-				<include name="doc-server.jar" />
-				<include name="doc-client.jar" />
-				<include name="${classes}/com/webreach/mirth/connectors/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="Document Writer.xml" />
+		<zip destfile="${dist.extensions}/doc-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${connectors.doc}" />
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.connectors}/email-${version}.zip">
-			<fileset dir="${connectors}">
-				<include name="email-shared.jar" />
-				<include name="email-server.jar" />
-				<include name="email-client.jar" />
-				<include name="${classes}/com/webreach/mirth/connectors/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="Email Sender.xml" />
+		<zip destfile="${dist.extensions}/email-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${connectors.email}" />
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.connectors}/file-${version}.zip">
-			<fileset dir="${connectors}">
-				<include name="file-shared.jar" />
-				<include name="file-server.jar" />
-				<include name="file-client.jar" />
-				<include name="${classes}/com/webreach/mirth/connectors/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="File Writer.xml" />
-				<include name="File Reader.xml" />
+		<zip destfile="${dist.extensions}/file-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${connectors.file}" />
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.connectors}/http-${version}.zip">
-			<fileset dir="${connectors}">
-				<include name="http-shared.jar" />
-				<include name="http-server.jar" />
-				<include name="http-client.jar" />
-				<include name="${classes}/com/webreach/mirth/connectors/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="HTTP Sender.xml" />
-				<include name="HTTP Listener.xml" />
+		<zip destfile="${dist.extensions}/http-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${connectors.http}" />
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.connectors}/jdbc-${version}.zip">
-			<fileset dir="${connectors}">
-				<include name="jdbc-shared.jar" />
-				<include name="jdbc-server.jar" />
-				<include name="jdbc-client.jar" />
-				<include name="${classes}/com/webreach/mirth/connectors/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="Database Reader.xml" />
-				<include name="Database Writer.xml" />
+		<zip destfile="${dist.extensions}/jdbc-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${connectors.jdbc}" />
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.connectors}/jms-${version}.zip">
-			<fileset dir="${connectors}">
-				<include name="jms-shared.jar" />
-				<include name="jms-server.jar" />
-				<include name="jms-client.jar" />
-				<include name="${classes}/com/webreach/mirth/connectors/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="JMS Reader.xml" />
-				<include name="JMS Writer.xml" />
+		<zip destfile="${dist.extensions}/jms-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${connectors.jms}" />
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.connectors}/mllp-${version}.zip">
-			<fileset dir="${connectors}">
-				<include name="mllp-shared.jar" />
-				<include name="mllp-server.jar" />
-				<include name="mllp-client.jar" />
-				<include name="${classes}/com/webreach/mirth/connectors/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="LLP Listener.xml" />
-				<include name="LLP Sender.xml" />
+		<zip destfile="${dist.extensions}/mllp-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${connectors.mllp}" />
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.connectors}/soap-${version}.zip">
-			<fileset dir="${connectors}">
-				<include name="soap-shared.jar" />
-				<include name="soap-server.jar" />
-				<include name="soap-client.jar" />
-				<include name="${classes}/com/webreach/mirth/connectors/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="SOAP Listener.xml" />
-				<include name="SOAP Sender.xml" />
+		<zip destfile="${dist.extensions}/soap-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${connectors.soap}" />
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.connectors}/tcp-${version}.zip">
-			<fileset dir="${connectors}">
-				<include name="tcp-shared.jar" />
-				<include name="tcp-server.jar" />
-				<include name="tcp-client.jar" />
-				<include name="${classes}/com/webreach/mirth/connectors/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="TCP Listener.xml" />
-				<include name="TCP Sender.xml" />
+		<zip destfile="${dist.extensions}/tcp-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${connectors.tcp}" />
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.connectors}/dicom-${version}.zip">
-			<fileset dir="${connectors}">
-				<include name="dicom-shared.jar" />
-				<include name="dicom-server.jar" />
-				<include name="dicom-client.jar" />
-				<include name="${classes}/com/webreach/mirth/connectors/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="DICOM Reader.xml" />
-				<include name="DICOM Sender.xml" />
+		<zip destfile="${dist.extensions}/dicom-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${connectors.dicom}" />
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.connectors}/vm-${version}.zip">
-			<fileset dir="${connectors}">
-				<include name="vm-shared.jar" />
-				<include name="vm-server.jar" />
-				<include name="vm-client.jar" />
-				<include name="${classes}/com/webreach/mirth/connectors/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="Channel Reader.xml" />
-				<include name="Channel Writer.xml" />
+		<zip destfile="${dist.extensions}/vm-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${connectors.vm}" />
 			</fileset>
 		</zip>
 
-
-		<zip destfile="${dist.plugins}/extension-manager-${version}.zip">
-			<fileset dir="${plugins}">
-				<include name="extension-manager-client.jar" />
-				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="Extension Manager.xml" />
+		<zip destfile="${dist.extensions}/extensionmanager-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${plugins.extensionmanager}" />
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.plugins}/dashboard-status-monitor-${version}.zip">
-			<fileset dir="${plugins}">
-				<include name="dashboard-status-monitor-server.jar" />
-				<include name="dashboard-status-monitor-client.jar" />
-				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="Dashboard Connector Status Monitor Plugin.xml" />
+		<zip destfile="${dist.extensions}/dashboardstatus-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${plugins.dashboardstatus}" />
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.plugins}/serverlog-${version}.zip">
-			<fileset dir="${plugins}">
-				<include name="serverlog-server.jar" />
-				<include name="serverlog-client.jar" />
-				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="Server Log.xml" />
+		<zip destfile="${dist.extensions}/serverlog-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${plugins.serverlog}" />
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.plugins}/message-pruner-${version}.zip">
-			<fileset dir="${plugins}">
-				<include name="message-pruner-client.jar" />
-				<include name="message-pruner-server.jar" />
-				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="Message Pruner.xml" />
+		<zip destfile="${dist.extensions}/messagepruner-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${plugins.messsagepruner}" />
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.plugins}/javascript-transformer-step-${version}.zip">
-			<fileset dir="${plugins}">
-				<include name="javascript-transformer-step-client.jar" />
-				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="Javascript Transformer Step.xml" />
+		<zip destfile="${dist.extensions}/javascriptstep-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${plugins.javascriptstep}" />
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.plugins}/mapper-transformer-step-${version}.zip">
-			<fileset dir="${plugins}">
-				<include name="mapper-transformer-step-client.jar" />
-				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="Mapper Transformer Step.xml" />
+		<zip destfile="${dist.extensions}/mapper-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${plugins.mapper}" />
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.plugins}/message-builder-transformer-step-${version}.zip">
-			<fileset dir="${plugins}">
-				<include name="message-builder-transformer-step-client.jar" />
-				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="Message Builder Transformer Step.xml" />
+		<zip destfile="${dist.extensions}/messagebuilder-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${plugins.messagebuilder}" />
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.plugins}/rule-builder-filter-rule-${version}.zip">
-			<fileset dir="${plugins}">
-				<include name="rule-builder-filter-rule-client.jar" />
-				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="Rule Builder Filter Rule.xml" />
+		<zip destfile="${dist.extensions}/rulebuilder-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${plugins.rulebuilder}" />
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.plugins}/javascript-filter-rule-${version}.zip">
-			<fileset dir="${plugins}">
-				<include name="javascript-filter-rule-client.jar" />
-				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="Javascript Filter Rule.xml" />
+		<zip destfile="${dist.extensions}/javascriptrule-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${plugins.javascriptrule}" />
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.plugins}/dicom-viewer-${version}.zip">
-			<fileset dir="${plugins}">
-				<include name="dicom-viewer-client.jar" />
-				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="DICOM Viewer.xml" />
+		<zip destfile="${dist.extensions}/dicomviewer-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${plugins.dicomviewer}" />
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.plugins}/pdf-viewer-${version}.zip">
-			<fileset dir="${plugins}">
-				<include name="pdf-viewer-client.jar" />
-				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="PDF Viewer.xml" />
+		<zip destfile="${dist.extensions}/pdfviewer-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${plugins.pdfviewer}" />
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.plugins}/rtf-viewer-${version}.zip">
-			<fileset dir="${plugins}">
-				<include name="rtf-viewer-client.jar" />
-				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="RTF Viewer.xml" />
+		<zip destfile="${dist.extensions}/rtfviewer-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${plugins.rtfviewer}" />
 			</fileset>
 		</zip>
 
-		<zip destfile="${dist.plugins}/image-viewer-${version}.zip">
-			<fileset dir="${plugins}">
-				<include name="image-viewer-client.jar" />
-				<include name="${classes}/com/webreach/mirth/plugins/archive-metadata.xml" />
-			</fileset>
-			<fileset dir="${dist.extensions}">
-				<include name="Image Viewer.xml" />
+		<zip destfile="${dist.extensions}/imageviewer-${version}.zip">
+			<fileset dir="${extensions}">
+				<include name="${plugins.imageviewer}" />
 			</fileset>
 		</zip>
-
-		<!-- remove extension XML meta-data files -->
-		<delete>
-			<fileset dir="${dist.extensions}" includes="*.xml" />
-		</delete>
 	</target>
 
 	<target name="create-dist" depends="create-extension-zips">

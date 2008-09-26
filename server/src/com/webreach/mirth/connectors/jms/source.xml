@@ -8,9 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.jms.JMSReader</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.jms.JmsConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.jms.JMSReaderProperties</sharedClassName>
-	<library>jms-client.jar</library>
-	<library>jms-shared.jar</library>
-	<library>jms-server.jar</library>
+	<library type="client" path="jms-client.jar" />
+	<library type="shared" path="jms-shared.jar" />
+	<library type="server" path="jms-server.jar" />
 	<transformers>JMSMessageToObject ObjectToString</transformers>
 	<protocol>jms</protocol>
 	<type>LISTENER</type>

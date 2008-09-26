@@ -1,20 +1,20 @@
 <connectorMetaData>
-	<name>Database Writer</name>
+	<name>Database Reader</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>1.7.1</mirthVersion>
 	<url>http://extensions.mirthproject.org</url>
-	<description>This connector allows Mirth to write to any JDBC-compatabile database with Insert, Update or JavaScript statements.</description>
-	<clientClassName>com.webreach.mirth.connectors.jdbc.DatabaseWriter</clientClassName>
+	<description>This connector allows Mirth to poll any supported JDBC-compatabile database for data. Rows are returned as XML and JavaScript can be used for advanced logic.</description>
+	<clientClassName>com.webreach.mirth.connectors.jdbc.DatabaseReader</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.jdbc.JdbcConnector</serverClassName>
-	<sharedClassName>com.webreach.mirth.connectors.jdbc.DatabaseWriterProperties</sharedClassName>
+	<sharedClassName>com.webreach.mirth.connectors.jdbc.DatabaseReaderProperties</sharedClassName>
 	<serviceClassName>com.webreach.mirth.connectors.jdbc.JdbcConnectorService</serviceClassName>
-	<library>jdbc-client.jar</library>
-	<library>jdbc-shared.jar</library>
-	<library>jdbc-server.jar</library>
-	<transformers></transformers>
+	<library type="client" path="jdbc-client.jar" />
+	<library type="shared" path="jdbc-shared.jar" />
+	<library type="server" path="jdbc-server.jar" />
+	<transformers>ResultMapToXML</transformers>
 	<protocol>jdbc</protocol>
-	<type>SENDER</type>
+	<type>LISTENER</type>
 	<enabled>true</enabled>
 	<mule-properties>
 		<property name="connector">com.webreach.mirth.connectors.jdbc.JdbcConnector</property>

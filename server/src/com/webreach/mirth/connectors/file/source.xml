@@ -8,9 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.file.FileReader</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.file.FileConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.file.FileReaderProperties</sharedClassName>
-	<library>file-client.jar</library>
-	<library>file-shared.jar</library>
-	<library>file-server.jar</library>
+	<library type="client" path="file-client.jar" />
+	<library type="shared" path="file-shared.jar" />
+	<library type="server" path="file-server.jar" />
 	<transformers>ByteArrayToString</transformers>
 	<protocol>file</protocol>
 	<type>LISTENER</type>

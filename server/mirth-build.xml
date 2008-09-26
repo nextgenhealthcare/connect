@@ -8,9 +8,9 @@
 			<property name="version" value="${version}" />
 		</ant>
 
-		<copy todir="${client}/lib">
-			<fileset dir="${server}/extensions/connectors/">
-				<include name="*-shared.jar" />
+		<copy todir="${client}/lib" flatten="true">
+			<fileset dir="${server}/extensions/">
+				<include name="**/*-shared.jar" />
 			</fileset>
 		</copy>
 
@@ -23,20 +23,11 @@
 		<ant antfile="${client}/ant-build.xml" dir="${client}" target="create-client" />
 
 		<copy file="${client}/dist/mirth-client.jar" todir="${server}/client-lib/" />
-
-		<copy todir="${server}/extensions/connectors/">
-			<fileset dir="${client}/dist/connectors/">
-				<include name="*.jar" />
-			</fileset>
-		</copy>
-
-		<copy todir="${server}/extensions/plugins/">
-			<fileset dir="${client}/dist/plugins/">
-				<include name="*.jar" />
-			</fileset>
-		</copy>
-
 		<copy file="${server}/mirth-client-core.jar" todir="${server}/client-lib/" />
+
+		<copy todir="${server}/extensions/">
+			<fileset dir="${client}/dist/extensions/" />
+		</copy>
 
 		<copy todir="${server}/client-lib">
 			<fileset dir="${client}/lib">

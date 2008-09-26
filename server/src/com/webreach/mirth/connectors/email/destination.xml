@@ -8,9 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.email.EmailSender</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.email.SmtpConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.email.EmailSenderProperties</sharedClassName>
-	<library>email-client.jar</library>
-	<library>email-shared.jar</library>
-	<library>email-server.jar</library>
+	<library type="client" path="email-client.jar" />
+	<library type="shared" path="email-shared.jar" />
+	<library type="server" path="email-server.jar" />
 	<transformers></transformers>
 	<protocol>smtp</protocol>
 	<type>SENDER</type>

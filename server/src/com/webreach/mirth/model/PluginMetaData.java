@@ -28,6 +28,7 @@ package com.webreach.mirth.model;
 import java.io.Serializable;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
@@ -41,7 +42,13 @@ public class PluginMetaData extends MetaData implements Serializable {
 
     @XStreamAlias("libraries")
 	@XStreamImplicit(itemFieldName="library")
-    private List<String> libraries;
+    private List<ExtensionLibrary> libraries;
+
+    @XStreamAlias("sqlCreateScripts")
+    private Map<String, String> sqlCreateScripts;
+
+    @XStreamAlias("sqlMapConfigs")
+    private Map<String, String> sqlMapConfigs;
 
 	public List<ExtensionPoint> getExtensionPoints() {
 		return extensionPoints;
@@ -51,12 +58,28 @@ public class PluginMetaData extends MetaData implements Serializable {
 		this.extensionPoints = plugins;
 	}
 
-	public List<String> getLibraries() {
+    public List<ExtensionLibrary> getLibraries() {
         return libraries;
     }
 
-    public void setLibraries(List<String> libraries) {
+    public void setLibraries(List<ExtensionLibrary> libraries) {
         this.libraries = libraries;
+    }
+
+    public Map<String, String> getSqlCreateScripts() {
+        return sqlCreateScripts;
+    }
+
+    public void setSqlCreateScripts(Map<String, String> sqlCreateScripts) {
+        this.sqlCreateScripts = sqlCreateScripts;
+    }
+
+    public Map<String, String> getSqlMapConfigs() {
+        return sqlMapConfigs;
+    }
+
+    public void setSqlMapConfigs(Map<String, String> sqlMapConfigs) {
+        this.sqlMapConfigs = sqlMapConfigs;
     }
 
     public boolean equals(Object that) {

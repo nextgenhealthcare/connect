@@ -1,19 +1,19 @@
 <connectorMetaData>
-	<name>TCP Listener</name>
+	<name>TCP Sender</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>1.7.1</mirthVersion>
 	<url>http://extensions.mirthproject.org</url>
-	<description>This connector allows Mirth to listen for incoming messages over a standard TCP connection.</description>
-	<clientClassName>com.webreach.mirth.connectors.tcp.TCPListener</clientClassName>
+	<description>This connector allows Mirth to send messages to a TCP server.</description>
+	<clientClassName>com.webreach.mirth.connectors.tcp.TCPSender</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.tcp.TcpConnector</serverClassName>
-	<sharedClassName>com.webreach.mirth.connectors.tcp.TCPListenerProperties</sharedClassName>
-	<library>tcp-client.jar</library>
-	<library>tcp-shared.jar</library>
-	<library>tcp-server.jar</library>
-	<transformers>ByteArrayToString</transformers>
+	<sharedClassName>com.webreach.mirth.connectors.tcp.TCPSenderProperties</sharedClassName>
+	<library type="client" path="tcp-client.jar" />
+	<library type="shared" path="tcp-shared.jar" />
+	<library type="server" path="tcp-server.jar" />
+	<transformers></transformers>
 	<protocol>tcp</protocol>
-	<type>LISTENER</type>
+	<type>SENDER</type>
 	<enabled>true</enabled>
 	<mule-properties>
 		<property name="connector">com.webreach.mirth.connectors.tcp.TcpConnector</property>

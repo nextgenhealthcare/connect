@@ -8,9 +8,9 @@
 	<clientClassName>com.webreach.mirth.connectors.http.HTTPSender</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.http.HttpConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.http.HTTPSenderProperties</sharedClassName>
-	<library>http-client.jar</library>
-	<library>http-shared.jar</library>
-	<library>http-server.jar</library>
+	<library type="client" path="http-client.jar" />
+	<library type="shared" path="http-shared.jar" />
+	<library type="server" path="http-server.jar" />
 	<transformers></transformers>
 	<protocol>http</protocol>
 	<type>SENDER</type>

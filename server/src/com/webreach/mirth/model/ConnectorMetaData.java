@@ -52,7 +52,7 @@ public class ConnectorMetaData extends MetaData implements Serializable {
 
 	@XStreamAlias("libraries")
 	@XStreamImplicit(itemFieldName="library")
-	private List<String> libraries;
+	private List<ExtensionLibrary> libraries;
 
 	public String getServerClassName() {
 		return this.serverClassName;
@@ -118,11 +118,11 @@ public class ConnectorMetaData extends MetaData implements Serializable {
 		this.properties = properties;
 	}
 
-	public List<String> getLibraries() {
+	public List<ExtensionLibrary> getLibraries() {
         return libraries;
     }
 
-    public void setLibraries(List<String> libraries) {
+    public void setLibraries(List<ExtensionLibrary> libraries) {
         this.libraries = libraries;
     }
 
