@@ -329,7 +329,7 @@
 				<include name="*.xml" />
 			</fileset>
 		</copy>
-		<jar destfile="${plugins.dashboardstatus}/dashboard-status-monitor-server.jar" basedir="${classes}">
+		<jar destfile="${plugins.dashboardstatus}/dashboardstatus-server.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/dashboardstatus/**" />
 		</jar>
 
@@ -426,6 +426,14 @@
 		<jar destfile="${plugins.serverlog}/serverlog-server.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/serverlog/**" />
 		</jar>
+
+		<!-- plugins.scriptfilestep -->
+		<mkdir dir="${plugins.scriptfilestep}" />
+		<copy todir="${plugins.scriptfilestep}">
+			<fileset dir="${src}/com/webreach/mirth/plugins/scriptfilestep">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
 	</target>
 
 	<target name="create-client-lib" depends="init">
