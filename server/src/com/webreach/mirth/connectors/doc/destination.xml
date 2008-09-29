@@ -8,9 +8,15 @@
 	<clientClassName>com.webreach.mirth.connectors.doc.DocumentWriter</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.doc.DocumentConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.doc.DocumentWriterProperties</sharedClassName>
-	<library type="CLIENT" path="doc-client.jar" />
-	<library type="SHARED" path="doc-shared.jar" />
-	<library type="SERVER" path="doc-server.jar" />
+	<library path="doc-client.jar">
+		<type>CLIENT</type>
+	</library>
+	<library path="doc-shared.jar">
+		<type>SHARED</type>
+	</library>
+	<library path="doc-server.jar">
+		<type>SERVER</type>
+	</library>
 	<transformers></transformers>
 	<protocol>doc</protocol>
 	<type>DESTINATION</type>

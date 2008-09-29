@@ -9,9 +9,15 @@
 	<serverClassName>com.webreach.mirth.connectors.soap.axis.AxisConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.soap.SOAPSenderProperties</sharedClassName>
 	<serviceClassName>com.webreach.mirth.connectors.soap.SoapConnectorService</serviceClassName>
-	<library type="client" path="soap-client.jar" />
-	<library type="shared" path="soap-shared.jar" />
-	<library type="server" path="soap-server.jar" />
+	<library path="soap-client.jar">
+		<type>CLIENT</type>
+	</library>
+	<library path="soap-shared.jar">
+		<type>SHARED</type>
+	</library>
+	<library path="soap-server.jar">
+		<type>SERVER</type>
+	</library>
 	<transformers></transformers>
 	<protocol>axis</protocol>
 	<type>DESTINATION</type>

@@ -8,9 +8,15 @@
 	<clientClassName>com.webreach.mirth.connectors.file.FileWriter</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.file.FileConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.file.FileWriterProperties</sharedClassName>
-	<library type="client" path="file-client.jar" />
-	<library type="shared" path="file-shared.jar" />
-	<library type="server" path="file-server.jar" />
+	<library path="file-client.jar">
+		<type>CLIENT</type>
+	</library>
+	<library path="file-shared.jar">
+		<type>SHARED</type>
+	</library>
+	<library path="file-server.jar">
+		<type>SERVER</type>
+	</library>
 	<transformers></transformers>
 	<protocol>file</protocol>
 	<type>DESTINATION</type>

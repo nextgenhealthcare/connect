@@ -8,9 +8,15 @@
 	<clientClassName>com.webreach.mirth.connectors.vm.ChannelWriter</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.vm.VMConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.vm.ChannelWriterProperties</sharedClassName>
-	<library type="client" path="vm-client.jar" />
-	<library type="shared" path="vm-shared.jar" />
-	<library type="server" path="vm-server.jar" />
+	<library path="vm-client.jar">
+		<type>CLIENT</type>
+	</library>
+	<library path="vm-shared.jar">
+		<type>SHARED</type>
+	</library>
+	<library path="vm-server.jar">
+		<type>SERVER</type>
+	</library>
 	<transformers></transformers>
 	<protocol>vm</protocol>
 	<type>DESTINATION</type>

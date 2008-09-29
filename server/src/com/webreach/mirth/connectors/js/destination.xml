@@ -8,9 +8,15 @@
 	<clientClassName>com.webreach.mirth.connectors.js.JavaScriptWriter</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.js.JavaScriptConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.js.JavaScriptWriterProperties</sharedClassName>
-	<library type="client" path="js-client.jar" />
-	<library type="shared" path="js-shared.jar" />
-	<library type="server" path="js-server.jar" />
+	<library path="js-client.jar">
+		<type>CLIENT</type>
+	</library>
+	<library path="js-shared.jar">
+		<type>SHARED</type>
+	</library>
+	<library path="js-server.jar">
+		<type>SERVER</type>
+	</library>
 	<transformers></transformers>
 	<protocol>js</protocol>
 	<type>DESTINATION</type>
