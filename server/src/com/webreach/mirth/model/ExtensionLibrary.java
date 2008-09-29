@@ -9,9 +9,9 @@ public class ExtensionLibrary {
         SERVER, CLIENT, SHARED
     }
 
+    @XStreamAsAttribute
     private String path;
 
-    @XStreamAlias("type")
     @XStreamAsAttribute
     private Type type;
 
