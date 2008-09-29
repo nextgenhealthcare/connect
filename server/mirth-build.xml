@@ -9,7 +9,7 @@
 		</ant>
 
 		<copy todir="${client}/lib" flatten="true">
-			<fileset dir="${server}/extensions/">
+			<fileset dir="${server}/build/extensions/">
 				<include name="**/*-shared.jar" />
 			</fileset>
 		</copy>
@@ -25,7 +25,7 @@
 		<copy file="${client}/dist/mirth-client.jar" todir="${server}/client-lib/" />
 		<copy file="${server}/mirth-client-core.jar" todir="${server}/client-lib/" />
 
-		<copy todir="${server}/extensions/">
+		<copy todir="${server}/build/extensions/">
 			<fileset dir="${client}/dist/extensions/" />
 		</copy>
 
