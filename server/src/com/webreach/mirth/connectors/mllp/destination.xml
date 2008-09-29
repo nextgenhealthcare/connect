@@ -1,4 +1,4 @@
-<connectorMetaData>
+<connectorMetaData path="com.webreach.mirth.connectors.mllp">
 	<name>LLP Sender</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>

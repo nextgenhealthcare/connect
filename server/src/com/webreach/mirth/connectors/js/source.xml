@@ -1,4 +1,4 @@
-<connectorMetaData>
+<connectorMetaData path="com.webreach.mirth.connectors.js">
 	<name>JavaScript Reader</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>

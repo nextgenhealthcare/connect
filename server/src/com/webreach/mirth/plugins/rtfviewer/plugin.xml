@@ -1,4 +1,4 @@
-<pluginMetaData>
+<pluginMetaData path="com.webreach.mirth.plugins.rtfviewer">
 	<name>RTF Viewer</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>

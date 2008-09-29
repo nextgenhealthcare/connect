@@ -1,4 +1,4 @@
-<pluginMetaData>
+<pluginMetaData path="com.webreach.mirth.plugins.javascriptrule">
 	<name>Javascript Filter Rule</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>

@@ -1,4 +1,4 @@
-<pluginMetaData>
+<pluginMetaData path="com.webreach.mirth.plugins.mapper">
 	<name>Mapper Transformer Step</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>

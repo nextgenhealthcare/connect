@@ -3,9 +3,13 @@ package com.webreach.mirth.model;
 import java.util.List;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
 
 public abstract class MetaData {
+    @XStreamAsAttribute
+    private String path;
+    
     private String name;
     private String author;
     private String mirthVersion;
@@ -13,6 +17,14 @@ public abstract class MetaData {
     private String url;
     private String description;
     private boolean enabled;
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
 
     @XStreamAlias("libraries")
     @XStreamImplicit(itemFieldName = "library")

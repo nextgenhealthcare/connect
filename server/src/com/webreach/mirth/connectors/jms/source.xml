@@ -1,4 +1,4 @@
-<connectorMetaData>
+<connectorMetaData path="com.webreach.mirth.connectors.jms">
 	<name>JMS Reader</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
