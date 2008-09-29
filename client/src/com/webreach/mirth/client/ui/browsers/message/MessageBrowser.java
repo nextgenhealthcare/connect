@@ -32,6 +32,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -42,11 +43,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
-import java.lang.reflect.Constructor;
 
 import javax.swing.ImageIcon;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -432,11 +435,28 @@ public class MessageBrowser extends javax.swing.JPanel {
             }
         }
     }
-
+    
     /**
-     * Export the current messages to XML or HTML
+     * Export the current messages to be imported at a later time
      */
     public void exportMessages() {
+        String fileExtension;
+        String[] options = new String[] { "Mirth Format", "Plain Text", "Cancel" };
+        int rawExportAnswer = 0;
+        String[] rawExportOptions = new String[] { "Raw", "Transformed", "Encoded" };
+        
+        int answer = JOptionPane.showOptionDialog(parent, "Which of the following formats would you like to export the messages to?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, -1);
+    	
+    	if(answer == -1 || answer == 2) { 
+    		return;
+    	}  else if(answer == 1) { 
+        	rawExportAnswer = JOptionPane.showOptionDialog(parent, "Which message data would you like to export?", "Select an Option", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, rawExportOptions, -1);
+        	
+        	if(rawExportAnswer == -1) { 
+        		return;
+        	}
+        }
+ 
         JFileChooser exportFileChooser = new JFileChooser();
 
         File currentDir = new File(Preferences.systemNodeForPackage(Mirth.class).get("currentDirectory", ""));
@@ -444,10 +464,16 @@ public class MessageBrowser extends javax.swing.JPanel {
             exportFileChooser.setCurrentDirectory(currentDir);
         }
         exportFileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        exportFileChooser.setFileFilter(new MirthFileFilter("XML"));
+        if(answer == 1) {
+        	exportFileChooser.setFileFilter(new MirthFileFilter("TXT"));
+        	fileExtension = ".txt";
+        } else { 
+        	exportFileChooser.setFileFilter(new MirthFileFilter("XML"));
+        	fileExtension = ".xml";
+        }
+        
         int returnVal = exportFileChooser.showSaveDialog(parent);
         File exportFile = null;
-        File exportDirectory = null;
 
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             MessageListHandler tempMessageListHandler = null;
@@ -461,23 +487,38 @@ public class MessageBrowser extends javax.swing.JPanel {
                         return;
                     }
                 }
-                if (length < 4 || !exportFile.getName().substring(length - 4, length).equals(".xml")) {
-                    exportFile = new File(exportFile.getAbsolutePath() + ".xml");
+                
+                if (length < 4 || !exportFile.getName().substring(length - 4, length).equals(fileExtension)) {
+                    exportFile = new File(exportFile.getAbsolutePath() + fileExtension);
                 }
                 FileUtil.write(exportFile, "", false);
 
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-
+                
                 tempMessageListHandler = parent.mirthClient.getMessageListHandler(messageListHandler.getFilter(), pageSize, true);
                 List<MessageObject> messageObjects = tempMessageListHandler.getFirstPage();
 
                 while (messageObjects.size() > 0) {
                     for (int i = 0; i < messageObjects.size(); i++) {
-                        messages.append(serializer.toXML(messageObjects.get(i)));
+                    	if(answer == 1) {
+                    		if(rawExportAnswer == 0 && messageObjects.get(i).getRawData() != null) {
+                				messages.append(messageObjects.get(i).getRawData());
+                				messages.append("\n");
+                    		} else if(rawExportAnswer == 1 && messageObjects.get(i).getTransformedData() != null) {
+                				messages.append(messageObjects.get(i).getTransformedData());
+                				messages.append("\n");
+                    		} else if(rawExportAnswer == 2 && messageObjects.get(i).getEncodedData() != null) {
+                				messages.append(messageObjects.get(i).getEncodedData());
+                				messages.append("\n");
+                    		}
+                    	} else {
+                    		messages.append(serializer.toXML(messageObjects.get(i)));
+                    	}
                         messages.append("\n");
-                        FileUtil.write(exportFile, messages.toString(), true);
-                        messages.delete(0, messages.length());
                     }
+                    
+                    FileUtil.write(exportFile, messages.toString(), true);
+                    messages.delete(0, messages.length());
 
                     messageObjects = tempMessageListHandler.getNextPage();
                 }

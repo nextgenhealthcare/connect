@@ -63,6 +63,10 @@ public class MirthFileFilter extends javax.swing.filechooser.FileFilter
     {
         if (type.equalsIgnoreCase("xml"))
             return "XML files";
+        else if (type.equalsIgnoreCase("html"))
+            return "HTML files";
+        else if (type.equalsIgnoreCase("txt"))
+            return "Text files";
         else if (type.equalsIgnoreCase("zip"))
             return "ZIP files";
         else

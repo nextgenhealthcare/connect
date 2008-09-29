@@ -46,41 +46,41 @@ public class MessageObjectHtmlSerializer
     {
     }
 
-    public String toHtml(List<MessageObject> messages)
+    public StringBuffer toHtml(List<MessageObject> messages)
     {
-        String results = "";
-        results += "<html>\n";
-        results += "<head>\n";
-        results += "<title>Messages</title>\n";
-        results += "</head>";
-        results += "<body>";
+    	StringBuffer results = new StringBuffer();
+        results.append("<html>\n");
+        results.append("<head>\n");
+        results.append("<title>Messages</title>\n");
+        results.append("</head>");
+        results.append("<body>");
 
         if (messages.size() > 0)
         {
-            results += "<h><b>Messages</b></h>\n";
-            results += "<br><br>\n";
-            results += "<table border=\"1\" cellpadding=\"10\">\n";
-            results += "<tr>";
+            results.append("<h><b>Messages</b></h>\n");
+            results.append("<br><br>\n");
+            results.append("<table border=\"1\" cellpadding=\"10\">\n");
+            results.append("<tr>");
             for (int i = 0; i < statsColumns.length; i++)
             {
-                results += "<td><b>" + statsColumns[i] + "</b></td>";
+                results.append("<td><b>" + statsColumns[i] + "</b></td>");
             }
-            results += "</tr>";
+            results.append("</tr>");
 
             for (int i = 0; i < messages.size(); i++)
             {
-                results += getMessageStats(messages.get(i));
-                results += "\n";
+                results.append(getMessageStats(messages.get(i)));
+                results.append("\n");
             }
-            results += "</table>";
+            results.append("</table>");
         }
         else
         {
-            results += "<table border=\"1\" cellpadding=\"10\">";
-            results += "<tr><td>No results found.</td></tr></table>";
+            results.append("<table border=\"1\" cellpadding=\"10\">");
+            results.append("<tr><td>No results found.</td></tr></table>");
         }
-        results += "</body>";
-        results += "</html>";
+        results.append("</body>");
+        results.append("</html>");
         return results;
     }
 
@@ -92,7 +92,7 @@ public class MessageObjectHtmlSerializer
         results += "<td>" + message.getId() + "</td>";
         results += "<td>" + String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", message.getDateCreated()) + "</td>";
         results += "<td>" + message.getConnectorName() + "</td>";
-        results += "<td>" + message.getStatus().name() + "</td>";
+        results +=" <td>" + message.getStatus().name() + "</td>";
 
         results += "</tr>";
         return results;
