@@ -12,5 +12,7 @@
 		<className>com.webreach.mirth.plugins.transformer.step.messagebuilder.MessageBuilderPlugin</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
-	<library type="CLIENT" path="message-client.jar" />
+	<library path="message-client.jar">
+		<type>CLIENT</type>	
+	</library>
 </pluginMetaData>

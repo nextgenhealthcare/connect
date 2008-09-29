@@ -12,5 +12,7 @@
 		<className>com.webreach.mirth.plugins.filter.rule.rulebuilder.RuleBuilderPlugin</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
-	<library type="CLIENT" path="rulebuilder-client.jar" />
+	<library path="rulebuilder-client.jar">
+		<type>CLIENT</type>	
+	</library>
 </pluginMetaData>

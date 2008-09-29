@@ -18,6 +18,10 @@
 		<className>com.webreach.mirth.plugins.serverlog.ServerLogClient</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
-	<library type="CLIENT" path="serverlog-client.jar" />
-	<library type="SERVER" path="serverlog-server.jar" />
+	<library path="serverlog-client.jar">
+		<type>CLIENT</type>	
+	</library>
+	<library path="serverlog-server.jar">
+		<type>SERVER</type>	
+	</library>
 </pluginMetaData>

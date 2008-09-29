@@ -1,8 +1,10 @@
 package com.webreach.mirth.model;
 
+import java.io.Serializable;
+
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 
-public class ExtensionLibrary {
+public class ExtensionLibrary implements Serializable {
     public enum Type {
         SERVER, CLIENT, SHARED
     }
@@ -10,7 +12,6 @@ public class ExtensionLibrary {
     @XStreamAsAttribute
     private String path;
 
-    @XStreamAsAttribute
     private Type type;
 
     public Type getType() {

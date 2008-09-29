@@ -8,9 +8,15 @@
 	<clientClassName>com.webreach.mirth.connectors.http.HTTPListener</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.http.HttpConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.http.HTTPListenerProperties</sharedClassName>
-	<library type="CLIENT" path="http-client.jar" />
-	<library type="SHARED" path="http-shared.jar" />
-	<library type="SERVER" path="http-server.jar" />
+	<library path="http-client.jar">
+		<type>CLIENT</type>
+	</library>
+	<library path="http-shared.jar">
+		<type>SHARED</type>
+	</library>
+	<library path="http-server.jar">
+		<type>SERVER</type>
+	</library>
 	<transformers>HttpRequestToString HttpStringToXML</transformers>
 	<protocol>http</protocol>
 	<type>SOURCE</type>

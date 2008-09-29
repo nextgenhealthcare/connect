@@ -12,5 +12,7 @@
 		<className>com.webreach.mirth.plugins.pdfviewer.PDFViewer</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
-	<library type="CLIENT" path="pdfviewer-client.jar" />
+	<library path="pdfviewer-client.jar">
+		<type>CLIENT</type>	
+	</library>
 </pluginMetaData>

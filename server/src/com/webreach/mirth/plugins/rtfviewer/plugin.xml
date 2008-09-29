@@ -12,5 +12,7 @@
 		<className>com.webreach.mirth.plugins.rtfviewer.RTFViewer</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
-	<library type="CLIENT" path="rtfviewer-client.jar" />
+	<library path="rtfviewer-client.jar">
+		<type>CLIENT</type>	
+	</library>
 </pluginMetaData>

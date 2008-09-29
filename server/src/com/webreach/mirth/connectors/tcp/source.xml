@@ -8,9 +8,15 @@
 	<clientClassName>com.webreach.mirth.connectors.tcp.TCPListener</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.tcp.TcpConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.tcp.TCPListenerProperties</sharedClassName>
-	<library type="CLIENT" path="tcp-client.jar" />
-	<library type="SHARED" path="tcp-shared.jar" />
-	<library type="SERVER" path="tcp-server.jar" />
+	<library path="tcp-client.jar">
+		<type>CLIENT</type>
+	</library>
+	<library path="tcp-shared.jar">
+		<type>SHARED</type>
+	</library>
+	<library path="tcp-server.jar">
+		<type>SERVER</type>
+	</library>
 	<transformers>ByteArrayToString</transformers>
 	<protocol>tcp</protocol>
 	<type>SOURCE</type>

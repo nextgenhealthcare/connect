@@ -8,9 +8,15 @@
 	<clientClassName>com.webreach.mirth.connectors.soap.SOAPListener</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.soap.axis.AxisConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.soap.SOAPListenerProperties</sharedClassName>
-	<library type="CLIENT" path="soap-client.jar" />
-	<library type="SHARED" path="soap-shared.jar" />
-	<library type="SERVER" path="soap-server.jar" />
+	<library path="soap-client.jar">
+		<type>CLIENT</type>
+	</library>
+	<library path="soap-shared.jar">
+		<type>SHARED</type>
+	</library>
+	<library path="soap-server.jar">
+		<type>SERVER</type>
+	</library>
 	<transformers>SOAPRequestToString</transformers>
 	<protocol>soap</protocol>
 	<type>SOURCE</type>

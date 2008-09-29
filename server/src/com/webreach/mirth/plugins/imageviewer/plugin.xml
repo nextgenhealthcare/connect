@@ -12,5 +12,7 @@
 		<className>com.webreach.mirth.plugins.imageviewer.ImageViewer</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
-	<library type="CLIENT" path="imageviewer-client.jar" />
+	<library path="imageviewer-client.jar">
+		<type>CLIENT</type>	
+	</library>
 </pluginMetaData>
