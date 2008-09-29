@@ -1,9 +1,7 @@
 package com.webreach.mirth.model;
 
-import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 
-@XStreamAlias("library")
 public class ExtensionLibrary {
     public enum Type {
         SERVER, CLIENT, SHARED
