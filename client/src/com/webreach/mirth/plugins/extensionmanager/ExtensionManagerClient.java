@@ -143,6 +143,9 @@ public class ExtensionManagerClient extends ClientPanelPlugin
     {
         ((ExtensionManagerPanel) getComponent()).savePluginData();
         ((ExtensionManagerPanel) getComponent()).saveConnectorData();
+        
+        PlatformUI.MIRTH_FRAME.mirthClient.setPluginMetaData(PlatformUI.MIRTH_FRAME.getPluginMetaData());
+        PlatformUI.MIRTH_FRAME.mirthClient.setConnectorMetaData(PlatformUI.MIRTH_FRAME.getConnectorMetaData());
     }
     
     public boolean install(String location, File file)
