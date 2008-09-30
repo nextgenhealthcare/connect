@@ -731,151 +731,151 @@
 
 		<zip destfile="${dist.extensions}/doc-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${connectors.doc}" />
+				<include name="doc" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/email-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${connectors.email}" />
+				<include name="email" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/file-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${connectors.file}" />
+				<include name="file" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/http-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${connectors.http}" />
+				<include name="http" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/jdbc-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${connectors.jdbc}" />
+				<include name="jdbc" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/jms-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${connectors.jms}" />
+				<include name="jms" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/mllp-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${connectors.mllp}" />
+				<include name="mllp" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/soap-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${connectors.soap}" />
+				<include name="soap" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/tcp-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${connectors.tcp}" />
+				<include name="tcp" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/dicom-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${connectors.dicom}" />
+				<include name="dicom" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/vm-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${connectors.vm}" />
+				<include name="vm" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/extensionmanager-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${plugins.extensionmanager}" />
+				<include name="extensionmanager" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/dashboardstatus-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${plugins.dashboardstatus}" />
+				<include name="dashboardstatus" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/serverlog-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${plugins.serverlog}" />
+				<include name="serverlog" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/messagepruner-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${plugins.messsagepruner}" />
+				<include name="messsagepruner" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/javascriptstep-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${plugins.javascriptstep}" />
+				<include name="javascriptstep" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/mapper-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${plugins.mapper}" />
+				<include name="mapper" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/messagebuilder-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${plugins.messagebuilder}" />
+				<include name="messagebuilder" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/scriptfilestep-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${plugins.scriptfilestep}" />
+				<include name="scriptfilestep" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/rulebuilder-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${plugins.rulebuilder}" />
+				<include name="rulebuilder" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/javascriptrule-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${plugins.javascriptrule}" />
+				<include name="javascriptrule" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/dicomviewer-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${plugins.dicomviewer}" />
+				<include name="dicomviewer" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/pdfviewer-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${plugins.pdfviewer}" />
+				<include name="pdfviewer" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/rtfviewer-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${plugins.rtfviewer}" />
+				<include name="rtfviewer" />
 			</fileset>
 		</zip>
 
 		<zip destfile="${dist.extensions}/imageviewer-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="${plugins.imageviewer}" />
+				<include name="imageviewer" />
 			</fileset>
 		</zip>
 	</target>
