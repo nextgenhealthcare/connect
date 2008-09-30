@@ -148,13 +148,13 @@ public class ExtensionManagerClient extends ClientPanelPlugin
         PlatformUI.MIRTH_FRAME.mirthClient.setConnectorMetaData(PlatformUI.MIRTH_FRAME.getConnectorMetaData());
     }
     
-    public boolean install(String location, File file)
+    public boolean install(File file)
     {
     	try
         {
     		if (file.exists())
     		{
-    			PlatformUI.MIRTH_FRAME.mirthClient.installExtension(location, file);
+    			PlatformUI.MIRTH_FRAME.mirthClient.installExtension(file);
     		}
     		else
     		{

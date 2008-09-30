@@ -12,17 +12,11 @@ import java.awt.event.MouseWheelListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Enumeration;
 import java.util.Map;
 import java.util.prefs.Preferences;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import javax.swing.ImageIcon;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -30,7 +24,6 @@ import org.jdesktop.swingworker.SwingWorker;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
 
-import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.CellData;
 import com.webreach.mirth.client.ui.ImageCellRenderer;
 import com.webreach.mirth.client.ui.Mirth;
@@ -39,11 +32,9 @@ import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.RefreshTableModel;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.model.ArchiveMetaData;
 import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.MetaData;
 import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 
 public class ExtensionManagerPanel extends javax.swing.JPanel
 {
@@ -703,50 +694,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
                 
                 try
                 {
-                	String location = null;
-                	ZipFile zipFile = new ZipFile(fileText.getText());
-            		Enumeration entries = zipFile.entries();
-        			//Check if we have archive metadata
-        			ZipEntry archiveMetadata = zipFile.getEntry("archive-metadata.xml");
-        			if (archiveMetadata != null){
-        				ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[] { ArchiveMetaData.class });
-        				//read the file from our inputstream
-        				String xml = slurp(zipFile.getInputStream(archiveMetadata));
-        				//serialize out to the proper type
-        				ArchiveMetaData archiveMetadataSerialized = (ArchiveMetaData) serializer.fromXML(xml);
-        				if (archiveMetadataSerialized.getType() == ArchiveMetaData.Type.CONNECTOR){
-        					location = CONNECTORS;
-        				}else if (archiveMetadataSerialized.getType() == ArchiveMetaData.Type.PLUGIN){
-        					location = PLUGINS;
-        				}else{
-        					throw new ClientException("Unrecognized extension type in archive-metdata.xml");
-        				}
-        			}else if (location == null){
-        				//prompt the user
-        				String answer = "";
-        		        
-        		        JOptionPane pane = new JOptionPane("Is the extension a Plugin or Connector?");
-        		        Object[] options = new String[] { "Plugin", "Connector", "Cancel" };
-        		        pane.setOptions(options);
-        		        JDialog dialog = pane.createDialog(new JFrame(), "Select an Option");
-        		        dialog.setVisible(true);
-        		        Object obj = pane.getValue();
-        		        for (int k = 0; k < options.length; k++)
-        		            if (options[k].equals(obj))
-        		                answer = obj.toString();
-        		        
-        		        if(answer.length() == 0 || answer.equals(options[2])){
-        		        	retVal = false;
-        		            return null;
-        		        }else if(answer.equals(options[0])){
-        		        	//plugin
-        		        	location = PLUGINS;
-        		        }else if(answer.equals(options[1])){
-        		        	//connector
-        		        	location = CONNECTORS;
-        		        }
-        			}
-                    retVal = parent.install(location, new File(fileText.getText()));
+                    retVal = parent.install(new File(fileText.getText()));
                 }
                 catch (Exception e)
                 {
