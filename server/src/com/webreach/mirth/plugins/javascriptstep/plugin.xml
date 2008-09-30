@@ -9,7 +9,7 @@
 	<extensionPoint>
 		<name>Javascript</name>
 		<type>CLIENT_TRANSFORMER_STEP</type>
-		<className>com.webreach.mirth.plugins.transformer.step.javascript.JavascriptStepPlugin</className>
+		<className>com.webreach.mirth.plugins.javascriptstep.JavascriptStepPlugin</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
 	<library path="javascriptstep-client.jar">
