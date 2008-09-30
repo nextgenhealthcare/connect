@@ -417,6 +417,17 @@
 			<fileset dir="${lib.extensions}/javascriptrule" />
 		</copy>
 
+		<!-- plugins.javascriptstep -->
+		<mkdir dir="${plugins.javascriptstep}" />
+		<copy todir="${plugins.javascriptstep}">
+			<fileset dir="${src}/com/webreach/mirth/plugins/javascriptstep">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${plugins.javascriptstep}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/javascriptstep" />
+		</copy>
+
 		<!-- plugins.mapper -->
 		<mkdir dir="${plugins.mapper}" />
 		<copy todir="${plugins.mapper}">
@@ -449,7 +460,7 @@
 		<copy todir="${plugins.messagepruner}/lib" failonerror="false">
 			<fileset dir="${lib.extensions}/messagepruner" />
 		</copy>
-		<jar destfile="${plugins.messagepruner}/message-pruner-server.jar" basedir="${classes}">
+		<jar destfile="${plugins.messagepruner}/messagepruner-server.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/messagepruner/**" />
 		</jar>
 
