@@ -521,6 +521,11 @@
 		<copy todir="${plugins.scriptfilestep}/lib" failonerror="false">
 			<fileset dir="${lib.extensions}/scriptfilestep" />
 		</copy>
+
+		<!-- set the version on all plugins -->
+		<replace dir="${extensions}" token="@mirthversion" value="${version}">
+			<include name="**/*.xml" />
+		</replace>
 	</target>
 
 	<target name="create-client-lib" depends="init">
