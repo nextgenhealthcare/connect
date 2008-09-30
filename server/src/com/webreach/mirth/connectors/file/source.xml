@@ -17,6 +17,9 @@
 	<library path="file-server.jar">
 		<type>SERVER</type>
 	</library>
+	<library path="jcifs-1.2.22.jar">
+		<type>SERVER</type>
+	</library>
 	<transformers>ByteArrayToString</transformers>
 	<protocol>file</protocol>
 	<type>SOURCE</type>
