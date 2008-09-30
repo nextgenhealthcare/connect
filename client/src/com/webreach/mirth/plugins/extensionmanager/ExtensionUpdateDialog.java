@@ -273,7 +273,7 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
                             break;
                         }
                         statusLabel.setText("Updating extension: " + plugin.getName());
-                        parent.install(plugin.getType().toString().toLowerCase() + "s", file);
+                        parent.install(file);
                         installedUpdates = true;
                     }
                 }
