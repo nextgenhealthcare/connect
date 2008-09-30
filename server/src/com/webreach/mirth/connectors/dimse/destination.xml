@@ -1,4 +1,4 @@
-<connectorMetaData path="dimse">
+<connectorMetaData path="dicom">
 	<name>DICOM Sender</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
