@@ -324,32 +324,21 @@ public class Mirth extends Thread {
             httpServer.addContext(libContext);
 
             // Serve static content from the lib context
-            File connectors = new File(ClassPathResource.getResourceURI("connectors"));
-            File plugins = new File(ClassPathResource.getResourceURI("plugins"));
+            File extensions = new File(ClassPathResource.getResourceURI("extensions"));
             String libPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + System.getProperty("file.separator") + "client-lib";
 
             libContext.setResourceBase(libPath);
             libContext.addHandler(new ResourceHandler());
 
-            // Create the connectors context
-            HttpContext connectorsContext = new HttpContext();
-            connectorsContext.setContextPath(contextPath + "/connectors/");
-            httpServer.addContext(connectorsContext);
+            // Create the extensions context
+            HttpContext extensionsContext = new HttpContext();
+            extensionsContext.setContextPath(contextPath + "/extensions/");
+            httpServer.addContext(extensionsContext);
 
             // Serve static content from the connectors context
-            String connectorsPath = connectors.getPath();
-            connectorsContext.setResourceBase(connectorsPath);
-            connectorsContext.addHandler(new ResourceHandler());
-
-            // Create the connectors context
-            HttpContext pluginsContext = new HttpContext();
-            pluginsContext.setContextPath(contextPath + "/plugins/");
-            httpServer.addContext(pluginsContext);
-
-            // Serve static content from the connectors context
-            String pluginsPath = plugins.getPath();
-            pluginsContext.setResourceBase(pluginsPath);
-            pluginsContext.addHandler(new ResourceHandler());
+            String extensionsPath = extensions.getPath();
+            extensionsContext.setResourceBase(extensionsPath);
+            extensionsContext.addHandler(new ResourceHandler());
 
             // Create the public_html context
             HttpContext publicContext = new HttpContext();

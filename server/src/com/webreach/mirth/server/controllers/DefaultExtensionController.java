@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,27 +42,17 @@ import com.webreach.mirth.connectors.ConnectorService;
 import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.ExtensionPoint;
 import com.webreach.mirth.model.ExtensionPointDefinition;
+import com.webreach.mirth.model.MetaData;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.plugins.ServerPlugin;
-import com.webreach.mirth.server.tools.ClassPathResource;
 import com.webreach.mirth.util.ExtensionUtil;
 
-/**
- * The ConfigurationController provides access to the Mirth configuration.
- * 
- * @author brendanh
- * 
- */
 public class DefaultExtensionController implements ExtensionController {
     private Logger logger = Logger.getLogger(this.getClass());
-    private static final String PLUGIN_LOCATION = ClassPathResource.getResourceURI("plugins").getPath() + System.getProperty("file.separator");
-    private static String CONNECTORS_LOCATION = ClassPathResource.getResourceURI("connectors").getPath() + System.getProperty("file.separator");
-    private static final String PLUGIN_FILE_SUFFIX = ".properties";
     private Map<String, PluginMetaData> plugins;
-    private List<String> pluginLibraries;
     private Map<String, ServerPlugin> loadedPlugins = null;
     private Map<String, ConnectorMetaData> connectors = null;
-    private List<String> connectorLibraries = null;
+    private List<String> clientLibraries = null;
     private Map<String, ConnectorMetaData> protocols = null;
 
     // singleton pattern
@@ -85,9 +76,8 @@ public class DefaultExtensionController implements ExtensionController {
     private void loadExtensions() {
         try {
             loadConnectorMetaData();
-            loadConnectorLibraries();
             loadPluginMetaData();
-            loadPluginLibraries();
+            loadClientLibraries();
         } catch (Exception e) {
             logger.error("could not initialize extension settings", e);
             return;
@@ -183,23 +173,21 @@ public class DefaultExtensionController implements ExtensionController {
         return null;
     }
 
-    public void installExtension(String location, FileItem fileItem) throws ControllerException {
-        if (location.equals("connectors"))
-            location = CONNECTORS_LOCATION;
-        else if (location.equals("plugins"))
-            location = PLUGIN_LOCATION;
-        ExtensionUtil.installExtension(location, fileItem);
+    public void installExtension(FileItem fileItem) throws ControllerException {
+        ExtensionUtil.installExtension(fileItem);
     }
 
     public void setPluginProperties(String pluginName, Properties properties) throws ControllerException {
         logger.debug("setting " + pluginName + " properties");
 
         FileOutputStream fileOutputStream = null;
+        
+        String packageName = getPackageName(pluginName);
 
         try {
-            File propertiesFile = new File(PLUGIN_LOCATION + pluginName + PLUGIN_FILE_SUFFIX);
+            File propertiesFile = new File(EXTENSIONS_LOCATION + plugins.get(packageName).getPath() + System.getProperty("file.separator") + PLUGIN_PROPERTIES_FILE);
             fileOutputStream = new FileOutputStream(propertiesFile);
-            properties.store(fileOutputStream, "Updated " + pluginName + " properties");
+            properties.store(fileOutputStream, "Updated " + packageName + " properties");
         } catch (Exception e) {
             throw new ControllerException(e);
         } finally {
@@ -219,9 +207,11 @@ public class DefaultExtensionController implements ExtensionController {
 
         FileInputStream fileInputStream = null;
         Properties properties = null;
-
+        
+        String packageName = getPackageName(pluginName);
+        
         try {
-            File propertiesFile = new File(PLUGIN_LOCATION + pluginName + PLUGIN_FILE_SUFFIX);
+            File propertiesFile = new File(EXTENSIONS_LOCATION + packageName + System.getProperty("file.separator") + PLUGIN_PROPERTIES_FILE);
             if (!propertiesFile.exists()) {
                 return null;
             }
@@ -241,6 +231,32 @@ public class DefaultExtensionController implements ExtensionController {
 
         return properties;
     }
+    
+    /**
+     * Sometimes the pluginName passed in is actually the 
+     * extensionPoint name.  In this case, we need to use 
+     * the extensionPoint name to search for the pluginName.
+     * 
+     * @param pluginName Plugin or Extension Point name
+     * @return The package name of the plugin/extension point
+     */
+    private String getPackageName(String pluginName) {
+        String packageName = null;
+        
+        if (plugins.get(pluginName) == null) {
+        	for (PluginMetaData metaData : plugins.values()) {
+        		for (ExtensionPoint extensionPoint : metaData.getExtensionPoints()) {
+        			if (extensionPoint.getName().equals(pluginName)) {
+        				packageName = metaData.getPath();
+        			}
+        		}
+        	}
+        } else {
+        	packageName = plugins.get(pluginName).getPath();
+        }
+        
+        return packageName;
+    }
 
     public Map<String, ConnectorMetaData> getConnectorMetaData() throws ControllerException {
         logger.debug("retrieving connector metadata");
@@ -249,7 +265,7 @@ public class DefaultExtensionController implements ExtensionController {
 
     private void loadConnectorMetaData() throws ControllerException {
         logger.debug("loading connector metadata");
-        this.connectors = (Map<String, ConnectorMetaData>) ExtensionUtil.loadExtensionMetaData(CONNECTORS_LOCATION);
+        this.connectors = (Map<String, ConnectorMetaData>) ExtensionUtil.loadExtensionMetaData(ExtensionType.CONNECTOR);
         this.protocols = new HashMap<String, ConnectorMetaData>();
 
         for (ConnectorMetaData connectorMetaData : this.connectors.values()) {
@@ -268,17 +284,22 @@ public class DefaultExtensionController implements ExtensionController {
     public void saveConnectorMetaData(Map<String, ConnectorMetaData> metaData) throws ControllerException {
         logger.debug("saving connector metadata");
         this.connectors = metaData;
-        ExtensionUtil.saveExtensionMetaData(metaData, CONNECTORS_LOCATION);
+        ExtensionUtil.saveExtensionMetaData(metaData);
     }
 
-    public List<String> getConnectorLibraries() throws ControllerException {
-        logger.debug("retrieving connector libraries");
-        return this.connectorLibraries;
+    public List<String> getClientLibraries() throws ControllerException {
+        logger.debug("retrieving client libraries");
+        return this.clientLibraries;
     }
 
-    private void loadConnectorLibraries() throws ControllerException {
-        logger.debug("loading connector libraries");
-        this.connectorLibraries = ExtensionUtil.loadExtensionLibraries(CONNECTORS_LOCATION);
+    private void loadClientLibraries() throws ControllerException {
+        logger.debug("loading client libraries");
+        List<MetaData> extensionMetaData = new ArrayList<MetaData>();
+
+        extensionMetaData.addAll(plugins.values());
+        extensionMetaData.addAll(connectors.values());
+
+        this.clientLibraries = ExtensionUtil.loadClientLibraries(extensionMetaData);
     }
 
     public Map<String, PluginMetaData> getPluginMetaData() throws ControllerException {
@@ -289,17 +310,12 @@ public class DefaultExtensionController implements ExtensionController {
     public void savePluginMetaData(Map<String, PluginMetaData> metaData) throws ControllerException {
         logger.debug("saving plugin metadata");
         this.plugins = metaData;
-        ExtensionUtil.saveExtensionMetaData(metaData, PLUGIN_LOCATION);
+        ExtensionUtil.saveExtensionMetaData(metaData);
     }
 
     private void loadPluginMetaData() throws ControllerException {
         logger.debug("loading plugin metadata");
-        this.plugins = (Map<String, PluginMetaData>) ExtensionUtil.loadExtensionMetaData(PLUGIN_LOCATION);
-    }
-
-    public List<String> getPluginLibraries() throws ControllerException {
-        logger.debug("retrieving plugin libraries");
-        return this.pluginLibraries;
+        this.plugins = (Map<String, PluginMetaData>) ExtensionUtil.loadExtensionMetaData(ExtensionType.PLUGIN);
     }
 
     public Map<String, ConnectorMetaData> getProtocols() {
@@ -309,11 +325,6 @@ public class DefaultExtensionController implements ExtensionController {
 
     public ConnectorMetaData getConnectorMetaDataByProtocol(String protocol) {
         return protocols.get(protocol);
-    }
-
-    private void loadPluginLibraries() throws ControllerException {
-        logger.debug("loading plugin libraries");
-        this.pluginLibraries = ExtensionUtil.loadExtensionLibraries(PLUGIN_LOCATION);
     }
 
     public Map<String, ServerPlugin> getLoadedPlugins() {

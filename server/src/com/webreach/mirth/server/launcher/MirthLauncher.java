@@ -56,37 +56,23 @@ public class MirthLauncher {
 	
 	public static URLClassLoader installExtensions(ClasspathBuilder builder, URLClassLoader classLoader) throws Exception{
 		//We need to find our paths from the class loader
-		String pluginLocation = URLDecoder.decode(classLoader.getResource("plugins").getPath());
-		String pluginTempLocation = pluginLocation + System.getProperty("file.separator") + INSTALL_TEMP + System.getProperty("file.separator");
-		String connectorLocation = URLDecoder.decode(classLoader.getResource("connectors").getPath());
-		String connectorTempLocation = connectorLocation + System.getProperty("file.separator") + INSTALL_TEMP + System.getProperty("file.separator");
-		
-		File pluginTemp = new File(pluginTempLocation);
-		File connectorTemp = new File(connectorTempLocation);
+		String extensionsLocation = URLDecoder.decode(classLoader.getResource("extensions").getPath());
+		String extensionsTempLocation = extensionsLocation + System.getProperty("file.separator") + INSTALL_TEMP + System.getProperty("file.separator");
+
+		File extensionsTemp = new File(extensionsTempLocation);
 		//if we have a temp folder, move the files over
-		if (pluginTemp.exists()){
-			File[] files = pluginTemp.listFiles();
+		if (extensionsTemp.exists()){
+			File[] files = extensionsTemp.listFiles();
 			for (int i = 0; i < files.length; i++) {
-				File target = new File(pluginLocation + System.getProperty("file.separator") + files[i].getName());
+				File target = new File(extensionsLocation + System.getProperty("file.separator") + files[i].getName());
 				if (target.exists()){
 					target.delete();
 				}
 				files[i].renameTo(target);
 			}
-			pluginTemp.delete();
+			extensionsTemp.delete();
 		}
 		
-		if (connectorTemp.exists()){
-			File[] files = connectorTemp.listFiles();
-			for (int i = 0; i < files.length; i++) {
-				File target = new File(connectorLocation + System.getProperty("file.separator") + files[i].getName());
-				if (target.exists()){
-					target.delete();
-				}
-				files[i].renameTo(target);
-			}
-			connectorTemp.delete();
-		}
 		//Rebuild our classpath
 		URLClassLoader newClassLoader = new URLClassLoader(builder.getClasspath());
 		return newClassLoader;

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -20,34 +21,26 @@ import java.util.zip.ZipFile;
 import org.apache.commons.fileupload.FileItem;
 
 import com.webreach.mirth.model.ConnectorMetaData;
+import com.webreach.mirth.model.ExtensionLibrary;
 import com.webreach.mirth.model.MetaData;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.ControllerException;
-import com.webreach.mirth.server.tools.ClassPathResource;
+import com.webreach.mirth.server.controllers.ExtensionController;
+import com.webreach.mirth.server.controllers.ExtensionController.ExtensionType;
 import com.webreach.mirth.server.util.FileUtil;
 import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class ExtensionUtil {
-	private static final String ARCHIVE_METADATA_XML = "archive-metadata.xml";
-	private static final String PLUGIN_LOCATION = ClassPathResource.getResourceURI("plugins").getPath() + System.getProperty("file.separator");
-	private static String CONNECTORS_LOCATION = ClassPathResource.getResourceURI("connectors").getPath() + System.getProperty("file.separator");
-	
-	public static Map<String, ? extends MetaData> loadExtensionMetaData(String location) throws ControllerException {
-		FileFilter fileFilter = new FileFilter() {
-			public boolean accept(File file) {
-				return (!file.isDirectory() && file.getName().endsWith(".xml"));
-			}
-		};
 
+	public static Map<String, ? extends MetaData> loadExtensionMetaData(final ExtensionType extensionType) throws ControllerException {
 		Map<String, MetaData> extensionMap = new HashMap<String, MetaData>();
-		File path = new File(location);
-		File[] extensionFiles = path.listFiles(fileFilter);
-		ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[] { PluginMetaData.class, ConnectorMetaData.class });
+		List<File> extensionFiles = loadExtensionFiles(extensionType);
+		
+		ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[] { MetaData.class, PluginMetaData.class, ConnectorMetaData.class, ExtensionLibrary.class  });
 
 		try {
-			for (int i = 0; i < extensionFiles.length; i++) {
-				File extensionFile = extensionFiles[i];
+			for (File extensionFile : extensionFiles) {
 				String xml = FileUtil.read(extensionFile.getAbsolutePath());
 				MetaData extensionMetadata = (MetaData) serializer.fromXML(xml);
 				extensionMap.put(extensionMetadata.getName(), extensionMetadata);
@@ -55,19 +48,29 @@ public class ExtensionUtil {
 		} catch (IOException ioe) {
 			throw new ControllerException(ioe);
 		}
-
+		
 		return extensionMap;
 	}
 
-	public static void saveExtensionMetaData(Map<String, ? extends MetaData> metaData, String location) throws ControllerException {
-		ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[] { PluginMetaData.class, ConnectorMetaData.class });
+	public static void saveExtensionMetaData(Map<String, ? extends MetaData> metaData) throws ControllerException {
+		ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[] { MetaData.class, PluginMetaData.class, ConnectorMetaData.class, ExtensionLibrary.class  });
 
 		try {
 			Iterator i = metaData.entrySet().iterator();
 			while (i.hasNext()) {
 				Entry entry = (Entry) i.next();
-				String name = ((MetaData)entry.getValue()).getName();
-				FileUtil.write(location + name + ".xml", false, serializer.toXML(metaData.get(entry.getKey())));
+				MetaData extensionMetaData = (MetaData)entry.getValue();
+				String extensionPath = extensionMetaData.getPath();
+				String fileName = ExtensionType.PLUGIN.getFileNames()[0];
+				if (extensionMetaData instanceof ConnectorMetaData) {
+					if (((ConnectorMetaData)extensionMetaData).getType().equals(ConnectorMetaData.Type.SOURCE)) {
+						fileName = ExtensionType.SOURCE.getFileNames()[0];
+					} else {
+						fileName = ExtensionType.DESTINATION.getFileNames()[0];
+					}
+				}
+				
+				FileUtil.write(ExtensionController.EXTENSIONS_LOCATION + extensionPath + System.getProperty("file.separator") + fileName, false, serializer.toXML(metaData.get(entry.getKey())));
 
 			}
 		} catch (IOException ioe) {
@@ -76,33 +79,70 @@ public class ExtensionUtil {
 
 	}
 
-	public static List<String> loadExtensionLibraries(String location) throws ControllerException {
-		// update this to use regular expression to get the client and shared
-		// libraries
-		FileFilter libraryFilter = new FileFilter() {
+	public static List<String> loadClientLibraries(List<MetaData> extensionMetaData) throws ControllerException {
+		List<String> extensionLibraries = new ArrayList<String>();
+		
+		for (MetaData metaData : extensionMetaData) {
+			for (ExtensionLibrary library : metaData.getLibraries()) {
+				if (library.getType().equals(ExtensionLibrary.Type.CLIENT) || library.getType().equals(ExtensionLibrary.Type.SHARED)) {
+					extensionLibraries.add(metaData.getPath() + System.getProperty("file.separator") + library.getPath());
+				}
+			}
+		}
+		
+		return extensionLibraries;
+	}
+	
+	/**
+	 * Find all extension files of a certain type and return them.
+	 * 
+	 * @param extensionType
+	 * @return List of extension MetaData xml files.
+	 */
+	private static List<File> loadExtensionFiles(final ExtensionType extensionType) {
+		
+		FileFilter extensionFileFilter = new FileFilter() {
 			public boolean accept(File file) {
-				return (!file.isDirectory() && (file.getName().contains("-client.jar") || file.getName().contains("-shared.jar")));
+				boolean accept = false;
+				
+				if (file.isDirectory()) {
+					return false; 
+				} 
+				
+				for (String fileName : extensionType.getFileNames()) {
+					if (file.getName().equalsIgnoreCase(fileName)) {
+						accept = true;
+					}
+				}
+				return (accept);
 			}
 		};
-
-		List<String> extensionLibs = new ArrayList<String>();
-		File path = new File(location);
-		File[] extensionFiles = path.listFiles(libraryFilter);
-
-		for (int i = 0; i < extensionFiles.length; i++) {
-			File extensionFile = extensionFiles[i];
-			extensionLibs.add(extensionFile.getName());
+		
+		FileFilter directoryFilter = new FileFilter() {
+			public boolean accept(File file) {
+				return (file.isDirectory());
+			}
+		};
+		
+		List<File> extensionFiles = new ArrayList<File>();
+		File extensionsPath = new File(ExtensionController.EXTENSIONS_LOCATION);
+		File[] directories  = extensionsPath.listFiles(directoryFilter);
+		
+		for (File directory : directories) {
+			File[] singleExtensionFiles = directory.listFiles(extensionFileFilter);
+			extensionFiles.addAll(Arrays.asList(singleExtensionFiles));
+			
 		}
-
-		return extensionLibs;
+		
+		return extensionFiles;
 	}
 
-	public static void installExtension(String location, FileItem fileItem) throws ControllerException {
+	public static void installExtension(FileItem fileItem) throws ControllerException {
 		// update this to use regular expression to get the client and shared
 		// libraries
 		String uniqueId = UUIDGenerator.getUUID();
 		//append installer temp
-		location = location + "install_temp" + System.getProperty("file.separator");
+		String location = ExtensionController.EXTENSIONS_LOCATION + "install_temp" + System.getProperty("file.separator");
 		ZipFile zipFile = null;
 		try {
 			File file = File.createTempFile(uniqueId, ".zip");
@@ -125,9 +165,6 @@ public class ExtensionUtil {
 
 					// This is not robust, just for demonstration purposes.
 					(new File(location + entry.getName())).mkdir();
-					continue;
-				}else if (entry.getName().equals(ARCHIVE_METADATA_XML)){
-					//Ignore the archive metadata
 					continue;
 				}
 

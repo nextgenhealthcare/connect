@@ -125,28 +125,17 @@ public class WebStartServlet extends HttpServlet {
 			// add the connector client jars to the classpath
 			Element resourcesElement = (Element) jnlpElement.getElementsByTagName("resources").item(0);
 			
-            List<String> connectorLibraries = pluginController.getConnectorLibraries();
-            List<String> pluginLibraries = pluginController.getPluginLibraries();
+            List<String> clientLibraries = pluginController.getClientLibraries();
             
-			for (Iterator iter = connectorLibraries.iterator(); iter.hasNext();) {
+			for (Iterator iter = clientLibraries.iterator(); iter.hasNext();) {
 				String lib = (String) iter.next();
 
 				Element jarElement = document.createElement("jar");
 				jarElement.setAttribute("download", "eager");
-				jarElement.setAttribute("href", "connectors/" + lib);
+				jarElement.setAttribute("href", "extensions/" + lib);
 				
 				resourcesElement.appendChild(jarElement);
 			}
-            
-            for (Iterator iter = pluginLibraries.iterator(); iter.hasNext();) {
-                String lib = (String) iter.next();
-
-                Element jarElement = document.createElement("jar");
-                jarElement.setAttribute("download", "eager");
-                jarElement.setAttribute("href", "plugins/" + lib);
-                
-                resourcesElement.appendChild(jarElement);
-            }
 
 			out.println(docSerializer.toXML(document));
 		} catch (Exception e) {

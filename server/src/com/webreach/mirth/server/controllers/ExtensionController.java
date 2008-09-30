@@ -36,14 +36,48 @@ import com.webreach.mirth.model.ExtensionPoint;
 import com.webreach.mirth.model.ExtensionPointDefinition;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.plugins.ServerPlugin;
+import com.webreach.mirth.server.tools.ClassPathResource;
 
-/**
- * The ConfigurationController provides access to the Mirth configuration.
- * 
- * @author brendanh
- * 
- */
 public interface ExtensionController extends Controller {
+	
+	public enum ExtensionType {
+		PLUGIN ("plugin.xml"),
+		SOURCE ("source.xml"),
+		DESTINATION ("destination.xml"),
+		CONNECTOR (new ExtensionType[]{SOURCE, DESTINATION});
+		
+		private String fileName = null;
+		private ExtensionType[] types = null;
+		
+		ExtensionType(String fileName) {
+			this.fileName = fileName;
+		}
+		
+		ExtensionType(ExtensionType[] types) {
+			this.types = types;
+		}
+		
+		public String[] getFileNames() {
+			if (types == null) {
+				return new String[] {fileName};
+			} else {
+				String[] fileNames = new String[types.length];
+				for (int i = 0; i < fileNames.length; i++) {
+					fileNames[i] = types[i].getFileName();
+				}
+				return fileNames;
+			}
+		}
+		
+		private String getFileName() {
+			return fileName;
+		}
+	}
+	
+	public static final String EXTENSIONS_LOCATION = ClassPathResource.getResourceURI("extensions").getPath() + System.getProperty("file.separator");
+	
+    public static final String PLUGIN_PROPERTIES_FILE = "plugin.properties";
+	
     // Extension point for ExtensionPoint.Type.SERVER_PLUGIN
     @ExtensionPointDefinition(mode = ExtensionPoint.Mode.SERVER, type = ExtensionPoint.Type.SERVER_PLUGIN)
     public void initPlugins();
@@ -62,7 +96,7 @@ public interface ExtensionController extends Controller {
 
     public Object invokeConnectorService(String name, String method, Object object, String sessionsId) throws Exception;
 
-    public void installExtension(String location, FileItem fileItem) throws ControllerException;
+    public void installExtension(FileItem fileItem) throws ControllerException;
 
     public void setPluginProperties(String pluginName, Properties properties) throws ControllerException;
 
@@ -72,13 +106,11 @@ public interface ExtensionController extends Controller {
 
     public void saveConnectorMetaData(Map<String, ConnectorMetaData> metaData) throws ControllerException;
 
-    public List<String> getConnectorLibraries() throws ControllerException;
+    public List<String> getClientLibraries() throws ControllerException;
 
     public Map<String, PluginMetaData> getPluginMetaData() throws ControllerException;
 
     public void savePluginMetaData(Map<String, PluginMetaData> metaData) throws ControllerException;
-
-    public List<String> getPluginLibraries() throws ControllerException;
 
     public Map<String, ConnectorMetaData> getProtocols();
 

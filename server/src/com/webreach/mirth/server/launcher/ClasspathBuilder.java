@@ -36,10 +36,15 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 public class ClasspathBuilder {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private String launcherFileName = null;
+	private final String EXTENSION_PATH = "./extensions";
+	private final String PLUGIN_FILENAME = "plugin.xml";
+	private final String SOURCE_FILENAME = "source.xml";
+	private final String DESTINATION_FILENAME = "destination.xml";
 	
 	public ClasspathBuilder(String launcherFileName) {
 		this.launcherFileName = launcherFileName;
@@ -49,6 +54,21 @@ public class ClasspathBuilder {
 		FileFilter pathFileFilter = new FileFilter() {
 			public boolean accept(File file) {
 				return (!file.isDirectory());
+			}
+		};
+		
+		FileFilter directoryFilter = new FileFilter() {
+			public boolean accept(File file) {
+				return (file.isDirectory());
+			}
+		};
+		
+		FileFilter extensionFileFilter = new FileFilter() {
+			public boolean accept(File file) {
+				return (file.isFile() && (
+						file.getName().equalsIgnoreCase(PLUGIN_FILENAME) ||
+						file.getName().equalsIgnoreCase(SOURCE_FILENAME) ||
+						file.getName().equalsIgnoreCase(DESTINATION_FILENAME)));
 			}
 		};
 
@@ -83,6 +103,31 @@ public class ClasspathBuilder {
 			}
 		} else {
 			logger.error("Could not locate launcher file:" + launcherFile.getAbsolutePath());
+		}
+		
+		// Add the extension server and shared libraries to the classpath
+		File path = new File(EXTENSION_PATH);
+		
+		if (path.exists() && path.isDirectory()) {
+			File[] directories = path.listFiles(directoryFilter);
+			
+			for (File directory : directories) {
+				File[] extensionFiles = directory.listFiles(extensionFileFilter);
+				
+				for (File extensionFile : extensionFiles) {
+					Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(extensionFile);
+					Element rootElement = document.getDocumentElement();
+					NodeList libraries = rootElement.getElementsByTagName("library");
+					
+					for (int i = 0; i < libraries.getLength(); i++) {
+						Element element = (Element)libraries.item(i);
+						if (element.getAttribute("type").equalsIgnoreCase("server") || element.getAttribute("type").equalsIgnoreCase("shared")) {
+							File file = new File(directory.getAbsolutePath() + System.getProperty("file.separator") + element.getAttribute("path"));
+							urls.add(file.toURI().toURL());
+						}
+					}
+				}				
+			}
 		}
 
 		return urls.toArray(new URL[urls.size()]);

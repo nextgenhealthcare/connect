@@ -42,6 +42,8 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 import com.webreach.mirth.model.ConnectorMetaData;
+import com.webreach.mirth.model.ExtensionLibrary;
+import com.webreach.mirth.model.MetaData;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.ControllerFactory;
@@ -89,15 +91,15 @@ public class ExtensionServlet extends MirthServlet {
 					extensionController.setPluginProperties(name, properties);
 					extensionController.updatePlugin(name, properties);
 				} else if (operation.equals("getPluginMetaData")) {
-					out.println(serializer.toXML(extensionController.getPluginMetaData(), new Class[] { PluginMetaData.class }));
+					out.println(serializer.toXML(extensionController.getPluginMetaData(), new Class[] { MetaData.class, PluginMetaData.class, ExtensionLibrary.class }));
 				} else if (operation.equals("setPluginMetaData")) {
-					Map<String, PluginMetaData> metaData = (Map<String, PluginMetaData>) serializer.fromXML(request.getParameter("metaData"), new Class[] { PluginMetaData.class });
+					Map<String, PluginMetaData> metaData = (Map<String, PluginMetaData>) serializer.fromXML(request.getParameter("metaData"), new Class[] { MetaData.class, PluginMetaData.class, ExtensionLibrary.class });
 					extensionController.savePluginMetaData(metaData);
 				} else if (operation.equals("getConnectorMetaData")) {
 					response.setContentType("application/xml");
-					out.println(serializer.toXML(extensionController.getConnectorMetaData(), new Class[] { ConnectorMetaData.class }));
+					out.println(serializer.toXML(extensionController.getConnectorMetaData(), new Class[] { MetaData.class, ConnectorMetaData.class, ExtensionLibrary.class }));
 				} else if (operation.equals("setConnectorMetaData")) {
-					Map<String, ConnectorMetaData> metaData = (Map<String, ConnectorMetaData>) serializer.fromXML(request.getParameter("metaData"), new Class[] { ConnectorMetaData.class });
+					Map<String, ConnectorMetaData> metaData = (Map<String, ConnectorMetaData>) serializer.fromXML(request.getParameter("metaData"), new Class[] { MetaData.class, ConnectorMetaData.class, ExtensionLibrary.class });
 					extensionController.saveConnectorMetaData(metaData);
 				} else if (operation.equals("isExtensionEnabled")) {
 					String extensionName = request.getParameter("name");
@@ -117,8 +119,7 @@ public class ExtensionServlet extends MirthServlet {
 				} else if (operation.equals("installExtension")) {
 					// This is a multi-part method, so we need our parameters
 					// from the new map
-					String location = multipartParameters.get("location");
-					extensionController.installExtension(location, multiPartFile);
+					extensionController.installExtension(multiPartFile);
 				}
 			} catch (Exception e) {
 				throw new ServletException(e);

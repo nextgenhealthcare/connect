@@ -40,7 +40,7 @@ public class PluginControllerTest extends TestCase {
 	}
 	
 	public void testGetConnectorLibraries() throws ControllerException {
-		List<String> libraries = pluginController.getConnectorLibraries();
+		List<String> libraries = pluginController.getClientLibraries();
 		
 		for (Iterator iter = libraries.iterator(); iter.hasNext();) {
 			String library = (String) iter.next();
