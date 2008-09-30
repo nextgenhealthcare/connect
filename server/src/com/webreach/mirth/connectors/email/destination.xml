@@ -1,4 +1,4 @@
-<connectorMetaData path="com.webreach.mirth.connectors.email">
+<connectorMetaData path="email">
 	<name>Email Sender</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>

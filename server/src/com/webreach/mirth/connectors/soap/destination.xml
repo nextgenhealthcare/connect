@@ -1,4 +1,4 @@
-<connectorMetaData path="com.webreach.mirth.connectors.soap">
+<connectorMetaData path="soap">
 	<name>SOAP Sender</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>

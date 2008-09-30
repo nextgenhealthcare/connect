@@ -1,4 +1,4 @@
-<connectorMetaData path="com.webreach.mirth.connectors.vm">
+<connectorMetaData path="vm">
 	<name>Channel Writer</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>

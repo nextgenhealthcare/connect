@@ -30,7 +30,6 @@
 		<jar download="eager" href="client-lib/commons-httpclient-3.0.1.jar" />
 		<jar download="eager" href="client-lib/commons-logging-1.1.jar" />
 		<jar download="eager" href="client-lib/databinding-0.8.0.jar" />
-		<jar download="eager" href="client-lib/dcm4che-core-2.0.11.jar" />
 		<jar download="eager" href="client-lib/hapi-0.5.jar" />
 		<jar download="eager" href="client-lib/hl7model.jar" />
 		<jar download="eager" href="client-lib/ij.jar" />

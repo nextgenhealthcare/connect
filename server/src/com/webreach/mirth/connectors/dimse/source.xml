@@ -1,4 +1,4 @@
-<connectorMetaData path="com.webreach.mirth.connectors.dimse">
+<connectorMetaData path="dimse">
 	<name>DICOM Listener</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>

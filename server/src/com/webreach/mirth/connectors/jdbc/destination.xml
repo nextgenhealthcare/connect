@@ -1,4 +1,4 @@
-<connectorMetaData path="com.webreach.mirth.connectors.jdbc">
+<connectorMetaData path="jdbc">
 	<name>Database Writer</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>

@@ -1,4 +1,4 @@
-<connectorMetaData path="com.webreach.mirth.connectors.doc">
+<connectorMetaData path="doc">
 	<name>Document Writer</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>

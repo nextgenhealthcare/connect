@@ -1,4 +1,4 @@
-<connectorMetaData path="com.webreach.mirth.connectors.file">
+<connectorMetaData path="file">
 	<name>File Reader</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>

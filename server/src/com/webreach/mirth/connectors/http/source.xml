@@ -1,4 +1,4 @@
-<connectorMetaData path="com.webreach.mirth.connectors.http">
+<connectorMetaData path="http">
 	<name>HTTP Listener</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
