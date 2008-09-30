@@ -1,4 +1,4 @@
-<pluginMetaData path="com.webreach.mirth.plugins.plugin">
+<pluginMetaData path="serverlog">
 	<name>Server Log</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>

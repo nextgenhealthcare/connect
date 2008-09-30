@@ -1,4 +1,4 @@
-<pluginMetaData path="com.webreach.mirth.plugins.extensionmananger">
+<pluginMetaData path="extensionmananger">
 	<name>Extension Manager</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>

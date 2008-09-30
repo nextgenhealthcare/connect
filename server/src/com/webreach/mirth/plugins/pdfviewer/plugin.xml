@@ -1,4 +1,4 @@
-<pluginMetaData path="com.webreach.mirth.plugins.pdfviewer">
+<pluginMetaData path="pdfviewer">
 	<name>PDF Viewer</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>

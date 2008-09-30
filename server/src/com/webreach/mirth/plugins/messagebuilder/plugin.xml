@@ -1,4 +1,4 @@
-<pluginMetaData path="com.webreach.mirth.plugins.messagebuilder">
+<pluginMetaData path="messagebuilder">
 	<name>Message Builder Transformer Step</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>

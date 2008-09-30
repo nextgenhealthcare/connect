@@ -1,4 +1,4 @@
-<pluginMetaData path="com.webreach.mirth.plugins.messagepruner">
+<pluginMetaData path="messagepruner">
 	<name>Message Pruner</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>

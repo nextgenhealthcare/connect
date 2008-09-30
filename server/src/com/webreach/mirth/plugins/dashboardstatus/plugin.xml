@@ -1,4 +1,4 @@
-<pluginMetaData path="com.webreach.mirth.plugins.dashboardstatus">
+<pluginMetaData path="dashboardstatus">
 	<name>Dashboard Connector Status Monitor</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>

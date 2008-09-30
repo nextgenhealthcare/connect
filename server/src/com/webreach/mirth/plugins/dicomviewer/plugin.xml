@@ -1,4 +1,4 @@
-<pluginMetaData path="com.webreach.mirth.plugins.dicomviewer">
+<pluginMetaData path="dicomviewer">
 	<name>DICOM Viewer</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>

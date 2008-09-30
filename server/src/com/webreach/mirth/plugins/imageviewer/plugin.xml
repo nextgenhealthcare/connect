@@ -1,4 +1,4 @@
-<pluginMetaData path="com.webreach.mirth.plugins.imageviewer">
+<pluginMetaData path="imageviewer">
 	<name>Image Viewer</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>

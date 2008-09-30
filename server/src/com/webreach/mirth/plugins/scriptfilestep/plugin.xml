@@ -1,4 +1,4 @@
-<pluginMetaData path="com.webreach.mirth.plugins.scriptfilestep">
+<pluginMetaData path="scriptfilestep">
 	<name>External Script Transformer Step</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
