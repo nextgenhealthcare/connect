@@ -1062,6 +1062,10 @@ public class Frame extends JXFrame
         	owner = (Window)parentComponent;
         } else {
         	owner = SwingUtilities.windowForComponent(parentComponent);
+        	
+        	if (owner == null) {
+        		owner = this;
+        	}
         }
         
         return owner;
