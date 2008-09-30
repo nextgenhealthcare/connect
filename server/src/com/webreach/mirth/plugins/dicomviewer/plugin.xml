@@ -15,19 +15,4 @@
 	<library path="dicomviewer-client.jar">
 		<type>CLIENT</type>
 	</library>
-	<library path="lib/jai_imageio.jar.jar">
-		<type>SHARED</type>
-	</library>
-	<library path="lib/dcm4che-core-2.0.15.jarr">
-		<type>SHARED</type>
-	</library>
-	<library path="lib/dcm4che-net-2.0.15.jar">
-		<type>SHARED</type>
-	</library>
-	<library path="lib/dcm4che-tool-dcmrcv-2.0.15.jar">
-		<type>SHARED</type>
-	</library>
-	<library path="lib/dcm4che-tool-dcmsnd-2.0.15.jar">
-		<type>SHARED</type>
-	</library>
 </pluginMetaData>
