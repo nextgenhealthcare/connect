@@ -16,34 +16,34 @@
 		<property name="extensions" value="${dist}/extensions" />
 
 		<!-- connectors -->
-		<property name="connectors.doc" value="${extensions}/com.webreach.mirth.connectors.doc" />
-		<property name="connectors.email" value="${extensions}/com.webreach.mirth.connectors.email" />
-		<property name="connectors.file" value="${extensions}/com.webreach.mirth.connectors.file" />
-		<property name="connectors.http" value="${extensions}/com.webreach.mirth.connectors.http" />
-		<property name="connectors.dicom" value="${extensions}/com.webreach.mirth.connectors.dicom" />
-		<property name="connectors.jdbc" value="${extensions}/com.webreach.mirth.connectors.jdbc" />
-		<property name="connectors.jms" value="${extensions}/com.webreach.mirth.connectors.jms" />
-		<property name="connectors.js" value="${extensions}/com.webreach.mirth.connectors.js" />
-		<property name="connectors.mllp" value="${extensions}/com.webreach.mirth.connectors.mllp" />
-		<property name="connectors.soap" value="${extensions}/com.webreach.mirth.connectors.soap" />
-		<property name="connectors.tcp" value="${extensions}/com.webreach.mirth.connectors.tcp" />
-		<property name="connectors.vm" value="${extensions}/com.webreach.mirth.connectors.vm" />
+		<property name="connectors.doc" value="${extensions}/doc" />
+		<property name="connectors.email" value="${extensions}/email" />
+		<property name="connectors.file" value="${extensions}/file" />
+		<property name="connectors.http" value="${extensions}/http" />
+		<property name="connectors.dicom" value="${extensions}/dicom" />
+		<property name="connectors.jdbc" value="${extensions}/jdbc" />
+		<property name="connectors.jms" value="${extensions}/jms" />
+		<property name="connectors.js" value="${extensions}/js" />
+		<property name="connectors.mllp" value="${extensions}/mllp" />
+		<property name="connectors.soap" value="${extensions}/soap" />
+		<property name="connectors.tcp" value="${extensions}/tcp" />
+		<property name="connectors.vm" value="${extensions}/vm" />
 
 		<!-- plugins -->
-		<property name="plugins.dashboardstatus" value="${extensions}/com.webreach.mirth.plugins.dashboardstatus" />
-		<property name="plugins.dicomviewer" value="${extensions}/com.webreach.mirth.plugins.dicomviewer" />
-		<property name="plugins.extensionmanager" value="${extensions}/com.webreach.mirth.plugins.extensionmanager" />
-		<property name="plugins.imageviewer" value="${extensions}/com.webreach.mirth.plugins.imageviewer" />
-		<property name="plugins.javascriptrule" value="${extensions}/com.webreach.mirth.plugins.javascriptrule" />
-		<property name="plugins.javascriptstep" value="${extensions}/com.webreach.mirth.plugins.javascriptstep" />
-		<property name="plugins.mapper" value="${extensions}/com.webreach.mirth.plugins.mapper" />
-		<property name="plugins.messagebuilder" value="${extensions}/com.webreach.mirth.plugins.messagebuilder" />
-		<property name="plugins.messagepruner" value="${extensions}/com.webreach.mirth.plugins.messagepruner" />
-		<property name="plugins.pdfviewer" value="${extensions}/com.webreach.mirth.plugins.pdfviewer" />
-		<property name="plugins.rtfviewer" value="${extensions}/com.webreach.mirth.plugins.rtfviewer" />
-		<property name="plugins.rulebuilder" value="${extensions}/com.webreach.mirth.plugins.rulebuilder" />
-		<property name="plugins.serverlog" value="${extensions}/com.webreach.mirth.plugins.serverlog" />
-		<property name="plugins.scriptfilestep" value="${extensions}/com.webreach.mirth.plugins.scriptfilestep" />
+		<property name="plugins.dashboardstatus" value="${extensions}/dashboardstatus" />
+		<property name="plugins.dicomviewer" value="${extensions}/dicomviewer" />
+		<property name="plugins.extensionmanager" value="${extensions}/extensionmanager" />
+		<property name="plugins.imageviewer" value="${extensions}/imageviewer" />
+		<property name="plugins.javascriptrule" value="${extensions}/javascriptrule" />
+		<property name="plugins.javascriptstep" value="${extensions}/javascriptstep" />
+		<property name="plugins.mapper" value="${extensions}/mapper" />
+		<property name="plugins.messagebuilder" value="${extensions}/messagebuilder" />
+		<property name="plugins.messagepruner" value="${extensions}/messagepruner" />
+		<property name="plugins.pdfviewer" value="${extensions}/pdfviewer" />
+		<property name="plugins.rtfviewer" value="${extensions}/rtfviewer" />
+		<property name="plugins.rulebuilder" value="${extensions}/rulebuilder" />
+		<property name="plugins.serverlog" value="${extensions}/serverlog" />
+		<property name="plugins.scriptfilestep" value="${extensions}/scriptfilestep" />
 	</target>
 
 	<target name="clean" depends="init">
