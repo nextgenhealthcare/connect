@@ -185,7 +185,7 @@ public class DefaultExtensionController implements ExtensionController {
         String packageName = getPackageName(pluginName);
 
         try {
-            File propertiesFile = new File(EXTENSIONS_LOCATION + plugins.get(packageName).getPath() + System.getProperty("file.separator") + PLUGIN_PROPERTIES_FILE);
+            File propertiesFile = new File(EXTENSIONS_LOCATION + packageName + System.getProperty("file.separator") + PLUGIN_PROPERTIES_FILE);
             fileOutputStream = new FileOutputStream(propertiesFile);
             properties.store(fileOutputStream, "Updated " + packageName + " properties");
         } catch (Exception e) {
