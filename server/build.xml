@@ -535,8 +535,7 @@
 				<exclude name="activation.jar" />
 				<include name="*.jar" />
 			</fileset>
-			<fileset dir="${extensions}" includes="**/*-shared.jar" />
-			<fileset dir="${extensions}" includes="**/*-client.jar" />
+			<fileset dir="${extensions}" includes="**/*.jar" />
 		</signjar>
 	</target>
 
