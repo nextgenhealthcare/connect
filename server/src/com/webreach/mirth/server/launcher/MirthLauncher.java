@@ -28,20 +28,19 @@ package com.webreach.mirth.server.launcher;
 
 import java.io.File;
 import java.net.URLClassLoader;
-import java.net.URLDecoder;
 
 public class MirthLauncher {
 	private static final String INSTALL_TEMP = "install_temp";
 	public static void main(String[] args) {
 		if (args[0] != null) {
 			try {
-				ClasspathBuilder builder = new ClasspathBuilder(args[0]);
-				URLClassLoader classLoader = new URLClassLoader(builder.getClasspath());
 				try{
-					classLoader = installExtensions(builder, classLoader);
-				}catch (Exception e){
+					installExtensions();
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
+				ClasspathBuilder builder = new ClasspathBuilder(args[0]);
+				URLClassLoader classLoader = new URLClassLoader(builder.getClasspath());
 				Class mirthClass = classLoader.loadClass("com.webreach.mirth.server.Mirth");
 				Thread mirthThread = (Thread) mirthClass.newInstance();
 				mirthThread.setContextClassLoader(classLoader);
@@ -54,9 +53,9 @@ public class MirthLauncher {
 		}
 	}
 	
-	public static URLClassLoader installExtensions(ClasspathBuilder builder, URLClassLoader classLoader) throws Exception{
+	private static void installExtensions() throws Exception{
 		//We need to find our paths from the class loader
-		String extensionsLocation = URLDecoder.decode(classLoader.getResource("extensions").getPath());
+		String extensionsLocation = new File(ClasspathBuilder.EXTENSION_PATH).getPath();
 		String extensionsTempLocation = extensionsLocation + System.getProperty("file.separator") + INSTALL_TEMP + System.getProperty("file.separator");
 
 		File extensionsTemp = new File(extensionsTempLocation);
@@ -71,12 +70,7 @@ public class MirthLauncher {
 				files[i].renameTo(target);
 			}
 			extensionsTemp.delete();
-		}
-		
-		//Rebuild our classpath
-		URLClassLoader newClassLoader = new URLClassLoader(builder.getClasspath());
-		return newClassLoader;
-		
+		}		
 	}
 
 

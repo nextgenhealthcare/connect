@@ -41,10 +41,10 @@ import org.w3c.dom.NodeList;
 public class ClasspathBuilder {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private String launcherFileName = null;
-	private final String EXTENSION_PATH = "./extensions";
-	private final String PLUGIN_FILENAME = "plugin.xml";
-	private final String SOURCE_FILENAME = "source.xml";
-	private final String DESTINATION_FILENAME = "destination.xml";
+	public static final String EXTENSION_PATH = "./extensions";
+	private static final String PLUGIN_FILENAME = "plugin.xml";
+	private static final String SOURCE_FILENAME = "source.xml";
+	private static final String DESTINATION_FILENAME = "destination.xml";
 	
 	public ClasspathBuilder(String launcherFileName) {
 		this.launcherFileName = launcherFileName;
@@ -107,7 +107,7 @@ public class ClasspathBuilder {
 		
 		// Add the extension server and shared libraries to the classpath
 		File path = new File(EXTENSION_PATH);
-		
+
 		if (path.exists() && path.isDirectory()) {
 			File[] directories = path.listFiles(directoryFilter);
 			
@@ -121,7 +121,8 @@ public class ClasspathBuilder {
 					
 					for (int i = 0; i < libraries.getLength(); i++) {
 						Element element = (Element)libraries.item(i);
-						if (element.getAttribute("type").equalsIgnoreCase("server") || element.getAttribute("type").equalsIgnoreCase("shared")) {
+						String type = element.getElementsByTagName("type").item(0).getTextContent();
+						if (type.equalsIgnoreCase("server") || type.equalsIgnoreCase("shared")) {
 							File file = new File(directory.getAbsolutePath() + System.getProperty("file.separator") + element.getAttribute("path"));
 							urls.add(file.toURI().toURL());
 						}
