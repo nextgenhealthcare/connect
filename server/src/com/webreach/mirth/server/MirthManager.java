@@ -42,9 +42,9 @@ import com.webreach.mirth.server.controllers.ChannelStatusController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.ControllerFactory;
+import com.webreach.mirth.server.controllers.EventController;
 import com.webreach.mirth.server.controllers.ExtensionController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.controllers.EventController;
 import com.webreach.mirth.server.controllers.UserController;
 
 public class MirthManager {

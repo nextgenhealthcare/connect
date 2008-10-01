@@ -12,6 +12,10 @@
 
 package org.mule.providers;
 
+import java.beans.ExceptionListener;
+
+import javax.resource.spi.work.Work;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mule.MuleRuntimeException;
@@ -32,9 +36,6 @@ import org.mule.umo.manager.UMOWorkManager;
 import org.mule.umo.provider.DispatchException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageDispatcher;
-
-import javax.resource.spi.work.Work;
-import java.beans.ExceptionListener;
 
 /**
  * <p/> <code>AbstractMessageDispatcher</code> provides a default dispatch (client) support for handling threads

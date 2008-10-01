@@ -3,7 +3,6 @@ package com.webreach.mirth.server;
 import org.mozilla.javascript.RhinoException;
 
 import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 
 public class MirthJavascriptTransformerException extends Exception {

@@ -26,8 +26,8 @@
 
 package com.webreach.mirth.server.launcher;
 
-import java.net.URLClassLoader;
 import java.lang.reflect.Constructor;
+import java.net.URLClassLoader;
 
 public class ShellLauncher {
 	public static void main(String[] args) {

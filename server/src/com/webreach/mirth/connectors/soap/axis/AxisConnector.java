@@ -55,7 +55,6 @@ import org.mule.umo.manager.UMOServerEvent;
 import org.mule.umo.provider.UMOMessageReceiver;
 import org.mule.util.ClassHelper;
 
-import com.webreach.mirth.connectors.http.HttpClientMessageDispatcher;
 import com.webreach.mirth.connectors.soap.axis.extensions.WSDDJavaMuleProvider;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.util.UUIDGenerator;

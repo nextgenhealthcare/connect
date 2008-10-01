@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
-import org.mozilla.javascript.NativeJavaObject;
 import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.xml.sax.ContentHandler;

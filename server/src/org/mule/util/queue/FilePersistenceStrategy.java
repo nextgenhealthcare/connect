@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.doomdark.uuid.UUIDGenerator;
@@ -34,7 +33,6 @@ import org.mule.config.MuleConfiguration;
 import org.mule.util.file.DeleteException;
 
 import com.webreach.mirth.model.QueuedMessage;
-import com.webreach.mirth.server.controllers.ConfigurationController;
 
 /**
  * @author <a href="mailto:gnt@codehaus.org">Guillaume Nodet</a>

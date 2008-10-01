@@ -56,7 +56,6 @@ import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MigrationController;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.UserController;
-import com.webreach.mirth.server.tools.ClassPathResource;
 import com.webreach.mirth.server.util.GlobalVariableStore;
 import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.server.util.VMRegistry;

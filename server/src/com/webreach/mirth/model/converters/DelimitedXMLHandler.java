@@ -27,8 +27,6 @@ package com.webreach.mirth.model.converters;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.webreach.mirth.util.Entities;
-
 public class DelimitedXMLHandler extends DefaultHandler {
 
 	private StringBuilder output = new StringBuilder();

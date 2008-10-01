@@ -30,7 +30,6 @@ import org.mule.impl.ImmutableMuleDescriptor;
 import org.mule.impl.MuleSession;
 import org.mule.impl.internal.events.ModelEvent;
 import org.mule.model.DynamicEntryPointResolver;
-import org.mule.providers.AbstractConnector;
 import org.mule.routing.outbound.FilteringMulticastingRouter;
 import org.mule.transaction.TransactionCoordination;
 import org.mule.umo.UMOComponent;
@@ -47,7 +46,6 @@ import org.mule.umo.model.UMOEntryPointResolver;
 import org.mule.umo.model.UMOModel;
 import org.mule.umo.routing.UMORouter;
 
-import com.webreach.mirth.connectors.vm.VMConnector;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.EventController;

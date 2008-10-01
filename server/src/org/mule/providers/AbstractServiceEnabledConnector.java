@@ -24,7 +24,6 @@ import org.mule.providers.service.ConnectorServiceDescriptor;
 import org.mule.providers.service.ConnectorServiceException;
 import org.mule.umo.MessagingException;
 import org.mule.umo.UMOComponent;
-import org.mule.umo.UMOException;
 import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.lifecycle.InitialisationException;

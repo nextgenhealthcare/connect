@@ -9,7 +9,6 @@ import junit.framework.TestCase;
 
 import com.webreach.mirth.model.Preferences;
 import com.webreach.mirth.model.User;
-import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.UserController;

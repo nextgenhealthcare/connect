@@ -1,6 +1,5 @@
 package org.mule.routing.outbound;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.mule.config.i18n.Message;

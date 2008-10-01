@@ -42,7 +42,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.webreach.mirth.model.converters.DocumentSerializer;
-import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.ExtensionController;
 import com.webreach.mirth.server.tools.ClassPathResource;

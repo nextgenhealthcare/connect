@@ -1,24 +1,26 @@
 package com.webreach.mirth.server.util;
 
+import ij.plugin.DICOM;
+
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.imageio.ImageIO;
+
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
+
 import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.DICOMSerializer;
 import com.webreach.mirth.model.converters.SerializerException;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MessageObjectController;
-import ij.plugin.DICOM;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
-
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.

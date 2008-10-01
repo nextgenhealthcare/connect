@@ -9,8 +9,6 @@
 
 package com.webreach.mirth.connectors.file;
 
-import java.io.File;
-
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
 import org.mule.providers.AbstractMessageAdapter;

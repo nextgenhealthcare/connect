@@ -1,7 +1,5 @@
 package com.webreach.mirth.model.converters.tests;
 
-import static org.junit.Assert.fail;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 

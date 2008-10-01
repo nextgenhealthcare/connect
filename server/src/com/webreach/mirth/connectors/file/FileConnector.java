@@ -12,7 +12,6 @@ package com.webreach.mirth.connectors.file;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;

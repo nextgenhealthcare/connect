@@ -1,6 +1,5 @@
 package com.webreach.mirth.model.x12;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -14,7 +13,6 @@ import javax.xml.bind.Unmarshaller;
 import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.MessageObject.Protocol;
-import com.webreach.mirth.model.converters.ObjectCloner;
 import com.webreach.mirth.model.util.MessageVocabulary;
 
 public class X12Vocabulary extends MessageVocabulary {

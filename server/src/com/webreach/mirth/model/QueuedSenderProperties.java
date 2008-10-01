@@ -27,8 +27,6 @@ package com.webreach.mirth.model;
 
 import java.util.Properties;
 
-import com.webreach.mirth.model.ComponentProperties;
-
 public class QueuedSenderProperties implements ComponentProperties
 {
     public static final String USE_PERSISTENT_QUEUES = "usePersistentQueues";

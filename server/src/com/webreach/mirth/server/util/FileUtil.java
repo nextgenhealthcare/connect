@@ -25,15 +25,23 @@
 
 package com.webreach.mirth.server.util;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringReader;
+
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Document;
+import javax.swing.text.rtf.RTFEditorKit;
 
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
-
-import javax.swing.text.DefaultStyledDocument;
-import javax.swing.text.Document;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.rtf.RTFEditorKit;
 
 public class FileUtil {
 	public static void write(String fileName, boolean append, String data) throws IOException {

@@ -1,8 +1,8 @@
 package com.webreach.mirth.model.hl7v2;
 
-import org.junit.Assert;
-
 import junit.framework.TestCase;
+
+import org.junit.Assert;
 
 public class HL7ModelTest extends TestCase{
 	

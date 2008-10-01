@@ -1,10 +1,10 @@
 package com.webreach.mirth.model.ncpdp;
 
-import com.webreach.mirth.model.util.MessageVocabulary;
-import com.webreach.mirth.model.MessageObject.Protocol;
-
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
+
+import com.webreach.mirth.model.MessageObject.Protocol;
+import com.webreach.mirth.model.util.MessageVocabulary;
 
 /**
  * Created by IntelliJ IDEA.

@@ -26,7 +26,6 @@
 package com.webreach.mirth.model;
 
 import java.io.Serializable;
-import java.util.Properties;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.webreach.mirth.util.EqualsUtil;

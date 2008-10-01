@@ -10,12 +10,10 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
@@ -45,8 +43,6 @@ import org.xml.sax.InputSource;
 
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
-
-import com.webreach.mirth.model.dicom.DICOMReference;
 
 public class DICOMSerializer implements IXMLSerializer<String> {
 	private Logger logger = Logger.getLogger(this.getClass());
