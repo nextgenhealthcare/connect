@@ -116,6 +116,9 @@ public class ExtensionServlet extends MirthServlet {
 					Object object = (Object) serializer.fromXML(request.getParameter("object"));
 					String sessionId = request.getSession().getId();
 					out.println(serializer.toXML(extensionController.invokeConnectorService(name, method, object, sessionId)));
+				} else if (operation.equals("uninstallExtension")) {
+					String packageName = request.getParameter("packageName");
+					extensionController.uninstallExtension(packageName);
 				} else if (operation.equals("installExtension")) {
 					// This is a multi-part method, so we need our parameters
 					// from the new map

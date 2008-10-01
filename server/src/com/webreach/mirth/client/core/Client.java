@@ -227,6 +227,18 @@ public class Client {
         NameValuePair[] params = { new NameValuePair("op", "installExtension") };
         serverConnection.executeFileUpload(EXTENSION_SERVLET, params, file);
     }
+    
+    /**
+     * Uninstall an extension
+     * 
+     * @return
+     * @throws ClientException
+     */
+    public void uninstallExtension(String packageName) throws ClientException {
+        logger.debug("installing extension");
+        NameValuePair[] params = { new NameValuePair("op", "uninstallExtension"), new NameValuePair("packageName", packageName) };
+        serverConnection.executePostMethod(EXTENSION_SERVLET, params);
+    }
 
     /**
      * Returns a List of all connectors.

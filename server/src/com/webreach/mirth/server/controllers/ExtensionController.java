@@ -102,6 +102,8 @@ public interface ExtensionController extends Controller {
 
     public void installExtension(FileItem fileItem) throws ControllerException;
 
+    public void uninstallExtension(String packageName) throws ControllerException;
+    
     public void setPluginProperties(String pluginName, Properties properties) throws ControllerException;
 
     public Properties getPluginProperties(String pluginName) throws ControllerException;

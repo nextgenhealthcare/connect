@@ -23,18 +23,21 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 package com.webreach.mirth.server.launcher;
 
 import java.io.File;
 import java.net.URLClassLoader;
+import java.util.Scanner;
 
 public class MirthLauncher {
 	private static final String INSTALL_TEMP = "install_temp";
+	private static final String UNINSTALL_FILE = "uninstall";
+
 	public static void main(String[] args) {
 		if (args[0] != null) {
 			try {
-				try{
+				try {
+					uninstallExtensions();
 					installExtensions();
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -52,26 +55,59 @@ public class MirthLauncher {
 			System.out.println("usage: java Launcher launcher.xml");
 		}
 	}
-	
-	private static void installExtensions() throws Exception{
-		//We need to find our paths from the class loader
+
+	private static void uninstallExtensions() throws Exception{
+		// We need to find our paths from the class loader
+		String extensionsLocation = new File(ClasspathBuilder.EXTENSION_PATH).getPath();
+		String uninstallFileLocation = extensionsLocation + System.getProperty("file.separator") + UNINSTALL_FILE;
+
+		File uninstallFile = new File(uninstallFileLocation);
+		// if we have an uninstall file, uninstall the listed extensions
+		if (uninstallFile.exists()){
+			Scanner scanner = new Scanner(uninstallFile);
+			while(scanner.hasNextLine()) {
+				String extension = scanner.nextLine();
+				File extensionDirectory = new File(extensionsLocation + System.getProperty("file.separator") + extension);
+				if (extensionDirectory.isDirectory()) {
+					deleteDirectory(extensionDirectory);
+				}
+			}
+			uninstallFile.delete();
+		}		
+	}
+
+	private static void installExtensions() throws Exception {
+		// We need to find our paths from the class loader
 		String extensionsLocation = new File(ClasspathBuilder.EXTENSION_PATH).getPath();
 		String extensionsTempLocation = extensionsLocation + System.getProperty("file.separator") + INSTALL_TEMP + System.getProperty("file.separator");
 
 		File extensionsTemp = new File(extensionsTempLocation);
-		//if we have a temp folder, move the files over
-		if (extensionsTemp.exists()){
+		// if we have a temp folder, move the files over
+		if (extensionsTemp.exists()) {
 			File[] files = extensionsTemp.listFiles();
 			for (int i = 0; i < files.length; i++) {
 				File target = new File(extensionsLocation + System.getProperty("file.separator") + files[i].getName());
-				if (target.exists()){
+				if (target.exists()) {
 					target.delete();
 				}
 				files[i].renameTo(target);
 			}
 			extensionsTemp.delete();
-		}		
+		}
 	}
 
-
+	private static boolean deleteDirectory(File path) {
+		if (path.exists()) {
+			File[] files = path.listFiles();
+			for (int i = 0; i < files.length; i++) {
+				if (files[i].isDirectory()) {
+					deleteDirectory(files[i]);
+				} else {
+					files[i].delete();
+				}
+			}
+		}
+		return (path.delete());
+	}
+	
 }

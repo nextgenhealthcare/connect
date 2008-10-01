@@ -28,6 +28,7 @@ package com.webreach.mirth.server.controllers;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -175,6 +176,17 @@ public class DefaultExtensionController implements ExtensionController {
 
     public void installExtension(FileItem fileItem) throws ControllerException {
         ExtensionUtil.installExtension(fileItem);
+    }
+    
+    public void uninstallExtension(String packageName) throws ControllerException {
+    	File uninstallFile = new File(EXTENSIONS_LOCATION + "uninstall");
+    	try {
+			FileWriter fileWriter = new FileWriter(uninstallFile, true);
+			fileWriter.write(packageName + System.getProperty("line.separator"));
+			fileWriter.close();
+		} catch (IOException e) {
+			throw new ControllerException(e);
+		}
     }
 
     public void setPluginProperties(String pluginName, Properties properties) throws ControllerException {
