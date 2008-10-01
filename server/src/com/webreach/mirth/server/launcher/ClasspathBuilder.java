@@ -124,7 +124,11 @@ public class ClasspathBuilder {
 						String type = element.getElementsByTagName("type").item(0).getTextContent();
 						if (type.equalsIgnoreCase("server") || type.equalsIgnoreCase("shared")) {
 							File file = new File(directory.getAbsolutePath() + System.getProperty("file.separator") + element.getAttribute("path"));
-							urls.add(file.toURI().toURL());
+							if (file.exists()) {
+								urls.add(file.toURI().toURL());
+							} else {
+								logger.error("Could not locate file: " + file.getAbsolutePath());
+							}
 						}
 					}
 				}				
