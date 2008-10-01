@@ -36,6 +36,7 @@ public class ExtensionManagerClient extends ClientPanelPlugin
         addTask("doEnable","Enable Extension","Enable the currently selected extension.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")));
         addTask("doDisable","Disable Extension","Disable the currently selected extension.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")));
         addTask("doShowProperties","Show Properties","Display the currently selected extension properties.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_view_list.png")));
+        addTask("doUninstall","Uninstall Extension","Uninstall the currently selected extension","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/plugin_delete.png")));
         setVisibleTasks(getRefreshIndex(), getRefreshIndex(), true);
         setVisibleTasks(getSaveIndex(), getSaveIndex(), false);
         setVisibleTasks(2, 2, true);
@@ -131,6 +132,66 @@ public class ExtensionManagerClient extends ClientPanelPlugin
     {
         ((ExtensionManagerPanel) getComponent()).disableExtension();
         enableSave();
+    }
+    
+    public void doUninstall()
+    {
+    	setWorking("Uninstalling plugin...", true);
+    	
+        SwingWorker worker = new SwingWorker<Void, Void>()
+        {
+            public Void doInBackground()
+            {
+            	String packageName = ((ExtensionManagerPanel) getComponent()).getSelectedExtension().getPath();
+            	
+            	if (alertOkCancel(parent, "Uninstalling this extension will remove all plugins and/or connectors\nin the following extension folder: " + packageName))
+            	{
+	            	try
+	            	{
+	        			PlatformUI.MIRTH_FRAME.mirthClient.uninstallExtension(packageName);
+	        		}
+	            	catch (ClientException e)
+	            	{
+	        			alertException(parent, e.getStackTrace(), e.getMessage());
+	        		}
+	            	
+	        		finishUninstall();
+            	}
+        		
+                return null;
+            }
+            
+            public void done()
+            {
+                setWorking("", false);
+            }
+        };
+        
+        worker.execute();
+    }
+    
+    public void finishUninstall()
+    {
+    	Properties props = null;
+    	try
+    	{
+    		props = this.getPropertiesFromServer();
+    	}
+    	catch (ClientException e)
+    	{
+    		alertException(parent, e.getStackTrace(), e.getMessage());
+    	}
+    	
+		if (props != null && Boolean.parseBoolean(props.getProperty("disableInstall")))
+		{
+			alertInformation(parent, "Your extension(s) have been added to the \"uninstall\" file in your extensions\n" +
+					"location on the server.  To uninstall the extensions, manually shutdown the Mirth container\n" +
+					"(e.g. JBoss), delete the folders listed in the \"uninstall\" file, and restart the Mirth container.\n");
+		}
+		else
+		{
+			alertInformation(parent, "The Mirth server must be restarted for the extension(s) to be uninstalled.");
+		}
     }
     
     public void refresh() throws ClientException
