@@ -41,6 +41,7 @@ import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.model.ServerConfiguration;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.util.ImportConverter;
+import java.awt.Cursor;
 
 /**
  * The main configuration panel.
@@ -71,6 +72,9 @@ public class SettingsPanel extends javax.swing.JPanel
                 showSettingsPopupMenu(evt);
             }
         });
+        
+        usageStatsMoreInfoLabel.setToolTipText(UIConstants.PRIVACY_TOOLTIP);
+        usageStatsMoreInfoLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
     /** Shows the right click popup menu */
@@ -127,6 +131,7 @@ public class SettingsPanel extends javax.swing.JPanel
         sendUsageStatsNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         updateUrl = new com.webreach.mirth.client.ui.components.MirthTextField();
         updateUrlLabel = new javax.swing.JLabel();
+        usageStatsMoreInfoLabel = new javax.swing.JLabel();
         clientSettings = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
@@ -343,7 +348,7 @@ public class SettingsPanel extends javax.swing.JPanel
             }
         });
 
-        sendUsageStatsLabel.setText("Send server info on update:");
+        sendUsageStatsLabel.setText("Provide usage statistics:");
 
         sendUsageStatsYes.setBackground(new java.awt.Color(255, 255, 255));
         sendUsageStatsYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -370,6 +375,13 @@ public class SettingsPanel extends javax.swing.JPanel
 
         updateUrlLabel.setText("Update URL:");
 
+        usageStatsMoreInfoLabel.setText("<html><font color=blue><u>More Info</u></font></html>");
+        usageStatsMoreInfoLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                usageStatsMoreInfoLabelMouseClicked(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout serverSettingsLayout = new org.jdesktop.layout.GroupLayout(serverSettings);
         serverSettings.setLayout(serverSettingsLayout);
         serverSettingsLayout.setHorizontalGroup(
@@ -394,9 +406,11 @@ public class SettingsPanel extends javax.swing.JPanel
                     .add(serverSettingsLayout.createSequentialGroup()
                         .add(sendUsageStatsYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(sendUsageStatsNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(sendUsageStatsNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(usageStatsMoreInfoLabel))
                     .add(updateUrl, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(18, Short.MAX_VALUE))
+                .addContainerGap(20, Short.MAX_VALUE))
         );
         serverSettingsLayout.setVerticalGroup(
             serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -414,7 +428,8 @@ public class SettingsPanel extends javax.swing.JPanel
                 .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(sendUsageStatsLabel)
                     .add(sendUsageStatsYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(sendUsageStatsNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(sendUsageStatsNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(usageStatsMoreInfoLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(updateUrl, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -676,6 +691,10 @@ private void sendUsageStatsNoActionPerformed(java.awt.event.ActionEvent evt) {//
 // TODO add your handling code here:
 }//GEN-LAST:event_sendUsageStatsNoActionPerformed
 
+private void usageStatsMoreInfoLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_usageStatsMoreInfoLabelMouseClicked
+BareBonesBrowserLaunch.openURL(UIConstants.PRIVACY_URL);
+}//GEN-LAST:event_usageStatsMoreInfoLabelMouseClicked
+
     private void requireAuthenticationNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_requireAuthenticationNoActionPerformed
     {// GEN-HEADEREND:event_requireAuthenticationNoActionPerformed
         smtpUsername.setEnabled(false);
@@ -918,6 +937,7 @@ private void sendUsageStatsNoActionPerformed(java.awt.event.ActionEvent evt) {//
     private com.webreach.mirth.client.ui.components.MirthTextField smtpUsername;
     private com.webreach.mirth.client.ui.components.MirthTextField updateUrl;
     private javax.swing.JLabel updateUrlLabel;
+    private javax.swing.JLabel usageStatsMoreInfoLabel;
     private javax.swing.JLabel usernameLabel;
     // End of variables declaration//GEN-END:variables
 

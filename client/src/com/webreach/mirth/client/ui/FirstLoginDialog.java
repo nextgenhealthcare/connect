@@ -165,7 +165,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
 
         usageStatsCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         usageStatsCheckBox.setSelected(true);
-        usageStatsCheckBox.setText("Provide the Mirth Project with usage statistics");
+        usageStatsCheckBox.setText("Check for updates and provide usage statistics");
 
         usageStatsMoreInfoLabel.setText("<html><font color=blue><u>More Info</u></font></html>");
         usageStatsMoreInfoLabel.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -263,8 +263,10 @@ private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 			
 			if (usageStatsCheckBox.isSelected()) {
 				serverProperties.put("stats.enabled", UIConstants.YES_OPTION);
+                                serverProperties.put("update.enabled", UIConstants.YES_OPTION);
 			} else {
 				serverProperties.put("stats.enabled", UIConstants.NO_OPTION);
+                                serverProperties.put("update.enabled", UIConstants.NO_OPTION);
 			}
 			
 			serverProperties.put("firstlogin", UIConstants.NO_OPTION);

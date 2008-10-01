@@ -375,10 +375,12 @@
                           <Component id="sendUsageStatsYes" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="sendUsageStatsNo" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="usageStatsMoreInfoLabel" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <Component id="updateUrl" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
                   </Group>
-                  <EmptySpace pref="18" max="32767" attributes="0"/>
+                  <EmptySpace pref="20" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -401,6 +403,7 @@
                       <Component id="sendUsageStatsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="sendUsageStatsYes" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="sendUsageStatsNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="usageStatsMoreInfoLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
@@ -515,7 +518,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="sendUsageStatsLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Send server info on update:"/>
+            <Property name="text" type="java.lang.String" value="Provide usage statistics:"/>
           </Properties>
         </Component>
         <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="sendUsageStatsYes">
@@ -569,6 +572,14 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Update URL:"/>
           </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="usageStatsMoreInfoLabel">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;font color=blue&gt;&lt;u&gt;More Info&lt;/u&gt;&lt;/font&gt;&lt;/html&gt;"/>
+          </Properties>
+          <Events>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="usageStatsMoreInfoLabelMouseClicked"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
