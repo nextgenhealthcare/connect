@@ -53,7 +53,7 @@ public class DatabaseWriterProperties implements ComponentProperties
         properties.put(DATABASE_URL, "");
         properties.put(DATABASE_USERNAME, "");
         properties.put(DATABASE_PASSWORD, "");
-        properties.put(DATABASE_SQL_STATEMENT, "INSERT INTO");
+        properties.put(DATABASE_SQL_STATEMENT, "");
         properties.put(DATABASE_USE_JS, "0");
         properties.put(DATABASE_JS_SQL_STATEMENT, "");
         return properties;

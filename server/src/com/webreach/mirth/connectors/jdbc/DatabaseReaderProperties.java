@@ -62,7 +62,7 @@ public class DatabaseReaderProperties implements ComponentProperties
         properties.put(DATABASE_POLLING_FREQUENCY, "5000");
         properties.put(DATABASE_POLLING_TYPE, "interval");
         properties.put(DATABASE_POLLING_TIME, "12:00 AM");
-        properties.put(DATABASE_SQL_STATEMENT, "SELECT FROM");
+        properties.put(DATABASE_SQL_STATEMENT, "");
         properties.put(DATABASE_USE_JS, "0");
         properties.put(DATABASE_JS_SQL_STATEMENT, "");
         properties.put(DATABASE_USE_ACK, "0");
