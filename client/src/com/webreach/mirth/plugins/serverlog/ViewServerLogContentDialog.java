@@ -25,11 +25,11 @@
 
 package com.webreach.mirth.plugins.serverlog;
 
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.Frame;
-
 import java.awt.Dimension;
 import java.awt.Point;
+
+import com.webreach.mirth.client.ui.Frame;
+import com.webreach.mirth.client.ui.PlatformUI;
 
 /** Creates the About Mirth dialog. The content is loaded from about.txt. */
 public class ViewServerLogContentDialog extends javax.swing.JDialog

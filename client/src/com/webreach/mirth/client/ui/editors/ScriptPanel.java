@@ -6,7 +6,6 @@
 
 package com.webreach.mirth.client.ui.editors;
 
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,10 +13,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.syntax.jedit.SyntaxDocument;
-import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 import org.syntax.jedit.tokenmarker.TokenMarker;
-
-import com.webreach.mirth.client.ui.UIConstants;
 
 /**
  *

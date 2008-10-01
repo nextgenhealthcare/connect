@@ -1,6 +1,6 @@
 package com.webreach.mirth.client.ui.beans;
 
-import java.beans.*;
+import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 
 public class DelimitedProperties implements Serializable

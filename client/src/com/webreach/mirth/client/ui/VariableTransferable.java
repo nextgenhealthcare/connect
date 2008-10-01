@@ -46,37 +46,7 @@ public class VariableTransferable implements Transferable
      */
     public VariableTransferable(String data, String prefix, String suffix)
     {
-        if (data.equals("Raw Data"))
-            this.data = "message.rawData";
-        else if (data.equals("Transformed Data"))
-            this.data = "message.transformedData";
-        else if (data.equals("Message Type"))
-            this.data = "message.type";
-        else if (data.equals("Message Version"))
-            this.data = "message.version";
-        else if (data.equals("Message Source"))
-            this.data = "message.source";
-        else if (data.equals("Message ID"))
-            this.data = "message.id";
-        else if (data.equals("Encoded Data"))
-            this.data = "message.encodedData";
-        else if (data.equals("Timestamp"))
-            this.data = "SYSTIME";
-        else if (data.equals("Unique ID"))
-            this.data = "UUID";
-        else if (data.equals("Date"))
-            this.data = "DATE";
-        else if (data.equals("Original File Name"))
-            this.data = "ORIGINALNAME";
-        else if (data.equals("Count"))
-            this.data = "COUNT";
-        else if (data.equals("DICOM Message Raw Data"))
-            this.data = "DICOMMESSAGE";
-        else if (data.equals("Formatted Date"))
-            this.data = "date.get('yyyy-M-d H.m.s')";
-        else if (data.equals("Entity Encoder"))
-            this.data = "encoder.encode()";
-        else if (data.equals("Any"))
+        if (data.equals("Any"))
             this.data = "ERROR";
         else if (data.equals("Server"))
             this.data = "ERROR-000";

@@ -26,6 +26,7 @@
 package com.webreach.mirth.connectors.file;
 
 import java.util.Properties;
+
 import org.apache.log4j.Logger;
 
 import com.webreach.mirth.client.ui.UIConstants;

@@ -45,6 +45,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -54,7 +55,6 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.prefs.Preferences;
-import java.lang.reflect.Constructor;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;

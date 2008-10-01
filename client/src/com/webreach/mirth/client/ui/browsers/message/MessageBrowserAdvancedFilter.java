@@ -6,10 +6,11 @@
 
 package com.webreach.mirth.client.ui.browsers.message;
 
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.client.ui.Frame;
+import java.awt.Dimension;
+import java.awt.Point;
 
-import java.awt.*;
+import com.webreach.mirth.client.ui.Frame;
+import com.webreach.mirth.model.MessageObject;
 
 /**
  *

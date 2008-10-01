@@ -27,6 +27,8 @@ package com.webreach.mirth.client.ui;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
@@ -37,12 +39,48 @@ import com.webreach.mirth.client.ui.panels.reference.ReferenceTable;
 
 public class VariableListHandler extends TransferHandler
 {
-    String prefix, suffix;
-
+    private String prefix, suffix;
+    private Map<String, String> staticJsReferences;
+    private Map<String, String> staticVelocityReferences;
+    
     public VariableListHandler(String prefix, String suffix)
     {
         this.prefix = prefix;
         this.suffix = suffix;
+        
+        staticVelocityReferences = new HashMap<String, String> ();
+        staticVelocityReferences.put("Raw Data", "${message.rawData}");
+        staticVelocityReferences.put("Transformed Data", "${message.transformedData}");
+        staticVelocityReferences.put("Message Type", "${message.type}");
+        staticVelocityReferences.put("Message Version", "${message.version}");
+        staticVelocityReferences.put("Message Source", "${message.source}");
+        staticVelocityReferences.put("Message ID", "${message.id}");
+        staticVelocityReferences.put("Encoded Data", "${message.encodedData}");
+        staticVelocityReferences.put("Timestamp", "${SYSTIME}");
+        staticVelocityReferences.put("Unique ID", "${UUID}");
+        staticVelocityReferences.put("Date", "${DATE}");
+        staticVelocityReferences.put("Original File Name", "${ORIGINALNAME}");
+        staticVelocityReferences.put("Count", "${COUNT}");
+        staticVelocityReferences.put("DICOM Message Raw Data", "${DICOMMESSAGE}");
+        staticVelocityReferences.put("Formatted Date", "${date.get('yyyy-M-d H.m.s')}");
+        staticVelocityReferences.put("Entity Encoder", "${encoder.encode()}");
+        
+        staticJsReferences = new HashMap<String, String> ();
+        staticJsReferences.put("Raw Data", "messageObject.getRawData()");
+        staticJsReferences.put("Transformed Data", "messageObject.getTransformedData()");
+        staticJsReferences.put("Message Type", "$messageObject.getType()");
+        staticJsReferences.put("Message Version", "messageObject.getVersion()");
+        staticJsReferences.put("Message Source", "messageObject.getSource()");
+        staticJsReferences.put("Message ID", "messageObject.getId()");
+        staticJsReferences.put("Encoded Data", "messageObject.getEncodedData()");
+        staticJsReferences.put("Timestamp", "var dateString = DateUtil.getCurrentDate(pattern);");
+        staticJsReferences.put("Unique ID", "var uuid = UUIDGenerator.getUUID();");
+        staticJsReferences.put("Date", "${DATE");
+        staticJsReferences.put("Original File Name", "${ORIGINALNAME");
+        staticJsReferences.put("Count", "${COUNT");
+        staticJsReferences.put("DICOM Message Raw Data", "${DICOMMESSAGE");
+        staticJsReferences.put("Formatted Date", "${date.get('yyyy-M-d H.m.s')");
+        staticJsReferences.put("Entity Encoder", "${encoder.encode()");
     }
 
     protected Transferable createTransferable(JComponent c)

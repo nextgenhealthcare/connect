@@ -28,6 +28,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -50,7 +51,6 @@ import com.webreach.mirth.client.ui.RefreshTableModel;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.connectors.ConnectorClass;
-import java.util.HashMap;
 
 /** Creates the About Mirth dialog. The content is loaded from about.txt. */
 public class DatabaseMetadataDialog extends javax.swing.JDialog {

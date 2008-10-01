@@ -24,10 +24,6 @@
  * ***** END LICENSE BLOCK ***** */
 package com.webreach.mirth.client.ui;
 
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.filters.MessageObjectFilter;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
@@ -35,10 +31,17 @@ import java.awt.event.KeyListener;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.prefs.Preferences;
+
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
+
+import com.webreach.mirth.client.ui.components.MirthTable;
+import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.Connector;
+import com.webreach.mirth.model.filters.MessageObjectFilter;
 
 /** Creates the About Mirth dialog. The content is loaded from about.txt. */
 public class ReprocessMessagesDialog extends javax.swing.JDialog {

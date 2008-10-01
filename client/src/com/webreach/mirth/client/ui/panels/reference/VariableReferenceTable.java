@@ -29,17 +29,12 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import javax.swing.table.DefaultTableModel;
 
 import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.util.VariableListUtil;
 import com.webreach.mirth.model.CodeTemplate;
-import com.webreach.mirth.model.Rule;
-import com.webreach.mirth.model.Step;
-import java.util.LinkedHashSet;
 
 public class VariableReferenceTable extends ReferenceTable
 {

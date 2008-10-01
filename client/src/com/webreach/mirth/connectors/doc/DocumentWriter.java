@@ -25,11 +25,10 @@
 
 package com.webreach.mirth.connectors.doc;
 
-import com.webreach.mirth.connectors.ConnectorClass;
-import java.awt.Color;
 import java.util.Properties;
 
 import com.webreach.mirth.client.ui.UIConstants;
+import com.webreach.mirth.connectors.ConnectorClass;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are

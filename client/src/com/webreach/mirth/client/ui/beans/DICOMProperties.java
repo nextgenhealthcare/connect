@@ -1,7 +1,7 @@
 package com.webreach.mirth.client.ui.beans;
 
-import java.io.Serializable;
 import java.beans.PropertyChangeSupport;
+import java.io.Serializable;
 
 /**
  * Created by IntelliJ IDEA.

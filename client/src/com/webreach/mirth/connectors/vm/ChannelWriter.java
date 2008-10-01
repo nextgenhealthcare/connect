@@ -25,12 +25,12 @@
 
 package com.webreach.mirth.connectors.vm;
 
-import com.webreach.mirth.client.ui.UIConstants;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Properties;
-import java.util.Collections;
 
+import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.model.Channel;
 

@@ -9,10 +9,7 @@ package com.webreach.mirth.client.ui.editors;
 import java.util.Properties;
 import java.util.Set;
 
-import org.syntax.jedit.SyntaxDocument;
-
 import com.webreach.mirth.client.ui.FunctionList;
-import com.webreach.mirth.client.ui.TreePanel;
 import com.webreach.mirth.client.ui.VariableListHandler;
 import com.webreach.mirth.client.ui.panels.reference.VariableReferenceTable;
 import com.webreach.mirth.model.CodeTemplate.ContextType;

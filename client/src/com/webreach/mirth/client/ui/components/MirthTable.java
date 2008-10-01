@@ -9,11 +9,8 @@
 
 package com.webreach.mirth.client.ui.components;
 
-import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 
 import org.jdesktop.swingx.JXTable;
 

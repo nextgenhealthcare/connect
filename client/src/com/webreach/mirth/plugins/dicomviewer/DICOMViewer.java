@@ -1,15 +1,16 @@
 package com.webreach.mirth.plugins.dicomviewer;
 
-import com.webreach.mirth.plugins.AttachmentViewer;
-import com.webreach.mirth.model.MessageObject;
-import sun.misc.BASE64Decoder;
+import ij.plugin.DICOM;
 
 import java.awt.Dimension;
 import java.awt.Point;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
-import ij.plugin.DICOM;
+import sun.misc.BASE64Decoder;
+
+import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.plugins.AttachmentViewer;
 
 /**
  * Created by IntelliJ IDEA.

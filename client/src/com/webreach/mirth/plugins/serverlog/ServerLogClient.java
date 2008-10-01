@@ -1,11 +1,11 @@
 package com.webreach.mirth.plugins.serverlog;
 
-import com.webreach.mirth.plugins.DashboardPanelPlugin;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.model.ChannelStatus;
-
 import java.util.LinkedList;
+
+import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.model.ChannelStatus;
+import com.webreach.mirth.plugins.DashboardPanelPlugin;
 
 /**
  * Created by IntelliJ IDEA.

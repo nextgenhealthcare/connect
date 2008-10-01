@@ -1,12 +1,12 @@
 package com.webreach.mirth.client.ui.actions;
 
-import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
-import com.webreach.mirth.client.ui.*;
-
-import javax.swing.*;
 import java.awt.event.ActionEvent;
 
+import javax.swing.AbstractAction;
+
 import org.syntax.jedit.JEditTextArea;
+
+import com.webreach.mirth.client.ui.Frame;
 
 /**
  * Created by IntelliJ IDEA.

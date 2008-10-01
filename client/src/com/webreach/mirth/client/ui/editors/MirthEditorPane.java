@@ -36,8 +36,6 @@ import javax.swing.table.DefaultTableModel;
 import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListPanel;
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ListType;
 
 public class MirthEditorPane extends JPanel
 {

@@ -1,15 +1,18 @@
 package com.webreach.mirth.plugins.rtfviewer;
 
-import com.adobe.acrobat.Viewer;
-import com.webreach.mirth.model.Attachment;
-import com.webreach.mirth.plugins.AttachmentViewer;
-
-import javax.swing.*;
-import java.util.List;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.ByteArrayInputStream;
+import java.util.List;
+
+import javax.swing.JEditorPane;
+import javax.swing.JScrollPane;
+
+import com.webreach.mirth.model.Attachment;
+import com.webreach.mirth.plugins.AttachmentViewer;
 
 /**
  * Created by IntelliJ IDEA.

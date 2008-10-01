@@ -1,12 +1,12 @@
 package com.webreach.mirth.plugins.scriptfilestep;
 
-import com.webreach.mirth.plugins.TransformerStepPlugin;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.webreach.mirth.client.ui.editors.BasePanel;
 import com.webreach.mirth.client.ui.editors.ExternalScriptPanel;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
-
-import java.util.Map;
-import java.util.HashMap;
+import com.webreach.mirth.plugins.TransformerStepPlugin;
 
 public class ExternalScriptPlugin extends TransformerStepPlugin
 {

@@ -26,6 +26,7 @@ package com.webreach.mirth.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Point;
+
 import com.webreach.mirth.model.User;
 
 /**

@@ -9,13 +9,13 @@
 
 package com.webreach.mirth.plugins.dashboardstatus;
 
-import com.webreach.mirth.model.ChannelStatus;
-import com.webreach.mirth.plugins.DashboardPanelPlugin;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.core.ClientException;
-
 import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.ui.PlatformUI;
+import com.webreach.mirth.model.ChannelStatus;
+import com.webreach.mirth.plugins.DashboardPanelPlugin;
 
 /**
  *

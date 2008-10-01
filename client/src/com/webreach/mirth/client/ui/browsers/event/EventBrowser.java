@@ -29,10 +29,10 @@ import java.awt.Point;
 import java.util.Calendar;
 import java.util.List;
 import java.util.prefs.Preferences;
+
 import javax.swing.JOptionPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableModel;
 
 import org.jdesktop.swingworker.SwingWorker;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;

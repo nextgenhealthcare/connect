@@ -1,7 +1,7 @@
 package com.webreach.mirth.plugins.serverlog;
 
+import javax.swing.JTextPane;
 import javax.swing.text.StyledDocument;
-import javax.swing.*;
 
 /**
  * Created by IntelliJ IDEA.

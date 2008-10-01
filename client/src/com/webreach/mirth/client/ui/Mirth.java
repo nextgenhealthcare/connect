@@ -27,8 +27,6 @@ package com.webreach.mirth.client.ui;
 
 import java.awt.Color;
 import java.io.IOException;
-import java.util.List;
-import java.util.Properties;
 import java.util.prefs.Preferences;
 
 import javax.imageio.ImageIO;
@@ -44,8 +42,6 @@ import org.jdesktop.swingx.plaf.windows.WindowsLookAndFeelAddons;
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
 import com.webreach.mirth.client.core.Client;
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.model.User;
 
 /**
  * The main mirth class. Sets up the login and then authenticates the login
