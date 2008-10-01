@@ -72,6 +72,7 @@ public class MirthLauncher {
 					deleteDirectory(extensionDirectory);
 				}
 			}
+			scanner.close();
 			uninstallFile.delete();
 		}		
 	}
