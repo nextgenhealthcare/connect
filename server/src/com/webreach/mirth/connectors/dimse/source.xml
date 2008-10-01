@@ -17,10 +17,10 @@
 	<library path="dicom-server.jar">
 		<type>SERVER</type>
 	</library>
-	<library path="lib/jai_imageio.jar.jar">
+	<library path="lib/jai_imageio.jar">
 		<type>SHARED</type>
 	</library>
-	<library path="lib/dcm4che-core-2.0.15.jarr">
+	<library path="lib/dcm4che-core-2.0.15.jar">
 		<type>SHARED</type>
 	</library>
 	<library path="lib/dcm4che-net-2.0.15.jar">
