@@ -814,7 +814,7 @@
 
 		<zip destfile="${dist.extensions}/messagepruner-${version}.zip">
 			<fileset dir="${extensions}">
-				<include name="messsagepruner" />
+				<include name="messagepruner" />
 			</fileset>
 		</zip>
 
