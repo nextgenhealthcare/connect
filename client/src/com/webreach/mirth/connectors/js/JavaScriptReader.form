@@ -96,6 +96,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="pollingFrequency">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If the &quot;Interval&quot; Polling Type is selected, the number of milliseconds between polls must be entered here.&lt;br&gt;Avoid extremely small values because polling can be a somewhat time-consuming operation.&lt;/html&gt;"/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="javascriptTextPane">
       <Properties>
@@ -123,6 +126,7 @@
           <ComponentRef name="buttonGroup3"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Time"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;A JavaScript reader polls to determine when new messages have arrived.&lt;br&gt;It can be configured when to poll in one of two different ways.&lt;br&gt;If &quot;Interval&quot; is selected, the connector will poll every n milliseconds, where n is specified in the Polling Frequency control.&lt;br&gt;If &quot;Time&quot; is selected, the connector will poll once a day at the time specified in the Polling Time control.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -145,6 +149,7 @@
           <ComponentRef name="buttonGroup3"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Interval"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;A JavaScript reader polls to determine when new messages have arrived.&lt;br&gt;It can be configured when to poll in one of two different ways.&lt;br&gt;If &quot;Interval&quot; is selected, the connector will poll every n milliseconds, where n is specified in the Polling Frequency control.&lt;br&gt;If &quot;Time&quot; is selected, the connector will poll once a day at the time specified in the Polling Time control.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -164,6 +169,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTimePicker" name="pollingTime">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="If the &quot;Time&quot; Polling Type is selected, the time of day to poll must be entered here."/>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>

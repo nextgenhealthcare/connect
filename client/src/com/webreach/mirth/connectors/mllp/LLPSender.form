@@ -262,18 +262,39 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="hostPortField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Enter the port number to connect to (LLP Mode Client)."/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="serverTimeoutField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the number of milliseconds that the connector should keep its host connection open even if it has no messages to send.&lt;br&gt;If it has no messages to send after this much time,&lt;br&gt; it will close the connection and reopen it later when messages need to be sent.&lt;/html&gt;"/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="bufferSizeField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter at least the size, in bytes, of the largest response message expected.&lt;br&gt;Entering too small a value will cause larger messages to be rejected.&lt;br&gt;Entering too large a value wastes memory. Generally, the default value is fine.&lt;/html&gt;"/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="maximumRetryCountField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The maximum number of times the connector should retry a failed attempt to connect to the host before giving up and logging an error."/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="startOfMessageCharacterField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Enter the hexadecimal character (byte) value to send as the start of message character."/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="endOfMessageCharacterField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Enter the hexadecimal character (byte) value to send as the end of message character."/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="recordSeparatorField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Enter the hexadecimal character (byte) value to send as the record separator character."/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="keepConnectionOpenYesRadio">
       <Properties>
@@ -289,6 +310,7 @@
           <ComponentRef name="keepConnectionOpenGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;the connector will keep its connection to the host open,&lt;br&gt; subject to the limitations of Send Timeout, across multiple messages.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -308,12 +330,16 @@
           <ComponentRef name="keepConnectionOpenGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="the connector will open a connection for each message sent and close it immediately after sending."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="hostAddressField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Enter the DNS domain name or IP address to connect to (LLP Mode Client)."/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel14">
       <Properties>
@@ -334,6 +360,7 @@
           <ComponentRef name="buttonGroup1"/>
         </Property>
         <Property name="text" type="java.lang.String" value="ASCII"/>
+        <Property name="toolTipText" type="java.lang.String" value="Select ASCII to send messages unencoded."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -353,12 +380,16 @@
           <ComponentRef name="buttonGroup1"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Hex"/>
+        <Property name="toolTipText" type="java.lang.String" value="Select Hex to sends messages encoded in hexadecimal."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="segmentEnd">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Enter the hexadecimal character (byte) value to send as the end of segment character."/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel37">
       <Properties>
@@ -366,6 +397,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="ackTimeoutField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If Ignore ACK is not checked, the number of milliseconds the connector should wait for an ACK response after sending a message.&lt;br&gt;If an ACK is not received in this time, the message&apos;s state is set to error.&lt;/html&gt;"/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel19">
       <Properties>
@@ -385,6 +419,7 @@
             <StringItem index="6" value="US-ASCII"/>
           </StringArray>
         </Property>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select the character set encoding to apply to the message sent to the Host,&lt;br&gt; or Default to use the default character set encoding for the JVM running the Mirth Server.&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="charsetEncodingComboboxActionPerformed"/>
@@ -414,6 +449,7 @@
           <ComponentRef name="usePersistenceQueuesGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, the connector will store any messages that are unable to be successfully processed in a file-based queue.&lt;br&gt;Messages will be automatically resent until the queue is manually cleared or the message is successfully sent.&lt;br&gt;The default queue location is &lt;Mirth Directory&gt;/.mule/queuestore/&lt;ChannelID&gt;,&lt;br&gt; where &lt;Mirth Directory&gt; is the main Mirth install root and &lt;ChannelID&gt; is the unique id of the current channel.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -469,6 +505,7 @@
             <StringItem index="3" value="Item 4"/>
           </StringArray>
         </Property>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If None is selected, responses sent by the Host are discarded.&lt;br&gt;Otherwise, they are sent to the selected channel as a new inbound message for processing.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="URL">
@@ -477,6 +514,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="reconnectInterval">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The reconnect interval determines the amount of time, in milliseconds,&lt;br&gt; Mirth will wait before resending a failed message.&lt;/html&gt;"/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
@@ -494,6 +534,7 @@
           </Border>
         </Property>
         <Property name="text" type="java.lang.String" value="Ignore ACK"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, the connector does not wait for an ACK response after sending a message.&lt;br&gt;If not checked, the connector waits for an ACK for the time specified in ACK Timeout.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -521,6 +562,7 @@
           <ComponentRef name="processHL7AckGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;This setting configures the behavior of Mirth&apos;s ACK processing.&lt;br&gt;When this setting is on, only successful ACK codes will allow a message to be marked as processed.&lt;br&gt;When this setting is turned off, Mirth will not attempt to parse the ACK response.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -540,6 +582,7 @@
           <ComponentRef name="processHL7AckGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;This setting configures the behavior of Mirth&apos;s ACK processing.&lt;br&gt;When this setting is on, only successful ACK codes will allow a message to be marked as processed.&lt;br&gt;When this setting is turned off, Mirth will not attempt to parse the ACK response.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>

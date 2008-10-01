@@ -74,68 +74,43 @@
                       <Component id="processBatchFilesYes" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="processBatchFilesNo" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="325" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="charsetEncodingCombobox" min="-2" pref="125" max="-2" attributes="1"/>
-                      <EmptySpace pref="272" max="-2" attributes="0"/>
-                  </Group>
+                  <Component id="charsetEncodingCombobox" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="fileTypeBinary" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="fileTypeASCII" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="299" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="checkFileAgeYes" min="-2" max="-2" attributes="1"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="checkFileAgeNo" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="325" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="pollingFrequency" min="-2" pref="75" max="-2" attributes="1"/>
-                      <EmptySpace pref="322" max="-2" attributes="0"/>
-                  </Group>
+                  <Component id="pollingFrequency" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="pollingIntervalButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="pollingTimeButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="297" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="validateConnectionYes" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="validateConnectionNo" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="325" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="passiveModeYes" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="passiveModeNo" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="325" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="usernameField" min="-2" pref="125" max="-2" attributes="0"/>
-                      <EmptySpace pref="272" max="-2" attributes="0"/>
-                  </Group>
+                  <Component id="usernameField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="anonymousYes" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="anonymousNo" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="325" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="fileNameFilter" min="-2" pref="200" max="-2" attributes="0"/>
-                      <EmptySpace pref="197" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="directoryField" min="-2" pref="200" max="-2" attributes="0"/>
-                      <EmptySpace pref="197" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="schemeComboBox" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="354" max="-2" attributes="0"/>
-                  </Group>
+                  <Component id="fileNameFilter" alignment="0" min="-2" pref="200" max="-2" attributes="0"/>
+                  <Component id="directoryField" alignment="0" min="-2" pref="200" max="-2" attributes="0"/>
+                  <Component id="schemeComboBox" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="hostField" min="-2" pref="200" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -143,10 +118,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="pathField" min="-2" pref="185" max="-2" attributes="1"/>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="passwordField" min="-2" pref="125" max="-2" attributes="0"/>
-                      <EmptySpace pref="272" max="-2" attributes="0"/>
-                  </Group>
+                  <Component id="passwordField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="moveToPattern" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
@@ -163,7 +135,6 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="mirthVariableList1" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="58" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace pref="20" max="32767" attributes="0"/>
@@ -363,7 +334,7 @@
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="fileNameFilter">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="The pattern which names of files must match in order to be read. Files with names that do not match the pattern will be ignored."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The pattern which names of files must match in order to be read.&lt;br&gt;Files with names that do not match the pattern will be ignored.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="pollingTypeLabel">
@@ -444,12 +415,12 @@
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="moveToPattern">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="If successfully processed files should be renamed, enter the new name here. The filename specified may include template substitutions from the list to the right. If this field is left empty, successfully processed files will not be renamed."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If successfully processed files should be renamed, enter the new name here.&lt;br&gt;The filename specified may include template substitutions from the list to the right.&lt;br&gt;If this field is left empty, successfully processed files will not be renamed.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="moveToDirectory">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="If successfully processed files should be moved to a different directory (folder), enter that directory here. The directory name specified may include template substitutions from the list to the right. If this field is left empty, successfully processed files will not be moved to a different directory."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If successfully processed files should be moved to a different directory (folder), enter that directory here.&lt;br&gt;The directory name specified may include template substitutions from the list to the right.&lt;br&gt;If this field is left empty, successfully processed files will not be moved to a different directory.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="moveToFileLabel">
@@ -603,7 +574,7 @@
             <StringItem index="2" value="Size"/>
           </StringArray>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="Selects the order in which files should be processed, if there are multiple files available to be processed. Files can be processed by Date (oldest last modification date first), Size (smallest first) or name (a before z, etc.)."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Selects the order in which files should be processed, if there are multiple files available to be processed.&lt;br&gt;Files can be processed by Date (oldest last modification date first), Size (smallest first) or name (a before z, etc.).&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sortByActionPerformed"/>
@@ -741,7 +712,7 @@
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="errorMoveToDirectory">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="If files which cause processing errors should be moved to a different directory (folder), enter that directory here. The directory name specified may include template substitutions from the list to the right. If this field is left empty, files which cause processing errors will not be moved to a different directory."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If files which cause processing errors should be moved to a different directory (folder), enter that directory here.&lt;br&gt;The directory name specified may include template substitutions from the list to the right.&lt;br&gt;If this field is left empty, files which cause processing errors will not be moved to a different directory.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="anonymousLabel">
@@ -814,9 +785,6 @@
     <Component class="com.webreach.mirth.client.ui.components.MirthPasswordField" name="passwordField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The password used to gain access to the server."/>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Tahoma" size="11" style="0"/>
-        </Property>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="validateConnectionLabel">
@@ -884,7 +852,7 @@
           <ComponentRef name="buttonGroup2"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="Select Yes to connect to the server in &quot;passive mode&quot;. Passive mode sometimes allows a connection through a firewall that normal mode does not."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to connect to the server in &quot;passive mode&quot;.&lt;br&gt;Passive mode sometimes allows a connection through a firewall that normal mode does not.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>

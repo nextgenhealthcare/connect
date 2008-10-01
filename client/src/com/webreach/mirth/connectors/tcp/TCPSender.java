@@ -326,21 +326,36 @@ public class TCPSender extends ConnectorClass
 
         jLabel8.setText("Maximum Retry Count:");
 
+        hostPortField.setToolTipText("The port on which to connect.");
+
+        serverTimeoutField.setToolTipText("The number of milliseconds to keep the connection to the host open.");
+
+        bufferSizeField.setToolTipText("The size, in bytes, of the buffer to be used to hold messages waiting to be sent. Generally, the default value is fine.");
+
+        maximumRetryCountField.setToolTipText("The maximum number of times to retry an attempt to connect to the host before logging an error.");
+
         keepConnectionOpenYesRadio.setBackground(new java.awt.Color(255, 255, 255));
         keepConnectionOpenYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         keepConnectionOpenGroup.add(keepConnectionOpenYesRadio);
         keepConnectionOpenYesRadio.setText("Yes");
+        keepConnectionOpenYesRadio.setToolTipText("<html>Select Yes to keep the connection to the host open across multiple messages.<br>Select No to immediately the close the connection to the host after sending each message.</html>");
         keepConnectionOpenYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         keepConnectionOpenNoRadio.setBackground(new java.awt.Color(255, 255, 255));
         keepConnectionOpenNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         keepConnectionOpenGroup.add(keepConnectionOpenNoRadio);
         keepConnectionOpenNoRadio.setText("No");
+        keepConnectionOpenNoRadio.setToolTipText("<html>Select Yes to keep the connection to the host open across multiple messages.<br>Select No to immediately the close the connection to the host after sending each message.</html>");
         keepConnectionOpenNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        hostAddressField.setToolTipText("The DNS domain name or IP address on which to connect.");
+
+        ackTimeoutField.setToolTipText("The number of milliseconds the connector should wait for a response from the host after sending a message.");
 
         jLabel19.setText("Response Timeout (ms):");
 
         charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Default", "UTF-8", "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)", "US-ASCII" }));
+        charsetEncodingCombobox.setToolTipText("<html>The character set encoding to use when converting the outbound message to a byte stream if Data Type ASCII is selected below.<br>Select Default to use the default character set encoding for the JVM running the Mirth server.</html>");
         charsetEncodingCombobox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 charsetEncodingComboboxActionPerformed(evt);
@@ -355,6 +370,7 @@ public class TCPSender extends ConnectorClass
         usePersistentQueuesYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         usePersistenceQueuesGroup.add(usePersistentQueuesYesRadio);
         usePersistentQueuesYesRadio.setText("Yes");
+        usePersistentQueuesYesRadio.setToolTipText("<html>If checked, the connector will store any messages that are unable to be successfully processed in a file-based queue.<br>Messages will be automatically resent until the queue is manually cleared or the message is successfully sent.<br>The default queue location is <Mirth Directory>/.mule/queuestore/<ChannelID>,<br> where <Mirth Directory> is the main Mirth install root and <ChannelID> is the unique id of the current channel.</html>");
         usePersistentQueuesYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         usePersistentQueuesYesRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -379,14 +395,18 @@ public class TCPSender extends ConnectorClass
         template.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         channelNames.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        channelNames.setToolTipText("<html>Select None to not process any response received from the host,<br> or select the channel to send the response to as a new inbound message.</html>");
 
         URL.setText("Send Response to:");
+
+        reconnectInterval.setToolTipText("<html>The number of milliseconds to wait after closing a connection to the host<br> before opening a new connection, even if there are messages to send.</html>");
 
         jLabel1.setText("Reconnect Interval (ms):");
 
         ignoreACKCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         ignoreACKCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         ignoreACKCheckBox.setText("Ignore Response");
+        ignoreACKCheckBox.setToolTipText("<html>If checked, the connector will not wait for a response after sending a message.<br>If unchecked, the connector will wait for a response from the host after each message is sent<br> and optionally pass the response received to a Mirth channel.</html>");
         ignoreACKCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
         ignoreACKCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -399,6 +419,7 @@ public class TCPSender extends ConnectorClass
         dataTypeButtonGroup.add(dataTypeASCII);
         dataTypeASCII.setSelected(true);
         dataTypeASCII.setText("ASCII");
+        dataTypeASCII.setToolTipText("Select ASCII if the outbound message is text (will undergo character set encoding).");
         dataTypeASCII.setMargin(new java.awt.Insets(0, 0, 0, 0));
         dataTypeASCII.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -410,6 +431,7 @@ public class TCPSender extends ConnectorClass
         dataTypeBinary.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         dataTypeButtonGroup.add(dataTypeBinary);
         dataTypeBinary.setText("Binary");
+        dataTypeBinary.setToolTipText("Select Binary if the outbound message is a byte stream (will not undergo character set encoding).");
         dataTypeBinary.setMargin(new java.awt.Insets(0, 0, 0, 0));
         dataTypeBinary.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

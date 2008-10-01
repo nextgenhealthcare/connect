@@ -274,8 +274,13 @@ public class DatabaseWriter extends ConnectorClass
         sqlLabel.setText("SQL:");
 
         databaseDriverCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Sun JDBC-ODBC Bridge", "ODBC - MySQL", "ODBC - PostgreSQL", "ODBC - SQL Server/Sybase", "ODBC - Oracle 10g Release 2" }));
+        databaseDriverCombobox.setToolTipText("Specifies the type of database driver to use to connect to the database.");
 
-        databasePasswordField.setFont(new java.awt.Font("Tahoma", 0, 11));
+        databaseURLField.setToolTipText("<html>The JDBC URL to connect to the database.<br>This is not used when \"Use JavaScript\" is checked.<br>However, it is used when the Insert Connection feature is used to generate code.</html>");
+
+        databaseUsernameField.setToolTipText("<html>The username to connect to the database.<br>This is not used when \"Use JavaScript\" is checked.<br>However, it is used when the Insert Connection feature is used to generate code.</html>");
+
+        databasePasswordField.setToolTipText("<html>The password to connect to the database.<br>This is not used when \"Use JavaScript\" is checked.<br>However, it is used when the Insert Connection feature is used to generate code.</html>");
 
         databaseSQLTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
@@ -283,6 +288,7 @@ public class DatabaseWriter extends ConnectorClass
         useJavaScriptYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup1.add(useJavaScriptYes);
         useJavaScriptYes.setText("Yes");
+        useJavaScriptYes.setToolTipText("Implement JavaScript code using JDBC to insert a message into the database.");
         useJavaScriptYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
         useJavaScriptYes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -294,6 +300,7 @@ public class DatabaseWriter extends ConnectorClass
         useJavaScriptNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup1.add(useJavaScriptNo);
         useJavaScriptNo.setText("No");
+        useJavaScriptNo.setToolTipText("Specify the SQL statements to insert a message into the database.");
         useJavaScriptNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
         useJavaScriptNo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -304,6 +311,7 @@ public class DatabaseWriter extends ConnectorClass
         jLabel6.setText("Use JavaScript:");
 
         generateConnection.setText("Connection");
+        generateConnection.setToolTipText("<html>If \"Yes\" is selected for Use JavaScript, this button is enabled.<br>When clicked, it inserts boilerplate Connection construction code into the JavaScript control at the current caret location.</html>");
         generateConnection.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 generateConnectionActionPerformed(evt);

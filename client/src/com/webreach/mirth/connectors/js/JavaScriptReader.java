@@ -204,12 +204,15 @@ public class JavaScriptReader extends ConnectorClass
 
         pollingFrequencyLabel.setText("Polling Frequency (ms):");
 
+        pollingFrequency.setToolTipText("<html>If the \"Interval\" Polling Type is selected, the number of milliseconds between polls must be entered here.<br>Avoid extremely small values because polling can be a somewhat time-consuming operation.</html>");
+
         javascriptTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         pollingTimeButton.setBackground(new java.awt.Color(255, 255, 255));
         pollingTimeButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup3.add(pollingTimeButton);
         pollingTimeButton.setText("Time");
+        pollingTimeButton.setToolTipText("<html>A JavaScript reader polls to determine when new messages have arrived.<br>It can be configured when to poll in one of two different ways.<br>If \"Interval\" is selected, the connector will poll every n milliseconds, where n is specified in the Polling Frequency control.<br>If \"Time\" is selected, the connector will poll once a day at the time specified in the Polling Time control.</html>");
         pollingTimeButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
         pollingTimeButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -221,6 +224,7 @@ public class JavaScriptReader extends ConnectorClass
         pollingIntervalButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup3.add(pollingIntervalButton);
         pollingIntervalButton.setText("Interval");
+        pollingIntervalButton.setToolTipText("<html>A JavaScript reader polls to determine when new messages have arrived.<br>It can be configured when to poll in one of two different ways.<br>If \"Interval\" is selected, the connector will poll every n milliseconds, where n is specified in the Polling Frequency control.<br>If \"Time\" is selected, the connector will poll once a day at the time specified in the Polling Time control.</html>");
         pollingIntervalButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
         pollingIntervalButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -231,6 +235,8 @@ public class JavaScriptReader extends ConnectorClass
         jLabel5.setText("Polling Type:");
 
         pollingTimeLabel.setText("Polling Time (daily):");
+
+        pollingTime.setToolTipText("If the \"Time\" Polling Type is selected, the time of day to poll must be entered here.");
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);

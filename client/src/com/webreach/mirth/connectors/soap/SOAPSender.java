@@ -493,13 +493,17 @@ public class SOAPSender extends ConnectorClass
 
         URL.setText("WSDL URL:");
 
+        wsdlUrl.setToolTipText("Enter the full URL to the WSDL file describing the web service method to be called, and then click the Get Methods button.");
+
         getMethodsButton.setText("Get Methods");
+        getMethodsButton.setToolTipText("<html>Clicking this button fetches the WSDL file from the specified URL<br> and parses it to obtain a description of the data types and methods used by the web service to be called.<br>It replaces the values of all of the controls below by values taken from the WSDL file.</html>");
         getMethodsButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 getMethodsButtonActionPerformed(evt);
             }
         });
 
+        method.setToolTipText("Select the web service method to be called from this list.");
         method.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 methodItemStateChanged(evt);
@@ -509,6 +513,8 @@ public class SOAPSender extends ConnectorClass
         jLabel1.setText("Method:");
 
         jLabel2.setText("Service Endpoint URI:");
+
+        soapActionURI.setToolTipText("<html>Enter the SOAP Action URI for the method to be called here.<br>This field is normally filled in automatically when the Get Methods button is clicked and does not need to be changed.</html>");
 
         soapEnvelope.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
@@ -525,9 +531,12 @@ public class SOAPSender extends ConnectorClass
 
         jLabel3.setText("Soap Action URI:");
 
+        serviceEndpoint.setToolTipText("<html>Enter the Service Endpoint URI for the method to be called here.<br>This field is normally filled in automatically when the Get Methods button is clicked and does not need to be changed.</html>");
+
         jLabel4.setText("SOAP Envelope:");
 
         rebuildEnvelope.setText("Rebuild Envelope");
+        rebuildEnvelope.setToolTipText("<html>Clicking this button regenerates the contents of the SOAP Envelope control based on the other controls,<br> discarding any changes that may have been made.</html>");
         rebuildEnvelope.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 rebuildEnvelopeActionPerformed(evt);
@@ -535,6 +544,7 @@ public class SOAPSender extends ConnectorClass
         });
 
         channelNames.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        channelNames.setToolTipText("Select None to ignore the response from the web service method, or select a channel to send to as a new inbound message.");
 
         URL1.setText("Send Response to:");
 
@@ -544,6 +554,7 @@ public class SOAPSender extends ConnectorClass
         generateEnvelopeYesButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         generateEnvelopeButtonGroup.add(generateEnvelopeYesButton);
         generateEnvelopeYesButton.setText("Yes");
+        generateEnvelopeYesButton.setToolTipText("<html>When \"Yes\" is selected, any change to the controls above replaces the contents of the SOAP Envelope control below,<br> which is the actual SOAP envelope that will be sent to the web service to send the outbound message.<br>When \"No\" is selected, changes to the controls above are not reflected in the SOAP Envelope control.</html>");
         generateEnvelopeYesButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
         generateEnvelopeYesButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -555,6 +566,7 @@ public class SOAPSender extends ConnectorClass
         generateEnvelopeNoButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         generateEnvelopeButtonGroup.add(generateEnvelopeNoButton);
         generateEnvelopeNoButton.setText("No");
+        generateEnvelopeNoButton.setToolTipText("<html>When \"Yes\" is selected, any change to the controls above replaces the contents of the SOAP Envelope control below,<br> which is the actual SOAP envelope that will be sent to the web service to send the outbound message.<br>When \"No\" is selected, changes to the controls above are not reflected in the SOAP Envelope control.</html>");
         generateEnvelopeNoButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
         generateEnvelopeNoButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

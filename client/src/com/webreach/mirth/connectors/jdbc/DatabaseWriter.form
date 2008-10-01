@@ -153,17 +153,22 @@
             <StringItem index="4" value="ODBC - Oracle 10g Release 2"/>
           </StringArray>
         </Property>
+        <Property name="toolTipText" type="java.lang.String" value="Specifies the type of database driver to use to connect to the database."/>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="databaseURLField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The JDBC URL to connect to the database.&lt;br&gt;This is not used when &quot;Use JavaScript&quot; is checked.&lt;br&gt;However, it is used when the Insert Connection feature is used to generate code.&lt;/html&gt;"/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="databaseUsernameField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The username to connect to the database.&lt;br&gt;This is not used when &quot;Use JavaScript&quot; is checked.&lt;br&gt;However, it is used when the Insert Connection feature is used to generate code.&lt;/html&gt;"/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthPasswordField" name="databasePasswordField">
       <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Tahoma" size="11" style="0"/>
-        </Property>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The password to connect to the database.&lt;br&gt;This is not used when &quot;Use JavaScript&quot; is checked.&lt;br&gt;However, it is used when the Insert Connection feature is used to generate code.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="databaseSQLTextPane">
@@ -192,6 +197,7 @@
           <ComponentRef name="buttonGroup1"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="Implement JavaScript code using JDBC to insert a message into the database."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -214,6 +220,7 @@
           <ComponentRef name="buttonGroup1"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="Specify the SQL statements to insert a message into the database."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -230,6 +237,7 @@
     <Component class="javax.swing.JButton" name="generateConnection">
       <Properties>
         <Property name="text" type="java.lang.String" value="Connection"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If &quot;Yes&quot; is selected for Use JavaScript, this button is enabled.&lt;br&gt;When clicked, it inserts boilerplate Connection construction code into the JavaScript control at the current caret location.&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateConnectionActionPerformed"/>

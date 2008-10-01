@@ -164,6 +164,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="httpURL">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Enter the URL of the HTTP server to send each message to."/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="newButton">
       <Properties>
@@ -196,6 +199,7 @@
                 <Column editable="true" title="Value" type="java.lang.Object"/>
               </Table>
             </Property>
+            <Property name="toolTipText" type="java.lang.String" value="Request variables are encoded as x=y pairs as part of the request URL, separated from it by a &apos;?&apos; and from each other by an &apos;&amp;&apos;."/>
           </Properties>
         </Component>
       </SubComponents>
@@ -224,6 +228,7 @@
           <ComponentRef name="methodButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="POST"/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects whether the HTTP operation used to send each message."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -243,6 +248,7 @@
           <ComponentRef name="methodButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="GET"/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects whether the HTTP operation used to send each message."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -258,6 +264,7 @@
             <StringItem index="3" value="Item 4"/>
           </StringArray>
         </Property>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Selects a channel to send the response from the HTTP server as a new inbound message&lt;br&gt; or None to ignore the response from the HTTP server.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="URL1">
@@ -280,6 +287,7 @@
                 <Column editable="true" title="Value" type="java.lang.Object"/>
               </Table>
             </Property>
+            <Property name="toolTipText" type="java.lang.String" value="Header variables are encoded as HTTP headers in the HTTP request sent to the server."/>
           </Properties>
         </Component>
       </SubComponents>
@@ -324,6 +332,7 @@
           <ComponentRef name="responseHeadersButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Include"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Only enabled if Send Response To selects a channel.&lt;br&gt;If Include is selected, the HTTP headers of the response received are included in the message sent to the selected channel.&lt;br&gt;If Exclude is selected, the HTTP headers are not included.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -343,6 +352,7 @@
           <ComponentRef name="responseHeadersButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Exclude"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Only enabled if Send Response To selects a channel.&lt;br&gt;If Include is selected, the HTTP headers of the response received are included in the message sent to the selected channel.&lt;br&gt;If Exclude is selected, the HTTP headers are not included.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -427,6 +437,7 @@
           <ComponentRef name="methodButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="PUT"/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects whether the HTTP operation used to send each message."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -446,6 +457,7 @@
           <ComponentRef name="methodButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="DELETE"/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects whether the HTTP operation used to send each message."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>

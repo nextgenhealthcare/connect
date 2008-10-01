@@ -389,17 +389,35 @@ public class LLPSender extends ConnectorClass
 
         jLabel12.setText("Record Separator Char:");
 
+        hostPortField.setToolTipText("Enter the port number to connect to (LLP Mode Client).");
+
+        serverTimeoutField.setToolTipText("<html>Enter the number of milliseconds that the connector should keep its host connection open even if it has no messages to send.<br>If it has no messages to send after this much time,<br> it will close the connection and reopen it later when messages need to be sent.</html>");
+
+        bufferSizeField.setToolTipText("<html>Enter at least the size, in bytes, of the largest response message expected.<br>Entering too small a value will cause larger messages to be rejected.<br>Entering too large a value wastes memory. Generally, the default value is fine.</html>");
+
+        maximumRetryCountField.setToolTipText("The maximum number of times the connector should retry a failed attempt to connect to the host before giving up and logging an error.");
+
+        startOfMessageCharacterField.setToolTipText("Enter the hexadecimal character (byte) value to send as the start of message character.");
+
+        endOfMessageCharacterField.setToolTipText("Enter the hexadecimal character (byte) value to send as the end of message character.");
+
+        recordSeparatorField.setToolTipText("Enter the hexadecimal character (byte) value to send as the record separator character.");
+
         keepConnectionOpenYesRadio.setBackground(new java.awt.Color(255, 255, 255));
         keepConnectionOpenYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         keepConnectionOpenGroup.add(keepConnectionOpenYesRadio);
         keepConnectionOpenYesRadio.setText("Yes");
+        keepConnectionOpenYesRadio.setToolTipText("<html>the connector will keep its connection to the host open,<br> subject to the limitations of Send Timeout, across multiple messages.</html>");
         keepConnectionOpenYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         keepConnectionOpenNoRadio.setBackground(new java.awt.Color(255, 255, 255));
         keepConnectionOpenNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         keepConnectionOpenGroup.add(keepConnectionOpenNoRadio);
         keepConnectionOpenNoRadio.setText("No");
+        keepConnectionOpenNoRadio.setToolTipText("the connector will open a connection for each message sent and close it immediately after sending.");
         keepConnectionOpenNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        hostAddressField.setToolTipText("Enter the DNS domain name or IP address to connect to (LLP Mode Client).");
 
         jLabel14.setText("LLP Frame Encoding:");
 
@@ -407,19 +425,26 @@ public class LLPSender extends ConnectorClass
         ascii.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup1.add(ascii);
         ascii.setText("ASCII");
+        ascii.setToolTipText("Select ASCII to send messages unencoded.");
         ascii.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         hex.setBackground(new java.awt.Color(255, 255, 255));
         hex.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup1.add(hex);
         hex.setText("Hex");
+        hex.setToolTipText("Select Hex to sends messages encoded in hexadecimal.");
         hex.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
+        segmentEnd.setToolTipText("Enter the hexadecimal character (byte) value to send as the end of segment character.");
+
         jLabel37.setText("End of Segment Char:");
+
+        ackTimeoutField.setToolTipText("<html>If Ignore ACK is not checked, the number of milliseconds the connector should wait for an ACK response after sending a message.<br>If an ACK is not received in this time, the message's state is set to error.</html>");
 
         jLabel19.setText("ACK Timeout (ms):");
 
         charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Default", "UTF-8", "ISO-8859-1", "UTF-16 (le)", "UTF-16 (be)", "UTF-16 (bom)", "US-ASCII" }));
+        charsetEncodingCombobox.setToolTipText("<html>Select the character set encoding to apply to the message sent to the Host,<br> or Default to use the default character set encoding for the JVM running the Mirth Server.</html>");
         charsetEncodingCombobox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 charsetEncodingComboboxActionPerformed(evt);
@@ -434,6 +459,7 @@ public class LLPSender extends ConnectorClass
         usePersistentQueuesYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         usePersistenceQueuesGroup.add(usePersistentQueuesYesRadio);
         usePersistentQueuesYesRadio.setText("Yes");
+        usePersistentQueuesYesRadio.setToolTipText("<html>If checked, the connector will store any messages that are unable to be successfully processed in a file-based queue.<br>Messages will be automatically resent until the queue is manually cleared or the message is successfully sent.<br>The default queue location is <Mirth Directory>/.mule/queuestore/<ChannelID>,<br> where <Mirth Directory> is the main Mirth install root and <ChannelID> is the unique id of the current channel.</html>");
         usePersistentQueuesYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         usePersistentQueuesYesRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -458,14 +484,18 @@ public class LLPSender extends ConnectorClass
         template.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         channelNames.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        channelNames.setToolTipText("<html>If None is selected, responses sent by the Host are discarded.<br>Otherwise, they are sent to the selected channel as a new inbound message for processing.</html>");
 
         URL.setText("Send Response to:");
+
+        reconnectInterval.setToolTipText("<html>The reconnect interval determines the amount of time, in milliseconds,<br> Mirth will wait before resending a failed message.</html>");
 
         jLabel1.setText("Reconnect Interval (ms):");
 
         ignoreACKCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         ignoreACKCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         ignoreACKCheckBox.setText("Ignore ACK");
+        ignoreACKCheckBox.setToolTipText("<html>If checked, the connector does not wait for an ACK response after sending a message.<br>If not checked, the connector waits for an ACK for the time specified in ACK Timeout.</html>");
         ignoreACKCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
         ignoreACKCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -479,12 +509,14 @@ public class LLPSender extends ConnectorClass
         processHL7AckYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         processHL7AckGroup.add(processHL7AckYesRadio);
         processHL7AckYesRadio.setText("Yes");
+        processHL7AckYesRadio.setToolTipText("<html>This setting configures the behavior of Mirth's ACK processing.<br>When this setting is on, only successful ACK codes will allow a message to be marked as processed.<br>When this setting is turned off, Mirth will not attempt to parse the ACK response.</html>");
         processHL7AckYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         processHL7AckNoRadio.setBackground(new java.awt.Color(255, 255, 255));
         processHL7AckNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         processHL7AckGroup.add(processHL7AckNoRadio);
         processHL7AckNoRadio.setText("No");
+        processHL7AckNoRadio.setToolTipText("<html>This setting configures the behavior of Mirth's ACK processing.<br>When this setting is on, only successful ACK codes will allow a message to be marked as processed.<br>When this setting is turned off, Mirth will not attempt to parse the ACK response.</html>");
         processHL7AckNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         rotateMessages.setBackground(new java.awt.Color(255, 255, 255));

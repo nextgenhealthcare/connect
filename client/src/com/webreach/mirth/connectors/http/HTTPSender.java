@@ -647,6 +647,8 @@ public class HTTPSender extends ConnectorClass
 
         jLabel7.setText("URL:");
 
+        httpURL.setToolTipText("Enter the URL of the HTTP server to send each message to.");
+
         newButton.setText("New");
         newButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -669,6 +671,7 @@ public class HTTPSender extends ConnectorClass
                 "Property", "Value"
             }
         ));
+        propertiesTable.setToolTipText("Request variables are encoded as x=y pairs as part of the request URL, separated from it by a '?' and from each other by an '&'.");
         propertiesPane.setViewportView(propertiesTable);
 
         jLabel2.setText("Request Variables:");
@@ -679,15 +682,18 @@ public class HTTPSender extends ConnectorClass
         post.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         methodButtonGroup.add(post);
         post.setText("POST");
+        post.setToolTipText("Selects whether the HTTP operation used to send each message.");
         post.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         get.setBackground(new java.awt.Color(255, 255, 255));
         get.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         methodButtonGroup.add(get);
         get.setText("GET");
+        get.setToolTipText("Selects whether the HTTP operation used to send each message.");
         get.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         channelNames.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        channelNames.setToolTipText("<html>Selects a channel to send the response from the HTTP server as a new inbound message<br> or None to ignore the response from the HTTP server.</html>");
 
         URL1.setText("Send Response to:");
 
@@ -699,6 +705,7 @@ public class HTTPSender extends ConnectorClass
                 "Property", "Value"
             }
         ));
+        headerVariablesTable.setToolTipText("Header variables are encoded as HTTP headers in the HTTP request sent to the server.");
         headerVariablesPane.setViewportView(headerVariablesTable);
 
         jLabel3.setText("Header Variables:");
@@ -723,12 +730,14 @@ public class HTTPSender extends ConnectorClass
         responseHeadersIncludeButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         responseHeadersButtonGroup.add(responseHeadersIncludeButton);
         responseHeadersIncludeButton.setText("Include");
+        responseHeadersIncludeButton.setToolTipText("<html>Only enabled if Send Response To selects a channel.<br>If Include is selected, the HTTP headers of the response received are included in the message sent to the selected channel.<br>If Exclude is selected, the HTTP headers are not included.</html>");
         responseHeadersIncludeButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         responseHeadersExcludeButton.setBackground(new java.awt.Color(255, 255, 255));
         responseHeadersExcludeButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         responseHeadersButtonGroup.add(responseHeadersExcludeButton);
         responseHeadersExcludeButton.setText("Exclude");
+        responseHeadersExcludeButton.setToolTipText("<html>Only enabled if Send Response To selects a channel.<br>If Include is selected, the HTTP headers of the response received are included in the message sent to the selected channel.<br>If Exclude is selected, the HTTP headers are not included.</html>");
         responseHeadersExcludeButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         rotateMessages.setBackground(new java.awt.Color(255, 255, 255));
@@ -765,12 +774,14 @@ public class HTTPSender extends ConnectorClass
         put.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         methodButtonGroup.add(put);
         put.setText("PUT");
+        put.setToolTipText("Selects whether the HTTP operation used to send each message.");
         put.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         delete.setBackground(new java.awt.Color(255, 255, 255));
         delete.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         methodButtonGroup.add(delete);
         delete.setText("DELETE");
+        delete.setToolTipText("Selects whether the HTTP operation used to send each message.");
         delete.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);

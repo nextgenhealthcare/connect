@@ -205,12 +205,24 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="hostPortField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The port on which to connect."/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="serverTimeoutField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The number of milliseconds to keep the connection to the host open."/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="bufferSizeField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The size, in bytes, of the buffer to be used to hold messages waiting to be sent. Generally, the default value is fine."/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="maximumRetryCountField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The maximum number of times to retry an attempt to connect to the host before logging an error."/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="keepConnectionOpenYesRadio">
       <Properties>
@@ -226,6 +238,7 @@
           <ComponentRef name="keepConnectionOpenGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to keep the connection to the host open across multiple messages.&lt;br&gt;Select No to immediately the close the connection to the host after sending each message.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -245,14 +258,21 @@
           <ComponentRef name="keepConnectionOpenGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to keep the connection to the host open across multiple messages.&lt;br&gt;Select No to immediately the close the connection to the host after sending each message.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="hostAddressField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The DNS domain name or IP address on which to connect."/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="ackTimeoutField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The number of milliseconds the connector should wait for a response from the host after sending a message."/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel19">
       <Properties>
@@ -272,6 +292,7 @@
             <StringItem index="6" value="US-ASCII"/>
           </StringArray>
         </Property>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The character set encoding to use when converting the outbound message to a byte stream if Data Type ASCII is selected below.&lt;br&gt;Select Default to use the default character set encoding for the JVM running the Mirth server.&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="charsetEncodingComboboxActionPerformed"/>
@@ -301,6 +322,7 @@
           <ComponentRef name="usePersistenceQueuesGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, the connector will store any messages that are unable to be successfully processed in a file-based queue.&lt;br&gt;Messages will be automatically resent until the queue is manually cleared or the message is successfully sent.&lt;br&gt;The default queue location is &lt;Mirth Directory&gt;/.mule/queuestore/&lt;ChannelID&gt;,&lt;br&gt; where &lt;Mirth Directory&gt; is the main Mirth install root and &lt;ChannelID&gt; is the unique id of the current channel.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -356,6 +378,7 @@
             <StringItem index="3" value="Item 4"/>
           </StringArray>
         </Property>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select None to not process any response received from the host,&lt;br&gt; or select the channel to send the response to as a new inbound message.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="URL">
@@ -364,6 +387,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="reconnectInterval">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The number of milliseconds to wait after closing a connection to the host&lt;br&gt; before opening a new connection, even if there are messages to send.&lt;/html&gt;"/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
@@ -381,6 +407,7 @@
           </Border>
         </Property>
         <Property name="text" type="java.lang.String" value="Ignore Response"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, the connector will not wait for a response after sending a message.&lt;br&gt;If unchecked, the connector will wait for a response from the host after each message is sent&lt;br&gt; and optionally pass the response received to a Mirth channel.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -404,6 +431,7 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="ASCII"/>
+        <Property name="toolTipText" type="java.lang.String" value="Select ASCII if the outbound message is text (will undergo character set encoding)."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -426,6 +454,7 @@
           <ComponentRef name="dataTypeButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Binary"/>
+        <Property name="toolTipText" type="java.lang.String" value="Select Binary if the outbound message is a byte stream (will not undergo character set encoding)."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>

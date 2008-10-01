@@ -225,17 +225,22 @@
             <StringItem index="4" value="ODBC - Oracle 10g Release 2"/>
           </StringArray>
         </Property>
+        <Property name="toolTipText" type="java.lang.String" value="Specifies the type of database driver to use to connect to the database."/>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="databaseURLField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The JDBC URL to connect to the database. This is not used when &quot;Use JavaScript&quot; is checked.&lt;br&gt;However, it is used when the Insert Connection feature is used to generate code.&lt;/html&gt;"/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="databaseUsernameField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The user name to connect to the database. This is not used when &quot;Use JavaScript&quot; is checked.&lt;br&gt;However, it is used when the Insert Connection feature is used to generate code.&lt;/html&gt;"/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthPasswordField" name="databasePasswordField">
       <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Tahoma" size="11" style="0"/>
-        </Property>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The password to connect to the database. This is not used when &quot;Use JavaScript&quot; is checked.&lt;br&gt;However, it is used when the Insert Connection feature is used to generate code.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="onUpdateLabel">
@@ -249,6 +254,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="pollingFrequency">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If the &quot;Interval&quot; Polling Type is selected, the number of milliseconds between polls must be entered here.&lt;br&gt;Avoid extremely small values because polling can be a somewhat time-consuming operation.&lt;/html&gt;"/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="readOnUpdateYes">
       <Properties>
@@ -264,6 +272,7 @@
           <ComponentRef name="buttonGroup1"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;When using a database reader, it is usually necessary to execute a separate SQL statement&lt;br&gt;to mark the message that was just fetched as processed, so it will not be fetched again the next time a poll occurs.&lt;br&gt;Selecting &quot;Yes&quot; for Run On-Update Statement turns this behavior on.&lt;br&gt;Selecting &quot;No&quot; turns this behavior off.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -287,6 +296,7 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;When using a database reader, it is usually necessary to execute a separate SQL statement&lt;br&gt;to mark the message that was just fetched as processed, so it will not be fetched again the next time a poll occurs.&lt;br&gt;Selecting &quot;Yes&quot; for Run On-Update Statement turns this behavior on.&lt;br&gt;Selecting &quot;No&quot; turns this behavior off.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -312,6 +322,7 @@
             <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
               <StringArray count="0"/>
             </Property>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;This list is populated with mappings based on the select statement in the JavaScript or SQL editor.&lt;br&gt;These mappings can dragged into the On-Update JavaScript or SQL editors.&lt;/html&gt;"/>
           </Properties>
         </Component>
       </SubComponents>
@@ -359,6 +370,7 @@
           <ComponentRef name="buttonGroup2"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="Implement JavaScript code using JDBC to get the messages to be processed and mark messages in the database as processed."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -381,6 +393,7 @@
           <ComponentRef name="buttonGroup2"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="Specify the SQL statements to get messages to be processed and mark messages in the database as processed."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -392,6 +405,7 @@
     <Component class="javax.swing.JButton" name="generateConnection">
       <Properties>
         <Property name="text" type="java.lang.String" value="Connection"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If &quot;Yes&quot; is selected for Use JavaScript, this button is enabled.&lt;br&gt;When clicked, it inserts boilerplate Connection construction code into the JavaScript control at the current caret location.&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateConnectionActionPerformed"/>
@@ -400,6 +414,7 @@
     <Component class="javax.swing.JButton" name="generateUpdateConnection">
       <Properties>
         <Property name="text" type="java.lang.String" value="Connection"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If &quot;Yes&quot; is selected for Use JavaScript and &quot;Yes&quot; is selected for Run On-Update Statement, this button is enabled.&lt;br&gt;When clicked, it inserts boilerplate Connection construction code into the On-Update JavaScript control at the current caret location.&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateUpdateConnectionActionPerformed"/>
@@ -419,6 +434,7 @@
           <ComponentRef name="buttonGroup3"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Time"/>
+        <Property name="toolTipText" type="java.lang.String" value="The connector will poll once a day at the time specified in the Polling Time control."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -441,6 +457,7 @@
           <ComponentRef name="buttonGroup3"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Interval"/>
+        <Property name="toolTipText" type="java.lang.String" value="The connector will poll every n milliseconds, where n is specified in the Polling Frequency control."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -460,6 +477,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTimePicker" name="pollingTime">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="If the &quot;Time&quot; Polling Type is selected, the time of day to poll must be entered here."/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="generateSelect">
       <Properties>

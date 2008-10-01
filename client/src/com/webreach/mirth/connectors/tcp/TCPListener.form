@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<Form version="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+<Form version="1.3" maxVersion="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <NonVisualComponents>
     <Component class="javax.swing.ButtonGroup" name="keepConnectionOpenGroup">
     </Component>
@@ -159,12 +159,24 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="bufferSizeField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter at least the size, in bytes, of the largest message expected.&lt;br&gt;Entering too small a value will cause larger messages to be rejected.&lt;br&gt;Entering too large a value will waste memory. Generally, the default value is fine.&lt;/html&gt;"/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="receiveTimeoutField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The amount of time, in milliseconds, to wait without receiving a message before closing a connection."/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="listenerPortField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The port to listen for connections on."/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="listenerAddressField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The DNS domain name or IP address to listen for connections on."/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="charsetEncodingCombobox">
       <Properties>
@@ -179,6 +191,7 @@
             <StringItem index="6" value="us-ascii"/>
           </StringArray>
         </Property>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select the character set encoding used by the message sender,&lt;br&gt; or Select Default to use the default character set encoding for the JVM running Mirth.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="encodingLabel">
@@ -205,6 +218,7 @@
           <ComponentRef name="buttonGroup4"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send the message response on the same connection as the inbound message was received on.&lt;br&gt;Select Yes to send the response on a new connection.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -227,6 +241,7 @@
           <ComponentRef name="buttonGroup4"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select No to send the message response on the same connection as the inbound message was received on.&lt;br&gt;Select Yes to send the response on a new connection.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -246,8 +261,14 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="ackPortField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Enter the port to send message responses to."/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="ackAddressField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Enter the DNS domain name or IP address to send message responses to."/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="responseFromLabel">
       <Properties>
@@ -264,6 +285,7 @@
             <StringItem index="3" value="Item 4"/>
           </StringArray>
         </Property>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select &quot;None&quot; to send no response.&lt;br&gt;Select a destination of this channel that will supply a return value using the Response Map.&lt;br&gt;Select a variable that has been added to the Response Map.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="dataTypeASCII">
@@ -281,6 +303,7 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="ASCII"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Binary if the inbound messages are raw byte streams.&lt;br&gt;Select ASCII if the inbound messages are text streams.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -303,6 +326,7 @@
           <ComponentRef name="dataTypeButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Binary"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Binary if the inbound messages are raw byte streams.&lt;br&gt;Select ASCII if the inbound messages are text streams.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>

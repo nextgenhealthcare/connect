@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<Form version="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+<Form version="1.3" maxVersion="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <NonVisualComponents>
     <Component class="javax.swing.ButtonGroup" name="durableButtonGroup">
     </Component>
@@ -18,7 +18,9 @@
     </Property>
   </Properties>
   <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
     <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
@@ -184,6 +186,7 @@
             <StringItem index="3" value="Item 4"/>
           </StringArray>
         </Property>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select 1.1 if the JMS provider supports JMS 1.1.&lt;br&gt;Select 1.0.2b if the JMS provider supports JMS 1.0.2b.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel4">
@@ -226,6 +229,7 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes if connecting to a topic and messages sent to the topic should be queued whenever the source connector is not connected.&lt;br&gt;Select No if connecting to a queue.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -248,6 +252,7 @@
           <ComponentRef name="durableButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes if connecting to a topic and messages sent to the topic should be queued whenever the source connector is not connected.&lt;br&gt;Select No if connecting to a queue.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -257,17 +262,30 @@
       </Events>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="cliendId">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="If Durable Yes is selected, enter the unique identifier for the source connector as a client of the topic."/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="jmsURL">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="If Use JNDI Yes is selected, enter the URL of the JNDI provider here."/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="connectionFactoryJndi">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="If Use JNDI Yes is selected, enter the JNDI name for the connection factory."/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="queue">
       <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Enter the JMS provider name for the queue or topic here."/>
         <Property name="autoscrolls" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="jndiInitialFactory">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="If Use JNDI Yes is selected, enter the full Java classname of the JNDI Initial Context Factory class."/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jndiInitialFactoryLabel">
       <Properties>
@@ -280,12 +298,13 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="username">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Enter the login username for access to the queue or topic here."/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthPasswordField" name="password">
       <Properties>
-        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-          <Font name="Tahoma" size="11" style="0"/>
-        </Property>
+        <Property name="toolTipText" type="java.lang.String" value="Enter the login password for access to the queue or topic here."/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel12">
@@ -299,6 +318,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="selector">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the selector expression to select which topic or queue messages the source connector is interested in,&lt;br&gt; or leave blank to read all messages.&lt;/html&gt;"/>
+      </Properties>
     </Component>
     <Container class="javax.swing.JScrollPane" name="propertiesPane">
       <AuxValues>
@@ -327,6 +349,7 @@
     <Component class="javax.swing.JButton" name="newButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="New"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Adds a new row to end of the list.&lt;br&gt;Double click the Property and Value cells to enter their values.&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="newButtonActionPerformed"/>
@@ -335,6 +358,7 @@
     <Component class="javax.swing.JButton" name="deleteButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="Delete"/>
+        <Property name="toolTipText" type="java.lang.String" value="Deletes the currently selected row from the list."/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deleteButtonActionPerformed"/>
@@ -359,6 +383,7 @@
           <ComponentRef name="useJndiButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to use JNDI to look up a connection factory to connect to the topic or queue.&lt;br&gt;Select No to specify a connection factory class directly.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -382,6 +407,7 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to use JNDI to look up a connection factory to connect to the topic or queue.&lt;br&gt;Select No to specify a connection factory class directly.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -397,6 +423,7 @@
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="connectionFactoryClass">
       <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="If Use JNDI No is selected, enter the full Java classname of the JMS connection factory class here."/>
         <Property name="autoscrolls" type="boolean" value="false"/>
       </Properties>
     </Component>
@@ -415,6 +442,7 @@
             <StringItem index="3" value="Item 4"/>
           </StringArray>
         </Property>
+        <Property name="toolTipText" type="java.lang.String" value="Determine the type of acknowledgement made when a message is received."/>
       </Properties>
     </Component>
   </SubComponents>

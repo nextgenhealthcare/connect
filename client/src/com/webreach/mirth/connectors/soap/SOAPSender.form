@@ -155,10 +155,14 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="wsdlUrl">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Enter the full URL to the WSDL file describing the web service method to be called, and then click the Get Methods button."/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="getMethodsButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="Get Methods"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Clicking this button fetches the WSDL file from the specified URL&lt;br&gt; and parses it to obtain a description of the data types and methods used by the web service to be called.&lt;br&gt;It replaces the values of all of the controls below by values taken from the WSDL file.&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="getMethodsButtonActionPerformed"/>
@@ -169,6 +173,7 @@
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="0"/>
         </Property>
+        <Property name="toolTipText" type="java.lang.String" value="Select the web service method to be called from this list."/>
       </Properties>
       <Events>
         <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="methodItemStateChanged"/>
@@ -185,6 +190,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="soapActionURI">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the SOAP Action URI for the method to be called here.&lt;br&gt;This field is normally filled in automatically when the Get Methods button is clicked and does not need to be changed.&lt;/html&gt;"/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="soapEnvelope">
       <Properties>
@@ -233,6 +241,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="serviceEndpoint">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the Service Endpoint URI for the method to be called here.&lt;br&gt;This field is normally filled in automatically when the Get Methods button is clicked and does not need to be changed.&lt;/html&gt;"/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel4">
       <Properties>
@@ -242,6 +253,7 @@
     <Component class="javax.swing.JButton" name="rebuildEnvelope">
       <Properties>
         <Property name="text" type="java.lang.String" value="Rebuild Envelope"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Clicking this button regenerates the contents of the SOAP Envelope control based on the other controls,&lt;br&gt; discarding any changes that may have been made.&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="rebuildEnvelopeActionPerformed"/>
@@ -257,6 +269,7 @@
             <StringItem index="3" value="Item 4"/>
           </StringArray>
         </Property>
+        <Property name="toolTipText" type="java.lang.String" value="Select None to ignore the response from the web service method, or select a channel to send to as a new inbound message."/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="URL1">
@@ -283,6 +296,7 @@
           <ComponentRef name="generateEnvelopeButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;When &quot;Yes&quot; is selected, any change to the controls above replaces the contents of the SOAP Envelope control below,&lt;br&gt; which is the actual SOAP envelope that will be sent to the web service to send the outbound message.&lt;br&gt;When &quot;No&quot; is selected, changes to the controls above are not reflected in the SOAP Envelope control.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -305,6 +319,7 @@
           <ComponentRef name="generateEnvelopeButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;When &quot;Yes&quot; is selected, any change to the controls above replaces the contents of the SOAP Envelope control below,&lt;br&gt; which is the actual SOAP envelope that will be sent to the web service to send the outbound message.&lt;br&gt;When &quot;No&quot; is selected, changes to the controls above are not reflected in the SOAP Envelope control.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>

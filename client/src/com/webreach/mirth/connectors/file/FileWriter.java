@@ -377,8 +377,8 @@ public class FileWriter extends ConnectorClass
 
         schemeLabel.setText("Method:");
 
-        schemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "file", "ftp", "sftp", "smb" }));
-        schemeComboBox.setToolTipText("The basic method used to access files to be read - file (local filesystem), FTP, SFTP, or Samba share.");
+        schemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "file", "ftp", "sftp" }));
+        schemeComboBox.setToolTipText("The basic method used to access files to be read - file (local filesystem), FTP, or SFTP.");
         schemeComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 schemeComboBoxActionPerformed(evt);
@@ -387,6 +387,8 @@ public class FileWriter extends ConnectorClass
 
         directoryLabel.setText("Directory:");
 
+        directoryField.setToolTipText("The directory (folder) where the generated file should be written.");
+
         hostLabel.setText("ftp://");
 
         hostField.setToolTipText("The name or IP address of the host (computer) on which the files to be read can be found.");
@@ -394,6 +396,8 @@ public class FileWriter extends ConnectorClass
         pathLabel.setText("/");
 
         fileNameLabel.setText("File Name:");
+
+        fileNameField.setToolTipText("The file name to give to the generated file.");
 
         anonymousLabel.setText("Anonymous:");
 
@@ -429,7 +433,6 @@ public class FileWriter extends ConnectorClass
         passwordLabel.setText("Password:");
 
         passwordField.setToolTipText("The password used to gain access to the server.");
-        passwordField.setFont(new java.awt.Font("Tahoma", 0, 11));
 
         passiveModeLabel.setText("Passive Mode:");
 
@@ -471,6 +474,7 @@ public class FileWriter extends ConnectorClass
         appendToFileYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup4.add(appendToFileYes);
         appendToFileYes.setText("Yes");
+        appendToFileYes.setToolTipText("<html>If Yes is selected, messages accepted by this destination will be appended to a single file specified in the File Name.<br>If No is selected, messages accepted by this destination will replace any existing file of the same name.<br>This feature will not work if a template is used for the File Name which generates a new file name when a message is processed.</html>");
         appendToFileYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         appendToFileNo.setBackground(new java.awt.Color(255, 255, 255));
@@ -478,6 +482,7 @@ public class FileWriter extends ConnectorClass
         buttonGroup4.add(appendToFileNo);
         appendToFileNo.setSelected(true);
         appendToFileNo.setText("No");
+        appendToFileNo.setToolTipText("<html>If Yes is selected, messages accepted by this destination will be appended to a single file specified in the File Name.<br>If No is selected, messages accepted by this destination will replace any existing file of the same name.<br>This feature will not work if a template is used for the File Name which generates a new file name when a message is processed.</html>");
         appendToFileNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         fileTypeLabel.setText("File Type:");
@@ -486,6 +491,7 @@ public class FileWriter extends ConnectorClass
         fileTypeBinary.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup5.add(fileTypeBinary);
         fileTypeBinary.setText("Binary");
+        fileTypeBinary.setToolTipText("<html>If ASCII is selected, messages are written as text,<br> and the character set encoding used can be selected in the Encoding control below.<br>If Binary is selected, messages are written as binary byte streams.</html>");
         fileTypeBinary.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         fileTypeASCII.setBackground(new java.awt.Color(255, 255, 255));
@@ -493,9 +499,11 @@ public class FileWriter extends ConnectorClass
         buttonGroup5.add(fileTypeASCII);
         fileTypeASCII.setSelected(true);
         fileTypeASCII.setText("ASCII");
+        fileTypeASCII.setToolTipText("<html>If ASCII is selected, messages are written as text,<br> and the character set encoding used can be selected in the Encoding control below.<br>If Binary is selected, messages are written as binary byte streams.</html>");
         fileTypeASCII.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "default", "utf-8", "iso-8859-1", "utf-16 (le)", "utf-16 (be)", "utf-16 (bom)", "us-ascii" }));
+        charsetEncodingCombobox.setToolTipText("<html>Select the character encoding system to use to write the files accepted by the destination connector.<br>Selecting Default uses the default character encoding for the JVM in which Mirth is running.<br>Selecting any other value selects the corresponding character encoding.</html>");
 
         encodingLabel.setText("Encoding:");
 

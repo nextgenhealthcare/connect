@@ -527,17 +527,25 @@ public class DatabaseReader extends ConnectorClass
         sqlLabel.setText("SQL:");
 
         databaseDriverCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Sun JDBC-ODBC Bridge", "ODBC - MySQL", "ODBC - PostgresSQL", "ODBC - SQL Server/Sybase", "ODBC - Oracle 10g Release 2" }));
+        databaseDriverCombobox.setToolTipText("Specifies the type of database driver to use to connect to the database.");
 
-        databasePasswordField.setFont(new java.awt.Font("Tahoma", 0, 11));
+        databaseURLField.setToolTipText("<html>The JDBC URL to connect to the database. This is not used when \"Use JavaScript\" is checked.<br>However, it is used when the Insert Connection feature is used to generate code.</html>");
+
+        databaseUsernameField.setToolTipText("<html>The user name to connect to the database. This is not used when \"Use JavaScript\" is checked.<br>However, it is used when the Insert Connection feature is used to generate code.</html>");
+
+        databasePasswordField.setToolTipText("<html>The password to connect to the database. This is not used when \"Use JavaScript\" is checked.<br>However, it is used when the Insert Connection feature is used to generate code.</html>");
 
         onUpdateLabel.setText("On-Update SQL:");
 
         pollingFrequencyLabel.setText("Polling Frequency (ms):");
 
+        pollingFrequency.setToolTipText("<html>If the \"Interval\" Polling Type is selected, the number of milliseconds between polls must be entered here.<br>Avoid extremely small values because polling can be a somewhat time-consuming operation.</html>");
+
         readOnUpdateYes.setBackground(new java.awt.Color(255, 255, 255));
         readOnUpdateYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup1.add(readOnUpdateYes);
         readOnUpdateYes.setText("Yes");
+        readOnUpdateYes.setToolTipText("<html>When using a database reader, it is usually necessary to execute a separate SQL statement<br>to mark the message that was just fetched as processed, so it will not be fetched again the next time a poll occurs.<br>Selecting \"Yes\" for Run On-Update Statement turns this behavior on.<br>Selecting \"No\" turns this behavior off.</html>");
         readOnUpdateYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
         readOnUpdateYes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -550,6 +558,7 @@ public class DatabaseReader extends ConnectorClass
         buttonGroup1.add(readOnUpdateNo);
         readOnUpdateNo.setSelected(true);
         readOnUpdateNo.setText("No");
+        readOnUpdateNo.setToolTipText("<html>When using a database reader, it is usually necessary to execute a separate SQL statement<br>to mark the message that was just fetched as processed, so it will not be fetched again the next time a poll occurs.<br>Selecting \"Yes\" for Run On-Update Statement turns this behavior on.<br>Selecting \"No\" turns this behavior off.</html>");
         readOnUpdateNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
         readOnUpdateNo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -559,6 +568,7 @@ public class DatabaseReader extends ConnectorClass
 
         jLabel8.setText("Run On-Update Statment:");
 
+        dbVarList.setToolTipText("<html>This list is populated with mappings based on the select statement in the JavaScript or SQL editor.<br>These mappings can dragged into the On-Update JavaScript or SQL editors.</html>");
         jScrollPane1.setViewportView(dbVarList);
 
         databaseSQLTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -571,6 +581,7 @@ public class DatabaseReader extends ConnectorClass
         useJavaScriptYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup2.add(useJavaScriptYes);
         useJavaScriptYes.setText("Yes");
+        useJavaScriptYes.setToolTipText("Implement JavaScript code using JDBC to get the messages to be processed and mark messages in the database as processed.");
         useJavaScriptYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
         useJavaScriptYes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -582,6 +593,7 @@ public class DatabaseReader extends ConnectorClass
         useJavaScriptNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup2.add(useJavaScriptNo);
         useJavaScriptNo.setText("No");
+        useJavaScriptNo.setToolTipText("Specify the SQL statements to get messages to be processed and mark messages in the database as processed.");
         useJavaScriptNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
         useJavaScriptNo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -590,6 +602,7 @@ public class DatabaseReader extends ConnectorClass
         });
 
         generateConnection.setText("Connection");
+        generateConnection.setToolTipText("<html>If \"Yes\" is selected for Use JavaScript, this button is enabled.<br>When clicked, it inserts boilerplate Connection construction code into the JavaScript control at the current caret location.</html>");
         generateConnection.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 generateConnectionActionPerformed(evt);
@@ -597,6 +610,7 @@ public class DatabaseReader extends ConnectorClass
         });
 
         generateUpdateConnection.setText("Connection");
+        generateUpdateConnection.setToolTipText("<html>If \"Yes\" is selected for Use JavaScript and \"Yes\" is selected for Run On-Update Statement, this button is enabled.<br>When clicked, it inserts boilerplate Connection construction code into the On-Update JavaScript control at the current caret location.</html>");
         generateUpdateConnection.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 generateUpdateConnectionActionPerformed(evt);
@@ -607,6 +621,7 @@ public class DatabaseReader extends ConnectorClass
         pollingTimeButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup3.add(pollingTimeButton);
         pollingTimeButton.setText("Time");
+        pollingTimeButton.setToolTipText("The connector will poll once a day at the time specified in the Polling Time control.");
         pollingTimeButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
         pollingTimeButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -618,6 +633,7 @@ public class DatabaseReader extends ConnectorClass
         pollingIntervalButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup3.add(pollingIntervalButton);
         pollingIntervalButton.setText("Interval");
+        pollingIntervalButton.setToolTipText("The connector will poll every n milliseconds, where n is specified in the Polling Frequency control.");
         pollingIntervalButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
         pollingIntervalButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -628,6 +644,8 @@ public class DatabaseReader extends ConnectorClass
         jLabel5.setText("Polling Type:");
 
         pollingTimeLabel.setText("Polling Time (daily):");
+
+        pollingTime.setToolTipText("If the \"Time\" Polling Type is selected, the time of day to poll must be entered here.");
 
         generateSelect.setText("Select");
         generateSelect.addActionListener(new java.awt.event.ActionListener() {
