@@ -335,7 +335,7 @@ public class Mirth extends Thread {
             extensionsContext.setContextPath(contextPath + "/extensions/");
             httpServer.addContext(extensionsContext);
 
-            // Serve static content from the connectors context
+            // Serve static content from the extensions context
             String extensionsPath = extensions.getPath();
             extensionsContext.setResourceBase(extensionsPath);
             extensionsContext.addHandler(new ResourceHandler());

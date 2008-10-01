@@ -85,7 +85,7 @@ public class ExtensionUtil {
 		for (MetaData metaData : extensionMetaData) {
 			for (ExtensionLibrary library : metaData.getLibraries()) {
 				if (library.getType().equals(ExtensionLibrary.Type.CLIENT) || library.getType().equals(ExtensionLibrary.Type.SHARED)) {
-					extensionLibraries.add(metaData.getPath() + System.getProperty("file.separator") + library.getPath());
+					extensionLibraries.add(metaData.getPath() + "/" + library.getPath());
 				}
 			}
 		}
