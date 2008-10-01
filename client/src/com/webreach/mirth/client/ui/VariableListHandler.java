@@ -36,6 +36,8 @@ import javax.swing.TransferHandler;
 import org.jdesktop.swingx.JXList;
 
 import com.webreach.mirth.client.ui.panels.reference.ReferenceTable;
+import com.webreach.mirth.server.util.DICOMUtil;
+import com.webreach.mirth.util.Entities;
 
 public class VariableListHandler extends TransferHandler
 {
@@ -68,19 +70,19 @@ public class VariableListHandler extends TransferHandler
         staticJsReferences = new HashMap<String, String> ();
         staticJsReferences.put("Raw Data", "messageObject.getRawData()");
         staticJsReferences.put("Transformed Data", "messageObject.getTransformedData()");
-        staticJsReferences.put("Message Type", "$messageObject.getType()");
+        staticJsReferences.put("Message Type", "messageObject.getType()");
         staticJsReferences.put("Message Version", "messageObject.getVersion()");
         staticJsReferences.put("Message Source", "messageObject.getSource()");
         staticJsReferences.put("Message ID", "messageObject.getId()");
         staticJsReferences.put("Encoded Data", "messageObject.getEncodedData()");
-        staticJsReferences.put("Timestamp", "var dateString = DateUtil.getCurrentDate(pattern);");
+        staticJsReferences.put("Timestamp", "var dateString = DateUtil.getCurrentDate('yyyyMMddHHmmss');");
         staticJsReferences.put("Unique ID", "var uuid = UUIDGenerator.getUUID();");
-        staticJsReferences.put("Date", "${DATE");
-        staticJsReferences.put("Original File Name", "${ORIGINALNAME");
-        staticJsReferences.put("Count", "${COUNT");
-        staticJsReferences.put("DICOM Message Raw Data", "${DICOMMESSAGE");
-        staticJsReferences.put("Formatted Date", "${date.get('yyyy-M-d H.m.s')");
-        staticJsReferences.put("Entity Encoder", "${encoder.encode()");
+        staticJsReferences.put("Date", "var date = DateUtil.getDate('pattern','date');");
+        staticJsReferences.put("Count", "var count = 0;\nif(globalMap.get('count') != undefined) {\n\tcount = globalMap.get('count');\n\tcount++;\n\tglobalMap.put('count', count);\n} else {\n\tcount=1;\n\tglobalMap.put('count',count);\n}\n");
+        staticJsReferences.put("Original File Name", "$('originalFilename')");
+        staticJsReferences.put("DICOM Message Raw Data", "var rawData = DICOMUtil.getDICOMRawData(messageObject);");
+        staticJsReferences.put("Formatted Date", "var dateString = DateUtil.getCurrentDate('yyyy-M-d H.m.s');");
+        staticJsReferences.put("Entity Encoder", "var encodedMessage = Entities.getInstance().encode('message');");
     }
 
     protected Transferable createTransferable(JComponent c)
@@ -109,6 +111,15 @@ public class VariableListHandler extends TransferHandler
 
             if (text != null)
             {
+            	if(prefix.equals("${") && suffix.equals("}")) { 
+            		if(staticVelocityReferences.get(text) != null) { 
+            			return new VariableTransferable(staticVelocityReferences.get(text), "", "");
+            		}
+            	} else { 
+            		if(staticJsReferences.get(text) != null) { 
+            			return new VariableTransferable(staticJsReferences.get(text), "", "");
+            		}
+            	}
                 return new VariableTransferable(text, prefix, suffix);
             }
             return null;
