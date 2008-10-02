@@ -31,7 +31,6 @@
 		<jar download="eager" href="client-lib/databinding-0.8.0.jar" />
 		<jar download="eager" href="client-lib/hapi-0.5.jar" />
 		<jar download="eager" href="client-lib/hl7model.jar" />
-		<jar download="eager" href="client-lib/ij.jar" />
 		<jar download="eager" href="client-lib/jaxb-api.jar" />
 		<jar download="eager" href="client-lib/jaxb-impl.jar" />
 		<jar download="eager" href="client-lib/jdic-0.8.0.jar" />
