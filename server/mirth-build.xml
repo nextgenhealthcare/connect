@@ -1,4 +1,4 @@
-<project name="mirth" basedir="." default="create-setup">
+<project name="mirth" basedir="." default="create-dist">
 	<target name="init">
 		<property file="mirth-build.properties" />
 	</target>
@@ -32,6 +32,7 @@
 		<copy todir="${server}/client-lib">
 			<fileset dir="${client}/lib">
 				<exclude name="*-shared.jar" />
+				<exclude name="extensions" />
 			</fileset>
 		</copy>
 	</target>
