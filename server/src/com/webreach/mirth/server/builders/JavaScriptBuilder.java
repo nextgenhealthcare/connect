@@ -59,9 +59,9 @@ public class JavaScriptBuilder {
 			for (Step step : transformer.getSteps()) {
 				logger.debug("adding step: " + step.getName());
 				
-				if (step.getType().equals("File")) {
+				if (step.getType().equalsIgnoreCase("External Script")) {
 				    try {
-	                    builder.append(FileUtil.read(step.getScript()) + "\n");
+	                    builder.append("\n" + FileUtil.read(step.getScript()) + "\n");
 				    } catch (IOException e) {
 				        throw new BuilderException("Could not add script file.", e);
 				    }
