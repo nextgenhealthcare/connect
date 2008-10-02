@@ -43,8 +43,6 @@
 		<jar download="eager" href="client-lib/MRJToolkitStubs.jar" />
 		<jar download="eager" href="client-lib/qname.jar" />
 		<jar download="eager" href="client-lib/rhino-1.6r2.jar" />
-		<jar download="eager" href="client-lib/slf4j-api-1.2.jar" />
-		<jar download="eager" href="client-lib/slf4j-log4j12-1.2.jar" />
 		<jar download="eager" href="client-lib/swing-layout-1.0.1.jar" />
 		<jar download="eager" href="client-lib/swingworker-0.8.0.jar" />
 		<jar download="eager" href="client-lib/swingx-0.8.0.jar" />
