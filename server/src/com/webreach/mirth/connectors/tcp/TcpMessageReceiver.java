@@ -315,7 +315,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 						Map responseMap = messageObjectResponse.getResponseMap();
 						String errorString = "";
 
-						if (connector.isResponseFromTransformer() && !connector.getResponseValue().equalsIgnoreCase("None")) {
+						if (connector.isResponseFromTransformer()) {
 							if (connector.isAckOnNewConnection()) {
 								String endpointURI = connector.getAckIP() + ":" + connector.getAckPort();
 								endpointURI = replacer.replaceURLValues(endpointURI, messageObjectResponse);
@@ -326,7 +326,8 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 								bos.close();
 							} else {
 								protocol.write(os, ((Response) responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));
-
+								os.flush();  // need to flush the stream to actually commit the bytes
+								os.close();
 							}
 						}
 					}

@@ -422,7 +422,7 @@ public class TcpConnector extends QueueEnabledConnector {
 	}
 
 	public boolean isResponseFromTransformer() {
-		return responseFromTransformer;
+		return !getResponseValue().equalsIgnoreCase("None");
 	}
 
 	public void setResponseFromTransformer(boolean responseFromTransformer) {
