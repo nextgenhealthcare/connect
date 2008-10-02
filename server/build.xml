@@ -575,7 +575,9 @@
 
 		<!-- copy public html files -->
 		<copy todir="${setup.public_html}">
-			<fileset dir="${public_html}" />
+			<fileset dir="${public_html}">
+				<exclude name="Thumbs.db" />
+			</fileset>
 		</copy>
 
 		<!-- copy extensions files -->
@@ -728,32 +730,32 @@
 		<delete dir="${dist.extensions}" />
 		<mkdir dir="${dist.extensions}" />
 
-		<zip destfile="${dist.extensions}/doc-${version}.zip" basedir="${extensions}/doc" />
-		<zip destfile="${dist.extensions}/email-${version}.zip" basedir="${extensions}/email" />
-		<zip destfile="${dist.extensions}/file-${version}.zip" basedir="${extensions}/file" />
-		<zip destfile="${dist.extensions}/http-${version}.zip" basedir="${extensions}/http" />
-		<zip destfile="${dist.extensions}/jdbc-${version}.zip" basedir="${extensions}/jdbc" />
-		<zip destfile="${dist.extensions}/jms-${version}.zip" basedir="${extensions}/jms" />
-		<zip destfile="${dist.extensions}/js-${version}.zip" basedir="${extensions}/js" />
-		<zip destfile="${dist.extensions}/mllp-${version}.zip" basedir="${extensions}/mllp" />
-		<zip destfile="${dist.extensions}/soap-${version}.zip" basedir="${extensions}/soap" />
-		<zip destfile="${dist.extensions}/tcp-${version}.zip" basedir="${extensions}/tcp" />
-		<zip destfile="${dist.extensions}/dicom-${version}.zip" basedir="${extensions}/dicom" />
-		<zip destfile="${dist.extensions}/vm-${version}.zip" basedir="${extensions}/vm" />
-		<zip destfile="${dist.extensions}/extensionmanager-${version}.zip" basedir="${extensions}/extensionmanager" />
-		<zip destfile="${dist.extensions}/dashboardstatus-${version}.zip" basedir="${extensions}/dashboardstatus" />
-		<zip destfile="${dist.extensions}/serverlog-${version}.zip" basedir="${extensions}/serverlog" />
-		<zip destfile="${dist.extensions}/messagepruner-${version}.zip" basedir="${extensions}/messagepruner" />
-		<zip destfile="${dist.extensions}/javascriptstep-${version}.zip" basedir="${extensions}/javascriptstep" />
-		<zip destfile="${dist.extensions}/mapper-${version}.zip" basedir="${extensions}/mapper" />
-		<zip destfile="${dist.extensions}/messagebuilder-${version}.zip" basedir="${extensions}/messagebuilder" />
-		<zip destfile="${dist.extensions}/scriptfilestep-${version}.zip" basedir="${extensions}/scriptfilestep" />
-		<zip destfile="${dist.extensions}/rulebuilder-${version}.zip" basedir="${extensions}/rulebuilder" />
-		<zip destfile="${dist.extensions}/javascriptrule-${version}.zip" basedir="${extensions}/javascriptrule" />
-		<zip destfile="${dist.extensions}/dicomviewer-${version}.zip" basedir="${extensions}/dicomviewer" />
-		<zip destfile="${dist.extensions}/pdfviewer-${version}.zip" basedir="${extensions}/pdfviewer" />
-		<zip destfile="${dist.extensions}/rtfviewer-${version}.zip" basedir="${extensions}/rtfviewer" />
-		<zip destfile="${dist.extensions}/imageviewer-${version}.zip" basedir="${extensions}/imageviewer" />
+		<zip destfile="${dist.extensions}/doc-${version}.zip" basedir="${extensions}" includes="doc/**/*" />
+		<zip destfile="${dist.extensions}/email-${version}.zip" basedir="${extensions}" includes="email/**/*" />
+		<zip destfile="${dist.extensions}/file-${version}.zip" basedir="${extensions}" includes="file/**/*" />
+		<zip destfile="${dist.extensions}/http-${version}.zip" basedir="${extensions}" includes="http/**/*" />
+		<zip destfile="${dist.extensions}/jdbc-${version}.zip" basedir="${extensions}" includes="jdbc/**/*" />
+		<zip destfile="${dist.extensions}/jms-${version}.zip" basedir="${extensions}" includes="jms/**/*" />
+		<zip destfile="${dist.extensions}/js-${version}.zip" basedir="${extensions}" includes="js/**/*" />
+		<zip destfile="${dist.extensions}/mllp-${version}.zip" basedir="${extensions}" includes="mllp/**/*" />
+		<zip destfile="${dist.extensions}/soap-${version}.zip" basedir="${extensions}" includes="soap/**/*" />
+		<zip destfile="${dist.extensions}/tcp-${version}.zip" basedir="${extensions}" includes="tcp/**/*" />
+		<zip destfile="${dist.extensions}/dicom-${version}.zip" basedir="${extensions}" includes="dicom/**/*" />
+		<zip destfile="${dist.extensions}/vm-${version}.zip" basedir="${extensions}" includes="vm/**/*" />
+		<zip destfile="${dist.extensions}/extensionmanager-${version}.zip" basedir="${extensions}" includes="extensionmanager/**/*" />
+		<zip destfile="${dist.extensions}/dashboardstatus-${version}.zip" basedir="${extensions}" includes="dashboardstatus/**/*" />
+		<zip destfile="${dist.extensions}/serverlog-${version}.zip" basedir="${extensions}" includes="serverlog/**/*" />
+		<zip destfile="${dist.extensions}/messagepruner-${version}.zip" basedir="${extensions}" includes="messagepruner/**/*" />
+		<zip destfile="${dist.extensions}/javascriptstep-${version}.zip" basedir="${extensions}" includes="javascriptstep/**/*" />
+		<zip destfile="${dist.extensions}/mapper-${version}.zip" basedir="${extensions}" includes="mapper/**/*" />
+		<zip destfile="${dist.extensions}/messagebuilder-${version}.zip" basedir="${extensions}" includes="messagebuilder/**/*" />
+		<zip destfile="${dist.extensions}/scriptfilestep-${version}.zip" basedir="${extensions}" includes="scriptfilestep/**/*" />
+		<zip destfile="${dist.extensions}/rulebuilder-${version}.zip" basedir="${extensions}" includes="rulebuilder/**/*" />
+		<zip destfile="${dist.extensions}/javascriptrule-${version}.zip" basedir="${extensions}" includes="javascriptrule/**/*" />
+		<zip destfile="${dist.extensions}/dicomviewer-${version}.zip" basedir="${extensions}" includes="dicomviewer/**/*" />
+		<zip destfile="${dist.extensions}/pdfviewer-${version}.zip" basedir="${extensions}" includes="pdfviewer/**/*" />
+		<zip destfile="${dist.extensions}/rtfviewer-${version}.zip" basedir="${extensions}" includes="rtfviewer/**/*" />
+		<zip destfile="${dist.extensions}/imageviewer-${version}.zip" basedir="${extensions}" includes="imageviewer/**/*" />
 	</target>
 
 	<target name="create-dist" depends="create-extension-zips">
