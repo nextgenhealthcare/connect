@@ -119,7 +119,7 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
         makeLoadedExtensionsTable();
         
         if (updateInfoList == null) {
-        	checkExtensionsButtonActionPerformed(null);
+        	checkForUpdatesButtonActionPerformed(null);
         } else {
         	extensionUpdates = new HashMap<String, UpdateInfo>();
         	for (UpdateInfo updateInfo : updateInfoList) {
@@ -231,7 +231,7 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
     public void installUpdates()
     {
         installSelectedButton.setEnabled(false);
-        checkExtensionsButton.setEnabled(false);
+        checkForUpdatesButton.setEnabled(false);
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
         	private boolean installedUpdates = false;
@@ -283,7 +283,7 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
             
             public void done()
             {
-            	checkExtensionsButton.setEnabled(true);
+            	checkForUpdatesButton.setEnabled(true);
             	if (installedUpdates){
 	                statusLabel.setText("Updates Installed!");
 	                parent.finishInstall();
@@ -420,7 +420,7 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
         jPanel1 = new javax.swing.JPanel();
         closeButton = new javax.swing.JButton();
         statusLabel = new javax.swing.JLabel();
-        checkExtensionsButton = new javax.swing.JButton();
+        checkForUpdatesButton = new javax.swing.JButton();
         installSelectedButton = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         loadedExtensionScrollPane = new javax.swing.JScrollPane();
@@ -449,10 +449,10 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
 
         statusLabel.setText("Idle");
 
-        checkExtensionsButton.setText("Check Extensions");
-        checkExtensionsButton.addActionListener(new java.awt.event.ActionListener() {
+        checkForUpdatesButton.setText("Check for Updates");
+        checkForUpdatesButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                checkExtensionsButtonActionPerformed(evt);
+                checkForUpdatesButtonActionPerformed(evt);
             }
         });
 
@@ -521,11 +521,11 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
                         .add(ignoredCheckBox))
                     .add(loadedExtensionScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 507, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .add(progressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 208, Short.MAX_VALUE)
+                        .add(progressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 204, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(installSelectedButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(checkExtensionsButton)
+                        .add(checkForUpdatesButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(closeButton))
                     .add(statusLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 437, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -549,7 +549,7 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                         .add(closeButton)
-                        .add(checkExtensionsButton)
+                        .add(checkForUpdatesButton)
                         .add(installSelectedButton))
                     .add(progressBar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
@@ -569,8 +569,8 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
         pack();
     }// </editor-fold>//GEN-END:initComponents
     
-    private void checkExtensionsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkExtensionsButtonActionPerformed
-        checkExtensionsButton.setEnabled(false);
+    private void checkForUpdatesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkForUpdatesButtonActionPerformed
+        checkForUpdatesButton.setEnabled(false);
         installSelectedButton.setEnabled(false);
 
         SwingWorker worker = new SwingWorker<Void, Void>()
@@ -583,13 +583,13 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
             
             public void done()
             {
-            	checkExtensionsButton.setEnabled(true);
+            	checkForUpdatesButton.setEnabled(true);
             }
         };
         
         worker.execute();
         
-}//GEN-LAST:event_checkExtensionsButtonActionPerformed
+}//GEN-LAST:event_checkForUpdatesButtonActionPerformed
     
     private void installSelectedButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_installSelectedButtonActionPerformed
         installUpdates();
@@ -634,7 +634,7 @@ private void ignoredCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//G
 }//GEN-LAST:event_ignoredCheckBoxActionPerformed
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton checkExtensionsButton;
+    private javax.swing.JButton checkForUpdatesButton;
     private javax.swing.JButton closeButton;
     private javax.swing.JCheckBox ignoredCheckBox;
     private javax.swing.JButton installSelectedButton;

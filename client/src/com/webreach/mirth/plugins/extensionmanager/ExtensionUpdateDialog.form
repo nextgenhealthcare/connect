@@ -66,11 +66,11 @@
                       </Group>
                       <Component id="loadedExtensionScrollPane" alignment="0" pref="507" max="32767" attributes="2"/>
                       <Group type="102" alignment="1" attributes="0">
-                          <Component id="progressBar" pref="208" max="32767" attributes="0"/>
+                          <Component id="progressBar" pref="204" max="32767" attributes="0"/>
                           <EmptySpace min="-2" max="-2" attributes="0"/>
                           <Component id="installSelectedButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" max="-2" attributes="0"/>
-                          <Component id="checkExtensionsButton" min="-2" max="-2" attributes="0"/>
+                          <Component id="checkForUpdatesButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" max="-2" attributes="0"/>
                           <Component id="closeButton" min="-2" max="-2" attributes="0"/>
                       </Group>
@@ -99,7 +99,7 @@
                   <Group type="103" groupAlignment="1" attributes="0">
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="closeButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="checkExtensionsButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="checkForUpdatesButton" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="installSelectedButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <Component id="progressBar" min="-2" max="-2" attributes="0"/>
@@ -123,12 +123,12 @@
             <Property name="text" type="java.lang.String" value="Idle"/>
           </Properties>
         </Component>
-        <Component class="javax.swing.JButton" name="checkExtensionsButton">
+        <Component class="javax.swing.JButton" name="checkForUpdatesButton">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Check Extensions"/>
+            <Property name="text" type="java.lang.String" value="Check for Updates"/>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkExtensionsButtonActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkForUpdatesButtonActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JButton" name="installSelectedButton">
