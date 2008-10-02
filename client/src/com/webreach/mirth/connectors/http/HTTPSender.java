@@ -114,7 +114,7 @@ public class HTTPSender extends ConnectorClass
         else if(delete.isSelected())
             properties.put(HTTPSenderProperties.HTTP_METHOD, "delete");
         
-        if (responseHeadersIncludeButton.isSelected())
+        if (includeResponseHeadersYesButton.isSelected())
             properties.put(HTTPSenderProperties.HTTP_EXCLUDE_HEADERS, UIConstants.NO_OPTION);
         else
             properties.put(HTTPSenderProperties.HTTP_EXCLUDE_HEADERS, UIConstants.YES_OPTION);
@@ -157,9 +157,9 @@ public class HTTPSender extends ConnectorClass
             delete.setSelected(true);
         
         if (((String) props.get(HTTPSenderProperties.HTTP_EXCLUDE_HEADERS)).equals(UIConstants.YES_OPTION))
-            responseHeadersExcludeButton.setSelected(true);
+            includeResponseHeadersNoButton.setSelected(true);
         else
-            responseHeadersIncludeButton.setSelected(true);
+            includeResponseHeadersYesButton.setSelected(true);
         
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         
@@ -630,8 +630,8 @@ public class HTTPSender extends ConnectorClass
         headerNewButton = new javax.swing.JButton();
         headerDeleteButton = new javax.swing.JButton();
         responseHeadersLabel = new javax.swing.JLabel();
-        responseHeadersIncludeButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        responseHeadersExcludeButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        includeResponseHeadersYesButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        includeResponseHeadersNoButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         rotateMessages = new com.webreach.mirth.client.ui.components.MirthCheckBox();
         usePersistentQueuesNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         usePersistentQueuesYesRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
@@ -723,21 +723,26 @@ public class HTTPSender extends ConnectorClass
             }
         });
 
-        responseHeadersLabel.setText("Response Headers:");
+        responseHeadersLabel.setText("Include Response Headers:");
 
-        responseHeadersIncludeButton.setBackground(new java.awt.Color(255, 255, 255));
-        responseHeadersIncludeButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        responseHeadersButtonGroup.add(responseHeadersIncludeButton);
-        responseHeadersIncludeButton.setText("Include");
-        responseHeadersIncludeButton.setToolTipText("<html>Only enabled if Send Response To selects a channel.<br>If Include is selected, the HTTP headers of the response received are included in the message sent to the selected channel.<br>If Exclude is selected, the HTTP headers are not included.</html>");
-        responseHeadersIncludeButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        includeResponseHeadersYesButton.setBackground(new java.awt.Color(255, 255, 255));
+        includeResponseHeadersYesButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        responseHeadersButtonGroup.add(includeResponseHeadersYesButton);
+        includeResponseHeadersYesButton.setText("Yes");
+        includeResponseHeadersYesButton.setToolTipText("<html>Only enabled if Send Response To selects a channel.<br>If Include is selected, the HTTP headers of the response received are included in the message sent to the selected channel.<br>If Exclude is selected, the HTTP headers are not included.</html>");
+        includeResponseHeadersYesButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        includeResponseHeadersYesButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                includeResponseHeadersYesButtonActionPerformed(evt);
+            }
+        });
 
-        responseHeadersExcludeButton.setBackground(new java.awt.Color(255, 255, 255));
-        responseHeadersExcludeButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        responseHeadersButtonGroup.add(responseHeadersExcludeButton);
-        responseHeadersExcludeButton.setText("Exclude");
-        responseHeadersExcludeButton.setToolTipText("<html>Only enabled if Send Response To selects a channel.<br>If Include is selected, the HTTP headers of the response received are included in the message sent to the selected channel.<br>If Exclude is selected, the HTTP headers are not included.</html>");
-        responseHeadersExcludeButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        includeResponseHeadersNoButton.setBackground(new java.awt.Color(255, 255, 255));
+        includeResponseHeadersNoButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        responseHeadersButtonGroup.add(includeResponseHeadersNoButton);
+        includeResponseHeadersNoButton.setText("No");
+        includeResponseHeadersNoButton.setToolTipText("<html>Only enabled if Send Response To selects a channel.<br>If Include is selected, the HTTP headers of the response received are included in the message sent to the selected channel.<br>If Exclude is selected, the HTTP headers are not included.</html>");
+        includeResponseHeadersNoButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         rotateMessages.setBackground(new java.awt.Color(255, 255, 255));
         rotateMessages.setText("Rotate Messages in Queue");
@@ -790,50 +795,55 @@ public class HTTPSender extends ConnectorClass
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, reconnectIntervalLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, responseHeadersLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, reconnectIntervalLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel36)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, responseHeadersLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, URL1)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(headerVariablesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                            .add(headerNewButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(headerDeleteButton)))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(propertiesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(deleteButton)
-                            .add(newButton)))
-                    .add(httpURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(layout.createSequentialGroup()
+                                .add(includeResponseHeadersYesButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(includeResponseHeadersNoButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(httpURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(layout.createSequentialGroup()
+                                .add(post, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(get, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(put, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(delete, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(channelNames, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(layout.createSequentialGroup()
+                                .add(usePersistentQueuesYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(usePersistentQueuesNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(rotateMessages, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(reconnectInterval, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(12, 12, 12))
                     .add(layout.createSequentialGroup()
-                        .add(post, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(get, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(put, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(delete, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(channelNames, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(responseHeadersIncludeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(responseHeadersExcludeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(usePersistentQueuesYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(usePersistentQueuesNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(rotateMessages, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(reconnectInterval, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap())
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(layout.createSequentialGroup()
+                                .add(headerVariablesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 233, Short.MAX_VALUE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                                    .add(headerNewButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .add(headerDeleteButton)))
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                                .add(propertiesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 233, Short.MAX_VALUE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(deleteButton)
+                                    .add(newButton))))
+                        .addContainerGap())))
         );
 
         layout.linkSize(new java.awt.Component[] {deleteButton, newButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
@@ -857,6 +867,11 @@ public class HTTPSender extends ConnectorClass
                     .add(channelNames, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(includeResponseHeadersYesButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(includeResponseHeadersNoButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(responseHeadersLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel36)
                     .add(usePersistentQueuesYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(usePersistentQueuesNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -865,11 +880,6 @@ public class HTTPSender extends ConnectorClass
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(reconnectInterval, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(reconnectIntervalLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(responseHeadersLabel)
-                    .add(responseHeadersIncludeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(responseHeadersExcludeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
@@ -881,7 +891,7 @@ public class HTTPSender extends ConnectorClass
                     .add(propertiesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 52, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(headerVariablesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 52, Short.MAX_VALUE)
+                    .add(headerVariablesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 53, Short.MAX_VALUE)
                     .add(jLabel3)
                     .add(layout.createSequentialGroup()
                         .add(headerNewButton)
@@ -929,6 +939,10 @@ rotateMessages.setEnabled(true);
 reconnectInterval.setEnabled(true);
 reconnectIntervalLabel.setEnabled(true);
 }//GEN-LAST:event_usePersistentQueuesYesRadioActionPerformed
+
+private void includeResponseHeadersYesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_includeResponseHeadersYesButtonActionPerformed
+// TODO add your handling code here:
+}//GEN-LAST:event_includeResponseHeadersYesButtonActionPerformed
     
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_deleteButtonActionPerformed
     {// GEN-HEADEREND:event_deleteButtonActionPerformed
@@ -969,6 +983,8 @@ reconnectIntervalLabel.setEnabled(true);
     private javax.swing.JScrollPane headerVariablesPane;
     private com.webreach.mirth.client.ui.components.MirthTable headerVariablesTable;
     private com.webreach.mirth.client.ui.components.MirthTextField httpURL;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton includeResponseHeadersNoButton;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton includeResponseHeadersYesButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -983,8 +999,6 @@ reconnectIntervalLabel.setEnabled(true);
     private com.webreach.mirth.client.ui.components.MirthTextField reconnectInterval;
     private javax.swing.JLabel reconnectIntervalLabel;
     private javax.swing.ButtonGroup responseHeadersButtonGroup;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton responseHeadersExcludeButton;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton responseHeadersIncludeButton;
     private javax.swing.JLabel responseHeadersLabel;
     private com.webreach.mirth.client.ui.components.MirthCheckBox rotateMessages;
     private com.webreach.mirth.client.ui.components.MirthRadioButton usePersistentQueuesNoRadio;
