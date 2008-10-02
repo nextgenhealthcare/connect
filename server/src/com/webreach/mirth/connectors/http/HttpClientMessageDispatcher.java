@@ -219,7 +219,8 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher imple
 			httpMethod = new GetMethod(urlBuilder.toString());
 		} else if (connector.getMethod().equals("put")) {
 		    PutMethod putMethod = new PutMethod(replacer.replaceValues(uri.toString(), messageObject));
-		    putMethod.setRequestEntity(new ByteArrayRequestEntity(requestVariables.get(PAYLOAD_KEY).toString().getBytes()));
+		    String body = replacer.replaceValues(requestVariables.get(PAYLOAD_KEY).toString(), messageObject); 
+		    putMethod.setRequestEntity(new ByteArrayRequestEntity(body.getBytes()));
 		    httpMethod = putMethod;
 		} else if (connector.getMethod().equals("delete")) {
 		    httpMethod = new DeleteMethod(replacer.replaceValues(uri.toString(), messageObject));
