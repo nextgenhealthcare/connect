@@ -57,7 +57,6 @@ public class MirthLauncher {
 	}
 
 	private static void uninstallExtensions() throws Exception{
-		// We need to find our paths from the class loader
 		String extensionsLocation = new File(ClasspathBuilder.EXTENSION_PATH).getPath();
 		String uninstallFileLocation = extensionsLocation + System.getProperty("file.separator") + UNINSTALL_FILE;
 
@@ -78,20 +77,23 @@ public class MirthLauncher {
 	}
 
 	private static void installExtensions() throws Exception {
-		// We need to find our paths from the class loader
 		String extensionsLocation = new File(ClasspathBuilder.EXTENSION_PATH).getPath();
 		String extensionsTempLocation = extensionsLocation + System.getProperty("file.separator") + INSTALL_TEMP + System.getProperty("file.separator");
 
 		File extensionsTemp = new File(extensionsTempLocation);
-		// if we have a temp folder, move the files over
+		// if we have a temp folder, move the extensions over
 		if (extensionsTemp.exists()) {
-			File[] files = extensionsTemp.listFiles();
-			for (int i = 0; i < files.length; i++) {
-				File target = new File(extensionsLocation + System.getProperty("file.separator") + files[i].getName());
+			File[] extensions = extensionsTemp.listFiles();
+			for (int i = 0; i < extensions.length; i++) {
+				File target = new File(extensionsLocation + System.getProperty("file.separator") + extensions[i].getName());
 				if (target.exists()) {
-					target.delete();
+					if (target.isDirectory()) {
+						deleteDirectory(target);
+					} else {
+						target.delete();
+					}
 				}
-				files[i].renameTo(target);
+				extensions[i].renameTo(target);
 			}
 			extensionsTemp.delete();
 		}
