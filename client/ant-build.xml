@@ -8,7 +8,7 @@
 		<property file="build.properties" />
 
 		<path id="classpath">
-			<fileset dir="${lib}" includes="*.jar" />
+			<fileset dir="${lib}" includes="**/*.jar" />
 		</path>
 
 		<mkdir dir="${logs}" />
