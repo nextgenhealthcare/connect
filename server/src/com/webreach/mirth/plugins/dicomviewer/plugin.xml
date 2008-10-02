@@ -15,4 +15,7 @@
 	<library path="dicomviewer-client.jar">
 		<type>CLIENT</type>
 	</library>
+	<library path="ij.jar">
+		<type>SHARED</type>
+	</library>
 </pluginMetaData>
