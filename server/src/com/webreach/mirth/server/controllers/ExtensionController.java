@@ -81,7 +81,9 @@ public interface ExtensionController extends Controller {
 			+ System.getProperty("file.separator");
 	
     public static final String PLUGIN_PROPERTIES_FILE = "plugin.properties";
-	
+    
+    public static final String EXTENSIONS_PROPERTIES_FILE = "extensions.properties";
+    
     // Extension point for ExtensionPoint.Type.SERVER_PLUGIN
     @ExtensionPointDefinition(mode = ExtensionPoint.Mode.SERVER, type = ExtensionPoint.Type.SERVER_PLUGIN)
     public void initPlugins();
@@ -123,4 +125,8 @@ public interface ExtensionController extends Controller {
     public ConnectorMetaData getConnectorMetaDataByProtocol(String protocol);
 
     public Map<String, ServerPlugin> getLoadedPlugins();
+    
+    public void setExtensionsProperties(Properties properties) throws ControllerException;
+    
+    public Properties getExtensionsProperties() throws ControllerException;
 }

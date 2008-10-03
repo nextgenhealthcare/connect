@@ -342,4 +342,54 @@ public class DefaultExtensionController implements ExtensionController {
     public Map<String, ServerPlugin> getLoadedPlugins() {
         return loadedPlugins;
     }
+    
+    public void setExtensionsProperties(Properties properties) throws ControllerException {
+        logger.debug("setting extension properties");
+
+        FileOutputStream fileOutputStream = null;
+
+        try {
+            File propertiesFile = new File(EXTENSIONS_LOCATION + EXTENSIONS_PROPERTIES_FILE);
+            fileOutputStream = new FileOutputStream(propertiesFile);
+            properties.store(fileOutputStream, "Updated extension properties");
+        } catch (Exception e) {
+            throw new ControllerException(e);
+        } finally {
+            try {
+                if (fileOutputStream != null) {
+                    fileOutputStream.flush();
+                    fileOutputStream.close();
+                }
+            } catch (IOException e) {
+                logger.warn(e);
+            }
+        }
+    }
+
+    public Properties getExtensionsProperties() throws ControllerException {
+        logger.debug("retrieving extension properties");
+
+        FileInputStream fileInputStream = null;
+        Properties properties = new Properties();
+
+        try {
+            File propertiesFile = new File(EXTENSIONS_LOCATION + EXTENSIONS_PROPERTIES_FILE);
+            if (!propertiesFile.exists()) {
+                return properties;
+            }
+            fileInputStream = new FileInputStream(propertiesFile);
+            properties.load(fileInputStream);
+        } catch (Exception e) {
+            throw new ControllerException(e);
+        } finally {
+            try {
+                if (fileInputStream != null)
+                    fileInputStream.close();
+            } catch (IOException e) {
+                logger.warn(e);
+            }
+        }
+
+        return properties;
+    }
 }
