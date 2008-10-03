@@ -44,4 +44,5 @@ public class PlatformUI
     public static String CLIENT_VERSION;
     public static String SERVER_VERSION;
     public static String BUILD_DATE;
+    public static String HELP_LOCATION = "http://www.webreachinc.com/wiki/display/mirthuserguide";
 }

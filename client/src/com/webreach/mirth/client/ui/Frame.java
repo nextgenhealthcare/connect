@@ -394,6 +394,11 @@ public class Frame extends JXFrame
         {
             PlatformUI.SERVER_ID = mirthClient.getServerId();
             PlatformUI.SERVER_VERSION = mirthClient.getVersion();
+            String version = PlatformUI.SERVER_VERSION;
+    		int majorVersion = Integer.parseInt(version.split("\\.")[0]);
+    		int minorVersion = Integer.parseInt(version.split("\\.")[1]);
+    		int patchVersion = Integer.parseInt(version.split("\\.")[2]);
+            PlatformUI.HELP_LOCATION += "v" + majorVersion + "r" + minorVersion + "p" + patchVersion + "/";
             PlatformUI.BUILD_DATE = mirthClient.getBuildDate();
         }
         catch (ClientException e)
@@ -4193,25 +4198,29 @@ public class Frame extends JXFrame
     public void doHelp()
     {
         if (currentContentPage == channelEditPanel)
-            BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.CHANNEL_HELP_LOCATION);
+            BareBonesBrowserLaunch.openURL(PlatformUI.HELP_LOCATION + UIConstants.CHANNEL_HELP_LOCATION);
         else if (currentContentPage == channelPanel)
-            BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.CHANNELS_HELP_LOCATION);
+            BareBonesBrowserLaunch.openURL(PlatformUI.HELP_LOCATION + UIConstants.CHANNELS_HELP_LOCATION);
         else if (currentContentPage == dashboardPanel)
-            BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.DASHBOARD_HELP_LOCATION);
+            BareBonesBrowserLaunch.openURL(PlatformUI.HELP_LOCATION + UIConstants.DASHBOARD_HELP_LOCATION);
         else if (currentContentPage == messageBrowser)
-            BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.MESSAGE_BROWSER_HELP_LOCATION);
+            BareBonesBrowserLaunch.openURL(PlatformUI.HELP_LOCATION + UIConstants.MESSAGE_BROWSER_HELP_LOCATION);
         else if (currentContentPage == eventBrowser)
-            BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.SYSTEM_EVENT_HELP_LOCATION);
+            BareBonesBrowserLaunch.openURL(PlatformUI.HELP_LOCATION + UIConstants.SYSTEM_EVENT_HELP_LOCATION);
         else if (currentContentPage == settingsPane)
-            BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.SETTINGS_HELP_LOCATION);
+            BareBonesBrowserLaunch.openURL(PlatformUI.HELP_LOCATION + UIConstants.SETTINGS_HELP_LOCATION);
         else if (currentContentPage == channelEditPanel.transformerPane)
-            BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.TRANFORMER_HELP_LOCATION);
+            BareBonesBrowserLaunch.openURL(PlatformUI.HELP_LOCATION + UIConstants.TRANFORMER_HELP_LOCATION);
         else if (currentContentPage == channelEditPanel.filterPane)
-            BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.FILTER_HELP_LOCATION);
+            BareBonesBrowserLaunch.openURL(PlatformUI.HELP_LOCATION + UIConstants.FILTER_HELP_LOCATION);
         else if (currentContentPage == pluginPanel)
-        	BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION + UIConstants.PLUGINS_HELP_LOCATION);
-    	else
-            BareBonesBrowserLaunch.openURL(UIConstants.HELP_LOCATION);
+        	BareBonesBrowserLaunch.openURL(PlatformUI.HELP_LOCATION + UIConstants.PLUGINS_HELP_LOCATION);
+        else if (currentContentPage == alertPanel)
+        	BareBonesBrowserLaunch.openURL(PlatformUI.HELP_LOCATION + UIConstants.ALERTS_HELP_LOCATION);
+        else if (currentContentPage == userPanel)
+        	BareBonesBrowserLaunch.openURL(PlatformUI.HELP_LOCATION + UIConstants.USERS_HELP_LOCATION);
+        else
+            BareBonesBrowserLaunch.openURL(PlatformUI.HELP_LOCATION);
     }
 
     public Map<String, PluginMetaData> getPluginMetaData()

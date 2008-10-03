@@ -87,8 +87,8 @@ public class UIConstants
     // issue link
     public static final String ISSUE_TRACKER_LOCATION = "http://www.mirthproject.org/jira";
     
-    // help link
-    public static final String HELP_LOCATION = "http://www.webreachinc.com/wiki/display/mirthguide/";
+    // help links
+    public static final String ALERTS_HELP_LOCATION = "Alerts";
     public static final String CHANNEL_HELP_LOCATION = "Edit+Channel";
     public static final String TRANFORMER_HELP_LOCATION = "Transformers";
     public static final String FILTER_HELP_LOCATION = "Filters";
@@ -97,6 +97,7 @@ public class UIConstants
     public static final String MESSAGE_BROWSER_HELP_LOCATION = "Message+Browser";
     public static final String SYSTEM_EVENT_HELP_LOCATION = "Events";
     public static final String SETTINGS_HELP_LOCATION = "Settings";
+    public static final String USERS_HELP_LOCATION = "Users";
     public static final String PLUGINS_HELP_LOCATION = "Plugins";
     // for JTrees
     public static final ImageIcon LEAF_ICON = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_green.png"));
