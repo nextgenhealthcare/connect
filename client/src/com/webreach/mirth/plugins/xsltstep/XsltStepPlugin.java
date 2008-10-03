@@ -4,7 +4,6 @@ import com.webreach.mirth.plugins.TransformerStepPlugin;
 import com.webreach.mirth.client.ui.editors.BasePanel;
 import com.webreach.mirth.client.ui.editors.XsltStepPanel;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 
 import java.util.Map;
 import java.util.HashMap;
