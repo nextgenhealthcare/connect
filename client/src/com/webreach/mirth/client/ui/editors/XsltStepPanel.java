@@ -136,7 +136,7 @@ public class XsltStepPanel extends BasePanel
 
         setBackground(new java.awt.Color(255, 255, 255));
 
-        jLabel1.setText("Source:");
+        jLabel1.setText("Source XML String:");
 
         jLabel2.setText("Result:");
 

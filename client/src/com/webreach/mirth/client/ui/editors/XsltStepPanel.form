@@ -63,7 +63,7 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Source:"/>
+        <Property name="text" type="java.lang.String" value="Source XML String:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel2">
