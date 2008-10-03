@@ -1340,6 +1340,31 @@ public class Frame extends JXFrame
     	return updateClient;
     }
     
+    public void registerUser(final User user) {
+    	setWorking("Registering user...", true);
+
+        SwingWorker worker = new SwingWorker<Void, Void>()
+        {
+            public Void doInBackground()
+            {
+    	    	try {
+    				getUpdateClient(PlatformUI.MIRTH_FRAME).registerUser(user);
+    			} catch (ClientException e) {
+    				// ignore errors connecting to update/stats server
+    			}
+    			
+            	return null;
+            }
+
+            public void done()
+            {
+            	setWorking("", false);
+            }
+        };
+
+        worker.execute();
+    }
+    
     public void checkForUpdates() {
     	setWorking("Checking for updates...", true);
 

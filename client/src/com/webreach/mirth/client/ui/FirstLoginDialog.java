@@ -251,11 +251,7 @@ private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         parent.updateAndSwitchUser(this, user, user.getUsername(), userEditPanel.getPassword());
         
         if (registerCheckBox.isSelected()) {
-        	try {
-				parent.getUpdateClient(this).registerUser(user);
-			} catch (ClientException e) {
-				// ignore errors connecting to update/stats server
-			}
+			parent.registerUser(user);
         }
         
         try {
