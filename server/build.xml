@@ -671,7 +671,7 @@
 			<exclude name="com/webreach/mirth/server/launcher/ShellLauncher.class" />
 			<manifest>
 				<attribute name="Main-Class" value="com.webreach.mirth.server.launcher.MirthLauncher" />
-				<attribute name="Class-Path" value="lib/log4j-1.2.13.jar conf/ extensions/" />
+				<attribute name="Class-Path" value="lib/log4j-1.2.13.jar conf/" />
 			</manifest>
 		</jar>
 
@@ -819,7 +819,7 @@
 		<jar destfile="${dist}/mirth.sar/mirth-jboss.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/server/mbeans/**" />
 			<manifest>
-				<attribute name="Class-Path" value="conf/ extensions/" />
+				<attribute name="Class-Path" value="conf/" />
 			</manifest>
 		</jar>
 		<zip basedir="${dist}" destfile="${dist}/mirth-${version}-jboss-sar.zip" includes="mirth.sar/**" />
