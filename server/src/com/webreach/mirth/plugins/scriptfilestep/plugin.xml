@@ -2,7 +2,7 @@
 	<name>External Script Transformer Step</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>1.7.1</mirthVersion>
+	<mirthVersion>1.8.0</mirthVersion>
 	<url>http://extensions.mirthproject.org</url>
 	<description>This plugin provides an External Script step-type for Mirth transformers</description>
 	<enabled>true</enabled>

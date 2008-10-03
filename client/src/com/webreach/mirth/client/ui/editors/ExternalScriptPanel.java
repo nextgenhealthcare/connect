@@ -15,12 +15,6 @@ import org.syntax.jedit.SyntaxDocument;
  */
 public class ExternalScriptPanel extends BasePanel
 {
-    public boolean updating = false;
-
-    protected String label;
-
-    protected static SyntaxDocument mappingDoc;
-
     protected MirthEditorPane parent;
 
     public ExternalScriptPanel(MirthEditorPane p)

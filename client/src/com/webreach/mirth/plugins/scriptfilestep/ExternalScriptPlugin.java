@@ -40,15 +40,8 @@ public class ExternalScriptPlugin extends TransformerStepPlugin
 		// check for empty variable names
 		if (var == null || var.equals("")) {
 			((TransformerPane) parent).setInvalidVar(true);
-			String msg = "";
-
+			String msg = "The script path field cannot be blank.\nPlease enter a new script path.\n";
 			((TransformerPane) parent).setRowSelectionInterval(row, row);
-
-			if (var == null || var.equals(""))
-				msg = "The script path field cannot be blank.";
-
-			msg += "\nPlease enter a new script path.\n";
-
 			((TransformerPane) parent).getParentFrame().alertWarning(parent.parent, msg);
 		} else {
 			((TransformerPane) parent).setInvalidVar(false);

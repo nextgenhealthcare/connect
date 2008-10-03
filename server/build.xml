@@ -40,6 +40,7 @@
 		<property name="plugins.rulebuilder" value="${extensions}/rulebuilder" />
 		<property name="plugins.serverlog" value="${extensions}/serverlog" />
 		<property name="plugins.scriptfilestep" value="${extensions}/scriptfilestep" />
+		<property name="plugins.xsltstep" value="${extensions}/xsltstep" />
 
 	</target>
 
@@ -520,6 +521,17 @@
 		</copy>
 		<copy todir="${plugins.scriptfilestep}/lib" failonerror="false">
 			<fileset dir="${lib.extensions}/scriptfilestep" />
+		</copy>
+
+		<!-- plugins.xsltstep -->
+		<mkdir dir="${plugins.xsltstep}" />
+		<copy todir="${plugins.xsltstep}">
+			<fileset dir="${src}/com/webreach/mirth/plugins/xsltstep">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${plugins.xsltstep}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/xsltstep" />
 		</copy>
 
 		<!-- set the version on all plugins -->

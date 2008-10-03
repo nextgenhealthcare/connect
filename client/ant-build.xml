@@ -44,6 +44,7 @@
 		<property name="plugins.rulebuilder" value="${extensions}/rulebuilder" />
 		<property name="plugins.serverlog" value="${extensions}/serverlog" />
 		<property name="plugins.scriptfilestep" value="${extensions}/scriptfilestep" />
+		<property name="plugins.xsltstep" value="${extensions}/xsltstep" />
 	</target>
 
 	<target name="clean" depends="init">
@@ -164,7 +165,7 @@
 		<jar destfile="${plugins.messagebuilder}/messagebuilder-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/messagebuilder/**" />
 		</jar>
-		
+
 		<mkdir dir="${plugins.javascriptrule}" />
 		<jar destfile="${plugins.javascriptrule}/javascriptrule-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/javascriptrule/**" />
@@ -208,6 +209,11 @@
 		<mkdir dir="${plugins.scriptfilestep}" />
 		<jar destfile="${plugins.scriptfilestep}/scriptfilestep-client.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/scriptfilestep/**" />
+		</jar>
+
+		<mkdir dir="${plugins.xsltstep}" />
+		<jar destfile="${plugins.xsltstep}/xsltstep-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/plugins/xsltstep/**" />
 		</jar>
 
 		<!-- copy source files -->
