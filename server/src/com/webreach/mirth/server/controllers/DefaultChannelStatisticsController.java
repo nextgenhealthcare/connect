@@ -102,7 +102,7 @@ public class DefaultChannelStatisticsController implements ChannelStatisticsCont
             parameterMap.put("serverId", configurationController.getServerId());
             statsCache.setCache((HashMap<String, ChannelStatistics>) SqlConfig.getSqlMapClient().queryForMap("getStatistics", parameterMap, "channelId"));
         } catch (SQLException e) {
-            logger.error("Could not initialize channel statistics.");
+            logger.error("Could not initialize channel statistics.", e);
         }
     }
 
@@ -129,7 +129,7 @@ public class DefaultChannelStatisticsController implements ChannelStatisticsCont
             if (tempStats != null && tempStats.size() > 0)
                 return true;
         } catch (SQLException e) {
-            logger.error("Could not get channel statistics.");
+            logger.error("Could not get channel statistics.", e);
         }
         return false;
     }
