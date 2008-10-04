@@ -1,4 +1,4 @@
-<project name="mirth" basedir="." default="create-dist">
+<project name="mirth" basedir="." default="create-setup">
 	<target name="init">
 		<property file="mirth-build.properties" />
 	</target>
