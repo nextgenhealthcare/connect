@@ -92,7 +92,7 @@ public class UpdateClient {
 
         HttpClient httpClient = new HttpClient();
         PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url") + URL_USAGE_STATISTICS);
-        NameValuePair[] params = { new NameValuePair("serverId", client.getServerId()), new NameValuePair("data", serializer.toXML(usageData)) };
+        NameValuePair[] params = { new NameValuePair("serverId", client.getServerId()), new NameValuePair("version", client.getVersion()), new NameValuePair("data", serializer.toXML(usageData)) };
         post.setRequestBody(params);
 
         try {
