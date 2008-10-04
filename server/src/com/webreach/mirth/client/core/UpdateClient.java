@@ -30,7 +30,7 @@ public class UpdateClient {
     private ObjectXMLSerializer serializer = new ObjectXMLSerializer();
     private final static String URL_REGISTRATION = "/RegistrationServlet";
     private final static String URL_UPDATES = "/UpdateServlet";
-    private final static String URL_USAGE_STATISTICS = "/UsageDataServlet";
+    private final static String URL_USAGE_STATISTICS = "/UsageStatisticsServlet";
     private final static String USER_PREF_IGNORED_IDS = "ignoredcomponents";
     private final static String COMPONENT_PREFERENCE_SEPARATOR = ",";
     
