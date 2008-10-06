@@ -20,8 +20,8 @@ import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.Preferences;
 import com.webreach.mirth.model.ServerInfo;
-import com.webreach.mirth.model.Step;
 import com.webreach.mirth.model.UpdateInfo;
+import com.webreach.mirth.model.UsageData;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.util.PropertyLoader;
@@ -33,7 +33,17 @@ public class UpdateClient {
     private final static String URL_USAGE_STATISTICS = "/UsageStatisticsServlet";
     private final static String USER_PREF_IGNORED_IDS = "ignoredcomponents";
     private final static String COMPONENT_PREFERENCE_SEPARATOR = ",";
-    
+
+    private final static int KEY_DESTINATIONS = 1;
+    private final static int KEY_RECEIVED = 2;
+    private final static int KEY_FILTERED = 3;
+    private final static int KEY_SENT = 4;
+    private final static int KEY_ERRORED = 5;
+    private final static int KEY_INBOUND_TRANSPORT = 6;
+    private final static int KEY_INBOUND_PROTOCOL = 7;
+    private final static int KEY_OUTBOUND_TRANSPORTS = 8;
+    private final static int KEY_OUTBOUND_PROTOCOLS = 9;
+
     private Client client;
     private User requestUser;
 
@@ -82,7 +92,7 @@ public class UpdateClient {
     }
 
     public void sendUsageStatistics() throws ClientException {
-        Map<String, String> usageData = null;
+        List<UsageData> usageData = null;
 
         try {
             usageData = getUsageData();
@@ -91,6 +101,7 @@ public class UpdateClient {
         }
 
         HttpClient httpClient = new HttpClient();
+        // TODO: set timeout to 10 seconds
         PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url") + URL_USAGE_STATISTICS);
         NameValuePair[] params = { new NameValuePair("serverId", client.getServerId()), new NameValuePair("version", client.getVersion()), new NameValuePair("data", serializer.toXML(usageData)) };
         post.setRequestBody(params);
@@ -104,14 +115,13 @@ public class UpdateClient {
         } catch (Exception e) {
             throw new ClientException(e);
         } finally {
-            if (post != null) {
-                post.releaseConnection();
-            }
+            post.releaseConnection();
         }
     }
 
     public void registerUser(User user) throws ClientException {
         HttpClient httpClient = new HttpClient();
+        // TODO: set timeout to 10 seconds
         PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url") + URL_REGISTRATION);
         NameValuePair[] params = { new NameValuePair("serverId", client.getServerId()), new NameValuePair("user", serializer.toXML(requestUser)) };
         post.setRequestBody(params);
@@ -125,14 +135,13 @@ public class UpdateClient {
         } catch (Exception e) {
             throw new ClientException(e);
         } finally {
-            if (post != null) {
-                post.releaseConnection();
-            }
+            post.releaseConnection();
         }
     }
 
     private List<UpdateInfo> getUpdatesFromUri(ServerInfo serverInfo) throws Exception {
         HttpClient httpClient = new HttpClient();
+        // TODO: set timeout to 10 seconds
         PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url") + URL_UPDATES);
         NameValuePair[] params = { new NameValuePair("serverInfo", serializer.toXML(serverInfo)) };
         post.setRequestBody(params);
@@ -157,9 +166,7 @@ public class UpdateClient {
         } catch (Exception e) {
             throw e;
         } finally {
-            if (post != null) {
-                post.releaseConnection();
-            }
+            post.releaseConnection();
         }
     }
 
@@ -199,56 +206,41 @@ public class UpdateClient {
         }
     }
 
-    private Map<String, String> getUsageData() throws Exception {
-        Map<String, String> usageData = new HashMap<String, String>();
+    private List<UsageData> getUsageData() throws Exception {
+        List<UsageData> usageData = new ArrayList<UsageData>();
         List<Channel> channels = client.getChannel(null);
-        usageData.put("channels", String.valueOf(channels.size()));
-        int channelIndex = 1;
 
         for (Channel channel : channels) {
-            String channelId = "channel" + channelIndex;
-
             // number of destinations
-            usageData.put(channelId + ".destinations", String.valueOf(channel.getDestinationConnectors().size()));
+            usageData.add(new UsageData(channel.getId(), KEY_DESTINATIONS, String.valueOf(channel.getDestinationConnectors().size())));
 
             // message counts
             ChannelStatistics statistics = client.getStatistics(channel.getId());
 
             if (statistics != null) {
-                usageData.put(channelId + ".received", String.valueOf(statistics.getReceived()));
-                usageData.put(channelId + ".filtered", String.valueOf(statistics.getFiltered()));
-                usageData.put(channelId + ".sent", String.valueOf(statistics.getSent()));
-                usageData.put(channelId + ".errored", String.valueOf(statistics.getError()));
+                usageData.add(new UsageData(channel.getId(), KEY_RECEIVED, String.valueOf(statistics.getReceived())));
+                usageData.add(new UsageData(channel.getId(), KEY_FILTERED, String.valueOf(statistics.getFiltered())));
+                usageData.add(new UsageData(channel.getId(), KEY_SENT, String.valueOf(statistics.getSent())));
+                usageData.add(new UsageData(channel.getId(), KEY_ERRORED, String.valueOf(statistics.getError())));
             }
 
-            // connector and protocol counts
-            updateCount(usageData, channel.getSourceConnector().getTransportName());
-            updateCount(usageData, channel.getSourceConnector().getTransformer().getInboundProtocol().name());
-            updateCount(usageData, channel.getSourceConnector().getTransformer().getOutboundProtocol().name());
+            // connector transport and protocol counts
+            usageData.add(new UsageData(channel.getId(), KEY_INBOUND_TRANSPORT, channel.getSourceConnector().getTransportName()));
+            usageData.add(new UsageData(channel.getId(), KEY_INBOUND_PROTOCOL, channel.getSourceConnector().getTransformer().getInboundProtocol().name()));
+
+            StringBuilder outboundTransports = new StringBuilder();
+            StringBuilder outboundProtocols = new StringBuilder();
 
             for (Connector connector : channel.getDestinationConnectors()) {
-                updateCount(usageData, connector.getTransportName());
-                updateCount(usageData, connector.getTransformer().getInboundProtocol().name());
-                updateCount(usageData, connector.getTransformer().getOutboundProtocol().name());
-
-                for (Step step : connector.getTransformer().getSteps()) {
-                    updateCount(usageData, step.getType());
-                }
+                outboundTransports.append(connector.getTransportName() + ",");
+                outboundProtocols.append(connector.getTransformer().getOutboundProtocol().name() + ",");
             }
 
-            channelIndex++;
+            usageData.add(new UsageData(channel.getId(), KEY_OUTBOUND_TRANSPORTS, outboundTransports.toString()));
+            usageData.add(new UsageData(channel.getId(), KEY_OUTBOUND_PROTOCOLS, outboundProtocols.toString()));
         }
 
         return usageData;
     }
 
-    private void updateCount(Map<String, String> usageData, String key) {
-        String count = usageData.get(key);
-
-        if (count == null) {
-            usageData.put(key, "1");
-        } else {
-            usageData.put(key, String.valueOf(Integer.valueOf(count) + 1));
-        }
-    }
 }
