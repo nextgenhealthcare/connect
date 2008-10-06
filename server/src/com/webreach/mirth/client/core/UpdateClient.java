@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
@@ -93,6 +94,18 @@ public class UpdateClient {
     }
 
     public void sendUsageStatistics() throws ClientException {
+    	// Only send stats if they haven't been sent in the last 24 hours.
+    	long now = System.currentTimeMillis();
+    	String lastUpdate = client.getServerProperties().getProperty("stats.time");
+    	
+    	if (lastUpdate != null && lastUpdate.length() > 0) {
+    		long last = Long.parseLong(lastUpdate);
+    		// 86400 seconds in a day
+    		if ((now - last) < (86400 * 1000)) {
+    			return;
+    		}
+    	}
+    	
         List<UsageData> usageData = null;
 
         try {
@@ -113,6 +126,12 @@ public class UpdateClient {
             if ((statusCode != HttpStatus.SC_OK) && (statusCode != HttpStatus.SC_MOVED_TEMPORARILY)) {
                 throw new Exception("Failed to connect to update server: " + post.getStatusLine());
             }
+            
+            // Save the sent time if sending was successful.
+            Properties properties = client.getServerProperties();
+            properties.setProperty("stats.time", Long.toString(now));
+            client.setServerProperties(properties);
+            
         } catch (Exception e) {
             throw new ClientException(e);
         } finally {
