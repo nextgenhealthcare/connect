@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -231,9 +232,15 @@ public class UpdateClient {
             StringBuilder outboundTransports = new StringBuilder();
             StringBuilder outboundProtocols = new StringBuilder();
 
-            for (Connector connector : channel.getDestinationConnectors()) {
-                outboundTransports.append(connector.getTransportName() + ",");
-                outboundProtocols.append(connector.getTransformer().getOutboundProtocol().name() + ",");
+            for (Iterator iterator = channel.getDestinationConnectors().iterator(); iterator.hasNext();) {
+                Connector connector = (Connector) iterator.next();
+                outboundTransports.append(connector.getTransportName());
+                outboundProtocols.append(connector.getTransformer().getOutboundProtocol().name());
+
+                if (iterator.hasNext()) {
+                    outboundTransports.append(",");
+                    outboundProtocols.append(",");
+                }
             }
 
             usageData.add(new UsageData(channel.getId(), KEY_OUTBOUND_TRANSPORTS, outboundTransports.toString()));
