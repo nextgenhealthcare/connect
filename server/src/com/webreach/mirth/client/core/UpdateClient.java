@@ -14,6 +14,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.params.HttpClientParams;
 
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatistics;
@@ -114,8 +115,9 @@ public class UpdateClient {
             throw new ClientException(e);
         }
 
-        HttpClient httpClient = new HttpClient();
-        // TODO: set timeout to 10 seconds
+        HttpClientParams httpParams = new HttpClientParams();
+        httpParams.setSoTimeout(10 * 1000);
+        HttpClient httpClient = new HttpClient(httpParams);
         PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url") + URL_USAGE_STATISTICS);
         NameValuePair[] params = { new NameValuePair("serverId", client.getServerId()), new NameValuePair("version", client.getVersion()), new NameValuePair("data", serializer.toXML(usageData)) };
         post.setRequestBody(params);
@@ -140,8 +142,9 @@ public class UpdateClient {
     }
 
     public void registerUser(User user) throws ClientException {
-        HttpClient httpClient = new HttpClient();
-        // TODO: set timeout to 10 seconds
+        HttpClientParams httpParams = new HttpClientParams();
+        httpParams.setSoTimeout(10 * 1000);
+        HttpClient httpClient = new HttpClient(httpParams);
         PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url") + URL_REGISTRATION);
         NameValuePair[] params = { new NameValuePair("serverId", client.getServerId()), new NameValuePair("user", serializer.toXML(requestUser)) };
         post.setRequestBody(params);
@@ -160,8 +163,9 @@ public class UpdateClient {
     }
 
     private List<UpdateInfo> getUpdatesFromUri(ServerInfo serverInfo) throws Exception {
-        HttpClient httpClient = new HttpClient();
-        // TODO: set timeout to 10 seconds
+        HttpClientParams httpParams = new HttpClientParams();
+        httpParams.setSoTimeout(10 * 1000);
+        HttpClient httpClient = new HttpClient(httpParams);
         PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url") + URL_UPDATES);
         NameValuePair[] params = { new NameValuePair("serverInfo", serializer.toXML(serverInfo)) };
         post.setRequestBody(params);
