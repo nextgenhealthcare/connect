@@ -30,6 +30,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 import java.util.Scanner;
 
 import org.apache.log4j.Logger;
@@ -37,9 +38,9 @@ import org.apache.log4j.Logger;
 import com.ibatis.sqlmap.client.SqlMapClient;
 
 public class DatabaseUtil {
-    
-    private Logger logger = Logger.getLogger(this.getClass());
-    
+
+	private static Logger logger = Logger.getLogger(DatabaseUtil.class);
+
 	/**
 	 * Closes the specified ResultSet.
 	 * 
@@ -93,55 +94,91 @@ public class DatabaseUtil {
 			throw new RuntimeException(e);
 		}
 	}
-    
-    public static void executeScript(File script, boolean ignoreErrors) throws Exception {
-        SqlMapClient sqlMap = SqlConfig.getSqlMapClient();
-        
-        Connection conn = null;
-        ResultSet resultSet = null;
-        Statement statement = null;
-        
-        try {
-            conn = sqlMap.getDataSource().getConnection();
-            statement = conn.createStatement();
-            
-            Scanner s = new Scanner(script);
-            while(s.hasNextLine()) {
-                StringBuilder sb = new StringBuilder();
-                boolean blankLine = false;
-                
-                while(s.hasNextLine() && !blankLine)
-                {
-                    String temp = s.nextLine();
-                    
-                    if (temp.trim().length() > 0)
-                    	sb.append(temp + " ");
-                    else
-                        blankLine = true;
-                }
-                
-                String statmentString = sb.toString().trim();
-                if(statmentString.length() > 0)
-                {
-                	try { 
-                		statement.execute(statmentString);
-                		conn.commit(); 
-                	} catch (SQLException se) { 
-                		if(!ignoreErrors) { 
-                			throw se;
-                		} else { 
-                			conn.rollback();
-                		}
-                	}
-                }
-            }          
-                            
-        } catch (Exception e) {
-            throw new Exception(e);
-        } finally {
-            close(statement);    
-            close(resultSet);
-            close(conn);
-        }
-    }
+
+	public static void executeScript(File script, boolean ignoreErrors) throws Exception {
+		SqlMapClient sqlMap = SqlConfig.getSqlMapClient();
+
+		Connection conn = null;
+		ResultSet resultSet = null;
+		Statement statement = null;
+
+		try {
+			conn = sqlMap.getDataSource().getConnection();
+			statement = conn.createStatement();
+
+			Scanner s = new Scanner(script);
+			while (s.hasNextLine()) {
+				StringBuilder sb = new StringBuilder();
+				boolean blankLine = false;
+
+				while (s.hasNextLine() && !blankLine) {
+					String temp = s.nextLine();
+
+					if (temp.trim().length() > 0)
+						sb.append(temp + " ");
+					else
+						blankLine = true;
+				}
+
+				String statementString = sb.toString().trim();
+				if (statementString.length() > 0) {
+					try {
+						statement.execute(statementString);
+						conn.commit();
+					} catch (SQLException se) {
+						if (!ignoreErrors) {
+							throw se;
+						} else {
+							logger.error("Error was encountered and ignored while executing statement: " + statementString, se);
+							conn.rollback();
+						}
+					}
+				}
+			}
+
+		} catch (Exception e) {
+			throw new Exception(e);
+		} finally {
+			close(statement);
+			close(resultSet);
+			close(conn);
+		}
+	}
+
+	public static void executeScript(List<String> script, boolean ignoreErrors) throws Exception {
+		SqlMapClient sqlMap = SqlConfig.getSqlMapClient();
+
+		Connection conn = null;
+		ResultSet resultSet = null;
+		Statement statement = null;
+
+		try {
+			conn = sqlMap.getDataSource().getConnection();
+			statement = conn.createStatement();
+
+			for (String statementString : script) {
+				statementString = statementString.trim();
+				if (statementString.length() > 0) {
+					try {
+						statement.execute(statementString);
+						conn.commit();
+					} catch (SQLException se) {
+						if (!ignoreErrors) {
+							throw se;
+						} else {
+							logger.error("Error was encountered and ignored while executing statement: " + statementString, se);
+							conn.rollback();
+						}
+					}
+				}
+			}
+
+		} catch (Exception e) {
+			throw new Exception(e);
+		} finally {
+			close(statement);
+			close(resultSet);
+			close(conn);
+		}
+	}
 }

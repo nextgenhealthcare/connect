@@ -33,4 +33,5 @@ package com.webreach.mirth.server.controllers;
  */
 public interface MigrationController extends Controller {
     public void migrate();
+    public void migrateExtensions();
 }

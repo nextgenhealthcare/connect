@@ -152,6 +152,7 @@ public class Mirth extends Thread {
         messageObjectController.removeAllFilterTables();
         eventController.removeAllFilterTables();
         migrationController.migrate();
+        migrationController.migrateExtensions();
         channelStatisticsController.start();
         channelController.loadChannelCache();
         configurationController.loadEncryptionKey();

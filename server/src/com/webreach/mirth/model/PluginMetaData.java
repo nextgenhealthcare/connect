@@ -41,7 +41,6 @@ public class PluginMetaData extends MetaData implements Serializable {
 	private List<ExtensionPoint> extensionPoints;
 
     private String sqlScript;
-    private int schemaVersion;
 
     @XStreamAlias("sqlMapConfigs")
     private Map<String, String> sqlMapConfigs;
@@ -60,14 +59,6 @@ public class PluginMetaData extends MetaData implements Serializable {
 
     public void setSqlScript(String sqlScript) {
         this.sqlScript = sqlScript;
-    }
-
-    public int getSchemaVersion() {
-        return schemaVersion;
-    }
-
-    public void setSchemaVersion(int schemaVersion) {
-        this.schemaVersion = schemaVersion;
     }
 
     public Map<String, String> getSqlMapConfigs() {
