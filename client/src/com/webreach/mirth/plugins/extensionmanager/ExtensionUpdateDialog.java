@@ -312,7 +312,7 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
         		try {
         			updateInfoList = PlatformUI.MIRTH_FRAME.getUpdateClient(progressBar).getUpdates();
         		} catch (ClientException e) {
-        			parent.alertException(progressBar, e.getStackTrace(), e.getMessage());
+        			parent.alertError(progressBar, "Could not contact update server.");
         		}
                 
                 for (UpdateInfo updateInfo : updateInfoList) {
