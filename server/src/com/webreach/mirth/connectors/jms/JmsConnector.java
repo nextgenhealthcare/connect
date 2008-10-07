@@ -18,11 +18,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Hashtable;
 import java.util.Map;
 
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.Session;
-import javax.jms.XAConnectionFactory;
+import javax.jms.*;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -36,6 +32,7 @@ import org.mule.impl.internal.events.ConnectionEventListener;
 import org.mule.providers.AbstractServiceEnabledConnector;
 import org.mule.providers.ConnectException;
 import org.mule.providers.ReplyToHandler;
+import org.mule.providers.FatalConnectException;
 import org.mule.transaction.TransactionCoordination;
 import org.mule.umo.TransactionException;
 import org.mule.umo.UMOComponent;
@@ -47,6 +44,7 @@ import org.mule.umo.lifecycle.LifecycleException;
 import org.mule.umo.manager.UMOServerEvent;
 import org.mule.util.BeanUtils;
 import org.mule.util.ClassHelper;
+import org.apache.commons.lang.UnhandledException;
 
 import com.webreach.mirth.connectors.jms.xa.ConnectionFactoryWrapper;
 
@@ -89,8 +87,9 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
 	private String redeliveryHandler = DefaultRedeliveryHandler.class.getName();
 	private String channelId;
 	private int frequency = 10000;
+    private boolean recoverJmsConnections = true;    
 
-	public JmsConnector() {
+    public JmsConnector() {
 		receivers = new ConcurrentHashMap();
 	}
 
@@ -212,7 +211,44 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
 		if (clientId != null) {
 			connection.setClientID(getClientId());
 		}
-		return connection;
+        
+        if (recoverJmsConnections && connection != null)
+        {
+            connection.setExceptionListener(new ExceptionListener()
+            {
+                public void onException(JMSException jmsException)
+                {
+                    logger.debug("About to recycle myself due to remote JMS connection shutdown.");
+                    final JmsConnector jmsConnector = JmsConnector.this;
+                    try
+                    {
+                        jmsConnector.doStop();
+                        jmsConnector.initialised.set(false);
+                    }
+                    catch (UMOException e)
+                    {
+                        logger.warn(e.getMessage(), e);
+                    }
+
+                    try
+                    {
+                        jmsConnector.doConnect();
+                        jmsConnector.doInitialise();
+                        jmsConnector.doStart();
+                    }
+                    catch (FatalConnectException fcex)
+                    {
+                        logger.fatal("Failed to reconnect to JMS server. I'm giving up.");
+                    }
+                    catch (UMOException umoex)
+                    {
+                        throw new UnhandledException("Failed to recover a connector.", umoex);
+                    }
+                }
+            });
+        }        
+        
+        return connection;
 	}
 
 	public void doConnect() throws ConnectException {
@@ -334,7 +370,8 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
 				logger.error("Jms connector failed to dispose properly: ", e);
 			}
 		}
-	}
+        jndiContext = null;        
+    }
 
 	/**
 	 * @return Returns the acknowledgeMode.
