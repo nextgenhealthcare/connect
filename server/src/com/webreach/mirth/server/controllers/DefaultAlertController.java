@@ -36,7 +36,6 @@ import org.apache.log4j.Logger;
 import org.mule.providers.TemplateValueReplacer;
 
 import com.webreach.mirth.model.Alert;
-import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.server.builders.ErrorMessageBuilder;
 import com.webreach.mirth.server.util.SMTPConnection;
 import com.webreach.mirth.server.util.SMTPConnectionFactory;
@@ -192,12 +191,10 @@ public class DefaultAlertController implements AlertController {
             String body = errorMessage;
 
             if (template != null) {
-                Channel filterChannel = new Channel();
-                filterChannel.setId(channelId);
-                Channel channel = ControllerFactory.getFactory().createChannelController().getChannel(filterChannel).get(0);
+                String channelName = ControllerFactory.getFactory().createChannelController().getChannelName(channelId);
 
                 Map<String, Object> context = new HashMap<String, Object>();
-                context.put("channelName", channel.getName());
+                context.put("channelName", channelName);
                 context.put("ERROR", errorMessage);
                 context.put("error", errorMessage);
                 context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));

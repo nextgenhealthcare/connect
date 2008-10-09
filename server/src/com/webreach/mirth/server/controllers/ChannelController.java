@@ -54,6 +54,8 @@ public interface ChannelController extends Controller {
 
     // utility methods
     public String getChannelId(String channelName);
+    
+    public String getChannelName(String channelId);
 
     public String getDestinationName(String id);
 

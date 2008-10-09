@@ -281,11 +281,11 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
                             information = HTTPSenderProperties.getInformation(connector.getProperties());
                         } else if (connector.getTransportName().equals(ChannelWriterProperties.name)) {
                             // Destination - Channel Writer.
-                        	Channel cachedChannel = ControllerFactory.getFactory().createChannelController().getChannelCache().get(ChannelWriterProperties.getInformation(connector.getProperties()));
-                        	if (cachedChannel == null) {
+                        	String targetChannelName = ControllerFactory.getFactory().createChannelController().getChannelName(ChannelWriterProperties.getInformation(connector.getProperties()));
+                        	if (targetChannelName == null) {
                         		information = "Target Channel: None";
                         	} else {
-                        		information = "Target Channel: " + cachedChannel.getName();
+                        		information = "Target Channel: " + targetChannelName;
                         	}
                         } else if (connector.getTransportName().equals(EmailSenderProperties.name)) {
                             // Destination - Email Sender.

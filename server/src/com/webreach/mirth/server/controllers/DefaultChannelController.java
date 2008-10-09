@@ -47,6 +47,7 @@ public class DefaultChannelController implements ChannelController {
     private Logger logger = Logger.getLogger(this.getClass());
     private static HashMap<String, Channel> channelCache = new HashMap<String, Channel>();
     private static HashMap<String, String> channelIdLookup = new HashMap<String, String>();
+    private static HashMap<String, String> channelNameLookup = new HashMap<String, String>();
     private ChannelStatisticsController statisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
@@ -94,6 +95,7 @@ public class DefaultChannelController implements ChannelController {
     public void refreshChannelCache(List<Channel> channels) throws ControllerException {
         channelCache = new HashMap<String, Channel>();
         channelIdLookup = new HashMap<String, String>();
+        channelNameLookup = new HashMap<String, String>();
 
         for (Channel channel : channels) {
             updateChannelInCache(channel);
@@ -101,7 +103,11 @@ public class DefaultChannelController implements ChannelController {
     }
 
     public String getChannelId(String channelName) {
-        return channelIdLookup.get(channelName.toUpperCase());
+        return channelIdLookup.get(channelName);
+    }
+    
+    public String getChannelName(String channelId) {
+    	return channelNameLookup.get(channelId);
     }
 
     public String getDestinationName(String id) {
@@ -293,17 +299,20 @@ public class DefaultChannelController implements ChannelController {
 
     private void removeChannelFromCache(String channelId) {
         channelCache.remove(channelId);
-        channelIdLookup.remove(channelId);
+        channelIdLookup.remove(channelNameLookup.get(channelId));
+        channelNameLookup.remove(channelId);
     }
 
     private void clearChannelCache() {
         channelCache.clear();
         channelIdLookup.clear();
+        channelNameLookup.clear();
     }
 
     private void updateChannelInCache(Channel channel) {
         channelCache.put(channel.getId(), channel);
-        channelIdLookup.put(channel.getName().toUpperCase(), channel.getId());
+        channelIdLookup.put(channel.getName(), channel.getId());
+        channelNameLookup.put(channel.getId(), channel.getName());
     }
 
     public void setChannelCache(HashMap<String, Channel> channelCache) {
