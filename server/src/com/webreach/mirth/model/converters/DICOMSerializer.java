@@ -44,7 +44,7 @@ import org.xml.sax.InputSource;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
-public class DICOMSerializer implements IXMLSerializer<String> {
+public class    DICOMSerializer implements IXMLSerializer<String> {
 	private Logger logger = Logger.getLogger(this.getClass());
     public boolean validationError = false;
     public String rawData;
@@ -135,7 +135,8 @@ public class DICOMSerializer implements IXMLSerializer<String> {
             // Encode it before transforming it
             return toXML(encodeMessage(getBytesFromFile(tempDCMFile)));
         } catch (Exception e) {
-            throw new SerializerException(e.getMessage());
+            //throw new SerializerException(e.getMessage());
+            return "Invalid DICOM Message";
         }
     }
     
