@@ -71,20 +71,26 @@ public class MessageObjectToEmailMessage extends AbstractEventAwareTransformer {
 		SmtpConnector connector = (SmtpConnector) endpoint.getConnector();
 		MessageObject messageObject = (MessageObject) src;
 		
-		// replace values
 		String to = context.getStringProperty(MailProperties.TO_ADDRESSES_PROPERTY, connector.getToAddresses());
 		to = replacer.replaceValues(to, messageObject);
 		
 		String cc = context.getStringProperty(MailProperties.CC_ADDRESSES_PROPERTY, connector.getCcAddresses());
-		String bcc = context.getStringProperty(MailProperties.BCC_ADDRESSES_PROPERTY, connector.getBccAddresses());
-		String from = context.getStringProperty(MailProperties.FROM_ADDRESS_PROPERTY, connector.getFromAddress());
-		String replyTo = context.getStringProperty(MailProperties.REPLY_TO_ADDRESSES_PROPERTY, connector.getReplyToAddresses());
+		cc = replacer.replaceValues(cc, messageObject);
 		
-		// replace values
+		String bcc = context.getStringProperty(MailProperties.BCC_ADDRESSES_PROPERTY, connector.getBccAddresses());
+		bcc = replacer.replaceValues(bcc, messageObject);
+		
+		String from = context.getStringProperty(MailProperties.FROM_ADDRESS_PROPERTY, connector.getFromAddress());
+		from = replacer.replaceValues(from, messageObject);
+		
+		String replyTo = context.getStringProperty(MailProperties.REPLY_TO_ADDRESSES_PROPERTY, connector.getReplyToAddresses());
+		replyTo = replacer.replaceValues(replyTo, messageObject);
+		
 		String subject = context.getStringProperty(MailProperties.SUBJECT_PROPERTY, connector.getSubject());
 		subject = replacer.replaceValues(subject, messageObject);
 		
 		String contentType = context.getStringProperty(MailProperties.CONTENT_TYPE_PROPERTY, connector.getContentType());
+		contentType = replacer.replaceValues(contentType, messageObject);
 
 		Properties headers = new Properties();
 		
