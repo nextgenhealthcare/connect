@@ -40,7 +40,7 @@ import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.util.EncryptionException;
 import com.webreach.mirth.util.FIPSEncrypter;
 
-public class DefaultUserController implements UserController {
+public class DefaultUserController extends UserController {
     private Logger logger = Logger.getLogger(this.getClass());
     private FIPSEncrypter encrypter = FIPSEncrypter.getInstance();
 
@@ -50,7 +50,7 @@ public class DefaultUserController implements UserController {
 
     }
 
-    public static UserController getInstance() {
+    public static UserController create() {
         synchronized (DefaultUserController.class) {
             if (instance == null) {
                 instance = new DefaultUserController();

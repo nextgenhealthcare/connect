@@ -44,7 +44,7 @@ import com.webreach.mirth.model.filters.SystemEventFilter;
 import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.server.util.SqlConfig;
 
-public class DefaultEventController implements EventController {
+public class DefaultEventController extends EventController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private static DefaultEventController instance = null;
 	
@@ -52,7 +52,7 @@ public class DefaultEventController implements EventController {
 
 	}
 	
-	public static EventController getInstance() {
+	public static EventController create() {
 		synchronized (DefaultEventController.class) {
 			if (instance == null) {
 				instance = new DefaultEventController();

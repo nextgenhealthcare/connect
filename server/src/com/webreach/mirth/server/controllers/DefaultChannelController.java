@@ -43,7 +43,7 @@ import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.util.PropertyVerifier;
 import com.webreach.mirth.util.QueueUtil;
 
-public class DefaultChannelController implements ChannelController {
+public class DefaultChannelController extends ChannelController {
     private Logger logger = Logger.getLogger(this.getClass());
     private static HashMap<String, Channel> channelCache = new HashMap<String, Channel>();
     private static HashMap<String, String> channelIdLookup = new HashMap<String, String>();
@@ -58,7 +58,7 @@ public class DefaultChannelController implements ChannelController {
 
     }
 
-    public static ChannelController getInstance() {
+    public static ChannelController create() {
         synchronized (DefaultChannelController.class) {
             if (instance == null) {
                 instance = new DefaultChannelController();

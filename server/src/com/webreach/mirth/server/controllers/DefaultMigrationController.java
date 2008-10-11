@@ -62,7 +62,7 @@ import com.webreach.mirth.server.util.SqlConfig;
  * @author geraldb
  * 
  */
-public class DefaultMigrationController implements MigrationController {
+public class DefaultMigrationController extends MigrationController {
 	private static final String DELTA_FOLDER = "deltas";
 	private Logger logger = Logger.getLogger(this.getClass());
 	ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
@@ -75,7 +75,7 @@ public class DefaultMigrationController implements MigrationController {
 
 	}
 
-	public static MigrationController getInstance() {
+	public static MigrationController create() {
 		synchronized (DefaultMigrationController.class) {
 			if (instance == null) {
 				instance = new DefaultMigrationController();

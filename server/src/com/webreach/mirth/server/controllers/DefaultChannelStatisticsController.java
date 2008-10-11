@@ -41,7 +41,7 @@ import com.webreach.mirth.server.util.SqlConfig;
  * @author GeraldB
  * 
  */
-public class DefaultChannelStatisticsController implements ChannelStatisticsController {
+public class DefaultChannelStatisticsController extends ChannelStatisticsController {
     private Logger logger = Logger.getLogger(this.getClass());
     private ChannelStatisticsCache statsCache;
     private StatisticsUpdater statsUpdater = null;
@@ -56,7 +56,7 @@ public class DefaultChannelStatisticsController implements ChannelStatisticsCont
 
     }
 
-    public static ChannelStatisticsController getInstance() {
+    public static ChannelStatisticsController create() {
         synchronized (DefaultChannelStatisticsController.class) {
             if (instance == null) {
                 instance = new DefaultChannelStatisticsController();

@@ -26,7 +26,11 @@
 package com.webreach.mirth.server.controllers;
 
 
-public interface ScriptController extends Controller {
+public abstract class ScriptController extends Controller {
+    public ScriptController getInstance() {
+        return ControllerFactory.getFactory().createScriptController();
+    }
+    
     /**
      * Adds a script with the specified id to the database. If a script with the
      * id already exists it will be overwritten.
@@ -35,7 +39,7 @@ public interface ScriptController extends Controller {
      * @param script
      * @throws ControllerException
      */
-    public void putScript(String id, String script) throws ControllerException;
+    public abstract void putScript(String id, String script) throws ControllerException;
 
     /**
      * Returns the script with the specified id, null otherwise.
@@ -44,7 +48,7 @@ public interface ScriptController extends Controller {
      * @return
      * @throws ControllerException
      */
-    public String getScript(String id) throws ControllerException;
+    public abstract String getScript(String id) throws ControllerException;
 
-    public void clearScripts() throws ControllerException;
+    public abstract void clearScripts() throws ControllerException;
 }

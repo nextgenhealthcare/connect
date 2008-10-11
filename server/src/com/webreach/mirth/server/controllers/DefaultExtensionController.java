@@ -48,7 +48,7 @@ import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.plugins.ServerPlugin;
 import com.webreach.mirth.util.ExtensionUtil;
 
-public class DefaultExtensionController implements ExtensionController {
+public class DefaultExtensionController extends ExtensionController {
     private Logger logger = Logger.getLogger(this.getClass());
     private Map<String, PluginMetaData> plugins;
     private Map<String, ServerPlugin> loadedPlugins = null;
@@ -59,7 +59,7 @@ public class DefaultExtensionController implements ExtensionController {
     // singleton pattern
     private static DefaultExtensionController instance = null;
     
-    public static ExtensionController getInstance() {
+    public static ExtensionController create() {
         synchronized (DefaultExtensionController.class) {
             if (instance == null) {
                 instance = new DefaultExtensionController();

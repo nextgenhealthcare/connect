@@ -42,7 +42,7 @@ import com.webreach.mirth.server.util.SMTPConnectionFactory;
 import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.util.PropertyLoader;
 
-public class DefaultAlertController implements AlertController {
+public class DefaultAlertController extends AlertController {
     private Logger logger = Logger.getLogger(this.getClass());
     private ChannelStatisticsController statisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
     private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
@@ -53,7 +53,7 @@ public class DefaultAlertController implements AlertController {
 
     }
 
-    public static AlertController getInstance() {
+    public static AlertController create() {
         synchronized (DefaultAlertController.class) {
             if (instance == null) {
                 instance = new DefaultAlertController();

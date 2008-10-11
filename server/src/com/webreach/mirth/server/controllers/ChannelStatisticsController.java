@@ -33,42 +33,46 @@ import com.webreach.mirth.model.ChannelStatistics;
  * @author GeraldB
  * 
  */
-public interface ChannelStatisticsController extends Controller {
-    public void shutdown();
-
-    public void start();
+public abstract class ChannelStatisticsController extends Controller {
+    public ChannelStatisticsController getInstance() {
+        return ControllerFactory.getFactory().createChannelStatisticsController();
+    }
     
-    public void reloadLocalCache();
+    public abstract void shutdown();
 
-    public ChannelStatistics getStatistics(String channelId);
+    public abstract void start();
+    
+    public abstract void reloadLocalCache();
 
-    public void createStatistics(String channelId);
+    public abstract ChannelStatistics getStatistics(String channelId);
 
-    public void clearStatistics(String channelId, boolean received, boolean filtered, boolean queued, boolean sent, boolean errored, boolean alerted) throws ControllerException;
+    public abstract void createStatistics(String channelId);
 
-    public boolean checkIfStatisticsExist(String channelId);
+    public abstract void clearStatistics(String channelId, boolean received, boolean filtered, boolean queued, boolean sent, boolean errored, boolean alerted) throws ControllerException;
 
-    public void incrementReceivedCount(String channelId);
+    public abstract boolean checkIfStatisticsExist(String channelId);
 
-    public void incrementSentCount(String channelId);
+    public abstract void incrementReceivedCount(String channelId);
 
-    public void incrementFilteredCount(String channelId);
+    public abstract void incrementSentCount(String channelId);
 
-    public void incrementErrorCount(String channelId);
+    public abstract void incrementFilteredCount(String channelId);
 
-    public void incrementQueuedCount(String channelId);
+    public abstract void incrementErrorCount(String channelId);
 
-    public void incrementAlertedCount(String channelId);
+    public abstract void incrementQueuedCount(String channelId);
 
-    public void decrementQueuedCount(String channelId);
+    public abstract void incrementAlertedCount(String channelId);
 
-    public void decrementErrorCount(String channelId);
+    public abstract void decrementQueuedCount(String channelId);
 
-    public void decrementFilteredCount(String channelId);
+    public abstract void decrementErrorCount(String channelId);
 
-    public void decrementSentCount(String channelId);
+    public abstract void decrementFilteredCount(String channelId);
 
-    public void decrementReceivedCount(String channelId);
+    public abstract void decrementSentCount(String channelId);
 
-    public void updateAllStatistics();
+    public abstract void decrementReceivedCount(String channelId);
+
+    public abstract void updateAllStatistics();
 }

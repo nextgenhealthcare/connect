@@ -29,14 +29,18 @@ import java.util.List;
 
 import com.webreach.mirth.model.Alert;
 
-public interface AlertController extends Controller {
-    public List<Alert> getAlert(Alert alert) throws ControllerException;
+public abstract class AlertController extends Controller {
+    public AlertController getInstance() {
+        return ControllerFactory.getFactory().createAlertController();
+    }
+    
+    public abstract List<Alert> getAlert(Alert alert) throws ControllerException;
 
-    public List<Alert> getAlertByChannelId(String channelId) throws ControllerException;
+    public abstract List<Alert> getAlertByChannelId(String channelId) throws ControllerException;
 
-    public void updateAlerts(List<Alert> alerts) throws ControllerException;
+    public abstract void updateAlerts(List<Alert> alerts) throws ControllerException;
 
-    public void removeAlert(Alert alert) throws ControllerException;
+    public abstract void removeAlert(Alert alert) throws ControllerException;
 
-    public void sendAlerts(String channelId, String errorType, String customMessage, Throwable e);
+    public abstract void sendAlerts(String channelId, String errorType, String customMessage, Throwable e);
 }

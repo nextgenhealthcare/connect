@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
 
 import com.webreach.mirth.server.util.SqlConfig;
 
-public class DefaultTemplateController implements TemplateController {
+public class DefaultTemplateController extends TemplateController {
     private Logger logger = Logger.getLogger(this.getClass());
 
     private static DefaultTemplateController instance = null;
@@ -42,7 +42,7 @@ public class DefaultTemplateController implements TemplateController {
 
     }
 
-    public static TemplateController getInstance() {
+    public static TemplateController create() {
         synchronized (DefaultTemplateController.class) {
             if (instance == null) {
                 instance = new DefaultTemplateController();

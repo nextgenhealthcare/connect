@@ -13,7 +13,7 @@ import com.webreach.mirth.model.ExtensionPointDefinition;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.plugins.ConnectorStatusPlugin;
 
-public class DefaultMonitoringController implements MonitoringController {
+public class DefaultMonitoringController extends MonitoringController {
     private Logger logger = Logger.getLogger(this.getClass());
     private Map<String, ConnectorStatusPlugin> loadedPlugins;
 
@@ -23,7 +23,7 @@ public class DefaultMonitoringController implements MonitoringController {
 
     }
 
-    public static MonitoringController getInstance() {
+    public static MonitoringController create() {
         synchronized (DefaultMonitoringController.class) {
             if (instance == null) {
                 instance = new DefaultMonitoringController();

@@ -61,7 +61,7 @@ import com.webreach.mirth.util.Encrypter;
 import com.webreach.mirth.util.EncryptionException;
 import com.webreach.mirth.util.QueueUtil;
 
-public class DefaultMessageObjectController implements MessageObjectController {
+public class DefaultMessageObjectController extends MessageObjectController {
 	private static final String RECEIVE_SOCKET = "receiverSocket";
 	private Logger logger = Logger.getLogger(this.getClass());
 	private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
@@ -75,7 +75,7 @@ public class DefaultMessageObjectController implements MessageObjectController {
 
 	}
 
-	public static MessageObjectController getInstance() {
+	public static MessageObjectController create() {
 		synchronized (DefaultMessageObjectController.class) {
 			if (instance == null) {
 				instance = new DefaultMessageObjectController();

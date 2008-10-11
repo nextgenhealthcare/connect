@@ -2,59 +2,59 @@ package com.webreach.mirth.server.controllers;
 
 public class DefaultControllerFactory extends ControllerFactory {
     public AlertController createAlertController() {
-        return DefaultAlertController.getInstance();
+        return DefaultAlertController.create();
     }
 
     public ChannelController createChannelController() {
-        return DefaultChannelController.getInstance();
+        return DefaultChannelController.create();
     }
 
     public ChannelStatisticsController createChannelStatisticsController() {
-        return DefaultChannelStatisticsController.getInstance();
+        return DefaultChannelStatisticsController.create();
     }
 
     public ChannelStatusController createChannelStatusController() {
-        return DefaultChannelStatusController.getInstance();
+        return DefaultChannelStatusController.create();
     }
 
     public CodeTemplateController createCodeTemplateController() {
-        return DefaultCodeTemplateController.getInstance();
+        return DefaultCodeTemplateController.create();
     }
 
     public ConfigurationController createConfigurationController() {
-        return DefaultConfigurationController.getInstance();
+        return DefaultConfigurationController.create();
     }
 
     public ExtensionController createExtensionController() {
-        return DefaultExtensionController.getInstance();
+        return DefaultExtensionController.create();
     }
 
     public MessageObjectController createMessageObjectController() {
-        return DefaultMessageObjectController.getInstance();
+        return DefaultMessageObjectController.create();
     }
 
     public MigrationController createMigrationController() {
-        return DefaultMigrationController.getInstance();
+        return DefaultMigrationController.create();
     }
 
     public MonitoringController createMonitoringController() {
-        return DefaultMonitoringController.getInstance();
+        return DefaultMonitoringController.create();
     }
 
     public ScriptController createScriptController() {
-        return DefaultScriptController.getInstance();
+        return DefaultScriptController.create();
     }
 
     public EventController createEventController() {
-        return DefaultEventController.getInstance();
+        return DefaultEventController.create();
     }
 
     public TemplateController createTemplateController() {
-        return DefaultTemplateController.getInstance();
+        return DefaultTemplateController.create();
     }
 
     public UserController createUserController() {
-        return DefaultUserController.getInstance();
+        return DefaultUserController.create();
     }
 
 }

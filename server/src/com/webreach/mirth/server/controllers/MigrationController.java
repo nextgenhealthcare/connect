@@ -31,7 +31,11 @@ package com.webreach.mirth.server.controllers;
  * @author geraldb
  * 
  */
-public interface MigrationController extends Controller {
-    public void migrate();
-    public void migrateExtensions();
+public abstract class MigrationController extends Controller {
+    public MigrationController getInstance() {
+        return ControllerFactory.getFactory().createMigrationController();
+    }
+    
+    public abstract void migrate();
+    public abstract void migrateExtensions();
 }

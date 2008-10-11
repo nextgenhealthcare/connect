@@ -81,7 +81,7 @@ import com.webreach.mirth.util.PropertyVerifier;
  * @author geraldb
  * 
  */
-public class DefaultConfigurationController implements ConfigurationController{
+public class DefaultConfigurationController extends ConfigurationController{
     private static final String CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT = "// This script executes once after a message has been processed\nreturn;";
     private static final String GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT = "// Modify the message variable below to pre process data\n// This script applies across all channels\nreturn message;";
     private static final String GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT = "// This script executes once after a message has been processed\n// This script applies across all channels\nreturn;";
@@ -112,7 +112,7 @@ public class DefaultConfigurationController implements ConfigurationController{
 
     }
 
-    public static ConfigurationController getInstance() {
+    public static ConfigurationController create() {
         synchronized (DefaultConfigurationController.class) {
             if (instance == null) {
                 instance = new DefaultConfigurationController();

@@ -26,7 +26,11 @@
 package com.webreach.mirth.server.controllers;
 
 
-public interface TemplateController extends Controller {
+public abstract class TemplateController extends Controller {
+    public TemplateController getInstance() {
+        return ControllerFactory.getFactory().createTemplateController();
+    }
+    
     /**
      * Adds a template with the specified id to the database. If a template with
      * the id already exists it will be overwritten.
@@ -35,7 +39,7 @@ public interface TemplateController extends Controller {
      * @param template
      * @throws ControllerException
      */
-    public void putTemplate(String id, String template) throws ControllerException;
+    public abstract void putTemplate(String id, String template) throws ControllerException;
 
     /**
      * Returns the template with the specified id, null otherwise.
@@ -44,7 +48,7 @@ public interface TemplateController extends Controller {
      * @return
      * @throws ControllerException
      */
-    public String getTemplate(String id) throws ControllerException;
+    public abstract String getTemplate(String id) throws ControllerException;
 
-    public void clearTemplates() throws ControllerException;
+    public abstract void clearTemplates() throws ControllerException;
 }

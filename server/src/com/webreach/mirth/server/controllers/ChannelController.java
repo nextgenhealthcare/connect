@@ -32,32 +32,36 @@ import java.util.Map;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelSummary;
 
-public interface ChannelController extends Controller {
-    public List<Channel> getChannel(Channel channel) throws ControllerException;
-
-    public List<Channel> getEnabledChannels() throws ControllerException;
-
-    public List<ChannelSummary> getChannelSummary(Map<String, Integer> cachedChannels) throws ControllerException;
-
-    public boolean updateChannel(Channel channel, boolean override) throws ControllerException;
-
-    public void removeChannel(Channel channel) throws ControllerException;
+public abstract class ChannelController extends Controller {
+    public ChannelController getInstance() {
+        return ControllerFactory.getFactory().createChannelController();
+    }
     
-    public void loadChannelCache();
+    public abstract List<Channel> getChannel(Channel channel) throws ControllerException;
+
+    public abstract List<Channel> getEnabledChannels() throws ControllerException;
+
+    public abstract List<ChannelSummary> getChannelSummary(Map<String, Integer> cachedChannels) throws ControllerException;
+
+    public abstract boolean updateChannel(Channel channel, boolean override) throws ControllerException;
+
+    public abstract void removeChannel(Channel channel) throws ControllerException;
+    
+    public abstract void loadChannelCache();
 
     // channel cache
-    public HashMap<String, Channel> getChannelCache();
+    public abstract HashMap<String, Channel> getChannelCache();
 
-    public void setChannelCache(HashMap<String, Channel> channelCache);
+    public abstract void setChannelCache(HashMap<String, Channel> channelCache);
 
-    public void refreshChannelCache(List<Channel> channels) throws ControllerException;
+    public abstract void refreshChannelCache(List<Channel> channels) throws ControllerException;
 
     // utility methods
-    public String getChannelId(String channelName);
+    public abstract String getChannelId(String channelName);
     
     public String getChannelName(String channelId);
 
-    public String getDestinationName(String id);
+    public abstract String getDestinationName(String id);
 
-    public String getConnectorId(String channelId, String connectorName) throws Exception;
+    public abstract String getConnectorId(String channelId, String connectorName) throws Exception;
 }

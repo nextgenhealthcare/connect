@@ -29,10 +29,14 @@ import java.util.List;
 
 import com.webreach.mirth.model.CodeTemplate;
 
-public interface CodeTemplateController extends Controller {
-    public List<CodeTemplate> getCodeTemplate(CodeTemplate codeTemplate) throws ControllerException;
+public abstract class CodeTemplateController extends Controller {
+    public CodeTemplateController getInstance() {
+        return ControllerFactory.getFactory().createCodeTemplateController();
+    }
+    
+    public abstract List<CodeTemplate> getCodeTemplate(CodeTemplate codeTemplate) throws ControllerException;
 
-    public void updateCodeTemplates(List<CodeTemplate> codeTemplates) throws ControllerException;
+    public abstract void updateCodeTemplates(List<CodeTemplate> codeTemplates) throws ControllerException;
 
-    public void removeCodeTemplate(CodeTemplate codeTemplate) throws ControllerException;
+    public abstract void removeCodeTemplate(CodeTemplate codeTemplate) throws ControllerException;
 }

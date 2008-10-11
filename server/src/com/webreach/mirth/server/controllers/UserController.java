@@ -30,24 +30,28 @@ import java.util.List;
 import com.webreach.mirth.model.Preferences;
 import com.webreach.mirth.model.User;
 
-public interface UserController extends Controller {
-    public void resetUserStatus();
+public abstract class UserController extends Controller {
+    public UserController getInstance() {
+        return ControllerFactory.getFactory().createUserController();
+    }
     
-    public List<User> getUser(User user) throws ControllerException;
+    public abstract void resetUserStatus();
+    
+    public abstract List<User> getUser(User user) throws ControllerException;
 
-    public void updateUser(User user, String plainTextPassword) throws ControllerException;
+    public abstract void updateUser(User user, String plainTextPassword) throws ControllerException;
 
-    public void removeUser(User user) throws ControllerException;
+    public abstract void removeUser(User user) throws ControllerException;
 
-    public boolean authorizeUser(User user, String plainTextPassword) throws ControllerException;
+    public abstract boolean authorizeUser(User user, String plainTextPassword) throws ControllerException;
 
-    public void loginUser(User user) throws ControllerException;
+    public abstract void loginUser(User user) throws ControllerException;
 
-    public void logoutUser(User user) throws ControllerException;
+    public abstract void logoutUser(User user) throws ControllerException;
 
-    public boolean isUserLoggedIn(User user) throws ControllerException;
+    public abstract boolean isUserLoggedIn(User user) throws ControllerException;
 
-    public Preferences getUserPreferences(User user) throws ControllerException;
+    public abstract Preferences getUserPreferences(User user) throws ControllerException;
 
-    public void setUserPreference(User user, String name, String value) throws ControllerException;
+    public abstract void setUserPreference(User user, String name, String value) throws ControllerException;
 }

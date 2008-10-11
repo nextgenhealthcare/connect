@@ -42,7 +42,7 @@ import com.webreach.mirth.model.ServerConfiguration;
  * @author geraldb
  * 
  */
-public interface ConfigurationController extends Controller {
+public abstract class ConfigurationController extends Controller {
     public static final String GLOBAL_POSTPROCESSOR_KEY = "Postprocessor";
     public static final String GLOBAL_PREPROCESSOR_KEY = "Preprocessor";
     public static final String GLOBAL_SHUTDOWN_KEY = "Shutdown";
@@ -53,80 +53,84 @@ public interface ConfigurationController extends Controller {
     public static final int STATUS_OK = 0;
     public static final int STATUS_UNAVAILABLE = 1;
     public static final int STATUS_ENGINE_STARTING = 2;
-
-    public void shutdown();
-
-    public void deployChannels() throws ControllerException;
     
-    public void loadEncryptionKey();
+    public ConfigurationController getInstance() {
+        return ControllerFactory.getFactory().createConfigurationController();
+    }
+
+    public abstract void shutdown();
+
+    public abstract void deployChannels() throws ControllerException;
+    
+    public abstract void loadEncryptionKey();
     
     // scripts
 
-    public Map<String, String> getGlobalScripts() throws ControllerException;
+    public abstract Map<String, String> getGlobalScripts() throws ControllerException;
 
-    public void setGlobalScripts(Map<String, String> scripts) throws ControllerException;
+    public abstract void setGlobalScripts(Map<String, String> scripts) throws ControllerException;
 
-    public void compileScripts(List<Channel> channels) throws Exception;
+    public abstract void compileScripts(List<Channel> channels) throws Exception;
 
-    public void executeChannelDeployScripts(List<Channel> channels);
+    public abstract void executeChannelDeployScripts(List<Channel> channels);
 
-    public void executeChannelShutdownScripts(List<Channel> channels);
+    public abstract void executeChannelShutdownScripts(List<Channel> channels);
 
-    public void executeGlobalDeployScript();
+    public abstract void executeGlobalDeployScript();
 
-    public void executeGlobalShutdownScript();
+    public abstract void executeGlobalShutdownScript();
 
-    public void executeGlobalScript(String scriptType);
+    public abstract void executeGlobalScript(String scriptType);
 
     // mule configs
 
-    public File getLatestConfiguration() throws ControllerException;
+    public abstract File getLatestConfiguration() throws ControllerException;
 
-    public String getDefaultConfiguration() throws Exception;
+    public abstract String getDefaultConfiguration() throws Exception;
 
-    public void deleteLatestConfiguration();
+    public abstract void deleteLatestConfiguration();
 
     // config parameters
     
-    public String getDatabaseType();
+    public abstract String getDatabaseType();
 
-    public String getMuleConfigurationPath();
+    public abstract String getMuleConfigurationPath();
 
-    public String getMuleBootPath();
+    public abstract String getMuleBootPath();
 
-    public String getServerId();
+    public abstract String getServerId();
 
-    public List<String> getAvaiableCharsetEncodings() throws ControllerException;
+    public abstract List<String> getAvaiableCharsetEncodings() throws ControllerException;
 
-    public SecretKey getEncryptionKey();
+    public abstract SecretKey getEncryptionKey();
 
-    public String getBaseDir();
+    public abstract String getBaseDir();
 
-    public Properties getServerProperties() throws ControllerException;
+    public abstract Properties getServerProperties() throws ControllerException;
 
-    public void setServerProperties(Properties properties) throws ControllerException;
+    public abstract void setServerProperties(Properties properties) throws ControllerException;
 
-    public String getGuid() throws ControllerException;
+    public abstract String getGuid() throws ControllerException;
 
-    public List<DriverInfo> getDatabaseDrivers() throws ControllerException;
+    public abstract List<DriverInfo> getDatabaseDrivers() throws ControllerException;
 
-    public String getServerVersion();
+    public abstract String getServerVersion();
 
-    public int getSchemaVersion();
+    public abstract int getSchemaVersion();
 
-    public String getBuildDate();
+    public abstract String getBuildDate();
 
-    public String getQueuestorePath();
+    public abstract String getQueuestorePath();
 
-    public ServerConfiguration getServerConfiguration() throws ControllerException;
+    public abstract ServerConfiguration getServerConfiguration() throws ControllerException;
 
-    public void setServerConfiguration(ServerConfiguration serverConfiguration) throws ControllerException;
+    public abstract void setServerConfiguration(ServerConfiguration serverConfiguration) throws ControllerException;
 
     // status
     
-    public int getStatus();
+    public abstract int getStatus();
 
-    public boolean isEngineStarting();
+    public abstract boolean isEngineStarting();
 
-    public void setEngineStarting(boolean isEngineStarting);
+    public abstract void setEngineStarting(boolean isEngineStarting);
 }

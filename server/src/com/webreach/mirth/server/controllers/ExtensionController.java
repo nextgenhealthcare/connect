@@ -38,7 +38,7 @@ import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.plugins.ServerPlugin;
 import com.webreach.mirth.server.tools.ClassPathResource;
 
-public interface ExtensionController extends Controller {
+public abstract class ExtensionController extends Controller {
 	
 	public enum ExtensionType {
 		PLUGIN ("plugin.xml"),
@@ -84,49 +84,53 @@ public interface ExtensionController extends Controller {
     
     public static final String EXTENSIONS_PROPERTIES_FILE = "extensions.properties";
     
+    public ExtensionController getInstance() {
+        return ControllerFactory.getFactory().createExtensionController();
+    }
+    
     // Extension point for ExtensionPoint.Type.SERVER_PLUGIN
     @ExtensionPointDefinition(mode = ExtensionPoint.Mode.SERVER, type = ExtensionPoint.Type.SERVER_PLUGIN)
-    public void initPlugins();
+    public abstract void initPlugins();
 
-    public boolean isExtensionEnabled(String name);
+    public abstract boolean isExtensionEnabled(String name);
 
-    public void startPlugins();
+    public abstract void startPlugins();
 
-    public void stopPlugins();
+    public abstract void stopPlugins();
 
-    public void updatePlugin(String name, Properties properties);
+    public abstract void updatePlugin(String name, Properties properties);
 
-    public void deployTriggered();
+    public abstract void deployTriggered();
 
-    public Object invoke(String name, String method, Object object, String sessionId);
+    public abstract Object invoke(String name, String method, Object object, String sessionId);
 
-    public Object invokeConnectorService(String name, String method, Object object, String sessionsId) throws Exception;
+    public abstract Object invokeConnectorService(String name, String method, Object object, String sessionsId) throws Exception;
 
-    public void installExtension(FileItem fileItem) throws ControllerException;
+    public abstract void installExtension(FileItem fileItem) throws ControllerException;
 
-    public void uninstallExtension(String packageName) throws ControllerException;
+    public abstract void uninstallExtension(String packageName) throws ControllerException;
     
-    public void setPluginProperties(String pluginName, Properties properties) throws ControllerException;
+    public abstract void setPluginProperties(String pluginName, Properties properties) throws ControllerException;
 
-    public Properties getPluginProperties(String pluginName) throws ControllerException;
+    public abstract Properties getPluginProperties(String pluginName) throws ControllerException;
 
-    public Map<String, ConnectorMetaData> getConnectorMetaData() throws ControllerException;
+    public abstract Map<String, ConnectorMetaData> getConnectorMetaData() throws ControllerException;
 
-    public void saveConnectorMetaData(Map<String, ConnectorMetaData> metaData) throws ControllerException;
+    public abstract void saveConnectorMetaData(Map<String, ConnectorMetaData> metaData) throws ControllerException;
 
-    public List<String> getClientLibraries() throws ControllerException;
+    public abstract List<String> getClientLibraries() throws ControllerException;
 
-    public Map<String, PluginMetaData> getPluginMetaData() throws ControllerException;
+    public abstract Map<String, PluginMetaData> getPluginMetaData() throws ControllerException;
 
-    public void savePluginMetaData(Map<String, PluginMetaData> metaData) throws ControllerException;
+    public abstract void savePluginMetaData(Map<String, PluginMetaData> metaData) throws ControllerException;
 
-    public Map<String, ConnectorMetaData> getProtocols();
+    public abstract Map<String, ConnectorMetaData> getProtocols();
 
-    public ConnectorMetaData getConnectorMetaDataByProtocol(String protocol);
+    public abstract ConnectorMetaData getConnectorMetaDataByProtocol(String protocol);
 
-    public Map<String, ServerPlugin> getLoadedPlugins();
+    public abstract Map<String, ServerPlugin> getLoadedPlugins();
     
-    public void setExtensionsProperties(Properties properties) throws ControllerException;
+    public abstract void setExtensionsProperties(Properties properties) throws ControllerException;
     
-    public Properties getExtensionsProperties() throws ControllerException;
+    public abstract Properties getExtensionsProperties() throws ControllerException;
 }

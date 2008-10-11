@@ -30,31 +30,35 @@ import java.util.List;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.filters.SystemEventFilter;
 
-public interface EventController extends Controller {
+public abstract class EventController extends Controller {
+    public EventController getInstance() {
+        return ControllerFactory.getFactory().createEventController();
+    }
+    
     /**
      * Adds a new system event.
      * 
      * @param systemEvent
      * @throws ControllerException
      */
-    public void logSystemEvent(SystemEvent systemEvent);
+    public abstract void logSystemEvent(SystemEvent systemEvent);
 
     /**
      * Clears the sysem event list.
      * 
      */
-    public void clearSystemEvents() throws ControllerException;
+    public abstract void clearSystemEvents() throws ControllerException;
 
-    public int removeSystemEvents(SystemEventFilter filter) throws ControllerException;
+    public abstract int removeSystemEvents(SystemEventFilter filter) throws ControllerException;
 
-    public int createSystemEventsTempTable(SystemEventFilter filter, String uid, boolean forceTemp) throws ControllerException;
+    public abstract int createSystemEventsTempTable(SystemEventFilter filter, String uid, boolean forceTemp) throws ControllerException;
 
-    public void removeFilterTable(String uid);
+    public abstract void removeFilterTable(String uid);
 
-    public void removeAllFilterTables();
+    public abstract void removeAllFilterTables();
 
-    public List<SystemEvent> getSystemEventsByPage(int page, int pageSize, int maxSystemEvents, String uid) throws ControllerException;
+    public abstract List<SystemEvent> getSystemEventsByPage(int page, int pageSize, int maxSystemEvents, String uid) throws ControllerException;
 
-    public List<SystemEvent> getSystemEventsByPageLimit(int page, int pageSize, int maxSystemEvents, String uid, SystemEventFilter filter) throws ControllerException;
+    public abstract List<SystemEvent> getSystemEventsByPageLimit(int page, int pageSize, int maxSystemEvents, String uid, SystemEventFilter filter) throws ControllerException;
 
 }

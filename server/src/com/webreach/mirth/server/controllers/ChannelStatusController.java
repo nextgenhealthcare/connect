@@ -29,9 +29,12 @@ import java.util.List;
 
 import com.webreach.mirth.model.ChannelStatus;
 
-public interface ChannelStatusController extends Controller {
-
-    public void startChannel(String channelId) throws ControllerException;
+public abstract class ChannelStatusController extends Controller {
+    public ChannelStatusController getInstance() {
+        return ControllerFactory.getFactory().createChannelStatusController();
+    }
+    
+    public abstract void startChannel(String channelId) throws ControllerException;
 
     /**
      * Stops the channel with the specified id.
@@ -39,7 +42,7 @@ public interface ChannelStatusController extends Controller {
      * @param channelId
      * @throws ControllerException
      */
-    public void stopChannel(String channelId) throws ControllerException;
+    public abstract void stopChannel(String channelId) throws ControllerException;
 
     /**
      * Pauses the channel with the specified id.
@@ -47,7 +50,7 @@ public interface ChannelStatusController extends Controller {
      * @param channelId
      * @throws ControllerException
      */
-    public void pauseChannel(String channelId) throws ControllerException;
+    public abstract void pauseChannel(String channelId) throws ControllerException;
 
     /**
      * Resumes the channel with the specified id.
@@ -55,7 +58,7 @@ public interface ChannelStatusController extends Controller {
      * @param channelId
      * @throws ControllerException
      */
-    public void resumeChannel(String channelId) throws ControllerException;
+    public abstract void resumeChannel(String channelId) throws ControllerException;
 
     /**
      * Returns a list of ChannelStatus objects representing the running
@@ -64,5 +67,5 @@ public interface ChannelStatusController extends Controller {
      * @return
      * @throws ControllerException
      */
-    public List<ChannelStatus> getChannelStatusList();
+    public abstract List<ChannelStatus> getChannelStatusList();
 }

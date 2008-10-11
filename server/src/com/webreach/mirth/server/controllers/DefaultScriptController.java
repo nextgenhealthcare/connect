@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
 
 import com.webreach.mirth.server.util.SqlConfig;
 
-public class DefaultScriptController implements ScriptController {
+public class DefaultScriptController extends ScriptController {
     private Logger logger = Logger.getLogger(this.getClass());
     private static DefaultScriptController instance = null;
 
@@ -41,7 +41,7 @@ public class DefaultScriptController implements ScriptController {
 
     }
 
-    public static ScriptController getInstance() {
+    public static ScriptController create() {
         synchronized (DefaultScriptController.class) {
             if (instance == null) {
                 instance = new DefaultScriptController();

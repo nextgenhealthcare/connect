@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
 import com.webreach.mirth.model.CodeTemplate;
 import com.webreach.mirth.server.util.SqlConfig;
 
-public class DefaultCodeTemplateController implements CodeTemplateController {
+public class DefaultCodeTemplateController extends CodeTemplateController {
     private Logger logger = Logger.getLogger(this.getClass());
     private static CodeTemplateController instance = null;
 
@@ -41,7 +41,7 @@ public class DefaultCodeTemplateController implements CodeTemplateController {
 
     }
 
-    public static CodeTemplateController getInstance() {
+    public static CodeTemplateController create() {
         synchronized (DefaultCodeTemplateController.class) {
             if (instance == null) {
                 instance = new DefaultCodeTemplateController();

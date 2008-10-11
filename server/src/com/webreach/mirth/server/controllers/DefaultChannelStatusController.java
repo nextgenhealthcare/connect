@@ -42,7 +42,7 @@ import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.util.JMXConnection;
 import com.webreach.mirth.server.util.JMXConnectionFactory;
 
-public class DefaultChannelStatusController implements ChannelStatusController {
+public class DefaultChannelStatusController extends ChannelStatusController {
     private Logger logger = Logger.getLogger(this.getClass());
     private EventController systemLogger = ControllerFactory.getFactory().createEventController();
 
@@ -52,7 +52,7 @@ public class DefaultChannelStatusController implements ChannelStatusController {
 
     }
 
-    public static ChannelStatusController getInstance() {
+    public static ChannelStatusController create() {
         synchronized (DefaultChannelStatusController.class) {
             if (instance == null) {
                 instance = new DefaultChannelStatusController();

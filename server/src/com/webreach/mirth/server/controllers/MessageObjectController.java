@@ -35,64 +35,68 @@ import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 
-public interface MessageObjectController extends Controller {
-    public void removeAllFilterTables();
+public abstract class MessageObjectController extends Controller {
+    public MessageObjectController getInstance() {
+        return ControllerFactory.getFactory().createMessageObjectController();
+    }
+    
+    public abstract void removeAllFilterTables();
 
-    public void updateMessage(MessageObject incomingMessageObject, boolean checkIfMessageExists);
+    public abstract void updateMessage(MessageObject incomingMessageObject, boolean checkIfMessageExists);
 
-    public void importMessage(MessageObject messageObject);
+    public abstract void importMessage(MessageObject messageObject);
 
-    public int createMessagesTempTable(MessageObjectFilter filter, String uid, boolean forceTemp) throws ControllerException;
+    public abstract int createMessagesTempTable(MessageObjectFilter filter, String uid, boolean forceTemp) throws ControllerException;
 
-    public List<MessageObject> getMessagesByPageLimit(int page, int pageSize, int maxMessages, String uid, MessageObjectFilter filter) throws ControllerException;
+    public abstract List<MessageObject> getMessagesByPageLimit(int page, int pageSize, int maxMessages, String uid, MessageObjectFilter filter) throws ControllerException;
 
-    public List<MessageObject> getMessagesByPage(int page, int pageSize, int maxMessages, String uid, boolean descending) throws ControllerException;
+    public abstract List<MessageObject> getMessagesByPage(int page, int pageSize, int maxMessages, String uid, boolean descending) throws ControllerException;
 
-    public int removeMessages(MessageObjectFilter filter) throws ControllerException;
+    public abstract int removeMessages(MessageObjectFilter filter) throws ControllerException;
 
-    public void removeFilterTable(String uid);
+    public abstract void removeFilterTable(String uid);
 
-    public void clearMessages(String channelId) throws ControllerException;
+    public abstract void clearMessages(String channelId) throws ControllerException;
 
-    public void reprocessMessages(final MessageObjectFilter filter, final boolean replace, final List<String> destinations) throws ControllerException;
+    public abstract void reprocessMessages(final MessageObjectFilter filter, final boolean replace, final List<String> destinations) throws ControllerException;
 
-    public void processMessage(MessageObject message) throws ControllerException;
+    public abstract void processMessage(MessageObject message) throws ControllerException;
 
     // util methods
 
-    public MessageObject cloneMessageObjectForBroadcast(MessageObject messageObject, String connectorName);
+    public abstract MessageObject cloneMessageObjectForBroadcast(MessageObject messageObject, String connectorName);
 
-    public MessageObject getMessageObjectFromEvent(UMOEvent event) throws Exception;
+    public abstract MessageObject getMessageObjectFromEvent(UMOEvent event) throws Exception;
 
     // status
 
-    public void setError(MessageObject messageObject, String errorType, String errorMessage, Throwable e);
+    public abstract void setError(MessageObject messageObject, String errorType, String errorMessage, Throwable e);
 
-    public void setSuccess(MessageObject messageObject, String responseMessage);
+    public abstract void setSuccess(MessageObject messageObject, String responseMessage);
 
-    public void setTransformed(MessageObject messageObject);
+    public abstract void setTransformed(MessageObject messageObject);
 
-    public void setQueued(MessageObject messageObject, String responseMessage);
+    public abstract void setQueued(MessageObject messageObject, String responseMessage);
 
-    public void setFiltered(MessageObject messageObject, String responseMessage);
+    public abstract void setFiltered(MessageObject messageObject, String responseMessage);
 
-    public void resetQueuedStatus(MessageObject messageObject);
+    public abstract void resetQueuedStatus(MessageObject messageObject);
 
     // attachments
 
-    public Attachment getAttachment(String attachmentId) throws ControllerException;
+    public abstract Attachment getAttachment(String attachmentId) throws ControllerException;
 
-    public List<Attachment> getAttachmentsByMessageId(String messageId) throws ControllerException;
+    public abstract List<Attachment> getAttachmentsByMessageId(String messageId) throws ControllerException;
 
-    public List<Attachment> getAttachmentIdsByMessageId(String messageId) throws ControllerException;
+    public abstract List<Attachment> getAttachmentIdsByMessageId(String messageId) throws ControllerException;
 
-    public void insertAttachment(Attachment attachment);
+    public abstract void insertAttachment(Attachment attachment);
 
-    public void deleteAttachments(MessageObject message);
+    public abstract void deleteAttachments(MessageObject message);
 
-    public void deleteUnusedAttachments();
+    public abstract void deleteUnusedAttachments();
 
-    public Attachment createAttachment(Object data, String type) throws UnsupportedDataTypeException;
+    public abstract Attachment createAttachment(Object data, String type) throws UnsupportedDataTypeException;
 
-    public Attachment createAttachment(Object data, String type, MessageObject messageObject) throws UnsupportedDataTypeException;
+    public abstract Attachment createAttachment(Object data, String type, MessageObject messageObject) throws UnsupportedDataTypeException;
 }
