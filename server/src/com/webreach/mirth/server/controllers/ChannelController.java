@@ -59,7 +59,7 @@ public abstract class ChannelController extends Controller {
     // utility methods
     public abstract String getChannelId(String channelName);
     
-    public String getChannelName(String channelId);
+    public abstract String getChannelName(String channelId);
 
     public abstract String getDestinationName(String id);
 
