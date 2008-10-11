@@ -122,18 +122,18 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 				DATE_CREATED <![CDATA[ <= ]]> to_date('$endDate$','YYYY-MM-DD HH24:MI:SS')
 			</isNotNull>
 			<isNotNull  prepend="AND" property="quickSearch">
-				(RAW_DATA ILIKE '%$quickSearch$%' OR ENCODED_DATA ILIKE '%$quickSearch$%' OR TRANSFORMED_DATA ILIKE '%$quickSearch$%')
+				(UPPER(RAW_DATA) LIKE UPPER('%$quickSearch$%') OR UPPER(ENCODED_DATA) LIKE UPPER('%$quickSearch$%') OR UPPER(TRANSFORMED_DATA) ILIKE UPPER('%$quickSearch$%'))
 			</isNotNull>		
 			<isNotNull prepend="AND" property="searchCriteria">
 				(
 				<isEqual prepend="OR" compareValue="true" property="searchRawData">
-					RAW_DATA ILIKE '%$searchCriteria$%'
+					UPPER(RAW_DATA) LIKE UPPER('%$searchCriteria$%')
 				</isEqual>
 				<isEqual prepend="OR" compareValue="true" property="searchEncodedData">
-					ENCODED_DATA ILIKE '%$searchCriteria$%'
+					UPPER(ENCODED_DATA) LIKE UPPER('%$searchCriteria$%')
 				</isEqual>
 				<isEqual prepend="OR" compareValue="true" property="searchTransformedData">
-					TRANSFORMED_DATA ILIKE '%$searchCriteria$%'
+					UPPER(TRANSFORMED_DATA) LIKE UPPER('%$searchCriteria$%')
 				</isEqual>
 				)
 			</isNotNull>
