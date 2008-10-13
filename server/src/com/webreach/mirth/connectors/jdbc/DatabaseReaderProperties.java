@@ -66,7 +66,7 @@ public class DatabaseReaderProperties implements ComponentProperties
         properties.put(DATABASE_USE_JS, "0");
         properties.put(DATABASE_JS_SQL_STATEMENT, "");
         properties.put(DATABASE_USE_ACK, "0");
-        properties.put(DATABASE_ACK, "UPDATE");
+        properties.put(DATABASE_ACK, "");
         properties.put(DATABASE_JS_ACK, "");
         return properties;
     }
