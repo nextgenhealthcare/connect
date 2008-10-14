@@ -1,6 +1,7 @@
 package com.webreach.mirth.server.util;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Map;
@@ -19,6 +20,7 @@ import com.ibatis.sqlmap.client.SqlMapClientBuilder;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.server.controllers.ControllerFactory;
+import com.webreach.mirth.server.controllers.ExtensionController;
 import com.webreach.mirth.util.PropertyLoader;
 
 public class SqlConfig {
@@ -28,9 +30,10 @@ public class SqlConfig {
 
     }
 
-    /* This method loads the iBatis SQL config file for the database in use,
-     * then appends sqlMap entries from any installed plugins, and returns
-     * a SQLMapClient.
+    /*
+     * This method loads the iBatis SQL config file for the database in use,
+     * then appends sqlMap entries from any installed plugins, and returns a
+     * SQLMapClient.
      */
     public static SqlMapClient getSqlMapClient() {
         synchronized (SqlConfig.class) {
@@ -44,14 +47,13 @@ public class SqlConfig {
                     Element sqlMapConfigElement = document.getDocumentElement();
 
                     for (String pluginName : plugins.keySet()) {
-                        if (plugins.get(pluginName).getSqlMapConfigs() != null) {
-                            String sqlMapConfig = plugins.get(pluginName).getSqlMapConfigs().get(database);
+                        PluginMetaData pmd = plugins.get(pluginName);
 
-                            if ((sqlMapConfig != null) && (sqlMapConfig.length() > 0)) {
-                                Element sqlMapElement = document.createElement("sqlMap");
-                                sqlMapElement.setAttribute("resource", sqlMapConfig);
-                                sqlMapConfigElement.appendChild(sqlMapElement);
-                            }
+                        if (pmd.getSqlMapConfigs() != null) {
+                            String sqlMapConfigPath = ExtensionController.EXTENSIONS_LOCATION + pmd.getPath() + System.getProperty("file.separator") + pmd.getSqlMapConfigs().get(database);
+                            Element sqlMapElement = document.createElement("sqlMap");
+                            sqlMapElement.setAttribute("url", new File(sqlMapConfigPath).toURI().toURL().toString());
+                            sqlMapConfigElement.appendChild(sqlMapElement);
                         }
                     }
 

@@ -63,258 +63,257 @@ import com.webreach.mirth.server.util.SqlConfig;
  * 
  */
 public class DefaultMigrationController extends MigrationController {
-	private static final String DELTA_FOLDER = "deltas";
-	private Logger logger = Logger.getLogger(this.getClass());
-	ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-	ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
-	
-	// singleton pattern
-	private static DefaultMigrationController instance = null;
+    private static final String DELTA_FOLDER = "deltas";
+    private Logger logger = Logger.getLogger(this.getClass());
+    ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+    ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
 
-	private DefaultMigrationController() {
+    // singleton pattern
+    private static DefaultMigrationController instance = null;
 
-	}
+    private DefaultMigrationController() {
 
-	public static MigrationController create() {
-		synchronized (DefaultMigrationController.class) {
-			if (instance == null) {
-				instance = new DefaultMigrationController();
-			}
+    }
 
-			return instance;
-		}
-	}
+    public static MigrationController create() {
+        synchronized (DefaultMigrationController.class) {
+            if (instance == null) {
+                instance = new DefaultMigrationController();
+            }
 
-	public void migrate() {
-		// check for one of the tables to see if we should run the create script
+            return instance;
+        }
+    }
 
-		Connection conn = null;
-		ResultSet resultSet = null;
+    public void migrate() {
+        // check for one of the tables to see if we should run the create script
 
-		try {
-			conn = SqlConfig.getSqlMapClient().getDataSource().getConnection();
-			// Gets the database metadata
-			DatabaseMetaData dbmd = conn.getMetaData();
+        Connection conn = null;
+        ResultSet resultSet = null;
 
-			// Specify the type of object; in this case we want tables
-			String[] types = { "TABLE" };
-			String tablePattern = "CONFIGURATION"; // this is a table that has
-			// remained unchanged since
-			// day 1
-			resultSet = dbmd.getTables(null, null, tablePattern, types);
+        try {
+            conn = SqlConfig.getSqlMapClient().getDataSource().getConnection();
+            // Gets the database metadata
+            DatabaseMetaData dbmd = conn.getMetaData();
 
-			boolean resultFound = resultSet.next();
+            // Specify the type of object; in this case we want tables
+            String[] types = { "TABLE" };
+            String tablePattern = "CONFIGURATION"; // this is a table that has
+            // remained unchanged since
+            // day 1
+            resultSet = dbmd.getTables(null, null, tablePattern, types);
 
-			// Some databases only accept lowercase table names
-			if (!resultFound) {
-				resultSet = dbmd.getTables(null, null, tablePattern.toLowerCase(), types);
-				resultFound = resultSet.next();
-			}
+            boolean resultFound = resultSet.next();
 
-			// If missing this table we can assume that they don't have the
-			// schema installed
-			if (!resultFound) {
-				createSchema(conn);
-				return;
-			}
-		} catch (Exception e) {
-			logger.error("Could not create schema on the configured database.", e);
-			return;
-		} finally {
-			DatabaseUtil.close(resultSet);
-			DatabaseUtil.close(conn);
-		}
+            // Some databases only accept lowercase table names
+            if (!resultFound) {
+                resultSet = dbmd.getTables(null, null, tablePattern.toLowerCase(), types);
+                resultFound = resultSet.next();
+            }
 
-		// otherwise proceed with migration if necessary
-		try {
-			int newSchemaVersion = configurationController.getSchemaVersion();
-			int oldSchemaVersion;
+            // If missing this table we can assume that they don't have the
+            // schema installed
+            if (!resultFound) {
+                createSchema(conn);
+                return;
+            }
+        } catch (Exception e) {
+            logger.error("Could not create schema on the configured database.", e);
+            return;
+        } finally {
+            DatabaseUtil.close(resultSet);
+            DatabaseUtil.close(conn);
+        }
 
-			if (newSchemaVersion == -1)
-				return;
+        // otherwise proceed with migration if necessary
+        try {
+            int newSchemaVersion = configurationController.getSchemaVersion();
+            int oldSchemaVersion;
 
-			Object result = null;
+            if (newSchemaVersion == -1)
+                return;
 
-			try {
-				result = SqlConfig.getSqlMapClient().queryForObject("getSchemaVersion");
-			} catch (SQLException e) {
+            Object result = null;
 
-			}
+            try {
+                result = SqlConfig.getSqlMapClient().queryForObject("getSchemaVersion");
+            } catch (SQLException e) {
 
-			if (result == null)
-				oldSchemaVersion = 0;
-			else
-				oldSchemaVersion = ((Integer) result).intValue();
+            }
 
-			if (oldSchemaVersion == newSchemaVersion)
-				return;
-			else {
-				migrate(oldSchemaVersion, newSchemaVersion);
+            if (result == null)
+                oldSchemaVersion = 0;
+            else
+                oldSchemaVersion = ((Integer) result).intValue();
 
-				if (result == null)
-					SqlConfig.getSqlMapClient().update("setInitialSchemaVersion", newSchemaVersion);
-				else
-					SqlConfig.getSqlMapClient().update("updateSchemaVersion", newSchemaVersion);
+            if (oldSchemaVersion == newSchemaVersion)
+                return;
+            else {
+                migrate(oldSchemaVersion, newSchemaVersion);
 
-				try {
-					SqlConfig.getSqlMapClient().update("clearConfiguration");
-					File configurationFile = new File(configurationController.getMuleConfigurationPath());
-					configurationFile.delete();
-					File bootFile = new File(configurationController.getMuleBootPath());
-					bootFile.delete();
-				} catch (Exception e) {
-					logger.error("Could not remove previous configuration.", e);
-				}
-			}
-		} catch (Exception e) {
-			logger.error("Could not initialize migration controller.", e);
-		}
-	}
+                if (result == null)
+                    SqlConfig.getSqlMapClient().update("setInitialSchemaVersion", newSchemaVersion);
+                else
+                    SqlConfig.getSqlMapClient().update("updateSchemaVersion", newSchemaVersion);
 
-	public void migrateExtensions() {
-		ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
-		Properties pluginProperties = null;
-		
-		try { 
-			pluginProperties = extensionController.getExtensionsProperties();
-		} catch(ControllerException e) { 
-			logger.error("Could not get extension properties.", e); 
-			return;
-		}
-		
-		try {
-			Map<String, PluginMetaData> plugins = extensionController.getPluginMetaData();
-			
-			
-			for (PluginMetaData plugin : plugins.values()) {
-				String schemaString = pluginProperties.getProperty("schema." + plugin.getName());
-				int baseSchemaVersion = -1;
-				
-				if (schemaString != null) { 
-					try { 
-						baseSchemaVersion = Integer.parseInt(pluginProperties.getProperty("schema." + plugin.getName()));
-					} catch(NumberFormatException nf) { 
-						logger.error("could not determine schema version for plugin: " + plugin.getName(), nf);
-					}
-				}
-				String sqlScriptFileName = plugin.getSqlScript();
+                try {
+                    SqlConfig.getSqlMapClient().update("clearConfiguration");
+                    File configurationFile = new File(configurationController.getMuleConfigurationPath());
+                    configurationFile.delete();
+                    File bootFile = new File(configurationController.getMuleBootPath());
+                    bootFile.delete();
+                } catch (Exception e) {
+                    logger.error("Could not remove previous configuration.", e);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Could not initialize migration controller.", e);
+        }
+    }
 
-				if (baseSchemaVersion != -1 && sqlScriptFileName != null) {
-					String contents = FileUtil.read(sqlScriptFileName);
-					DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-					Document document;
-					DocumentBuilder builder;
+    public void migrateExtensions() {
+        ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+        Properties pluginProperties = null;
 
-					builder = factory.newDocumentBuilder();
-					document = builder.parse(new InputSource(new StringReader(contents)));
+        try {
+            pluginProperties = extensionController.getExtensionsProperties();
+        } catch (ControllerException e) {
+            logger.error("Could not get extension properties.", e);
+            return;
+        }
 
-					TreeMap<Integer, String> scripts = getDiffsForVersion(baseSchemaVersion, document);
+        try {
+            Map<String, PluginMetaData> plugins = extensionController.getPluginMetaData();
 
-					List<String> scriptList = new LinkedList<String>();
+            for (PluginMetaData plugin : plugins.values()) {
+                String schemaString = pluginProperties.getProperty("schema." + plugin.getName());
+                int baseSchemaVersion = -1;
 
-					for (String script : scripts.values()) {
-						script = script.trim();
-						StringBuilder sb = new StringBuilder();
-						boolean blankLine = false;
-						Scanner s = new Scanner(script);
-						while (s.hasNextLine()) {
-							String temp = s.nextLine();
+                if (schemaString != null) {
+                    try {
+                        baseSchemaVersion = Integer.parseInt(pluginProperties.getProperty("schema." + plugin.getName()));
+                    } catch (NumberFormatException nf) {
+                        logger.info("could not determine schema version for plugin: " + plugin.getName(), nf);
+                    }
+                }
 
-							if (temp.trim().length() > 0)
-								sb.append(temp + " ");
-							else
-								blankLine = true;
-							
-							if(blankLine || !s.hasNextLine()) { 
-								scriptList.add(sb.toString().trim());
-								blankLine = false;
-								sb.delete(0, sb.length());
-							}
-						}
-					}
+                if (plugin.getSqlScript() != null) {
+                    String contents = FileUtil.read(ExtensionController.EXTENSIONS_LOCATION + plugin.getPath() + System.getProperty("file.separator") + plugin.getSqlScript());
+                    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                    Document document;
+                    DocumentBuilder builder;
 
-					DatabaseUtil.executeScript(scriptList, false);
-			        Iterator i = scripts.entrySet().iterator();
-			        int maxSchemaVersion = -1;
-			        while (i.hasNext())
-			        {
-			            Entry entry = (Entry) i.next();
-			            Integer keyValue = (Integer)entry.getKey();
-			            
-			            int keyIntValue = keyValue.intValue();
-			            if(keyIntValue > maxSchemaVersion) { 
-			            	maxSchemaVersion = keyIntValue;
-			            }
-			        }
-					pluginProperties.setProperty("schema." + plugin.getName(), maxSchemaVersion + "");
-				}
-			}
-			
-		} catch (Exception e) {
-			logger.error("Could not initialize migration controller.", e);
-		}
-		
-		try { 
-			extensionController.setExtensionsProperties(pluginProperties);
-		} catch(ControllerException e) { 
-			logger.error("Could not save extension properties.", e); 
-		}
-	}
+                    builder = factory.newDocumentBuilder();
+                    document = builder.parse(new InputSource(new StringReader(contents)));
 
-	private TreeMap<Integer, String> getDiffsForVersion(int version, Document document) throws Exception {
-		TreeMap<Integer, String> scripts = new TreeMap<Integer, String>();
-		NodeList diffNodes = document.getElementsByTagName("diff");
-		String databaseType = configurationController.getDatabaseType();
+                    TreeMap<Integer, String> scripts = getDiffsForVersion(baseSchemaVersion, document);
 
-		for (int i = 0; i < diffNodes.getLength(); i++) {
-			Node attribute = diffNodes.item(i).getAttributes().getNamedItem("version");
-			if (attribute != null) {
-				String versionString = attribute.getTextContent();
+                    List<String> scriptList = new LinkedList<String>();
 
-				int scriptVersion = Integer.parseInt(versionString);
-				if (scriptVersion > version) {
+                    for (String script : scripts.values()) {
+                        script = script.trim();
+                        StringBuilder sb = new StringBuilder();
+                        boolean blankLine = false;
+                        Scanner s = new Scanner(script);
 
-					NodeList scriptNodes = ((Element) diffNodes.item(i)).getElementsByTagName("script");
+                        while (s.hasNextLine()) {
+                            String temp = s.nextLine();
 
-					if (scriptNodes.getLength() == 0) {
-						throw new Exception("Missing script element for version = " + scriptVersion);
-					}
+                            if (temp.trim().length() > 0)
+                                sb.append(temp + " ");
+                            else
+                                blankLine = true;
 
-					for (int j = 0; j < scriptNodes.getLength(); j++) {
-						Node scriptNode = scriptNodes.item(j);
-						Node scriptNodeAttribute = scriptNode.getAttributes().getNamedItem("type");
+                            if (blankLine || !s.hasNextLine()) {
+                                scriptList.add(sb.toString().trim());
+                                blankLine = false;
+                                sb.delete(0, sb.length());
+                            }
+                        }
+                    }
 
-						String[] dbTypes = scriptNodeAttribute.getTextContent().split(",");
-						for (int k = 0; k < dbTypes.length; k++) {
-							if (dbTypes[k].equals("all") || dbTypes[k].equals(databaseType)) {
-								scripts.put(new Integer(scriptVersion), scriptNode.getTextContent());
-							}
-						}
-					}
-				}
-			}
-		}
+                    DatabaseUtil.executeScript(scriptList, false);
+                    Iterator i = scripts.entrySet().iterator();
+                    int maxSchemaVersion = -1;
 
-		return scripts;
-	}
+                    while (i.hasNext()) {
+                        Entry entry = (Entry) i.next();
+                        Integer keyValue = (Integer) entry.getKey();
+                        int keyIntValue = keyValue.intValue();
 
-	private void createSchema(Connection conn) throws Exception {
-		File baseDir = new File(configurationController.getBaseDir());
-		String databaseType = configurationController.getDatabaseType();
-		File creationScript = new File(baseDir.getPath() + System.getProperty("file.separator") + databaseType + "-database.sql");
+                        if (keyIntValue > maxSchemaVersion) {
+                            maxSchemaVersion = keyIntValue;
+                        }
+                    }
+                    pluginProperties.setProperty("schema." + plugin.getName(), maxSchemaVersion + "");
+                }
+            }
 
-		DatabaseUtil.executeScript(creationScript, true);
-	}
+        } catch (Exception e) {
+            logger.error("Could not initialize migration controller.", e);
+        }
 
-	private void migrate(int oldVersion, int newVersion) throws Exception {
-		File deltaFolder = new File(ClassPathResource.getResourceURI(DELTA_FOLDER));
-		String deltaPath = deltaFolder.getPath() + System.getProperty("file.separator");
-		String databaseType = configurationController.getDatabaseType();
+        try {
+            extensionController.setExtensionsProperties(pluginProperties);
+        } catch (ControllerException e) {
+            logger.error("Could not save extension properties.", e);
+        }
+    }
 
-		while (oldVersion < newVersion) {
-			// gets the correct migration script based on dbtype and versions
-			File migrationFile = new File(deltaPath + databaseType + "-" + oldVersion + "-" + ++oldVersion + ".sql");
-			DatabaseUtil.executeScript(migrationFile, false);
-		}
-	}
+    private TreeMap<Integer, String> getDiffsForVersion(int version, Document document) throws Exception {
+        TreeMap<Integer, String> scripts = new TreeMap<Integer, String>();
+        NodeList diffNodes = document.getElementsByTagName("diff");
+        String databaseType = configurationController.getDatabaseType();
+
+        for (int i = 0; i < diffNodes.getLength(); i++) {
+            Node attribute = diffNodes.item(i).getAttributes().getNamedItem("version");
+            if (attribute != null) {
+                String versionString = attribute.getTextContent();
+
+                int scriptVersion = Integer.parseInt(versionString);
+                if (scriptVersion > version) {
+
+                    NodeList scriptNodes = ((Element) diffNodes.item(i)).getElementsByTagName("script");
+
+                    if (scriptNodes.getLength() == 0) {
+                        throw new Exception("Missing script element for version = " + scriptVersion);
+                    }
+
+                    for (int j = 0; j < scriptNodes.getLength(); j++) {
+                        Node scriptNode = scriptNodes.item(j);
+                        Node scriptNodeAttribute = scriptNode.getAttributes().getNamedItem("type");
+
+                        String[] dbTypes = scriptNodeAttribute.getTextContent().split(",");
+                        for (int k = 0; k < dbTypes.length; k++) {
+                            if (dbTypes[k].equals("all") || dbTypes[k].equals(databaseType)) {
+                                scripts.put(new Integer(scriptVersion), scriptNode.getTextContent());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return scripts;
+    }
+
+    private void createSchema(Connection conn) throws Exception {
+        File baseDir = new File(configurationController.getBaseDir());
+        String databaseType = configurationController.getDatabaseType();
+        File creationScript = new File(baseDir.getPath() + System.getProperty("file.separator") + databaseType + "-database.sql");
+
+        DatabaseUtil.executeScript(creationScript, true);
+    }
+
+    private void migrate(int oldVersion, int newVersion) throws Exception {
+        File deltaFolder = new File(ClassPathResource.getResourceURI(DELTA_FOLDER));
+        String deltaPath = deltaFolder.getPath() + System.getProperty("file.separator");
+        String databaseType = configurationController.getDatabaseType();
+
+        while (oldVersion < newVersion) {
+            // gets the correct migration script based on dbtype and versions
+            File migrationFile = new File(deltaPath + databaseType + "-" + oldVersion + "-" + ++oldVersion + ".sql");
+            DatabaseUtil.executeScript(migrationFile, false);
+        }
+    }
 }
