@@ -313,7 +313,7 @@ public class DefaultMigrationController extends MigrationController {
         while (oldVersion < newVersion) {
             // gets the correct migration script based on dbtype and versions
             File migrationFile = new File(deltaPath + databaseType + "-" + oldVersion + "-" + ++oldVersion + ".sql");
-            DatabaseUtil.executeScript(migrationFile, false);
+            DatabaseUtil.executeScript(migrationFile, true);
         }
     }
 }
