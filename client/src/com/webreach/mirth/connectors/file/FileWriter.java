@@ -378,8 +378,8 @@ public class FileWriter extends ConnectorClass
 
         schemeLabel.setText("Method:");
 
-        schemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "file", "ftp", "sftp" }));
-        schemeComboBox.setToolTipText("The basic method used to access files to be read - file (local filesystem), FTP, or SFTP.");
+        schemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "file", "ftp", "sftp", "smb" }));
+        schemeComboBox.setToolTipText("The basic method used to access files to be read - file (local filesystem), FTP, SFTP, or Samba share.");
         schemeComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 schemeComboBoxActionPerformed(evt);
