@@ -50,7 +50,7 @@ public class SqlConfig {
                         PluginMetaData pmd = plugins.get(pluginName);
 
                         if (pmd.getSqlMapConfigs() != null) {
-                            String sqlMapConfigPath = ExtensionController.EXTENSIONS_LOCATION + pmd.getPath() + System.getProperty("file.separator") + pmd.getSqlMapConfigs().get(database);
+                            String sqlMapConfigPath = ExtensionController.getExtensionsPath() + pmd.getPath() + System.getProperty("file.separator") + pmd.getSqlMapConfigs().get(database);
                             Element sqlMapElement = document.createElement("sqlMap");
                             sqlMapElement.setAttribute("url", new File(sqlMapConfigPath).toURI().toURL().toString());
                             sqlMapConfigElement.appendChild(sqlMapElement);

@@ -198,7 +198,7 @@ public class DefaultMigrationController extends MigrationController {
                 }
 
                 if (plugin.getSqlScript() != null) {
-                    String contents = FileUtil.read(ExtensionController.EXTENSIONS_LOCATION + plugin.getPath() + System.getProperty("file.separator") + plugin.getSqlScript());
+                    String contents = FileUtil.read(ExtensionController.getExtensionsPath() + plugin.getPath() + System.getProperty("file.separator") + plugin.getSqlScript());
                     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                     Document document;
                     DocumentBuilder builder;

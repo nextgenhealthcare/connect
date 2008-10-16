@@ -73,12 +73,21 @@ public abstract class ExtensionController extends Controller {
 			return fileName;
 		}
 	}
-	
-	// If in an IDE, extensions will be on the classpath as a resource.  If that's the case,
-	// use that directory.  Otherwise, use the mirth home directory and append extensions.
-	public static final String EXTENSIONS_LOCATION = ((ClassPathResource.getResourceURI("extensions") != null) ? 
-			ClassPathResource.getResourceURI("extensions").getPath() : ControllerFactory.getFactory().createConfigurationController().getBaseDir() + System.getProperty("file.separator") + "extensions") 
-			+ System.getProperty("file.separator");
+
+	/**
+     * If in an IDE, extensions will be on the classpath as a resource. If
+     * that's the case, use that directory. Otherwise, use the mirth home
+     * directory and append extensions.
+     * 
+     * @return
+     */
+	public static String getExtensionsPath() {
+	    if (ClassPathResource.getResourceURI("extensions") != null) {
+	        return ClassPathResource.getResourceURI("extensions").getPath();
+	    } else {
+	        return ControllerFactory.getFactory().createConfigurationController().getBaseDir() + System.getProperty("file.separator") + "extensions" + System.getProperty("file.separator");
+	    }
+	}
 	
     public static final String PLUGIN_PROPERTIES_FILE = "plugin.properties";
     

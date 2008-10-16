@@ -324,7 +324,7 @@ public class Mirth extends Thread {
             httpServer.addContext(libContext);
 
             // Serve static content from the lib context
-            File extensions = new File(ExtensionController.EXTENSIONS_LOCATION);
+            File extensions = new File(ExtensionController.getExtensionsPath());
             String libPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + System.getProperty("file.separator") + "client-lib";
 
             libContext.setResourceBase(libPath);

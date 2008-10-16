@@ -179,7 +179,7 @@ public class DefaultExtensionController extends ExtensionController {
     }
     
     public void uninstallExtension(String packageName) throws ControllerException {
-    	File uninstallFile = new File(EXTENSIONS_LOCATION + "uninstall");
+    	File uninstallFile = new File(getExtensionsPath() + "uninstall");
     	try {
 			FileWriter fileWriter = new FileWriter(uninstallFile, true);
 			fileWriter.write(packageName + System.getProperty("line.separator"));
@@ -197,7 +197,7 @@ public class DefaultExtensionController extends ExtensionController {
         String packageName = getPackageName(pluginName);
 
         try {
-            File propertiesFile = new File(EXTENSIONS_LOCATION + packageName + System.getProperty("file.separator") + PLUGIN_PROPERTIES_FILE);
+            File propertiesFile = new File(getExtensionsPath() + packageName + System.getProperty("file.separator") + PLUGIN_PROPERTIES_FILE);
             fileOutputStream = new FileOutputStream(propertiesFile);
             properties.store(fileOutputStream, "Updated " + packageName + " properties");
         } catch (Exception e) {
@@ -223,7 +223,7 @@ public class DefaultExtensionController extends ExtensionController {
         String packageName = getPackageName(pluginName);
         
         try {
-            File propertiesFile = new File(EXTENSIONS_LOCATION + packageName + System.getProperty("file.separator") + PLUGIN_PROPERTIES_FILE);
+            File propertiesFile = new File(getExtensionsPath() + packageName + System.getProperty("file.separator") + PLUGIN_PROPERTIES_FILE);
             if (!propertiesFile.exists()) {
                 return null;
             }
@@ -349,7 +349,7 @@ public class DefaultExtensionController extends ExtensionController {
         FileOutputStream fileOutputStream = null;
 
         try {
-            File propertiesFile = new File(EXTENSIONS_LOCATION + EXTENSIONS_PROPERTIES_FILE);
+            File propertiesFile = new File(getExtensionsPath() + EXTENSIONS_PROPERTIES_FILE);
             fileOutputStream = new FileOutputStream(propertiesFile);
             properties.store(fileOutputStream, "Updated extension properties");
         } catch (Exception e) {
@@ -373,7 +373,7 @@ public class DefaultExtensionController extends ExtensionController {
         Properties properties = new Properties();
 
         try {
-            File propertiesFile = new File(EXTENSIONS_LOCATION + EXTENSIONS_PROPERTIES_FILE);
+            File propertiesFile = new File(getExtensionsPath() + EXTENSIONS_PROPERTIES_FILE);
             if (!propertiesFile.exists()) {
                 return properties;
             }

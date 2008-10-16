@@ -70,7 +70,7 @@ public class ExtensionUtil {
 					}
 				}
 				
-				FileUtil.write(ExtensionController.EXTENSIONS_LOCATION + extensionPath + System.getProperty("file.separator") + fileName, false, serializer.toXML(metaData.get(entry.getKey())));
+				FileUtil.write(ExtensionController.getExtensionsPath() + extensionPath + System.getProperty("file.separator") + fileName, false, serializer.toXML(metaData.get(entry.getKey())));
 
 			}
 		} catch (IOException ioe) {
@@ -125,7 +125,7 @@ public class ExtensionUtil {
 		};
 		
 		List<File> extensionFiles = new ArrayList<File>();
-		File extensionsPath = new File(ExtensionController.EXTENSIONS_LOCATION);
+		File extensionsPath = new File(ExtensionController.getExtensionsPath());
 		File[] directories  = extensionsPath.listFiles(directoryFilter);
 		
 		for (File directory : directories) {
@@ -142,7 +142,7 @@ public class ExtensionUtil {
 		// libraries
 		String uniqueId = UUIDGenerator.getUUID();
 		//append installer temp
-		String location = ExtensionController.EXTENSIONS_LOCATION + "install_temp" + System.getProperty("file.separator");
+		String location = ExtensionController.getExtensionsPath() + "install_temp" + System.getProperty("file.separator");
 		ZipFile zipFile = null;
 		try {
 			File file = File.createTempFile(uniqueId, ".zip");
