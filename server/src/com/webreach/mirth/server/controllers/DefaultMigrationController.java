@@ -136,7 +136,7 @@ public class DefaultMigrationController extends MigrationController {
             Object result = null;
 
             try {
-                result = SqlConfig.getSqlMapClient().queryForObject("getSchemaVersion");
+                result = SqlConfig.getSqlMapClient().queryForObject("Configuration.getSchemaVersion");
             } catch (SQLException e) {
 
             }
@@ -152,12 +152,12 @@ public class DefaultMigrationController extends MigrationController {
                 migrate(oldSchemaVersion, newSchemaVersion);
 
                 if (result == null)
-                    SqlConfig.getSqlMapClient().update("setInitialSchemaVersion", newSchemaVersion);
+                    SqlConfig.getSqlMapClient().update("Configuration.setInitialSchemaVersion", newSchemaVersion);
                 else
-                    SqlConfig.getSqlMapClient().update("updateSchemaVersion", newSchemaVersion);
+                    SqlConfig.getSqlMapClient().update("Configuration.updateSchemaVersion", newSchemaVersion);
 
                 try {
-                    SqlConfig.getSqlMapClient().update("clearConfiguration");
+                    SqlConfig.getSqlMapClient().update("Configuration.clearConfiguration");
                     File configurationFile = new File(configurationController.getMuleConfigurationPath());
                     configurationFile.delete();
                     File bootFile = new File(configurationController.getMuleBootPath());
@@ -245,7 +245,7 @@ public class DefaultMigrationController extends MigrationController {
                             maxSchemaVersion = keyIntValue;
                         }
                     }
-                    pluginProperties.setProperty("schema." + plugin.getName(), maxSchemaVersion + "");
+                    pluginProperties.setProperty("schema." + plugin.getName(), String.valueOf(maxSchemaVersion));
                 }
             }
 

@@ -68,9 +68,9 @@ public class DefaultScriptController extends ScriptController {
             parameterMap.put("script", script);
 
             if (getScript(id) == null) {
-                SqlConfig.getSqlMapClient().insert("insertScript", parameterMap);
+                SqlConfig.getSqlMapClient().insert("Script.insertScript", parameterMap);
             } else {
-                SqlConfig.getSqlMapClient().update("updateScript", parameterMap);
+                SqlConfig.getSqlMapClient().update("Script.updateScript", parameterMap);
             }
         } catch (SQLException e) {
             throw new ControllerException(e);
@@ -88,7 +88,7 @@ public class DefaultScriptController extends ScriptController {
         logger.debug("retrieving script: id=" + id);
 
         try {
-            Object script = SqlConfig.getSqlMapClient().queryForObject("getScript", id);
+            Object script = SqlConfig.getSqlMapClient().queryForObject("Script.getScript", id);
             if (script != null)
                 return (String) script;
             else
@@ -102,7 +102,7 @@ public class DefaultScriptController extends ScriptController {
         logger.debug("clearing scripts table");
 
         try {
-            SqlConfig.getSqlMapClient().delete("deleteScript", null);
+            SqlConfig.getSqlMapClient().delete("Script.deleteScript", null);
         } catch (SQLException e) {
             throw new ControllerException("error clearing scripts", e);
         }

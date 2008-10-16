@@ -69,9 +69,9 @@ public class DefaultTemplateController extends TemplateController {
             parameterMap.put("template", template);
 
             if (getTemplate(id) == null) {
-                SqlConfig.getSqlMapClient().insert("insertTemplate", parameterMap);
+                SqlConfig.getSqlMapClient().insert("Template.insertTemplate", parameterMap);
             } else {
-                SqlConfig.getSqlMapClient().update("updateTemplate", parameterMap);
+                SqlConfig.getSqlMapClient().update("Template.updateTemplate", parameterMap);
             }
         } catch (SQLException e) {
             throw new ControllerException(e);
@@ -89,7 +89,7 @@ public class DefaultTemplateController extends TemplateController {
         logger.debug("retrieving template: id=" + id);
 
         try {
-            return (String) SqlConfig.getSqlMapClient().queryForObject("getTemplate", id);
+            return (String) SqlConfig.getSqlMapClient().queryForObject("Template.getTemplate", id);
         } catch (SQLException e) {
             throw new ControllerException(e);
         }
@@ -99,7 +99,7 @@ public class DefaultTemplateController extends TemplateController {
         logger.debug("clearing templates table");
 
         try {
-            SqlConfig.getSqlMapClient().delete("deleteTemplate", null);
+            SqlConfig.getSqlMapClient().delete("Template.deleteTemplate", null);
         } catch (SQLException e) {
             throw new ControllerException("error clearing templates", e);
         }

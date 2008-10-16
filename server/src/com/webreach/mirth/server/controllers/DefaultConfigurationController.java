@@ -504,7 +504,7 @@ public class DefaultConfigurationController extends ConfigurationController{
         Properties properties = PropertyLoader.loadProperties("mirth");
 
         try {
-            Configuration latestConfiguration = (Configuration) SqlConfig.getSqlMapClient().queryForObject("getLatestConfiguration");
+            Configuration latestConfiguration = (Configuration) SqlConfig.getSqlMapClient().queryForObject("Configuration.getLatestConfiguration");
 
             if (latestConfiguration != null) {
                 logger.debug("using configuration " + latestConfiguration.getId() + " created on " + latestConfiguration.getDateCreated());
@@ -545,7 +545,7 @@ public class DefaultConfigurationController extends ConfigurationController{
         logger.debug("deleting most recent configuration");
 
         try {
-            SqlConfig.getSqlMapClient().delete("deleteLatestConfiguration");
+            SqlConfig.getSqlMapClient().delete("Configuration.deleteLatestConfiguration");
         } catch (SQLException e) {
             logger.warn("Could not delete latest configuration.", e);
         }
@@ -561,7 +561,7 @@ public class DefaultConfigurationController extends ConfigurationController{
         logger.debug("adding configuration");
 
         try {
-            SqlConfig.getSqlMapClient().insert("insertConfiguration", data);
+            SqlConfig.getSqlMapClient().insert("Configuration.insertConfiguration", data);
         } catch (Exception e) {
             throw new ControllerException(e);
         }
@@ -577,7 +577,7 @@ public class DefaultConfigurationController extends ConfigurationController{
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
         try {
-            String data = (String) SqlConfig.getSqlMapClient().queryForObject("getKey");
+            String data = (String) SqlConfig.getSqlMapClient().queryForObject("Configuration.getKey");
             boolean isKeyFound = false;
 
             if (data != null) {
@@ -589,7 +589,7 @@ public class DefaultConfigurationController extends ConfigurationController{
             if (!isKeyFound) {
                 logger.debug("no key found, creating new encryption key");
                 encryptionKey = KeyGenerator.getInstance(Encrypter.DES_ALGORITHM).generateKey();
-                SqlConfig.getSqlMapClient().insert("insertKey", serializer.toXML(encryptionKey));
+                SqlConfig.getSqlMapClient().insert("Configuration.insertKey", serializer.toXML(encryptionKey));
             }
         } catch (Exception e) {
             logger.error("error loading encryption key", e);

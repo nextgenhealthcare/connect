@@ -147,7 +147,7 @@ public class DefaultChannelController extends ChannelController {
         logger.debug("getting channel");
 
         try {
-            return SqlConfig.getSqlMapClient().queryForList("getChannel", channel);
+            return SqlConfig.getSqlMapClient().queryForList("Channel.getChannel", channel);
         } catch (SQLException e) {
             throw new ControllerException(e);
         }
@@ -169,7 +169,7 @@ public class DefaultChannelController extends ChannelController {
         List<ChannelSummary> channelSummaries = new ArrayList<ChannelSummary>();
 
         try {
-            Map<String, Integer> serverChannels = SqlConfig.getSqlMapClient().queryForMap("getChannelRevision", null, "id", "revision");
+            Map<String, Integer> serverChannels = SqlConfig.getSqlMapClient().queryForMap("Channel.getChannelRevision", null, "id", "revision");
 
             /*
              * Iterate through the cached channel list and check if a channel
@@ -258,10 +258,10 @@ public class DefaultChannelController extends ChannelController {
 
             if (getChannel(channelFilter).isEmpty()) {
                 logger.debug("adding channel");
-                SqlConfig.getSqlMapClient().insert("insertChannel", channel);
+                SqlConfig.getSqlMapClient().insert("Channel.insertChannel", channel);
             } else {
                 logger.debug("updating channel");
-                SqlConfig.getSqlMapClient().update("updateChannel", channel);
+                SqlConfig.getSqlMapClient().update("Channel.updateChannel", channel);
             }
             return true;
         } catch (SQLException e) {
@@ -287,7 +287,7 @@ public class DefaultChannelController extends ChannelController {
                 clearChannelCache();
             }
 
-            SqlConfig.getSqlMapClient().delete("deleteChannel", channel);
+            SqlConfig.getSqlMapClient().delete("Channel.deleteChannel", channel);
         } catch (Exception e) {
             throw new ControllerException(e);
         }

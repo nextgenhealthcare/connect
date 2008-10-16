@@ -55,7 +55,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
         logger.debug("getting codeTemplate: " + codeTemplate);
 
         try {
-            return SqlConfig.getSqlMapClient().queryForList("getCodeTemplate", codeTemplate);
+            return SqlConfig.getSqlMapClient().queryForList("CodeTemplate.getCodeTemplate", codeTemplate);
         } catch (SQLException e) {
             throw new ControllerException(e);
         }
@@ -80,7 +80,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
 
                 // insert the codeTemplate and its properties
                 logger.debug("adding codeTemplate: " + codeTemplate);
-                SqlConfig.getSqlMapClient().insert("insertCodeTemplate", codeTemplate);
+                SqlConfig.getSqlMapClient().insert("CodeTemplate.insertCodeTemplate", codeTemplate);
 
                 SqlConfig.getSqlMapClient().commitTransaction();
             } finally {
@@ -95,7 +95,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
         logger.debug("removing codeTemplate: " + codeTemplate);
 
         try {
-            SqlConfig.getSqlMapClient().delete("deleteCodeTemplate", codeTemplate);
+            SqlConfig.getSqlMapClient().delete("CodeTemplate.deleteCodeTemplate", codeTemplate);
         } catch (SQLException e) {
             throw new ControllerException(e);
         }

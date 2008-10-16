@@ -110,7 +110,7 @@ public class DefaultEventController extends EventController {
 		logger.debug("adding log event: " + systemEvent);
 
 		try {
-		    SqlConfig.getSqlMapClient().insert("insertEvent", systemEvent);
+		    SqlConfig.getSqlMapClient().insert("Event.insertEvent", systemEvent);
 		} catch (Exception e) {
 			logger.error("could not log system event", e);
 		}
@@ -125,7 +125,7 @@ public class DefaultEventController extends EventController {
 
 		try {
 			Map parameterMap = new HashMap();
-			SqlConfig.getSqlMapClient().delete("deleteEvent", parameterMap);
+			SqlConfig.getSqlMapClient().delete("Event.deleteEvent", parameterMap);
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
@@ -167,12 +167,12 @@ public class DefaultEventController extends EventController {
 
 		try {
 			if (statementExists("createTempSystemEventsTableSequence")) {
-			    SqlConfig.getSqlMapClient().update("createTempSystemEventsTableSequence", uid);
+			    SqlConfig.getSqlMapClient().update("Event.createTempSystemEventsTableSequence", uid);
 			}
 
-			SqlConfig.getSqlMapClient().update("createTempSystemEventsTable", uid);
-			SqlConfig.getSqlMapClient().update("createTempSystemEventsTableIndex", uid);
-			return SqlConfig.getSqlMapClient().update("populateTempSystemEventsTable", getFilterMap(filter, uid));
+			SqlConfig.getSqlMapClient().update("Event.createTempSystemEventsTable", uid);
+			SqlConfig.getSqlMapClient().update("Event.createTempSystemEventsTableIndex", uid);
+			return SqlConfig.getSqlMapClient().update("Event.populateTempSystemEventsTable", getFilterMap(filter, uid));
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
@@ -182,7 +182,7 @@ public class DefaultEventController extends EventController {
 		logger.debug("Removing temporary system event table: uid=" + uid);
 		try {
 			if (statementExists("dropTempSystemEventsTableSequence")) {
-			    SqlConfig.getSqlMapClient().update("dropTempSystemEventsTableSequence", uid);
+			    SqlConfig.getSqlMapClient().update("Event.dropTempSystemEventsTableSequence", uid);
 			}
 		} catch (SQLException e) {
 			// supress any warnings about the sequence not existing
@@ -190,14 +190,14 @@ public class DefaultEventController extends EventController {
 		}
 		try {
 			if (statementExists("deleteTempSystemEventsTableIndex")) {
-			    SqlConfig.getSqlMapClient().update("deleteTempSystemEventsTableIndex", uid);
+			    SqlConfig.getSqlMapClient().update("Event.deleteTempSystemEventsTableIndex", uid);
 			}
 		} catch (SQLException e) {
 			// supress any warnings about the index not existing
 			logger.debug(e);
 		}
 		try {
-		    SqlConfig.getSqlMapClient().update("dropTempSystemEventsTable", uid);
+		    SqlConfig.getSqlMapClient().update("Event.dropTempSystemEventsTable", uid);
 		} catch (SQLException e) {
 			// supress any warnings about the table not existing
 			logger.debug(e);
@@ -218,7 +218,7 @@ public class DefaultEventController extends EventController {
 				parameterMap.put("last", last);
 			}
 
-			List<SystemEvent> systemEvents = SqlConfig.getSqlMapClient().queryForList("getSystemEventsByPage", parameterMap);
+			List<SystemEvent> systemEvents = SqlConfig.getSqlMapClient().queryForList("Event.getSystemEventsByPage", parameterMap);
 
 			return systemEvents;
 		} catch (Exception e) {
@@ -230,7 +230,7 @@ public class DefaultEventController extends EventController {
 		logger.debug("removing system events: filter=" + filter.toString());
 
 		try {
-			return SqlConfig.getSqlMapClient().delete("deleteEvent", getFilterMap(filter, null));
+			return SqlConfig.getSqlMapClient().delete("Event.deleteEvent", getFilterMap(filter, null));
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}		
@@ -249,7 +249,7 @@ public class DefaultEventController extends EventController {
 
 			parameterMap.putAll(getFilterMap(filter, uid));
 
-			List<SystemEvent> systemEvents = SqlConfig.getSqlMapClient().queryForList("getSystemEventsByPageLimit", parameterMap);
+			List<SystemEvent> systemEvents = SqlConfig.getSqlMapClient().queryForList("Event.getSystemEventsByPageLimit", parameterMap);
 
 			return systemEvents;
 		} catch (Exception e) {

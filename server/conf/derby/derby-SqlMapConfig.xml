@@ -7,7 +7,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 <sqlMapConfig>
 	<settings cacheModelsEnabled="true" enhancementEnabled="true"
 		lazyLoadingEnabled="true" maxRequests="32" maxSessions="10"
-		maxTransactions="5" useStatementNamespaces="false" />
+		maxTransactions="5" useStatementNamespaces="true" />
 
 	<typeHandler javaType="com.webreach.mirth.model.MessageObject$Protocol"
 		callback="com.webreach.mirth.server.sqlmap.extensions.MessageProtocolTypeHandler" />

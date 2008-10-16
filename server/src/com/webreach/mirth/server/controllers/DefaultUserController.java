@@ -62,7 +62,7 @@ public class DefaultUserController extends UserController {
 
     public void resetUserStatus() {
         try {
-            SqlConfig.getSqlMapClient().update("resetUserStatus");
+            SqlConfig.getSqlMapClient().update("User.resetUserStatus");
         } catch (SQLException e) {
             logger.error("Could not reset user status.");
         }
@@ -72,7 +72,7 @@ public class DefaultUserController extends UserController {
         logger.debug("getting user: " + user);
 
         try {
-            return SqlConfig.getSqlMapClient().queryForList("getUser", user);
+            return SqlConfig.getSqlMapClient().queryForList("User.getUser", user);
         } catch (SQLException e) {
             throw new ControllerException(e);
         }
@@ -82,10 +82,10 @@ public class DefaultUserController extends UserController {
         try {
             if (user.getId() == null) {
                 logger.debug("adding user: " + user);
-                SqlConfig.getSqlMapClient().insert("insertUser", getUserMap(user, plainTextPassword));
+                SqlConfig.getSqlMapClient().insert("User.insertUser", getUserMap(user, plainTextPassword));
             } else {
                 logger.debug("updating user: " + user);
-                SqlConfig.getSqlMapClient().update("updateUser", getUserMap(user, plainTextPassword));
+                SqlConfig.getSqlMapClient().update("User.updateUser", getUserMap(user, plainTextPassword));
             }
         } catch (SQLException e) {
             throw new ControllerException(e);
@@ -96,7 +96,7 @@ public class DefaultUserController extends UserController {
         logger.debug("removing user: " + user);
 
         try {
-            SqlConfig.getSqlMapClient().delete("deleteUser", user);
+            SqlConfig.getSqlMapClient().delete("User.deleteUser", user);
         } catch (SQLException e) {
             throw new ControllerException(e);
         }
@@ -104,7 +104,7 @@ public class DefaultUserController extends UserController {
 
     public boolean authorizeUser(User user, String plainTextPassword) throws ControllerException {
         try {
-            Credentials credentials = (Credentials) SqlConfig.getSqlMapClient().queryForObject("getUserCredentials", user);
+            Credentials credentials = (Credentials) SqlConfig.getSqlMapClient().queryForObject("User.getUserCredentials", user);
 
             if (credentials != null) {
                 String checkPasswordHash = encrypter.getHash(plainTextPassword, credentials.getSalt());
@@ -119,7 +119,7 @@ public class DefaultUserController extends UserController {
 
     public void loginUser(User user) throws ControllerException {
         try {
-            SqlConfig.getSqlMapClient().update("loginUser", user.getId());
+            SqlConfig.getSqlMapClient().update("User.loginUser", user.getId());
         } catch (Exception e) {
             throw new ControllerException(e);
         }
@@ -127,7 +127,7 @@ public class DefaultUserController extends UserController {
 
     public void logoutUser(User user) throws ControllerException {
         try {
-            SqlConfig.getSqlMapClient().update("logoutUser", user.getId());
+            SqlConfig.getSqlMapClient().update("User.logoutUser", user.getId());
         } catch (Exception e) {
             throw new ControllerException(e);
         }
@@ -136,7 +136,7 @@ public class DefaultUserController extends UserController {
 
     public boolean isUserLoggedIn(User user) throws ControllerException {
         try {
-            return (Boolean) SqlConfig.getSqlMapClient().queryForObject("isUserLoggedIn", user.getId());
+            return (Boolean) SqlConfig.getSqlMapClient().queryForObject("User.isUserLoggedIn", user.getId());
         } catch (Exception e) {
             throw new ControllerException(e);
         }
@@ -171,7 +171,7 @@ public class DefaultUserController extends UserController {
 
     public Preferences getUserPreferences(User user) throws ControllerException {
         try {
-            List<Preference> pList = (List<Preference>) SqlConfig.getSqlMapClient().queryForList("getUserPreferences", user.getId());
+            List<Preference> pList = (List<Preference>) SqlConfig.getSqlMapClient().queryForList("User.getUserPreferences", user.getId());
             Preferences pMap = new Preferences();
 
             for (Preference p : pList) {
@@ -191,7 +191,7 @@ public class DefaultUserController extends UserController {
             parameterMap.put("name", name);
             parameterMap.put("value", value);
 
-            SqlConfig.getSqlMapClient().update("insertUserPreference", parameterMap);
+            SqlConfig.getSqlMapClient().update("User.insertUserPreference", parameterMap);
         } catch (Exception e) {
             throw new ControllerException(e);
         }

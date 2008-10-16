@@ -192,18 +192,18 @@ public class DefaultMessageObjectController extends MessageObjectController {
 	private void writeMessageToDatabase(MessageObject messageObject, boolean checkIfMessageExists) {
 		try {
 			if (checkIfMessageExists) {
-				int count = (Integer) SqlConfig.getSqlMapClient().queryForObject("getMessageCount", messageObject.getId());
+				int count = (Integer) SqlConfig.getSqlMapClient().queryForObject("Message.getMessageCount", messageObject.getId());
 
 				if (count == 0) {
 					logger.debug("adding message: id=" + messageObject.getId());
-					SqlConfig.getSqlMapClient().insert("insertMessage", messageObject);
+					SqlConfig.getSqlMapClient().insert("Message.insertMessage", messageObject);
 				} else {
 					logger.debug("updating message: id=" + messageObject.getId());
-					SqlConfig.getSqlMapClient().update("updateMessage", messageObject);
+					SqlConfig.getSqlMapClient().update("Message.updateMessage", messageObject);
 				}
 			} else {
 				logger.debug("adding message (not checking for message): id=" + messageObject.getId());
-				SqlConfig.getSqlMapClient().insert("insertMessage", messageObject);
+				SqlConfig.getSqlMapClient().insert("Message.insertMessage", messageObject);
 			}
 		} catch (SQLException e) {
 			logger.error("could not log message: id=" + messageObject.getId(), e);
@@ -266,12 +266,12 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
 		try {
 			if (statementExists("createTempMessageTableSequence")) {
-				SqlConfig.getSqlMapClient().update("createTempMessageTableSequence", uid);
+				SqlConfig.getSqlMapClient().update("Message.createTempMessageTableSequence", uid);
 			}
 
-			SqlConfig.getSqlMapClient().update("createTempMessageTable", uid);
-			SqlConfig.getSqlMapClient().update("createTempMessageTableIndex", uid);
-			return SqlConfig.getSqlMapClient().update("populateTempMessageTable", getFilterMap(filter, uid));
+			SqlConfig.getSqlMapClient().update("Message.createTempMessageTable", uid);
+			SqlConfig.getSqlMapClient().update("Message.createTempMessageTableIndex", uid);
+			return SqlConfig.getSqlMapClient().update("Message.populateTempMessageTable", getFilterMap(filter, uid));
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
@@ -291,7 +291,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
 			parameterMap.putAll(getFilterMap(filter, uid));
 
-			List<MessageObject> messages = SqlConfig.getSqlMapClient().queryForList("getMessageByPageLimit", parameterMap);
+			List<MessageObject> messages = SqlConfig.getSqlMapClient().queryForList("Message.getMessageByPageLimit", parameterMap);
 
 			for (Iterator iter = messages.iterator(); iter.hasNext();) {
 				MessageObject messageObject = (MessageObject) iter.next();
@@ -327,7 +327,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
 				parameterMap.put("last", last);
 			}
 
-			List<MessageObject> messages = SqlConfig.getSqlMapClient().queryForList("getMessageByPage", parameterMap);
+			List<MessageObject> messages = SqlConfig.getSqlMapClient().queryForList("Message.getMessageByPage", parameterMap);
 
 			for (Iterator iter = messages.iterator(); iter.hasNext();) {
 				MessageObject messageObject = (MessageObject) iter.next();
@@ -345,8 +345,8 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
 		try {
 			removeMessagesFromQueue(filter);
-			int rowCount = SqlConfig.getSqlMapClient().delete("deleteMessage", getFilterMap(filter, null));
-			SqlConfig.getSqlMapClient().delete("deleteUnusedAttachments");
+			int rowCount = SqlConfig.getSqlMapClient().delete("Message.deleteMessage", getFilterMap(filter, null));
+			SqlConfig.getSqlMapClient().delete("Message.deleteUnusedAttachments");
 			return rowCount;
 		} catch (Exception e) {
 			throw new ControllerException(e);
@@ -381,7 +381,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
 		try {
 			if (statementExists("dropTempMessageTableSequence")) {
-				SqlConfig.getSqlMapClient().update("dropTempMessageTableSequence", uid);
+				SqlConfig.getSqlMapClient().update("Message.dropTempMessageTableSequence", uid);
 			}
 		} catch (SQLException e) {
 			// supress any warnings about the sequence not existing
@@ -390,7 +390,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
 		try {
 			if (statementExists("deleteTempMessageTableIndex")) {
-				SqlConfig.getSqlMapClient().update("deleteTempMessageTableIndex", uid);
+				SqlConfig.getSqlMapClient().update("Message.deleteTempMessageTableIndex", uid);
 			}
 		} catch (SQLException e) {
 			// supress any warnings about the index not existing
@@ -398,7 +398,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
 		}
 
 		try {
-			SqlConfig.getSqlMapClient().update("dropTempMessageTable", uid);
+			SqlConfig.getSqlMapClient().update("Message.dropTempMessageTable", uid);
 		} catch (SQLException e) {
 			// supress any warnings about the table not existing
 			logger.debug(e);
@@ -411,8 +411,8 @@ public class DefaultMessageObjectController extends MessageObjectController {
 		try {
 			Map parameterMap = new HashMap();
 			parameterMap.put("channelId", channelId);
-			SqlConfig.getSqlMapClient().delete("deleteMessage", parameterMap);
-			SqlConfig.getSqlMapClient().delete("deleteUnusedAttachments");
+			SqlConfig.getSqlMapClient().delete("Message.deleteMessage", parameterMap);
+			SqlConfig.getSqlMapClient().delete("Message.deleteUnusedAttachments");
 
 			Channel filterChannel = new Channel();
 			filterChannel.setId(channelId);
@@ -567,11 +567,11 @@ public class DefaultMessageObjectController extends MessageObjectController {
 		Map params = new HashMap();
 		params.put("correlationId", correlationId);
 		params.put("connectorName", destinationId);
-		return (String) SqlConfig.getSqlMapClient().queryForObject("lookupMessageId", params);
+		return (String) SqlConfig.getSqlMapClient().queryForObject("Message.lookupMessageId", params);
 	}
 
 	private String lookupMessageStatus(String messageId) throws SQLException {
-		return (String) SqlConfig.getSqlMapClient().queryForObject("lookupMessageStatus", messageId);
+		return (String) SqlConfig.getSqlMapClient().queryForObject("Message.lookupMessageStatus", messageId);
 	}
 
 	public MessageObject getMessageObjectFromEvent(UMOEvent event) throws Exception {
@@ -712,7 +712,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
 	public Attachment getAttachment(String attachmentId) throws ControllerException {
 		try {
-			return (Attachment) SqlConfig.getSqlMapClient().queryForObject("getAttachment", attachmentId);
+			return (Attachment) SqlConfig.getSqlMapClient().queryForObject("Message.getAttachment", attachmentId);
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		}
@@ -720,7 +720,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
 	public List<Attachment> getAttachmentsByMessageId(String messageId) throws ControllerException {
 		try {
-			return SqlConfig.getSqlMapClient().queryForList("getAttachmentsByMessageId", messageId);
+			return SqlConfig.getSqlMapClient().queryForList("Message.getAttachmentsByMessageId", messageId);
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		}
@@ -728,7 +728,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
 	public List<Attachment> getAttachmentIdsByMessageId(String messageId) throws ControllerException {
 		try {
-			return SqlConfig.getSqlMapClient().queryForList("getAttachmentIdsByMessageId", messageId);
+			return SqlConfig.getSqlMapClient().queryForList("Message.getAttachmentIdsByMessageId", messageId);
 		} catch (Exception e) {
 			throw new ControllerException(e);
 		}
@@ -736,7 +736,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
 	public void insertAttachment(Attachment attachment) {
 		try {
-			SqlConfig.getSqlMapClient().insert("insertAttachment", attachment);
+			SqlConfig.getSqlMapClient().insert("Message.insertAttachment", attachment);
 		} catch (SQLException e) {
 			logger.error("could not insert attachment: id=" + attachment.getAttachmentId(), e);
 		}
@@ -744,7 +744,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
 	public void deleteAttachments(MessageObject message) {
 		try {
-			SqlConfig.getSqlMapClient().delete("deleteAttachments", message);
+			SqlConfig.getSqlMapClient().delete("Message.deleteAttachments", message);
 		} catch (SQLException e) {
 			logger.error("could not delete attachment: message id=" + message.getId(), e);
 		}
@@ -752,7 +752,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
 	public void deleteUnusedAttachments() {
 		try {
-			SqlConfig.getSqlMapClient().delete("deleteUnusedAttachments");
+			SqlConfig.getSqlMapClient().delete("Message.deleteUnusedAttachments");
 		} catch (SQLException e) {
 			logger.error("problem deleting unused attachments", e);
 		}

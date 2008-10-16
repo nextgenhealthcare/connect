@@ -100,7 +100,7 @@ public class DefaultChannelStatisticsController extends ChannelStatisticsControl
         try {
             Map parameterMap = new HashMap();
             parameterMap.put("serverId", configurationController.getServerId());
-            statsCache.setCache((HashMap<String, ChannelStatistics>) SqlConfig.getSqlMapClient().queryForMap("getStatistics", parameterMap, "channelId"));
+            statsCache.setCache((HashMap<String, ChannelStatistics>) SqlConfig.getSqlMapClient().queryForMap("Statistic.getStatistics", parameterMap, "channelId"));
         } catch (SQLException e) {
             logger.error("Could not initialize channel statistics.", e);
         }
@@ -112,7 +112,7 @@ public class DefaultChannelStatisticsController extends ChannelStatisticsControl
         parameterMap.put("channelId", channelId);
 
         try {
-            SqlConfig.getSqlMapClient().insert("createStatistics", parameterMap);
+            SqlConfig.getSqlMapClient().insert("Statistic.createStatistics", parameterMap);
         } catch (SQLException e) {
             logger.warn("could not update statistics");
         }
@@ -125,7 +125,7 @@ public class DefaultChannelStatisticsController extends ChannelStatisticsControl
             parameterMap.put("serverId", configurationController.getServerId());
             parameterMap.put("channelId", channelId);
 
-            Map<String, ChannelStatistics> tempStats = (HashMap<String, ChannelStatistics>) SqlConfig.getSqlMapClient().queryForMap("getStatistics", parameterMap, "channelId");
+            Map<String, ChannelStatistics> tempStats = (HashMap<String, ChannelStatistics>) SqlConfig.getSqlMapClient().queryForMap("Statistic.getStatistics", parameterMap, "channelId");
             if (tempStats != null && tempStats.size() > 0)
                 return true;
         } catch (SQLException e) {
@@ -205,7 +205,7 @@ public class DefaultChannelStatisticsController extends ChannelStatisticsControl
 
     private void updateStatistics(String channelId) {
         try {
-            SqlConfig.getSqlMapClient().update("updateStatistics", statsCache.getCache().get(channelId));
+            SqlConfig.getSqlMapClient().update("Statistic.updateStatistics", statsCache.getCache().get(channelId));
         } catch (SQLException e) {
             logger.warn("could not update statistics");
         }

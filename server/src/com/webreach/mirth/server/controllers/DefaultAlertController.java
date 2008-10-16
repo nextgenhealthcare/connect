@@ -67,13 +67,13 @@ public class DefaultAlertController extends AlertController {
         logger.debug("getting alert: " + alert);
 
         try {
-            List<Alert> alerts = SqlConfig.getSqlMapClient().queryForList("getAlert", alert);
+            List<Alert> alerts = SqlConfig.getSqlMapClient().queryForList("Alert.getAlert", alert);
 
             for (Alert currentAlert : alerts) {
-                List<String> channelIds = SqlConfig.getSqlMapClient().queryForList("getChannelIdsByAlertId", currentAlert.getId());
+                List<String> channelIds = SqlConfig.getSqlMapClient().queryForList("Alert.getChannelIdsByAlertId", currentAlert.getId());
                 currentAlert.setChannels(channelIds);
 
-                List<String> emails = SqlConfig.getSqlMapClient().queryForList("getEmailsByAlertId", currentAlert.getId());
+                List<String> emails = SqlConfig.getSqlMapClient().queryForList("Alert.getEmailsByAlertId", currentAlert.getId());
                 currentAlert.setEmails(emails);
             }
 
@@ -87,13 +87,13 @@ public class DefaultAlertController extends AlertController {
         logger.debug("getting alert by channel id: " + channelId);
 
         try {
-            List<Alert> alerts = SqlConfig.getSqlMapClient().queryForList("getAlertByChannelId", channelId);
+            List<Alert> alerts = SqlConfig.getSqlMapClient().queryForList("Alert.getAlertByChannelId", channelId);
 
             for (Alert currentAlert : alerts) {
-                List<String> channelIds = SqlConfig.getSqlMapClient().queryForList("getChannelIdsByAlertId", currentAlert.getId());
+                List<String> channelIds = SqlConfig.getSqlMapClient().queryForList("Alert.getChannelIdsByAlertId", currentAlert.getId());
                 currentAlert.setChannels(channelIds);
 
-                List<String> emails = SqlConfig.getSqlMapClient().queryForList("getEmailsByAlertId", currentAlert.getId());
+                List<String> emails = SqlConfig.getSqlMapClient().queryForList("Alert.getEmailsByAlertId", currentAlert.getId());
                 currentAlert.setEmails(emails);
             }
 
@@ -121,7 +121,7 @@ public class DefaultAlertController extends AlertController {
                 SqlConfig.getSqlMapClient().startTransaction();
 
                 logger.debug("adding alert: " + alert);
-                SqlConfig.getSqlMapClient().insert("insertAlert", alert);
+                SqlConfig.getSqlMapClient().insert("Alert.insertAlert", alert);
 
                 logger.debug("adding channel alerts");
 
@@ -129,7 +129,7 @@ public class DefaultAlertController extends AlertController {
                     Map params = new HashMap();
                     params.put("alertId", alert.getId());
                     params.put("channelId", channelId);
-                    SqlConfig.getSqlMapClient().insert("insertChannelAlert", params);
+                    SqlConfig.getSqlMapClient().insert("Alert.insertChannelAlert", params);
                 }
 
                 logger.debug("adding alert emails");
@@ -138,7 +138,7 @@ public class DefaultAlertController extends AlertController {
                     Map params = new HashMap();
                     params.put("alertId", alert.getId());
                     params.put("email", email);
-                    SqlConfig.getSqlMapClient().insert("insertAlertEmail", params);
+                    SqlConfig.getSqlMapClient().insert("Alert.insertAlertEmail", params);
                 }
 
                 SqlConfig.getSqlMapClient().commitTransaction();
@@ -154,7 +154,7 @@ public class DefaultAlertController extends AlertController {
         logger.debug("removing alert: " + alert);
 
         try {
-            SqlConfig.getSqlMapClient().delete("deleteAlert", alert);
+            SqlConfig.getSqlMapClient().delete("Alert.deleteAlert", alert);
         } catch (SQLException e) {
             throw new ControllerException(e);
         }
