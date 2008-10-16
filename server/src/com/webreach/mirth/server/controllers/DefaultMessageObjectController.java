@@ -66,7 +66,6 @@ public class DefaultMessageObjectController extends MessageObjectController {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 	private ChannelStatisticsController statisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
-	private String lineSeperator = System.getProperty("line.separator");
 	private ErrorMessageBuilder errorBuilder = new ErrorMessageBuilder();
 
 	private static DefaultMessageObjectController instance = null;
@@ -598,7 +597,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
 		// Set the errors on the MO
 		if (messageObject != null) {
-			messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + lineSeperator + lineSeperator + fullErrorMessage : fullErrorMessage);
+			messageObject.setErrors(messageObject.getErrors() != null ? messageObject.getErrors() + System.getProperty("line.separator") + System.getProperty("line.separator") + fullErrorMessage : fullErrorMessage);
 		}
 		// Set the response error
 		String responseException = new String();
