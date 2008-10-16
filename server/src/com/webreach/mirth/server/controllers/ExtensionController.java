@@ -83,7 +83,7 @@ public abstract class ExtensionController extends Controller {
      */
 	public static String getExtensionsPath() {
 	    if (ClassPathResource.getResourceURI("extensions") != null) {
-	        return ClassPathResource.getResourceURI("extensions").getPath();
+	        return ClassPathResource.getResourceURI("extensions").getPath() + System.getProperty("file.separator");
 	    } else {
 	        return ControllerFactory.getFactory().createConfigurationController().getBaseDir() + System.getProperty("file.separator") + "extensions" + System.getProperty("file.separator");
 	    }

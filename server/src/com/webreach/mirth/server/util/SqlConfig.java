@@ -30,10 +30,12 @@ public class SqlConfig {
 
     }
 
-    /*
+    /**
      * This method loads the iBatis SQL config file for the database in use,
      * then appends sqlMap entries from any installed plugins, and returns a
      * SQLMapClient.
+     * 
+     * @return
      */
     public static SqlMapClient getSqlMapClient() {
         synchronized (SqlConfig.class) {
