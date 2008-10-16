@@ -255,7 +255,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
 	public int createMessagesTempTable(MessageObjectFilter filter, String uid, boolean forceTemp) throws ControllerException {
 		logger.debug("creating temporary message table: filter=" + filter.toString());
 
-		if (!forceTemp && statementExists("getMessageByPageLimit")) {
+		if (!forceTemp && statementExists("Message.getMessageByPageLimit")) {
 			return -1;
 		}
 		// If it's not forcing temp tables (export or reprocessing),
@@ -265,7 +265,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
 		}
 
 		try {
-			if (statementExists("createTempMessageTableSequence")) {
+			if (statementExists("Message.createTempMessageTableSequence")) {
 				SqlConfig.getSqlMapClient().update("Message.createTempMessageTableSequence", uid);
 			}
 
@@ -380,7 +380,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
 		logger.debug("Removing temporary message table: uid=" + uid);
 
 		try {
-			if (statementExists("dropTempMessageTableSequence")) {
+			if (statementExists("Message.dropTempMessageTableSequence")) {
 				SqlConfig.getSqlMapClient().update("Message.dropTempMessageTableSequence", uid);
 			}
 		} catch (SQLException e) {
@@ -389,7 +389,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
 		}
 
 		try {
-			if (statementExists("deleteTempMessageTableIndex")) {
+			if (statementExists("Message.deleteTempMessageTableIndex")) {
 				SqlConfig.getSqlMapClient().update("Message.deleteTempMessageTableIndex", uid);
 			}
 		} catch (SQLException e) {
