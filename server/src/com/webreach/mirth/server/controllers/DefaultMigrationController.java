@@ -186,14 +186,14 @@ public class DefaultMigrationController extends MigrationController {
             Map<String, PluginMetaData> plugins = extensionController.getPluginMetaData();
 
             for (PluginMetaData plugin : plugins.values()) {
-                String schemaString = pluginProperties.getProperty("schema." + plugin.getName());
                 int baseSchemaVersion = -1;
+                String schemaString = pluginProperties.getProperty("schema." + plugin.getPath());
 
                 if (schemaString != null) {
                     try {
-                        baseSchemaVersion = Integer.parseInt(pluginProperties.getProperty("schema." + plugin.getName()));
-                    } catch (NumberFormatException nf) {
-                        logger.info("could not determine schema version for plugin: " + plugin.getName(), nf);
+                        baseSchemaVersion = Integer.parseInt(schemaString);
+                    } catch (NumberFormatException nfe) {
+                        logger.info("could not determine schema version for plugin: " + plugin.getPath(), nfe);
                     }
                 }
 
@@ -232,20 +232,24 @@ public class DefaultMigrationController extends MigrationController {
                         }
                     }
 
-                    DatabaseUtil.executeScript(scriptList, false);
-                    Iterator i = scripts.entrySet().iterator();
-                    int maxSchemaVersion = -1;
+                    // if there were no scripts, don't update the schema version
+                    if (!scriptList.isEmpty()) {
+                        DatabaseUtil.executeScript(scriptList, false);
+                        Iterator scriptIter = scripts.entrySet().iterator();
+                        int maxSchemaVersion = -1;
 
-                    while (i.hasNext()) {
-                        Entry entry = (Entry) i.next();
-                        Integer keyValue = (Integer) entry.getKey();
-                        int keyIntValue = keyValue.intValue();
+                        while (scriptIter.hasNext()) {
+                            Entry entry = (Entry) scriptIter.next();
+                            Integer keyValue = (Integer) entry.getKey();
+                            int keyIntValue = keyValue.intValue();
 
-                        if (keyIntValue > maxSchemaVersion) {
-                            maxSchemaVersion = keyIntValue;
+                            if (keyIntValue > maxSchemaVersion) {
+                                maxSchemaVersion = keyIntValue;
+                            }
                         }
+
+                        pluginProperties.setProperty("schema." + plugin.getPath(), String.valueOf(maxSchemaVersion));
                     }
-                    pluginProperties.setProperty("schema." + plugin.getName(), String.valueOf(maxSchemaVersion));
                 }
             }
 
