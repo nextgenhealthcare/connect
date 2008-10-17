@@ -49,7 +49,7 @@ public class LLPSenderProperties extends QueuedSenderProperties
     public static final String LLP_SEGMENT_END = "segmentEnd";
     public static final String LLP_TEMPLATE = "template";
     public static final String LLP_ACK_TIMEOUT = "ackTimeout";
-    public static final String LLP_HL7_ACK_RESPONSE = "hl7AckResponse";
+    public static final String LLP_HL7_ACK_RESPONSE = "processHl7AckResponse";
     public static final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
     public static final String CHANNEL_ID = "replyChannelId";
     
