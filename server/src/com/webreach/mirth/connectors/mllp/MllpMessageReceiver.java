@@ -16,10 +16,12 @@ package com.webreach.mirth.connectors.mllp;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.CharArrayReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -35,6 +37,11 @@ import java.util.regex.Pattern;
 import javax.resource.spi.work.Work;
 import javax.resource.spi.work.WorkException;
 import javax.resource.spi.work.WorkManager;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
 
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
@@ -52,10 +59,13 @@ import org.mule.umo.lifecycle.DisposeException;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageAdapter;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 import com.webreach.mirth.connectors.mllp.protocols.LlpProtocol;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
+import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.ControllerFactory;
@@ -93,6 +103,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	private ConnectorType connectorType = ConnectorType.LISTENER;
+	
 	public MllpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
 		super(connector, component, endpoint);
 		MllpConnector tcpConnector = (MllpConnector) connector;
@@ -542,21 +553,31 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 					// SU: Successful completion only
 					
 					message = message.trim();
-					char segmentDelim = '\r';
-					char fieldDelim = message.charAt(3); // Usually |
-					char elementDelim = message.charAt(4); // Usually ^
-					
-					String mshString = message.substring(0, message.indexOf(String.valueOf(segmentDelim)));
-
-					Pattern fieldPattern = Pattern.compile(Pattern.quote(String.valueOf(fieldDelim)));
-					Pattern elementPattern = Pattern.compile(Pattern.quote(String.valueOf(elementDelim)));
-
-					String[] mshFields = fieldPattern.split(mshString);
 					
 					String msh15 = "";
-					if (mshFields.length > 14) {
-						msh15 = elementPattern.split(mshFields[14])[0]; // MSH.15.1
-					} 
+					//Check if the message is ER7 or XML
+					if (messageObject.getRawDataProtocol().equals(Protocol.XML)) { // XML form
+						XPath xpath = XPathFactory.newInstance().newXPath();
+						XPathExpression msh15Query = xpath.compile("//MSH.15/text()");
+						DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+					    DocumentBuilder builder = domFactory.newDocumentBuilder();
+					    Reader reader = new CharArrayReader(message.toCharArray());
+					    Document doc = builder.parse(new InputSource(reader));
+					    msh15 = msh15Query.evaluate(doc);
+					} else { //ER7
+						char segmentDelim = '\r';
+						char fieldDelim = message.charAt(3); // Usually |
+						char componentDelim = message.charAt(4); // Usually ^
+						
+						Pattern fieldPattern = Pattern.compile(Pattern.quote(String.valueOf(fieldDelim)));
+						Pattern componentPattern = Pattern.compile(Pattern.quote(String.valueOf(componentDelim)));
+						String mshString = message.substring(0, message.indexOf(String.valueOf(segmentDelim)));
+						String[] mshFields = fieldPattern.split(mshString);
+						
+						if (mshFields.length > 14) {
+							msh15 = componentPattern.split(mshFields[14])[0]; // MSH.15.1
+						} 
+					}
 					
 					if (msh15 != null && !msh15.equals("")) {
 						if (msh15.equalsIgnoreCase("AL")) {
@@ -599,7 +620,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 				if (textMessage.indexOf('$') > -1){
 					textMessage = replacer.replaceValues(textMessage, messageObject);
 				}
-				String ACK = new ACKGenerator().generateAckResponse(message.trim(), ackCode, textMessage);
+				String ACK = new ACKGenerator().generateAckResponse(message.trim(), messageObject.getRawDataProtocol(), ackCode, textMessage);
 
 				logger.debug("Sending ACK: " + ACK);
 				try {
