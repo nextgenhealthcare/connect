@@ -55,6 +55,12 @@ public class EmailSender extends ConnectorClass
         properties.put(EmailSenderProperties.EMAIL_TO, emailToField.getText());
         properties.put(EmailSenderProperties.EMAIL_FROM, emailFromField.getText());
         properties.put(EmailSenderProperties.EMAIL_SUBJECT, emailSubjectField.getText());
+        
+        if (htmlContentYesButton.isSelected())
+            properties.put(EmailSenderProperties.EMAIL_HTML_CONTENT, UIConstants.YES_OPTION);
+        else
+        	properties.put(EmailSenderProperties.EMAIL_HTML_CONTENT, UIConstants.NO_OPTION);
+        
         properties.put(EmailSenderProperties.EMAIL_BODY, emailBodyTextPane.getText());
         return properties;
     }
@@ -70,6 +76,12 @@ public class EmailSender extends ConnectorClass
         emailToField.setText((String) props.get(EmailSenderProperties.EMAIL_TO));
         emailFromField.setText((String) props.get(EmailSenderProperties.EMAIL_FROM));
         emailSubjectField.setText((String) props.get(EmailSenderProperties.EMAIL_SUBJECT));
+        
+        if (((String) props.get(EmailSenderProperties.EMAIL_HTML_CONTENT)).equals(UIConstants.YES_OPTION))
+        	htmlContentYesButton.setSelected(true);
+        else
+        	htmlContentNoButton.setSelected(true);
+        
         emailBodyTextPane.setText((String) props.get(EmailSenderProperties.EMAIL_BODY));
     }
 
@@ -131,6 +143,7 @@ public class EmailSender extends ConnectorClass
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        buttonGroup1 = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -147,6 +160,9 @@ public class EmailSender extends ConnectorClass
         jLabel8 = new javax.swing.JLabel();
         emailFromField = new com.webreach.mirth.client.ui.components.MirthTextField();
         emailBodyTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
+        htmlContentLabel = new javax.swing.JLabel();
+        htmlContentYesButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        htmlContentNoButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -183,6 +199,16 @@ public class EmailSender extends ConnectorClass
 
         emailBodyTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
+        htmlContentLabel.setText("HTML Content:");
+
+        htmlContentYesButton.setBackground(new java.awt.Color(255, 255, 255));
+        buttonGroup1.add(htmlContentYesButton);
+        htmlContentYesButton.setText("Yes");
+
+        htmlContentNoButton.setBackground(new java.awt.Color(255, 255, 255));
+        buttonGroup1.add(htmlContentNoButton);
+        htmlContentNoButton.setText("No");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -190,6 +216,7 @@ public class EmailSender extends ConnectorClass
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(htmlContentLabel)
                     .add(jLabel8)
                     .add(jLabel2)
                     .add(jLabel1)
@@ -199,8 +226,8 @@ public class EmailSender extends ConnectorClass
                     .add(jLabel6)
                     .add(jLabel7))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                         .add(emailPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .add(SMTPServerHostField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
                         .add(SMTPServerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -208,7 +235,11 @@ public class EmailSender extends ConnectorClass
                         .add(emailToField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
                         .add(emailFromField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .add(emailSubjectField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE))
-                    .add(emailBodyTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, emailBodyTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(htmlContentYesButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(htmlContentNoButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -242,9 +273,14 @@ public class EmailSender extends ConnectorClass
                     .add(jLabel6)
                     .add(emailSubjectField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(htmlContentLabel)
+                    .add(htmlContentYesButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(htmlContentNoButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel7)
-                    .add(emailBodyTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 64, Short.MAX_VALUE))
+                    .add(emailBodyTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 79, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -252,12 +288,16 @@ public class EmailSender extends ConnectorClass
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.webreach.mirth.client.ui.components.MirthTextField SMTPServerHostField;
     private com.webreach.mirth.client.ui.components.MirthTextField SMTPServerPortField;
+    private javax.swing.ButtonGroup buttonGroup1;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea emailBodyTextPane;
     private com.webreach.mirth.client.ui.components.MirthTextField emailFromField;
     private com.webreach.mirth.client.ui.components.MirthPasswordField emailPasswordField;
     private com.webreach.mirth.client.ui.components.MirthTextField emailSubjectField;
     private com.webreach.mirth.client.ui.components.MirthTextField emailToField;
     private com.webreach.mirth.client.ui.components.MirthTextField emailUsernameField;
+    private javax.swing.JLabel htmlContentLabel;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton htmlContentNoButton;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton htmlContentYesButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
