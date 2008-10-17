@@ -177,7 +177,7 @@
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
             </Property>
             <Property name="selected" type="boolean" value="true"/>
-            <Property name="text" type="java.lang.String" value="Sign me up for the Mirth Project mailing list"/>
+            <Property name="text" type="java.lang.String" value="Register this instance of Mirth"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="registerCheckBoxActionPerformed"/>
