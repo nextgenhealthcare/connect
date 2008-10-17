@@ -111,7 +111,7 @@ public class JavaScriptMessageReceiver extends PollingMessageReceiver {
 			Context context = Context.enter();
 			Scriptable scope = new ImporterTopLevel(context);
 			// load variables in JavaScript scope
-			JavaScriptScopeUtil.buildScope(scope, connector.getName(), scriptLogger);
+			JavaScriptScopeUtil.buildScope(scope, connector.getChannelId(), scriptLogger);
 			
 			if (umoMessage != null) {
 				MessageObject messageObject = (MessageObject) umoMessage.getPayload();
@@ -135,7 +135,7 @@ public class JavaScriptMessageReceiver extends PollingMessageReceiver {
 			Scriptable scope = new ImporterTopLevel(context);
 
 			// load variables in JavaScript scope
-			JavaScriptScopeUtil.buildScope(scope, connector.getName(), scriptLogger);
+			JavaScriptScopeUtil.buildScope(scope, connector.getChannelId(), scriptLogger);
 			// each time we poll, we want to clear the map.
 			// we need to document this
 			// get the script from the cache and execute it
