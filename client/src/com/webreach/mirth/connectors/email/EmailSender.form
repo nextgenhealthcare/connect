@@ -32,7 +32,7 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="htmlContentLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="contentTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel8" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel2" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -55,9 +55,9 @@
                   </Group>
                   <Component id="emailBodyTextPane" alignment="1" pref="217" max="32767" attributes="1"/>
                   <Group type="102" attributes="0">
-                      <Component id="htmlContentYesButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="contentTypeHTMLButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="htmlContentNoButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="contentTypePlainButton" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -103,9 +103,9 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="htmlContentLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="htmlContentYesButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="htmlContentNoButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="contentTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="contentTypeHTMLButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="contentTypePlainButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -202,31 +202,49 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="htmlContentLabel">
+    <Component class="javax.swing.JLabel" name="contentTypeLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="HTML Content:"/>
+        <Property name="text" type="java.lang.String" value="Content Type:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="htmlContentYesButton">
+    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="contentTypeHTMLButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
         </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="buttonGroup1"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="text" type="java.lang.String" value="HTML"/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects whether the HTTP operation used to send each message."/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="htmlContentNoButton">
+    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="contentTypePlainButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
         </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="buttonGroup1"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="text" type="java.lang.String" value="Plain"/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects whether the HTTP operation used to send each message."/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
       </Properties>
     </Component>
   </SubComponents>
