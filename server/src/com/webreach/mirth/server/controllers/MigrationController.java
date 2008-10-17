@@ -32,7 +32,7 @@ package com.webreach.mirth.server.controllers;
  * 
  */
 public abstract class MigrationController extends Controller {
-    public MigrationController getInstance() {
+    public static MigrationController getInstance() {
         return ControllerFactory.getFactory().createMigrationController();
     }
     

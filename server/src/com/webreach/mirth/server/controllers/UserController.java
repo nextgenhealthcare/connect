@@ -31,7 +31,7 @@ import com.webreach.mirth.model.Preferences;
 import com.webreach.mirth.model.User;
 
 public abstract class UserController extends Controller {
-    public UserController getInstance() {
+    public static UserController getInstance() {
         return ControllerFactory.getFactory().createUserController();
     }
     

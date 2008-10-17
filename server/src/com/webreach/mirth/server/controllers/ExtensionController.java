@@ -93,7 +93,7 @@ public abstract class ExtensionController extends Controller {
     
     public static final String EXTENSIONS_PROPERTIES_FILE = "extensions.properties";
     
-    public ExtensionController getInstance() {
+    public static ExtensionController getInstance() {
         return ControllerFactory.getFactory().createExtensionController();
     }
     

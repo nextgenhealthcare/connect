@@ -27,7 +27,7 @@ package com.webreach.mirth.server.controllers;
 
 
 public abstract class TemplateController extends Controller {
-    public TemplateController getInstance() {
+    public static TemplateController getInstance() {
         return ControllerFactory.getFactory().createTemplateController();
     }
     

@@ -30,7 +30,7 @@ import java.util.List;
 import com.webreach.mirth.model.ChannelStatus;
 
 public abstract class ChannelStatusController extends Controller {
-    public ChannelStatusController getInstance() {
+    public static ChannelStatusController getInstance() {
         return ControllerFactory.getFactory().createChannelStatusController();
     }
     

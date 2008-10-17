@@ -30,7 +30,7 @@ import java.util.List;
 import com.webreach.mirth.model.CodeTemplate;
 
 public abstract class CodeTemplateController extends Controller {
-    public CodeTemplateController getInstance() {
+    public static CodeTemplateController getInstance() {
         return ControllerFactory.getFactory().createCodeTemplateController();
     }
     

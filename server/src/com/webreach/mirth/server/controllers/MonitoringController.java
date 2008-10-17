@@ -16,7 +16,7 @@ public abstract class MonitoringController extends Controller {
         LISTENER, SENDER, READER, WRITER
     };
     
-    public MonitoringController getInstance() {
+    public static MonitoringController getInstance() {
         return ControllerFactory.getFactory().createMonitoringController();
     }
 

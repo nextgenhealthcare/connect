@@ -33,7 +33,7 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelSummary;
 
 public abstract class ChannelController extends Controller {
-    public ChannelController getInstance() {
+    public static ChannelController getInstance() {
         return ControllerFactory.getFactory().createChannelController();
     }
     

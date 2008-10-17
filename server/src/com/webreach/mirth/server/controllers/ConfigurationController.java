@@ -54,7 +54,7 @@ public abstract class ConfigurationController extends Controller {
     public static final int STATUS_UNAVAILABLE = 1;
     public static final int STATUS_ENGINE_STARTING = 2;
     
-    public ConfigurationController getInstance() {
+    public static ConfigurationController getInstance() {
         return ControllerFactory.getFactory().createConfigurationController();
     }
 

@@ -36,7 +36,7 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 
 public abstract class MessageObjectController extends Controller {
-    public MessageObjectController getInstance() {
+    public static MessageObjectController getInstance() {
         return ControllerFactory.getFactory().createMessageObjectController();
     }
     

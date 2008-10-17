@@ -30,7 +30,7 @@ import java.util.List;
 import com.webreach.mirth.model.Alert;
 
 public abstract class AlertController extends Controller {
-    public AlertController getInstance() {
+    public static AlertController getInstance() {
         return ControllerFactory.getFactory().createAlertController();
     }
     

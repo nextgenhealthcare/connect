@@ -27,7 +27,7 @@ package com.webreach.mirth.server.controllers;
 
 
 public abstract class ScriptController extends Controller {
-    public ScriptController getInstance() {
+    public static ScriptController getInstance() {
         return ControllerFactory.getFactory().createScriptController();
     }
     

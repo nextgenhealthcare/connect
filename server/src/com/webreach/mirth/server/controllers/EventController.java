@@ -31,7 +31,7 @@ import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.filters.SystemEventFilter;
 
 public abstract class EventController extends Controller {
-    public EventController getInstance() {
+    public static EventController getInstance() {
         return ControllerFactory.getFactory().createEventController();
     }
     

@@ -34,7 +34,7 @@ import com.webreach.mirth.model.ChannelStatistics;
  * 
  */
 public abstract class ChannelStatisticsController extends Controller {
-    public ChannelStatisticsController getInstance() {
+    public static ChannelStatisticsController getInstance() {
         return ControllerFactory.getFactory().createChannelStatisticsController();
     }
     
