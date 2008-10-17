@@ -49,7 +49,8 @@ public class ServerConnection {
 	private String address;
 
 	public ServerConnection(String address) {
-	    this(address, -1);
+	    // default timeout is inifinite
+	    this(address, 0);
 	}
 	
 	public ServerConnection(String address, int timeout) {
