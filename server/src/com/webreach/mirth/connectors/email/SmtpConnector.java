@@ -98,7 +98,6 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
      */
     private String username;
 
-    private boolean isHtmlContent;
     /**
      * Any custom headers to be set on messages sent using this connector
      */
@@ -186,12 +185,7 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
             mp.addBodyPart(mbp);
 
             // add the Multipart to the message
-            if (isHtmlContent()) {
-                msg.setContent(mp, "text/html");    
-            } else {
-                msg.setContent(mp);
-            }
-            
+            msg.setContent(mp);
             return msg;
         } catch (MuleException e) {
             throw e;
@@ -431,13 +425,5 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
 	public void setSmtpPort(String smtpPort) {
 		this.smtpPort = smtpPort;
 	}
-    public boolean isHtmlContent() {
-        return isHtmlContent;
-    }
-    public void setHtmlContent(boolean isHtmlContent) {
-        this.isHtmlContent = isHtmlContent;
-    }
-	
-	
 
 }
