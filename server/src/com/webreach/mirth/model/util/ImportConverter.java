@@ -60,6 +60,14 @@ public class ImportConverter {
 
 		builder = factory.newDocumentBuilder();
 		document = builder.parse(new InputSource(new StringReader(serverConfiguration)));
+		
+		// Remove users from the server configuration file if they were there.
+		Element documentElement = document.getDocumentElement();
+		NodeList users = documentElement.getElementsByTagName("users");
+		if (users != null && users.getLength() > 0) {
+			documentElement.removeChild(users.item(0));
+		}
+		
 		Element channelsRoot = (Element) document.getElementsByTagName("channels").item(0);
 		NodeList channels = document.getElementsByTagName("com.webreach.mirth.model.Channel");
 		List<Channel> channelList = new ArrayList<Channel>();
@@ -67,7 +75,7 @@ public class ImportConverter {
 		
 		for(int i = 0; i < length; i++)
 		{
-			Element channel = (Element) channels.item(0);
+			Element channel = (Element) channels.item(0);	// Must get node 0 because the first channel is removed each iteration
 			
 			TransformerFactory tf = TransformerFactory.newInstance();
 			Transformer trans = tf.newTransformer();
@@ -80,7 +88,10 @@ public class ImportConverter {
 
 			channelsRoot.removeChild(channel);
 		}
-				
+		
+		DocumentSerializer docSerializer = new DocumentSerializer();
+		serverConfiguration = docSerializer.toXML(document);
+		
 		ServerConfiguration config = (ServerConfiguration) serializer.fromXML(serverConfiguration);
 		config.setChannels(channelList);
 		return config;
