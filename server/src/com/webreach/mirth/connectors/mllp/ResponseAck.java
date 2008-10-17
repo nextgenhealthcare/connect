@@ -5,7 +5,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.SerializerFactory;
 
 public class ResponseAck {
@@ -20,14 +19,14 @@ public class ResponseAck {
 	protected static transient Log logger = LogFactory.getLog(MllpMessageDispatcher.class);
 
 	/** Creates a new instance of responseAck */
-	public ResponseAck(String ackMessageString, Protocol protocol) {
+	public ResponseAck(String ackMessageString) {
         // for demo purposes, we just declare a literal message string
 		this.ackMessageString = ackMessageString;
        
         try {
     		// If XML is being sent over MLLP, use the strict parser
     		// to convert the ack to ER7, then find the ack type.
-        	if (protocol.equals(Protocol.XML)) {
+        	if (ackMessageString.charAt(0) == '<') {
         		er7Ack = SerializerFactory.getHL7Serializer(true, false, false).fromXML(ackMessageString);
         	} else {
         		er7Ack = ackMessageString;        		

@@ -367,7 +367,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 				alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, "ACK message violates LLP protocol", null);
 				return true;
 			}
-			ResponseAck rack = new ResponseAck(ackString, messageObject.getRawDataProtocol());
+			ResponseAck rack = new ResponseAck(ackString);
 			if (rack.getTypeOfAck()) { // Ack Ok
 				messageObjectController.setSuccess(messageObject, ackString);
 				return true;
