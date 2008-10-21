@@ -510,18 +510,20 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		newScript.append("}");
 
 		// Helper function to create segments
-		newScript.append("function createSegment(name, msg, index) {");
+		newScript.append("function createSegment(name, msgObj, index) {");
 		newScript.append("if (arguments.length == 1) { return new XML('<' + name + '></' + name + '>'); };");
-		newScript.append("if (arguments.length == 2) { index = 0 };");
-		newScript.append("msg[name][index] = new XML('<' + name + '></' + name + '>');  return msg[name][index];");
+		newScript.append("if (arguments.length == 2) { index = 0; };");
+		newScript.append("msgObj[name][index] = new XML('<' + name + '></' + name + '>');  return msgObj[name][index];");
 		newScript.append("}");
 
 		// Helper function to create segments after specefied field
 		newScript.append("function createSegmentAfter(name, segment) {");
-		newScript.append("msg.insertChildAfter(segment[0], new XML('<' + name + '></' + name + '>'));");
+        newScript.append("var msgObj = segment;");
+        newScript.append("while (msgObj.parent() != undefined) { msgObj = msgObj.parent(); }");
+        newScript.append("msgObj.insertChildAfter(segment[0], new XML('<' + name + '></' + name + '>'));");
 		newScript.append("}");
 
-		// TODO: Look into optimizing. Potentially moving p.c.wr.m.s.c.MOC to an
+        // TODO: Look into optimizing. Potentially moving p.c.wr.m.s.c.MOC to an
 		// outside var
 
 		// Helper function to get attachments
