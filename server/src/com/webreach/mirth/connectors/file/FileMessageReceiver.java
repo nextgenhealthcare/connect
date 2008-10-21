@@ -324,7 +324,7 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 				fileConnector.releaseConnection(uri, con, null);
 			}
 		} else {
-		    throw new Exception("Data type " + protocol + " does not support batch processing.", e);
+		    throw new Exception("Data type " + protocol + " does not support batch processing.");
 		}
 	}
 
