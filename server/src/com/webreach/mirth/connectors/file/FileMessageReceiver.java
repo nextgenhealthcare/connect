@@ -220,11 +220,8 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 
 					// ast: use the user-selected encoding
 					if (fileConnector.isProcessBatchFiles()) {
-
 						processBatch(file);
-
 					} else {
-
 						byte[] contents = getBytesFromFile(file);
 						String message = "";
 						if (fileConnector.isBinary()) {
@@ -305,10 +302,10 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 
 	/** Process a single file as a batched message source */
 	private void processBatch(FileInfo file) throws Exception{
-		
 		UMOEndpointURI uri = endpoint.getEndpointURI();
 		Protocol protocol = Protocol.valueOf(fileConnector.getInboundProtocol());
 		Adaptor adaptor = AdaptorFactory.getAdaptor(protocol);
+
 		if (adaptor instanceof BatchAdaptor) {
 			BatchAdaptor batchAdaptor = (BatchAdaptor) adaptor;
 			FileSystemConnection con = fileConnector.getConnection(uri, null);
@@ -326,6 +323,8 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 				con.closeReadFile();
 				fileConnector.releaseConnection(uri, con, null);
 			}
+		} else {
+		    throw new Exception("Data type " + protocol + " does not support batch processing.", e);
 		}
 	}
 
