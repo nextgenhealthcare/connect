@@ -114,6 +114,8 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
 			// the JndiContext
 			if ((connectionFactory == null && connectionFactoryClass == null) || (connectionFactory != null && jndiInitialFactory != null)) {
 				initJndiContext();
+				jndiDestinations = true;
+				forceJndiDestinations = true;
 			} else {
 				// Set these to false so that the jndiContext
 				// will not be used by the JmsSupport classes
