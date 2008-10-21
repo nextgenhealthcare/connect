@@ -39,7 +39,7 @@
 			<manifest>
 				<attribute name="Manifest-Version" value="1.0" />
 				<attribute name="Main-Class" value="com.webreach.mirth.manager.Manager" />
-				<attribute name="Class-Path" value="lib/jdic.jar lib/looks-2.1.1.jar lib/swing-layout-1.0.1.jar lib/commons-codec-1.3.jar lib/commons-httpclient-3.0.1.jar lib/commons-logging-1.1.jar lib/log4j-1.2.13.jar lib/swingworker-0.8.0.jar lib/xstream-1.2.jar conf/ mirth-client-core.jar" />
+				<attribute name="Class-Path" value="lib/jdic.jar lib/looks-2.1.1.jar lib/swing-layout-1.0.1.jar lib/commons-codec-1.3.jar lib/commons-httpclient-3.0.1.jar lib/commons-logging-1.1.jar lib/log4j-1.2.13.jar lib/swingworker-0.8.0.jar lib/xstream-1.2.2.jar conf/ mirth-client-core.jar" />
 			</manifest>
 		</jar>
 
