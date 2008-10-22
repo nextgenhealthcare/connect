@@ -19,14 +19,12 @@ import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Rule;
 import com.webreach.mirth.model.Step;
 
-/**
- *
- * @author brendanh
- */
 public class VariableListUtil
 {
-    final static String GLOBAL_AND_CHANNEL_VARIABLE_PATTERN = "(?:(?:(?:channel|global|response)(?:M|m)ap.put)|\\$(?:g|c|r))\\(\\s*['|\"]([^'|^\"|^\\s]*)[\"|']*";
-    final static String LOCAL_VARIABLE_PATTERN = "(?:(?:(?:channel|global|response|connector)(?:M|m)ap.put)|\\$(?:g|c|r|co))\\(\\s*['|\"]([^'|^\"|^\\s]*)[\"|']*";
+	// Finds comments, but also incorrectly finds // or /* inside of block elements like strings.
+	final static String COMMENT_PATTERN = "(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)";
+    final static String GLOBAL_AND_CHANNEL_VARIABLE_PATTERN = "(?<![A-Za-z0-9_$])(?:(?:(?:channel|global|response)(?:M|m)ap.put)|\\$(?:g|c|r))\\(\\s*['|\"]([^'|^\"|^\\s]*)[\"|']*";
+    final static String LOCAL_VARIABLE_PATTERN = "(?<![A-Za-z0-9_$])(?:(?:(?:channel|global|response|connector)(?:M|m)ap.put)|\\$(?:g|c|r|co))\\(\\s*['|\"]([^'|^\"|^\\s]*)[\"|']*";
     final static int MATCHER_INDEX = 1;
     public static void getStepVariables(Set<String> targetSet, Connector connector, boolean includeLocalVars)
     {
@@ -52,7 +50,7 @@ public class VariableListUtil
         		break;
         	}
             Pattern pattern = Pattern.compile(varPattern);
-            Matcher matcher = pattern.matcher(stepIterator.next().getScript());
+            Matcher matcher = pattern.matcher(stepIterator.next().getScript().replaceAll(COMMENT_PATTERN, ""));
             while (matcher.find()){
             	targetSet.add(matcher.group(1));
             }
@@ -83,7 +81,7 @@ public class VariableListUtil
         		break;
         	}
             Pattern pattern = Pattern.compile(varPattern);
-            Matcher matcher = pattern.matcher(ruleIterator.next().getScript());
+            Matcher matcher = pattern.matcher(ruleIterator.next().getScript().replaceAll(COMMENT_PATTERN, ""));
             while (matcher.find())
             {
             	targetSet.add(matcher.group(MATCHER_INDEX));
