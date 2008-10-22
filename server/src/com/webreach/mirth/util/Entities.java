@@ -375,6 +375,6 @@ public class Entities {
 		addXML("&amp", 38);
 		addXML("&quot",34);
 		addXML("&#10", 10);
-		addXML("&#10", 13);
+		addXML("&#13", 13);
 	}
 }
