@@ -26,6 +26,8 @@
 package com.webreach.mirth.client.ui.browsers.event;
 
 import java.awt.Point;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.Calendar;
 import java.util.List;
 import java.util.prefs.Preferences;
@@ -294,6 +296,26 @@ public class EventBrowser extends javax.swing.JPanel
             public void mouseReleased(java.awt.event.MouseEvent evt)
             {
                 showEventPopupMenu(evt, true);
+            }
+        });
+        
+        // Key Listener trigger for DEL
+        eventTable.addKeyListener(new KeyListener()
+        {
+            public void keyPressed(KeyEvent e)
+            {
+                if (e.getKeyCode() == KeyEvent.VK_DELETE)
+                {
+                	parent.doRemoveEvent();
+                }
+            }
+            
+            public void keyReleased(KeyEvent e)
+            {
+            }
+            
+            public void keyTyped(KeyEvent e)
+            {
             }
         });
     }

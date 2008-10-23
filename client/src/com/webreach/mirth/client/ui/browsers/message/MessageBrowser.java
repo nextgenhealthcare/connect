@@ -28,6 +28,8 @@ import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -679,6 +681,26 @@ public class MessageBrowser extends javax.swing.JPanel {
                         new EditMessageDialog(currentMessage);
                     }
                 }
+            }
+        });
+        
+        // Key Listener trigger for DEL
+        messageTable.addKeyListener(new KeyListener()
+        {
+            public void keyPressed(KeyEvent e)
+            {
+                if (e.getKeyCode() == KeyEvent.VK_DELETE)
+                {
+                	parent.doRemoveMessage();
+                }
+            }
+            
+            public void keyReleased(KeyEvent e)
+            {
+            }
+            
+            public void keyTyped(KeyEvent e)
+            {
             }
         });
     }

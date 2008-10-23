@@ -7,6 +7,8 @@
 package com.webreach.mirth.client.ui;
 
 import java.awt.Point;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.text.SimpleDateFormat;
 import java.util.prefs.Preferences;
 
@@ -122,6 +124,26 @@ public class UserPanel extends javax.swing.JPanel
             {
                 if (evt.getClickCount() >= 2)
                     parent.doEditUser();
+            }
+        });
+        
+        // Key Listener trigger for DEL
+        usersTable.addKeyListener(new KeyListener()
+        {
+            public void keyPressed(KeyEvent e)
+            {
+                if (e.getKeyCode() == KeyEvent.VK_DELETE)
+                {
+                	parent.doDeleteUser();
+                }
+            }
+            
+            public void keyReleased(KeyEvent e)
+            {
+            }
+            
+            public void keyTyped(KeyEvent e)
+            {
             }
         });
 

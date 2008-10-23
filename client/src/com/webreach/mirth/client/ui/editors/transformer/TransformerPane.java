@@ -656,6 +656,10 @@ public class TransformerPane extends MirthEditorPane implements
                 if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown()) {
                     PlatformUI.MIRTH_FRAME.doContextSensitiveSave();
                 }
+                else if (e.getKeyCode() == KeyEvent.VK_DELETE)
+                {
+                	deleteStep();
+                }
             }
 
             public void keyReleased(KeyEvent e) {

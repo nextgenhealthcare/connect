@@ -27,6 +27,7 @@ package com.webreach.mirth.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
@@ -45,6 +46,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
+import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.border.TitledBorder;
@@ -429,28 +431,27 @@ public class ChannelSetup extends javax.swing.JPanel
                 showChannelEditPopupMenu(evt, false);
             }
         });
-        // Key Listener trigger for CTRL-S
+        // Key Listener trigger for CTRL-S and DEL
         destinationTable.addKeyListener(new KeyListener()
         {
             public void keyPressed(KeyEvent e)
             {
-                // TODO Auto-generated method stub
                 if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
                 {
                 	PlatformUI.MIRTH_FRAME.doContextSensitiveSave();
+                }
+                else if (e.getKeyCode() == KeyEvent.VK_DELETE)
+                {
+                	parent.doDeleteDestination();
                 }
             }
             
             public void keyReleased(KeyEvent e)
             {
-                // TODO Auto-generated method stub
-                
             }
             
             public void keyTyped(KeyEvent e)
             {
-                // TODO Auto-generated method stub
-                
             }
         });
         destinationTable.addMouseWheelListener(new MouseWheelListener()

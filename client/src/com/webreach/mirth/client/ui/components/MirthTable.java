@@ -17,10 +17,6 @@ import org.jdesktop.swingx.JXTable;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.UIConstants;
 
-/**
- * 
- * @author brendanh
- */
 public class MirthTable extends JXTable
 {
 

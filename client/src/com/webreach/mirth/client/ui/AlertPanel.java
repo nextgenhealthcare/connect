@@ -181,7 +181,7 @@ public class AlertPanel extends javax.swing.JPanel
                 showAlertPopupMenu(evt, false);
             }
         });
-        // Key Listener trigger for CTRL-S
+        // Key Listener trigger for CTRL-S and DEL
         alertTable.addKeyListener(new KeyListener()
         {
             public void keyPressed(KeyEvent e)
@@ -189,6 +189,10 @@ public class AlertPanel extends javax.swing.JPanel
                 if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
                 {
                     PlatformUI.MIRTH_FRAME.doSaveAlerts();
+                }
+                else if (e.getKeyCode() == KeyEvent.VK_DELETE)
+                {
+                	parent.doDeleteAlert();
                 }
             }
 

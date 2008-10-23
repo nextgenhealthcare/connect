@@ -15,6 +15,8 @@ import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.dnd.DropTargetListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 import java.util.Iterator;
 import java.util.List;
@@ -131,6 +133,26 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
             {
                 if (evt.getClickCount() >= 2)
                     parent.doEditChannel();
+            }
+        });
+        
+        // Key Listener trigger for DEL
+        channelTable.addKeyListener(new KeyListener()
+        {
+            public void keyPressed(KeyEvent e)
+            {
+                if (e.getKeyCode() == KeyEvent.VK_DELETE)
+                {
+                	parent.doDeleteChannel();
+                }
+            }
+            
+            public void keyReleased(KeyEvent e)
+            {
+            }
+            
+            public void keyTyped(KeyEvent e)
+            {
             }
         });
     }

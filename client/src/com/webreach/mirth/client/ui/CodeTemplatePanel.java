@@ -113,7 +113,6 @@ public class CodeTemplatePanel extends javax.swing.JPanel
         templateTable.setSelectionMode(0);
         templateTable.setRowSelectionAllowed(true);
         templateTable.setRowHeight(UIConstants.ROW_HEIGHT);
-        templateTable.setFocusable(false);
         templateTable.setSortable(false);
         templateTable.setOpaque(true);
         templateTable.setDragEnabled(false);
@@ -200,7 +199,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
                 showTemplatePopupMenu(evt, false);
             }
         });
-        // Key Listener trigger for CTRL-S
+        // Key Listener trigger for CTRL-S and DEL
         templateTable.addKeyListener(new KeyListener()
         {
             public void keyPressed(KeyEvent e)
@@ -208,6 +207,10 @@ public class CodeTemplatePanel extends javax.swing.JPanel
                 if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
                 {
                     PlatformUI.MIRTH_FRAME.doSaveCodeTemplates();
+                }
+                else if (e.getKeyCode() == KeyEvent.VK_DELETE)
+                {
+                	parent.doDeleteCodeTemplate();
                 }
             }
 

@@ -694,6 +694,10 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
                 {
                 	PlatformUI.MIRTH_FRAME.doContextSensitiveSave();
                 }
+                else if (e.getKeyCode() == KeyEvent.VK_DELETE)
+                {
+                	deleteRule();
+                }
             }
 
             public void keyReleased(KeyEvent e)
