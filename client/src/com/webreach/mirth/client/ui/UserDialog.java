@@ -58,6 +58,7 @@ public class UserDialog extends javax.swing.JDialog implements UserDialogInterfa
         }
         
         userEditPanel.setUser(this, currentUser);
+        userEditPanel.setRequiredFields(false, false, false, false);
 
         jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         setModal(true);
