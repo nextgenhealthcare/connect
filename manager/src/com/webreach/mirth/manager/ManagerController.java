@@ -192,7 +192,7 @@ public class ManagerController
                 }
             }
         }
-        catch (Exception ex)
+        catch (Throwable ex)  // Need to catch Throwable in case Client fails internally
         {
             ex.printStackTrace();
         }
