@@ -143,18 +143,20 @@ public class ExtensionUtil {
 		String uniqueId = UUIDGenerator.getUUID();
 		//append installer temp
 		String location = ExtensionController.getExtensionsPath() + "install_temp" + System.getProperty("file.separator");
+		File locationFile = new File(location);
+		if (!locationFile.exists()){
+			locationFile.mkdir();
+		}
+		
+		File file = null;
 		ZipFile zipFile = null;
 		try {
-			File file = File.createTempFile(uniqueId, ".zip");
+			file = File.createTempFile(uniqueId, ".zip", locationFile);
 			String zipFileLocation = file.getAbsolutePath();
 			fileItem.write(file);
 			
 			zipFile = new ZipFile(zipFileLocation);
 			Enumeration entries = zipFile.entries();
-			File locationFile = new File(location);
-			if (!locationFile.exists()){
-				locationFile.mkdir();
-			}
 			
 			while (entries.hasMoreElements()) {
 				ZipEntry entry = (ZipEntry) entries.nextElement();
@@ -176,6 +178,13 @@ public class ExtensionUtil {
 			if (zipFile != null) {
 				try {
 					zipFile.close();
+				} catch (Exception e) {
+					throw new ControllerException(e);
+				}
+			}
+			if (file != null) {
+				try {
+					file.delete();
 				} catch (Exception e) {
 					throw new ControllerException(e);
 				}

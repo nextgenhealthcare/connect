@@ -85,17 +85,19 @@ public class MirthLauncher {
 		if (extensionsTemp.exists()) {
 			File[] extensions = extensionsTemp.listFiles();
 			for (int i = 0; i < extensions.length; i++) {
-				File target = new File(extensionsLocation + System.getProperty("file.separator") + extensions[i].getName());
-				if (target.exists()) {
-					if (target.isDirectory()) {
-						deleteDirectory(target);
-					} else {
-						target.delete();
+				if (extensions[i].isDirectory()) {
+					File target = new File(extensionsLocation + System.getProperty("file.separator") + extensions[i].getName());
+					if (target.exists()) {
+						if (target.isDirectory()) {
+							deleteDirectory(target);
+						} else {
+							target.delete();
+						}
 					}
+					extensions[i].renameTo(target);
 				}
-				extensions[i].renameTo(target);
 			}
-			extensionsTemp.delete();
+			deleteDirectory(extensionsTemp);
 		}
 	}
 

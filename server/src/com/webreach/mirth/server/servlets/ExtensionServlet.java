@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.server.servlets;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -65,6 +66,15 @@ public class ExtensionServlet extends MirthServlet {
 				if (isMultipart) {
 					// we need to load properties from the multipart data
 					DiskFileItemFactory factory = new DiskFileItemFactory();
+					
+					String location = ExtensionController.getExtensionsPath() + "install_temp" + System.getProperty("file.separator");
+					File locationFile = new File(location);
+					if (!locationFile.exists()){
+						locationFile.mkdir();
+					}
+					
+					factory.setRepository(locationFile);
+
 					ServletFileUpload upload = new ServletFileUpload(factory);
 					List items = upload.parseRequest(request);
 					Iterator iter = items.iterator();
