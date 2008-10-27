@@ -178,7 +178,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 							if (socket != null) {
 								doDispose(socket);
 							}
-							logger.warn("Can't connect to the endopint, waiting " + new Float(connector.getReconnectMillisecs() / 1000) + " seconds for reconnecting \r\n(" + exs + ")");
+							logger.warn("Can't connect to the endpoint, waiting " + new Float(connector.getReconnectMillisecs() / 1000) + " seconds for reconnecting \r\n(" + exs + ")");
 							try {
 								Thread.sleep(connector.getReconnectMillisecs());
 							} catch (Throwable t) {
@@ -189,7 +189,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 							}
 						} else {
 							exceptionMessage = "Unable to connect to destination";
-							logger.error("Can't connect to the endopint: payload not sent");
+							logger.error("Can't connect to the endpoint: payload not sent");
 							exceptionWriting = exs;
 						}
 					}
