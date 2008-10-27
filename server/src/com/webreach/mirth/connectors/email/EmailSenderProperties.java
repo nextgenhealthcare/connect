@@ -44,6 +44,8 @@ public class EmailSenderProperties implements ComponentProperties
     public static final String EMAIL_BODY = "body";
     public static final String EMAIL_REPLY_TO = "replyToAddresses";
     public static final String EMAIL_CONTENT_TYPE = "contentType";
+    public static final String EMAIL_ATTACHMENT_CONTENT_TYPE = "attachmentContentType";
+    public static final String EMAIL_ATTACHMENT_NAME = "attachmentName";
 
     public Properties getDefaults()
     {
@@ -58,6 +60,8 @@ public class EmailSenderProperties implements ComponentProperties
         properties.put(EMAIL_SUBJECT, "");
         properties.put(EMAIL_BODY, "");
         properties.put(EMAIL_CONTENT_TYPE, "text/plain");
+        properties.put(EMAIL_ATTACHMENT_CONTENT_TYPE, "");
+        properties.put(EMAIL_ATTACHMENT_NAME, "");
         return properties;
     }
 

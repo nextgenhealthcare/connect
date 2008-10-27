@@ -20,9 +20,14 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
 import javax.mail.Message;
+import javax.mail.Multipart;
 import javax.mail.Session;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -92,6 +97,12 @@ public class MessageObjectToEmailMessage extends AbstractEventAwareTransformer {
 		String contentType = context.getStringProperty(MailProperties.CONTENT_TYPE_PROPERTY, connector.getContentType());
 		contentType = replacer.replaceValues(contentType, messageObject);
 
+        String attachmentContentType = context.getStringProperty(MailProperties.ATTACHMENT_CONTENT_TYPE_PROPERTY, connector.getAttachmentContentType());
+        attachmentContentType = replacer.replaceValues(attachmentContentType, messageObject);
+
+        String attachmentName = context.getStringProperty(MailProperties.ATTACHMENT_NAME_PROPERTY, connector.getAttachmentName());
+        attachmentName = replacer.replaceValues(attachmentName, messageObject);
+		
 		Properties headers = new Properties();
 		
 		if (connector.getCustomHeaders() != null) {
@@ -153,7 +164,7 @@ public class MessageObjectToEmailMessage extends AbstractEventAwareTransformer {
 				msg.setHeader(entry.getKey().toString(), entry.getValue().toString());
 			}
 
-			setContent(src, msg, contentType, context);
+			setContent(src, msg, contentType, attachmentContentType, attachmentName, context);
 
 			return msg;
 		} catch (Exception e) {
@@ -161,8 +172,25 @@ public class MessageObjectToEmailMessage extends AbstractEventAwareTransformer {
 		}
 	}
 
-	protected void setContent(Object payload, Message msg, String contentType, UMOEventContext context) throws Exception {
-		String body = replacer.replaceValues(((SmtpConnector)endpoint.getConnector()).getBody(), (MessageObject) payload); 
-		msg.setContent(body, contentType);
+	protected void setContent(Object payload, Message msg, String contentType, String attachmentContentType, String attachmentName, UMOEventContext context) throws Exception {
+		String body = replacer.replaceValues(((SmtpConnector)endpoint.getConnector()).getBody(), (MessageObject) payload);
+		String attachmentContent = replacer.replaceValues(((SmtpConnector)endpoint.getConnector()).getAttachmentContent(), (MessageObject) payload);
+		
+        Multipart multipart = new MimeMultipart("mixed");
+
+        // message
+        MimeBodyPart messageBodyPart = new MimeBodyPart();
+        messageBodyPart.setText(body, contentType);
+        multipart.addBodyPart(messageBodyPart);
+
+        // attachment
+        MimeBodyPart attachmentBodyPart = new MimeBodyPart();
+        DataSource source = new ByteArrayDataSource(attachmentContent.getBytes(), attachmentContentType);
+        attachmentBodyPart.setDataHandler(new DataHandler(source));
+        attachmentBodyPart.setFileName(attachmentName);
+        multipart.addBodyPart(attachmentBodyPart);
+
+        // set the content
+        msg.setContent(multipart);
 	}
 }

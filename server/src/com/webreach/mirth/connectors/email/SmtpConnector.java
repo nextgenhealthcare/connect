@@ -110,6 +110,10 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
     private Authenticator authenticator = null;
 
     private String contentType = DEFAULT_CONTENT_TYPE;
+    
+    private String attachmentContent = null;
+    private String attachmentContentType = null;
+    private String attachmentName = null;
 
     public SmtpConnector() throws InitialisationException
     {
@@ -425,5 +429,22 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
 	public void setSmtpPort(String smtpPort) {
 		this.smtpPort = smtpPort;
 	}
-
+    public String getAttachmentContentType() {
+        return attachmentContentType;
+    }
+    public void setAttachmentContentType(String attachmentContentType) {
+        this.attachmentContentType = attachmentContentType;
+    }
+    public String getAttachmentName() {
+        return attachmentName;
+    }
+    public void setAttachmentName(String attachmentName) {
+        this.attachmentName = attachmentName;
+    }
+    public String getAttachmentContent() {
+        return attachmentContent;
+    }
+    public void setAttachmentContent(String attachmentContent) {
+        this.attachmentContent = attachmentContent;
+    }
 }
