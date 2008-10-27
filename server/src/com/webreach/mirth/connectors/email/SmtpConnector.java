@@ -10,6 +10,7 @@
 package com.webreach.mirth.connectors.email;
 
 import java.util.Calendar;
+import java.util.List;
 import java.util.Properties;
 
 import javax.mail.Authenticator;
@@ -111,9 +112,7 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
 
     private String contentType = DEFAULT_CONTENT_TYPE;
     
-    private String attachmentContent = null;
-    private String attachmentContentType = null;
-    private String attachmentName = null;
+    private List<String[]> attachments = null;
 
     public SmtpConnector() throws InitialisationException
     {
@@ -429,22 +428,10 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
 	public void setSmtpPort(String smtpPort) {
 		this.smtpPort = smtpPort;
 	}
-    public String getAttachmentContentType() {
-        return attachmentContentType;
+    public List<String[]> getAttachments() {
+        return attachments;
     }
-    public void setAttachmentContentType(String attachmentContentType) {
-        this.attachmentContentType = attachmentContentType;
-    }
-    public String getAttachmentName() {
-        return attachmentName;
-    }
-    public void setAttachmentName(String attachmentName) {
-        this.attachmentName = attachmentName;
-    }
-    public String getAttachmentContent() {
-        return attachmentContent;
-    }
-    public void setAttachmentContent(String attachmentContent) {
-        this.attachmentContent = attachmentContent;
+    public void setAttachments(List<String[]> attachments) {
+        this.attachments = attachments;
     }
 }

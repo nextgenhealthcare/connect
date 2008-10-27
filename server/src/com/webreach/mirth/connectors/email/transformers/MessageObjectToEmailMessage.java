@@ -17,6 +17,7 @@ package com.webreach.mirth.connectors.email.transformers;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -96,12 +97,6 @@ public class MessageObjectToEmailMessage extends AbstractEventAwareTransformer {
 		
 		String contentType = context.getStringProperty(MailProperties.CONTENT_TYPE_PROPERTY, connector.getContentType());
 		contentType = replacer.replaceValues(contentType, messageObject);
-
-        String attachmentContentType = context.getStringProperty(MailProperties.ATTACHMENT_CONTENT_TYPE_PROPERTY, connector.getAttachmentContentType());
-        attachmentContentType = replacer.replaceValues(attachmentContentType, messageObject);
-
-        String attachmentName = context.getStringProperty(MailProperties.ATTACHMENT_NAME_PROPERTY, connector.getAttachmentName());
-        attachmentName = replacer.replaceValues(attachmentName, messageObject);
 		
 		Properties headers = new Properties();
 		
@@ -164,7 +159,7 @@ public class MessageObjectToEmailMessage extends AbstractEventAwareTransformer {
 				msg.setHeader(entry.getKey().toString(), entry.getValue().toString());
 			}
 
-			setContent(src, msg, contentType, attachmentContentType, attachmentName, context);
+			setContent(src, msg, contentType, context);
 
 			return msg;
 		} catch (Exception e) {
@@ -172,23 +167,28 @@ public class MessageObjectToEmailMessage extends AbstractEventAwareTransformer {
 		}
 	}
 
-	protected void setContent(Object payload, Message msg, String contentType, String attachmentContentType, String attachmentName, UMOEventContext context) throws Exception {
-		String body = replacer.replaceValues(((SmtpConnector)endpoint.getConnector()).getBody(), (MessageObject) payload);
-		String attachmentContent = replacer.replaceValues(((SmtpConnector)endpoint.getConnector()).getAttachmentContent(), (MessageObject) payload);
-		
+	protected void setContent(Object payload, Message msg, String contentType, UMOEventContext context) throws Exception {
         Multipart multipart = new MimeMultipart("mixed");
 
         // message
         MimeBodyPart messageBodyPart = new MimeBodyPart();
+        String body = replacer.replaceValues(((SmtpConnector)endpoint.getConnector()).getBody(), (MessageObject) payload);
         messageBodyPart.setText(body, contentType);
         multipart.addBodyPart(messageBodyPart);
 
-        // attachment
-        MimeBodyPart attachmentBodyPart = new MimeBodyPart();
-        DataSource source = new ByteArrayDataSource(attachmentContent.getBytes(), attachmentContentType);
-        attachmentBodyPart.setDataHandler(new DataHandler(source));
-        attachmentBodyPart.setFileName(attachmentName);
-        multipart.addBodyPart(attachmentBodyPart);
+        // [attachment name, attachment content, attachment mime type]
+        List<String[]> attachments = ((SmtpConnector)endpoint.getConnector()).getAttachments();
+
+        for (String[] attachmentInfo : attachments) {
+            String attachmentContent = replacer.replaceValues(attachmentInfo[1], (MessageObject) payload);
+            MimeBodyPart attachmentBodyPart = new MimeBodyPart();
+            DataSource source = new ByteArrayDataSource(attachmentContent.getBytes(), attachmentInfo[2]);
+            attachmentBodyPart.setDataHandler(new DataHandler(source));
+            String attachmentName = replacer.replaceValues(attachmentInfo[0], (MessageObject) payload);
+            attachmentBodyPart.setFileName(attachmentName);
+            multipart.addBodyPart(attachmentBodyPart);
+        }
+        
 
         // set the content
         msg.setContent(multipart);
