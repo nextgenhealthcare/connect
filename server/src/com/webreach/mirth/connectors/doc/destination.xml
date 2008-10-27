@@ -4,7 +4,7 @@
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>1.7.1</mirthVersion>
 	<url>http://extensions.mirthproject.org</url>
-	<description>This connector allows Mirth to create Rich Text or PDF documents based on an HTML template. PDF files can be password protected.</description>
+	<description>This connector allows Mirth to create RTF or PDF documents based on an HTML template. PDF files can be password protected.</description>
 	<clientClassName>com.webreach.mirth.connectors.doc.DocumentWriter</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.doc.DocumentConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.doc.DocumentWriterProperties</sharedClassName>
@@ -17,10 +17,7 @@
 	<library path="doc-server.jar">
 		<type>SERVER</type>
 	</library>
-	<library path="lib/iText-2.1.3.jar">
-		<type>SERVER</type>
-	</library>
-	<library path="lib/iText-rtf-2.1.3.jar">
+	<library path="lib/iText-2.0.8.jar">
 		<type>SERVER</type>
 	</library>
 	<library path="lib/core-renderer.jar">
