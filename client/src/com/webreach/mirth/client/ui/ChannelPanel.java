@@ -43,7 +43,6 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
     private final String NAME_COLUMN_NAME = "Name";
     private final String DESCRIPTION_COLUMN_NAME = "Description";
     private final String ID_COLUMN_NAME = "Id";
-    private final int ID_COLUMN_NUMBER = 4;
     private final String ENABLED_STATUS = "Enabled";
     private int lastRow;
     private Frame parent;
@@ -96,7 +95,10 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
         channelTable.getColumnExt(NAME_COLUMN_NAME).setMinWidth(250);
         
         channelTable.getColumnExt(STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
-        channelTable.getColumnExt(ID_COLUMN_NAME).setVisible(false);
+        
+        channelTable.getColumnExt(ID_COLUMN_NAME).setMinWidth(240);
+        channelTable.getColumnExt(ID_COLUMN_NAME).setMaxWidth(240);
+        
         channelTable.packTable(UIConstants.COL_MARGIN);
 
         channelTable.setRowHeight(UIConstants.ROW_HEIGHT);
@@ -174,8 +176,9 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
                     tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
                 tableData[i][1] = parent.protocols.get(channel.getSourceConnector().getTransformer().getInboundProtocol());
                 tableData[i][2] = channel.getName();
-                tableData[i][3] = channel.getDescription();
-                tableData[i][4] = channel.getId();
+                tableData[i][3] = channel.getId();
+                tableData[i][4] = channel.getDescription();
+
                 i++;
             }
         }
@@ -189,7 +192,7 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
         else
         {
             channelTable = new MirthTable();
-            channelTable.setModel(new RefreshTableModel(tableData, new String[] { STATUS_COLUMN_NAME, PROTOCOL_COLUMN_NAME, NAME_COLUMN_NAME, DESCRIPTION_COLUMN_NAME, ID_COLUMN_NAME})
+            channelTable.setModel(new RefreshTableModel(tableData, new String[] { STATUS_COLUMN_NAME, PROTOCOL_COLUMN_NAME, NAME_COLUMN_NAME,ID_COLUMN_NAME, DESCRIPTION_COLUMN_NAME})
             {
                 boolean[] canEdit = new boolean[] { false, false, false, false, false };
 
@@ -260,7 +263,7 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
         int selectedRow = channelTable.getSelectedRow();
         if (selectedRow != -1)
         {
-            String channelId = (String) channelTable.getModel().getValueAt(channelTable.convertRowIndexToModel(selectedRow), ID_COLUMN_NUMBER);
+            String channelId = (String) channelTable.getModel().getValueAt(channelTable.convertRowIndexToModel(selectedRow), channelTable.getColumnNumber(ID_COLUMN_NAME));
             return parent.channels.get(channelId);
         }
 
@@ -273,7 +276,7 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
         int i = 0;
         for (Channel channel : parent.channels.values())
         {
-            if (channelId.equals(channelTable.getModel().getValueAt(i, ID_COLUMN_NUMBER)))
+            if (channelId.equals(channelTable.getModel().getValueAt(i, channelTable.getColumnNumber(ID_COLUMN_NAME))))
             {
                 int row = channelTable.convertRowIndexToView(i);
                 channelTable.setRowSelectionInterval(row, row);
