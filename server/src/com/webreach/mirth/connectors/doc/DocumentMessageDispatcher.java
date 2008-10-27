@@ -144,8 +144,8 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 				renderFos = new FileOutputStream(file);
 				renderer.layout();
 				renderer.createPDF(renderFos, true);
-			} catch (Exception e) {
-				throw e;
+			} catch (Throwable e) {
+			    throw new Exception(e);
 			} finally {
 				if (renderFos != null) {
 					renderFos.close();
