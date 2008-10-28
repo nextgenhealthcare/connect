@@ -18,6 +18,8 @@ import org.jdesktop.swingworker.SwingWorker;
 
 import com.webreach.mirth.manager.util.ObjectCloner;
 import com.webreach.mirth.manager.util.ObjectClonerException;
+import org.jdesktop.jdic.filetypes.internal.WinRegistryUtil;
+import org.jdesktop.jdic.filetypes.internal.WinRegistryWrapper;
 
 /**
  * 
@@ -58,6 +60,9 @@ public class ManagerDialog extends javax.swing.JDialog
     private static final String oraclePropertiesPath = "conf\\oracle-SqlMapConfig.properties";
     private static final String versionFilePath = "conf\\version.properties";
     private static final String serverIdFilePath = "server.id";
+    
+    private static final String REGISTRY_KEY = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
+    private static final String REGISTRY_VALUE_NAME = "Mirth";
     
     private static final String[] log4jErrorCodes = new String[] { "ERROR", "WARN", "DEBUG", "INFO" };
 
@@ -111,6 +116,11 @@ public class ManagerDialog extends javax.swing.JDialog
     {
         ManagerController.getInstance().updateMirthServiceStatus();
         loadServerProperties();
+        if(ManagerController.getInstance().getRegistryValue(REGISTRY_KEY, REGISTRY_VALUE_NAME) != null)    { 
+        	startup.setSelected(true);
+        } else { 
+        	startup.setSelected(false);
+        }
         setVisible(true);
     }
 
@@ -145,6 +155,7 @@ public class ManagerDialog extends javax.swing.JDialog
         jLabel12 = new javax.swing.JLabel();
         jLabel13 = new javax.swing.JLabel();
         restartButton = new javax.swing.JButton();
+        startup = new javax.swing.JCheckBox();
         serverPanel = new javax.swing.JPanel();
         serverWebstartPort = new javax.swing.JTextField();
         serverAdministratorPort = new javax.swing.JTextField();
@@ -188,7 +199,7 @@ public class ManagerDialog extends javax.swing.JDialog
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
 
-        headingLabel.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        headingLabel.setFont(new java.awt.Font("Tahoma", 1, 18));
         headingLabel.setForeground(new java.awt.Color(255, 255, 255));
         headingLabel.setText("Mirth Server Manager");
 
@@ -245,6 +256,14 @@ public class ManagerDialog extends javax.swing.JDialog
             }
         });
 
+        startup.setBackground(new java.awt.Color(255, 255, 255));
+        startup.setText("Start Mirth Server on Windows startup.");
+        startup.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                startupActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout serviceButtonContainerLayout = new org.jdesktop.layout.GroupLayout(serviceButtonContainer);
         serviceButtonContainer.setLayout(serviceButtonContainerLayout);
         serviceButtonContainerLayout.setHorizontalGroup(
@@ -263,8 +282,9 @@ public class ManagerDialog extends javax.swing.JDialog
                     .add(serviceButtonContainerLayout.createSequentialGroup()
                         .add(restartButton)
                         .add(10, 10, 10)
-                        .add(jLabel13)))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .add(jLabel13))
+                    .add(startup, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 271, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(57, Short.MAX_VALUE))
         );
 
         serviceButtonContainerLayout.linkSize(new java.awt.Component[] {restartButton, startButton, stopButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
@@ -272,7 +292,7 @@ public class ManagerDialog extends javax.swing.JDialog
         serviceButtonContainerLayout.setVerticalGroup(
             serviceButtonContainerLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(serviceButtonContainerLayout.createSequentialGroup()
-                .addContainerGap()
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(serviceButtonContainerLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(startButton)
                     .add(jLabel11))
@@ -284,7 +304,8 @@ public class ManagerDialog extends javax.swing.JDialog
                 .add(serviceButtonContainerLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(stopButton)
                     .add(jLabel12))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .add(startup))
         );
 
         org.jdesktop.layout.GroupLayout servicePanelLayout = new org.jdesktop.layout.GroupLayout(servicePanel);
@@ -292,16 +313,15 @@ public class ManagerDialog extends javax.swing.JDialog
         servicePanelLayout.setHorizontalGroup(
             servicePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(servicePanelLayout.createSequentialGroup()
-                .add(11, 11, 11)
+                .addContainerGap()
                 .add(serviceButtonContainer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(82, Short.MAX_VALUE))
+                .addContainerGap(16, Short.MAX_VALUE))
         );
         servicePanelLayout.setVerticalGroup(
             servicePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(servicePanelLayout.createSequentialGroup()
-                .add(11, 11, 11)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, servicePanelLayout.createSequentialGroup()
                 .add(serviceButtonContainer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(12, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         tabPanel.addTab("Service", servicePanel);
@@ -616,6 +636,14 @@ private void webreachLinkMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRS
     BareBonesBrowserLaunch.openURL("http://www.webreachinc.com");
 }//GEN-LAST:event_webreachLinkMouseClicked
 
+private void startupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startupActionPerformed
+    if(startup.isSelected()) { 
+        ManagerController.getInstance().setRegistryValue(REGISTRY_KEY, REGISTRY_VALUE_NAME, PlatformUI.MIRTH_PATH + "MirthServerManager.exe");
+    } else { 
+        ManagerController.getInstance().deleteRegistryValue(REGISTRY_KEY, REGISTRY_VALUE_NAME);
+    }
+}//GEN-LAST:event_startupActionPerformed
+
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_okButtonActionPerformed
     {// GEN-HEADEREND:event_okButtonActionPerformed
         saveProperties();
@@ -878,7 +906,7 @@ private void webreachLinkMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRS
     private boolean checkPropertiesForChanges()
     {
         try
-        {
+        {        	
             Properties tempServerProperties = (Properties) ObjectCloner.deepCopy(serverProperties);
             Properties tempLog4jProperties = (Properties) ObjectCloner.deepCopy(log4jProperties);
             Properties tempDatabaseProperties = (Properties) ObjectCloner.deepCopy(databaseProperties);
@@ -976,6 +1004,7 @@ private void webreachLinkMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRS
     private javax.swing.JPanel serviceButtonContainer;
     private javax.swing.JPanel servicePanel;
     private javax.swing.JButton startButton;
+    private javax.swing.JCheckBox startup;
     private javax.swing.JButton stopButton;
     private javax.swing.JTabbedPane tabPanel;
     private javax.swing.JLabel version;

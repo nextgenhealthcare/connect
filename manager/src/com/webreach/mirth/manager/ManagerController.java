@@ -34,6 +34,7 @@ import org.jdesktop.jdic.desktop.DesktopException;
 import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.util.PropertyLoader;
+import org.jdesktop.jdic.filetypes.internal.WinRegistryWrapper;
 
 /**
  * 
@@ -69,6 +70,18 @@ public class ManagerController
         return assistantController;
     }
 
+    public void setRegistryValue(String key, String valueName, String value) { 
+        WinRegistryWrapper.WinRegSetValueEx(WinRegistryWrapper.HKEY_LOCAL_MACHINE, key, valueName, value);
+    }
+    
+    public void deleteRegistryValue(String key, String valueName) {
+        WinRegistryWrapper.WinRegDeleteValue(WinRegistryWrapper.HKEY_LOCAL_MACHINE, key, valueName);
+    }
+    
+    public String getRegistryValue(String key, String valueName) {
+        return WinRegistryWrapper.WinRegQueryValueEx(WinRegistryWrapper.HKEY_LOCAL_MACHINE, key, valueName);
+    }
+    
     /*
      * Commands to be executed by both the UI and tray
      */
