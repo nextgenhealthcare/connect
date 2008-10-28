@@ -13,6 +13,7 @@
   <stayAlive>false</stayAlive>
   <manifest></manifest>
   <icon>C:\Documents and Settings\geraldb\workspace\Server\Mirth.ico</icon>
+  <var>-Djava.library.path=lib/</var>
   <jre>
     <path></path>
     <minVersion>1.5.0</minVersion>
