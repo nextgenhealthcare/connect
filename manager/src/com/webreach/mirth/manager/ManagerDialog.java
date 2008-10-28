@@ -229,7 +229,7 @@ public class ManagerDialog extends javax.swing.JDialog
 
         serviceButtonContainer.setBackground(new java.awt.Color(255, 255, 255));
 
-        jLabel11.setText("Starts the windows Mirth service.");
+        jLabel11.setText("Starts the windows Mirth service");
 
         startButton.setText("Start");
         startButton.addActionListener(new java.awt.event.ActionListener() {
@@ -245,9 +245,9 @@ public class ManagerDialog extends javax.swing.JDialog
             }
         });
 
-        jLabel12.setText("Stops the windows Mirth service.");
+        jLabel12.setText("Stops the windows Mirth service");
 
-        jLabel13.setText("Restarts the windows Mirth service.");
+        jLabel13.setText("Restarts the windows Mirth service");
 
         restartButton.setText("Restart");
         restartButton.addActionListener(new java.awt.event.ActionListener() {
@@ -257,7 +257,7 @@ public class ManagerDialog extends javax.swing.JDialog
         });
 
         startup.setBackground(new java.awt.Color(255, 255, 255));
-        startup.setText("Start Mirth Server on Windows startup.");
+        startup.setText("Start Mirth Server Manager on Windows startup");
         startup.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 startupActionPerformed(evt);

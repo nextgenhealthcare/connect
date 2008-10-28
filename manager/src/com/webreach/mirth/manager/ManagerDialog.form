@@ -229,7 +229,7 @@
                   <SubComponents>
                     <Component class="javax.swing.JLabel" name="jLabel11">
                       <Properties>
-                        <Property name="text" type="java.lang.String" value="Starts the windows Mirth service."/>
+                        <Property name="text" type="java.lang.String" value="Starts the windows Mirth service"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JButton" name="startButton">
@@ -250,12 +250,12 @@
                     </Component>
                     <Component class="javax.swing.JLabel" name="jLabel12">
                       <Properties>
-                        <Property name="text" type="java.lang.String" value="Stops the windows Mirth service."/>
+                        <Property name="text" type="java.lang.String" value="Stops the windows Mirth service"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="jLabel13">
                       <Properties>
-                        <Property name="text" type="java.lang.String" value="Restarts the windows Mirth service."/>
+                        <Property name="text" type="java.lang.String" value="Restarts the windows Mirth service"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JButton" name="restartButton">
@@ -271,7 +271,7 @@
                         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                           <Color blue="ff" green="ff" red="ff" type="rgb"/>
                         </Property>
-                        <Property name="text" type="java.lang.String" value="Start Mirth Server on Windows startup."/>
+                        <Property name="text" type="java.lang.String" value="Start Mirth Server Manager on Windows startup"/>
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="startupActionPerformed"/>
