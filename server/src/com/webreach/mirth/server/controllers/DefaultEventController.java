@@ -156,7 +156,7 @@ public class DefaultEventController extends EventController {
 	public int createSystemEventsTempTable(SystemEventFilter filter, String uid, boolean forceTemp)  throws ControllerException {
 		logger.debug("creating temporary system event table: filter=" + filter.toString());
 
-		if (!forceTemp && statementExists("getSystemEventsByPageLimit")) {
+		if (!forceTemp && statementExists("Event.getSystemEventsByPageLimit")) {
 			return -1;
 		}
 		// If it's not forcing temp tables (export or reprocessing),
@@ -166,7 +166,7 @@ public class DefaultEventController extends EventController {
 		}
 
 		try {
-			if (statementExists("createTempSystemEventsTableSequence")) {
+			if (statementExists("Event.createTempSystemEventsTableSequence")) {
 			    SqlConfig.getSqlMapClient().update("Event.createTempSystemEventsTableSequence", uid);
 			}
 
@@ -181,7 +181,7 @@ public class DefaultEventController extends EventController {
 	public void removeFilterTable(String uid) {
 		logger.debug("Removing temporary system event table: uid=" + uid);
 		try {
-			if (statementExists("dropTempSystemEventsTableSequence")) {
+			if (statementExists("Event.dropTempSystemEventsTableSequence")) {
 			    SqlConfig.getSqlMapClient().update("Event.dropTempSystemEventsTableSequence", uid);
 			}
 		} catch (SQLException e) {
@@ -189,7 +189,7 @@ public class DefaultEventController extends EventController {
 			logger.debug(e);
 		}
 		try {
-			if (statementExists("deleteTempSystemEventsTableIndex")) {
+			if (statementExists("Event.deleteTempSystemEventsTableIndex")) {
 			    SqlConfig.getSqlMapClient().update("Event.deleteTempSystemEventsTableIndex", uid);
 			}
 		} catch (SQLException e) {
