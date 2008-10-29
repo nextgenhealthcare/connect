@@ -165,7 +165,8 @@ public class MessagePrunerService implements ServerPlugin, Job {
                         MessageObjectFilter filter = new MessageObjectFilter();
                         filter.setChannelId(channel.getId());
                         filter.setEndDate(endDate);
-
+                        filter.setIgnoreQueued(true);
+                        
                         int result = ControllerFactory.getFactory().createMessageObjectController().removeMessages(filter);
 
                         Calendar calendar = Calendar.getInstance();

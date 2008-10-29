@@ -515,7 +515,8 @@ public class DefaultMessageObjectController extends MessageObjectController {
         parameterMap.put("searchTransformedData", filter.isSearchTransformedData());
         parameterMap.put("searchEncodedData", filter.isSearchEncodedData());
         parameterMap.put("quickSearch", filter.getQuickSearch());
-
+        parameterMap.put("ignoreQueued", filter.isIgnoreQueued());
+        
         if (filter.getStartDate() != null) {
             parameterMap.put("startDate", String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", filter.getStartDate()));
         }

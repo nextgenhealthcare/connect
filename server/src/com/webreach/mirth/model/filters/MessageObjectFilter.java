@@ -52,7 +52,8 @@ public class MessageObjectFilter implements Serializable {
 	private String searchCriteria;
 	private String type;
 	private Protocol protocol;
-
+	private boolean ignoreQueued;
+	
 	public String getChannelId() {
 		return this.channelId;
 	}
@@ -180,9 +181,18 @@ public class MessageObjectFilter implements Serializable {
 		builder.append("searchEncodedData=" + isSearchEncodedData() + ", ");
 		builder.append("searchRawData=" + isSearchRawData() + ", ");
 		builder.append("searchTransformedData=" + isSearchTransformedData() + ", ");
-		builder.append("connectorName=" + getConnectorName());
+		builder.append("ignoreQueued=" + isIgnoreQueued() + ", ");
+		builder.append("connectorName=" + getConnectorName() + ", ");
 		builder.append("quickSearch=" + getQuickSearch());
 		builder.append("]");
 		return builder.toString();
+	}
+
+	public boolean isIgnoreQueued() {
+		return ignoreQueued;
+	}
+
+	public void setIgnoreQueued(boolean ignoreQueued) {
+		this.ignoreQueued = ignoreQueued;
 	}
 }

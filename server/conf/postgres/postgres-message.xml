@@ -109,6 +109,9 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			<isNotNull prepend="AND" property="status">
 				STATUS = '$status$'
 			</isNotNull>
+			<isEqual prepend="AND" compareValue="true" property="ignoreQueued">
+				STATUS != 'QUEUED'
+			</isEqual>
 			<isNotNull prepend="AND" property="protocol">
 				RAW_DATA_PROTOCOL = '$protocol$'
 			</isNotNull>			
