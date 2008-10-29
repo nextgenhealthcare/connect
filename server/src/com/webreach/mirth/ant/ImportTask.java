@@ -230,7 +230,7 @@ public class ImportTask extends AbstractMirthTask {
 		String tempId = client.getGuid();
 
 		// Check to see that the channel name doesn't already exist.
-		if (!checkChannelName(channelName, importChannel.getId())) {
+		if (!checkChannelName(channelName, tempId)) {
 			if (!force) {
 				importChannel.setRevision(0);
 				importChannel.setName(importChannel.getId());
