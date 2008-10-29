@@ -11,7 +11,7 @@
   <supportUrl></supportUrl>
   <customProcName>true</customProcName>
   <stayAlive>false</stayAlive>
-  <manifest></manifest>
+  <manifest>C:\Documents and Settings\geraldb\workspace\Server\MirthServerManager.exe.manifest</manifest>
   <icon>C:\Documents and Settings\geraldb\workspace\Server\Mirth.ico</icon>
   <var>-Djava.library.path=lib/</var>
   <jre>
