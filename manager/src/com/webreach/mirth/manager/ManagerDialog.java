@@ -9,6 +9,7 @@ package com.webreach.mirth.manager;
 import java.awt.Cursor;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
@@ -18,8 +19,6 @@ import org.jdesktop.swingworker.SwingWorker;
 
 import com.webreach.mirth.manager.util.ObjectCloner;
 import com.webreach.mirth.manager.util.ObjectClonerException;
-import org.jdesktop.jdic.filetypes.internal.WinRegistryUtil;
-import org.jdesktop.jdic.filetypes.internal.WinRegistryWrapper;
 
 /**
  * 
@@ -638,7 +637,8 @@ private void webreachLinkMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRS
 
 private void startupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startupActionPerformed
     if(startup.isSelected()) { 
-        ManagerController.getInstance().setRegistryValue(REGISTRY_KEY, REGISTRY_VALUE_NAME, PlatformUI.MIRTH_PATH + "MirthServerManager.exe");
+    	String absolutePath = new File(PlatformUI.MIRTH_PATH).getAbsolutePath();
+        ManagerController.getInstance().setRegistryValue(REGISTRY_KEY, REGISTRY_VALUE_NAME, absolutePath + System.getProperty("file.separator") + "MirthServerManager.exe");
     } else { 
         ManagerController.getInstance().deleteRegistryValue(REGISTRY_KEY, REGISTRY_VALUE_NAME);
     }
