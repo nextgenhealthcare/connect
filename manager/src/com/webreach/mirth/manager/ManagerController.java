@@ -57,7 +57,7 @@ public class ManagerController
 
     private static final String STATUS_CHANGING = "2189";
 
-    private static final String CMD_QUERY_REGEX = "NET HELPMSG (.*)\\.";
+    private static final String CMD_QUERY_REGEX = "NET HELPMSG ([0-9]{4})";
 
     // private final String CMD_QUERY_REGEX = ".*STATE.* :.(.)";
     public static ManagerController getInstance()
