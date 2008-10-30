@@ -151,6 +151,7 @@ public class Mirth extends Thread {
         startWebServer();
         messageObjectController.removeAllFilterTables();
         eventController.removeAllFilterTables();
+        extensionController.uninstallExtensions();
         migrationController.migrate();
         migrationController.migrateExtensions();
         channelStatisticsController.start();

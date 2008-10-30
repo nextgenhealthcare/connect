@@ -59,8 +59,6 @@ import com.webreach.mirth.server.util.SqlConfig;
 /**
  * The MigrationController migrates the database to the current version.
  * 
- * @author geraldb
- * 
  */
 public class DefaultMigrationController extends MigrationController {
     private static final String DELTA_FOLDER = "deltas";

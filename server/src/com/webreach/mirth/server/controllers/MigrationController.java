@@ -28,8 +28,6 @@ package com.webreach.mirth.server.controllers;
 /**
  * The MigrationController migrates the database to the current version.
  * 
- * @author geraldb
- * 
  */
 public abstract class MigrationController extends Controller {
     public static MigrationController getInstance() {

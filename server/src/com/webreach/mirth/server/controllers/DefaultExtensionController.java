@@ -30,14 +30,24 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Scanner;
+
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.webreach.mirth.connectors.ConnectorService;
 import com.webreach.mirth.model.ConnectorMetaData;
@@ -45,7 +55,10 @@ import com.webreach.mirth.model.ExtensionPoint;
 import com.webreach.mirth.model.ExtensionPointDefinition;
 import com.webreach.mirth.model.MetaData;
 import com.webreach.mirth.model.PluginMetaData;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.plugins.ServerPlugin;
+import com.webreach.mirth.server.util.DatabaseUtil;
+import com.webreach.mirth.server.util.FileUtil;
 import com.webreach.mirth.util.ExtensionUtil;
 
 public class DefaultExtensionController extends ExtensionController {
@@ -179,14 +192,81 @@ public class DefaultExtensionController extends ExtensionController {
     }
     
     public void uninstallExtension(String packageName) throws ControllerException {
-    	File uninstallFile = new File(getExtensionsPath() + "uninstall");
+    	File uninstallFile = new File(getExtensionsPath() + EXTENSIONS_UNINSTALL_FILE);
+
     	try {
 			FileWriter fileWriter = new FileWriter(uninstallFile, true);
 			fileWriter.write(packageName + System.getProperty("line.separator"));
 			fileWriter.close();
-		} catch (IOException e) {
+			
+			for (PluginMetaData plugin : plugins.values()) {
+				if (plugin.getPath().equals(packageName) && plugin.getSqlScript() != null) {
+					String contents = FileUtil.read(ExtensionController.getExtensionsPath() + plugin.getPath() + System.getProperty("file.separator") + plugin.getSqlScript());
+                    Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(contents)));
+                    
+                    String script = getUninstallScript(document);
+
+                    if (script != null) {
+	                    List<String> scriptList = new LinkedList<String>();
+	
+	                    script = script.trim();
+	                    StringBuilder sb = new StringBuilder();
+	                    boolean blankLine = false;
+	                    Scanner s = new Scanner(script);
+	
+	                    while (s.hasNextLine()) {
+	                        String temp = s.nextLine();
+	
+	                        if (temp.trim().length() > 0)
+	                            sb.append(temp + " ");
+	                        else
+	                            blankLine = true;
+	
+	                        if (blankLine || !s.hasNextLine()) {
+	                            scriptList.add(sb.toString().trim());
+	                            blankLine = false;
+	                            sb.delete(0, sb.length());
+	                        }
+	                    }
+	                    
+	                    // If there was an uninstall script, then save the script to
+	                    // run later and remove the schema.plugin from extensions.properties
+	                    if (scriptList.size() > 0) {
+		                    List<String> uninstallScripts = getUninstallScripts();
+		                    uninstallScripts.addAll(scriptList);
+		                    setUninstallScripts(uninstallScripts);
+		                    
+		                    Properties extensionsProperties = getExtensionsProperties();
+		                    extensionsProperties.remove("schema." + plugin.getPath());
+		                    setExtensionsProperties(extensionsProperties);
+	                    }
+                    }
+				}
+			}
+		} catch (Exception e) {
 			throw new ControllerException(e);
 		}
+    }
+    
+    private String getUninstallScript(Document document) {
+    	String script = null;
+        Element uninstallElement = (Element) document.getElementsByTagName("uninstall").item(0);
+        String databaseType = ControllerFactory.getFactory().createConfigurationController().getDatabaseType();
+
+        NodeList scriptNodes = uninstallElement.getElementsByTagName("script");
+
+        for (int i = 0; i < scriptNodes.getLength(); i++) {
+            Node scriptNode = scriptNodes.item(i);
+            Node scriptNodeAttribute = scriptNode.getAttributes().getNamedItem("type");
+
+            String[] dbTypes = scriptNodeAttribute.getTextContent().split(",");
+            for (int k = 0; k < dbTypes.length; k++) {
+                if (dbTypes[k].equals("all") || dbTypes[k].equals(databaseType)) {
+                    script = scriptNode.getTextContent();
+                }
+            }
+        }
+        return script;
     }
 
     public void setPluginProperties(String pluginName, Properties properties) throws ControllerException {
@@ -391,5 +471,49 @@ public class DefaultExtensionController extends ExtensionController {
         }
 
         return properties;
+    }
+    
+    public void uninstallExtensions() {
+    	try {
+    		DatabaseUtil.executeScript(getUninstallScripts(), true);
+    	} catch (Exception e) {
+    		logger.error("Error uninstalling extensions.", e);
+    	}
+    	
+    	deleteUninstallScripts();
+    }
+    
+    public void setUninstallScripts(List<String> uninstallScripts) throws ControllerException {
+    	File uninstallScriptsFile = new File(getExtensionsPath() + EXTENSIONS_UNINSTALL_SCRIPTS_FILE);
+    	ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+    	
+    	try {
+    		FileUtil.write(uninstallScriptsFile.getAbsolutePath(), false, serializer.toXML(uninstallScripts));
+		} catch (IOException e) {
+			throw new ControllerException(e);
+		}
+    }
+    
+    public List<String> getUninstallScripts() throws ControllerException {
+    	List<String> uninstallScripts = new LinkedList<String>();
+    	File uninstallScriptsFile = new File(getExtensionsPath() + EXTENSIONS_UNINSTALL_SCRIPTS_FILE);
+    	
+    	if (uninstallScriptsFile.exists()) {
+    		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        	try {
+				uninstallScripts = (List<String>) serializer.fromXML(FileUtil.read(uninstallScriptsFile.getAbsolutePath()));
+			} catch (IOException e) {
+				throw new ControllerException(e);
+			}
+    	}
+    	
+    	return uninstallScripts;
+    }
+    
+    public void deleteUninstallScripts() {
+    	File uninstallScriptsFile = new File(getExtensionsPath() + EXTENSIONS_UNINSTALL_SCRIPTS_FILE);
+    	if (uninstallScriptsFile.exists()) {
+    		uninstallScriptsFile.delete();
+    	}
     }
 }

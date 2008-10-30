@@ -93,6 +93,10 @@ public abstract class ExtensionController extends Controller {
     
     public static final String EXTENSIONS_PROPERTIES_FILE = "extensions.properties";
     
+    public static final String EXTENSIONS_UNINSTALL_FILE = "uninstall";
+    
+    public static final String EXTENSIONS_UNINSTALL_SCRIPTS_FILE = "uninstallScripts";
+    
     public static ExtensionController getInstance() {
         return ControllerFactory.getFactory().createExtensionController();
     }
@@ -142,4 +146,12 @@ public abstract class ExtensionController extends Controller {
     public abstract void setExtensionsProperties(Properties properties) throws ControllerException;
     
     public abstract Properties getExtensionsProperties() throws ControllerException;
+    
+    public abstract void uninstallExtensions();
+    
+    public abstract void setUninstallScripts(List<String> uninstallScripts) throws ControllerException;
+    
+    public abstract List<String> getUninstallScripts() throws ControllerException;
+    
+    public abstract void deleteUninstallScripts();
 }
