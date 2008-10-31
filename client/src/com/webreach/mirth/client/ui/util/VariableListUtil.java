@@ -22,7 +22,9 @@ import com.webreach.mirth.model.Step;
 public class VariableListUtil
 {
 	// Finds comments, but also incorrectly finds // or /* inside of block elements like strings.
-	final static String COMMENT_PATTERN = "(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)";
+//	final static String COMMENT_PATTERN = "(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)";
+	final static String COMMENT_SIMPLE_PATTERN = "//.*";
+	final static String COMMENT_BLOCK_PATTERN = "/\\*(?:.|[\\n\\r])*?\\*/";
     final static String GLOBAL_AND_CHANNEL_VARIABLE_PATTERN = "(?<![A-Za-z0-9_$])(?:(?:(?:channel|global|response)(?:M|m)ap.put)|\\$(?:g|c|r))\\(\\s*['|\"]([^'|^\"|^\\s]*)[\"|']*";
     final static String LOCAL_VARIABLE_PATTERN = "(?<![A-Za-z0-9_$])(?:(?:(?:channel|global|response|connector)(?:M|m)ap.put)|\\$(?:g|c|r|co))\\(\\s*['|\"]([^'|^\"|^\\s]*)[\"|']*";
     final static int MATCHER_INDEX = 1;
@@ -50,7 +52,9 @@ public class VariableListUtil
         		break;
         	}
             Pattern pattern = Pattern.compile(varPattern);
-            Matcher matcher = pattern.matcher(stepIterator.next().getScript().replaceAll(COMMENT_PATTERN, ""));
+            String scriptWithoutComments = getScriptWithoutComments(stepIterator.next().getScript());
+            
+            Matcher matcher = pattern.matcher(scriptWithoutComments);
             while (matcher.find()){
             	targetSet.add(matcher.group(1));
             }
@@ -81,12 +85,37 @@ public class VariableListUtil
         		break;
         	}
             Pattern pattern = Pattern.compile(varPattern);
-            Matcher matcher = pattern.matcher(ruleIterator.next().getScript().replaceAll(COMMENT_PATTERN, ""));
+            String scriptWithoutComments = getScriptWithoutComments(ruleIterator.next().getScript());
+
+            Matcher matcher = pattern.matcher(scriptWithoutComments);
             while (matcher.find())
             {
             	targetSet.add(matcher.group(MATCHER_INDEX));
             }
             currentRow++;
         }
+    }
+    
+    private static String getScriptWithoutComments(String script) {
+    	String scriptWithoutSimpleComments = null;
+        String scriptWithoutCommentBlocks = null;
+        String scriptWithoutComments = null;
+        
+        try {
+        	scriptWithoutSimpleComments = script.replaceAll(COMMENT_SIMPLE_PATTERN, "");
+        	scriptWithoutCommentBlocks = scriptWithoutSimpleComments.replaceAll(COMMENT_BLOCK_PATTERN, "");
+        } catch (Throwable e) {
+        	// Catch stackoverflow bug in java http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6337993
+        }
+        
+        if (scriptWithoutCommentBlocks != null) {
+        	scriptWithoutComments = scriptWithoutCommentBlocks;
+        } else if (scriptWithoutSimpleComments != null) {
+        	scriptWithoutComments = scriptWithoutSimpleComments;
+        } else {
+        	scriptWithoutComments = script;
+        }
+        
+        return scriptWithoutComments;
     }
 }
