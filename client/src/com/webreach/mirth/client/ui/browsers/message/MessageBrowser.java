@@ -192,7 +192,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         });
         attachmentPopupMenu.add(viewAttach);
 
-        advSearchFilterPopup = new MessageBrowserAdvancedFilter("Advanced Search Filter", true);
+        advSearchFilterPopup = new MessageBrowserAdvancedFilter(parent, "Advanced Search Filter", true);
         advSearchFilterPopup.setVisible(false);
     }
 
@@ -1476,7 +1476,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         boolean includeEncodedMessage = advSearchFilterPopup.isIncludeEncodedMessage();
         String protocol = advSearchFilterPopup.getProtocol();
 
-        advSearchFilterPopup = new MessageBrowserAdvancedFilter("Advanced Search Filter", true);
+        advSearchFilterPopup = new MessageBrowserAdvancedFilter(parent, "Advanced Search Filter", true);
         advSearchFilterPopup.setFieldValues(connector, messageSource, messageType, containingKeyword, includeRawMessage, includeTransformedMessage, includeEncodedMessage, protocol);
 
         advSearchFilterPopup.setVisible(true);

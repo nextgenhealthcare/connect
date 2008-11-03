@@ -8,7 +8,6 @@ package com.webreach.mirth.client.ui.browsers.message;
 
 import java.awt.*;
 
-import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.model.MessageObject;
 
 /**
@@ -27,26 +26,23 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog
     private String protocol = "ALL";
 
     /** Creates new form MessageBrowserAdvancedFilter */
-    public MessageBrowserAdvancedFilter(String title, boolean modal) {
-        super(PlatformUI.MIRTH_FRAME, title, modal);
-        initialize();
-    }
+    public MessageBrowserAdvancedFilter(com.webreach.mirth.client.ui.Frame parent, String title, boolean modal) {
+        super(parent, title, modal);
 
-    private void initialize() {
         initComponents();
         getContentPane().setBackground(new java.awt.Color(255, 255, 255));
 
         pack();
         Dimension dlgSize = getPreferredSize();
-        Dimension frmSize = PlatformUI.MIRTH_FRAME.getSize();
-        Point loc = PlatformUI.MIRTH_FRAME.getLocation();
+        Dimension frmSize = parent.getSize();
+        Point loc = parent.getLocation();
         
         if ((frmSize.width == 0 && frmSize.height == 0) || (loc.x == 0 && loc.y == 0)) {
         	setLocationRelativeTo(null);
         } else {
 	        setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         }
-        
+
         setResizable(false);
 
         String[] protocolValues = new String[MessageObject.Protocol.values().length + 1];
@@ -57,7 +53,6 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog
         protocolComboBox.setModel(new javax.swing.DefaultComboBoxModel(protocolValues));
         
         reset();
-
     }
 
 
