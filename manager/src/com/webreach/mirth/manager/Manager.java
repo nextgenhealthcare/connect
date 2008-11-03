@@ -30,6 +30,24 @@ public class Manager
         manager.setupTray();
     }
     
+    public Manager() { 
+        Runtime.getRuntime().addShutdownHook(new ShutdownHook());
+    }
+    
+    private class ShutdownHook extends Thread {
+        public void run() {
+            shutdown();
+        }
+    }
+    
+    /**
+     * Shuts down the manager.
+     * 
+     */
+    public void shutdown() {
+        System.exit(0);
+    }
+    
     private void setupDialog()
     {
         dialog = new ManagerDialog(); 
