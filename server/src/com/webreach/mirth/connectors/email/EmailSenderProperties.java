@@ -28,9 +28,10 @@ package com.webreach.mirth.connectors.email;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import com.webreach.mirth.model.ComponentProperties;
+import com.webreach.mirth.model.QueuedSenderProperties;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 
-public class EmailSenderProperties implements ComponentProperties
+public class EmailSenderProperties extends QueuedSenderProperties
 {
     public static final String name = "Email Sender";
 
@@ -49,7 +50,7 @@ public class EmailSenderProperties implements ComponentProperties
 
     public Properties getDefaults()
     {
-        Properties properties = new Properties();
+    	Properties properties = super.getDefaults();
         properties.put(DATATYPE, name);
         properties.put(EMAIL_ADDRESS, "");
         properties.put(EMAIL_PORT, "");
@@ -60,7 +61,8 @@ public class EmailSenderProperties implements ComponentProperties
         properties.put(EMAIL_SUBJECT, "");
         properties.put(EMAIL_BODY, "");
         properties.put(EMAIL_CONTENT_TYPE, "text/plain");
-        properties.put(EMAIL_ATTACHMENTS, new ArrayList<String[]>());
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        properties.put(EMAIL_ATTACHMENTS, serializer.toXML(new ArrayList<String[]>()));
         return properties;
     }
 
