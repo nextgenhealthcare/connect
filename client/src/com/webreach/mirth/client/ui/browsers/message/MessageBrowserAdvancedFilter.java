@@ -6,18 +6,17 @@
 
 package com.webreach.mirth.client.ui.browsers.message;
 
-import java.awt.Dimension;
-import java.awt.Point;
+import java.awt.*;
 
-import com.webreach.mirth.client.ui.Frame;
+import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.model.MessageObject;
 
 /**
  *
  * @author  chrisr
  */
-public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
-
+public class MessageBrowserAdvancedFilter extends javax.swing.JDialog
+{
     private String connector = "";
     private String messageSource = "";
     private String messageType = "";
@@ -28,14 +27,19 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
     private String protocol = "ALL";
 
     /** Creates new form MessageBrowserAdvancedFilter */
-    public MessageBrowserAdvancedFilter(Frame parent, String title, boolean modal) {
+    public MessageBrowserAdvancedFilter(String title, boolean modal) {
+        super(PlatformUI.MIRTH_FRAME, title, modal);
+        initialize();
+    }
 
-        super(parent, title, modal);
+    private void initialize() {
+        initComponents();
+        getContentPane().setBackground(new java.awt.Color(255, 255, 255));
 
         pack();
         Dimension dlgSize = getPreferredSize();
-        Dimension frmSize = parent.getSize();
-        Point loc = parent.getLocation();
+        Dimension frmSize = PlatformUI.MIRTH_FRAME.getSize();
+        Point loc = PlatformUI.MIRTH_FRAME.getLocation();
         
         if ((frmSize.width == 0 && frmSize.height == 0) || (loc.x == 0 && loc.y == 0)) {
         	setLocationRelativeTo(null);
@@ -44,9 +48,6 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         }
         
         setResizable(false);
-
-        initComponents();
-        getContentPane().setBackground(new java.awt.Color(255, 255, 255));
 
         String[] protocolValues = new String[MessageObject.Protocol.values().length + 1];
         protocolValues[0] = "ALL";

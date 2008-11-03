@@ -779,7 +779,7 @@ public class Frame extends JXFrame
 
         addTask("doRefreshEvents", "Refresh", "Refresh the list of events with the given filter.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), eventTasks, eventPopupMenu);
         addTask("doRemoveAllEvents", "Remove All Events", "Remove all the System Events.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/table_delete.png")), eventTasks, eventPopupMenu);
-        addTask("doRemoveFilteredEvents", "Remove Filtered Events", "Remove all System Events in the current filter.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/table_delete.png")), eventTasks, eventPopupMenu);
+        addTask("doRemoveFilteredEvents", "Remove Results", "Remove all System Events in the current search.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/table_delete.png")), eventTasks, eventPopupMenu);
         addTask("doRemoveEvent", "Remove Event", "Remove the selected Event.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), eventTasks, eventPopupMenu);
 
         setNonFocusable(eventTasks);
