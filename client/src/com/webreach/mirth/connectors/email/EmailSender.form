@@ -382,8 +382,8 @@
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
               <Table columnCount="3" rowCount="0">
                 <Column editable="true" title="Name" type="java.lang.String"/>
-                <Column editable="true" title="Value" type="java.lang.String"/>
-                <Column editable="true" title="MIME-Type" type="java.lang.String"/>
+                <Column editable="true" title="Content" type="java.lang.String"/>
+                <Column editable="true" title="MIME type" type="java.lang.String"/>
               </Table>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Request variables are encoded as x=y pairs as part of the request URL, separated from it by a &apos;?&apos; and from each other by an &apos;&amp;&apos;."/>

@@ -57,11 +57,11 @@ import org.jdesktop.swingx.decorator.HighlighterPipeline;
 public class EmailSender extends ConnectorClass
 {
     private final int NAME_COLUMN = 0;
-    private final int VALUE_COLUMN = 1;
+    private final int CONTENT_COLUMN = 1;
     private final int MIME_TYPE_COLUMN = 2;
-    private final String NAME_COLUMN_NAME = "Variable";
-    private final String VALUE_COLUMN_NAME = "Value";
-    private final String MIME_TYPE_COLUMN_NAME = "MIME-Type";
+    private final String NAME_COLUMN_NAME = "Name";
+    private final String CONTENT_COLUMN_NAME = "Content";
+    private final String MIME_TYPE_COLUMN_NAME = "MIME type";
     private int attachmentsLastIndex = -1;
     
     /** Creates new form EmailSender */
@@ -217,12 +217,12 @@ public class EmailSender extends ConnectorClass
         for (String[] attachment : attachments)
         {
             tableData[j][NAME_COLUMN] = (attachment[0]);
-            tableData[j][VALUE_COLUMN] = (attachment[1]);
+            tableData[j][CONTENT_COLUMN] = (attachment[1]);
             tableData[j][MIME_TYPE_COLUMN] = (attachment[2]);
             j++;
         }
         
-        attachmentsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { NAME_COLUMN_NAME, VALUE_COLUMN_NAME, MIME_TYPE_COLUMN_NAME })
+        attachmentsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { NAME_COLUMN_NAME, CONTENT_COLUMN_NAME, MIME_TYPE_COLUMN_NAME })
         {
             boolean[] canEdit = new boolean[] { true, true, true };
             
@@ -325,7 +325,7 @@ public class EmailSender extends ConnectorClass
         };
         
         attachmentsTable.getColumnModel().getColumn(attachmentsTable.getColumnModel().getColumnIndex(NAME_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(true));
-        attachmentsTable.getColumnModel().getColumn(attachmentsTable.getColumnModel().getColumnIndex(VALUE_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(false));
+        attachmentsTable.getColumnModel().getColumn(attachmentsTable.getColumnModel().getColumnIndex(CONTENT_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(false));
         attachmentsTable.getColumnModel().getColumn(attachmentsTable.getColumnModel().getColumnIndex(MIME_TYPE_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(false));
         
         attachmentsTable.setSelectionMode(0);
@@ -355,7 +355,7 @@ public class EmailSender extends ConnectorClass
             {
                 String[] attachment = new String[3];
                 attachment[0] = (String)attachmentsTable.getValueAt(i, NAME_COLUMN);
-                attachment[1] = (String)attachmentsTable.getValueAt(i, VALUE_COLUMN);
+                attachment[1] = (String)attachmentsTable.getValueAt(i, CONTENT_COLUMN);
                 attachment[2] = (String)attachmentsTable.getValueAt(i, MIME_TYPE_COLUMN);
         
                 attachments.add(attachment);
@@ -534,7 +534,7 @@ public class EmailSender extends ConnectorClass
 
             },
             new String [] {
-                "Name", "Value", "MIME-Type"
+                "Name", "Content", "MIME type"
             }
         ) {
             Class[] types = new Class [] {
