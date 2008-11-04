@@ -25,19 +25,13 @@
 
 package com.webreach.mirth.connectors.email;
 
-import com.webreach.mirth.client.ui.Mirth;
-import java.util.Properties;
-
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.connectors.ConnectorClass;
-import com.webreach.mirth.model.QueuedSenderProperties;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.EventObject;
+import java.util.Properties;
 import java.util.prefs.Preferences;
+
 import javax.swing.AbstractCellEditor;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -47,8 +41,15 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
+
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterPipeline;
+
+import com.webreach.mirth.client.ui.Mirth;
+import com.webreach.mirth.client.ui.UIConstants;
+import com.webreach.mirth.client.ui.components.MirthTable;
+import com.webreach.mirth.connectors.ConnectorClass;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -93,20 +94,6 @@ public class EmailSender extends ConnectorClass
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         properties.put(EmailSenderProperties.EMAIL_ATTACHMENTS, serializer.toXML(getAttachments()));
         
-        
-        // QUEUE Settings
-        properties.put(QueuedSenderProperties.RECONNECT_INTERVAL, reconnectInterval.getText());
-        
-        if (usePersistentQueuesYesRadio.isSelected())
-            properties.put(QueuedSenderProperties.USE_PERSISTENT_QUEUES, UIConstants.YES_OPTION);
-        else
-            properties.put(QueuedSenderProperties.USE_PERSISTENT_QUEUES, UIConstants.NO_OPTION);
-
-        if (rotateMessages.isSelected())
-            properties.put(QueuedSenderProperties.ROTATE_QUEUE, UIConstants.YES_OPTION);
-        else
-            properties.put(QueuedSenderProperties.ROTATE_QUEUE, UIConstants.NO_OPTION);
-        
         return properties;
     }
 
@@ -135,26 +122,6 @@ public class EmailSender extends ConnectorClass
             setAttachments((ArrayList<String[]>) serializer.fromXML((String) props.get(EmailSenderProperties.EMAIL_ATTACHMENTS)));
         else
             setAttachments(new ArrayList<String[]>());
-        
-        
-        // QUEUE Settings
-        reconnectInterval.setText((String) props.get(QueuedSenderProperties.RECONNECT_INTERVAL));
-        
-        if (((String) props.get(QueuedSenderProperties.USE_PERSISTENT_QUEUES)).equals(UIConstants.YES_OPTION))
-        {
-            usePersistentQueuesYesRadio.setSelected(true);
-            usePersistentQueuesYesRadioActionPerformed(null);
-        }
-        else
-        {
-            usePersistentQueuesNoRadio.setSelected(true);
-            usePersistentQueuesNoRadioActionPerformed(null);
-        }
-        
-        if (((String) props.get(QueuedSenderProperties.ROTATE_QUEUE)).equals(UIConstants.YES_OPTION))
-            rotateMessages.setSelected(true);
-        else
-            rotateMessages.setSelected(false);
     }
 
     public Properties getDefaults()
@@ -434,12 +401,6 @@ public class EmailSender extends ConnectorClass
         contentTypeLabel = new javax.swing.JLabel();
         contentTypeHTMLButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         contentTypePlainButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        rotateMessages = new com.webreach.mirth.client.ui.components.MirthCheckBox();
-        usePersistentQueuesNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        usePersistentQueuesYesRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        jLabel36 = new javax.swing.JLabel();
-        reconnectIntervalLabel = new javax.swing.JLabel();
-        reconnectInterval = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel9 = new javax.swing.JLabel();
         attachmentsPane = new javax.swing.JScrollPane();
         attachmentsTable = new com.webreach.mirth.client.ui.components.MirthTable();
@@ -497,36 +458,6 @@ public class EmailSender extends ConnectorClass
         contentTypePlainButton.setToolTipText("Selects whether the HTTP operation used to send each message.");
         contentTypePlainButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        rotateMessages.setBackground(new java.awt.Color(255, 255, 255));
-        rotateMessages.setText("Rotate Messages in Queue");
-
-        usePersistentQueuesNoRadio.setBackground(new java.awt.Color(255, 255, 255));
-        usePersistentQueuesNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup2.add(usePersistentQueuesNoRadio);
-        usePersistentQueuesNoRadio.setSelected(true);
-        usePersistentQueuesNoRadio.setText("No");
-        usePersistentQueuesNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        usePersistentQueuesNoRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                usePersistentQueuesNoRadioActionPerformed(evt);
-            }
-        });
-
-        usePersistentQueuesYesRadio.setBackground(new java.awt.Color(255, 255, 255));
-        usePersistentQueuesYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup2.add(usePersistentQueuesYesRadio);
-        usePersistentQueuesYesRadio.setText("Yes");
-        usePersistentQueuesYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        usePersistentQueuesYesRadio.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                usePersistentQueuesYesRadioActionPerformed(evt);
-            }
-        });
-
-        jLabel36.setText("Use Persistent Queues:");
-
-        reconnectIntervalLabel.setText("Reconnect Interval (ms):");
-
         jLabel9.setText("Attachments:");
 
         attachmentsTable.setModel(new javax.swing.table.DefaultTableModel(
@@ -569,20 +500,18 @@ public class EmailSender extends ConnectorClass
             .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .addContainerGap()
+                        .add(40, 40, 40)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel9)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, contentTypeLabel)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel8)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel5)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, reconnectIntervalLabel)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel36)
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1))
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel5)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel8)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, contentTypeLabel)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel9))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(layout.createSequentialGroup()
@@ -590,8 +519,16 @@ public class EmailSender extends ConnectorClass
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
                                     .add(newButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .add(deleteButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                    .add(deleteButton)))
                             .add(emailBodyTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 339, Short.MAX_VALUE)))
+                    .add(layout.createSequentialGroup()
+                        .add(134, 134, 134)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                            .add(emailPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(emailUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(emailToField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                            .add(emailFromField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(emailSubjectField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)))
                     .add(layout.createSequentialGroup()
                         .add(134, 134, 134)
                         .add(contentTypeHTMLButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -600,21 +537,8 @@ public class EmailSender extends ConnectorClass
                     .add(layout.createSequentialGroup()
                         .add(134, 134, 134)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                            .add(emailPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(SMTPServerHostField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                            .add(SMTPServerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(emailUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(emailToField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                            .add(emailFromField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(emailSubjectField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                .add(layout.createSequentialGroup()
-                                    .add(usePersistentQueuesYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                    .add(usePersistentQueuesNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                    .add(rotateMessages, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                .add(reconnectInterval, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
+                            .add(SMTPServerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -627,16 +551,6 @@ public class EmailSender extends ConnectorClass
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel2)
                     .add(SMTPServerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(usePersistentQueuesYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(usePersistentQueuesNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(rotateMessages, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel36))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(reconnectInterval, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(reconnectIntervalLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel3)
@@ -677,18 +591,6 @@ public class EmailSender extends ConnectorClass
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
-
-private void usePersistentQueuesNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usePersistentQueuesNoRadioActionPerformed
-rotateMessages.setEnabled(false);
-reconnectInterval.setEnabled(false);
-reconnectIntervalLabel.setEnabled(false);
-}//GEN-LAST:event_usePersistentQueuesNoRadioActionPerformed
-
-private void usePersistentQueuesYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usePersistentQueuesYesRadioActionPerformed
-rotateMessages.setEnabled(true);
-reconnectInterval.setEnabled(true);
-reconnectIntervalLabel.setEnabled(true);
-}//GEN-LAST:event_usePersistentQueuesYesRadioActionPerformed
 
 private void newButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newButtonActionPerformed
     ((DefaultTableModel) attachmentsTable.getModel()).addRow(new Object[] { getNewAttachmentName(attachmentsTable), "" });
@@ -735,7 +637,6 @@ private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel36;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
@@ -743,11 +644,6 @@ private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JButton newButton;
-    private com.webreach.mirth.client.ui.components.MirthTextField reconnectInterval;
-    private javax.swing.JLabel reconnectIntervalLabel;
-    private com.webreach.mirth.client.ui.components.MirthCheckBox rotateMessages;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton usePersistentQueuesNoRadio;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton usePersistentQueuesYesRadio;
     // End of variables declaration//GEN-END:variables
 
 }
