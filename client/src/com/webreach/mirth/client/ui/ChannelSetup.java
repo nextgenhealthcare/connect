@@ -728,6 +728,7 @@ public class ChannelSetup extends javax.swing.JPanel
             {
                 storeMessagesAll.setSelected(true);
                 numDays.setText("");
+                numDays.setEnabled(false);
             }
         }
         
