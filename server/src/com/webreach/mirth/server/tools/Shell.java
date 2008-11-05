@@ -66,10 +66,12 @@ import com.webreach.mirth.model.ChannelStatus.State;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.filters.SystemEventFilter;
 import com.webreach.mirth.model.util.ImportConverter;
+import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.util.PropertyVerifier;
 
 public class Shell {
     private Client client;
+    private boolean debug;
     private SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yy_HH-mm-ss.SS");
     private String currentUser = new String();
     private PrintWriter out;
@@ -92,6 +94,7 @@ public class Shell {
         Option scriptOption = OptionBuilder.withArgName("script").hasArg().withDescription("script file").create("s");
         Option versionOption = OptionBuilder.withArgName("version").hasArg().withDescription("version").create("v");
         Option helpOption = new Option("h", "help");
+        Option debugOption = new Option("d", "debug");
 
         Options options = new Options();
         options.addOption(serverOption);
@@ -100,6 +103,7 @@ public class Shell {
         options.addOption(scriptOption);
         options.addOption(versionOption);
         options.addOption(helpOption);
+        options.addOption(debugOption);
 
         CommandLineParser parser = new GnuParser();
 
@@ -113,25 +117,27 @@ public class Shell {
                 String version = line.getOptionValue("v");
                 String script = line.getOptionValue("s");
 
-                runShell(server, user, password, version, script);
+                runShell(server, user, password, version, script, line.hasOption("d"));
             } else if (line.hasOption("h")) {
                 new HelpFormatter().printHelp("Shell", options);
             } else {
                 new HelpFormatter().printHelp("Shell", options);
-                error("all of -a, -u, -p, and -v options must be supplied");
+                error("all of -a, -u, -p, and -v options must be supplied", null);
                 System.exit(2);
             }
         } catch (ParseException e) {
-            error("Could not parse input arguments.");
+            error("Could not parse input arguments.", e);
             System.exit(2);
         }
     }
 
-    private void runShell(String server, String user, String password, String version, String script) {
+    private void runShell(String server, String user, String password, String version, String script, boolean debug) {
         try {
             client = new Client(server);
+            this.debug = debug;
+
             if (!client.login(user, password, version)) {
-                error("Could not login to server.");
+                error("Could not login to server.", null);
                 return;
             }
             out.println("Connected to Mirth server @ " + server + " (" + client.getVersion() + ")");
@@ -147,7 +153,7 @@ public class Shell {
         } catch (ClientException ce) {
             ce.printStackTrace();
         } catch (IOException ioe) {
-            error("Could not load script file.");
+            error("Could not load script file.", ioe);
         }
     }
 
@@ -185,8 +191,12 @@ public class Shell {
         }
     }
 
-    private void error(String message) {
+    private void error(String message, Exception e) {
         err.println("Error: " + message);
+
+        if ((e != null) && debug) {
+            err.println(StackTracePrinter.stackTraceToString(e));
+        }
     }
 
     private void writePrompt() {
@@ -205,7 +215,7 @@ public class Shell {
                     return;
                 } else if (arg1 == Token.USER) {
                     if (arguments.length < 2) {
-                        error("invalid number of arguments.");
+                        error("invalid number of arguments.", null);
                         return;
                     }
                     Token arg2 = arguments[1];
@@ -251,10 +261,10 @@ public class Shell {
                 } else if (arg1 == Token.CHANNEL) {
                     String syntax = "invalid number of arguments. Syntax is: channel start|stop|pause|resume|stats|remove|enable|disable <id|name>, channel rename <id|name> newname, or channel list|stats";
                     if (arguments.length < 2) {
-                        error(syntax);
+                        error(syntax, null);
                         return;
                     } else if (arguments.length < 3 && arguments[1] != Token.LIST && arguments[1] != Token.STATS) {
-                        error(syntax);
+                        error(syntax, null);
                         return;
                     }
 
@@ -283,7 +293,7 @@ public class Shell {
                     } else if (comm == Token.RENAME) {
                         commandChannelRename(arguments);
                     } else {
-                        error("unknown channel command " + comm);
+                        error("unknown channel command " + comm, null);
                     }
                 } else if (arg1 == Token.CLEAR) {
                     commandClear(arguments);
@@ -298,15 +308,15 @@ public class Shell {
                         } else if (arg2 == Token.EVENTS) {
                             commandDumpEvents(arguments);
                         } else {
-                            error("unknown dump command: " + arg2);
+                            error("unknown dump command: " + arg2, null);
                         }
                     } else {
-                        error("missing dump commands.");
+                        error("missing dump commands.", null);
                     }
                 } else if (arg1 == Token.QUIT) {
                     throw new QuitShell();
                 } else {
-                    error("unknown command: " + command);
+                    error("unknown command: " + command, null);
                 }
             }
         } catch (ClientException e) {
@@ -422,12 +432,12 @@ public class Shell {
 
     private void commandUserAdd(Token[] arguments) throws ClientException {
         if (arguments.length < 8) {
-            error("invalid number of arguments. Syntax is user add username \"password\" \"firstName\" \"lastName\" \"organization\" \"email\"");
+            error("invalid number of arguments. Syntax is user add username \"password\" \"firstName\" \"lastName\" \"organization\" \"email\"", null);
             return;
         }
         String username = arguments[2].getText();
         if (username.length() < 1) {
-            error("unable to add user: username too short.");
+            error("unable to add user: username too short.", null);
             return;
         }
 
@@ -447,7 +457,7 @@ public class Shell {
         for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
             User luser = iter.next();
             if (luser.getUsername().equalsIgnoreCase(username)) {
-                error("unable to add user: username in use.");
+                error("unable to add user: username in use.", null);
                 return;
             }
         }
@@ -456,18 +466,18 @@ public class Shell {
             client.updateUser(user, password);
             out.println("User \"" + username + "\" added successfully.");
         } catch (Exception e) {
-            error("unable to add user \"" + username + "\": " + e);
+            error("unable to add user \"" + username + "\": " + e, e);
         }
     }
 
     private void commandUserRemove(Token[] arguments) throws ClientException {
         if (arguments.length < 3) {
-            error("invalid number of arguments. Syntax is user remove username|id");
+            error("invalid number of arguments. Syntax is user remove username|id", null);
             return;
         }
         String key = arguments[2].getText();
         if (key.equalsIgnoreCase(currentUser)) {
-            error("cannot remove current user.");
+            error("cannot remove current user.", null);
             return;
         }
         List<User> users = client.getUser(null);
@@ -483,7 +493,7 @@ public class Shell {
 
     private void commandUserChangePassword(Token[] arguments) throws ClientException {
         if (arguments.length < 4) {
-            error("invalid number of arguments. Syntax is user changepw username|id \"newpassword\"");
+            error("invalid number of arguments. Syntax is user changepw username|id \"newpassword\"", null);
             return;
         }
         String key = arguments[2].getText();
@@ -607,7 +617,7 @@ public class Shell {
             String configurationXML = serializer.toXML(configuration);
             writeFile(fXml, configurationXML, false);
         } catch (IOException e) {
-            error("unable to write file " + path + ": " + e);
+            error("unable to write file " + path + ": " + e, e);
         }
 
         out.println("Configuration Export Complete.");
@@ -616,23 +626,15 @@ public class Shell {
     private void commandImportConfig(Token[] arguments) throws ClientException {
         String path = arguments[1].getText();
         File fXml = new File(path);
-        if (!fXml.exists()) {
-            error("" + path + " not found");
-            return;
-        } else if (!fXml.canRead()) {
-            error("cannot read " + path);
-            return;
-        } else {
-            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-            try {
-                client.setServerConfiguration((ServerConfiguration) serializer.fromXML(readFile(fXml)));
-            } catch (IOException e) {
-                error("cannot read " + path);
-                e.printStackTrace();
-                return;
-            }
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
+        try {
+            client.setServerConfiguration((ServerConfiguration) serializer.fromXML(readFile(fXml)));
+        } catch (IOException e) {
+            error("cannot read " + path, e);
+            return;
         }
+
         out.println("Configuration Import Complete.");
     }
 
@@ -645,13 +647,7 @@ public class Shell {
         }
 
         File fXml = new File(path);
-        if (!fXml.exists()) {
-            error("" + path + " not found");
-        } else if (!fXml.canRead()) {
-            error("cannot read " + path);
-        } else {
-            doImportChannel(fXml, force);
-        }
+        doImportChannel(fXml, force);
     }
 
     private void commandExportScript(Token[] arguments) throws ClientException {
@@ -676,7 +672,7 @@ public class Shell {
             out.println("Exporting " + name + " script");
             writeFile(fXml, script, false);
         } catch (IOException e) {
-            error("unable to write file " + path + ": " + e);
+            error("unable to write file " + path + ": " + e, e);
         }
 
         out.println("Script Export Complete.");
@@ -699,13 +695,7 @@ public class Shell {
 
         File fXml = new File(path);
 
-        if (!fXml.exists()) {
-            error("" + path + " not found");
-        } else if (!fXml.canRead()) {
-            error("cannot read " + path);
-        } else {
-            doImportScript(name, fXml);
-        }
+        doImportScript(name, fXml);
         out.println(name + " script import complete");
     }
 
@@ -720,7 +710,7 @@ public class Shell {
             String codeTemplatesXML = serializer.toXML(codeTemplates);
             writeFile(fXml, codeTemplatesXML, false);
         } catch (IOException e) {
-            error("unable to write file " + path + ": " + e);
+            error("unable to write file " + path + ": " + e, e);
         }
 
         out.println("Code Templates Export Complete.");
@@ -730,20 +720,14 @@ public class Shell {
         String path = arguments[1].getText();
         File fXml = new File(path);
 
-        if (!fXml.exists()) {
-            error("" + path + " not found");
-        } else if (!fXml.canRead()) {
-            error("cannot read " + path);
-        } else {
-            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-            try {
-                client.updateCodeTemplates((List<CodeTemplate>) serializer.fromXML(readFile(fXml)));
-            } catch (IOException e) {
-                error("cannot read " + path);
-                e.printStackTrace();
-                return;
-            }
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        try {
+            client.updateCodeTemplates((List<CodeTemplate>) serializer.fromXML(readFile(fXml)));
+        } catch (IOException e) {
+            error("cannot read " + path, e);
+            return;
         }
+
         out.println("Code Templates Import Complete");
     }
 
@@ -759,7 +743,7 @@ public class Shell {
 
     private void commandExport(Token[] arguments) throws ClientException {
         if (arguments.length < 3) {
-            error("invalid number of arguments. Syntax is: export id|name|all \"path\"");
+            error("invalid number of arguments. Syntax is: export id|name|all \"path\"", null);
             return;
         }
 
@@ -776,7 +760,7 @@ public class Shell {
                     String channelXML = serializer.toXML(channel);
                     writeFile(fXml, channelXML, false);
                 } catch (IOException e) {
-                    error("unable to write file " + path + ": " + e);
+                    error("unable to write file " + path + ": " + e, e);
                 }
             }
             out.println("Export Complete.");
@@ -792,7 +776,7 @@ public class Shell {
                     try {
                         writeFile(fXml, channelXML, false);
                     } catch (IOException e) {
-                        error("unable to write file " + path + ": " + e);
+                        error("unable to write file " + path + ": " + e, e);
                     }
                     out.println("Export Complete.");
                     return;
@@ -1075,7 +1059,7 @@ public class Shell {
         } catch (ListHandlerException e1) {
             e1.printStackTrace();
         } catch (IOException e) {
-            error("Could not write file: " + dumpFile.getAbsolutePath());
+            error("Could not write file: " + dumpFile.getAbsolutePath(), e);
         }
 
         out.println("Events written to " + dumpFilename);
@@ -1103,7 +1087,7 @@ public class Shell {
             writeFile(dumpFile, builder.toString(), false);
             out.println("Stats written to " + dumpFilename);
         } catch (IOException e) {
-            error("Could not write file: " + dumpFile.getAbsolutePath());
+            error("Could not write file: " + dumpFile.getAbsolutePath(), e);
         }
     }
 
@@ -1129,7 +1113,7 @@ public class Shell {
         try {
             script = readFile(scriptFile);
         } catch (Exception e) {
-            error("invalid script file.");
+            error("invalid script file.", e);
             return;
         }
 
@@ -1144,7 +1128,7 @@ public class Shell {
         try {
             channelXML = ImportConverter.convertChannelFile(importFile);
         } catch (Exception e1) {
-            error("invalid channel file.");
+            error("invalid channel file.", e1);
             return;
         }
 
@@ -1157,7 +1141,7 @@ public class Shell {
             PropertyVerifier.checkConnectorProperties(importChannel, client.getConnectorMetaData());
 
         } catch (Exception e) {
-            error("invalid channel file.");
+            error("invalid channel file.", e);
             return;
         }
 
