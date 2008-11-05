@@ -174,7 +174,7 @@ public class MessageObjectToEmailMessage extends AbstractEventAwareTransformer {
         // message
         MimeBodyPart messageBodyPart = new MimeBodyPart();
         String body = replacer.replaceValues(((SmtpConnector)endpoint.getConnector()).getBody(), (MessageObject) payload);
-        messageBodyPart.setText(body, contentType);
+        messageBodyPart.setContent(body, contentType);
         multipart.addBodyPart(messageBodyPart);
 
         // [attachment name, attachment content, attachment mime type]
@@ -182,7 +182,7 @@ public class MessageObjectToEmailMessage extends AbstractEventAwareTransformer {
         List<String> attachmentContents = ((SmtpConnector) endpoint.getConnector()).getAttachmentContents();
         List<String> attachmentTypes = ((SmtpConnector) endpoint.getConnector()).getAttachmentTypes();
 
-        for (int i = 0; i <= attachmentNames.size(); i++) {
+        for (int i = 0; i < attachmentNames.size(); i++) {
             String attachmentName = replacer.replaceValues(attachmentNames.get(i), (MessageObject) payload);;
             String attachmentContent = replacer.replaceValues(attachmentContents.get(i), (MessageObject) payload);
             String attachmentType = attachmentTypes.get(i);
