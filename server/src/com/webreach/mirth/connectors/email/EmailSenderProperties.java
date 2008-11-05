@@ -46,7 +46,9 @@ public class EmailSenderProperties implements ComponentProperties
     public static final String EMAIL_BODY = "body";
     public static final String EMAIL_REPLY_TO = "replyToAddresses";
     public static final String EMAIL_CONTENT_TYPE = "contentType";
-    public static final String EMAIL_ATTACHMENTS = "attachments";
+    public static final String EMAIL_ATTACHMENT_NAMES = "attachmentNames";
+    public static final String EMAIL_ATTACHMENT_CONTENTS = "attachmentContents";
+    public static final String EMAIL_ATTACHMENT_TYPES = "attachmentTypes";
 
     public Properties getDefaults()
     {
@@ -62,7 +64,9 @@ public class EmailSenderProperties implements ComponentProperties
         properties.put(EMAIL_BODY, "");
         properties.put(EMAIL_CONTENT_TYPE, "text/plain");
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-        properties.put(EMAIL_ATTACHMENTS, serializer.toXML(new ArrayList<String[]>()));
+        properties.put(EMAIL_ATTACHMENT_NAMES, serializer.toXML(new ArrayList()));
+        properties.put(EMAIL_ATTACHMENT_CONTENTS, serializer.toXML(new ArrayList()));
+        properties.put(EMAIL_ATTACHMENT_TYPES, serializer.toXML(new ArrayList()));
         return properties;
     }
 

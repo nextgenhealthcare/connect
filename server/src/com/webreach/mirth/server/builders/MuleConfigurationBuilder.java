@@ -470,6 +470,12 @@ public class MuleConfigurationBuilder {
 				keysOfValuesThatAreProperties.add("headerVariables");
 				keysOfValuesThatAreProperties.add("envelopeProperties");
 
+                // list of keys whose values are actually lists
+				ArrayList<String> keysOfValuesThatAreLists = new ArrayList<String>();
+				keysOfValuesThatAreLists.add("attachmentNames");
+				keysOfValuesThatAreLists.add("attachmentContents");
+				keysOfValuesThatAreLists.add("attachmentTypes");
+
 				// only add non-null, non-empty, non-Mule properties to the list
 				// the getProperties method could not be used since this is a
 				// special case involving a map element for the queries
@@ -482,8 +488,11 @@ public class MuleConfigurationBuilder {
 					} else if (keysOfValuesThatAreProperties.contains(property.getKey())) {
 						ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 						Properties properties = (Properties) serializer.fromXML(property.getValue().toString());
-						Element connectionFactoryPropertiesMapElement = getPropertiesMap(document, properties, null, property.getKey().toString());
-						propertiesElement.appendChild(connectionFactoryPropertiesMapElement);
+						propertiesElement.appendChild(getPropertiesMap(document, properties, null, property.getKey().toString()));
+					} else if (keysOfValuesThatAreLists.contains(property.getKey())) {
+                        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                        List list = (List) serializer.fromXML(property.getValue().toString());
+                        propertiesElement.appendChild(getList(document, list, property.getKey().toString()));
 					} else {
 						// script is a special property reserved for some
 						// connectors
@@ -599,6 +608,27 @@ public class MuleConfigurationBuilder {
 		}
 
 		return propertiesElement;
+	}
+	
+	/**
+	 * Returns a list element given a List object and the name of the list.
+	 * 
+	 * @param document
+	 * @param list
+	 * @param name
+	 * @return
+	 */
+	private Element getList(Document document, List<String> list, String name) {
+	    Element listElement = document.createElement("list");
+	    listElement.setAttribute("name", name);
+	    
+	    for (String entry : list) {
+	        Element entryElement = document.createElement("entry");
+	        entryElement.setAttribute("value", entry);
+	        listElement.appendChild(entryElement);
+	    }
+	    
+	    return listElement;
 	}
 
 	/**

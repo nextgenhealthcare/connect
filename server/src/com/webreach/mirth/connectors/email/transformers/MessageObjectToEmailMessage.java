@@ -18,6 +18,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -177,18 +178,21 @@ public class MessageObjectToEmailMessage extends AbstractEventAwareTransformer {
         multipart.addBodyPart(messageBodyPart);
 
         // [attachment name, attachment content, attachment mime type]
-        List<String[]> attachments = ((SmtpConnector)endpoint.getConnector()).getAttachments();
+        List<String> attachmentNames = ((SmtpConnector) endpoint.getConnector()).getAttachmentNames();
+        List<String> attachmentContents = ((SmtpConnector) endpoint.getConnector()).getAttachmentContents();
+        List<String> attachmentTypes = ((SmtpConnector) endpoint.getConnector()).getAttachmentTypes();
 
-        for (String[] attachmentInfo : attachments) {
-            String attachmentContent = replacer.replaceValues(attachmentInfo[1], (MessageObject) payload);
+        for (int i = 0; i <= attachmentNames.size(); i++) {
+            String attachmentName = replacer.replaceValues(attachmentNames.get(i), (MessageObject) payload);;
+            String attachmentContent = replacer.replaceValues(attachmentContents.get(i), (MessageObject) payload);
+            String attachmentType = attachmentTypes.get(i);
+            
             MimeBodyPart attachmentBodyPart = new MimeBodyPart();
-            DataSource source = new ByteArrayDataSource(attachmentContent.getBytes(), attachmentInfo[2]);
+            DataSource source = new ByteArrayDataSource(attachmentContent.getBytes(), attachmentType);
             attachmentBodyPart.setDataHandler(new DataHandler(source));
-            String attachmentName = replacer.replaceValues(attachmentInfo[0], (MessageObject) payload);
             attachmentBodyPart.setFileName(attachmentName);
             multipart.addBodyPart(attachmentBodyPart);
         }
-        
 
         // set the content
         msg.setContent(multipart);
