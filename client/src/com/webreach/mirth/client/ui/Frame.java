@@ -53,6 +53,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -66,6 +67,7 @@ import javax.swing.border.LineBorder;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingworker.SwingWorker;
 import org.jdesktop.swingx.JXFrame;
+import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.JXTitledPanel;
@@ -720,8 +722,8 @@ public class Frame extends JXFrame
         addTask("doDisableDestination", "Disable Destination", "Disable the currently selected destination.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doMoveDestinationUp", "Move Dest. Up", "Move the currently selected destination up.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_up.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doMoveDestinationDown", "Move Dest. Down", "Move the currently selected destination down.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_down.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doEditFilter", "Edit Filter", "Edit the filter for the currently selected destination.", "F", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/edit.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doEditTransformer", "Edit Transformer", "Edit the transformer for the currently selected destination.", "T", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/edit.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doEditFilter", UIConstants.EDIT_FILTER, "Edit the filter for the currently selected destination.", "F", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/edit.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doEditTransformer", UIConstants.EDIT_TRANSFORMER, "Edit the transformer for the currently selected destination.", "T", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/edit.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doExport", "Export Channel", "Export the currently selected channel to an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doValidateChannelScripts", "Validate Script", "Validate the currently viewed script.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), channelEditTasks, channelEditPopupMenu);
 
@@ -2885,6 +2887,23 @@ public class Frame extends JXFrame
         channelEditPanel.filterPane.resizePanes();
         String name = channelEditPanel.editFilter();
         setPanelName("Edit Channel - " + channelEditPanel.currentChannel.getName() + " - " + name + " Filter");
+    }
+    
+    public void updateFilterTaskName(int rules) {
+    	updateFilterOrTransformerTaskName(UIConstants.EDIT_FILTER, UIConstants.EDIT_FILTER_TASK_NUMBER, rules);
+    }
+    
+    public void updateTransformerTaskName(int steps) {
+    	updateFilterOrTransformerTaskName(UIConstants.EDIT_TRANSFORMER, UIConstants.EDIT_TRANSFORMER_TASK_NUMBER, steps);
+    }
+    
+    private void updateFilterOrTransformerTaskName(String taskName, int componentIndex, int rulesOrSteps) {
+    	if (rulesOrSteps > 0) {
+    		taskName += " (" + rulesOrSteps + ")";
+    	}
+    	
+        ((JXHyperlink)channelEditTasks.getContentPane().getComponent(componentIndex)).setText(taskName);
+        ((JMenuItem)channelEditPopupMenu.getComponent(componentIndex)).setText(taskName);
     }
 
     public void doSaveSettings()

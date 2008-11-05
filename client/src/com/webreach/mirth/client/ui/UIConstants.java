@@ -50,6 +50,10 @@ public class UIConstants
     public static final ImageIcon WEBREACH_LOGO = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/webreach.png"));
     public static final String WEBREACH_TOOLTIP = "WebReach, Inc.";
     public static final String WEBREACH_URL = "http://www.webreachinc.com";
+    public static final String EDIT_FILTER = "Edit Filter";
+    public static final String EDIT_TRANSFORMER = "Edit Transformer";
+    public static final int EDIT_FILTER_TASK_NUMBER = 9;
+    public static final int EDIT_TRANSFORMER_TASK_NUMBER = 10;
 
     // for error checking
     public static final int ERROR_CONSTANT = -1;

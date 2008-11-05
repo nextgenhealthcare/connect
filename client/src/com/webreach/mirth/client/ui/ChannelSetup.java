@@ -1066,8 +1066,9 @@ public class ChannelSetup extends javax.swing.JPanel
     }
     
     /**
-     * Checks to see which tasks (move up, move down, enable, and distable) should be available for
-     * destinations and enables or disables them.
+     * Checks to see which tasks (move up, move down, enable, and disable) should be available for
+     * destinations and enables or disables them.  Also sets the number of filter/transformer steps
+     * to the task names.
      */
     public void checkVisibleDestinationTasks()
     {
@@ -1097,6 +1098,10 @@ public class ChannelSetup extends javax.swing.JPanel
                 parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 8, 8, false);
             else
                 parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 8, 8, true);
+            
+            // Update number of rules and steps on the filter and transformer
+            parent.updateFilterTaskName(destination.getFilter().getRules().size());
+            parent.updateTransformerTaskName(destination.getTransformer().getSteps().size());
         }
     }
     
@@ -1862,6 +1867,10 @@ public class ChannelSetup extends javax.swing.JPanel
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 9, 11, true);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 12, 12, false);
         
+        // Update number of rules and steps on the filter and transformer
+        parent.updateFilterTaskName(currentChannel.getSourceConnector().getFilter().getRules().size());
+        parent.updateTransformerTaskName(currentChannel.getSourceConnector().getTransformer().getSteps().size());
+        
         
         int connectorIndex = getDestinationConnectorIndex((String) destinationTable.getValueAt(destinationTable.getSelectedRow(), getColumnNumber(DESTINATION_COLUMN_NAME)));
         Connector destinationConnector = currentChannel.getDestinationConnectors().get(connectorIndex);
@@ -1879,9 +1888,9 @@ public class ChannelSetup extends javax.swing.JPanel
     private void destinationComponentShown(java.awt.event.ComponentEvent evt)// GEN-FIRST:event_destinationComponentShown
     {
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 1, true);
-        
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 10, true);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 12, 12, false);
+        
         checkVisibleDestinationTasks();
         
         // If validation has failed and this destination is enabled, then highlight any errors on this form.
