@@ -27,7 +27,6 @@ package com.webreach.mirth.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
@@ -46,7 +45,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
-import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.border.TitledBorder;
