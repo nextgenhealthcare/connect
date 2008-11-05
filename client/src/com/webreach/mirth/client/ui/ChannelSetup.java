@@ -764,6 +764,11 @@ public class ChannelSetup extends javax.swing.JPanel
         if (!parent.checkChannelName(summaryNameField.getText(), currentChannel.getId()))
             return false;
         
+        if (storeMessages.isSelected() && storeMessagesDays.isSelected() && numDays.getText().equals("")) {
+        	parent.alertWarning(parent, "If message pruning is enabled, the age of messages to prune cannot be blank.");
+        	return false;
+        }
+        
         boolean enabled = summaryEnabledCheckbox.isSelected();
         
         currentChannel.getSourceConnector().setProperties(sourceConnectorClass.getProperties());
@@ -1837,6 +1842,7 @@ public class ChannelSetup extends javax.swing.JPanel
             storeMessagesErrors.setEnabled(true);
             storeFiltered.setEnabled(true);
             days.setEnabled(true);
+            numDays.setEnabled(true);
         }
         else
         {
