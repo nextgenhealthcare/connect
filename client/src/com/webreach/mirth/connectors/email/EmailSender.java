@@ -92,7 +92,10 @@ public class EmailSender extends ConnectorClass
         properties.put(EmailSenderProperties.EMAIL_BODY, emailBodyTextPane.getText());
         
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-        properties.put(EmailSenderProperties.EMAIL_ATTACHMENTS, serializer.toXML(getAttachments()));
+        ArrayList<ArrayList<String>> attachments = getAttachments();
+        properties.put(EmailSenderProperties.EMAIL_ATTACHMENT_NAMES, serializer.toXML(attachments.get(0)));
+        properties.put(EmailSenderProperties.EMAIL_ATTACHMENT_CONTENTS, serializer.toXML(attachments.get(1)));
+        properties.put(EmailSenderProperties.EMAIL_ATTACHMENT_TYPES, serializer.toXML(attachments.get(2)));
         
         return properties;
     }
@@ -118,10 +121,22 @@ public class EmailSender extends ConnectorClass
         
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         
-        if (((String) props.get(EmailSenderProperties.EMAIL_ATTACHMENTS)).length() > 0)
-            setAttachments((ArrayList<String[]>) serializer.fromXML((String) props.get(EmailSenderProperties.EMAIL_ATTACHMENTS)));
-        else
-            setAttachments(new ArrayList<String[]>());
+        ArrayList<ArrayList<String>> attachments = new ArrayList<ArrayList<String>>();
+        ArrayList<String> attachmentNames = new ArrayList<String>();
+    	ArrayList<String> attachmentContents = new ArrayList<String>();
+    	ArrayList<String> attachmentTypes = new ArrayList<String>();
+        
+        if (((String) props.get(EmailSenderProperties.EMAIL_ATTACHMENT_NAMES)).length() > 0) {
+        	attachmentNames = (ArrayList<String>) serializer.fromXML((String) props.get(EmailSenderProperties.EMAIL_ATTACHMENT_NAMES));
+        	attachmentContents = (ArrayList<String>) serializer.fromXML((String) props.get(EmailSenderProperties.EMAIL_ATTACHMENT_CONTENTS));
+        	attachmentTypes = (ArrayList<String>) serializer.fromXML((String) props.get(EmailSenderProperties.EMAIL_ATTACHMENT_TYPES));
+        }
+        
+    	attachments.add(attachmentNames);
+    	attachments.add(attachmentContents);
+    	attachments.add(attachmentTypes);
+    	
+    	setAttachments(attachments);
     }
 
     public Properties getDefaults()
@@ -173,20 +188,21 @@ public class EmailSender extends ConnectorClass
     	return error;
     }
     
-    public void setAttachments(ArrayList<String[]> attachments)
+    public void setAttachments(ArrayList<ArrayList<String>> attachments)
     {
-        Object[][] tableData = new Object[attachments.size()][3];
+    	ArrayList<String> attachmentNames = attachments.get(0);
+    	ArrayList<String> attachmentContents = attachments.get(1);
+    	ArrayList<String> attachmentTypes = attachments.get(2);
+    	
+        Object[][] tableData = new Object[attachmentNames.size()][3];
         
         attachmentsTable = new MirthTable();
         
-        int j = 0;
-        
-        for (String[] attachment : attachments)
+        for (int i = 0; i < attachmentNames.size(); i++)
         {
-            tableData[j][NAME_COLUMN] = (attachment[0]);
-            tableData[j][CONTENT_COLUMN] = (attachment[1]);
-            tableData[j][MIME_TYPE_COLUMN] = (attachment[2]);
-            j++;
+        	tableData[i][NAME_COLUMN] = attachmentNames.get(i);
+            tableData[i][CONTENT_COLUMN] = attachmentContents.get(i);
+            tableData[i][MIME_TYPE_COLUMN] = attachmentTypes.get(i);
         }
         
         attachmentsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { NAME_COLUMN_NAME, CONTENT_COLUMN_NAME, MIME_TYPE_COLUMN_NAME })
@@ -313,21 +329,26 @@ public class EmailSender extends ConnectorClass
         attachmentsPane.setViewportView(attachmentsTable);
     }
     
-    public ArrayList<String[]> getAttachments() {
-        ArrayList<String[]> attachments = new ArrayList<String[]>();
+    public ArrayList<ArrayList<String>> getAttachments() {
+        ArrayList<ArrayList<String>> attachments = new ArrayList<ArrayList<String>>();
+        
+        ArrayList<String> attachmentNames = new ArrayList<String>();
+        ArrayList<String> attachmentContents = new ArrayList<String>();
+        ArrayList<String> attachmentTypes = new ArrayList<String>();
         
         for (int i = 0; i < attachmentsTable.getRowCount(); i++)
         {
             if (((String) attachmentsTable.getValueAt(i, NAME_COLUMN)).length() > 0)
             {
-                String[] attachment = new String[3];
-                attachment[0] = (String)attachmentsTable.getValueAt(i, NAME_COLUMN);
-                attachment[1] = (String)attachmentsTable.getValueAt(i, CONTENT_COLUMN);
-                attachment[2] = (String)attachmentsTable.getValueAt(i, MIME_TYPE_COLUMN);
-        
-                attachments.add(attachment);
+                attachmentNames.add((String)attachmentsTable.getValueAt(i, NAME_COLUMN));
+                attachmentContents.add((String)attachmentsTable.getValueAt(i, CONTENT_COLUMN));
+                attachmentTypes.add((String)attachmentsTable.getValueAt(i, MIME_TYPE_COLUMN));
             }
         }
+        
+        attachments.add(attachmentNames);
+        attachments.add(attachmentContents);
+        attachments.add(attachmentTypes);
         
         return attachments;
     }
