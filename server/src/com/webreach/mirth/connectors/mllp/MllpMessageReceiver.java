@@ -68,6 +68,7 @@ import com.webreach.mirth.model.Response;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
@@ -100,6 +101,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 	private AlertController alertController = ControllerFactory.getFactory().createAlertController();
 	private TcpWorker work;
 	private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
+	private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
 	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	private ConnectorType connectorType = ConnectorType.LISTENER;
@@ -542,6 +544,10 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 			if (error == null) {
 				error = "";
 			}
+			
+			// Get the inbound protocol of this connector from the channel cache
+			Protocol inboundProtocol = channelController.getChannelCache().get(connector.getChannelId()).getSourceConnector().getTransformer().getInboundProtocol();
+			
 			// Check if we want to send ACKs at all.
 			if (connector.getSendACK()) {
 				// Check if we have to look at MSH15
@@ -555,8 +561,9 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 					message = message.trim();
 					
 					String msh15 = "";
+					
 					//Check if the message is ER7 or XML
-					if (messageObject.getRawDataProtocol().equals(Protocol.XML)) { // XML form
+					if (inboundProtocol.equals(Protocol.XML)) { // XML form
 						XPath xpath = XPathFactory.newInstance().newXPath();
 						XPathExpression msh15Query = xpath.compile("//MSH.15/text()");
 						DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
@@ -620,7 +627,8 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 				if (textMessage.indexOf('$') > -1){
 					textMessage = replacer.replaceValues(textMessage, messageObject);
 				}
-				String ACK = new ACKGenerator().generateAckResponse(message.trim(), messageObject.getRawDataProtocol(), ackCode, textMessage);
+				
+				String ACK = new ACKGenerator().generateAckResponse(message.trim(), inboundProtocol, ackCode, textMessage);
 
 				logger.debug("Sending ACK: " + ACK);
 				try {
