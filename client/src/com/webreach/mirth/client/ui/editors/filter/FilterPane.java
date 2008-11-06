@@ -72,7 +72,6 @@ import javax.swing.table.DefaultTableModel;
 import org.jdesktop.swingx.JXComboBox;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTaskPane;
-import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.action.ActionFactory;
 import org.jdesktop.swingx.action.BoundAction;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
@@ -118,7 +117,6 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
     private JSplitPane vSplitPane;
     private boolean updating; // allow the selection listener to breathe
     private boolean addingNewRow;
-    JXTaskPaneContainer filterTaskPaneContainer;
     JXTaskPane viewTasks;
     JXTaskPane filterTasks;
     JPopupMenu filterPopupMenu;
@@ -219,6 +217,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         makeFilterTable();
         
         parent.setCurrentContentPage((JPanel) this);
+        parent.setFocus(new JXTaskPane[]{viewTasks, filterTasks}, false, true);
 
         // add any existing rules to the model
         List<Rule> list = filter.getRules();
@@ -256,9 +255,6 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
             
             loadData(-1);
         }
-
-        filterTaskPaneContainer.add(parent.getOtherPane());
-        parent.setCurrentTaskPaneContainer(filterTaskPaneContainer);
 
         if (connector.getMode() == Connector.Mode.SOURCE)
         {
@@ -392,9 +388,6 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
 
         filterTablePane = new JScrollPane();
 
-        // make and place the task pane in the parent Frame
-        filterTaskPaneContainer = new JXTaskPaneContainer();
-
         viewTasks = new JXTaskPane();
         viewTasks.setTitle("Mirth Views");
         viewTasks.setFocusable(false);
@@ -403,7 +396,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
 
         viewTasks.add(initActionCallback("accept", ActionFactory.createBoundAction("accept", "Back to Channel", "B"), new ImageIcon(Frame.class.getResource("images/resultset_previous.png"))));
         parent.setNonFocusable(viewTasks);
-        filterTaskPaneContainer.add(viewTasks);
+        viewTasks.setVisible(false);
+        parent.taskPaneContainer.add(viewTasks, parent.taskPaneContainer.getComponentCount()-1);
 
         filterTasks = new JXTaskPane();
         filterTasks.setTitle("Filter Tasks");
@@ -499,7 +493,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
 
         // add the tasks to the taskpane, and the taskpane to the mirth client
         parent.setNonFocusable(filterTasks);
-        filterTaskPaneContainer.add(filterTasks);
+        filterTasks.setVisible(false);
+        parent.taskPaneContainer.add(filterTasks, parent.taskPaneContainer.getComponentCount()-1);
 
         makeFilterTable();
 
@@ -1298,9 +1293,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         if (returning)
         {
             parent.channelEditPanel.setDestinationVariableList();
-            parent.taskPaneContainer.add(parent.getOtherPane());
             parent.setCurrentContentPage(parent.channelEditPanel);
-            parent.setCurrentTaskPaneContainer(parent.taskPaneContainer);
+            parent.setFocus(parent.channelEditTasks);
             parent.setPanelName("Edit Channel - " + parent.channelEditPanel.currentChannel.getName());
             if (modified)
                 parent.enableSave();

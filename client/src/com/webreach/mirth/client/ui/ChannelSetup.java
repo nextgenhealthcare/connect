@@ -224,7 +224,7 @@ public class ChannelSetup extends javax.swing.JPanel
         {
             parent.taskPaneContainer.add(parent.getOtherPane());
             parent.setCurrentContentPage(parent.channelEditPanel);
-            parent.setCurrentTaskPaneContainer(parent.taskPaneContainer);
+            parent.setFocus(parent.channelEditTasks);
             name = "Edit Channel - " + parent.channelEditPanel.currentChannel.getName();            
             parent.channelEditPanel.updateComponentShown();                
         }
@@ -255,7 +255,7 @@ public class ChannelSetup extends javax.swing.JPanel
         {
             parent.taskPaneContainer.add(parent.getOtherPane());
             parent.setCurrentContentPage(parent.channelEditPanel);
-            parent.setCurrentTaskPaneContainer(parent.taskPaneContainer);
+            parent.setFocus(parent.channelEditTasks);
             name = "Edit Channel - " + parent.channelEditPanel.currentChannel.getName();            
             parent.channelEditPanel.updateComponentShown();        
         }

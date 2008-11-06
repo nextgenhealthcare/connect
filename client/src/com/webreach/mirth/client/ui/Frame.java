@@ -569,7 +569,7 @@ public class Frame extends JXFrame
     /**
      * Sets the current task pane container
      */
-    public void setCurrentTaskPaneContainer(JXTaskPaneContainer container)
+    private void setCurrentTaskPaneContainer(JXTaskPaneContainer container)
     {
         if (container == currentTaskPaneContainer)
             return;
@@ -1097,20 +1097,39 @@ public class Frame extends JXFrame
         if (index != UIConstants.ERROR_CONSTANT)
             pane.getContentPane().getComponent(index).setFont(UIConstants.TEXTFIELD_BOLD_FONT);
     }
-
+    
     /**
      * Sets the visible task pane to the specified 'pane'
      */
     public void setFocus(JXTaskPane pane)
     {
+    	setFocus(new JXTaskPane[]{pane}, true, true);
+    }
+    
+    /**
+     * Sets the visible task panes to the specified 'panes'.
+     * Also allows setting the 'Mirth' and 'Other' panes.
+     */
+    public void setFocus(JXTaskPane[] panes, boolean mirthPane, boolean otherPane)
+    {
+    	taskPaneContainer.getComponent(0).setVisible(mirthPane);
+    	
         // ignore the first and last components
         for (int i = 1; i < taskPaneContainer.getComponentCount() - 1; i++)
         {
             taskPaneContainer.getComponent(i).setVisible(false);
         }
+        
+        taskPaneContainer.getComponent(taskPaneContainer.getComponentCount() - 1).setVisible(otherPane);
 
-        if (pane != null)
-            pane.setVisible(true);
+        if (panes != null)
+        {
+        	for (JXTaskPane pane : panes)
+        	{
+        		if (pane != null)
+        			pane.setVisible(true);
+        	}
+        }
     }
 
     /**

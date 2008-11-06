@@ -72,7 +72,6 @@ import javax.swing.table.DefaultTableModel;
 import org.jdesktop.swingx.JXComboBox;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTaskPane;
-import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.action.ActionFactory;
 import org.jdesktop.swingx.action.BoundAction;
 import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
@@ -120,7 +119,6 @@ public class TransformerPane extends MirthEditorPane implements
     private JScrollPane transformerTablePane;
     private JSplitPane vSplitPane;
     private JSplitPane hSplitPane;
-    private JXTaskPaneContainer transformerTaskPaneContainer;
     private JXTaskPane transformerTasks;
     private JPopupMenu transformerPopupMenu;
     private JXTaskPane viewTasks;
@@ -219,6 +217,7 @@ public class TransformerPane extends MirthEditorPane implements
         }
 
         parent.setCurrentContentPage((JPanel) this);
+        parent.setFocus(new JXTaskPane[]{viewTasks, transformerTasks}, false, true);
 
         tabTemplatePanel.setDefaultComponent();
 
@@ -260,9 +259,6 @@ public class TransformerPane extends MirthEditorPane implements
         tabTemplatePanel.setOutgoingMessage(transformer.getOutboundTemplate());
 
         transformerTable.setBorder(BorderFactory.createEmptyBorder());
-        transformerTaskPaneContainer.add(parent.getOtherPane());
-
-        parent.setCurrentTaskPaneContainer(transformerTaskPaneContainer);
 
         updateStepNumbers();
         if (transformerTableModel.getRowCount() > 0) {
@@ -366,8 +362,6 @@ public class TransformerPane extends MirthEditorPane implements
         }
         transformerTablePane = new JScrollPane();
         transformerTablePane.setBorder(BorderFactory.createEmptyBorder());
-        // make and place the task pane in the parent Frame
-        transformerTaskPaneContainer = new JXTaskPaneContainer();
 
         viewTasks = new JXTaskPane();
         viewTasks.setTitle("Mirth Views");
@@ -375,7 +369,9 @@ public class TransformerPane extends MirthEditorPane implements
         viewTasks.add(initActionCallback("accept", ActionFactory.createBoundAction("accept", "Back to Channel", "B"),
                 new ImageIcon(Frame.class.getResource("images/resultset_previous.png"))));
         parent.setNonFocusable(viewTasks);
-        transformerTaskPaneContainer.add(viewTasks);
+        viewTasks.setVisible(false);
+        parent.taskPaneContainer.add(viewTasks, parent.taskPaneContainer.getComponentCount()-1);
+        
         transformerTasks = new JXTaskPane();
         transformerTasks.setTitle("Transformer Tasks");
         transformerTasks.setFocusable(false);
@@ -472,7 +468,8 @@ public class TransformerPane extends MirthEditorPane implements
 
         // add the tasks to the taskpane, and the taskpane to the mirth client
         parent.setNonFocusable(transformerTasks);
-        transformerTaskPaneContainer.add(transformerTasks);
+        transformerTasks.setVisible(false);
+        parent.taskPaneContainer.add(transformerTasks, parent.taskPaneContainer.getComponentCount()-1);
 
         makeTransformerTable();
 
@@ -1272,9 +1269,8 @@ public class TransformerPane extends MirthEditorPane implements
             // reset the task pane and content to channel edit page
             if (returning) {
                 parent.channelEditPanel.setDestinationVariableList();
-                parent.taskPaneContainer.add(parent.getOtherPane());
                 parent.setCurrentContentPage(parent.channelEditPanel);
-                parent.setCurrentTaskPaneContainer(parent.taskPaneContainer);
+                parent.setFocus(parent.channelEditTasks);
                 parent.setPanelName("Edit Channel - " + parent.channelEditPanel.currentChannel.getName());
                 if (modified) {
                     parent.enableSave();
