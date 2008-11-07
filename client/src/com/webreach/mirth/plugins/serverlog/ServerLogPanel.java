@@ -137,7 +137,7 @@ public class ServerLogPanel extends javax.swing.JPanel {
                 {
                     // synchronizing this to prevent ArrayIndexOutOfBoundsException since the server log table is constantly being redrawn.
                     synchronized (this) {
-                        new ViewServerLogContentDialog((String) logTable.getModel().getValueAt(logTable.convertRowIndexToModel(logTable.getSelectedRow()), 1));
+                        new ViewServerLogContentDialog(parent, (String) logTable.getModel().getValueAt(logTable.convertRowIndexToModel(logTable.getSelectedRow()), 1));
                     }
                 }
             }

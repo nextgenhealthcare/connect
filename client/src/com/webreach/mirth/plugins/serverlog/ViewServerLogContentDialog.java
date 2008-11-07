@@ -34,15 +34,12 @@ import com.webreach.mirth.client.ui.PlatformUI;
 /** Creates the About Mirth dialog. The content is loaded from about.txt. */
 public class ViewServerLogContentDialog extends javax.swing.JDialog
 {
-    private Frame parent;
-
     /**
      * Creates new form ViewServerLogContentDialog
      */
-    public ViewServerLogContentDialog(String text)
+    public ViewServerLogContentDialog(com.webreach.mirth.client.ui.Frame parent, String text)
     {
-        super(PlatformUI.MIRTH_FRAME);
-        this.parent = PlatformUI.MIRTH_FRAME;
+        super(parent);
         initComponents();
         serverLogTextPane1.setText(text.replaceAll("\\t", "\n\t"));
         serverLogTextPane1.setCaretPosition(0);
@@ -50,16 +47,7 @@ public class ViewServerLogContentDialog extends javax.swing.JDialog
         setModal(true);
         this.setSize(700, 400);
         jScrollPane1.getViewport().setBackground(new java.awt.Color(255, 255, 255));
-        Dimension dlgSize = getPreferredSize();
-        Dimension frmSize = parent.getSize();
-        Point loc = parent.getLocation();
-        
-        if ((frmSize.width == 0 && frmSize.height == 0) || (loc.x == 0 && loc.y == 0)) {
-        	setLocationRelativeTo(null);
-        } else {
-	        setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
-        }
-        
+        setLocationRelativeTo(null);
         setVisible(true);
     }
 
