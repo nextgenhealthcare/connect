@@ -31,11 +31,12 @@ import com.webreach.mirth.model.ComponentProperties;
 
 public class SOAPListenerProperties implements ComponentProperties
 {
-	public static final String name = "SOAP Listener";
-	
+	public static final String name = "SOAP Listener";	
     public static final String DATATYPE = "DataType";
     public static final String SOAP_HOST = "host";
     public static final String SOAP_LISTENER_ADDRESS = "listenerAddress";
+    public static final String SOAP_EXTERNAL_ADDRESS = "externalAddress";
+    public static final String USE_LISTENER_ADDRESS = "useListenerAddress";
     public static final String SOAP_SERVICE_NAME = "serviceName";
     public static final String SOAP_PORT = "port";
     public static final String SOAP_CONTENT_TYPE = "Content-Type";
@@ -49,6 +50,8 @@ public class SOAPListenerProperties implements ComponentProperties
         properties.put(DATATYPE, name);
         properties.put(SOAP_HOST, "axis:soap://localhost:8081/services");
         properties.put(SOAP_LISTENER_ADDRESS, "localhost");
+        properties.put(SOAP_EXTERNAL_ADDRESS, "localhost");
+        properties.put(USE_LISTENER_ADDRESS, "1");
         properties.put(SOAP_PORT, "8081");
         properties.put(SOAP_SERVICE_NAME, "Mirth");
         properties.put(SOAP_CONTENT_TYPE, "text/xml");
