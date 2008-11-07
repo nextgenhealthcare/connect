@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.mule.impl.MuleEvent;
 import org.mule.impl.MuleMessage;
 import org.mule.management.stats.RouterStatistics;
 import org.mule.routing.AbstractRouterCollection;
@@ -32,6 +33,8 @@ import org.mule.umo.routing.UMOInboundRouter;
 import org.mule.umo.transformer.TransformerException;
 import org.mule.util.StringMessageHelper;
 
+import com.webreach.mirth.connectors.vm.VMConnector;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.util.StackTracePrinter;
 
 import edu.emory.mathcs.backport.java.util.concurrent.CopyOnWriteArrayList;
@@ -79,6 +82,17 @@ public class InboundMessageRouter extends AbstractRouterCollection implements UM
             if (umoInboundRouter.isMatch(event)) {
                 match = true;
                 eventsToRoute = umoInboundRouter.process(event);
+                
+                // For the VM Connector, the new event should use the synchronous property from
+                // the channel that is being routed to.  In order to do this, a new event must
+                // be created from the old event and the channel's synchronous property set on it.
+                if (eventsToRoute[0].getEndpoint().getConnector() instanceof VMConnector) {
+                	eventsToRoute[0] = new MuleEvent(eventsToRoute[0].getMessage(), eventsToRoute[0]);
+                	String channelId = eventsToRoute[0].getEndpoint().getName();
+                	boolean synchronizedChannel = Boolean.valueOf((String)ControllerFactory.getFactory().createChannelController().getChannelCache().get(channelId).getProperties().get("synchronous"));
+                	eventsToRoute[0].setSynchronous(synchronizedChannel);
+                }
+                
                 noRoute = (eventsToRoute == null);
                 if (!matchAll) {
                     break;
