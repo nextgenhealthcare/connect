@@ -69,10 +69,11 @@ public class SOAPListener extends ConnectorClass
         properties.put(SOAPListenerProperties.SOAP_LISTENER_ADDRESS, listenerAddress.getText());
         properties.put(SOAPListenerProperties.SOAP_EXTERNAL_ADDRESS, externalAddress.getText());
 
-        if (useListenerAddress.isSelected())
+        if (useListenerAddress.isSelected()) {
             properties.put(SOAPListenerProperties.USE_LISTENER_ADDRESS, UIConstants.YES_OPTION);
-        else
-            properties.put(SOAPListenerProperties.USE_LISTENER_ADDRESS, UIConstants.NO_OPTION);        
+        } else {
+            properties.put(SOAPListenerProperties.USE_LISTENER_ADDRESS, UIConstants.NO_OPTION);
+        }
 
         properties.put(SOAPListenerProperties.SOAP_PORT, port.getText());
         properties.put(SOAPListenerProperties.SOAP_SERVICE_NAME, serviceName.getText());
@@ -88,20 +89,17 @@ public class SOAPListener extends ConnectorClass
         
         listenerAddress.setText((String) props.get(SOAPListenerProperties.SOAP_LISTENER_ADDRESS));
         externalAddress.setText((String) props.get(SOAPListenerProperties.SOAP_EXTERNAL_ADDRESS));
-
-        if (useListenerAddress.isSelected()) {
+        
+        if (((String) props.get(SOAPListenerProperties.USE_LISTENER_ADDRESS)).equals(UIConstants.YES_OPTION)) {
+            useListenerAddress.setSelected(true);
             externalAddress.setEditable(false);
             externalAddress.setBackground(new java.awt.Color(222, 222, 222));
         } else {
+            useListenerAddress.setSelected(false);
             externalAddress.setEditable(true);
             externalAddress.setBackground(new java.awt.Color(255, 255, 255));
         }
         
-        if (((String) props.get(SOAPListenerProperties.USE_LISTENER_ADDRESS)).equals(UIConstants.YES_OPTION))
-            useListenerAddress.setSelected(true);
-        else
-            useListenerAddress.setSelected(false);
-
         port.setText((String) props.getProperty(SOAPListenerProperties.SOAP_PORT));
         serviceName.setText((String) props.getProperty(SOAPListenerProperties.SOAP_SERVICE_NAME));
         updateResponseDropDown();
@@ -119,7 +117,7 @@ public class SOAPListener extends ConnectorClass
 
     public String buildHost()
     {
-        return "axis:soap://" + externalAddress.getText() + ":" + port.getText() + "/services";
+        return "axis:soap://" + listenerAddress.getText() + ":" + port.getText() + "/services";
     }
 
     public void updateWSDL()
@@ -132,11 +130,17 @@ public class SOAPListener extends ConnectorClass
         resetInvalidProperties();
         boolean valid = true;
 
+        if (((String) props.get(SOAPListenerProperties.SOAP_LISTENER_ADDRESS)).length() == 0)
+        {
+            valid = false;
+            if (highlight)
+                listenerAddress.setBackground(UIConstants.INVALID_COLOR);
+        }
         if (((String) props.get(SOAPListenerProperties.SOAP_EXTERNAL_ADDRESS)).length() == 0)
         {
             valid = false;
             if (highlight)
-            	externalAddress.setBackground(UIConstants.INVALID_COLOR);
+                externalAddress.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.get(SOAPListenerProperties.SOAP_PORT)).length() == 0)
         {
@@ -157,7 +161,13 @@ public class SOAPListener extends ConnectorClass
     private void resetInvalidProperties()
     {
         listenerAddress.setBackground(null);
-        externalAddress.setBackground(null);
+        if (useListenerAddress.isSelected()) {
+            externalAddress.setEditable(false);
+            externalAddress.setBackground(new java.awt.Color(222, 222, 222));
+        } else {
+            externalAddress.setEditable(true);
+            externalAddress.setBackground(null);
+        }
         port.setBackground(null);
         serviceName.setBackground(null);
     }
@@ -454,6 +464,7 @@ public class SOAPListener extends ConnectorClass
     {// GEN-HEADEREND:event_listenerAddressKeyReleased
         if (useListenerAddress.isSelected()) {
             externalAddress.setText(listenerAddress.getText());
+            parent.enableSave();     // so that it'd re-enable the save button. MirthTextField disables save after "setText"
             updateWSDL();
         }
     }// GEN-LAST:event_listenerAddressKeyReleased

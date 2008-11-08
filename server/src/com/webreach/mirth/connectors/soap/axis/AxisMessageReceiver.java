@@ -227,9 +227,7 @@ public class AxisMessageReceiver extends AbstractMessageReceiver
             endpointUrl.replaceFirst("servlet:", "http:");
             service.getServiceDescription().setEndpointURL(endpointUrl);
         }else if(uri.getScheme().equalsIgnoreCase("soap")) {
-           //s connector.addServletService(service);
-            String endpointUrl = uri.getAddress() + "/" + serviceName;
-            endpointUrl = endpointUrl.replaceFirst("soap:", "http:");
+            String endpointUrl = "http://" + connector.getExternalAddress() + ":" + uri.getPort() + servicePath + "/" + serviceName;
             service.getServiceDescription().setEndpointURL(endpointUrl); 
         } else {
             service.getServiceDescription().setEndpointURL(uri.getAddress() + "/" + serviceName);

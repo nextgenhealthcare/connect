@@ -115,6 +115,7 @@ public class AxisConnector extends QueueEnabledConnector implements ModelEventLi
     private String port = "8081";
     private String wsdlUrl = "";
     private String listenerAddress = "localhost";
+    private String externalAddress = "localhost";
     private String serviceName = SERVICE_NAME;
     private String method = "";
     private List parameters;
@@ -597,7 +598,15 @@ public class AxisConnector extends QueueEnabledConnector implements ModelEventLi
 		this.listenerAddress = listenerAddress;
 	}
 
-	public String getPort() {
+    public String getExternalAddress() {
+		return externalAddress;
+	}
+
+	public void setExternalAddress(String externalAddress) {
+		this.externalAddress = externalAddress;
+	}
+    
+    public String getPort() {
 		return port;
 	}
 
