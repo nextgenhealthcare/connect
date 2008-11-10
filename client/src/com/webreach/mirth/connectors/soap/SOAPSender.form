@@ -31,7 +31,7 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="reconnectIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -46,20 +46,18 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="soapEnvelope" pref="368" max="32767" attributes="2"/>
+                  <Component id="soapEnvelope" pref="409" max="32767" attributes="2"/>
                   <Group type="102" alignment="1" attributes="0">
-                      <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="soapActionURI" alignment="0" pref="269" max="32767" attributes="2"/>
-                          <Component id="serviceEndpoint" alignment="0" pref="269" max="32767" attributes="2"/>
-                          <Component id="wsdlUrl" alignment="1" pref="269" max="32767" attributes="2"/>
-                      </Group>
+                      <Component id="wsdlUrl" pref="225" max="32767" attributes="2"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="browseWSDLfileButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="getMethodsButton" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="jScrollPane1" pref="172" max="32767" attributes="0"/>
+                      <Component id="jScrollPane1" pref="192" max="32767" attributes="0"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Component id="propertySheetPanel1" pref="190" max="32767" attributes="0"/>
+                      <Component id="propertySheetPanel1" pref="211" max="32767" attributes="0"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
@@ -81,6 +79,8 @@
                       <Component id="rotateMessages" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="reconnectInterval" min="-2" pref="75" max="-2" attributes="0"/>
+                  <Component id="serviceEndpoint" alignment="0" pref="409" max="32767" attributes="2"/>
+                  <Component id="soapActionURI" alignment="0" pref="409" max="32767" attributes="2"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -89,9 +89,11 @@
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="URL" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="getMethodsButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="browseWSDLfileButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="wsdlUrl" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -130,7 +132,7 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jScrollPane1" min="0" pref="0" max="32767" attributes="2"/>
-                  <Component id="propertySheetPanel1" pref="65" max="32767" attributes="2"/>
+                  <Component id="propertySheetPanel1" pref="58" max="32767" attributes="2"/>
               </Group>
               <EmptySpace min="-2" pref="7" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -141,7 +143,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
-                  <Component id="soapEnvelope" pref="45" max="32767" attributes="0"/>
+                  <Component id="soapEnvelope" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -151,7 +153,7 @@
   <SubComponents>
     <Component class="javax.swing.JLabel" name="URL">
       <Properties>
-        <Property name="text" type="java.lang.String" value="WSDL URL:"/>
+        <Property name="text" type="java.lang.String" value="WSDL Path:"/>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="wsdlUrl">
@@ -392,6 +394,14 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Use Persistent Queues:"/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JButton" name="browseWSDLfileButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Browse..."/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="browseWSDLfileButtonActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

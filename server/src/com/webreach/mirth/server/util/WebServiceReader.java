@@ -205,7 +205,13 @@ public class WebServiceReader {
 		Definition definition = null;
 		// Read in the WSDL
 		try{
-			definition = reader.readWSDL(getFromURi(new URI(address)));
+            File file = new File(address);
+            if (file.exists()) {
+                definition = reader.readWSDL(getFromURi(file.toURI()));
+            } else {
+                // web URL.
+                definition = reader.readWSDL(getFromURi(new URI(address)));
+            }
 		}catch (Exception e){
 			logger.warn("Unable to read WSDL location: " + address);
 			//e.printStackTrace();
