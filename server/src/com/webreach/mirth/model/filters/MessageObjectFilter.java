@@ -27,6 +27,7 @@ package com.webreach.mirth.model.filters;
 
 import java.io.Serializable;
 import java.util.Calendar;
+import java.util.List;
 
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.MessageObject.Status;
@@ -53,6 +54,7 @@ public class MessageObjectFilter implements Serializable {
 	private String type;
 	private Protocol protocol;
 	private boolean ignoreQueued;
+	private List<String> channelIdList;
 	
 	public String getChannelId() {
 		return this.channelId;
@@ -183,6 +185,7 @@ public class MessageObjectFilter implements Serializable {
 		builder.append("searchTransformedData=" + isSearchTransformedData() + ", ");
 		builder.append("ignoreQueued=" + isIgnoreQueued() + ", ");
 		builder.append("connectorName=" + getConnectorName() + ", ");
+		builder.append("channelIdList=" + getChannelIdList() + ", ");
 		builder.append("quickSearch=" + getQuickSearch());
 		builder.append("]");
 		return builder.toString();
@@ -194,5 +197,13 @@ public class MessageObjectFilter implements Serializable {
 
 	public void setIgnoreQueued(boolean ignoreQueued) {
 		this.ignoreQueued = ignoreQueued;
+	}
+
+	public List<String> getChannelIdList() {
+		return channelIdList;
+	}
+
+	public void setChannelIdList(List<String> channelIdList) {
+		this.channelIdList = channelIdList;
 	}
 }

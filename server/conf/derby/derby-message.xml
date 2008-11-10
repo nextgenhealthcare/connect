@@ -100,6 +100,11 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			<isNotNull prepend="AND" property="channelId">
 				CHANNEL_ID = '$channelId$'
 			</isNotNull>
+			<isNotNull property="channelIdList">
+				<iterate prepend="AND" open="(" close=")" conjunction="OR" property="channelIdList">
+					CHANNEL_ID = #channelIdList[]#
+				</iterate>
+			</isNotNull>
 			<isNotNull prepend="AND" property="source">
 				SOURCE LIKE '%$source$%'
 			</isNotNull>
@@ -267,4 +272,12 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		FROM MESSAGE
 		WHERE ID = '$id$'
     </select>    
+    
+    <delete id="pruneMessages" parameterClass="java.util.Map">
+		DELETE FROM MESSAGE WHERE ID IN 
+		(	
+			SELECT ID FROM MESSAGE
+			<include refid="messageFilterCriteria" />
+		)
+	</delete>
 </sqlMap>

@@ -351,6 +351,27 @@ public class DefaultMessageObjectController extends MessageObjectController {
             throw new ControllerException(e);
         }
     }
+    
+    public int pruneMessages(MessageObjectFilter filter, int limit) throws ControllerException {
+        logger.debug("removing messages: filter=" + filter.toString());
+
+        try {
+        	int totalRowCount = 0;
+        	int rowCount;
+        	do { 
+        		Map parameterMap = getFilterMap(filter, null);
+        		parameterMap.put("limit", limit);
+        		rowCount = SqlConfig.getSqlMapClient().delete("Message.pruneMessages", parameterMap);
+        		totalRowCount += rowCount;
+        		Thread.sleep(100);
+        	} while(rowCount > 0);
+        	
+            SqlConfig.getSqlMapClient().delete("Message.deleteUnusedAttachments");
+            return totalRowCount;
+        } catch (Exception e) {
+            throw new ControllerException(e);
+        }
+    }
 
     private void removeMessagesFromQueue(MessageObjectFilter filter) throws Exception {
         String uid = System.currentTimeMillis() + "";
@@ -516,6 +537,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
         parameterMap.put("searchEncodedData", filter.isSearchEncodedData());
         parameterMap.put("quickSearch", filter.getQuickSearch());
         parameterMap.put("ignoreQueued", filter.isIgnoreQueued());
+        parameterMap.put("channelIdList", filter.getChannelIdList());
         
         if (filter.getStartDate() != null) {
             parameterMap.put("startDate", String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", filter.getStartDate()));

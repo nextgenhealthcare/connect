@@ -53,7 +53,9 @@ public abstract class MessageObjectController extends Controller {
     public abstract List<MessageObject> getMessagesByPage(int page, int pageSize, int maxMessages, String uid, boolean descending) throws ControllerException;
 
     public abstract int removeMessages(MessageObjectFilter filter) throws ControllerException;
-
+    
+    public abstract int pruneMessages(MessageObjectFilter filter, int limit) throws ControllerException;
+    
     public abstract void removeFilterTable(String uid);
 
     public abstract void clearMessages(String channelId) throws ControllerException;

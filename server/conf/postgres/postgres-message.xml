@@ -100,6 +100,11 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			<isNotNull prepend="AND" property="channelId">
 				CHANNEL_ID = '$channelId$'
 			</isNotNull>
+			<isNotNull property="channelIdList">
+				<iterate prepend="AND" open="(" close=")" conjunction="OR" property="channelIdList">
+					CHANNEL_ID = #channelIdList[]#
+				</iterate>
+			</isNotNull>
 			<isNotNull prepend="AND" property="source">
 				SOURCE LIKE '%$source$%'
 			</isNotNull>
@@ -127,8 +132,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			<isNotNull  prepend="AND" property="quickSearch">
 				(RAW_DATA ILIKE '%$quickSearch$%' OR ENCODED_DATA ILIKE '%$quickSearch$%' OR TRANSFORMED_DATA ILIKE '%$quickSearch$%')
 			</isNotNull>		
-			<isNotNull prepend="AND" removeFirstPrepend="true" property="searchCriteria">
-				(
+			<isNotNull prepend="AND" open="(" close=")" removeFirstPrepend="true" property="searchCriteria">
 				<isEqual prepend="OR" compareValue="true" property="searchRawData">
 					RAW_DATA ILIKE '%$searchCriteria$%'
 				</isEqual>
@@ -138,7 +142,6 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 				<isEqual prepend="OR" compareValue="true" property="searchTransformedData">
 					TRANSFORMED_DATA ILIKE '%$searchCriteria$%'
 				</isEqual>
-				)
 			</isNotNull>
 		</dynamic>
 	</sql>
@@ -288,4 +291,13 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		FROM MESSAGE
 		WHERE ID = '$id$'
     </select>    
+    
+    <delete id="pruneMessages" parameterClass="java.util.Map">
+		DELETE FROM MESSAGE WHERE ID IN 
+		(	
+			SELECT ID FROM MESSAGE
+			<include refid="messageFilterCriteria" />
+			LIMIT #limit#
+		)
+	</delete>
 </sqlMap>
