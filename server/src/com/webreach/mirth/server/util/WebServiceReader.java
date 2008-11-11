@@ -26,9 +26,7 @@
 
 package com.webreach.mirth.server.util;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -52,6 +50,8 @@ import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.wsdl.xml.WSDLLocator;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
 
 import org.apache.axis.utils.NetworkUtils;
 import org.apache.commons.httpclient.Credentials;
@@ -70,18 +70,25 @@ import org.apache.wsif.schema.ElementType;
 import org.apache.wsif.schema.Parser;
 import org.apache.wsif.schema.SchemaType;
 import org.apache.wsif.schema.SequenceElement;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
 
 import com.ibm.wsdl.xml.WSDLReaderImpl;
 import com.webreach.mirth.model.ws.WSDefinition;
 import com.webreach.mirth.model.ws.WSOperation;
 import com.webreach.mirth.model.ws.WSParameter;
+import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
+import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 
 public class WebServiceReader {
-	private String address;
-	private Logger logger = Logger.getLogger(this.getClass());
-	public WebServiceReader(String address) {
-		this.address = address;
-	}
+	private String wsdlSource;
+    private boolean isURL = true;
+    private Logger logger = Logger.getLogger(this.getClass());
+	public WebServiceReader(String wsdlSource, boolean isURL) {
+		this.wsdlSource = wsdlSource;
+        this.isURL = isURL;
+    }
 
 	// For complex types
 	class LocReader extends WSDLReaderImpl {
@@ -101,7 +108,6 @@ public class WebServiceReader {
  * 
  */
 	public String getFromURi(URI WSDLUri){
-		
 		
 		try {
 			if (WSDLUri.toURL().getProtocol().equalsIgnoreCase("FILE")) return WSDLUri.toString();
@@ -198,27 +204,27 @@ public class WebServiceReader {
 
 	}
 
-	public WSDefinition getWSDefinition() throws Exception {
+    public WSDefinition getWSDefinition() throws Exception {
 		WSDefinition wsDefinition = new WSDefinition();
 		//WSDLReaderImpl reader = new WSDLReaderImpl();
 		WSDLReader reader= javax.wsdl.factory.WSDLFactory.newInstance().newWSDLReader();				
 		Definition definition = null;
 		// Read in the WSDL
-		try{
-            File file = new File(address);
-            if (file.exists()) {
-                definition = reader.readWSDL(getFromURi(file.toURI()));
-            } else {
-                // web URL.
-                definition = reader.readWSDL(getFromURi(new URI(address)));
+        if (isURL) {
+            // Web URL to WSDL content.
+            try {
+                definition = reader.readWSDL(getFromURi(new URI(wsdlSource)));
+            } catch (Exception e) {
+                logger.warn("Unable to read WSDL location: " + wsdlSource);
+                //e.printStackTrace();
+                return null;
             }
-		}catch (Exception e){
-			logger.warn("Unable to read WSDL location: " + address);
-			//e.printStackTrace();
-			return null;
-		}
-
-		// Parse the WSDL (and any imports) for type definitions
+        } else {
+            // WSDL content.
+            definition = reader.readWSDL(null, new InputSource(new StringReader(wsdlSource)));
+        }
+        
+        // Parse the WSDL (and any imports) for type definitions
 		LocReader lreader = new LocReader();
 		List types = new ArrayList();
 		try {

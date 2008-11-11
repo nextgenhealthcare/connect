@@ -5,16 +5,21 @@ import com.webreach.mirth.server.util.WebServiceReader;
 
 public class SoapConnectorService implements ConnectorService {
     public Object invoke(String method, Object object, String sessionsId) throws Exception {
+
+        boolean isURL = true;
         if (method.equals("getWebServiceDefinition")) {
-            try {
-                String address = (String) object;
-                WebServiceReader wsReader = new WebServiceReader(address);
-                return wsReader.getWSDefinition();
-            } catch (Exception e) {
-                throw new Exception("Could not retrieve web service definitions.", e);
-            }
+            isURL = true;
+        } else if (method.equals("getWebServiceDefinitionFromFile")) {
+            isURL = false;
         }
 
-        return null;
+        try {
+            String wsdlSource = (String) object;
+            WebServiceReader wsReader = new WebServiceReader(wsdlSource, isURL);
+            return wsReader.getWSDefinition();
+        } catch (Exception e) {
+            throw new Exception("Could not retrieve web service definitions.", e);
+        }
+        
     }
 }

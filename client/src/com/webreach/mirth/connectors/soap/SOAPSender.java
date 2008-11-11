@@ -973,17 +973,28 @@ private void browseWSDLfileButtonActionPerformed(java.awt.event.ActionEvent evt)
         {
             public Void doInBackground()
             {
-
                 try
                 {
-                    definition = (WSDefinition) parent.mirthClient.invokeConnectorService(name, "getWebServiceDefinition", wsdlUrl.getText().trim());
+                    // if it's a local wsdl file, send over the file content.
+                    File wsdlFile = new File(wsdlUrl.getText().trim());
+                    if (wsdlFile.exists()) {
+                        try {
+                            definition = (WSDefinition) parent.mirthClient.invokeConnectorService(name, "getWebServiceDefinitionFromFile", FileUtil.read(wsdlFile));
+                        } catch (IOException e) {
+                            // error reading in the file.
+                            parent.alertError(parent, "Error reading in the WSDL file.");
+                            return null;
+                        }
+                    } else {
+                        definition = (WSDefinition) parent.mirthClient.invokeConnectorService(name, "getWebServiceDefinition", wsdlUrl.getText().trim());
+                    }
+
                     if (definition == null)
                         throw new ClientException("No WSDL Methods Found.");
                     return null;
                 }
                 catch (ClientException e)
                 {
-
                     parent.alertError(parent, "No methods found.  Check the WSDL URL and try again.");
                     return null;
                 }
@@ -1012,7 +1023,6 @@ private void browseWSDLfileButtonActionPerformed(java.awt.event.ActionEvent evt)
             	}
                 parent.setWorking("", false);
             }
-
         };
         worker.execute();
     }// GEN-LAST:event_getMethodsButtonActionPerformed
