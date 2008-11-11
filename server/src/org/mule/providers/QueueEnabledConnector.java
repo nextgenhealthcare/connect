@@ -159,7 +159,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 						} else {
 							// If the endpoint is active, try to send without
 							// waiting
-							while ((queue.size() > 0) && connected) {
+							while ((queue.size() > 0) && connected && !killQueueThread) {
 								QueuedMessage thePayload = null;
 	
 								try {
