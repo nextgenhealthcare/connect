@@ -34,6 +34,7 @@ import org.mule.umo.transformer.TransformerException;
 import org.mule.util.StringMessageHelper;
 
 import com.webreach.mirth.connectors.vm.VMConnector;
+import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.util.StackTracePrinter;
 
@@ -89,8 +90,12 @@ public class InboundMessageRouter extends AbstractRouterCollection implements UM
                 if (eventsToRoute[0].getEndpoint().getConnector() instanceof VMConnector) {
                 	eventsToRoute[0] = new MuleEvent(eventsToRoute[0].getMessage(), eventsToRoute[0]);
                 	String channelId = eventsToRoute[0].getEndpoint().getName();
-                	boolean synchronizedChannel = Boolean.valueOf((String)ControllerFactory.getFactory().createChannelController().getChannelCache().get(channelId).getProperties().get("synchronous"));
-                	eventsToRoute[0].setSynchronous(synchronizedChannel);
+                	Channel channel = ControllerFactory.getFactory().createChannelController().getChannelCache().get(channelId);
+                	
+                	if (channel != null) {
+                		boolean synchronizedChannel = Boolean.valueOf((String)channel.getProperties().get("synchronous"));
+	                	eventsToRoute[0].setSynchronous(synchronizedChannel);
+                	}
                 }
                 
                 noRoute = (eventsToRoute == null);
