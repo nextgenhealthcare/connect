@@ -26,8 +26,7 @@ public class TemplateValueReplacer {
     private long count = 1;
 
     public TemplateValueReplacer() {
-        // disable the logging
-        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
+        
     }
 
     protected synchronized long getCount() {

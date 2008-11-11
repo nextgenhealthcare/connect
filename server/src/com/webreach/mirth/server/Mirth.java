@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.apache.velocity.app.Velocity;
+import org.apache.velocity.runtime.RuntimeConstants;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpServer;
 import org.mortbay.http.SocketListener;
@@ -161,6 +163,8 @@ public class Mirth extends Thread {
         monitoringController.initPlugins();
         extensionController.startPlugins();
         
+        //disable the velocity logging
+        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
         startMule();
         printSplashScreen();
     }
