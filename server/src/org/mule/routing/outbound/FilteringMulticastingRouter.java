@@ -33,7 +33,7 @@ public class FilteringMulticastingRouter extends FilteringOutboundRouter {
         }
 
         try {
-       //     synchronized (endpoints) {
+            synchronized (endpoints) {
                 for (int i = 0; i < endpoints.size(); i++) {
                     UMOEndpoint endpoint = (UMOEndpoint) endpoints.get(i);
 
@@ -58,7 +58,7 @@ public class FilteringMulticastingRouter extends FilteringOutboundRouter {
                         }
                     }
                 }
-        //    }
+            }
         } catch (UMOException e) {
             throw new CouldNotRouteOutboundMessageException(message, (UMOEndpoint) endpoints.get(0), e);
         }
