@@ -33,6 +33,7 @@ import java.util.Properties;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.apache.velocity.tools.generic.DateTool;
 import org.mule.providers.TemplateValueReplacer;
 
 import com.webreach.mirth.model.Alert;
@@ -198,6 +199,7 @@ public class DefaultAlertController extends AlertController {
                 context.put("ERROR", errorMessage);
                 context.put("error", errorMessage);
                 context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
+                context.put("date", new DateTool());
 
                 TemplateValueReplacer replacer = new TemplateValueReplacer();
                 body = replacer.replaceValues(template, context);
