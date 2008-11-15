@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
-import org.mule.impl.MuleMessage;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.UMOSession;
@@ -34,38 +33,32 @@ public class FilteringMulticastingRouter extends FilteringOutboundRouter {
         }
 
         try {
-        	// Cloned message below and commented out synchronized for performance.
-            // synchronized (endpoints) {
+        	synchronized (endpoints) {
                 for (int i = 0; i < endpoints.size(); i++) {
                     UMOEndpoint endpoint = (UMOEndpoint) endpoints.get(i);
 
                     if (destinations == null || destinations.contains(endpoint.getConnector().getName())) {
-                    	
-                    	// Clone the message to remove the need for the synchronized block.  Mule 2.1 does the same thing:
-                    	// http://fisheye.codehaus.org/changelog/mule?cs=12981
-                    	UMOMessage clonedMessage = new MuleMessage(message.getPayload(), message.getProperties(), message);
-                    	
                         if ((endpoint.getFilter() == null) || endpoint.getFilter().accept(message)) {
                         	if (synchronous) {
                                 // Were we have multiple outbound endpoints
                                 if (result == null) {
-                                    result = send(session, clonedMessage, endpoint);
+                                    result = send(session, message, endpoint);
                                 } else {
                                     String def = (String) endpoint.getProperties().get("default");
 
                                     if (def != null) {
-                                        result = send(session, clonedMessage, endpoint);
+                                        result = send(session, message, endpoint);
                                     } else {
-                                        send(session, clonedMessage, endpoint);
+                                        send(session, message, endpoint);
                                     }
                                 }
                             } else {
-                                dispatch(session, clonedMessage, endpoint);
+                                dispatch(session, message, endpoint);
                             }
                         }
                     }
                 }
-            // }
+        	}
         } catch (UMOException e) {
             throw new CouldNotRouteOutboundMessageException(message, (UMOEndpoint) endpoints.get(0), e);
         }
