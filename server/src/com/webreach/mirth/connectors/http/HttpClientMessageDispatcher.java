@@ -371,6 +371,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher imple
 			logger.error("HTTP Error message. Full Response: \r\n" + fullResponse);
 			String exceptionText = "Http call returned a status of: " + httpMethod.getStatusCode() + " " + httpMethod.getStatusText();
 			ep = new ExceptionPayload(new Exception(exceptionText));
+            alertController.sendAlerts(connector.getChannelId(), Constants.ERROR_404, null, ep.getException());
 			messageObjectController.setError(messageObject, Constants.ERROR_404, "HTTP Error", ep.getException());
 		}
 		UMOMessage m = null;
