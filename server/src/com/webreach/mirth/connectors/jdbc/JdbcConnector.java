@@ -1,6 +1,7 @@
 package com.webreach.mirth.connectors.jdbc;
 
 import java.sql.Connection;
+import java.util.List;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -19,7 +20,10 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOMessageReceiver;
 
+import com.webreach.mirth.model.CodeTemplate;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
+import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.util.CompiledScriptCache;
@@ -337,6 +341,18 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
         script.append("function $r(key, value){");
         script.append("if (arguments.length == 1){return responseMap.get(key); }");
         script.append("else if (arguments.length == 2){responseMap.put(key, value); }}");
+        
+        try {
+			List<CodeTemplate> templates = ControllerFactory.getFactory().createCodeTemplateController().getCodeTemplate(null);
+			for (CodeTemplate template : templates) {
+				if (template.getType() == CodeSnippetType.FUNCTION) {
+					script.append(template.getCode());
+				}
+			}
+		} catch (ControllerException e) {
+			logger.error("Could not get user functions.", e);
+		}
+		
         script.append("function doDatabaseScript() {");
         script.append(databaseScript + "}\n");
         script.append("doDatabaseScript()\n");
