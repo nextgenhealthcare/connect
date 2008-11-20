@@ -120,6 +120,16 @@ public class Channel implements Serializable {
 	public List<Connector> getDestinationConnectors() {
 		return this.destinationConnectors;
 	}
+	
+	public List<Connector> getEnabledDestinationConnectors() {
+		List<Connector> enabledConnectors = new ArrayList<Connector>();
+		for(Connector connector : getDestinationConnectors()) {
+			if(connector.isEnabled()) { 
+				enabledConnectors.add(connector);
+			}
+		}
+		return enabledConnectors;
+	}
 
 	public void setDestinationConnectors(List<Connector> destinationConnectors) {
 		this.destinationConnectors = destinationConnectors;
