@@ -132,7 +132,7 @@ public class ChannelSetup extends javax.swing.JPanel
                     }
                     catch (Exception e)
                     {
-                        parent.alertError(this, "Could not load class: " + metaData.getClientClassName());
+                        parent.alertError(this.parent, "Could not load class: " + metaData.getClientClassName());
                     }
                 }
                 if (metaData.getType() == ConnectorMetaData.Type.DESTINATION && metaData.isEnabled())
@@ -145,11 +145,11 @@ public class ChannelSetup extends javax.swing.JPanel
                             parent.destinationConnectors.add((ConnectorClass) Class.forName(metaData.getClientClassName()).newInstance());
                         }
                         else
-                            parent.alertError(this, "Cannot load IHE Sender connector because required IHE Configuration plugin is not installed or enabled");
+                            parent.alertError(this.parent, "Cannot load IHE Sender connector because required IHE Configuration plugin is not installed or enabled");
                     }
                     catch (Exception e)
                     {
-                        parent.alertError(this, "Could not load class: " + metaData.getClientClassName());
+                        parent.alertError(this.parent, "Could not load class: " + metaData.getClientClassName());
                     }
                 }
             }catch(ClassCastException castException){
@@ -878,7 +878,7 @@ public class ChannelSetup extends javax.swing.JPanel
             
             summaryEnabledCheckbox.setSelected(false);
             
-            parent.alertCustomError(this, validationMessage, CustomErrorDialog.ERROR_SAVING_CHANNEL);
+            parent.alertCustomError(this.parent, validationMessage, CustomErrorDialog.ERROR_SAVING_CHANNEL);
         }
         
         // Set the channel to enabled or disabled after it has been validated
@@ -927,12 +927,12 @@ public class ChannelSetup extends javax.swing.JPanel
             }
             catch (ObjectClonerException e)
             {
-                parent.alertException(this, e.getStackTrace(), e.getMessage());
+                parent.alertException(this.parent, e.getStackTrace(), e.getMessage());
             }
         }
         catch (ClientException e)
         {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
+            parent.alertException(this.parent, e.getStackTrace(), e.getMessage());
         }
         
         return updated;
@@ -950,7 +950,7 @@ public class ChannelSetup extends javax.swing.JPanel
     {
         if (parent.changesHaveBeenMade())
         {
-            if (parent.alertOption(this, "You must save your channel before cloning.  Would you like to save your channel now?"))
+            if (parent.alertOption(this.parent, "You must save your channel before cloning.  Would you like to save your channel now?"))
                 saveChanges();
             else
                 return;
@@ -965,7 +965,7 @@ public class ChannelSetup extends javax.swing.JPanel
         }
         catch (ObjectClonerException e)
         {
-            parent.alertException(this, e.getStackTrace(), e.getMessage());
+            parent.alertException(this.parent, e.getStackTrace(), e.getMessage());
             return;
         }
         
@@ -1001,7 +1001,7 @@ public class ChannelSetup extends javax.swing.JPanel
         }
         if (enabledCount <= 1)
         {
-            parent.alertError(this, "You must have at least one destination enabled.");
+            parent.alertError(this.parent, "You must have at least one destination enabled.");
             return;
         }
         
@@ -1265,17 +1265,17 @@ public class ChannelSetup extends javax.swing.JPanel
         {
         	String validationMessage = sourceConnectorClass.doValidate(sourceConnectorClass.getProperties(), true);
             if (validationMessage != null)
-                parent.alertCustomError(this, validationMessage, CustomErrorDialog.ERROR_VALIDATING_CONNECTOR);
+                parent.alertCustomError(this.parent, validationMessage, CustomErrorDialog.ERROR_VALIDATING_CONNECTOR);
             else
-                parent.alertInformation(this, "The connector was successfully validated.");
+                parent.alertInformation(this.parent, "The connector was successfully validated.");
         }
         else
         {
         	String validationMessage = destinationConnectorClass.doValidate(destinationConnectorClass.getProperties(), true);
         	if (validationMessage != null)
-                parent.alertWarning(this, validationMessage);
+                parent.alertWarning(this.parent, validationMessage);
             else
-                parent.alertInformation(this, "The connector was successfully validated.");
+                parent.alertInformation(this.parent, "The connector was successfully validated.");
         }
     }
     
@@ -1780,7 +1780,7 @@ public class ChannelSetup extends javax.swing.JPanel
     {//GEN-HEADEREND:event_synchronousCheckBoxActionPerformed
         if (!synchronousCheckBox.isSelected())
         {
-            boolean disableSynch = parent.alertOption(this, "Disabling synchronization is not recommended for the following reasons:\n" +
+            boolean disableSynch = parent.alertOption(this.parent, "Disabling synchronization is not recommended for the following reasons:\n" +
                     "    1) Destinations are not guaranteed to run in order, so they cannot reference each other.\n" +
                     "    2) Your source cannot send a response from any of the destinations.\n" +
                     "    3) Your source connector may be modified to to ensure compatibility with requirement #2.\n" +
@@ -1904,7 +1904,7 @@ public class ChannelSetup extends javax.swing.JPanel
             
             if (!PropertyVerifier.compareProps(sourceConnectorClass.getProperties(), sourceConnectorClass.getDefaults()))
             {
-                boolean changeType = parent.alertOption(this, "Are you sure you would like to change this connector type and lose all of the current connector data?");
+                boolean changeType = parent.alertOption(this.parent, "Are you sure you would like to change this connector type and lose all of the current connector data?");
                 if (!changeType)
                 {
                     sourceSourceDropdown.setSelectedItem(sourceConnectorClass.getProperties().get(DATA_TYPE_KEY));
@@ -1993,7 +1993,7 @@ public class ChannelSetup extends javax.swing.JPanel
             // like to really change connector type.
             if (lastIndex.equals((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME))) && (!PropertyVerifier.compareProps(destinationConnectorClass.getProperties(), destinationConnectorClass.getDefaults()) || currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)))).getFilter().getRules().size() > 0 || currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)))).getTransformer().getSteps().size() > 0))
             {
-                boolean changeType = parent.alertOption(this, "Are you sure you would like to change this connector type and lose all of the current connector data?");
+                boolean changeType = parent.alertOption(this.parent, "Are you sure you would like to change this connector type and lose all of the current connector data?");
                 if (!changeType)
                 {
                     destinationSourceDropdown.setSelectedItem(destinationConnectorClass.getProperties().get(DATA_TYPE_KEY));
