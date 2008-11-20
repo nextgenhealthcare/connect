@@ -1,13 +1,10 @@
 package com.webreach.mirth.client.ui.editors;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
-import org.syntax.jedit.SyntaxDocument;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 
@@ -16,10 +13,12 @@ import org.syntax.jedit.SyntaxDocument;
 public class ExternalScriptPanel extends BasePanel
 {
     protected MirthEditorPane parent;
+	protected final boolean isStep;
 
-    public ExternalScriptPanel(MirthEditorPane p)
+    public ExternalScriptPanel(MirthEditorPane p, boolean step)
     {
         parent = p;
+	    isStep = step;
         initComponents();
         variableTextField.getDocument().addDocumentListener(new DocumentListener()
         {
@@ -29,13 +28,17 @@ public class ExternalScriptPanel extends BasePanel
 
             public void insertUpdate(DocumentEvent arg0)
             {
-                updateTable();
+	            if (isStep) {
+                    updateTable();
+	            }
                 parent.modified = true;
             }
 
             public void removeUpdate(DocumentEvent arg0)
             {
-                updateTable();
+	            if (isStep) {
+                    updateTable();
+	            }
                 parent.modified = true;
             }
         });

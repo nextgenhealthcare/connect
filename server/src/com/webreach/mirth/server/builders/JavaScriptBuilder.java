@@ -1,16 +1,11 @@
 package com.webreach.mirth.server.builders;
 
-import java.io.IOException;
-import java.util.ListIterator;
-
+import com.webreach.mirth.model.*;
+import com.webreach.mirth.server.util.FileUtil;
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Filter;
-import com.webreach.mirth.model.Rule;
-import com.webreach.mirth.model.Step;
-import com.webreach.mirth.model.Transformer;
-import com.webreach.mirth.server.util.FileUtil;
+import java.io.IOException;
+import java.util.ListIterator;
 
 public class JavaScriptBuilder {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -30,7 +25,16 @@ public class JavaScriptBuilder {
 				// generate the functions
 				for (ListIterator iter = filter.getRules().listIterator(); iter.hasNext();) {
 					Rule rule = (Rule) iter.next();
-					builder.append("function filterRule" + iter.nextIndex() + "() {\n" + rule.getScript() + "\n}");
+
+					if (rule.getType().equalsIgnoreCase("External Script")) {
+						try {
+							builder.append("function filterRule" + iter.nextIndex() + "() {\n" + FileUtil.read(rule.getScript()) + "\n}");
+						} catch (IOException e) {
+							throw new BuilderException("Could not add script file.", e);
+						}
+					} else {
+						builder.append("function filterRule" + iter.nextIndex() + "() {\n" + rule.getScript() + "\n}");
+					}
 				}
 
 				builder.append("function doFilter() { phase = 'filter'; return (");

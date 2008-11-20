@@ -39,6 +39,7 @@
 		<property name="plugins.rtfviewer" value="${extensions}/rtfviewer" />
 		<property name="plugins.rulebuilder" value="${extensions}/rulebuilder" />
 		<property name="plugins.serverlog" value="${extensions}/serverlog" />
+        <property name="plugins.scriptfilerule" value="${extensions}/scriptfilerule" />
 		<property name="plugins.scriptfilestep" value="${extensions}/scriptfilestep" />
 		<property name="plugins.xsltstep" value="${extensions}/xsltstep" />
 
@@ -511,6 +512,17 @@
 		<jar destfile="${plugins.serverlog}/serverlog-server.jar" basedir="${classes}">
 			<include name="com/webreach/mirth/plugins/serverlog/**" />
 		</jar>
+
+		<!-- plugins.scriptfilerule -->
+		<mkdir dir="${plugins.scriptfilerule}" />
+		<copy todir="${plugins.scriptfilerule}">
+			<fileset dir="${src}/com/webreach/mirth/plugins/scriptfilerule">
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+		<copy todir="${plugins.scriptfilerule}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/scriptfilerule" />
+		</copy>
 
 		<!-- plugins.scriptfilestep -->
 		<mkdir dir="${plugins.scriptfilestep}" />

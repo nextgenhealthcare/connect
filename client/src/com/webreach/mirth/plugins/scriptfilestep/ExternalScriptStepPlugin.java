@@ -1,25 +1,25 @@
 package com.webreach.mirth.plugins.scriptfilestep;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.webreach.mirth.client.ui.editors.BasePanel;
 import com.webreach.mirth.client.ui.editors.ExternalScriptPanel;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.plugins.TransformerStepPlugin;
 
-public class ExternalScriptPlugin extends TransformerStepPlugin
+import java.util.HashMap;
+import java.util.Map;
+
+public class ExternalScriptStepPlugin extends TransformerStepPlugin
 {
 	private ExternalScriptPanel panel;
 
-    public ExternalScriptPlugin (String name)
+    public ExternalScriptStepPlugin(String name)
     {
         super(name);
     }
 
-	public ExternalScriptPlugin(String name, TransformerPane parent) {
+	public ExternalScriptStepPlugin(String name, TransformerPane parent) {
 		super(name, parent);
-		panel = new ExternalScriptPanel(parent);
+		panel = new ExternalScriptPanel(parent, true);
 	}
 
 	@Override
@@ -38,7 +38,7 @@ public class ExternalScriptPlugin extends TransformerStepPlugin
 		String var = data.get("Variable").toString();
 
 		// check for empty variable names
-		if (var == null || var.equals("")) {
+		if (var == null || var.trim().equals("")) {
 			((TransformerPane) parent).setInvalidVar(true);
 			String msg = "The script path field cannot be blank.\nPlease enter a new script path.\n";
 			((TransformerPane) parent).setRowSelectionInterval(row, row);

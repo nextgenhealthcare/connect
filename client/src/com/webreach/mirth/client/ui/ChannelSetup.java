@@ -25,36 +25,6 @@
 
 package com.webreach.mirth.client.ui;
 
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.Map.Entry;
-import java.util.prefs.Preferences;
-
-import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
-import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
-import org.jdesktop.swingx.decorator.HighlighterPipeline;
-
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.components.MirthTable;
@@ -62,19 +32,30 @@ import com.webreach.mirth.client.ui.editors.filter.FilterPane;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
 import com.webreach.mirth.client.ui.util.VariableListUtil;
 import com.webreach.mirth.connectors.ConnectorClass;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.ConnectorMetaData;
-import com.webreach.mirth.model.Filter;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.Rule;
-import com.webreach.mirth.model.Step;
-import com.webreach.mirth.model.Transformer;
+import com.webreach.mirth.model.*;
 import com.webreach.mirth.model.CodeTemplate.ContextType;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.ObjectCloner;
 import com.webreach.mirth.model.converters.ObjectClonerException;
 import com.webreach.mirth.util.PropertyVerifier;
+import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
+import org.jdesktop.swingx.decorator.HighlighterPipeline;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.prefs.Preferences;
 
 /** The channel editor panel. Majority of the client application */
 public class ChannelSetup extends javax.swing.JPanel
@@ -1241,7 +1222,14 @@ public class ChannelSetup extends javax.swing.JPanel
         	String validationMessage = this.filterPane.validateRule(rule);
         	if (validationMessage != null)
         	{
-        		errors += "Error in connector \"" + connector.getName() + "\" at rule " + rule.getSequenceNumber() + " (\"" + rule.getName()+ "\"):\n" + validationMessage + "\n\n";
+		        String ruleName;
+		        if (rule.getName() == null) {
+			        ruleName = "";
+		        } else {
+			        ruleName = rule.getName();
+		        }
+
+        		errors += "Error in connector \"" + connector.getName() + "\" at rule " + rule.getSequenceNumber() + " (\"" + ruleName + "\"):\n" + validationMessage + "\n\n";
         	}
         }
     	
