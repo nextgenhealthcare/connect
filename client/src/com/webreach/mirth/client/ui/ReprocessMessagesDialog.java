@@ -102,7 +102,6 @@ public class ReprocessMessagesDialog extends javax.swing.JDialog {
      * be added as well.
      */
     public void makeIncludedDestinationsTable() {
-    	parent.retrieveChannels();
         updateIncludedDestinationsTable(parent.channels.get(parent.getSelectedChannelIdFromDashboard()));
 
         includedDestinationsTable.setDragEnabled(false);
@@ -155,22 +154,19 @@ public class ReprocessMessagesDialog extends javax.swing.JDialog {
         
         List<Connector> enabledDestinations = new LinkedList<Connector>(); 
         
-        if (channel != null) {
-	        for (Connector connector : channel.getDestinationConnectors()) { 
-	            if(connector.isEnabled()) { 
-	               enabledDestinations.add(connector);
-	            }
-	        }
-        
-            tableSize = enabledDestinations.size();
+        if (channel != null) {        
+            tableSize = channel.getEnabledDestinationConnectors().size();
             tableData = new Object[tableSize][3];
 
-            int i = 0;
-            for (Connector connector : enabledDestinations) {
-                tableData[i][0] = connector.getName();
-                tableData[i][1] = Boolean.TRUE;
-                tableData[i][2] = channel.getId() + "_destination_" + (i+1) + "_connector";
-                i++;
+            int i = 0, j = 0;
+            for (Connector connector : channel.getDestinationConnectors()) {
+                if(connector.isEnabled()) { 
+	            	tableData[i][0] = connector.getName();
+	                tableData[i][1] = Boolean.TRUE;
+	                tableData[i][2] = channel.getId() + "_destination_" + (j+1) + "_connector";
+	                i++;
+                }
+                j++;
             }
         }
 
