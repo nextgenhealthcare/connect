@@ -2,7 +2,7 @@
 	<name>SOAP Sender</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>1.7.1</mirthVersion>
+	<mirthVersion>1.8.0</mirthVersion>
 	<url>http://extensions.mirthproject.org</url>
 	<description>This connector allows Mirth to invoke remote SOAP WebServices over HTTP.</description>
 	<clientClassName>com.webreach.mirth.connectors.soap.SOAPSender</clientClassName>

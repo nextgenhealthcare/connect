@@ -2,7 +2,7 @@
 	<name>JMS Writer</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>1.7.1</mirthVersion>
+	<mirthVersion>1.8.0</mirthVersion>
 	<url>http://extensions.mirthproject.org</url>
 	<description>This connector allows Mirth to write messages to a JMS queue.</description>
 	<clientClassName>com.webreach.mirth.connectors.jms.JMSWriter</clientClassName>

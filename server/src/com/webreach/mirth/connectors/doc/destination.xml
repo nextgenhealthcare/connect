@@ -2,7 +2,7 @@
 	<name>Document Writer</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>1.7.1</mirthVersion>
+	<mirthVersion>1.8.0</mirthVersion>
 	<url>http://extensions.mirthproject.org</url>
 	<description>This connector allows Mirth to create RTF or PDF documents based on an HTML template. PDF files can be password protected.</description>
 	<clientClassName>com.webreach.mirth.connectors.doc.DocumentWriter</clientClassName>

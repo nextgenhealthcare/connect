@@ -2,7 +2,7 @@
 	<name>Mapper Transformer Step</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>1.7.1</mirthVersion>
+	<mirthVersion>1.8.0</mirthVersion>
 	<url>http://extensions.mirthproject.org</url>
 	<description>This plugin provides a Mapping step type for Mirth transformers</description>
 	<enabled>true</enabled>
