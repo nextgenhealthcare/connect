@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 
 import javax.swing.ImageIcon;
@@ -225,7 +226,21 @@ public class ExtensionManagerClient extends ClientPanelPlugin
         }
         catch(Exception e)
         {
-            //alertError("Invalid extension file.");
+        	String errorMessage = "Unable to install extension.";
+        	try {
+        		String tempErrorMessage = java.net.URLDecoder.decode(e.getMessage(), "UTF-8");
+        		String versionError = "VersionMismatchException: ";
+        		int messageIndex = tempErrorMessage.indexOf(versionError);
+        		
+        		if (messageIndex != -1) {
+        			errorMessage = tempErrorMessage.substring(messageIndex + versionError.length());
+        		}
+        		
+			} catch (UnsupportedEncodingException e1) {
+				alertException(parent, e1.getStackTrace(), e1.getMessage());
+			}
+        	
+            alertError(parent, errorMessage);
             return false;
         }
         return true;

@@ -691,15 +691,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
             private boolean retVal = false;
             public Void doInBackground()
             {
-                
-                try
-                {
-                    retVal = parent.install(new File(fileText.getText()));
-                }
-                catch (Exception e)
-                {
-                    retVal = false;
-                }
+                retVal = parent.install(new File(fileText.getText()));
                 return null;
             }
             
@@ -711,10 +703,6 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
                 {
                     parent.finishInstall();
                     fileText.setText("");
-                }
-                else
-                {
-                    parent.alertError(PlatformUI.MIRTH_FRAME, "Unable to install extension.");
                 }
             }
         };
