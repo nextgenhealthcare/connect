@@ -20,12 +20,14 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.fileupload.FileItem;
 
+import com.webreach.mirth.client.core.VersionMismatchException;
 import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.ExtensionLibrary;
 import com.webreach.mirth.model.MetaData;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.server.controllers.ControllerException;
+import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.ExtensionController;
 import com.webreach.mirth.server.controllers.ExtensionController.ExtensionType;
 import com.webreach.mirth.server.util.FileUtil;
@@ -37,7 +39,7 @@ public class ExtensionUtil {
 		Map<String, MetaData> extensionMap = new HashMap<String, MetaData>();
 		List<File> extensionFiles = loadExtensionFiles(extensionType);
 		
-		ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[] { MetaData.class, PluginMetaData.class, ConnectorMetaData.class, ExtensionLibrary.class  });
+		ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[] { MetaData.class, PluginMetaData.class, ConnectorMetaData.class, ExtensionLibrary.class });
 
 		try {
 			for (File extensionFile : extensionFiles) {
@@ -53,7 +55,7 @@ public class ExtensionUtil {
 	}
 
 	public static void saveExtensionMetaData(Map<String, ? extends MetaData> metaData) throws ControllerException {
-		ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[] { MetaData.class, PluginMetaData.class, ConnectorMetaData.class, ExtensionLibrary.class  });
+		ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[] { MetaData.class, PluginMetaData.class, ConnectorMetaData.class, ExtensionLibrary.class });
 
 		try {
 			Iterator i = metaData.entrySet().iterator();
@@ -157,7 +159,50 @@ public class ExtensionUtil {
 			
 			zipFile = new ZipFile(zipFileLocation);
 			Enumeration entries = zipFile.entries();
+
+			// First check to see if Mirth is compatible with this extension.
+			String mirthVersion = ControllerFactory.getFactory().createConfigurationController().getServerVersion();
 			
+			// If there is no build version, just use the patch version
+			if (mirthVersion.split("\\.").length == 4) {
+				mirthVersion = mirthVersion.substring(0, mirthVersion.lastIndexOf('.'));
+			}
+			
+			while (entries.hasMoreElements()) {
+				ZipEntry entry = (ZipEntry) entries.nextElement();
+				String entryName = entry.getName();
+				String plugin = ExtensionController.ExtensionType.PLUGIN.getFileNames()[0];
+				String destination = ExtensionController.ExtensionType.DESTINATION.getFileNames()[0];
+				String source = ExtensionController.ExtensionType.SOURCE.getFileNames()[0];
+				
+				if (entryName.endsWith(plugin) || entryName.endsWith(destination) || entryName.endsWith(source)) {
+					InputStream in = zipFile.getInputStream(entry);
+					StringBuilder sb = new StringBuilder();
+					
+					byte[] b = new byte[4096];
+					for (int n; (n = in.read(b)) != -1;) {
+						sb.append(new String(b, 0, n));
+					}
+					
+					ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[] { MetaData.class, PluginMetaData.class, ConnectorMetaData.class, ExtensionLibrary.class });
+					MetaData extensionMetaData = (MetaData) serializer.fromXML(sb.toString());
+					
+					String[] mirthVersions = extensionMetaData.getMirthVersion().split(",");
+					boolean compatible = false;
+					for (int i = 0; i < mirthVersions.length; i++) {
+						if (mirthVersions[i].trim().equals(mirthVersion)) {
+							compatible = true;
+						}
+					}
+					
+					if (!compatible) {
+						throw new VersionMismatchException("Extension MetaData \""  + entry.getName() + "\" is not compatible with Mirth version " + mirthVersion + ".");
+					}
+				}
+			}
+			
+			// Reset the entries and extract
+			entries = zipFile.entries();
 			while (entries.hasMoreElements()) {
 				ZipEntry entry = (ZipEntry) entries.nextElement();
 				
