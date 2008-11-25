@@ -191,6 +191,7 @@ public class DefaultUserController extends UserController {
             parameterMap.put("name", name);
             parameterMap.put("value", value);
 
+            SqlConfig.getSqlMapClient().delete("User.deleteUserPreference", parameterMap);
             SqlConfig.getSqlMapClient().update("User.insertUserPreference", parameterMap);
         } catch (Exception e) {
             throw new ControllerException(e);
