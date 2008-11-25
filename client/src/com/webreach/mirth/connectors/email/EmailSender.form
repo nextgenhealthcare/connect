@@ -31,60 +31,45 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <EmptySpace min="-2" pref="40" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel2" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel5" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel8" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel6" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="contentTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel7" alignment="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel9" alignment="1" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="attachmentsPane" pref="270" max="32767" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                                  <Component id="newButton" max="32767" attributes="1"/>
-                                  <Component id="deleteButton" alignment="1" min="-2" max="-2" attributes="1"/>
-                              </Group>
-                          </Group>
-                          <Component id="emailBodyTextPane" pref="339" max="32767" attributes="2"/>
-                      </Group>
-                  </Group>
+                  <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel2" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel5" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel8" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel6" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="contentTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel7" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel9" alignment="1" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="134" pref="134" max="134" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="emailPasswordField" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
-                          <Component id="emailUsernameField" min="-2" pref="125" max="-2" attributes="1"/>
-                          <Component id="emailToField" alignment="0" pref="200" max="32767" attributes="1"/>
-                          <Component id="emailFromField" alignment="0" max="32767" attributes="1"/>
-                          <Component id="emailSubjectField" alignment="0" pref="200" max="32767" attributes="1"/>
-                      </Group>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="134" pref="134" max="134" attributes="0"/>
                       <Component id="contentTypeHTMLButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="contentTypePlainButton" min="-2" max="-2" attributes="0"/>
                   </Group>
+                  <Component id="emailSubjectField" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
+                  <Component id="emailFromField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
+                  <Component id="emailToField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
+                  <Component id="emailPasswordField" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
+                  <Component id="emailUsernameField" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
+                  <Component id="SMTPServerPortField" alignment="0" min="-2" pref="50" max="-2" attributes="1"/>
+                  <Component id="SMTPServerHostField" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="134" pref="134" max="134" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="SMTPServerHostField" alignment="0" pref="200" max="32767" attributes="1"/>
-                          <Component id="SMTPServerPortField" min="-2" pref="50" max="-2" attributes="1"/>
+                      <Component id="attachmentsPane" pref="242" max="32767" attributes="0"/>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Component id="newButton" max="32767" attributes="1"/>
+                          <Component id="deleteButton" alignment="1" min="-2" max="-2" attributes="1"/>
                       </Group>
                   </Group>
+                  <Component id="emailBodyTextPane" alignment="0" pref="311" max="32767" attributes="2"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -92,8 +77,8 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="SMTPServerHostField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="SMTPServerHostField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -107,8 +92,8 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="emailPasswordField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="emailPasswordField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -139,14 +124,14 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
+                  <Component id="attachmentsPane" pref="117" max="32767" attributes="0"/>
+                  <Group type="102" attributes="0">
                       <Component id="newButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="deleteButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="attachmentsPane" pref="117" max="32767" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -196,6 +181,9 @@
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The port number of the SMTP server to send the email message to.&lt;br&gt;Generally, the default port of 25 is used.&lt;/html&gt;"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="SMTPServerPortFieldActionPerformed"/>
+      </Events>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="SMTPServerHostField">
       <Properties>
@@ -226,6 +214,9 @@
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The name that should appear as the &quot;From address&quot; in the email."/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="emailFromFieldActionPerformed"/>
+      </Events>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="emailBodyTextPane">
       <Properties>

@@ -448,6 +448,11 @@ public class EmailSender extends ConnectorClass
         emailUsernameField.setToolTipText("If the SMTP server requires authentication to send a message, enter the username here.");
 
         SMTPServerPortField.setToolTipText("<html>The port number of the SMTP server to send the email message to.<br>Generally, the default port of 25 is used.</html>");
+        SMTPServerPortField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                SMTPServerPortFieldActionPerformed(evt);
+            }
+        });
 
         SMTPServerHostField.setToolTipText("<html>Enter the DNS domain name or IP address of the SMTP server to use to send the email messages.<br>Note that sending email to an SMTP server that is not expecting it may result in the IP of the box running Mirth being added to the server's \"blacklist.\"</html>");
 
@@ -460,6 +465,11 @@ public class EmailSender extends ConnectorClass
         jLabel8.setText("From:");
 
         emailFromField.setToolTipText("The name that should appear as the \"From address\" in the email.");
+        emailFromField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                emailFromFieldActionPerformed(evt);
+            }
+        });
 
         emailBodyTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
@@ -519,55 +529,46 @@ public class EmailSender extends ConnectorClass
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel5)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel8)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, contentTypeLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel9))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(40, 40, 40)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel5)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel8)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, contentTypeLabel)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel9))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createSequentialGroup()
-                                .add(attachmentsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 270, Short.MAX_VALUE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                                    .add(newButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .add(deleteButton)))
-                            .add(emailBodyTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 339, Short.MAX_VALUE)))
-                    .add(layout.createSequentialGroup()
-                        .add(134, 134, 134)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                            .add(emailPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(emailUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(emailToField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                            .add(emailFromField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(emailSubjectField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)))
-                    .add(layout.createSequentialGroup()
-                        .add(134, 134, 134)
                         .add(contentTypeHTMLButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(contentTypePlainButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(emailSubjectField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(emailFromField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(emailToField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(emailPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(emailUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(SMTPServerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(SMTPServerHostField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
-                        .add(134, 134, 134)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                            .add(SMTPServerHostField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                            .add(SMTPServerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                        .add(attachmentsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 242, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                            .add(newButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(deleteButton)))
+                    .add(emailBodyTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 311, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(SMTPServerHostField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel1))
+                    .add(jLabel1)
+                    .add(SMTPServerHostField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel2)
@@ -578,8 +579,8 @@ public class EmailSender extends ConnectorClass
                     .add(emailUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(emailPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel4))
+                    .add(jLabel4)
+                    .add(emailPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel5)
@@ -604,11 +605,11 @@ public class EmailSender extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel9)
+                    .add(attachmentsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
                         .add(newButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(deleteButton))
-                    .add(attachmentsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE))
+                        .add(deleteButton)))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -637,6 +638,14 @@ private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         parent.enableSave();
     }
 }//GEN-LAST:event_deleteButtonActionPerformed
+
+private void SMTPServerPortFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SMTPServerPortFieldActionPerformed
+// TODO add your handling code here:
+}//GEN-LAST:event_SMTPServerPortFieldActionPerformed
+
+private void emailFromFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_emailFromFieldActionPerformed
+// TODO add your handling code here:
+}//GEN-LAST:event_emailFromFieldActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.webreach.mirth.client.ui.components.MirthTextField SMTPServerHostField;
