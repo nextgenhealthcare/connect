@@ -118,4 +118,13 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		DELETE FROM PREFERENCES
 		WHERE PERSON_ID = #id# AND NAME = #name#
 	</delete>	
+	
+	<procedure id="vacuumPersonTable">
+		{call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP', 'PERSON', 0)}
+	</procedure>
+	
+	<procedure id="vacuumPreferencesTable">
+		{call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP', 'PREFERENCES', 0)}
+	</procedure>
+
 </sqlMap>

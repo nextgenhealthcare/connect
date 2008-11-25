@@ -38,6 +38,7 @@ import org.mule.providers.TemplateValueReplacer;
 
 import com.webreach.mirth.model.Alert;
 import com.webreach.mirth.server.builders.ErrorMessageBuilder;
+import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.server.util.SMTPConnection;
 import com.webreach.mirth.server.util.SMTPConnectionFactory;
 import com.webreach.mirth.server.util.SqlConfig;
@@ -156,6 +157,11 @@ public class DefaultAlertController extends AlertController {
 
         try {
             SqlConfig.getSqlMapClient().delete("Alert.deleteAlert", alert);
+            
+            if (DatabaseUtil.statementExists("Alert.vacuumAlertTable")) {
+                SqlConfig.getSqlMapClient().update("Alert.vacuumAlertTable");
+            }
+            
         } catch (SQLException e) {
             throw new ControllerException(e);
         }

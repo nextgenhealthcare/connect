@@ -280,4 +280,13 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			<include refid="messageFilterCriteria" />
 		)
 	</delete>
+	
+	<procedure id="vacuumMessageTable">
+		{call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP', 'MESSAGE', 0)}
+	</procedure>
+	
+	<procedure id="vacuumAttachmentTable">
+		{call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP', 'ATTACHMENT', 0)}
+	</procedure>
+	
 </sqlMap>

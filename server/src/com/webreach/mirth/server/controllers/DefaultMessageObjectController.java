@@ -41,9 +41,6 @@ import javax.activation.UnsupportedDataTypeException;
 import org.apache.log4j.Logger;
 import org.mule.umo.UMOEvent;
 
-import com.ibatis.sqlmap.client.SqlMapException;
-import com.ibatis.sqlmap.engine.impl.ExtendedSqlMapClient;
-import com.ibatis.sqlmap.engine.impl.SqlMapExecutorDelegate;
 import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
@@ -254,7 +251,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
     public int createMessagesTempTable(MessageObjectFilter filter, String uid, boolean forceTemp) throws ControllerException {
         logger.debug("creating temporary message table: filter=" + filter.toString());
 
-        if (!forceTemp && statementExists("Message.getMessageByPageLimit")) {
+        if (!forceTemp && DatabaseUtil.statementExists("Message.getMessageByPageLimit")) {
             return -1;
         }
         // If it's not forcing temp tables (export or reprocessing),
@@ -264,7 +261,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
         }
 
         try {
-            if (statementExists("Message.createTempMessageTableSequence")) {
+            if (DatabaseUtil.statementExists("Message.createTempMessageTableSequence")) {
                 SqlConfig.getSqlMapClient().update("Message.createTempMessageTableSequence", uid);
             }
 
@@ -346,6 +343,15 @@ public class DefaultMessageObjectController extends MessageObjectController {
             removeMessagesFromQueue(filter);
             int rowCount = SqlConfig.getSqlMapClient().delete("Message.deleteMessage", getFilterMap(filter, null));
             SqlConfig.getSqlMapClient().delete("Message.deleteUnusedAttachments");
+            
+            if (DatabaseUtil.statementExists("Message.vacuumMessageTable")) {
+                SqlConfig.getSqlMapClient().update("Message.vacuumMessageTable");
+            }
+            
+            if (DatabaseUtil.statementExists("Message.vacuumAttachmentTable")) {
+                SqlConfig.getSqlMapClient().update("Message.vacuumAttachmentTable");
+            }
+            
             return rowCount;
         } catch (Exception e) {
             throw new ControllerException(e);
@@ -367,6 +373,15 @@ public class DefaultMessageObjectController extends MessageObjectController {
         	} while(rowCount > 0);
         	
             SqlConfig.getSqlMapClient().delete("Message.deleteUnusedAttachments");
+            
+            if (DatabaseUtil.statementExists("Message.vacuumMessageTable")) {
+                SqlConfig.getSqlMapClient().update("Message.vacuumMessageTable");
+            }
+            
+            if (DatabaseUtil.statementExists("Message.vacuumAttachmentTable")) {
+                SqlConfig.getSqlMapClient().update("Message.vacuumAttachmentTable");
+            }
+            
             return totalRowCount;
         } catch (Exception e) {
             throw new ControllerException(e);
@@ -400,7 +415,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
         logger.debug("Removing temporary message table: uid=" + uid);
 
         try {
-            if (statementExists("Message.dropTempMessageTableSequence")) {
+            if (DatabaseUtil.statementExists("Message.dropTempMessageTableSequence")) {
                 SqlConfig.getSqlMapClient().update("Message.dropTempMessageTableSequence", uid);
             }
         } catch (SQLException e) {
@@ -409,7 +424,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
         }
 
         try {
-            if (statementExists("Message.deleteTempMessageTableIndex")) {
+            if (DatabaseUtil.statementExists("Message.deleteTempMessageTableIndex")) {
                 SqlConfig.getSqlMapClient().update("Message.deleteTempMessageTableIndex", uid);
             }
         } catch (SQLException e) {
@@ -433,6 +448,14 @@ public class DefaultMessageObjectController extends MessageObjectController {
             parameterMap.put("channelId", channelId);
             SqlConfig.getSqlMapClient().delete("Message.deleteMessage", parameterMap);
             SqlConfig.getSqlMapClient().delete("Message.deleteUnusedAttachments");
+            
+            if (DatabaseUtil.statementExists("Message.vacuumMessageTable")) {
+                SqlConfig.getSqlMapClient().update("Message.vacuumMessageTable");
+            }
+            
+            if (DatabaseUtil.statementExists("Message.vacuumAttachmentTable")) {
+                SqlConfig.getSqlMapClient().update("Message.vacuumAttachmentTable");
+            }
 
             Channel filterChannel = new Channel();
             filterChannel.setId(channelId);
@@ -715,18 +738,6 @@ public class DefaultMessageObjectController extends MessageObjectController {
             updateMessage(messageObject, true);
             statisticsController.decrementErrorCount(messageObject.getChannelId());
         }
-    }
-
-    private boolean statementExists(String statement) {
-        try {
-            SqlMapExecutorDelegate delegate = ((ExtendedSqlMapClient) SqlConfig.getSqlMapClient()).getDelegate();
-            delegate.getMappedStatement(statement);
-        } catch (SqlMapException sme) {
-            // The statement does not exist
-            return false;
-        }
-
-        return true;
     }
 
     public Attachment getAttachment(String attachmentId) throws ControllerException {

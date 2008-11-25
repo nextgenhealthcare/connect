@@ -546,6 +546,11 @@ public class DefaultConfigurationController extends ConfigurationController{
 
         try {
             SqlConfig.getSqlMapClient().delete("Configuration.deleteLatestConfiguration");
+            
+            if (DatabaseUtil.statementExists("Configuration.vacuumConfigurationTable")) {
+                SqlConfig.getSqlMapClient().update("Configuration.vacuumConfigurationTable");
+            }
+            
         } catch (SQLException e) {
             logger.warn("Could not delete latest configuration.", e);
         }

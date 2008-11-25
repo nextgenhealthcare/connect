@@ -31,6 +31,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.server.util.SqlConfig;
 
 public class DefaultScriptController extends ScriptController {
@@ -103,6 +104,11 @@ public class DefaultScriptController extends ScriptController {
 
         try {
             SqlConfig.getSqlMapClient().delete("Script.deleteScript", null);
+            
+            if (DatabaseUtil.statementExists("Script.vacuumScriptTable")) {
+                SqlConfig.getSqlMapClient().update("Script.vacuumScriptTable");
+            }
+            
         } catch (SQLException e) {
             throw new ControllerException("error clearing scripts", e);
         }

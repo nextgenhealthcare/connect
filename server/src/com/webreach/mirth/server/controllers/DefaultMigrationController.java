@@ -156,6 +156,11 @@ public class DefaultMigrationController extends MigrationController {
 
                 try {
                     SqlConfig.getSqlMapClient().update("Configuration.clearConfiguration");
+                    
+                    if (DatabaseUtil.statementExists("Configuration.vacuumConfigurationTable")) {
+                        SqlConfig.getSqlMapClient().update("Configuration.vacuumConfigurationTable");
+                    }
+                    
                     File configurationFile = new File(configurationController.getMuleConfigurationPath());
                     configurationFile.delete();
                     File bootFile = new File(configurationController.getMuleBootPath());

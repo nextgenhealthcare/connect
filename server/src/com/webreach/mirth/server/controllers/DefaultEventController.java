@@ -126,6 +126,11 @@ public class DefaultEventController extends EventController {
 		try {
 			Map parameterMap = new HashMap();
 			SqlConfig.getSqlMapClient().delete("Event.deleteEvent", parameterMap);
+			
+            if (DatabaseUtil.statementExists("Event.vacuumEventTable")) {
+                SqlConfig.getSqlMapClient().update("Event.vacuumEventTable");
+            }
+			
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}
@@ -230,7 +235,13 @@ public class DefaultEventController extends EventController {
 		logger.debug("removing system events: filter=" + filter.toString());
 
 		try {
-			return SqlConfig.getSqlMapClient().delete("Event.deleteEvent", getFilterMap(filter, null));
+			int eventsDeleted = SqlConfig.getSqlMapClient().delete("Event.deleteEvent", getFilterMap(filter, null));
+			
+            if (DatabaseUtil.statementExists("Event.vacuumEventTable")) {
+                SqlConfig.getSqlMapClient().update("Event.vacuumEventTable");
+            }
+			
+			return eventsDeleted;
 		} catch (SQLException e) {
 			throw new ControllerException(e);
 		}		

@@ -31,6 +31,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.CodeTemplate;
+import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.server.util.SqlConfig;
 
 public class DefaultCodeTemplateController extends CodeTemplateController {
@@ -96,6 +97,11 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
 
         try {
             SqlConfig.getSqlMapClient().delete("CodeTemplate.deleteCodeTemplate", codeTemplate);
+            
+            if (DatabaseUtil.statementExists("CodeTemplate.vacuumCodeTemplateTable")) {
+                SqlConfig.getSqlMapClient().update("CodeTemplate.vacuumCodeTemplateTable");
+            }
+            
         } catch (SQLException e) {
             throw new ControllerException(e);
         }

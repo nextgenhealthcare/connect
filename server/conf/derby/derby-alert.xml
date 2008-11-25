@@ -72,4 +72,9 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			</isNotNull>
 		</dynamic>
 	</delete>
+	
+	<procedure id="vacuumAlertTable">
+		{call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP', 'ALERT', 0)}
+	</procedure>
+	
 </sqlMap>

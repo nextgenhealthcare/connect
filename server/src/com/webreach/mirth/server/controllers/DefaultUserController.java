@@ -36,6 +36,7 @@ import com.webreach.mirth.model.Credentials;
 import com.webreach.mirth.model.Preference;
 import com.webreach.mirth.model.Preferences;
 import com.webreach.mirth.model.User;
+import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.util.EncryptionException;
 import com.webreach.mirth.util.FIPSEncrypter;
@@ -97,6 +98,10 @@ public class DefaultUserController extends UserController {
 
         try {
             SqlConfig.getSqlMapClient().delete("User.deleteUser", user);
+            
+            if (DatabaseUtil.statementExists("User.vacuumPersonTable")) {
+                SqlConfig.getSqlMapClient().update("User.vacuumPersonTable");
+            }
         } catch (SQLException e) {
             throw new ControllerException(e);
         }
@@ -193,6 +198,11 @@ public class DefaultUserController extends UserController {
 
             SqlConfig.getSqlMapClient().delete("User.deleteUserPreference", parameterMap);
             SqlConfig.getSqlMapClient().update("User.insertUserPreference", parameterMap);
+            
+            if (DatabaseUtil.statementExists("User.vacuumPreferencesTable")) {
+                SqlConfig.getSqlMapClient().update("User.vacuumPreferencesTable");
+            }
+            
         } catch (Exception e) {
             throw new ControllerException(e);
         }

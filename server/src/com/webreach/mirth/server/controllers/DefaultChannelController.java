@@ -39,6 +39,7 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelSummary;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.util.ImportConverter;
+import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.util.PropertyVerifier;
 import com.webreach.mirth.util.QueueUtil;
@@ -288,6 +289,11 @@ public class DefaultChannelController extends ChannelController {
             }
 
             SqlConfig.getSqlMapClient().delete("Channel.deleteChannel", channel);
+            
+            if (DatabaseUtil.statementExists("Channel.vacuumChannelTable")) {
+                SqlConfig.getSqlMapClient().update("Channel.vacuumChannelTable");
+            }
+            
         } catch (Exception e) {
             throw new ControllerException(e);
         }

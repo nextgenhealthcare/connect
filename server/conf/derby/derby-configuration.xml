@@ -58,4 +58,9 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		CONFIGURATION (DATA)
 		VALUES (#data#)
 	</insert>
+	
+	<procedure id="vacuumConfigurationTable">
+		{call SYSCS_UTIL.SYSCS_COMPRESS_TABLE('APP', 'CONFIGURATION', 0)}
+	</procedure>
+	
 </sqlMap>

@@ -31,6 +31,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.server.util.SqlConfig;
 
 public class DefaultTemplateController extends TemplateController {
@@ -100,6 +101,11 @@ public class DefaultTemplateController extends TemplateController {
 
         try {
             SqlConfig.getSqlMapClient().delete("Template.deleteTemplate", null);
+            
+            if (DatabaseUtil.statementExists("Template.vacuumTemplateTable")) {
+                SqlConfig.getSqlMapClient().update("Template.vacuumTemplateTable");
+            }
+            
         } catch (SQLException e) {
             throw new ControllerException("error clearing templates", e);
         }
