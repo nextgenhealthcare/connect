@@ -61,6 +61,7 @@ import sun.misc.BASE64Decoder;
 import com.l2fprod.common.propertysheet.Property;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.BeanBinder;
+import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.MirthFileFilter;
 import com.webreach.mirth.client.ui.util.FileUtil;
@@ -741,6 +742,7 @@ private void browseWSDLfileButtonActionPerformed(java.awt.event.ActionEvent evt)
     wsdlXMLfile.setFileFilter(new MirthFileFilter("WSDL"));
     int returnVal = wsdlXMLfile.showOpenDialog(this);
     if (returnVal == JFileChooser.APPROVE_OPTION) {
+    	Frame.userPreferences.put("currentDirectory", wsdlXMLfile.getCurrentDirectory().getPath());
         wsdlUrl.setText(wsdlXMLfile.getSelectedFile().getPath());
     }
 }//GEN-LAST:event_browseWSDLfileButtonActionPerformed
