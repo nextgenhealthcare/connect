@@ -738,7 +738,7 @@ reconnectIntervalLabel.setEnabled(true);
 
 private void browseWSDLfileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseWSDLfileButtonActionPerformed
     JFileChooser wsdlXMLfile = new JFileChooser();
-    wsdlXMLfile.setFileFilter(new MirthFileFilter("XML"));
+    wsdlXMLfile.setFileFilter(new MirthFileFilter("WSDL"));
     int returnVal = wsdlXMLfile.showOpenDialog(this);
     if (returnVal == JFileChooser.APPROVE_OPTION) {
         wsdlUrl.setText(wsdlXMLfile.getSelectedFile().getPath());

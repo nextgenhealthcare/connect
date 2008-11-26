@@ -69,6 +69,8 @@ public class MirthFileFilter extends javax.swing.filechooser.FileFilter
             return "Text files";
         else if (type.equalsIgnoreCase("zip"))
             return "ZIP files";
+        else if (type.equalsIgnoreCase("wsdl"))
+        	return "WSDL files";
         else
             return "ERROR";
     }
