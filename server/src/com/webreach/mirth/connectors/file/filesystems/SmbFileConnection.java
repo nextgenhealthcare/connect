@@ -82,7 +82,7 @@ public class SmbFileConnection implements FileSystemConnection {
     private String share = null;
 
     public SmbFileConnection(String share, String domainAndUser, String password) {
-        String[] params = Pattern.compile("[\\|/|@|:|;]").split(domainAndUser);
+        String[] params = Pattern.compile("[\\\\|/|@|:|;]").split(domainAndUser);
         String domain = null;
         String username = null;
 
