@@ -166,6 +166,11 @@ public class DatabaseReader extends ConnectorClass
         properties.put(DatabaseReaderProperties.DATABASE_USERNAME, databaseUsernameField.getText());
         properties.put(DatabaseReaderProperties.DATABASE_PASSWORD, new String(databasePasswordField.getPassword()));
         
+        if (processResultsInOrderYesButton.isSelected())
+            properties.put(DatabaseReaderProperties.DATABASE_PROCESS_RESULTS_IN_ORDER, UIConstants.YES_OPTION);
+        else
+            properties.put(DatabaseReaderProperties.DATABASE_PROCESS_RESULTS_IN_ORDER, UIConstants.NO_OPTION);
+        
         if (useJavaScriptYes.isSelected())
         {
             properties.put(DatabaseReaderProperties.DATABASE_USE_JS, UIConstants.YES_OPTION);
@@ -220,6 +225,15 @@ public class DatabaseReader extends ConnectorClass
         databaseUsernameField.setText((String) props.get(DatabaseReaderProperties.DATABASE_USERNAME));
         databasePasswordField.setText((String) props.get(DatabaseReaderProperties.DATABASE_PASSWORD));
         databaseSQLTextPane.setText((String) props.get(DatabaseReaderProperties.DATABASE_SQL_STATEMENT));
+        
+        if (((String) props.get(DatabaseReaderProperties.DATABASE_PROCESS_RESULTS_IN_ORDER)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        {
+            processResultsInOrderYesButton.setSelected(true);
+        }
+        else
+        {
+        	processResultsInOrderNoButton.setSelected(true);
+        }
         
         if (((String) props.get(DatabaseReaderProperties.DATABASE_USE_JS)).equals(UIConstants.YES_OPTION))
         {
@@ -479,6 +493,7 @@ public class DatabaseReader extends ConnectorClass
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
         buttonGroup3 = new javax.swing.ButtonGroup();
+        buttonGroup4 = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -512,6 +527,9 @@ public class DatabaseReader extends ConnectorClass
         jLabel7 = new javax.swing.JLabel();
         generateUpdateSelect = new javax.swing.JButton();
         jLabel9 = new javax.swing.JLabel();
+        processResultsInOrderNoButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        processResultsInOrderYesButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        jLabel10 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -665,6 +683,22 @@ public class DatabaseReader extends ConnectorClass
 
         jLabel9.setText("Generate:");
 
+        processResultsInOrderNoButton.setBackground(new java.awt.Color(255, 255, 255));
+        processResultsInOrderNoButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup4.add(processResultsInOrderNoButton);
+        processResultsInOrderNoButton.setText("No");
+        processResultsInOrderNoButton.setToolTipText("Specify the SQL statements to get messages to be processed and mark messages in the database as processed.");
+        processResultsInOrderNoButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        processResultsInOrderYesButton.setBackground(new java.awt.Color(255, 255, 255));
+        processResultsInOrderYesButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup4.add(processResultsInOrderYesButton);
+        processResultsInOrderYesButton.setText("Yes");
+        processResultsInOrderYesButton.setToolTipText("Implement JavaScript code using JDBC to get the messages to be processed and mark messages in the database as processed.");
+        processResultsInOrderYesButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        jLabel10.setText("Process Results in Order:");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -682,7 +716,8 @@ public class DatabaseReader extends ConnectorClass
                     .add(onUpdateLabel)
                     .add(jLabel6)
                     .add(pollingTimeLabel)
-                    .add(jLabel5))
+                    .add(jLabel5)
+                    .add(jLabel10))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
@@ -700,15 +735,15 @@ public class DatabaseReader extends ConnectorClass
                                     .add(readOnUpdateYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                     .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                     .add(readOnUpdateNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 78, Short.MAX_VALUE)
+                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 81, Short.MAX_VALUE)
                                     .add(jLabel9)
                                     .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                     .add(generateUpdateConnection)
                                     .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                     .add(generateUpdateSelect))
-                                .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 383, Short.MAX_VALUE)
+                                .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 386, Short.MAX_VALUE)
                                 .add(layout.createSequentialGroup()
-                                    .add(databaseUpdateSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 282, Short.MAX_VALUE)
+                                    .add(databaseUpdateSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 285, Short.MAX_VALUE)
                                     .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                     .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 95, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                             .addContainerGap())
@@ -717,12 +752,18 @@ public class DatabaseReader extends ConnectorClass
                             .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                 .add(layout.createSequentialGroup()
                                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                        .add(layout.createSequentialGroup()
-                                            .add(useJavaScriptYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                            .add(useJavaScriptNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                        .add(pollingTime, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 68, Short.MAX_VALUE)
+                                        .add(pollingTime, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                                            .add(layout.createSequentialGroup()
+                                                .add(processResultsInOrderYesButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                .add(processResultsInOrderNoButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                .add(75, 75, 75))
+                                            .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                                                .add(useJavaScriptYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                .add(useJavaScriptNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 6, Short.MAX_VALUE)
                                     .add(jLabel7)
                                     .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                     .add(generateConnection)
@@ -771,8 +812,13 @@ public class DatabaseReader extends ConnectorClass
                             .add(pollingTimeLabel))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(useJavaScriptYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jLabel10)
+                            .add(processResultsInOrderYesButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(processResultsInOrderNoButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(jLabel6)
+                            .add(useJavaScriptYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(useJavaScriptNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                         .add(generateSelect)
@@ -781,7 +827,7 @@ public class DatabaseReader extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(sqlLabel)
-                    .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 99, Short.MAX_VALUE))
+                    .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 89, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel8)
@@ -792,9 +838,9 @@ public class DatabaseReader extends ConnectorClass
                     .add(jLabel9))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(databaseUpdateSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
+                    .add(databaseUpdateSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 89, Short.MAX_VALUE)
                     .add(onUpdateLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 89, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -957,6 +1003,7 @@ private void generateUpdateSelectActionPerformed(java.awt.event.ActionEvent evt)
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.ButtonGroup buttonGroup3;
+    private javax.swing.ButtonGroup buttonGroup4;
     private com.webreach.mirth.client.ui.components.MirthComboBox databaseDriverCombobox;
     private com.webreach.mirth.client.ui.components.MirthPasswordField databasePasswordField;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea databaseSQLTextPane;
@@ -969,6 +1016,7 @@ private void generateUpdateSelectActionPerformed(java.awt.event.ActionEvent evt)
     private javax.swing.JButton generateUpdateConnection;
     private javax.swing.JButton generateUpdateSelect;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -985,6 +1033,8 @@ private void generateUpdateSelectActionPerformed(java.awt.event.ActionEvent evt)
     private com.webreach.mirth.client.ui.components.MirthTimePicker pollingTime;
     private com.webreach.mirth.client.ui.components.MirthRadioButton pollingTimeButton;
     private javax.swing.JLabel pollingTimeLabel;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton processResultsInOrderNoButton;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton processResultsInOrderYesButton;
     private com.webreach.mirth.client.ui.components.MirthRadioButton readOnUpdateNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton readOnUpdateYes;
     private javax.swing.JLabel sqlLabel;
