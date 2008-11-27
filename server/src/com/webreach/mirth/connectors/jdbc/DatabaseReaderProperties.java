@@ -46,6 +46,7 @@ public class DatabaseReaderProperties implements ComponentProperties
     public static final String DATABASE_SQL_STATEMENT = "query";
     public static final String DATABASE_JS_SQL_STATEMENT = "script";
     public static final String DATABASE_USE_JS = "useScript";
+    public static final String DATABASE_PROCESS_RESULTS_IN_ORDER = "processResultsInOrder";
     public static final String DATABASE_USE_ACK = "useAck";
     public static final String DATABASE_ACK = "ack";
     public static final String DATABASE_JS_ACK = "ackScript";
@@ -65,6 +66,7 @@ public class DatabaseReaderProperties implements ComponentProperties
         properties.put(DATABASE_SQL_STATEMENT, "");
         properties.put(DATABASE_USE_JS, "0");
         properties.put(DATABASE_JS_SQL_STATEMENT, "");
+        properties.put(DATABASE_PROCESS_RESULTS_IN_ORDER, "1");
         properties.put(DATABASE_USE_ACK, "0");
         properties.put(DATABASE_ACK, "");
         properties.put(DATABASE_JS_ACK, "");

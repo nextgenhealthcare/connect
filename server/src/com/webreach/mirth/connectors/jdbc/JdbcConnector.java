@@ -45,6 +45,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
     private String URL;
     private String username;
     private String password;
+    private boolean processResultsInOrder = true;
     private boolean useAck;
     private Map queries;
     private boolean useScript;
@@ -134,6 +135,14 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 
     public void setScriptId(String scriptId) {
         this.scriptId = scriptId;
+    }
+    
+    public boolean isProcessResultsInOrder() {
+        return processResultsInOrder;
+    }
+
+    public void setProcessResultsInOrder(boolean processResultsInOrder) {
+        this.processResultsInOrder = processResultsInOrder;
     }
 
     public boolean isUseAck() {
@@ -283,6 +292,9 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
      */
     protected synchronized void initFromServiceDescriptor() throws InitialisationException {
         super.initFromServiceDescriptor();
+        
+        setCreateMultipleTransactedReceivers(false);
+        
         Context context = Context.enter();
 
         try {

@@ -65,7 +65,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
             setFrequency(((JdbcConnector) connector).getPollingFrequency());
         }
 
-        this.receiveMessagesInTransaction = false;
+        this.receiveMessagesInTransaction = ((JdbcConnector) connector).isProcessResultsInOrder();
         this.connector = (JdbcConnector) connector;
         monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
     }
@@ -79,7 +79,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
             setFrequency(((JdbcConnector) connector).getPollingFrequency());
         }
 
-        this.receiveMessagesInTransaction = false;
+        this.receiveMessagesInTransaction = ((JdbcConnector) connector).isProcessResultsInOrder();
         this.connector = (JdbcConnector) connector;
         
         // handle read and ack params
