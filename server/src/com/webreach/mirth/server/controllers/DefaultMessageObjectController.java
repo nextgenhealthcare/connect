@@ -691,7 +691,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
         boolean replace = oldStatus.equals(MessageObject.Status.QUEUED) || ((messageObject.getContext().get("replace") != null) && messageObject.getContext().get("replace").equals("true"));
 
         if (replace) {
-            if ((messageObject.getContext().get("replace") != null) && messageObject.getContext().get("replace").equals("true")) {
+            if ((messageObject.getContext() != null && messageObject.getContext().get("replace") != null) && messageObject.getContext().get("replace").equals("true")) {
                 try {
                     String existingId = null;
 

@@ -34,6 +34,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.webreach.mirth.util.EqualsUtil;
 
 public class MessageObject implements Serializable {
+	/**
+	 * Need to set this so that messages written to the queue will not fail with new versions of this class
+	 */
+	private static final long serialVersionUID = 2451629582991455311L;
+
 	public enum Protocol {
         HL7V2, X12, XML, HL7V3, EDI, NCPDP, DICOM, DELIMITED
 	}
