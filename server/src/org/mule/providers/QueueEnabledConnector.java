@@ -169,7 +169,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 									
 									if(thePayload instanceof MessageObject) { 
 										MessageObject messageObject = (MessageObject)thePayload;
-										messageObjectController.setError(messageObject, getConnectorErrorCode(), "Unsupported message format in queue.  Removing message from the queue", new Exception("Unsupported message format in queue.  Removing message from the queue"));
+										messageObjectController.setError(messageObject, getConnectorErrorCode(), "Unsupported message format in queue.", new Exception("Unsupported message format in queue.  Removing message from the queue.  Reprocessing this message will fix this problem."));
 										queue.poll(getPollMaxTime());
 										continue;
 									} else {
