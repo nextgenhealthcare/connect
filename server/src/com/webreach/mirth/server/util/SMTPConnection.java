@@ -40,14 +40,14 @@ public class SMTPConnection {
     private static final String PROTOCOL_SMTPS = "smtps";
     
     private String host;
-    private int port;
+    private String port;
     private boolean auth;
     private boolean ssl;
     private boolean tls;
     private String username;
     private String password;
 
-    public SMTPConnection(String host, int port, boolean auth, boolean ssl, boolean tls, String username, String password) {
+    public SMTPConnection(String host, String port, boolean auth, boolean ssl, boolean tls, String username, String password) {
         this.host = host;
         this.port = port;
         this.auth = auth;

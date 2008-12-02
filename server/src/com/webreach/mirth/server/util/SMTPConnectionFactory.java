@@ -34,7 +34,7 @@ public class SMTPConnectionFactory {
     public static SMTPConnection createSMTPConnection() throws Exception {
         Properties properties = ControllerFactory.getFactory().createConfigurationController().getServerProperties();
         String host = PropertyLoader.getProperty(properties, "smtp.host");
-        int port = Integer.valueOf(PropertyLoader.getProperty(properties, "smtp.port")).intValue();
+        String port = PropertyLoader.getProperty(properties, "smtp.port");
         boolean auth = PropertyLoader.getProperty(properties, "smtp.auth").equals("1");
         boolean ssl = PropertyLoader.getProperty(properties, "smtp.ssl").equals("1");
         boolean tls = PropertyLoader.getProperty(properties, "smtp.tls").equals("1");
