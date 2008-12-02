@@ -34,9 +34,11 @@ public class ManagerDialog extends javax.swing.JDialog
             
     private static final String SERVER_WEBSTART_PORT = "http.port";
     private static final String SERVER_ADMINISTRATOR_PORT = "https.port";
+    private static final String SERVER_JMX_PORT = "jmx.port";
     private static final String LOG4J_MIRTH_LOG_LEVEL = "log4j.rootCategory";
     private static final String LOG4J_DATABASE_LOG_LEVEL = "log4j.logger.java.sql";
     private static final String DATABASE_TYPE = "database";
+    private static final String DATABASE_DRIVER = "driver";
     private static final String DATABASE_URL = "url";
     private static final String DATABASE_USERNAME = "username";
     private static final String DATABASE_PASSWORD = "password";
@@ -155,6 +157,8 @@ public class ManagerDialog extends javax.swing.JDialog
         jLabel13 = new javax.swing.JLabel();
         restartButton = new javax.swing.JButton();
         startup = new javax.swing.JCheckBox();
+        refreshServiceButton = new javax.swing.JButton();
+        jLabel20 = new javax.swing.JLabel();
         serverPanel = new javax.swing.JPanel();
         serverWebstartPort = new javax.swing.JTextField();
         serverAdministratorPort = new javax.swing.JTextField();
@@ -169,6 +173,8 @@ public class ManagerDialog extends javax.swing.JDialog
         jLabel6 = new javax.swing.JLabel();
         mirthLogLevel = new javax.swing.JComboBox();
         databaseLogLevel = new javax.swing.JComboBox();
+        jLabel18 = new javax.swing.JLabel();
+        serverJmxPort = new javax.swing.JTextField();
         databasePanel = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
@@ -178,6 +184,8 @@ public class ManagerDialog extends javax.swing.JDialog
         jLabel10 = new javax.swing.JLabel();
         databaseUsername = new javax.swing.JTextField();
         databasePassword = new javax.swing.JPasswordField();
+        jLabel19 = new javax.swing.JLabel();
+        databaseDriver = new javax.swing.JTextField();
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         version = new javax.swing.JLabel();
@@ -228,7 +236,7 @@ public class ManagerDialog extends javax.swing.JDialog
 
         serviceButtonContainer.setBackground(new java.awt.Color(255, 255, 255));
 
-        jLabel11.setText("Starts the windows Mirth service");
+        jLabel11.setText("Starts the Windows Mirth service");
 
         startButton.setText("Start");
         startButton.addActionListener(new java.awt.event.ActionListener() {
@@ -244,9 +252,9 @@ public class ManagerDialog extends javax.swing.JDialog
             }
         });
 
-        jLabel12.setText("Stops the windows Mirth service");
+        jLabel12.setText("Stops the Windows Mirth service");
 
-        jLabel13.setText("Restarts the windows Mirth service");
+        jLabel13.setText("Restarts the Windows Mirth service");
 
         restartButton.setText("Restart");
         restartButton.addActionListener(new java.awt.event.ActionListener() {
@@ -263,6 +271,15 @@ public class ManagerDialog extends javax.swing.JDialog
             }
         });
 
+        refreshServiceButton.setText("Refresh");
+        refreshServiceButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                refreshServiceButtonActionPerformed(evt);
+            }
+        });
+
+        jLabel20.setText("Refreshes the Windows Mirth service status");
+
         org.jdesktop.layout.GroupLayout serviceButtonContainerLayout = new org.jdesktop.layout.GroupLayout(serviceButtonContainer);
         serviceButtonContainer.setLayout(serviceButtonContainerLayout);
         serviceButtonContainerLayout.setHorizontalGroup(
@@ -270,10 +287,7 @@ public class ManagerDialog extends javax.swing.JDialog
             .add(serviceButtonContainerLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(serviceButtonContainerLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(serviceButtonContainerLayout.createSequentialGroup()
-                        .add(stopButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 57, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(10, 10, 10)
-                        .add(jLabel12))
+                    .add(startup, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 271, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(serviceButtonContainerLayout.createSequentialGroup()
                         .add(startButton)
                         .add(10, 10, 10)
@@ -282,16 +296,23 @@ public class ManagerDialog extends javax.swing.JDialog
                         .add(restartButton)
                         .add(10, 10, 10)
                         .add(jLabel13))
-                    .add(startup, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 271, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(57, Short.MAX_VALUE))
+                    .add(serviceButtonContainerLayout.createSequentialGroup()
+                        .add(refreshServiceButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                        .add(jLabel20))
+                    .add(serviceButtonContainerLayout.createSequentialGroup()
+                        .add(stopButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 57, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(10, 10, 10)
+                        .add(jLabel12)))
+                .addContainerGap(36, Short.MAX_VALUE))
         );
 
-        serviceButtonContainerLayout.linkSize(new java.awt.Component[] {restartButton, startButton, stopButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+        serviceButtonContainerLayout.linkSize(new java.awt.Component[] {refreshServiceButton, restartButton, startButton, stopButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
 
         serviceButtonContainerLayout.setVerticalGroup(
             serviceButtonContainerLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(serviceButtonContainerLayout.createSequentialGroup()
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
                 .add(serviceButtonContainerLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(startButton)
                     .add(jLabel11))
@@ -303,8 +324,13 @@ public class ManagerDialog extends javax.swing.JDialog
                 .add(serviceButtonContainerLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(stopButton)
                     .add(jLabel12))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(startup))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(serviceButtonContainerLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(refreshServiceButton)
+                    .add(jLabel20))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 6, Short.MAX_VALUE)
+                .add(startup)
+                .addContainerGap())
         );
 
         org.jdesktop.layout.GroupLayout servicePanelLayout = new org.jdesktop.layout.GroupLayout(servicePanel);
@@ -318,9 +344,7 @@ public class ManagerDialog extends javax.swing.JDialog
         );
         servicePanelLayout.setVerticalGroup(
             servicePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, servicePanelLayout.createSequentialGroup()
-                .add(serviceButtonContainer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .add(serviceButtonContainer, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         tabPanel.addTab("Service", servicePanel);
@@ -364,6 +388,8 @@ public class ManagerDialog extends javax.swing.JDialog
 
         databaseLogLevel.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
+        jLabel18.setText("JMX Port:");
+
         org.jdesktop.layout.GroupLayout serverPanelLayout = new org.jdesktop.layout.GroupLayout(serverPanel);
         serverPanel.setLayout(serverPanelLayout);
         serverPanelLayout.setHorizontalGroup(
@@ -371,26 +397,30 @@ public class ManagerDialog extends javax.swing.JDialog
             .add(serverPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(serverPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel18)
                     .add(jLabel3)
                     .add(jLabel1)
                     .add(jLabel4))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(serverPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 174, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, serverPanelLayout.createSequentialGroup()
-                        .add(serverPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                            .add(serverWebstartPort)
-                            .add(serverAdministratorPort, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 16, Short.MAX_VALUE)
+                .add(serverPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(serverPanelLayout.createSequentialGroup()
                         .add(serverPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel5)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6))))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(serverPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, databaseLogLevel, 0, 73, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, mirthLogLevel, 0, 73, Short.MAX_VALUE)
-                    .add(refreshButton)
-                    .add(viewFileButton))
+                            .add(serverPanelLayout.createSequentialGroup()
+                                .add(serverPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                                    .add(serverWebstartPort)
+                                    .add(serverAdministratorPort, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 16, Short.MAX_VALUE)
+                                .add(serverPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel5)
+                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)))
+                            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 174, Short.MAX_VALUE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(serverPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(viewFileButton)
+                            .add(databaseLogLevel, 0, 73, Short.MAX_VALUE)
+                            .add(mirthLogLevel, 0, 73, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, refreshButton)))
+                    .add(serverJmxPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 60, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -412,14 +442,18 @@ public class ManagerDialog extends javax.swing.JDialog
                     .add(databaseLogLevel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(serverAdministratorPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(serverPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jScrollPane1, 0, 0, Short.MAX_VALUE)
+                .add(serverPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel18)
+                    .add(serverJmxPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(serverPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                     .add(jLabel4)
                     .add(serverPanelLayout.createSequentialGroup()
                         .add(refreshButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .add(viewFileButton)))
-                .addContainerGap())
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(viewFileButton))
+                    .add(jScrollPane1, 0, 0, Short.MAX_VALUE))
+                .addContainerGap(14, Short.MAX_VALUE))
         );
 
         tabPanel.addTab("Server", serverPanel);
@@ -445,6 +479,8 @@ public class ManagerDialog extends javax.swing.JDialog
 
         databasePassword.setFont(new java.awt.Font("Tahoma", 0, 11));
 
+        jLabel19.setText("Driver:");
+
         org.jdesktop.layout.GroupLayout databasePanelLayout = new org.jdesktop.layout.GroupLayout(databasePanel);
         databasePanel.setLayout(databasePanelLayout);
         databasePanelLayout.setHorizontalGroup(
@@ -452,6 +488,7 @@ public class ManagerDialog extends javax.swing.JDialog
             .add(databasePanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(databasePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel19)
                     .add(jLabel10)
                     .add(jLabel9)
                     .add(jLabel8)
@@ -461,7 +498,8 @@ public class ManagerDialog extends javax.swing.JDialog
                     .add(databaseType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(databaseUrl, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
                     .add(databaseUsername, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(databasePassword, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(databasePassword, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(databaseDriver, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 225, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
         databasePanelLayout.setVerticalGroup(
@@ -471,6 +509,10 @@ public class ManagerDialog extends javax.swing.JDialog
                 .add(databasePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel7)
                     .add(databaseType, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(databasePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel19)
+                    .add(databaseDriver, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(databasePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel8)
@@ -483,7 +525,7 @@ public class ManagerDialog extends javax.swing.JDialog
                 .add(databasePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel10)
                     .add(databasePassword, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(19, Short.MAX_VALUE))
+                .addContainerGap(25, Short.MAX_VALUE))
         );
 
         tabPanel.addTab("Database", databasePanel);
@@ -553,7 +595,7 @@ public class ManagerDialog extends javax.swing.JDialog
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel16)
                     .add(javaVersion))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 37, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 68, Short.MAX_VALUE)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel14)
                     .add(webreachLink)
@@ -588,7 +630,12 @@ public class ManagerDialog extends javax.swing.JDialog
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel3Layout.createSequentialGroup()
+            .add(heading, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
+            .add(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .add(tabPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE)
+                .addContainerGap())
+            .add(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(launchButton)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 122, Short.MAX_VALUE)
@@ -596,11 +643,6 @@ public class ManagerDialog extends javax.swing.JDialog
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(closeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 72, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
-            .add(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .add(tabPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE)
-                .addContainerGap())
-            .add(heading, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
         );
 
         jPanel3Layout.linkSize(new java.awt.Component[] {closeButton, okButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
@@ -610,13 +652,13 @@ public class ManagerDialog extends javax.swing.JDialog
             .add(jPanel3Layout.createSequentialGroup()
                 .add(heading, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(tabPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 155, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(tabPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(launchButton)
                     .add(closeButton)
-                    .add(okButton)
-                    .add(launchButton))
-                .addContainerGap())
+                    .add(okButton))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
@@ -643,6 +685,10 @@ private void startupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST
         ManagerController.getInstance().deleteRegistryValue(REGISTRY_KEY, REGISTRY_VALUE_NAME);
     }
 }//GEN-LAST:event_startupActionPerformed
+
+private void refreshServiceButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshServiceButtonActionPerformed
+    ManagerController.getInstance().updateMirthServiceStatus();
+}//GEN-LAST:event_refreshServiceButtonActionPerformed
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_okButtonActionPerformed
     {// GEN-HEADEREND:event_okButtonActionPerformed
@@ -792,6 +838,11 @@ private void startupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST
             serverAdministratorPort.setText(serverProperties.getProperty(SERVER_ADMINISTRATOR_PORT));
         else
             serverAdministratorPort.setText("");
+        
+        if (serverProperties.getProperty(SERVER_JMX_PORT) != null)
+            serverJmxPort.setText(serverProperties.getProperty(SERVER_JMX_PORT));
+        else
+            serverJmxPort.setText("");
 
         if (serverProperties.getProperty(DATABASE_TYPE) != null)
         {
@@ -831,7 +882,12 @@ private void startupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST
             databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + sqlserver2005PropertiesPath);
         else if (((String) databaseType.getSelectedItem()).equals(DATABASE_ORACLE))
             databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + oraclePropertiesPath);
-
+        
+        if (databaseProperties.getProperty(DATABASE_DRIVER) != null)
+            databaseDriver.setText(databaseProperties.getProperty(DATABASE_DRIVER));
+        else
+            databaseDriver.setText("");
+        
         if (databaseProperties.getProperty(DATABASE_URL) != null)
             databaseUrl.setText(databaseProperties.getProperty(DATABASE_URL));
         else
@@ -879,6 +935,7 @@ private void startupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST
     {
         serverProperties.setProperty(SERVER_WEBSTART_PORT, serverWebstartPort.getText());
         serverProperties.setProperty(SERVER_ADMINISTRATOR_PORT, serverAdministratorPort.getText());
+        serverProperties.setProperty(SERVER_JMX_PORT, serverJmxPort.getText());
         serverProperties.setProperty(DATABASE_TYPE, ((String) databaseType.getSelectedItem()));
 
         StringTokenizer st = new StringTokenizer((String) log4jProperties.getProperty(LOG4J_MIRTH_LOG_LEVEL), ",");
@@ -898,6 +955,7 @@ private void startupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST
 
     private void updateDatabaseProperties(Properties databaseProperties)
     {
+        databaseProperties.setProperty(DATABASE_DRIVER, databaseDriver.getText());
         databaseProperties.setProperty(DATABASE_URL, databaseUrl.getText());
         databaseProperties.setProperty(DATABASE_USERNAME, databaseUsername.getText());
         databaseProperties.setProperty(DATABASE_PASSWORD, new String(databasePassword.getPassword()));
@@ -962,6 +1020,7 @@ private void startupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton closeButton;
+    private javax.swing.JTextField databaseDriver;
     private javax.swing.JComboBox databaseLogLevel;
     private javax.swing.JPanel databasePanel;
     private javax.swing.JPasswordField databasePassword;
@@ -979,7 +1038,10 @@ private void startupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
+    private javax.swing.JLabel jLabel18;
+    private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -995,9 +1057,11 @@ private void startupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST
     private javax.swing.JComboBox mirthLogLevel;
     private javax.swing.JButton okButton;
     private javax.swing.JButton refreshButton;
+    private javax.swing.JButton refreshServiceButton;
     private javax.swing.JButton restartButton;
     private javax.swing.JTextField serverAdministratorPort;
     private javax.swing.JLabel serverId;
+    private javax.swing.JTextField serverJmxPort;
     private javax.swing.JList serverLogFiles;
     private javax.swing.JPanel serverPanel;
     private javax.swing.JTextField serverWebstartPort;
