@@ -242,6 +242,9 @@
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="postActionPerformed"/>
+      </Events>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="get">
       <Properties>
@@ -262,6 +265,9 @@
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="getActionPerformed"/>
+      </Events>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="channelNames">
       <Properties>
@@ -454,6 +460,9 @@
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="putActionPerformed"/>
+      </Events>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="delete">
       <Properties>
@@ -474,6 +483,9 @@
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deleteActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

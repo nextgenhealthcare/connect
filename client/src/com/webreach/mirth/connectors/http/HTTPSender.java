@@ -70,6 +70,8 @@ public class HTTPSender extends ConnectorClass
     
     private final String VALUE_COLUMN_NAME = "Value";
     
+    private final String PAYLOAD_KEY = "$payload";
+    
     private int propertiesLastIndex = -1;
     
     private int headerLastIndex = -1;
@@ -683,6 +685,11 @@ public class HTTPSender extends ConnectorClass
         post.setText("POST");
         post.setToolTipText("Selects whether the HTTP operation used to send each message.");
         post.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        post.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                postActionPerformed(evt);
+            }
+        });
 
         get.setBackground(new java.awt.Color(255, 255, 255));
         get.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -690,6 +697,11 @@ public class HTTPSender extends ConnectorClass
         get.setText("GET");
         get.setToolTipText("Selects whether the HTTP operation used to send each message.");
         get.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        get.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                getActionPerformed(evt);
+            }
+        });
 
         channelNames.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         channelNames.setToolTipText("<html>Selects a channel to send the response from the HTTP server as a new inbound message<br> or None to ignore the response from the HTTP server.</html>");
@@ -780,6 +792,11 @@ public class HTTPSender extends ConnectorClass
         put.setText("PUT");
         put.setToolTipText("Selects whether the HTTP operation used to send each message.");
         put.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        put.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                putActionPerformed(evt);
+            }
+        });
 
         delete.setBackground(new java.awt.Color(255, 255, 255));
         delete.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -787,6 +804,11 @@ public class HTTPSender extends ConnectorClass
         delete.setText("DELETE");
         delete.setToolTipText("Selects whether the HTTP operation used to send each message.");
         delete.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        delete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -943,6 +965,38 @@ reconnectIntervalLabel.setEnabled(true);
 private void includeResponseHeadersYesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_includeResponseHeadersYesButtonActionPerformed
 // TODO add your handling code here:
 }//GEN-LAST:event_includeResponseHeadersYesButtonActionPerformed
+
+private void postActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_postActionPerformed
+	Properties properties = (Properties)getAdditionalProperties();
+	if (!properties.containsKey(PAYLOAD_KEY)) {
+		properties.put(PAYLOAD_KEY, "");
+		setAdditionalProperties(properties);
+	}
+}//GEN-LAST:event_postActionPerformed
+
+private void getActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getActionPerformed
+	Properties properties = (Properties)getAdditionalProperties();
+	if (properties.containsKey(PAYLOAD_KEY)) {
+		properties.remove(PAYLOAD_KEY);
+		setAdditionalProperties(properties);
+	}
+}//GEN-LAST:event_getActionPerformed
+
+private void putActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_putActionPerformed
+	Properties properties = (Properties)getAdditionalProperties();
+	if (!properties.containsKey(PAYLOAD_KEY)) {
+		properties.put(PAYLOAD_KEY, "");
+		setAdditionalProperties(properties);
+	}
+}//GEN-LAST:event_putActionPerformed
+
+private void deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteActionPerformed
+	Properties properties = (Properties)getAdditionalProperties();
+	if (properties.containsKey(PAYLOAD_KEY)) {
+		properties.remove(PAYLOAD_KEY);
+		setAdditionalProperties(properties);
+	}
+}//GEN-LAST:event_deleteActionPerformed
     
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_deleteButtonActionPerformed
     {// GEN-HEADEREND:event_deleteButtonActionPerformed
