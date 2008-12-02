@@ -179,14 +179,14 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher imple
 		Map requestVariables = connector.getRequestVariables();
 		
 		if (connector.getMethod().equals("post")) {
-			// We add all the paramerters from the connector to the post
+			// We add all the parameters from the connector to the post
 			PostMethod postMethod = new PostMethod(uri.toString());
 			if (requestVariables != null && requestVariables.size() > 0) {
 				for (Iterator iter = requestVariables.keySet().iterator(); iter.hasNext();) {
 					String key = (String) iter.next();
 					// one of our variables can be $payload (or current
 					// payload_key)
-					// set our request entiity to this if set
+					// set our request entity to this if set
 					if (key.equals(PAYLOAD_KEY)) {
 						postMethod.setRequestEntity(new StringRequestEntity(replacer.replaceValues((String) requestVariables.get(key), messageObject)));
 					} else {
@@ -219,7 +219,10 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher imple
 			httpMethod = new GetMethod(urlBuilder.toString());
 		} else if (connector.getMethod().equals("put")) {
 		    PutMethod putMethod = new PutMethod(replacer.replaceValues(uri.toString(), messageObject));
-		    String body = replacer.replaceValues(requestVariables.get(PAYLOAD_KEY).toString(), messageObject); 
+		    String body = "";
+		    if (requestVariables.get(PAYLOAD_KEY) != null) {
+		    	body = replacer.replaceValues(requestVariables.get(PAYLOAD_KEY).toString(), messageObject);
+		    }
 		    putMethod.setRequestEntity(new ByteArrayRequestEntity(body.getBytes()));
 		    httpMethod = putMethod;
 		} else if (connector.getMethod().equals("delete")) {

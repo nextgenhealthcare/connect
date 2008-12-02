@@ -49,7 +49,11 @@ public class HTTPSenderProperties extends QueuedSenderProperties
         properties.put(HTTP_URL, "");
         properties.put(HTTP_METHOD, "post");
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-        properties.put(HTTP_ADDITIONAL_PROPERTIES, serializer.toXML(new Properties()));
+        
+        Properties additionalProperties = new Properties();
+        additionalProperties.put("$payload", "");
+        properties.put(HTTP_ADDITIONAL_PROPERTIES, serializer.toXML(additionalProperties));
+        
         properties.put(HTTP_HEADER_PROPERTIES, serializer.toXML(new Properties()));
         properties.put(HTTP_EXCLUDE_HEADERS, "0");
         properties.put(CHANNEL_ID, "sink");
