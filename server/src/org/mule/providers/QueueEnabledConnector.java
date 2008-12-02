@@ -17,6 +17,7 @@ import org.mule.util.queue.QueueSession;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.QueuedMessage;
+import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MessageObjectController;
@@ -160,12 +161,23 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 							// If the endpoint is active, try to send without
 							// waiting
 							while ((queue.size() > 0) && connected && !killQueueThread) {
-								QueuedMessage thePayload = null;
-	
+								Object thePayload = null;
+								QueuedMessage theMessage = null;
+								
 								try {
-									thePayload = (QueuedMessage) queue.peek();
-									logger.debug("retrying queued message: id = " + thePayload.getMessageObject().getId() + ", endpointUri = " + thePayload.getEndpointUri().toString());
-									if (dispatcher.sendPayload(thePayload)) {
+									thePayload = (Object) queue.peek();
+									
+									if(thePayload instanceof MessageObject) { 
+										MessageObject messageObject = (MessageObject)thePayload;
+										messageObjectController.setError(messageObject, getConnectorErrorCode(), "Unsupported message format in queue.  Removing message from the queue", new Exception("Unsupported message format in queue.  Removing message from the queue"));
+										queue.poll(getPollMaxTime());
+										continue;
+									} else {
+										theMessage = (QueuedMessage) thePayload;
+									}
+									
+									logger.debug("retrying queued message: id = " + theMessage.getMessageObject().getId() + ", endpointUri = " + theMessage.getEndpointUri().toString());
+									if (dispatcher.sendPayload(theMessage)) {
 										queue.poll(getPollMaxTime());
 										connected = true;
 									} else {
@@ -173,19 +185,19 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 											rotateCurrentMessage();
 										}
 										connected = false;
-										messageObjectController.resetQueuedStatus(thePayload.getMessageObject());
+										messageObjectController.resetQueuedStatus(theMessage.getMessageObject());
 									}
 								} catch (Throwable t) {
 									if (t instanceof InterruptedException) {
 										interrupted = true;
 									}
 	
-									if (thePayload != null && thePayload.getMessageObject().getStatus().equals(MessageObject.Status.ERROR)) {
+									if (theMessage != null && theMessage.getMessageObject().getStatus().equals(MessageObject.Status.ERROR)) {
 										if (isRotateQueue()) {
 											rotateCurrentMessage();
 										}
-										logger.debug("Conection error [" + t + "] " + " at " + thePayload.getEndpointUri().toString() + " queue size " + new Integer(queue.size()).toString());
-										messageObjectController.resetQueuedStatus(thePayload.getMessageObject());
+										logger.debug("Conection error [" + t + "] " + " at " + theMessage.getEndpointUri().toString() + " queue size " + new Integer(queue.size()).toString());
+										messageObjectController.resetQueuedStatus(theMessage.getMessageObject());
 									} else {
 										if (!interrupted) {
 											logger.warn("Error reading message off the queue. Queue out of sync with filesystem", t);
