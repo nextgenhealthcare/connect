@@ -203,6 +203,9 @@ public class FtpConnection implements FileSystemConnection {
 				String tempDir = dir;
 				if (tempDir.startsWith("/")) {
 					tempDir = tempDir.substring(1);
+					if (!client.changeWorkingDirectory("/")) {
+						throw new Exception("Unable to change to destination directory: /");
+					}
 				}
 
 				String[] dirs = tempDir.split("/");

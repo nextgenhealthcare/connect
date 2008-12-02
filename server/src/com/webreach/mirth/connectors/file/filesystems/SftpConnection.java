@@ -190,6 +190,7 @@ public class SftpConnection implements FileSystemConnection {
 			String toDir = dir;
 			if (toDir.startsWith("/")) {
 				toDir = toDir.substring(1);
+				client.cd("/");
 			}
 			String[] dirs = toDir.split("/");
 			if (dirs.length > 0) {
@@ -219,8 +220,7 @@ public class SftpConnection implements FileSystemConnection {
 			logger.info("Unable to delete destination file");
 		}
 
-		client.cd(client.getHome());
-		client.cd(fromDir.substring(1) + "/"); // remove the first slash
+		client.cd(fixDir(fromDir)); // move to the read directory
 		client.rename(fromName.replaceAll("//", "/"), (fixDir(toDir) + "/" + toName).replaceAll("//", "/"));
 	}
 
