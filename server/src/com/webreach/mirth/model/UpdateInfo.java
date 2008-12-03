@@ -12,6 +12,7 @@ public class UpdateInfo {
     private Type type;
     private boolean ignored;
     private boolean isNew;
+    private boolean optional;
     private String author;
 
     public String getName() {
@@ -77,4 +78,12 @@ public class UpdateInfo {
     public void setNew(boolean isNew) {
         this.isNew = isNew;
     }
+    
+    public boolean isOptional() {
+		return optional;
+	}
+    
+    public void setOptional(boolean optional) {
+		this.optional = optional;
+	}
 }
