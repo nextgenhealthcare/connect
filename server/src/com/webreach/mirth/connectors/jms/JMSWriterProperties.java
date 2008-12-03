@@ -36,8 +36,6 @@ public class JMSWriterProperties implements ComponentProperties
 	
     public static final String DATATYPE = "DataType";
     public static final String JMS_SPECIFICATION = "specification";
-    public static final String JMS_DURABLE = "durable";
-    public static final String JMS_CLIENT_ID = "clientId";
     public static final String JMS_USERNAME = "username";
     public static final String JMS_PASSWORD = "password";
     public static final String JMS_QUEUE = "host";
@@ -55,8 +53,6 @@ public class JMSWriterProperties implements ComponentProperties
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
         properties.put(JMS_SPECIFICATION, "1.1");
-        properties.put(JMS_DURABLE, "0");
-        properties.put(JMS_CLIENT_ID, "");
         properties.put(JMS_USERNAME, "");
         properties.put(JMS_PASSWORD, "");
         properties.put(JMS_URL, "");
