@@ -31,12 +31,14 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 public class BatchMessageProcessor {
 	private byte startOfMessage = (byte) 0x0B;
 	private byte endOfMessage = (byte) 0x1C;
 	private byte endOfRecord = (byte) 0x0D;
-
+    private Pattern delimiterPattern = Pattern.compile("\r\n|\r|\n");
+    
 	public BatchMessageProcessor() {
 
 	}
@@ -59,7 +61,7 @@ public class BatchMessageProcessor {
 	}
 
 	private List<String> processHL7Messages(Scanner scanner) {
-		scanner.useDelimiter("\r");
+		scanner.useDelimiter(delimiterPattern);
 		ArrayList<String> messages = new ArrayList<String>();
 		StringBuilder message = new StringBuilder();
 		char data[] = { (char) startOfMessage, (char) endOfMessage };
@@ -124,4 +126,12 @@ public class BatchMessageProcessor {
 	public void setStartOfMessage(byte startOfMessage) {
 		this.startOfMessage = startOfMessage;
 	}
+    
+    public Pattern getDelimiterPattern() {
+        return delimiterPattern;
+    }
+
+    public void setDelimiterPattern(Pattern delimiterPattern) {
+        this.delimiterPattern = delimiterPattern;
+    }    
 }
