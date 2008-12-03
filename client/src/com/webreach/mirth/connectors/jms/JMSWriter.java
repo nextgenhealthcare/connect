@@ -96,11 +96,6 @@ public class JMSWriter extends ConnectorClass
         properties.put(JMSWriterProperties.DATATYPE, name);
         properties.put(JMSWriterProperties.JMS_SPECIFICATION, (String) specDropDown.getSelectedItem());
         
-        if (durableNo.isSelected())
-            properties.put(JMSWriterProperties.JMS_DURABLE, UIConstants.NO_OPTION);
-        else
-            properties.put(JMSWriterProperties.JMS_DURABLE, UIConstants.YES_OPTION);
-        
         if (useJNDIYes.isSelected())
         {
             properties.put(JMSWriterProperties.JMS_USE_JNDI, UIConstants.YES_OPTION);
@@ -123,7 +118,6 @@ public class JMSWriter extends ConnectorClass
         else if(((String) ackMode.getSelectedItem()).equals(DUPLICATES_OK))
             properties.put(JMSWriterProperties.JMS_ACK_MODE, "3");
         
-        properties.put(JMSWriterProperties.JMS_CLIENT_ID, cliendId.getText());
         properties.put(JMSWriterProperties.JMS_USERNAME, username.getText());
         properties.put(JMSWriterProperties.JMS_PASSWORD, String.valueOf(password.getPassword()));
         properties.put(JMSWriterProperties.JMS_QUEUE, queue.getText());
@@ -142,18 +136,6 @@ public class JMSWriter extends ConnectorClass
         
         specDropDown.setSelectedItem(props.get(JMSWriterProperties.JMS_SPECIFICATION));
         
-        if (((String) props.get(JMSWriterProperties.JMS_DURABLE)).equalsIgnoreCase(UIConstants.NO_OPTION))
-        {
-            durableNo.setSelected(true);
-            durableNoActionPerformed(null);
-        }
-        else
-        {
-            durableYes.setSelected(true);
-            durableYesActionPerformed(null);
-        }
-        
-        cliendId.setText((String) props.get(JMSWriterProperties.JMS_CLIENT_ID));
         username.setText((String) props.get(JMSWriterProperties.JMS_USERNAME));
         password.setText((String) props.get(JMSWriterProperties.JMS_PASSWORD));
         queue.setText((String) props.get(JMSWriterProperties.JMS_QUEUE));
@@ -440,15 +422,6 @@ public class JMSWriter extends ConnectorClass
             if (highlight)
             	templateTextArea.setBackground(UIConstants.INVALID_COLOR);
         }
-        if (((String) props.getProperty(JMSWriterProperties.JMS_DURABLE)).equals(UIConstants.YES_OPTION))
-        {
-            if (((String) props.getProperty(JMSWriterProperties.JMS_CLIENT_ID)).length() == 0)
-            {
-                valid = false;
-                if (highlight)
-                	cliendId.setBackground(UIConstants.INVALID_COLOR);
-            }
-        }
         
         return valid;
     }
@@ -460,7 +433,6 @@ public class JMSWriter extends ConnectorClass
         queue.setBackground(null);
         jndiInitialFactory.setBackground(null);
         templateTextArea.setBackground(null);
-        cliendId.setBackground(null);
         connectionFactoryClass.setBackground(null);
     }
     
@@ -487,12 +459,7 @@ public class JMSWriter extends ConnectorClass
         useJndiButtonGroup = new javax.swing.ButtonGroup();
         jLabel3 = new javax.swing.JLabel();
         specDropDown = new com.webreach.mirth.client.ui.components.MirthComboBox();
-        jLabel4 = new javax.swing.JLabel();
-        clientIdLabel = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
-        durableNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        durableYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        cliendId = new com.webreach.mirth.client.ui.components.MirthTextField();
         jmsURL = new com.webreach.mirth.client.ui.components.MirthTextField();
         queue = new com.webreach.mirth.client.ui.components.MirthTextField();
         jndiInitialFactory = new com.webreach.mirth.client.ui.components.MirthTextField();
@@ -527,38 +494,7 @@ public class JMSWriter extends ConnectorClass
         specDropDown.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         specDropDown.setToolTipText("<html>Select 1.1 if the JMS provider supports JMS 1.1.<br>Select 1.0.2b if the JMS provider supports JMS 1.0.2b.</html>");
 
-        jLabel4.setText("Durable:");
-
-        clientIdLabel.setText("Client ID:");
-
         jLabel9.setText("Destination:");
-
-        durableNo.setBackground(new java.awt.Color(255, 255, 255));
-        durableNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        durableButtonGroup.add(durableNo);
-        durableNo.setSelected(true);
-        durableNo.setText("No");
-        durableNo.setToolTipText("<html>Select Yes if connecting to a topic and messages sent to the topic should be queued whenever the source connector is not connected.<br>Select No if connecting to a queue.</html>");
-        durableNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        durableNo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                durableNoActionPerformed(evt);
-            }
-        });
-
-        durableYes.setBackground(new java.awt.Color(255, 255, 255));
-        durableYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        durableButtonGroup.add(durableYes);
-        durableYes.setText("Yes");
-        durableYes.setToolTipText("<html>Select Yes if connecting to a topic and messages sent to the topic should be queued whenever the source connector is not connected.<br>Select No if connecting to a queue.</html>");
-        durableYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        durableYes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                durableYesActionPerformed(evt);
-            }
-        });
-
-        cliendId.setToolTipText("If Durable Yes is selected, enter the unique identifier for the destination connector as a client of the topic.");
 
         jmsURL.setToolTipText("If Use JNDI Yes is selected, enter the URL of the JNDI provider here.");
 
@@ -656,50 +592,49 @@ public class JMSWriter extends ConnectorClass
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel5)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jmsUrlLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jndiInitialFactoryLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, connectionFactoryJndiLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, connectionFactoryClassLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel9)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel11)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel12)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, clientIdLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel13)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, templateLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(useJNDIYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel5)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jmsUrlLabel)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jndiInitialFactoryLabel)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, connectionFactoryJndiLabel)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, connectionFactoryClassLabel)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel9)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel11)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel12))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(useJNDINo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(password, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(username, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(queue, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(durableYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(durableNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(specDropDown, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jmsURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jndiInitialFactory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(layout.createSequentialGroup()
+                                .add(useJNDIYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(useJNDINo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(password, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(username, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(queue, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(specDropDown, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jmsURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jndiInitialFactory, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(connectionFactoryJndi, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(connectionFactoryClass, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(propertiesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 261, Short.MAX_VALUE)
+                        .add(35, 35, 35)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel13)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, templateLabel))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(newButton)
-                            .add(deleteButton)))
-                    .add(templateTextArea, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 330, Short.MAX_VALUE)
-                    .add(connectionFactoryJndi, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(connectionFactoryClass, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                        .add(org.jdesktop.layout.GroupLayout.LEADING, ackMode, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .add(org.jdesktop.layout.GroupLayout.LEADING, cliendId, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)))
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                                .add(propertiesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 261, Short.MAX_VALUE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                                    .add(newButton)
+                                    .add(deleteButton)))
+                            .add(templateTextArea, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 330, Short.MAX_VALUE)
+                            .add(ackMode, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap())
         );
 
@@ -744,15 +679,6 @@ public class JMSWriter extends ConnectorClass
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel12)
                     .add(password, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(durableYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(durableNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel4))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(clientIdLabel)
-                    .add(cliendId, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel13)
@@ -823,38 +749,20 @@ public class JMSWriter extends ConnectorClass
         propertiesTable.setRowSelectionInterval(propertiesTable.getRowCount() - 1, propertiesTable.getRowCount() - 1);
         parent.enableSave();
     }// GEN-LAST:event_newButtonActionPerformed
-    
-    private void durableYesActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_durableYesActionPerformed
-    {// GEN-HEADEREND:event_durableYesActionPerformed
-        cliendId.setEnabled(true);
-        clientIdLabel.setEnabled(true);
-    }// GEN-LAST:event_durableYesActionPerformed
-    
-    private void durableNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_durableNoActionPerformed
-    {// GEN-HEADEREND:event_durableNoActionPerformed
-        cliendId.setEnabled(false);
-        clientIdLabel.setEnabled(false);
-        cliendId.setText("");
-    }// GEN-LAST:event_durableNoActionPerformed
-    
+       
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.webreach.mirth.client.ui.components.MirthComboBox ackMode;
-    private com.webreach.mirth.client.ui.components.MirthTextField cliendId;
-    private javax.swing.JLabel clientIdLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField connectionFactoryClass;
     private javax.swing.JLabel connectionFactoryClassLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField connectionFactoryJndi;
     private javax.swing.JLabel connectionFactoryJndiLabel;
     private javax.swing.JButton deleteButton;
     private javax.swing.ButtonGroup durableButtonGroup;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton durableNo;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton durableYes;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel9;
     private com.webreach.mirth.client.ui.components.MirthTextField jmsURL;

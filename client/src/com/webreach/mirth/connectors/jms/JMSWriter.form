@@ -19,6 +19,7 @@
   </Properties>
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
@@ -30,56 +31,58 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel5" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jmsUrlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jndiInitialFactoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="connectionFactoryJndiLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="connectionFactoryClassLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel9" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel11" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel12" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="clientIdLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel13" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel2" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="templateLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+          <Group type="102" attributes="0">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="useJNDIYes" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="useJNDINo" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="password" min="-2" pref="125" max="-2" attributes="0"/>
-                  <Component id="username" min="-2" pref="125" max="-2" attributes="0"/>
-                  <Component id="queue" min="-2" pref="125" max="-2" attributes="1"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="durableYes" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="durableNo" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="specDropDown" min="-2" pref="150" max="-2" attributes="1"/>
-                  <Component id="jmsURL" min="-2" pref="300" max="-2" attributes="1"/>
-                  <Component id="jndiInitialFactory" min="-2" pref="300" max="-2" attributes="1"/>
-                  <Group type="102" alignment="1" attributes="0">
-                      <Component id="propertiesPane" pref="261" max="32767" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="newButton" linkSize="1" min="-2" max="-2" attributes="0"/>
-                          <Component id="deleteButton" linkSize="1" alignment="1" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabel5" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Component id="jmsUrlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Component id="jndiInitialFactoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Component id="connectionFactoryJndiLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Component id="connectionFactoryClassLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabel9" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabel11" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabel12" alignment="1" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="useJNDIYes" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="useJNDINo" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="password" min="-2" pref="125" max="-2" attributes="0"/>
+                          <Component id="username" min="-2" pref="125" max="-2" attributes="0"/>
+                          <Component id="queue" min="-2" pref="125" max="-2" attributes="1"/>
+                          <Component id="specDropDown" min="-2" pref="150" max="-2" attributes="1"/>
+                          <Component id="jmsURL" min="-2" pref="300" max="-2" attributes="1"/>
+                          <Component id="jndiInitialFactory" min="-2" pref="300" max="-2" attributes="1"/>
+                          <Component id="connectionFactoryJndi" min="-2" pref="300" max="-2" attributes="0"/>
+                          <Component id="connectionFactoryClass" min="-2" pref="300" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <Component id="templateTextArea" pref="330" max="32767" attributes="0"/>
-                  <Component id="connectionFactoryJndi" min="-2" pref="300" max="-2" attributes="0"/>
-                  <Component id="connectionFactoryClass" min="-2" pref="300" max="-2" attributes="0"/>
-                  <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
-                      <Component id="ackMode" alignment="0" max="32767" attributes="1"/>
-                      <Component id="cliendId" alignment="0" pref="125" max="32767" attributes="1"/>
+                  <Group type="102" alignment="1" attributes="0">
+                      <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="jLabel13" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabel2" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Component id="templateLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="1" attributes="0">
+                              <Component id="propertiesPane" pref="261" max="32767" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="1" attributes="0">
+                                  <Component id="newButton" linkSize="1" min="-2" max="-2" attributes="0"/>
+                                  <Component id="deleteButton" linkSize="1" alignment="1" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                          </Group>
+                          <Component id="templateTextArea" pref="330" max="32767" attributes="0"/>
+                          <Component id="ackMode" alignment="0" min="-2" max="-2" attributes="1"/>
+                      </Group>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -134,17 +137,6 @@
                   <Component id="jLabel12" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="password" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="durableYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="durableNo" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel4" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="clientIdLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="cliendId" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel13" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -165,7 +157,7 @@
                   <Component id="templateLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="templateTextArea" pref="71" max="32767" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -189,71 +181,9 @@
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select 1.1 if the JMS provider supports JMS 1.1.&lt;br&gt;Select 1.0.2b if the JMS provider supports JMS 1.0.2b.&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel4">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Durable:"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="clientIdLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Client ID:"/>
-      </Properties>
-    </Component>
     <Component class="javax.swing.JLabel" name="jLabel9">
       <Properties>
         <Property name="text" type="java.lang.String" value="Destination:"/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="durableNo">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="durableButtonGroup"/>
-        </Property>
-        <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes if connecting to a topic and messages sent to the topic should be queued whenever the source connector is not connected.&lt;br&gt;Select No if connecting to a queue.&lt;/html&gt;"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="durableNoActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="durableYes">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="durableButtonGroup"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes if connecting to a topic and messages sent to the topic should be queued whenever the source connector is not connected.&lt;br&gt;Select No if connecting to a queue.&lt;/html&gt;"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="durableYesActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="cliendId">
-      <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="If Durable Yes is selected, enter the unique identifier for the destination connector as a client of the topic."/>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="jmsURL">
