@@ -26,6 +26,8 @@
 package com.webreach.mirth.server;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.nio.charset.Charset;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -102,6 +104,16 @@ public class Mirth extends Thread {
     public void run() {
         if (initResources()) {
             logger.info("starting mirth server...");
+            
+            // Check the ports to see if they are already in use
+            boolean httpPort = testPort(PropertyLoader.getProperty(mirthProperties, "http.port"), "http.port");
+            boolean httpsPort = testPort(PropertyLoader.getProperty(mirthProperties, "https.port"), "https.port");
+            boolean jmxPort = testPort(PropertyLoader.getProperty(mirthProperties, "jmx.port"), "jmx.port");
+            
+            if (!httpPort || !httpsPort || !jmxPort) {
+            	return;
+            }
+            
             running = true;
 
             // add the start command to the queue
@@ -446,6 +458,36 @@ public class Mirth extends Thread {
         System.out.println("Mirth " + version + " (" + buildDate + ") server successfully started: " + (new Date()).toString());
         System.out.println("This product was developed by WebReach, Inc. (http://www.webreachinc.com) and its contributors (c)2005-" + Calendar.getInstance().get(Calendar.YEAR) + ".");
         System.out.println("Running Java " + System.getProperty("java.version") + " on " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ", " + System.getProperty("os.arch") + ") with charset " + Charset.defaultCharset() + ".");
+    }
+    
+    /**
+     * Test a port to see if it is already in use.
+     * 
+     * @param port The port to test.
+     * @param name A friendly name to display in case of an error.
+     * @return
+     */
+    private boolean testPort(String port, String name) {
+    	ServerSocket socket = null;
+        try {
+            socket = new ServerSocket(Integer.parseInt(port));
+        } catch (NumberFormatException ex) {
+        	logger.error(name + " port is invalid: " + port);
+            return false;
+        } catch (IOException ex) {
+        	logger.error(name + " port is already in use: " + port);
+            return false;
+        } finally {
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                	logger.error("Could not close test socket for " + name + ": " + port);
+                	return false;
+                }
+            }
+        }
+        return true;
     }
 
 }
