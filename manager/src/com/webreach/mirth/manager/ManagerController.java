@@ -232,6 +232,7 @@ public class ManagerController
                     updating = false;
                     updateMirthServiceStatus();
                 }
+                updating = false;
                 return true;
             }
         }
