@@ -5,7 +5,6 @@
     <Property name="defaultCloseOperation" type="int" value="3"/>
     <Property name="title" type="java.lang.String" value="Mirth Updater"/>
     <Property name="modal" type="boolean" value="true"/>
-    <Property name="resizable" type="boolean" value="false"/>
   </Properties>
   <SyntheticProperties>
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
@@ -53,20 +52,22 @@
               <Group type="102" attributes="0">
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="222" max="32767" attributes="0"/>
+                      <Group type="102" alignment="1" attributes="0">
+                          <Component id="jLabel2" min="-2" pref="249" max="-2" attributes="0"/>
+                          <EmptySpace pref="74" max="32767" attributes="0"/>
                           <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="updatesCheckBox" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="newCheckBox" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
+                          <Component id="optionalCheckBox" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                           <Component id="ignoredCheckBox" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="loadedExtensionScrollPane" alignment="0" pref="507" max="32767" attributes="2"/>
+                      <Component id="loadedExtensionScrollPane" alignment="0" pref="593" max="32767" attributes="2"/>
                       <Group type="102" alignment="1" attributes="0">
-                          <Component id="progressBar" pref="204" max="32767" attributes="0"/>
+                          <Component id="progressBar" pref="290" max="32767" attributes="0"/>
                           <EmptySpace min="-2" max="-2" attributes="0"/>
                           <Component id="installSelectedButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -85,11 +86,12 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace min="-2" max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="ignoredCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="newCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="updatesCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="optionalCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="loadedExtensionScrollPane" pref="304" max="32767" attributes="0"/>
@@ -170,11 +172,17 @@
                 <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <Connection code="new RefreshTableModel(new Object[][]{}, new String[] { EXTENSION_INSTALL_COLUMN_NAME, EXTENSION_TYPE_COLUMN_NAME, EXTENSION_NAME_COLUMN_NAME, EXTENSION_INSTALLED_VERSION_COLUMN_NAME,  EXTENSION_UPDATE_VERSION_COLUMN_NAME, EXTENSION_IGNORE_COLUMN_NAME })" type="code"/>
                 </Property>
+                <Property name="horizontalScrollEnabled" type="boolean" value="false"/>
               </Properties>
             </Component>
           </SubComponents>
         </Container>
         <Component class="javax.swing.JProgressBar" name="progressBar">
+          <Properties>
+            <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[100, 18]"/>
+            </Property>
+          </Properties>
         </Component>
         <Component class="javax.swing.JCheckBox" name="ignoredCheckBox">
           <Properties>
@@ -216,6 +224,18 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Show:"/>
           </Properties>
+        </Component>
+        <Component class="javax.swing.JCheckBox" name="optionalCheckBox">
+          <Properties>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+            </Property>
+            <Property name="selected" type="boolean" value="true"/>
+            <Property name="text" type="java.lang.String" value="Optional"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="optionalCheckBoxActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

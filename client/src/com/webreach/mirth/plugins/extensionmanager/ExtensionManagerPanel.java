@@ -156,7 +156,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
             String url =  metaData.getUrl();
             String description  = metaData.getDescription();
             
-            new ExtensionInfoDialog(name, type, author, version, url, description);
+            new ExtensionInfoDialog(name, type, "Installed", author, version, url, description);
         }
     }
     

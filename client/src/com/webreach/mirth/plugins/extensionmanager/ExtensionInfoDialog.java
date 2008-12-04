@@ -40,6 +40,7 @@ public class ExtensionInfoDialog extends javax.swing.JDialog
      */
     public ExtensionInfoDialog(String name,
             String type,
+            String priority,
             String author,
             String pluginVersion,
             String url,
@@ -51,6 +52,7 @@ public class ExtensionInfoDialog extends javax.swing.JDialog
         setModal(true);
         nameLabel.setText(name);
         typeLabel.setText(type);
+        priorityLabel.setText(priority);
         authorLabel.setText(author);
         pluginVersionLabel.setText(pluginVersion);
         descriptionLabel.setText(description);
@@ -96,6 +98,8 @@ public class ExtensionInfoDialog extends javax.swing.JDialog
         closeButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         descriptionLabel = new javax.swing.JTextPane();
+        jLabel9 = new javax.swing.JLabel();
+        priorityLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Extension Information");
@@ -105,11 +109,11 @@ public class ExtensionInfoDialog extends javax.swing.JDialog
         jPanel1.setFont(new java.awt.Font("Tahoma", 1, 11));
         jPanel1.setMaximumSize(null);
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel2.setLabelFor(nameLabel);
         jLabel2.setText("Name:");
 
-        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel3.setLabelFor(nameLabel);
         jLabel3.setText("Author:");
 
@@ -117,11 +121,11 @@ public class ExtensionInfoDialog extends javax.swing.JDialog
         jLabel5.setLabelFor(nameLabel);
         jLabel5.setText("Version:");
 
-        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel6.setLabelFor(nameLabel);
         jLabel6.setText("Description:");
 
-        jLabel7.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel7.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel7.setLabelFor(nameLabel);
         jLabel7.setText("URL:");
 
@@ -173,32 +177,39 @@ public class ExtensionInfoDialog extends javax.swing.JDialog
         descriptionLabel.setEnabled(false);
         jScrollPane1.setViewportView(descriptionLabel);
 
+        jLabel9.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        jLabel9.setLabelFor(nameLabel);
+        jLabel9.setText("Priority:");
+
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(13, Short.MAX_VALUE)
+                .add(jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(10, 10, 10))
             .add(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel5)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel8)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2))
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel9)
+                    .add(jLabel6)
+                    .add(jLabel7)
+                    .add(jLabel5)
+                    .add(jLabel3)
+                    .add(jLabel8)
+                    .add(jLabel2))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(pluginVersionLabel)
                     .add(typeLabel)
                     .add(urlLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 266, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(authorLabel)
                     .add(nameLabel)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE)
+                    .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                        .add(org.jdesktop.layout.GroupLayout.LEADING, priorityLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(org.jdesktop.layout.GroupLayout.LEADING, authorLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(13, Short.MAX_VALUE)
-                .add(jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .add(10, 10, 10))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -211,6 +222,10 @@ public class ExtensionInfoDialog extends javax.swing.JDialog
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel8)
                     .add(typeLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel9)
+                    .add(priorityLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel3)
@@ -266,11 +281,13 @@ public class ExtensionInfoDialog extends javax.swing.JDialog
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel nameLabel;
     private javax.swing.JLabel pluginVersionLabel;
+    private javax.swing.JLabel priorityLabel;
     private javax.swing.JLabel typeLabel;
     private javax.swing.JLabel urlLabel;
     // End of variables declaration//GEN-END:variables

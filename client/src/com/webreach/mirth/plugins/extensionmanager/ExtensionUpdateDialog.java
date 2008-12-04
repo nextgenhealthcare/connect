@@ -67,16 +67,23 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
     private final String EXTENSION_INSTALL_COLUMN_NAME = "Install";
     private final String EXTENSION_TYPE_COLUMN_NAME = "Type";
     private final String EXTENSION_NAME_COLUMN_NAME = "Name";
+    private final String EXTENSION_PRIORITY_COLUMN_NAME = "Priority";
     private final String EXTENSION_INSTALLED_VERSION_COLUMN_NAME = "Installed Version";
     private final String EXTENSION_UPDATE_VERSION_COLUMN_NAME = "Update Version";
     private final String EXTENSION_IGNORE_COLUMN_NAME = "Ignore";
-    private final int EXTENSION_TABLE_NUMBER_OF_COLUMNS = 7;
+    private final int EXTENSION_TABLE_NUMBER_OF_COLUMNS = 8;
     private final int EXTENSION_NEW_COLUMN_NUMBER = 0;
     private final int EXTENSION_INSTALL_COLUMN_NUMBER = 1;
     private final int EXTENSION_TYPE_COLUMN_NUMBER = 2;
     private final int EXTENSION_NAME_COLUMN_NUMBER = 3;
-    private final int EXTENSION_UPDATE_VERSION_COLUMN_NUMBER = 5;
-    private final int EXTENSION_IGNORE_COLUMN_NUMBER = 6;
+    private final int EXTENSION_PRIORITY_COLUMN_NUMBER = 4;
+    private final int EXTENSION_INSTALLED_VERSION_COLUMN_NUMBER = 5;
+    private final int EXTENSION_UPDATE_VERSION_COLUMN_NUMBER = 6;
+    private final int EXTENSION_IGNORE_COLUMN_NUMBER = 7;
+    
+    private final String PRIORITY_OPTIONAL = "Optional";
+    private final String PRIORITY_RECOMMENDED = "Recommended";
+    
     private Map<String, MetaData> extensions = new HashMap<String, MetaData>();
     private Map<String, UpdateInfo> extensionUpdates = new HashMap<String, UpdateInfo>();
     private ExtensionUtil pluginUtil = new ExtensionUtil();
@@ -139,9 +146,9 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
     {
         
         loadedExtensionTable = new MirthTable();
-        loadedExtensionTable.setModel(new RefreshTableModel(new Object[][]{}, new String[] { EXTENSION_NEW_COLUMN_NAME, EXTENSION_INSTALL_COLUMN_NAME, EXTENSION_TYPE_COLUMN_NAME, EXTENSION_NAME_COLUMN_NAME, EXTENSION_INSTALLED_VERSION_COLUMN_NAME,  EXTENSION_UPDATE_VERSION_COLUMN_NAME, EXTENSION_IGNORE_COLUMN_NAME })
+        loadedExtensionTable.setModel(new RefreshTableModel(new Object[][]{}, new String[] { EXTENSION_NEW_COLUMN_NAME, EXTENSION_INSTALL_COLUMN_NAME, EXTENSION_TYPE_COLUMN_NAME, EXTENSION_NAME_COLUMN_NAME, EXTENSION_PRIORITY_COLUMN_NAME, EXTENSION_INSTALLED_VERSION_COLUMN_NAME,  EXTENSION_UPDATE_VERSION_COLUMN_NAME, EXTENSION_IGNORE_COLUMN_NAME })
         {
-            boolean[] canEdit = new boolean[] { false, true, false, false, false, false, true };
+            boolean[] canEdit = new boolean[] { false, true, false, false, false, false, false, true };
             
             public boolean isCellEditable(int rowIndex, int columnIndex)
             {
@@ -162,9 +169,13 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
         loadedExtensionTable.getColumnExt(EXTENSION_INSTALL_COLUMN_NAME).setMaxWidth(50);
         loadedExtensionTable.getColumnExt(EXTENSION_INSTALL_COLUMN_NAME).setMinWidth(50);
         
+        loadedExtensionTable.getColumnExt(EXTENSION_TYPE_COLUMN_NAME).setMaxWidth(75);
         loadedExtensionTable.getColumnExt(EXTENSION_TYPE_COLUMN_NAME).setMinWidth(75);
         
         loadedExtensionTable.getColumnExt(EXTENSION_NAME_COLUMN_NAME).setMinWidth(75);
+        
+        loadedExtensionTable.getColumnExt(EXTENSION_PRIORITY_COLUMN_NAME).setMaxWidth(80);
+        loadedExtensionTable.getColumnExt(EXTENSION_PRIORITY_COLUMN_NAME).setMinWidth(80);
         
         loadedExtensionTable.getColumnExt(EXTENSION_INSTALLED_VERSION_COLUMN_NAME).setMaxWidth(120);
         loadedExtensionTable.getColumnExt(EXTENSION_INSTALLED_VERSION_COLUMN_NAME).setMinWidth(90);
@@ -192,13 +203,19 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
                     {
                         UpdateInfo updateInfo = extensionUpdates.get(loadedExtensionTable.getModel().getValueAt(row, EXTENSION_NAME_COLUMN_NUMBER));
                         String type = updateInfo.getType().toString();
+                        
+                        String priority = PRIORITY_RECOMMENDED;
+                        if (updateInfo.isOptional()) {
+                        	priority = PRIORITY_OPTIONAL;
+                        }
+                        
                         String name =  updateInfo.getName();
                         String version =  updateInfo.getVersion();
                         String author =  updateInfo.getAuthor();
                         String url =  updateInfo.getUri();
                         String description  = updateInfo.getDescription();
                                             
-                        new ExtensionInfoDialog(name, type, author, version, url, description);
+                        new ExtensionInfoDialog(name, type, priority, author, version, url, description);
                     }
                 }
             }
@@ -351,21 +368,27 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
         int i = 0;
         for (UpdateInfo updateInfo: extensionUpdates.values())
         {
-        	tableData[i][0] = updateInfo.isNew();
-       		tableData[i][1] = !updateInfo.isIgnored();
-            tableData[i][2] = updateInfo.getType();
-            tableData[i][3] = updateInfo.getName();
+        	tableData[i][EXTENSION_NEW_COLUMN_NUMBER] = updateInfo.isNew();
+       		tableData[i][EXTENSION_INSTALL_COLUMN_NUMBER] = !updateInfo.isIgnored();
+            tableData[i][EXTENSION_TYPE_COLUMN_NUMBER] = updateInfo.getType();
+            tableData[i][EXTENSION_NAME_COLUMN_NUMBER] = updateInfo.getName();
             
-            String installedVersion = "";
+            String priority = PRIORITY_RECOMMENDED;
+            if (updateInfo.isOptional()) {
+            	priority = PRIORITY_OPTIONAL;
+            }
+            tableData[i][EXTENSION_PRIORITY_COLUMN_NUMBER] = priority;
+            
+            String installedVersion = "New";
             if (updateInfo.getType().equals(UpdateInfo.Type.SERVER)) {
             	installedVersion = PlatformUI.SERVER_VERSION;
             } else if (!updateInfo.isNew()){
             	installedVersion = extensions.get(updateInfo.getName()).getPluginVersion();
             }
             
-            tableData[i][4] = installedVersion;
-            tableData[i][5] = updateInfo.getVersion();
-            tableData[i][6] = updateInfo.isIgnored();
+            tableData[i][EXTENSION_INSTALLED_VERSION_COLUMN_NUMBER] = installedVersion;
+            tableData[i][EXTENSION_UPDATE_VERSION_COLUMN_NUMBER] = updateInfo.getVersion();
+            tableData[i][EXTENSION_IGNORE_COLUMN_NUMBER] = updateInfo.isIgnored();
             i++;
         }
         
@@ -391,6 +414,10 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
         	filterList.add(new PatternFilter("true", 0, EXTENSION_NEW_COLUMN_NUMBER));
         } else {
         	filterList.add(new PatternFilter("displayNone", 1, EXTENSION_NEW_COLUMN_NUMBER));
+        }
+        
+        if (!optionalCheckBox.isSelected()) {
+        	filterList.add(new PatternFilter(PRIORITY_RECOMMENDED, 0, EXTENSION_PRIORITY_COLUMN_NUMBER));
         }
         
         if (!ignoredCheckBox.isSelected()) {
@@ -430,11 +457,11 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
         newCheckBox = new javax.swing.JCheckBox();
         updatesCheckBox = new javax.swing.JCheckBox();
         jLabel1 = new javax.swing.JLabel();
+        optionalCheckBox = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Mirth Updater");
         setModal(true);
-        setResizable(false);
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setMaximumSize(null);
@@ -463,7 +490,7 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
             }
         });
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         jLabel2.setText("Mirth Updates");
 
         loadedExtensionScrollPane.setMaximumSize(null);
@@ -471,7 +498,10 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
         loadedExtensionScrollPane.setPreferredSize(new java.awt.Dimension(350, 200));
 
         loadedExtensionTable.setModel(new RefreshTableModel(new Object[][]{}, new String[] { EXTENSION_INSTALL_COLUMN_NAME, EXTENSION_TYPE_COLUMN_NAME, EXTENSION_NAME_COLUMN_NAME, EXTENSION_INSTALLED_VERSION_COLUMN_NAME,  EXTENSION_UPDATE_VERSION_COLUMN_NAME, EXTENSION_IGNORE_COLUMN_NAME }));
+        loadedExtensionTable.setHorizontalScrollEnabled(false);
         loadedExtensionScrollPane.setViewportView(loadedExtensionTable);
+
+        progressBar.setMinimumSize(new java.awt.Dimension(100, 18));
 
         ignoredCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         ignoredCheckBox.setSelected(true);
@@ -502,6 +532,15 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
 
         jLabel1.setText("Show:");
 
+        optionalCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        optionalCheckBox.setSelected(true);
+        optionalCheckBox.setText("Optional");
+        optionalCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                optionalCheckBoxActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -509,19 +548,21 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
             .add(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jPanel1Layout.createSequentialGroup()
-                        .add(jLabel2)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 222, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .add(jLabel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 249, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 74, Short.MAX_VALUE)
                         .add(jLabel1)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(updatesCheckBox)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(newCheckBox)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(optionalCheckBox)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(ignoredCheckBox))
-                    .add(loadedExtensionScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 507, Short.MAX_VALUE)
+                    .add(loadedExtensionScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 593, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .add(progressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 204, Short.MAX_VALUE)
+                        .add(progressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 290, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(installSelectedButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -536,11 +577,12 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
             .add(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel2)
                     .add(ignoredCheckBox)
                     .add(newCheckBox)
                     .add(updatesCheckBox)
-                    .add(jLabel1))
+                    .add(jLabel1)
+                    .add(optionalCheckBox)
+                    .add(jLabel2))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(loadedExtensionScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 304, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -632,6 +674,10 @@ private void newCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
 private void ignoredCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ignoredCheckBoxActionPerformed
 	updateTableFilters();
 }//GEN-LAST:event_ignoredCheckBoxActionPerformed
+
+private void optionalCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_optionalCheckBoxActionPerformed
+	updateTableFilters();
+}//GEN-LAST:event_optionalCheckBoxActionPerformed
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton checkForUpdatesButton;
@@ -644,6 +690,7 @@ private void ignoredCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//G
     private javax.swing.JScrollPane loadedExtensionScrollPane;
     private com.webreach.mirth.client.ui.components.MirthTable loadedExtensionTable;
     private javax.swing.JCheckBox newCheckBox;
+    private javax.swing.JCheckBox optionalCheckBox;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JLabel statusLabel;
     private javax.swing.JCheckBox updatesCheckBox;
