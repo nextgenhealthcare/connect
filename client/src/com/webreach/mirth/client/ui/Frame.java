@@ -1405,6 +1405,7 @@ public class Frame extends JXFrame
         			alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
         		}
         		
+        		// Only check if updates are enabled
             	if ((serverProperties != null) && (serverProperties.getProperty("update.enabled") != null) && serverProperties.getProperty("update.enabled").equals(UIConstants.YES_OPTION)) {
         	    	try {
         				List<UpdateInfo> updateInfoList = getUpdateClient(PlatformUI.MIRTH_FRAME).getUpdates();
@@ -1416,7 +1417,9 @@ public class Frame extends JXFrame
         				String serverName = "";
         				String serverVersion = "";
         				for (UpdateInfo updateInfo : updateInfoList) {
-    						if ((extensionManager || updateInfo.getType().equals(UpdateInfo.Type.SERVER)) && !updateInfo.isIgnored()) {
+        					// If the extension manager exists or it's a server update, set to true...
+        					// as long as the update is not ignored and not optional.
+    						if ((extensionManager || updateInfo.getType().equals(UpdateInfo.Type.SERVER)) && !updateInfo.isIgnored() && !updateInfo.isOptional()) {
     							newUpdates = true;
     							
     							if (updateInfo.getType().equals(UpdateInfo.Type.SERVER)) {
