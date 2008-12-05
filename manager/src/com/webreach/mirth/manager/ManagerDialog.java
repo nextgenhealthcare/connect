@@ -734,7 +734,7 @@ private void refreshServiceButtonActionPerformed(java.awt.event.ActionEvent evt)
                 disableButtons();
                 if (checkPropertiesForChanges())
                     saveProperties();
-                ManagerController.getInstance().restartMirth(serverProperties.getProperty(SERVER_WEBSTART_PORT));
+                ManagerController.getInstance().restartMirth(serverProperties.getProperty(SERVER_WEBSTART_PORT), serverProperties.getProperty(SERVER_ADMINISTRATOR_PORT), serverProperties.getProperty(SERVER_JMX_PORT));
 
                 return null;
             }
@@ -783,7 +783,7 @@ private void refreshServiceButtonActionPerformed(java.awt.event.ActionEvent evt)
                 disableButtons();
                 if (checkPropertiesForChanges())
                     saveProperties();
-                ManagerController.getInstance().startMirth(true, serverProperties.getProperty(SERVER_WEBSTART_PORT));
+                ManagerController.getInstance().startMirth(true, serverProperties.getProperty(SERVER_WEBSTART_PORT), serverProperties.getProperty(SERVER_ADMINISTRATOR_PORT), serverProperties.getProperty(SERVER_JMX_PORT));
 
                 return null;
             }

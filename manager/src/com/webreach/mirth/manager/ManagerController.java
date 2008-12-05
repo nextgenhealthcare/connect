@@ -117,38 +117,55 @@ public class ManagerController
 
         return -1;
     }
-
-    public boolean startMirth(boolean alert, String port)
-    {
-        ServerSocket socket = null;
-        try
-        {
+    
+    /**
+     * Test a port to see if it is already in use.
+     * 
+     * @param port The port to test.
+     * @param name A friendly name to display in case of an error.
+     * @return An error message, or null if the port is not in use and there was no error.
+     */
+    private String testPort(String port, String name) {
+    	ServerSocket socket = null;
+        try {
             socket = new ServerSocket(Integer.parseInt(port));
-
-        }
-        catch (NumberFormatException ex)
-        {
-            alertError("Invalid webstart port.");
-            return false;
-        }
-        catch (IOException ex)
-        {
-            alertError("Port already in use: " + port + " \nService cannot be started.");
-            return false;
-        }
-        finally
-        {
-            if (socket != null)
-            {
-                try
-                {
+        } catch (NumberFormatException ex) {
+            return name + " port is invalid: " + port;
+        } catch (IOException ex) {
+            return name + " port is already in use: " + port;
+        } finally {
+            if (socket != null) {
+                try {
                     socket.close();
+                } catch (IOException e) {
+                    return "Could not close test socket for " + name + ": " + port;
                 }
-                catch (IOException e)
-                {
-                }
-
             }
+        }
+        return null;
+    }
+
+    public boolean startMirth(boolean alert, String httpPort, String httpsPort, String jmxPort)
+    {
+        String httpPortResult = testPort(httpPort, "WebStart");
+        String httpsPortResult = testPort(httpsPort, "Administrator");
+        String jmxPortResult = testPort(jmxPort, "JMX");
+        
+        if (httpPortResult != null || httpsPortResult != null || jmxPortResult != null)
+        {
+            String errorMessage = "";
+            if (httpPortResult != null)
+                errorMessage += httpPortResult + "\n";
+            if (httpsPortResult != null)
+                errorMessage += httpsPortResult + "\n";
+            if (jmxPortResult != null)
+                errorMessage += jmxPortResult + "\n";
+            
+            // Remove the last \n
+            errorMessage.substring(0, errorMessage.length()-1);
+            alertError(errorMessage);
+            
+            return false;
         }
 
         try
@@ -246,11 +263,11 @@ public class ManagerController
         return false;
     }
 
-    public void restartMirth(String port)
+    public void restartMirth(String httpPort, String httpsPort, String jmxPort)
     {
         if (stopMirth(false))
         {
-            if (startMirth(false, port))
+            if (startMirth(false, httpPort, httpsPort, jmxPort))
             {
                 alertInformation("The Mirth service was restarted successfully.");
                 updating = false;
