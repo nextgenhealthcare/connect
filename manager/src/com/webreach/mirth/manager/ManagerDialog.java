@@ -680,7 +680,7 @@ private void webreachLinkMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRS
 private void startupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startupActionPerformed
     if(startup.isSelected()) { 
     	String absolutePath = new File(PlatformUI.MIRTH_PATH).getAbsolutePath();
-        ManagerController.getInstance().setRegistryValue(REGISTRY_KEY, REGISTRY_VALUE_NAME, absolutePath + System.getProperty("file.separator") + "MirthServerManager.exe\"");
+        ManagerController.getInstance().setRegistryValue(REGISTRY_KEY, REGISTRY_VALUE_NAME, "\"" + absolutePath + System.getProperty("file.separator") + "MirthServerManager.exe\"");
     } else { 
         ManagerController.getInstance().deleteRegistryValue(REGISTRY_KEY, REGISTRY_VALUE_NAME);
     }
