@@ -100,6 +100,7 @@ public class SettingsPanel extends javax.swing.JPanel
         buttonGroup3 = new javax.swing.ButtonGroup();
         buttonGroup4 = new javax.swing.ButtonGroup();
         buttonGroup5 = new javax.swing.ButtonGroup();
+        buttonGroup6 = new javax.swing.ButtonGroup();
         backupPanel = new javax.swing.JPanel();
         backupButton = new javax.swing.JButton();
         restoreButton = new javax.swing.JButton();
@@ -119,6 +120,10 @@ public class SettingsPanel extends javax.swing.JPanel
         smtpPort = new com.webreach.mirth.client.ui.components.MirthTextField();
         smtpHost = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel10 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        secureConnectionNone = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        secureConnectionTLS = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        secureConnectionSSL = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         serverSettings = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         clearGlobalMapYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
@@ -235,32 +240,78 @@ public class SettingsPanel extends javax.swing.JPanel
 
         jLabel10.setText("SMTP Host:");
 
+        jLabel5.setText("Secure Connection:");
+
+        secureConnectionNone.setBackground(new java.awt.Color(255, 255, 255));
+        secureConnectionNone.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup6.add(secureConnectionNone);
+        secureConnectionNone.setSelected(true);
+        secureConnectionNone.setText("None");
+        secureConnectionNone.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        secureConnectionNone.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                secureConnectionNoneActionPerformed(evt);
+            }
+        });
+
+        secureConnectionTLS.setBackground(new java.awt.Color(255, 255, 255));
+        secureConnectionTLS.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup6.add(secureConnectionTLS);
+        secureConnectionTLS.setText("TLS");
+        secureConnectionTLS.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        secureConnectionTLS.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                secureConnectionTLSActionPerformed(evt);
+            }
+        });
+
+        secureConnectionSSL.setBackground(new java.awt.Color(255, 255, 255));
+        secureConnectionSSL.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup6.add(secureConnectionSSL);
+        secureConnectionSSL.setText("SSL");
+        secureConnectionSSL.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        secureConnectionSSL.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                secureConnectionSSLActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel10)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel11)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel12)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, usernameLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, passwordLabel))
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel5)
+                    .add(jLabel10)
+                    .add(jLabel11)
+                    .add(jLabel1)
+                    .add(jLabel12)
+                    .add(usernameLabel)
+                    .add(passwordLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(defaultFrom, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
-                    .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                        .add(smtpPassword, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
-                        .add(smtpUsername, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
-                        .add(jPanel1Layout.createSequentialGroup()
-                            .add(requireAuthenticationYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(requireAuthenticationNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .add(smtpPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 44, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(smtpHost, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 117, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .add(122, 122, 122))
+                    .add(jPanel1Layout.createSequentialGroup()
+                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(defaultFrom, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
+                            .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                                .add(smtpPassword, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
+                                .add(smtpUsername, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
+                                .add(jPanel1Layout.createSequentialGroup()
+                                    .add(requireAuthenticationYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                    .add(requireAuthenticationNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .add(smtpPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 44, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(smtpHost, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 117, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                        .add(122, 122, 122))
+                    .add(jPanel1Layout.createSequentialGroup()
+                        .add(secureConnectionNone, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(secureConnectionTLS, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(secureConnectionSSL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(130, 130, 130))))
         );
 
         jPanel1Layout.linkSize(new java.awt.Component[] {defaultFrom, smtpHost, smtpPassword, smtpUsername}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
@@ -279,6 +330,12 @@ public class SettingsPanel extends javax.swing.JPanel
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel1)
                     .add(defaultFrom, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel5)
+                    .add(secureConnectionNone, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(secureConnectionTLS, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(secureConnectionSSL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel12)
@@ -695,6 +752,18 @@ private void usageStatsMoreInfoLabelMouseClicked(java.awt.event.MouseEvent evt) 
 BareBonesBrowserLaunch.openURL(UIConstants.PRIVACY_URL);
 }//GEN-LAST:event_usageStatsMoreInfoLabelMouseClicked
 
+private void secureConnectionNoneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_secureConnectionNoneActionPerformed
+// TODO add your handling code here:
+}//GEN-LAST:event_secureConnectionNoneActionPerformed
+
+private void secureConnectionTLSActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_secureConnectionTLSActionPerformed
+// TODO add your handling code here:
+}//GEN-LAST:event_secureConnectionTLSActionPerformed
+
+private void secureConnectionSSLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_secureConnectionSSLActionPerformed
+// TODO add your handling code here:
+}//GEN-LAST:event_secureConnectionSSLActionPerformed
+
     private void requireAuthenticationNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_requireAuthenticationNoActionPerformed
     {// GEN-HEADEREND:event_requireAuthenticationNoActionPerformed
         smtpUsername.setEnabled(false);
@@ -745,6 +814,13 @@ BareBonesBrowserLaunch.openURL(UIConstants.PRIVACY_URL);
                 defaultFrom.setText((String) serverProperties.getProperty("smtp.from"));
             else
                 defaultFrom.setText("");
+            
+            if (serverProperties.getProperty("smtp.tls") != null && serverProperties.getProperty("smtp.tls").equals(UIConstants.YES_OPTION))
+                secureConnectionTLS.setSelected(true);
+            else if (serverProperties.getProperty("smtp.ssl") != null && serverProperties.getProperty("smtp.ssl").equals(UIConstants.YES_OPTION))
+                secureConnectionSSL.setSelected(true);
+            else
+                secureConnectionNone.setSelected(true);
 
             if (serverProperties.getProperty("smtp.auth") != null)
             {
@@ -865,6 +941,22 @@ BareBonesBrowserLaunch.openURL(UIConstants.PRIVACY_URL);
             serverProperties.put("smtp.host", smtpHost.getText());
             serverProperties.put("smtp.port", smtpPort.getText());
             serverProperties.put("smtp.from", defaultFrom.getText());
+            
+            if (secureConnectionTLS.isSelected())
+            {
+                serverProperties.put("smtp.tls", UIConstants.YES_OPTION);
+                serverProperties.put("smtp.ssl", UIConstants.NO_OPTION);
+            }
+            else if (secureConnectionSSL.isSelected())
+            {
+                serverProperties.put("smtp.tls", UIConstants.NO_OPTION);
+                serverProperties.put("smtp.ssl", UIConstants.YES_OPTION);
+            }
+            else
+            {
+                serverProperties.put("smtp.tls", UIConstants.NO_OPTION);
+                serverProperties.put("smtp.ssl", UIConstants.NO_OPTION);
+            }
 
             if (requireAuthenticationYes.isSelected())
             {
@@ -901,6 +993,7 @@ BareBonesBrowserLaunch.openURL(UIConstants.PRIVACY_URL);
     private javax.swing.ButtonGroup buttonGroup3;
     private javax.swing.ButtonGroup buttonGroup4;
     private javax.swing.ButtonGroup buttonGroup5;
+    private javax.swing.ButtonGroup buttonGroup6;
     private javax.swing.JLabel checkForUpdatesLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton checkForUpdatesNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton checkForUpdatesYes;
@@ -916,6 +1009,7 @@ BareBonesBrowserLaunch.openURL(UIConstants.PRIVACY_URL);
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
@@ -927,6 +1021,9 @@ BareBonesBrowserLaunch.openURL(UIConstants.PRIVACY_URL);
     private javax.swing.JButton restoreButton;
     private com.webreach.mirth.client.ui.components.MirthRadioButton rowHighlightNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton rowHighlightYes;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton secureConnectionNone;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton secureConnectionSSL;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton secureConnectionTLS;
     private javax.swing.JLabel sendUsageStatsLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton sendUsageStatsNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton sendUsageStatsYes;
