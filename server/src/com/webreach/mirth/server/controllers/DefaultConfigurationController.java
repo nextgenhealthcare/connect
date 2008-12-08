@@ -209,7 +209,7 @@ public class DefaultConfigurationController extends ConfigurationController{
         String tls = serverProperties.getProperty("smtp.tls");
 
         if ((tls == null) || (tls.length() == 0)) {
-            serverProperties.setProperty("smtp.tls", "1");
+            serverProperties.setProperty("smtp.tls", "0");
         }
 
         setServerProperties(serverProperties);
