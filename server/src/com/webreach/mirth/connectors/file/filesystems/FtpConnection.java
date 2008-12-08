@@ -223,6 +223,8 @@ public class FtpConnection implements FileSystemConnection {
 						}
 					}
 				}
+			} else if (!client.changeWorkingDirectory(dir)) {
+				throw new Exception("Unable to change to destination directory: " + dir);
 			}
 		}
 	}
