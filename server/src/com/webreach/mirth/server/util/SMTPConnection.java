@@ -65,10 +65,6 @@ public class SMTPConnection {
                 properties.put("mail.smtps.auth", "true");    
             }
 
-            if (tls) {
-                properties.put("mail.smtps.starttls.enable", "true");    
-            }
-
             properties.put("mail.smtps.host", host); 
             properties.put("mail.smtps.socketFactory.port", port);
             properties.put("mail.smtps.socketFactory.class", SSL_FACTORY);
