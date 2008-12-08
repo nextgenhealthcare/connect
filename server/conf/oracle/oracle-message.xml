@@ -45,11 +45,11 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<parameter property="encodedData" jdbcType="CLOB" />
 		<parameter property="errors" jdbcType="CLOB" />
 		<parameter property="correlationId" jdbcType="VARCHAR" />
-		<parameter property="id" jdbcType="VARCHAR" />
 		<parameter property="connectorMap" jdbcType="CLOB" />
 		<parameter property="channelMap" jdbcType="CLOB" />
 		<parameter property="responseMap" jdbcType="CLOB" />		
-        <parameter property="attachment" jdbcType="SMALLINT" />        
+        <parameter property="attachment" jdbcType="SMALLINT" />  
+		<parameter property="id" jdbcType="VARCHAR" />		
 	</parameterMap>
 
 	<resultMap class="com.webreach.mirth.model.MessageObject" id="get-message-result">
@@ -130,7 +130,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 				DATE_CREATED <![CDATA[ <= ]]> to_date('$endDate$','YYYY-MM-DD HH24:MI:SS')
 			</isNotNull>
 			<isNotNull  prepend="AND" property="quickSearch">
-				(UPPER(RAW_DATA) LIKE UPPER('%$quickSearch$%') OR UPPER(ENCODED_DATA) LIKE UPPER('%$quickSearch$%') OR UPPER(TRANSFORMED_DATA) ILIKE UPPER('%$quickSearch$%'))
+				(UPPER(RAW_DATA) LIKE UPPER('%$quickSearch$%') OR UPPER(ENCODED_DATA) LIKE UPPER('%$quickSearch$%') OR UPPER(TRANSFORMED_DATA) LIKE UPPER('%$quickSearch$%'))
 			</isNotNull>		
 			<isNotNull prepend="AND" removeFirstPrepend="true" open="(" close=")" property="searchCriteria">
 				<isEqual prepend="OR" compareValue="true" property="searchRawData">
