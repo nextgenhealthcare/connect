@@ -330,16 +330,13 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 
 	/** Delete a file */
 	private boolean deleteFile(String name, String dir, boolean mayNotExist) throws Exception {
-		
 		UMOEndpointURI uri = endpoint.getEndpointURI();
 		FileSystemConnection con = fileConnector.getConnection(uri, null);
 		try {
-			
 			con.delete(name, dir, mayNotExist);
 			return true;
 		}
 		catch (Exception e) {
-
 			if (mayNotExist) {
 				return true;
 			}

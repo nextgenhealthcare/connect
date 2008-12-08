@@ -107,23 +107,12 @@ public class SftpConnection implements FileSystemConnection {
 		}
 	}
 
-	// All FTP connection paths are interpreted as absolute.
-	private String fixDir(String srcDir) {
-		
-		if (srcDir.charAt(0) != '/') {
-			return "/" + srcDir;
-		}
-		else {
-			return srcDir;
-		}
-	}
-
 	public List<FileInfo> listFiles(String fromDir, String filenamePattern)
 		throws Exception
 	{
 	    FilenameFilter filenameFilter = new FilenameWildcardFilter(filenamePattern);
 	    
-		client.cd(fixDir(fromDir));
+		client.cd(fromDir);
 		Vector entries = client.ls(".");
 		List<FileInfo> files = new ArrayList<FileInfo>(entries.size());
 
@@ -141,7 +130,7 @@ public class SftpConnection implements FileSystemConnection {
 	}
 
 	public InputStream readFile(String file, String fromDir) throws Exception {
-		client.cd(fixDir(fromDir));
+		client.cd(fromDir);
 		return client.get(file);
 	}
 
@@ -158,7 +147,7 @@ public class SftpConnection implements FileSystemConnection {
 	public void writeFile(String file, String toDir, boolean append, byte[] message)
 		throws Exception
 	{
-		cdmake(fixDir(toDir));
+		cdmake(toDir);
 		int mode = 0;
 		if (append)
 			mode = ChannelSftp.APPEND;
@@ -170,7 +159,7 @@ public class SftpConnection implements FileSystemConnection {
 	public void delete(String file, String fromDir, boolean mayNotExist)
 		throws Exception
 	{
-		client.cd(fixDir(fromDir));
+		client.cd(fromDir);
 		try {
 			client.rm(file);
 		}
@@ -210,8 +199,9 @@ public class SftpConnection implements FileSystemConnection {
 	public void move(String fromName, String fromDir, String toName, String toDir)
 		throws Exception
 	{
+		client.cd(fromDir); // start in the read directory
 		// Create any missing directories in the toDir path
-		cdmake(fixDir(toDir));
+		cdmake(toDir);
 
 		try {
 			client.rm(toName);
@@ -220,8 +210,8 @@ public class SftpConnection implements FileSystemConnection {
 			logger.info("Unable to delete destination file");
 		}
 
-		client.cd(fixDir(fromDir)); // move to the read directory
-		client.rename(fromName.replaceAll("//", "/"), (fixDir(toDir) + "/" + toName).replaceAll("//", "/"));
+		client.cd(fromDir); // move to the read directory
+		client.rename(fromName.replaceAll("//", "/"), (toDir + "/" + toName).replaceAll("//", "/"));
 	}
 
 	public boolean isConnected() {

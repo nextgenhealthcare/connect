@@ -16,10 +16,8 @@ import org.apache.commons.net.ftp.FTPReply;
 
 import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
 
-/** The FileSystemConnection class for files accessed via FTP.
- * 
- * @author Erik Horstkotte
- *
+/**
+ * The FileSystemConnection class for files accessed via FTP.
  */
 public class FtpConnection implements FileSystemConnection {
 
@@ -106,23 +104,12 @@ public class FtpConnection implements FileSystemConnection {
 		}
 	}
 
-	// All FTP connection paths are interpreted as absolute.
-	private String fixDir(String srcDir) {
-		
-		if (srcDir.charAt(0) != '/') {
-			return "/" + srcDir;
-		}
-		else {
-			return srcDir;
-		}
-	}
-
 	public List<FileInfo> listFiles(String fromDir, String filenamePattern)
 		throws Exception
 	{
 	    FilenameFilter filenameFilter = new FilenameWildcardFilter(filenamePattern);
 	    
-		if (!client.changeWorkingDirectory(fixDir(fromDir))) {
+		if (!client.changeWorkingDirectory(fromDir)) {
 			logger.error("listFiles.changeWorkingDirectory: " + client.getReplyCode() + "-" + client.getReplyString());
 			throw new IOException("Ftp error: " + client.getReplyCode());
 		}
@@ -151,7 +138,7 @@ public class FtpConnection implements FileSystemConnection {
 	public InputStream readFile(String file, String fromDir)
 		throws Exception
 	{
-		if (!client.changeWorkingDirectory(fixDir(fromDir))) {
+		if (!client.changeWorkingDirectory(fromDir)) {
 			logger.error("readFile.changeWorkingDirectory: " + client.getReplyCode() + "-" + client.getReplyString());
 			throw new IOException("Ftp error: " + client.getReplyCode());
 		}
@@ -175,16 +162,20 @@ public class FtpConnection implements FileSystemConnection {
 	public void writeFile(String file, String toDir, boolean append, byte[] message)
 		throws Exception
 	{
-		cdmake(fixDir(toDir));
+		cdmake(toDir);
 		client.storeFile(file, new ByteArrayInputStream(message));
 	}
 
 	public void delete(String file, String fromDir, boolean mayNotExist)
 		throws Exception
 	{
-		if (!client.changeWorkingDirectory(fixDir(fromDir))) {
-			logger.error("delete.changeWorkingDirectory: " + client.getReplyCode() + "-" + client.getReplyString());
-			throw new IOException("Ftp error: " + client.getReplyCode());
+		if (!client.changeWorkingDirectory(fromDir)) {
+			if (!mayNotExist) {
+				logger.error("delete.changeWorkingDirectory: " + client.getReplyCode() + "-" + client.getReplyString());
+				throw new IOException("Ftp error: " + client.getReplyCode());
+			} else {
+				return;
+			}
 		}
 
 		boolean deleteSucceeded = client.deleteFile(file);
@@ -197,7 +188,7 @@ public class FtpConnection implements FileSystemConnection {
 	}
 
 	private void cdmake(String dir) throws Exception {
-		
+
 		if (!client.changeWorkingDirectory(dir)) {
 			if (!client.makeDirectory(dir)) {
 				String tempDir = dir;
@@ -230,8 +221,8 @@ public class FtpConnection implements FileSystemConnection {
 	}
 
 	public void move(String fromName, String fromDir, String toName, String toDir) throws Exception {
-		
-		cdmake(fixDir(toDir));
+		client.changeWorkingDirectory(fromDir); // start in the read directory
+		cdmake(toDir);
 
 		try {
 			client.deleteFile(toName);
@@ -239,11 +230,11 @@ public class FtpConnection implements FileSystemConnection {
 			logger.info("Unable to delete destination file");
 		}
 
-		if (!client.changeWorkingDirectory(fixDir(fromDir))) {
+		if (!client.changeWorkingDirectory(fromDir)) {
 			throw new Exception("Unable to change to directory: " + fromDir.substring(1) + "/");
 		}
 
-		boolean renameSucceeded = client.rename(fromName.replaceAll("//", "/"), (fixDir(toDir) + "/" + toName).replaceAll("//", "/"));
+		boolean renameSucceeded = client.rename(fromName.replaceAll("//", "/"), (toDir + "/" + toName).replaceAll("//", "/"));
 		if (!renameSucceeded) {
 			logger.error("move.rename: " + client.getReplyCode() + "-" + client.getReplyString());
 			throw new IOException("Ftp error: " + client.getReplyCode());
