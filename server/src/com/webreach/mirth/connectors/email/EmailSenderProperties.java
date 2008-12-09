@@ -38,8 +38,7 @@ public class EmailSenderProperties implements ComponentProperties
     public static final String DATATYPE = "DataType";
     public static final String EMAIL_ADDRESS = "hostname";
     public static final String EMAIL_PORT = "smtpPort";
-    public static final String EMAIL_TLS = "tls";
-    public static final String EMAIL_SSL = "ssl";
+    public static final String EMAIL_SECURE = "emailSecure";
     public static final String EMAIL_USERNAME = "username";
     public static final String EMAIL_PASSWORD = "password";
     public static final String EMAIL_TO = "toAddresses";
@@ -58,8 +57,7 @@ public class EmailSenderProperties implements ComponentProperties
         properties.put(DATATYPE, name);
         properties.put(EMAIL_ADDRESS, "");
         properties.put(EMAIL_PORT, "");
-        properties.put(EMAIL_TLS, "0");
-        properties.put(EMAIL_SSL, "0");
+        properties.put(EMAIL_SECURE, "none");
         properties.put(EMAIL_USERNAME, "");
         properties.put(EMAIL_PASSWORD, "");
         properties.put(EMAIL_TO, "");
