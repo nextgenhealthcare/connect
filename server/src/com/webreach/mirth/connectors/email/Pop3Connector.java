@@ -138,4 +138,8 @@ public class Pop3Connector extends AbstractServiceEnabledConnector implements Ma
 		return null;
 	}
 
+    public String getEmailSecure() {
+        return "none";
+    }
+
 }
