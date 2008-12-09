@@ -38,6 +38,7 @@ import javax.swing.JOptionPane;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.util.FileUtil;
+import com.webreach.mirth.connectors.email.EmailSenderProperties;
 import com.webreach.mirth.model.ServerConfiguration;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.util.ImportConverter;
@@ -815,9 +816,10 @@ private void secureConnectionSSLActionPerformed(java.awt.event.ActionEvent evt) 
             else
                 defaultFrom.setText("");
             
-            if (serverProperties.getProperty("smtp.tls") != null && serverProperties.getProperty("smtp.tls").equals(UIConstants.YES_OPTION))
+            String smtpSecure = (String) serverProperties.getProperty("smtp.secure");
+            if (smtpSecure != null && smtpSecure.equalsIgnoreCase("tls"))
                 secureConnectionTLS.setSelected(true);
-            else if (serverProperties.getProperty("smtp.ssl") != null && serverProperties.getProperty("smtp.ssl").equals(UIConstants.YES_OPTION))
+            else if (smtpSecure != null && smtpSecure.equalsIgnoreCase("ssl"))
                 secureConnectionSSL.setSelected(true);
             else
                 secureConnectionNone.setSelected(true);
@@ -943,20 +945,11 @@ private void secureConnectionSSLActionPerformed(java.awt.event.ActionEvent evt) 
             serverProperties.put("smtp.from", defaultFrom.getText());
             
             if (secureConnectionTLS.isSelected())
-            {
-                serverProperties.put("smtp.tls", UIConstants.YES_OPTION);
-                serverProperties.put("smtp.ssl", UIConstants.NO_OPTION);
-            }
+            	serverProperties.put("smtp.secure", "tls");
             else if (secureConnectionSSL.isSelected())
-            {
-                serverProperties.put("smtp.tls", UIConstants.NO_OPTION);
-                serverProperties.put("smtp.ssl", UIConstants.YES_OPTION);
-            }
+            	serverProperties.put("smtp.secure", "ssl");
             else
-            {
-                serverProperties.put("smtp.tls", UIConstants.NO_OPTION);
-                serverProperties.put("smtp.ssl", UIConstants.NO_OPTION);
-            }
+            	serverProperties.put("smtp.secure", "none");
 
             if (requireAuthenticationYes.isSelected())
             {
