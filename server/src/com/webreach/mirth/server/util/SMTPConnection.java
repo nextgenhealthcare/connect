@@ -117,7 +117,7 @@ public class SMTPConnection {
 
         Transport transport = null;
 
-        if (ssl) {
+        if (secure.equalsIgnoreCase(SECURE_SSL)) {
             transport = session.getTransport(PROTOCOL_SMTPS);
         } else {
             transport = session.getTransport(PROTOCOL_SMTP);
