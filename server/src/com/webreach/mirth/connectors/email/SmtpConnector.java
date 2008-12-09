@@ -78,6 +78,16 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
      * Holds value of the from address.
      */
     private String from;
+    
+    /**
+     * Holds value of tls
+     */
+    private boolean tls = false;
+    
+    /**
+     * Holds value of ssl
+     */
+    private boolean ssl = false;
 
     /**
      * Holds value of property SMTP password.
@@ -448,4 +458,16 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
     public void setAttachmentTypes(List attachmentTypes) {
         this.attachmentTypes = attachmentTypes;
     }
+	public void setTls(boolean tls) {
+		this.tls = tls;
+	}
+	public boolean isTls() {
+		return tls;
+	}
+	public void setSsl(boolean ssl) {
+		this.ssl = ssl;
+	}
+	public boolean isSsl() {
+		return ssl;
+	}
 }
