@@ -157,11 +157,11 @@ public class DefaultAlertController extends AlertController {
 
         try {
             SqlConfig.getSqlMapClient().delete("Alert.deleteAlert", alert);
-            
+
             if (DatabaseUtil.statementExists("Alert.vacuumAlertTable")) {
                 SqlConfig.getSqlMapClient().update("Alert.vacuumAlertTable");
             }
-            
+
         } catch (SQLException e) {
             throw new ControllerException(e);
         }
@@ -191,32 +191,37 @@ public class DefaultAlertController extends AlertController {
     }
 
     private void sendAlertEmails(List<String> emails, String template, String errorMessage, String channelId) throws ControllerException {
-        try {
-            Properties properties = ControllerFactory.getFactory().createConfigurationController().getServerProperties();
-            String fromAddress = PropertyLoader.getProperty(properties, "smtp.from");
-            String toAddresses = generateEmailList(emails);
-            String body = errorMessage;
+        Properties properties = ControllerFactory.getFactory().createConfigurationController().getServerProperties();
+        final String fromAddress = PropertyLoader.getProperty(properties, "smtp.from");
+        final String toAddresses = generateEmailList(emails);
+        String body = errorMessage;
 
-            if (template != null) {
-                String channelName = ControllerFactory.getFactory().createChannelController().getChannelName(channelId);
+        if (template != null) {
+            String channelName = ControllerFactory.getFactory().createChannelController().getChannelName(channelId);
 
-                Map<String, Object> context = new HashMap<String, Object>();
-                context.put("channelName", channelName);
-                context.put("ERROR", errorMessage);
-                context.put("error", errorMessage);
-                context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
-                context.put("date", new DateTool());
+            Map<String, Object> context = new HashMap<String, Object>();
+            context.put("channelName", channelName);
+            context.put("ERROR", errorMessage);
+            context.put("error", errorMessage);
+            context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
+            context.put("date", new DateTool());
 
-                TemplateValueReplacer replacer = new TemplateValueReplacer();
-                body = replacer.replaceValues(template, context);
-            }
-
-            SMTPConnection connection = SMTPConnectionFactory.createSMTPConnection();
-            connection.send(toAddresses, null, fromAddress, "Mirth Alert", body);
-        } catch (Exception e) {
-            logger.error(e);
-            throw new ControllerException("Could not send alert email.", e);
+            TemplateValueReplacer replacer = new TemplateValueReplacer();
+            body = replacer.replaceValues(template, context);
         }
+
+        final String finalBody = body;
+
+        new Thread(new Runnable() {
+            public void run() {
+                try {
+                    SMTPConnection connection = SMTPConnectionFactory.createSMTPConnection();
+                    connection.send(toAddresses, null, fromAddress, "Mirth Alert", finalBody);
+                } catch (Exception e) {
+                    logger.error("Could not send alert email.", e);
+                }
+            }
+        }).start();
     }
 
     private String generateEmailList(List<String> emails) {
