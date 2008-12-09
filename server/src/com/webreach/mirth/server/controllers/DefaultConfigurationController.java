@@ -198,19 +198,12 @@ public class DefaultConfigurationController extends ConfigurationController{
         } else if ((smtpAuth == null) || (smtpAuth.length() == 0)) {
             serverProperties.setProperty("smtp.auth", "0");
         }
+        
+        // smtp.secure
+        String secure = serverProperties.getProperty("smtp.secure");
 
-        // smtp.ssl
-        String ssl = serverProperties.getProperty("smtp.ssl");
-
-        if ((ssl == null) || (ssl.length() == 0)) {
-            serverProperties.setProperty("smtp.ssl", "0");
-        }
-
-        // smtp.tls
-        String tls = serverProperties.getProperty("smtp.tls");
-
-        if ((tls == null) || (tls.length() == 0)) {
-            serverProperties.setProperty("smtp.tls", "0");
+        if ((secure == null) || (secure.length() == 0)) {
+            serverProperties.setProperty("smtp.secure", "none");
         }
 
         setServerProperties(serverProperties);
