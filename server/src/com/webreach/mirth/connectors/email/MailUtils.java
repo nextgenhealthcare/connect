@@ -49,9 +49,11 @@ public class MailUtils
         if (url == null) {
             throw new IllegalArgumentException(new org.mule.config.i18n.Message(Messages.X_IS_NULL, "URL").toString());
         }
+        String secureType = connector.getEmailSecure();
         String protocol = connector.getProtocol().toLowerCase();
         boolean secure = false;
-        if(protocol.equals("smtps")) {
+        
+        if (protocol.equals("smtps") || secureType.equals("ssl")) {
             protocol = "smtp";
             secure=true;
         } else if(protocol.equals("pop3s")) {
@@ -70,10 +72,12 @@ public class MailUtils
         }
         props.put("mail." + protocol + ".port", String.valueOf(port));
 
-        if(secure) {
+        if (secure) {
             System.setProperty("mail." + protocol + ".socketFactory.port", String.valueOf(port));
+        } else if (secureType.equals("tls")) {
             System.setProperty("mail." + protocol + ".starttls.enable", "true");
         }
+        
         Session session;
         if (url.getPassword() != null) {
             props.put("mail." + protocol + ".auth", "true");
