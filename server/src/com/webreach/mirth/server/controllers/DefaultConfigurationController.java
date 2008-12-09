@@ -190,11 +190,12 @@ public class DefaultConfigurationController extends ConfigurationController{
 
         // smtp.useAuthentication
         String useAuthentication = serverProperties.getProperty("smtp.requireAuthentication");
-
+        String smtpAuth = serverProperties.getProperty("smtp.auth");
+        
         if ((useAuthentication != null) && (useAuthentication.length() > 0)) {
             serverProperties.setProperty("smtp.auth", useAuthentication);
             serverProperties.remove("smtp.requireAuthentication");
-        } else {
+        } else if ((smtpAuth == null) || (smtpAuth.length() == 0)) {
             serverProperties.setProperty("smtp.auth", "0");
         }
 
