@@ -78,6 +78,14 @@ public class EmailSender extends ConnectorClass
         properties.put(EmailSenderProperties.DATATYPE, name);
         properties.put(EmailSenderProperties.EMAIL_ADDRESS, SMTPServerHostField.getText());
         properties.put(EmailSenderProperties.EMAIL_PORT, SMTPServerPortField.getText());
+        
+        if (secureConnectionTLS.isSelected())
+            properties.put(EmailSenderProperties.EMAIL_SECURE, "tls");
+        else if (secureConnectionSSL.isSelected())
+        	properties.put(EmailSenderProperties.EMAIL_SECURE, "ssl");
+        else
+        	properties.put(EmailSenderProperties.EMAIL_SECURE, "none");
+        
         properties.put(EmailSenderProperties.EMAIL_USERNAME, emailUsernameField.getText());
         properties.put(EmailSenderProperties.EMAIL_PASSWORD, new String(emailPasswordField.getPassword()));
         properties.put(EmailSenderProperties.EMAIL_TO, emailToField.getText());
@@ -106,6 +114,14 @@ public class EmailSender extends ConnectorClass
         
         SMTPServerHostField.setText((String) props.get(EmailSenderProperties.EMAIL_ADDRESS));
         SMTPServerPortField.setText((String) props.get(EmailSenderProperties.EMAIL_PORT));
+        
+        if (((String) props.getProperty(EmailSenderProperties.EMAIL_SECURE)).equalsIgnoreCase("tls"))
+            secureConnectionTLS.setSelected(true);
+        else if (((String) props.getProperty(EmailSenderProperties.EMAIL_SECURE)).equalsIgnoreCase("ssl"))
+            secureConnectionSSL.setSelected(true);
+        else
+            secureConnectionNone.setSelected(true);
+        
         emailUsernameField.setText((String) props.get(EmailSenderProperties.EMAIL_USERNAME));
         emailPasswordField.setText((String) props.get(EmailSenderProperties.EMAIL_PASSWORD));
         emailToField.setText((String) props.get(EmailSenderProperties.EMAIL_TO));
@@ -427,6 +443,10 @@ public class EmailSender extends ConnectorClass
         attachmentsTable = new com.webreach.mirth.client.ui.components.MirthTable();
         newButton = new javax.swing.JButton();
         deleteButton = new javax.swing.JButton();
+        jLabel10 = new javax.swing.JLabel();
+        secureConnectionNone = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        secureConnectionTLS = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        secureConnectionSSL = new com.webreach.mirth.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -524,23 +544,47 @@ public class EmailSender extends ConnectorClass
             }
         });
 
+        jLabel10.setText("Secure Connection:");
+
+        secureConnectionNone.setBackground(new java.awt.Color(255, 255, 255));
+        secureConnectionNone.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup2.add(secureConnectionNone);
+        secureConnectionNone.setText("None");
+        secureConnectionNone.setToolTipText("Selects whether the HTTP operation used to send each message.");
+        secureConnectionNone.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        secureConnectionTLS.setBackground(new java.awt.Color(255, 255, 255));
+        secureConnectionTLS.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup2.add(secureConnectionTLS);
+        secureConnectionTLS.setText("TLS");
+        secureConnectionTLS.setToolTipText("Selects whether the HTTP operation used to send each message.");
+        secureConnectionTLS.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        secureConnectionSSL.setBackground(new java.awt.Color(255, 255, 255));
+        secureConnectionSSL.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup2.add(secureConnectionSSL);
+        secureConnectionSSL.setText("SSL");
+        secureConnectionSSL.setToolTipText("Selects whether the HTTP operation used to send each message.");
+        secureConnectionSSL.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel5)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel8)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, contentTypeLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel9))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel10)
+                    .add(jLabel1)
+                    .add(jLabel2)
+                    .add(jLabel3)
+                    .add(jLabel4)
+                    .add(jLabel5)
+                    .add(jLabel8)
+                    .add(jLabel6)
+                    .add(contentTypeLabel)
+                    .add(jLabel7)
+                    .add(jLabel9))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
@@ -555,12 +599,18 @@ public class EmailSender extends ConnectorClass
                     .add(SMTPServerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(SMTPServerHostField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
-                        .add(attachmentsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 242, Short.MAX_VALUE)
+                        .add(attachmentsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
                             .add(newButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .add(deleteButton)))
-                    .add(emailBodyTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 311, Short.MAX_VALUE))
+                    .add(emailBodyTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 307, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(secureConnectionNone, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(secureConnectionTLS, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(secureConnectionSSL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -573,6 +623,12 @@ public class EmailSender extends ConnectorClass
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel2)
                     .add(SMTPServerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel10)
+                    .add(secureConnectionNone, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(secureConnectionTLS, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(secureConnectionSSL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel3)
@@ -601,11 +657,11 @@ public class EmailSender extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel7)
-                    .add(emailBodyTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 102, Short.MAX_VALUE))
+                    .add(emailBodyTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 92, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel9)
-                    .add(attachmentsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
+                    .add(attachmentsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 106, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
                         .add(newButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -665,6 +721,7 @@ private void emailFromFieldActionPerformed(java.awt.event.ActionEvent evt) {//GE
     private com.webreach.mirth.client.ui.components.MirthTextField emailToField;
     private com.webreach.mirth.client.ui.components.MirthTextField emailUsernameField;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -674,6 +731,9 @@ private void emailFromFieldActionPerformed(java.awt.event.ActionEvent evt) {//GE
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JButton newButton;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton secureConnectionNone;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton secureConnectionSSL;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton secureConnectionTLS;
     // End of variables declaration//GEN-END:variables
 
 }
