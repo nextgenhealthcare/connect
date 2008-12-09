@@ -36,10 +36,9 @@ public class SMTPConnectionFactory {
         String host = PropertyLoader.getProperty(properties, "smtp.host");
         String port = PropertyLoader.getProperty(properties, "smtp.port");
         boolean auth = PropertyLoader.getProperty(properties, "smtp.auth").equals("1");
-        boolean ssl = PropertyLoader.getProperty(properties, "smtp.ssl").equals("1");
-        boolean tls = PropertyLoader.getProperty(properties, "smtp.tls").equals("1");
+        String secure = PropertyLoader.getProperty(properties, "smtp.secure");
         String username = PropertyLoader.getProperty(properties, "smtp.username");
         String password = PropertyLoader.getProperty(properties, "smtp.password");
-        return new SMTPConnection(host, port, auth, ssl, tls, username, password);
+        return new SMTPConnection(host, port, auth, secure, username, password);
     }
 }

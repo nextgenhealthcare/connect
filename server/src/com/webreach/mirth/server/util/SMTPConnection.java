@@ -42,6 +42,9 @@ import org.apache.log4j.Logger;
 
 public class SMTPConnection {
     private Logger logger = Logger.getLogger(this.getClass());
+    
+    public static final String SECURE_SSL = "ssl";
+    public static final String SECURE_TLS = "tls";
 
     private static final String SSL_FACTORY = "javax.net.ssl.SSLSocketFactory";
     private static final String PROTOCOL_SMTP = "smtp";
@@ -50,17 +53,15 @@ public class SMTPConnection {
     private String host;
     private String port;
     private boolean auth;
-    private boolean ssl;
-    private boolean tls;
+    private String secure;
     private String username;
     private String password;
 
-    public SMTPConnection(String host, String port, boolean auth, boolean ssl, boolean tls, String username, String password) {
+    public SMTPConnection(String host, String port, boolean auth, String secure, String username, String password) {
         this.host = host;
         this.port = port;
         this.auth = auth;
-        this.ssl = ssl;
-        this.tls = tls;
+        this.secure = secure;
         this.username = username;
         this.password = password;
     }
@@ -69,7 +70,7 @@ public class SMTPConnection {
         Properties properties = new Properties();
         properties.setProperty("mail.smtp.timeout", "5000");
 
-        if (ssl) {
+        if (secure.equalsIgnoreCase(SECURE_SSL)) {
             if (auth) {
                 properties.put("mail.smtps.auth", "true");
             }
@@ -83,7 +84,7 @@ public class SMTPConnection {
                 properties.put("mail.smtp.auth", "true");
             }
 
-            if (tls) {
+            if (secure.equalsIgnoreCase(SECURE_TLS)) {
                 properties.put("mail.smtp.starttls.enable", "true");
             }
 
