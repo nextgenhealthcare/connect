@@ -6,9 +6,11 @@ public class Manager
 {
     private ManagerDialog dialog;
     private ManagerTray tray;    
+    private static Thread shutdownHook;
     
     public static void main(String[] args)
     {
+    	
         if(args.length > 0)
             PlatformUI.MIRTH_PATH = args[0];
         else
@@ -27,11 +29,12 @@ public class Manager
         Manager manager = new Manager();
         
         manager.setupDialog();
-        manager.setupTray();
+        manager.setupTray();        
     }
     
     public Manager() { 
-        Runtime.getRuntime().addShutdownHook(new ShutdownHook());
+    	shutdownHook = new ShutdownHook();
+        Runtime.getRuntime().addShutdownHook(shutdownHook);
     }
     
     private class ShutdownHook extends Thread {
@@ -44,7 +47,8 @@ public class Manager
      * Shuts down the manager.
      * 
      */
-    public void shutdown() {
+    public static void shutdown() {
+    	Runtime.getRuntime().removeShutdownHook(shutdownHook);
         System.exit(0);
     }
     

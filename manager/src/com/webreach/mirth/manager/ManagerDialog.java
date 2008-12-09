@@ -806,10 +806,10 @@ private void refreshServiceButtonActionPerformed(java.awt.event.ActionEvent evt)
 
     private void loadServerProperties()
     {
-        serverProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + serverPropertiesPath);
-        log4jProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + log4jPropertiesPath);
-        versionProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + versionFilePath);
-        serverIdProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + serverIdFilePath);
+        serverProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + serverPropertiesPath, true);
+        log4jProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + log4jPropertiesPath, true);
+        versionProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + versionFilePath, true);
+        serverIdProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + serverIdFilePath, false);
         
         if (serverIdProperties != null && (serverIdProperties.getProperty("server.id") != null) && (serverIdProperties.getProperty("server.id").length() > 0)) {
             serverId.setText(serverIdProperties.getProperty("server.id"));
@@ -871,17 +871,17 @@ private void refreshServiceButtonActionPerformed(java.awt.event.ActionEvent evt)
     private void loadDatabaseProperties()
     {
         if (((String) databaseType.getSelectedItem()).equals(DATABASE_DERBY))
-            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + derbyPropertiesPath);
+            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + derbyPropertiesPath, true);
         else if (((String) databaseType.getSelectedItem()).equals(DATABASE_POSTGRES))
-            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + postgresPropertiesPath);
+            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + postgresPropertiesPath, true);
         else if (((String) databaseType.getSelectedItem()).equals(DATABASE_MYSQL))
-            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + mysqlPropertiesPath);
+            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + mysqlPropertiesPath, true);
         else if (((String) databaseType.getSelectedItem()).equals(DATABASE_SQLSERVER))
-            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + sqlserverPropertiesPath);
+            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + sqlserverPropertiesPath, true);
         else if (((String) databaseType.getSelectedItem()).equals(DATABASE_SQLSERVER2005))
-            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + sqlserver2005PropertiesPath);
+            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + sqlserver2005PropertiesPath, true);
         else if (((String) databaseType.getSelectedItem()).equals(DATABASE_ORACLE))
-            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + oraclePropertiesPath);
+            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + oraclePropertiesPath, true);
         
         if (databaseProperties.getProperty(DATABASE_DRIVER) != null)
             databaseDriver.setText(databaseProperties.getProperty(DATABASE_DRIVER));

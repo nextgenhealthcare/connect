@@ -180,7 +180,7 @@ public class ManagerController
             {
                 // Load the context path property and remove the last char
                 // if it is a '/'.
-                Properties serverProperties = getProperties(PlatformUI.MIRTH_PATH + ManagerDialog.serverPropertiesPath);
+                Properties serverProperties = getProperties(PlatformUI.MIRTH_PATH + ManagerDialog.serverPropertiesPath, true);
                 String contextPath = PropertyLoader.getProperty(serverProperties, "context.path");
                 if (contextPath.lastIndexOf('/') == (contextPath.length() - 1))
                 {
@@ -292,7 +292,7 @@ public class ManagerController
         }
     }
 
-    public Properties getProperties(String path)
+    public Properties getProperties(String path, boolean alert)
     {
         Properties properties = new Properties();
         try
@@ -303,7 +303,9 @@ public class ManagerController
         }
         catch (IOException ex)
         {
-            alertError("Could not load file: " + path);
+        	if(alert) {
+        		alertError("Could not load file: " + path);
+        	}
         }
         return properties;
     }

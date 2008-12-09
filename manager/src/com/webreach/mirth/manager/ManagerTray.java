@@ -113,13 +113,11 @@ public class ManagerTray
             public void actionPerformed(ActionEvent evt)
             {
                 PlatformUI.MANAGER_DIALOG.close();
-                System.exit(0);
+                Manager.shutdown();
             }
         });
         menu.add(quitItem);
                       
-       
-     
         // Resource file "duke.gif" must exist at the same directory
         // as this class file.
         ImageIcon icon = new ImageIcon(this.getClass().getResource("images/mirthlogo1616.png"));
