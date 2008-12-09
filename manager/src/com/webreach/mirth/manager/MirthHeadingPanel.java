@@ -22,7 +22,6 @@
  *   Gerald Bortis <geraldb@webreachinc.com>
  *
  * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.manager;
 
 import java.awt.Dimension;
@@ -33,19 +32,16 @@ import javax.swing.ImageIcon;
 /**
  * Creates the heading panel that is used for wizards, login, etc.
  */
-public class MirthHeadingPanel extends javax.swing.JPanel
-{
+public class MirthHeadingPanel extends javax.swing.JPanel {
 
     /** Creates new form MirthHeadingPanel */
-    public MirthHeadingPanel()
-    {
+    public MirthHeadingPanel() {
         initComponents();
         setOpaque(false);
         setPreferredSize(new Dimension(138, 22));
     }
 
-    protected void paintComponent(Graphics g)
-    {
+    protected void paintComponent(Graphics g) {
         g.drawImage(new ImageIcon(this.getClass().getResource("images/header.jpg")).getImage(), 0, 0, null);
         super.paintComponent(g);
     }
@@ -74,5 +70,4 @@ public class MirthHeadingPanel extends javax.swing.JPanel
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
-
 }

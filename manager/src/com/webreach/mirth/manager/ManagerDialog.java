@@ -3,7 +3,6 @@
  *
  * Created on April 13, 2007, 2:51 PM
  */
-
 package com.webreach.mirth.manager;
 
 import java.awt.Cursor;
@@ -24,14 +23,13 @@ import com.webreach.mirth.manager.util.ObjectClonerException;
  * 
  * @author brendanh
  */
-public class ManagerDialog extends javax.swing.JDialog
-{
+public class ManagerDialog extends javax.swing.JDialog {
+
     private Properties serverProperties;
     private Properties databaseProperties;
     private Properties log4jProperties;
     private Properties versionProperties;
     private Properties serverIdProperties;
-            
     private static final String SERVER_WEBSTART_PORT = "http.port";
     private static final String SERVER_ADMINISTRATOR_PORT = "https.port";
     private static final String SERVER_JMX_PORT = "jmx.port";
@@ -42,14 +40,12 @@ public class ManagerDialog extends javax.swing.JDialog
     private static final String DATABASE_URL = "url";
     private static final String DATABASE_USERNAME = "username";
     private static final String DATABASE_PASSWORD = "password";
-
     private static final String DATABASE_DERBY = "derby";
     private static final String DATABASE_POSTGRES = "postgres";
     private static final String DATABASE_MYSQL = "mysql";
     private static final String DATABASE_SQLSERVER = "sqlserver";
     private static final String DATABASE_SQLSERVER2005 = "sqlserver2005";
     private static final String DATABASE_ORACLE = "oracle";
-
     public static final String serverPropertiesPath = "conf\\mirth.properties";
     private static final String log4jPropertiesPath = "conf\\log4j.properties";
     private static final String serverLogsPath = "logs\\";
@@ -61,77 +57,65 @@ public class ManagerDialog extends javax.swing.JDialog
     private static final String oraclePropertiesPath = "conf\\oracle-SqlMapConfig.properties";
     private static final String versionFilePath = "conf\\version.properties";
     private static final String serverIdFilePath = "server.id";
-    
     private static final String REGISTRY_KEY = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
     private static final String REGISTRY_VALUE_NAME = "Mirth";
-    
-    private static final String[] log4jErrorCodes = new String[] { "ERROR", "WARN", "DEBUG", "INFO" };
+    private static final String[] log4jErrorCodes = new String[]{"ERROR", "WARN", "DEBUG", "INFO"};
 
     /**
      * Creates new form ManagerDialog
      */
-    public ManagerDialog()
-    {
+    public ManagerDialog() {
         initComponents();
         pack();
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter()
-        {
-            public void windowClosing(WindowEvent e)
-            {
+        addWindowListener(new WindowAdapter() {
+
+            public void windowClosing(WindowEvent e) {
                 close();
             }
         });
 
         // listen for trigger button and double click to edit channel.
-        serverLogFiles.addMouseListener(new java.awt.event.MouseAdapter()
-        {
-            public void mousePressed(java.awt.event.MouseEvent evt)
-            {
+        serverLogFiles.addMouseListener(new java.awt.event.MouseAdapter() {
 
+            public void mousePressed(java.awt.event.MouseEvent evt) {
             }
 
-            public void mouseReleased(java.awt.event.MouseEvent evt)
-            {
-
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
             }
 
-            public void mouseClicked(java.awt.event.MouseEvent evt)
-            {
-                if (evt.getClickCount() >= 2)
-                {
-                    if (serverLogFiles.getSelectedIndex() != -1)
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (evt.getClickCount() >= 2) {
+                    if (serverLogFiles.getSelectedIndex() != -1) {
                         viewFileButtonActionPerformed(null);
+                    }
                 }
             }
         });
-        
+
         webreachLink.setToolTipText("Visit WebReach's website.");
         webreachLink.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        
+
         loadServerProperties();
     }
 
-    public void open()
-    {
+    public void open() {
         ManagerController.getInstance().updateMirthServiceStatus();
         loadServerProperties();
-        if(ManagerController.getInstance().getRegistryValue(REGISTRY_KEY, REGISTRY_VALUE_NAME) != null)    { 
-        	startup.setSelected(true);
-        } else { 
-        	startup.setSelected(false);
+        if (ManagerController.getInstance().getRegistryValue(REGISTRY_KEY, REGISTRY_VALUE_NAME) != null) {
+            startup.setSelected(true);
+        } else {
+            startup.setSelected(false);
         }
         setVisible(true);
     }
 
-    public void close()
-    {
+    public void close() {
         setVisible(false);
     }
 
-    public void launchAdministrator()
-    {
+    public void launchAdministrator() {
         ManagerController.getInstance().launchAdministrator(serverProperties.getProperty(SERVER_WEBSTART_PORT));
     }
 
@@ -678,10 +662,10 @@ private void webreachLinkMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRS
 }//GEN-LAST:event_webreachLinkMouseClicked
 
 private void startupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startupActionPerformed
-    if(startup.isSelected()) { 
-    	String absolutePath = new File(PlatformUI.MIRTH_PATH).getAbsolutePath();
+    if (startup.isSelected()) {
+        String absolutePath = new File(PlatformUI.MIRTH_PATH).getAbsolutePath();
         ManagerController.getInstance().setRegistryValue(REGISTRY_KEY, REGISTRY_VALUE_NAME, "\"" + absolutePath + System.getProperty("file.separator") + "MirthServerManager.exe\"");
-    } else { 
+    } else {
         ManagerController.getInstance().deleteRegistryValue(REGISTRY_KEY, REGISTRY_VALUE_NAME);
     }
 }//GEN-LAST:event_startupActionPerformed

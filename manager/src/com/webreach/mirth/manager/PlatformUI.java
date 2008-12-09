@@ -22,15 +22,14 @@
  *   Gerald Bortis <geraldb@webreachinc.com>
  *
  * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.manager;
 
 /**
  * A class of static variables that need to be referenced from multiple
  * locations.
  */
-public class PlatformUI
-{
+public class PlatformUI {
+
     public static ManagerDialog MANAGER_DIALOG;
     public static ManagerTray MANAGER_TRAY;
     public static String MIRTH_PATH;
