@@ -65,11 +65,11 @@ public class UpdateClient {
         Map<String, String> components = new HashMap<String, String>();
 
         for (PluginMetaData pmd : plugins.values()) {
-            components.put(pmd.getName(), pmd.getPluginVersion());
+            components.put(pmd.getPath(), pmd.getPluginVersion());
         }
 
         for (ConnectorMetaData cmd : connectors.values()) {
-            components.put(cmd.getName(), cmd.getPluginVersion());
+            components.put(cmd.getPath(), cmd.getPluginVersion());
         }
 
         components.put("Mirth", version);
