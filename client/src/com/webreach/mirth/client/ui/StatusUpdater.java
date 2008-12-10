@@ -52,6 +52,10 @@ public class StatusUpdater implements Runnable
         {
             while (!interrupted)
             {
+                while (parent.isRefreshingStatuses()) {
+                	Thread.sleep(100);
+                }
+            	
                 refreshRate = userPreferences.getInt("intervalTime", DEFAULT_INTERVAL_TIME) * 1000;
                 Thread.sleep(refreshRate);
 
@@ -60,7 +64,7 @@ public class StatusUpdater implements Runnable
 
                 if (parent.currentContentPage != null && parent.currentContentPage == parent.dashboardPanel)
                 {
-                    parent.refreshStatuses();
+                    parent.doRefreshStatuses();
                 }
             }
         }
