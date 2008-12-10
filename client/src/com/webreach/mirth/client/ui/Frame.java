@@ -112,7 +112,7 @@ import com.webreach.mirth.plugins.extensionmanager.ExtensionUpdateDialog;
 import com.webreach.mirth.util.PropertyVerifier;
 
 /**
- * The main conent frame for the Mirth Client Application. Extends JXFrame and
+ * The main content frame for the Mirth Client Application. Extends JXFrame and
  * sets up all content.
  */
 public class Frame extends JXFrame
@@ -186,6 +186,7 @@ public class Frame extends JXFrame
     private Map<String, PluginMetaData> loadedPlugins;
     private Map<String, ConnectorMetaData> loadedConnectors;
     private UpdateClient updateClient = null;
+    private boolean refreshingStatuses = false;
 
     public Frame()
     {
@@ -2287,11 +2288,33 @@ public class Frame extends JXFrame
 
         return channelHeaders;
     }
-
+    
+    public void setRefreshingStatuses(boolean refreshingStatuses) {
+    	synchronized(this)
+    	{
+    		this.refreshingStatuses = refreshingStatuses;
+    	}
+    }
+    
+    public boolean isRefreshingStatuses() {
+    	synchronized(this)
+    	{
+    		return refreshingStatuses;
+    	}
+    }
+    
     public void doRefreshStatuses()
     {
+    	// Don't allow anything to be getting or setting refreshingStatuses
+    	// while this block is being executed.
+    	synchronized(this)
+    	{
+	    	if (isRefreshingStatuses())
+	    		return;
+	    	
+	    	setRefreshingStatuses(true);
+    	}
         setWorking("Loading statistics...", true);
-        refreshStatuses();
 
         // moving SwingWorker into the refreshStatuses() method...
         // ArrayIndexOutOfBound exception occurs due to updateTable method on
@@ -2299,12 +2322,9 @@ public class Frame extends JXFrame
         // and they share a global 'parent.status' variable that changes its
         // state between threads.
         // updateTable() method should be called in done(), not in the
-        // background only when the 'status' object is done assesed in the
+        // background only when the 'status' object is done assessed in the
         // background.
-    }
-
-    public void refreshStatuses()
-    {
+    	
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             Object[][] tableData = null;
@@ -2371,7 +2391,6 @@ public class Frame extends JXFrame
                                 tableData[i][statusColumn] = new CellData(UIConstants.YELLOW_BULLET, "Paused");
 
                             tableData[i][statusColumn + 1] = tempStatus.getName();
-
                         }
                     }
                 }
@@ -2380,6 +2399,7 @@ public class Frame extends JXFrame
                 	status = null;
                     alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
+                
                 return null;
             }
 
@@ -2394,6 +2414,7 @@ public class Frame extends JXFrame
 	                else
 	                    setVisibleTasks(statusTasks, statusPopupMenu, 1, 3, false);
                 }
+                setRefreshingStatuses(false);
             }
         };
         worker.execute();
