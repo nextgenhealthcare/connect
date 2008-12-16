@@ -79,7 +79,7 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
 
                 if (compiledScript == null) {
                     logger.warn("Database script could not be found in cache");
-                    messageObjectController.setError(messageObject, Constants.ERROR_406, "Database script not found in cache", null);
+                    messageObjectController.setError(messageObject, Constants.ERROR_406, "Database script not found in cache", null, null);
                 } else {
                     compiledScript.exec(context, scope);
                     String response = "Database write success";
@@ -91,7 +91,7 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
                         response = (String) messageObject.getResponseMap().get(messageObject.getConnectorName());
                     }
                     
-                    messageObjectController.setSuccess(messageObject, response);
+                    messageObjectController.setSuccess(messageObject, response, null);
                 }
             } else {
                 // otherwise run the SQL insert/update/delete statement
@@ -121,14 +121,14 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
                 }
 
                 JdbcUtils.commitAndClose(connection);
-                messageObjectController.setSuccess(messageObject, "Database write sucess, " + numRows + " rows updated");
+                messageObjectController.setSuccess(messageObject, "Database write sucess, " + numRows + " rows updated", null);
                 logger.debug("Event dispatched succesfuly");
             }
         } catch (Exception e) {
             logger.debug("Error dispatching event", e);
             JdbcUtils.rollbackAndClose(connection);
             alertController.sendAlerts(((JdbcConnector) connector).getChannelId(), Constants.ERROR_406, "Error writing to database", e);
-            messageObjectController.setError(messageObject, Constants.ERROR_406, "Error writing to database: ", e);
+            messageObjectController.setError(messageObject, Constants.ERROR_406, "Error writing to database: ", e, null);
             connector.handleException(e);
         } finally {
             monitoringController.updateStatus(connector, connectorType, Event.DONE);

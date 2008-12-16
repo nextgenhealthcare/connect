@@ -95,7 +95,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 
 	public synchronized void putMessageInQueue(UMOEndpointURI endpointUri, MessageObject messageObject) {
 		try{
-			messageObjectController.setQueued(messageObject, "Message is queued");
+			messageObjectController.setQueued(messageObject, "Message is queued", null);
 			
 			QueuedMessage queuedMessage = new QueuedMessage();
 			queuedMessage.setEndpointUri(endpointUri);
@@ -105,7 +105,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 		} catch (Exception e) {
 			String exceptionMessage = "Can't save payload to queue";
 			logger.error(exceptionMessage, e);
-			messageObjectController.setError(messageObject, getConnectorErrorCode(), exceptionMessage, e);
+			messageObjectController.setError(messageObject, getConnectorErrorCode(), exceptionMessage, e, null);
 			alertController.sendAlerts(messageObject.getChannelId(), getConnectorErrorCode(), exceptionMessage, e);
 			return;
 		}
@@ -135,7 +135,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 				} catch (Exception e) {
 					logger.error("Could not rotate message in queue", e);
 					alertController.sendAlerts(tempMessage.getMessageObject().getChannelId(), getConnectorErrorCode(), null, e);
-					messageObjectController.setError(tempMessage.getMessageObject(), getConnectorErrorCode(), "Could not rotate message in queue", e);
+					messageObjectController.setError(tempMessage.getMessageObject(), getConnectorErrorCode(), "Could not rotate message in queue", e, null);
 				}
 			}
 		}
@@ -169,7 +169,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 									
 									if(thePayload instanceof MessageObject) { 
 										MessageObject messageObject = (MessageObject)thePayload;
-										messageObjectController.setError(messageObject, getConnectorErrorCode(), "Unsupported message format in queue.", new Exception("Unsupported message format in queue.  Removing message from the queue.  Reprocessing this message will fix this problem."));
+										messageObjectController.setError(messageObject, getConnectorErrorCode(), "Unsupported message format in queue.", new Exception("Unsupported message format in queue.  Removing message from the queue.  Reprocessing this message will fix this problem."), null);
 										queue.poll(getPollMaxTime());
 										continue;
 									} else {

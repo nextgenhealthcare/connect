@@ -287,7 +287,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher imple
 				httpMethod.execute(state, connection);
 			} catch (HttpException e) {
 				logger.error(e, e);
-				messageObjectController.setError(messageObject, Constants.ERROR_404, "HTTP Error", e);
+				messageObjectController.setError(messageObject, Constants.ERROR_404, "HTTP Error", e, null);
 			}
 			return httpMethod;
 		} catch (Exception e) {
@@ -329,7 +329,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher imple
 				return event.getMessage();
 			} catch (Exception e) {
 				alertController.sendAlerts(((HttpConnector) connector).getChannelId(), Constants.ERROR_404, null, e);
-				messageObjectController.setError(messageObject, Constants.ERROR_404, "HTTP Error", e);
+				messageObjectController.setError(messageObject, Constants.ERROR_404, "HTTP Error", e, null);
 				throw new DispatchException(event.getMessage(), event.getEndpoint(), e);
 			} finally {
 				if (httpMethod != null)
@@ -375,7 +375,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher imple
 			String exceptionText = "Http call returned a status of: " + httpMethod.getStatusCode() + " " + httpMethod.getStatusText();
 			ep = new ExceptionPayload(new Exception(exceptionText));
             alertController.sendAlerts(connector.getChannelId(), Constants.ERROR_404, null, ep.getException());
-			messageObjectController.setError(messageObject, Constants.ERROR_404, "HTTP Error", ep.getException());
+			messageObjectController.setError(messageObject, Constants.ERROR_404, "HTTP Error", ep.getException(), null);
 		}
 		UMOMessage m = null;
 		// text or binary content?
@@ -393,7 +393,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher imple
 		// update the message status to sent
 		if (ep == null) {
 			// if we didn't have an exception
-			messageObjectController.setSuccess(messageObject, m.getPayloadAsString());
+			messageObjectController.setSuccess(messageObject, m.getPayloadAsString(), null);
 		}
 		// handle reply to
 		if (connector.getReplyChannelId() != null && !connector.getReplyChannelId().equals("sink")) {
@@ -411,10 +411,10 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher imple
 			HttpMethod httpMethod = null;
 			send(thePayload.getEndpointUri(), httpMethod, thePayload.getMessageObject());
 		} catch (SocketException e) {
-			messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_404, "Connection refused", e);
+			messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_404, "Connection refused", e, null);
 			throw e;
 		} catch (Exception e) {
-			messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_404, e.getMessage(), e);
+			messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_404, e.getMessage(), e, null);
 			alertController.sendAlerts(thePayload.getMessageObject().getChannelId(), Constants.ERROR_404, e.getMessage(), e);
 		}
 

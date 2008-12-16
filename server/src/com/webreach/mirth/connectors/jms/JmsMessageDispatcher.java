@@ -208,12 +208,12 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
                 listener.release();
                 Message result = listener.getMessage();
                 if (result == null) {
-                	messageObjectController.setSuccess(messageObject, "Jms message sent");
+                	messageObjectController.setSuccess(messageObject, "Jms message sent", null);
                     logger.debug("No message was returned via replyTo destination");
                     return null;
                 } else {
                     Object resultObject = JmsMessageUtils.getObjectForMessage(result);
-                    messageObjectController.setSuccess(messageObject, resultObject.toString());
+                    messageObjectController.setSuccess(messageObject, resultObject.toString(), null);
                     return new MuleMessage(resultObject);
                 }
             } else {
@@ -223,22 +223,22 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
                     logger.debug("Waiting for return event for: " + timeout + " ms on " + replyTo);
                     Message result = consumer.receive(timeout);
                     if (result == null) {
-                    	messageObjectController.setSuccess(messageObject, "Jms message sent");
+                    	messageObjectController.setSuccess(messageObject, "Jms message sent", null);
                         logger.debug("No message was returned via replyTo destination");
                         return null;
                     } else {
                         Object resultObject = JmsMessageUtils.getObjectForMessage(result);
-                        messageObjectController.setSuccess(messageObject, resultObject.toString());
+                        messageObjectController.setSuccess(messageObject, resultObject.toString(), null);
                         return new MuleMessage(resultObject);
                     }
                 }else{
-                	messageObjectController.setSuccess(messageObject, "Jms message sent");
+                	messageObjectController.setSuccess(messageObject, "Jms message sent", null);
                 }
             }
             return null;
         } catch (Exception e){
         	alertController.sendAlerts(((JmsConnector) connector).getChannelId(), Constants.ERROR_407, "Jms Error", e);
-        	messageObjectController.setError(messageObject, Constants.ERROR_407, "Jms Error", e);
+        	messageObjectController.setError(messageObject, Constants.ERROR_407, "Jms Error", e, null);
         	connector.handleException(e);
         } finally {
             JmsUtils.closeQuietly(consumer);

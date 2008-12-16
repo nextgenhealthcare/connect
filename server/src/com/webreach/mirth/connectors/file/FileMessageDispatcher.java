@@ -83,7 +83,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 			}
 
 			if (filename == null) {
-				messageObjectController.setError(messageObject, Constants.ERROR_403, "Filename is null", null);
+				messageObjectController.setError(messageObject, Constants.ERROR_403, "Filename is null", null, null);
 				throw new IOException("Filename is null");
 			}
 
@@ -106,10 +106,10 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 			con.writeFile(filename, path, connector.isOutputAppend(), buffer);
 
 			// update the message status to sent
-			messageObjectController.setSuccess(messageObject, "File successfully written: " + filename);
+			messageObjectController.setSuccess(messageObject, "File successfully written: " + filename, null);
 		} catch (Exception e) {
 			alertController.sendAlerts(((FileConnector) connector).getChannelId(), Constants.ERROR_403, "Error writing file", e);
-			messageObjectController.setError(messageObject, Constants.ERROR_403, "Error writing file", e);
+			messageObjectController.setError(messageObject, Constants.ERROR_403, "Error writing file", e, null);
 			connector.handleException(e);
 		} finally {
 			if (con != null) {

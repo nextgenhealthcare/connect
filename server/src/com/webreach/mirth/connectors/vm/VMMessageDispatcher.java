@@ -195,7 +195,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
         catch (Exception e)
         {
             alertController.sendAlerts(((VMConnector) connector).getChannelId(), Constants.ERROR_412, "Error routing message", e);
-            messageObjectController.setError(messageObject, Constants.ERROR_412, "Error routing message", e);
+            messageObjectController.setError(messageObject, Constants.ERROR_412, "Error routing message", e, null);
             throw (e);
         }
         finally{
@@ -224,14 +224,14 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
 		    if (payload != null)
 		    {
 		        alertController.sendAlerts(((VMConnector) connector).getChannelId(), Constants.ERROR_412, "Error routing message", payload.getException());
-		        messageObjectController.setError(messageObject, Constants.ERROR_412, "Error routing message", payload.getException());
+		        messageObjectController.setError(messageObject, Constants.ERROR_412, "Error routing message", payload.getException(), null);
 		    }
 		    else
 		    {
-		        messageObjectController.setSuccess(messageObject, "Message routed successfully");
+		        messageObjectController.setSuccess(messageObject, "Message routed successfully", null);
 		    }
 		}else{
-			messageObjectController.setSuccess(messageObject, "Message routed successfully");
+			messageObjectController.setSuccess(messageObject, "Message routed successfully", null);
 		}
 	}
 
@@ -278,7 +278,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
         catch (Exception e)
         {
             alertController.sendAlerts(((VMConnector) connector).getChannelId(), Constants.ERROR_412, "Error routing message", e);
-            messageObjectController.setError(messageObject, Constants.ERROR_412, "Error routing message", e);
+            messageObjectController.setError(messageObject, Constants.ERROR_412, "Error routing message", e, null);
             throw (e);
         }finally{
         	 monitoringController.updateStatus(connector, connectorType, Event.DONE);

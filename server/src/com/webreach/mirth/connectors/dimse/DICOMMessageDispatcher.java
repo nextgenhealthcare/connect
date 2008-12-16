@@ -153,16 +153,16 @@ public class DICOMMessageDispatcher extends AbstractMessageDispatcher {
             dcmSnd.open();
             dcmSnd.send();
             dcmSnd.close();            
-            messageObjectController.setSuccess(messageObject, "Message successfully sent");
+            messageObjectController.setSuccess(messageObject, "Message successfully sent", null);
         }
         catch(AAssociateRJ e){
             e.getMessage();
-            messageObjectController.setError(messageObject, Constants.ERROR_415, e.getMessage(), null);
+            messageObjectController.setError(messageObject, Constants.ERROR_415, e.getMessage(), null, null);
 			alertController.sendAlerts(((DICOMConnector) connector).getChannelId(), Constants.ERROR_415,e.getMessage(), null);
         }
         catch(Exception e){
             e.printStackTrace();
-            messageObjectController.setError(messageObject, Constants.ERROR_415, "", null);
+            messageObjectController.setError(messageObject, Constants.ERROR_415, "", null, null);
 			alertController.sendAlerts(((DICOMConnector) connector).getChannelId(), Constants.ERROR_415,"", null);
         }
         dcmSnd.stop();

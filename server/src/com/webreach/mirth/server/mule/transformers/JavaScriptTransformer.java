@@ -357,12 +357,12 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				if (this.getMode().equals(Mode.SOURCE.toString())) {
 					// only update on the source - it doesn't matter on each
 					// destination
-				    messageObjectController.setTransformed(finalMessageObject);
+				    messageObjectController.setTransformed(finalMessageObject, null);
 				}
 
 				return finalMessageObject;
 			} else {
-				messageObjectController.setFiltered(messageObject, "Message has been filtered");
+				messageObjectController.setFiltered(messageObject, "Message has been filtered", null);
 				return messageObject;
 			}
 		} catch (Exception e) {
@@ -449,9 +449,9 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			}
 
 			if (phase.equals("filter")) {
-				messageObjectController.setError(messageObject, Constants.ERROR_200, "Error evaluating filter", e);
+				messageObjectController.setError(messageObject, Constants.ERROR_200, "Error evaluating filter", e, null);
 			} else {
-				messageObjectController.setError(messageObject, Constants.ERROR_300, "Error evaluating transformer", e);
+				messageObjectController.setError(messageObject, Constants.ERROR_300, "Error evaluating transformer", e, null);
 			}
 
 			throw new TransformerException(this, e);

@@ -201,7 +201,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher implements 
 				invokeWebService(event.getEndpoint().getEndpointURI(), messageObject);
 			} catch (Exception e) {
 				alertController.sendAlerts(messageObject.getChannelId(), Constants.ERROR_410, "Error invoking WebService", e);
-				messageObjectController.setError(messageObject, Constants.ERROR_410, "Error invoking WebService", e);
+				messageObjectController.setError(messageObject, Constants.ERROR_410, "Error invoking WebService", e, null);
 				connector.handleException(e);
 			} finally {
 				monitoringController.updateStatus(connector, connectorType, Event.DONE);
@@ -216,10 +216,10 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher implements 
 			invokeWebService(thePayload.getEndpointUri(), thePayload.getMessageObject());
 		} catch (Exception e) {
 			if (e instanceof AxisFault && ((AxisFault) e).detail != null && ((AxisFault) e).detail.getClass() == ConnectException.class) {
-				messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_404, "Connection refused", e);
+				messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_404, "Connection refused", e, null);
 				throw e;
 			}
-			messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_404, e.getMessage(), e);
+			messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_404, e.getMessage(), e, null);
 			alertController.sendAlerts(thePayload.getMessageObject().getChannelId(), Constants.ERROR_404, e.getMessage(), e);
 		}
 
@@ -286,7 +286,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher implements 
 		if (result == null) {
 			result = "";
 		}
-		messageObjectController.setSuccess(messageObject, result.toString());
+		messageObjectController.setSuccess(messageObject, result.toString(), null);
 		Object[] retVal = new Object[2];
 		retVal[0] = result;
 		retVal[1] = call.getMessageContext();
@@ -306,7 +306,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher implements 
 			} catch (Exception exq) {
 				String exceptionMessage = "Can't save payload to queue";
 				logger.error("Can't save payload to queue\r\n\t " + exq);
-				messageObjectController.setError(messageObject, Constants.ERROR_404, exceptionMessage, exq);
+				messageObjectController.setError(messageObject, Constants.ERROR_404, exceptionMessage, exq, null);
 				alertController.sendAlerts(messageObject.getChannelId(), Constants.ERROR_404, exceptionMessage, exq);
 			}
 			return null;
@@ -329,7 +329,7 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher implements 
 				}
 			} catch (Exception e) {
 				alertController.sendAlerts(messageObject.getChannelId(), Constants.ERROR_410, "Error invoking WebService", e);
-				messageObjectController.setError(messageObject, Constants.ERROR_410, "Error invoking WebService", e);
+				messageObjectController.setError(messageObject, Constants.ERROR_410, "Error invoking WebService", e, null);
 				connector.handleException(e);
 				return null;
 			} finally {

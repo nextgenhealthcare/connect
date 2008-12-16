@@ -113,10 +113,10 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 			}
 
 			sendMailMessage(msg);
-			messageObjectController.setSuccess(messageObject, "Email successfully sent: " + connector.getToAddresses());
+			messageObjectController.setSuccess(messageObject, "Email successfully sent: " + connector.getToAddresses(), null);
 		} catch (Exception e) {
 			alertController.sendAlerts(messageObject.getChannelId(),  Constants.ERROR_402, "Error sending email", e);
-			messageObjectController.setError(messageObject, Constants.ERROR_402, "Error sending email", e);
+			messageObjectController.setError(messageObject, Constants.ERROR_402, "Error sending email", e, null);
 			connector.handleException(e);
 		}finally{
 			monitoringController.updateStatus(connector, connectorType, Event.DONE);

@@ -637,7 +637,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
         return messageObject;
     }
 
-    public void setError(MessageObject messageObject, String errorType, String errorMessage, Throwable e) {
+    public void setError(MessageObject messageObject, String errorType, String errorMessage, Throwable e, Object payload) {
         String fullErrorMessage = errorBuilder.buildErrorMessage(errorType, errorMessage, e);
         // send alert
 
@@ -650,18 +650,18 @@ public class DefaultMessageObjectController extends MessageObjectController {
         if (e != null) {
             responseException = "\t" + e.getClass().getSimpleName() + "\t" + e.getMessage();
         }
-        setStatus(messageObject, MessageObject.Status.ERROR, Response.Status.FAILURE, errorMessage + responseException);
+        setStatus(messageObject, MessageObject.Status.ERROR, Response.Status.FAILURE, errorMessage + responseException, payload);
     }
 
-    public void setSuccess(MessageObject messageObject, String responseMessage) {
-        setStatus(messageObject, MessageObject.Status.SENT, Response.Status.SUCCESS, responseMessage);
+    public void setSuccess(MessageObject messageObject, String responseMessage, Object payload) {
+        setStatus(messageObject, MessageObject.Status.SENT, Response.Status.SUCCESS, responseMessage, payload);
     }
 
-    public void setTransformed(MessageObject messageObject) {
-        setStatus(messageObject, MessageObject.Status.TRANSFORMED, Response.Status.SUCCESS, new String());
+    public void setTransformed(MessageObject messageObject, Object payload) {
+        setStatus(messageObject, MessageObject.Status.TRANSFORMED, Response.Status.SUCCESS, new String(), payload);
     }
 
-    public void setQueued(MessageObject messageObject, String responseMessage) {
+    public void setQueued(MessageObject messageObject, String responseMessage, Object payload) {
         // queued messages are stored into a persistence media, so their socket
         // element should be removed
         if (messageObject.getChannelMap().containsKey(RECEIVE_SOCKET)) {
@@ -669,16 +669,16 @@ public class DefaultMessageObjectController extends MessageObjectController {
             messageObject.getChannelMap().put(RECEIVE_SOCKET, socketObj.toString());
         }
 
-        setStatus(messageObject, MessageObject.Status.QUEUED, Response.Status.QUEUED, responseMessage);
+        setStatus(messageObject, MessageObject.Status.QUEUED, Response.Status.QUEUED, responseMessage, payload);
     }
 
-    public void setFiltered(MessageObject messageObject, String responseMessage) {
-        setStatus(messageObject, MessageObject.Status.FILTERED, Response.Status.FILTERED, responseMessage);
+    public void setFiltered(MessageObject messageObject, String responseMessage, Object payload) {
+        setStatus(messageObject, MessageObject.Status.FILTERED, Response.Status.FILTERED, responseMessage, payload);
     }
 
-    private void setStatus(MessageObject messageObject, MessageObject.Status newStatus, Response.Status responseStatus, String responseMessage) {
+    private void setStatus(MessageObject messageObject, MessageObject.Status newStatus, Response.Status responseStatus, String responseMessage, Object payload) {
         if ((messageObject.getResponseMap() != null) && !messageObject.getConnectorName().equalsIgnoreCase("source")) {
-            messageObject.getResponseMap().put(messageObject.getConnectorName(), new Response(responseStatus, responseMessage));
+            messageObject.getResponseMap().put(messageObject.getConnectorName(), new Response(responseStatus, responseMessage, payload));
         }
 
         MessageObject.Status oldStatus = MessageObject.Status.valueOf(messageObject.getStatus().toString());
@@ -731,7 +731,6 @@ public class DefaultMessageObjectController extends MessageObjectController {
             Map<String, Response> responseMap = messageObject.getResponseMap();
             if (responseMap != null && responseMap.get(messageObject.getConnectorName()) != null) {
                 Response response = (Response) responseMap.get(messageObject.getConnectorName());
-                response.setStatus(Response.Status.QUEUED);
             }
 
             messageObject.setStatus(Status.QUEUED);

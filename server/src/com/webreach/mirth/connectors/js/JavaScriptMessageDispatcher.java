@@ -71,7 +71,7 @@ public class JavaScriptMessageDispatcher extends AbstractMessageDispatcher {
 
 			if (compiledScript == null) {
 				logger.warn("script could not be found in cache");
-				messageObjectController.setError(messageObject, Constants.ERROR_414, "Script not found in cache", null);
+				messageObjectController.setError(messageObject, Constants.ERROR_414, "Script not found in cache", null, null);
 			} else {
 				compiledScript.exec(context, scope);
 				String response = "Script execution successful";
@@ -80,14 +80,14 @@ public class JavaScriptMessageDispatcher extends AbstractMessageDispatcher {
 					response = (String) messageObject.getResponseMap().get(messageObject.getConnectorName());
 				}
 				
-				messageObjectController.setSuccess(messageObject, response);
+				messageObjectController.setSuccess(messageObject, response, null);
 			}
 
 		} catch (Throwable e) {
 			logger.debug("Error dispatching event: " + e.getMessage(), e);
 
 			alertController.sendAlerts(((JavaScriptConnector) connector).getChannelId(), Constants.ERROR_414, "Error executing script", e);
-			messageObjectController.setError(messageObject, Constants.ERROR_414, "Error executing script: ", e);
+			messageObjectController.setError(messageObject, Constants.ERROR_414, "Error executing script: ", e, null);
 			connector.handleException(new Exception(e));
 		} finally {
 			monitoringController.updateStatus(connector, connectorType, Event.DONE);

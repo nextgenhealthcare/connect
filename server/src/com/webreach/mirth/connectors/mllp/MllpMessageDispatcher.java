@@ -204,7 +204,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 
 		}
 		if (!success) {
-			messageObjectController.setError(messageObject, Constants.ERROR_408, exceptionMessage, exceptionWriting);
+			messageObjectController.setError(messageObject, Constants.ERROR_408, exceptionMessage, exceptionWriting, null);
 			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, exceptionMessage, exceptionWriting);
 		}
 		if (success && (exceptionWriting == null)) {
@@ -298,7 +298,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 
 		if ((result == false) || (sendException != null)) {
 			if (sendException != null) {
-				messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_408, "Socket write exception", sendException);
+				messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_408, "Socket write exception", sendException, null);
 				throw sendException;
 			}
 			return result;
@@ -327,7 +327,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 		if (maxTime <= 0) { // TODO: Either make a UI setting to "not check for
 			// ACK" or document this
 			// We aren't waiting for an ACK
-			messageObjectController.setSuccess(messageObject, "Message successfully sent");
+			messageObjectController.setSuccess(messageObject, "Message successfully sent", null);
 
 			return true;
 		}
@@ -335,7 +335,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 
 		if (theAck == null) {
 			// NACK
-			messageObjectController.setError(messageObject, Constants.ERROR_408, "Timeout waiting for ACK", null);
+			messageObjectController.setError(messageObject, Constants.ERROR_408, "Timeout waiting for ACK", null, null);
 			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, "Timeout waiting for ACK", null);
 			return false;
 		}
@@ -350,7 +350,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 			}
 		} catch (UnsupportedEncodingException e) {
 			logger.error(e.getMessage());
-			messageObjectController.setError(messageObject, Constants.ERROR_408, "Error setting encoding: " + connector.getCharsetEncoding(), e);
+			messageObjectController.setError(messageObject, Constants.ERROR_408, "Error setting encoding: " + connector.getCharsetEncoding(), e, null);
 			alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, "Error setting encoding: " + connector.getCharsetEncoding(), e);
 		}
 		String ackString = null;
@@ -363,21 +363,21 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 			}
 			if (ackString == null) {
 				// NACK
-				messageObjectController.setError(messageObject, Constants.ERROR_408, "ACK message violates LLP protocol", null);
+				messageObjectController.setError(messageObject, Constants.ERROR_408, "ACK message violates LLP protocol", null, null);
 				alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, "ACK message violates LLP protocol", null);
 				return true;
 			}
 			ResponseAck rack = new ResponseAck(ackString);
 			if (rack.getTypeOfAck()) { // Ack Ok
-				messageObjectController.setSuccess(messageObject, ackString);
+				messageObjectController.setSuccess(messageObject, ackString, null);
 				return true;
 			} else {
-				messageObjectController.setError(messageObject, Constants.ERROR_408, "NACK sent from receiver: " + rack.getErrorDescription() + ": " + ackString, null);
+				messageObjectController.setError(messageObject, Constants.ERROR_408, "NACK sent from receiver: " + rack.getErrorDescription() + ": " + ackString, null, null);
 				alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, "NACK sent from receiver: " + rack.getErrorDescription() + ": " + ackString, null);
 				return true;
 			}
 		} else {
-			messageObjectController.setSuccess(messageObject, initialAckString);
+			messageObjectController.setSuccess(messageObject, initialAckString, null);
 			return true;
 		}
 	}

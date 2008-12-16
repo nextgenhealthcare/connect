@@ -201,7 +201,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
 
 		}
 		if (!success) {
-			messageObjectController.setError(messageObject, Constants.ERROR_411, exceptionMessage, exceptionWriting);
+			messageObjectController.setError(messageObject, Constants.ERROR_411, exceptionMessage, exceptionWriting, null);
 			alertController.sendAlerts(((TcpConnector) connector).getChannelId(), Constants.ERROR_411, exceptionMessage, exceptionWriting);
 		}
 		if (success && (exceptionWriting == null)) {
@@ -305,7 +305,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
 
 		if ((result == false) || (sendException != null)) {
 			if (sendException != null) {
-				messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_408, "Socket write exception", sendException);
+				messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_408, "Socket write exception", sendException, null);
 				throw sendException;
 			}
 			return result;
@@ -335,14 +335,14 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
 		if (maxTime <= 0) { // TODO: Either make a UI setting to "not check for
 			// ACK" or document this
 			// We aren't waiting for an ACK
-			messageObjectController.setSuccess(messageObject, "Message successfully sent");
+			messageObjectController.setSuccess(messageObject, "Message successfully sent", null);
 			return;
 		}
 		byte[] theAck = getAck(socket, endpointUri);
 
 		if (theAck == null) {
 			// NACK
-			messageObjectController.setSuccess(messageObject, "Empty Response");
+			messageObjectController.setSuccess(messageObject, "Empty Response", null);
 			return;
 		}
 		try {
@@ -352,10 +352,10 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
 				VMRouter router = new VMRouter();
 				router.routeMessageByChannelId(connector.getReplyChannelId(), ackString, true, true);
 			}
-			messageObjectController.setSuccess(messageObject, ackString);
+			messageObjectController.setSuccess(messageObject, ackString, null);
 		} catch (UnsupportedEncodingException e) {
 			logger.error(e.getMessage());
-			messageObjectController.setError(messageObject, Constants.ERROR_411, "Error setting encoding: " + connector.getCharsetEncoding(), e);
+			messageObjectController.setError(messageObject, Constants.ERROR_411, "Error setting encoding: " + connector.getCharsetEncoding(), e, null);
             alertController.sendAlerts(((TcpConnector) connector).getChannelId(), Constants.ERROR_411, "Error setting encoding: " + connector.getCharsetEncoding(), e);
 		}
 	}

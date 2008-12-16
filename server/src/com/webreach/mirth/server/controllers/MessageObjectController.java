@@ -72,15 +72,15 @@ public abstract class MessageObjectController extends Controller {
 
     // status
 
-    public abstract void setError(MessageObject messageObject, String errorType, String errorMessage, Throwable e);
+    public abstract void setError(MessageObject messageObject, String errorType, String errorMessage, Throwable e, Object payload);
 
-    public abstract void setSuccess(MessageObject messageObject, String responseMessage);
+    public abstract void setSuccess(MessageObject messageObject, String responseMessage, Object payload);
+    
+    public abstract void setTransformed(MessageObject messageObject, Object payload);
 
-    public abstract void setTransformed(MessageObject messageObject);
+    public abstract void setQueued(MessageObject messageObject, String responseMessage, Object payload);
 
-    public abstract void setQueued(MessageObject messageObject, String responseMessage);
-
-    public abstract void setFiltered(MessageObject messageObject, String responseMessage);
+    public abstract void setFiltered(MessageObject messageObject, String responseMessage, Object payload);
 
     public abstract void resetQueuedStatus(MessageObject messageObject);
 

@@ -75,7 +75,7 @@ public abstract class Adaptor {
 
     protected void handleException(Throwable e) throws AdaptorException {
         logger.warn("error adapting message", e);
-        messageObjectController.setError(messageObject, Constants.ERROR_301, "Error adapting message", e);
+        messageObjectController.setError(messageObject, Constants.ERROR_301, "Error adapting message", e, null);
         alertController.sendAlerts(messageObject.getChannelId(), Constants.ERROR_301, "Error adapting message", e);
         throw new AdaptorException(e);
     }

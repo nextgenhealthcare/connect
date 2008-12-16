@@ -105,10 +105,10 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 			writeDocument(template, file, messageObject);
 
 			// update the message status to sent
-			messageObjectController.setSuccess(messageObject, "Document successfully written: " + filename);
+			messageObjectController.setSuccess(messageObject, "Document successfully written: " + filename, null);
 		} catch (Exception e) {
 			alertController.sendAlerts(((DocumentConnector) connector).getChannelId(), Constants.ERROR_401, "Error writing document", e);
-			messageObjectController.setError(messageObject, Constants.ERROR_401, "Error writing document", e);
+			messageObjectController.setError(messageObject, Constants.ERROR_401, "Error writing document", e, null);
 			connector.handleException(e);
 		} finally {
 			monitoringController.updateStatus(connector, connectorType, Event.DONE);

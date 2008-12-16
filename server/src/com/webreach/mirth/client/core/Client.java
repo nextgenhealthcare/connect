@@ -509,6 +509,17 @@ public class Client {
     }
 
     /**
+     * Deploys all channels.
+     * 
+     * @throws ClientException
+     */
+    public synchronized void deployChannel(String channelId) throws ClientException {
+        logger.debug("deploying channel id=" + channelId);
+        NameValuePair[] params = { new NameValuePair("op", "deployChannel"), new NameValuePair("channelId", channelId) };
+        serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
+    }
+    
+    /**
      * Starts the channel with the specified id.
      * 
      * @param channelId
