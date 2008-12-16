@@ -3604,21 +3604,53 @@ public class Frame extends JXFrame
     
     public void doReprocessFilteredMessages()
     {	
-    	if(channels == null) { 
-    		retrieveChannels();
-    	}
-        new ReprocessMessagesDialog(messageBrowser.getCurrentFilter());
+    	setWorking("Retrieving Channels...", true);
+
+        SwingWorker worker = new SwingWorker<Void, Void>()
+        {
+            public Void doInBackground()
+            {
+            	if(channels == null || channels.values().size() == 0) { 
+            		retrieveChannels();
+            	}
+            	
+                return null;
+            }
+
+            public void done()
+            { 
+            	setWorking("", false);
+                new ReprocessMessagesDialog(messageBrowser.getCurrentFilter());
+            }
+        };
+        worker.execute();
     }
 
     public void doReprocessMessage()
     {
-    	if(channels == null) { 
-    		retrieveChannels();
-    	}
-        MessageObjectFilter filter = new MessageObjectFilter();
-        filter.setChannelId(getSelectedChannelIdFromDashboard());
-        filter.setId(messageBrowser.getSelectedMessageID());
-        new ReprocessMessagesDialog(filter);
+    	setWorking("Retrieving Channels...", true);
+
+        SwingWorker worker = new SwingWorker<Void, Void>()
+        {
+            public Void doInBackground()
+            {
+            	if(channels == null || channels.values().size() == 0) { 
+            		retrieveChannels();
+            	}
+            	
+                return null;
+            }
+
+            public void done()
+            {
+            	setWorking("", false);
+            	MessageObjectFilter filter = new MessageObjectFilter();
+                filter.setChannelId(getSelectedChannelIdFromDashboard());
+                filter.setId(messageBrowser.getSelectedMessageID());
+                new ReprocessMessagesDialog(filter);
+            }
+        };
+        worker.execute();
     }
     
     public void reprocessMessage(final MessageObjectFilter filter, final boolean replace, final List<String> destinations) { 
