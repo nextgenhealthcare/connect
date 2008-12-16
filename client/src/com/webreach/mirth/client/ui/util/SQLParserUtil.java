@@ -107,7 +107,7 @@ public class SQLParserUtil
                             {
                                 if (vars[i].toUpperCase().indexOf(" AS ") != -1)
                                 {
-                                    varList.add((vars[i].substring(vars[i].toUpperCase().indexOf(" AS ") + 4)).replaceAll(" ", "").replaceAll("\\(", "").replaceAll("\\)", ""));
+                                    varList.add((vars[i].substring(vars[i].toUpperCase().indexOf(" AS ") + 4)).replaceAll(" ", "").replaceAll("\\(", "").replaceAll("\\)", "").toLowerCase());
                                 }
                                 else if (vars[i].indexOf('(') != -1 || vars[i].indexOf(')') != -1 || vars[i].indexOf('}') != -1 || vars[i].indexOf('{') != -1 || vars[i].indexOf('*') != -1)
                                 {
