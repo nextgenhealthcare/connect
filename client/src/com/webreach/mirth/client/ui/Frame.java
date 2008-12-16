@@ -3603,12 +3603,18 @@ public class Frame extends JXFrame
     }
     
     public void doReprocessFilteredMessages()
-    {
+    {	
+    	if(channels == null) { 
+    		retrieveChannels();
+    	}
         new ReprocessMessagesDialog(messageBrowser.getCurrentFilter());
     }
 
     public void doReprocessMessage()
     {
+    	if(channels == null) { 
+    		retrieveChannels();
+    	}
         MessageObjectFilter filter = new MessageObjectFilter();
         filter.setChannelId(getSelectedChannelIdFromDashboard());
         filter.setId(messageBrowser.getSelectedMessageID());
