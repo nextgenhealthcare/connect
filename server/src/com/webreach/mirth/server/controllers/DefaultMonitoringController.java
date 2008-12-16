@@ -38,7 +38,7 @@ public class DefaultMonitoringController extends MonitoringController {
             try {
                 plugin.updateStatus(connectorName, type, event, socket);
             } catch (Exception e) {
-                logger.error(e);
+                logger.error(e.getMessage(), e);
             }
         }
     }
