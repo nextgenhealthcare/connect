@@ -469,7 +469,8 @@ public class MuleConfigurationBuilder {
 				keysOfValuesThatAreProperties.add("requestVariables");
 				keysOfValuesThatAreProperties.add("headerVariables");
 				keysOfValuesThatAreProperties.add("envelopeProperties");
-
+				keysOfValuesThatAreProperties.add("traits");
+				
                 // list of keys whose values are actually lists
 				ArrayList<String> keysOfValuesThatAreLists = new ArrayList<String>();
 				keysOfValuesThatAreLists.add("attachmentNames");
