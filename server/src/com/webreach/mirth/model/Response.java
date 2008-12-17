@@ -45,7 +45,13 @@ public class Response implements Serializable{
 		this.status = status;
 	}
 	
-	public String toString(){
-		return this.status.toString() + ": " + this.getMessage();
+	public String toString() {
+		String response = this.getStatus().toString() + ": " + this.getMessage();
+		
+		if(this.getPayload() != null) { 
+			response += ", payload = " + getPayload().toString();
+		}
+		
+		return response;
 	}
 }
