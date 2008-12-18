@@ -13,11 +13,13 @@ public class MllpConnectorService implements ConnectorService {
             String host = params.get(LLPSenderProperties.LLP_ADDRESS);
             int port = Integer.parseInt(params.get(LLPSenderProperties.LLP_PORT));
             int timeout = Integer.parseInt(params.get(LLPSenderProperties.LLP_SERVER_TIMEOUT));
+            
             InetSocketAddress address = null;
-
+            Socket socket = null;
+            
             try {
                 address = new InetSocketAddress(host, port);
-                Socket socket = new Socket();
+                socket = new Socket();
                 socket.connect(address, timeout);
                 return "Sucessfully connected to host: " + address.toString();
             } catch (Exception e) {
@@ -25,6 +27,10 @@ public class MllpConnectorService implements ConnectorService {
                     return "Could not connect to host: " + address.toString();
                 } else {
                     return "Could not connect to host.";
+                }
+            } finally {
+                if (socket != null) {
+                    socket.close();    
                 }
             }
         }
