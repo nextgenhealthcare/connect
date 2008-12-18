@@ -30,6 +30,7 @@
     </Property>
   </Properties>
   <AuxValues>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
@@ -77,7 +78,11 @@
                   <Component id="listenerPortField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
                   <Component id="receiveTimeoutField" alignment="0" min="-2" pref="100" max="-2" attributes="1"/>
                   <Component id="bufferSizeField" alignment="0" min="-2" pref="100" max="-2" attributes="1"/>
-                  <Component id="listenerAddressField" min="-2" pref="200" max="-2" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <Component id="listenerAddressField" min="-2" pref="200" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="testConnection" min="-2" max="-2" attributes="0"/>
+                  </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="startOfMessageCharacterField" min="-2" pref="50" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -173,6 +178,7 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="listenerAddressField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="addressLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="testConnection" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -891,6 +897,14 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Process Batch:"/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JButton" name="testConnection">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Test Connection"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="testConnectionActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

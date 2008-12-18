@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.connectors.mllp;
 
+import com.webreach.mirth.client.core.ClientException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -44,6 +45,8 @@ import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Step;
+import java.util.HashMap;
+import org.jdesktop.swingworker.SwingWorker;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -470,6 +473,7 @@ public class LLPListener extends ConnectorClass
         processBatchYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         processBatchNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         jLabel1 = new javax.swing.JLabel();
+        testConnection = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -725,6 +729,13 @@ public class LLPListener extends ConnectorClass
 
         jLabel1.setText("Process Batch:");
 
+        testConnection.setText("Test Connection");
+        testConnection.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                testConnectionActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -763,7 +774,10 @@ public class LLPListener extends ConnectorClass
                     .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(receiveTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(listenerAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(layout.createSequentialGroup()
+                        .add(listenerAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(testConnection))
                     .add(layout.createSequentialGroup()
                         .add(startOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -841,7 +855,8 @@ public class LLPListener extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(listenerAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(addressLabel))
+                    .add(addressLabel)
+                    .add(testConnection))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -941,12 +956,49 @@ public class LLPListener extends ConnectorClass
         );
     }// </editor-fold>//GEN-END:initComponents
 
+private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
+parent.setWorking("Testing connection...", true);
+
+    SwingWorker worker = new SwingWorker<Void, Void>() {
+
+        public Void doInBackground() {
+            
+            try {
+                Map<String, String> props = new HashMap<String, String>();
+                
+                props.put(LLPListenerProperties.LLP_ADDRESS, LLPListener.this.listenerAddressField.getText());
+                props.put(LLPListenerProperties.LLP_PORT, LLPListener.this.listenerPortField.getText());
+                props.put(LLPListenerProperties.LLP_RECEIVE_TIMEOUT, LLPListener.this.receiveTimeoutField.getText());
+                String response = (String) parent.mirthClient.invokeConnectorService(name, "testConnection", props);
+
+                if (response == null) {
+                    throw new ClientException("Failed to invoke service.");
+                } else { 
+                    parent.alertInformation(parent, response);
+                }
+
+                return null;
+            } catch (ClientException e) {
+                parent.alertError(parent, e.getMessage());
+                return null;
+            }
+        }
+
+        public void done() {
+            parent.setWorking("", false);
+        }
+    };
+
+    worker.execute();
+}//GEN-LAST:event_testConnectionActionPerformed
+
     private void clientRadioButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_clientRadioButtonActionPerformed
     {// GEN-HEADEREND:event_clientRadioButtonActionPerformed
         addressLabel.setText("Server Address");
         portLabel.setText("Server Port");
         reconnectIntervalField.setEnabled(true);
         reconnectIntervalLabel.setEnabled(true);
+        testConnection.setEnabled(true);
     }// GEN-LAST:event_clientRadioButtonActionPerformed
 
     private void serverRadioButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_serverRadioButtonActionPerformed
@@ -955,6 +1007,7 @@ public class LLPListener extends ConnectorClass
         portLabel.setText("Listener Port");
         reconnectIntervalField.setEnabled(false);
         reconnectIntervalLabel.setEnabled(false);
+        testConnection.setEnabled(false);
     }// GEN-LAST:event_serverRadioButtonActionPerformed
 
     private void useStrictLLPNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_useStrictLLPNoActionPerformed
@@ -1292,6 +1345,7 @@ public class LLPListener extends ConnectorClass
     private javax.swing.JLabel successACKCodeLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField successACKMessage;
     private javax.swing.JLabel successACKMessageLabel;
+    private javax.swing.JButton testConnection;
     private com.webreach.mirth.client.ui.components.MirthRadioButton useStrictLLPNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton useStrictLLPYes;
     private javax.swing.JLabel waitForEndOfMessageCharLabel;

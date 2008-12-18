@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.connectors.tcp;
 
+import com.webreach.mirth.client.core.ClientException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
@@ -34,6 +35,8 @@ import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.QueuedSenderProperties;
+import java.util.Map;
+import org.jdesktop.swingworker.SwingWorker;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -308,6 +311,7 @@ public class TCPSender extends ConnectorClass
         dataTypeBinary = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         dataTypeLabel = new javax.swing.JLabel();
         rotateMessages = new com.webreach.mirth.client.ui.components.MirthCheckBox();
+        testConnection = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -442,6 +446,13 @@ public class TCPSender extends ConnectorClass
         rotateMessages.setBackground(new java.awt.Color(255, 255, 255));
         rotateMessages.setText("Rotate Messages in Queue");
 
+        testConnection.setText("Test Connection");
+        testConnection.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                testConnectionActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -492,9 +503,12 @@ public class TCPSender extends ConnectorClass
                             .add(org.jdesktop.layout.GroupLayout.LEADING, keepConnectionOpenYesRadio, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(keepConnectionOpenNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(hostAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(layout.createSequentialGroup()
+                        .add(hostAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(testConnection))
                     .add(hostPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE))
+                    .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 337, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -502,7 +516,8 @@ public class TCPSender extends ConnectorClass
             .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(hostAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel18))
+                    .add(jLabel18)
+                    .add(testConnection))
                 .add(6, 6, 6)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(hostPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -555,7 +570,7 @@ public class TCPSender extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel7)
-                    .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE))
+                    .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 69, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -593,6 +608,42 @@ rotateMessages.setEnabled(false);
 private void usePersistentQueuesYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usePersistentQueuesYesRadioActionPerformed
 rotateMessages.setEnabled(true);
 }//GEN-LAST:event_usePersistentQueuesYesRadioActionPerformed
+
+private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
+parent.setWorking("Testing connection...", true);
+
+    SwingWorker worker = new SwingWorker<Void, Void>() {
+
+        public Void doInBackground() {
+            
+            try {
+                Map<String, String> props = new HashMap<String, String>();
+                
+                props.put(TCPSenderProperties.TCP_ADDRESS, TCPSender.this.hostAddressField.getText());
+                props.put(TCPSenderProperties.TCP_PORT, TCPSender.this.hostPortField.getText());
+                props.put(TCPSenderProperties.TCP_SERVER_TIMEOUT, TCPSender.this.serverTimeoutField.getText());
+                String response = (String) parent.mirthClient.invokeConnectorService(name, "testConnection", props);
+
+                if (response == null) {
+                    throw new ClientException("Failed to invoke service.");
+                } else { 
+                    parent.alertInformation(parent, response);
+                }
+
+                return null;
+            } catch (ClientException e) {
+                parent.alertError(parent, e.getMessage());
+                return null;
+            }
+        }
+
+        public void done() {
+            parent.setWorking("", false);
+        }
+    };
+
+    worker.execute();
+}//GEN-LAST:event_testConnectionActionPerformed
 
     private void charsetEncodingComboboxActionPerformed(java.awt.event.ActionEvent evt)
     {// GEN-FIRST:event_charsetEncodingComboboxActionPerformed
@@ -632,6 +683,7 @@ rotateMessages.setEnabled(true);
     private com.webreach.mirth.client.ui.components.MirthCheckBox rotateMessages;
     private com.webreach.mirth.client.ui.components.MirthTextField serverTimeoutField;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea template;
+    private javax.swing.JButton testConnection;
     private javax.swing.ButtonGroup usePersistenceQueuesGroup;
     private com.webreach.mirth.client.ui.components.MirthRadioButton usePersistentQueuesNoRadio;
     private com.webreach.mirth.client.ui.components.MirthRadioButton usePersistentQueuesYesRadio;

@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.connectors.http;
 
+import com.webreach.mirth.client.core.ClientException;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -55,6 +56,7 @@ import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.QueuedSenderProperties;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import org.jdesktop.swingworker.SwingWorker;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -642,6 +644,7 @@ public class HTTPSender extends ConnectorClass
         reconnectInterval = new com.webreach.mirth.client.ui.components.MirthTextField();
         put = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         delete = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        testConnection = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -810,6 +813,13 @@ public class HTTPSender extends ConnectorClass
             }
         });
 
+        testConnection.setText("Test Connection");
+        testConnection.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                testConnectionActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -833,7 +843,10 @@ public class HTTPSender extends ConnectorClass
                                 .add(includeResponseHeadersYesButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(includeResponseHeadersNoButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(httpURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(layout.createSequentialGroup()
+                                .add(httpURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(testConnection))
                             .add(layout.createSequentialGroup()
                                 .add(post, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -850,17 +863,17 @@ public class HTTPSender extends ConnectorClass
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(rotateMessages, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                             .add(reconnectInterval, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .add(12, 12, 12))
+                        .add(14, 14, 14))
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(layout.createSequentialGroup()
-                                .add(headerVariablesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 233, Short.MAX_VALUE)
+                                .add(headerVariablesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 375, Short.MAX_VALUE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                                     .add(headerNewButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .add(headerDeleteButton)))
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                                .add(propertiesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 233, Short.MAX_VALUE)
+                                .add(propertiesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 375, Short.MAX_VALUE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                     .add(deleteButton)
@@ -875,7 +888,8 @@ public class HTTPSender extends ConnectorClass
             .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel7)
-                    .add(httpURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(httpURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(testConnection))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel1)
@@ -913,7 +927,7 @@ public class HTTPSender extends ConnectorClass
                     .add(propertiesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 52, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(headerVariablesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 53, Short.MAX_VALUE)
+                    .add(headerVariablesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 52, Short.MAX_VALUE)
                     .add(jLabel3)
                     .add(layout.createSequentialGroup()
                         .add(headerNewButton)
@@ -997,6 +1011,40 @@ private void deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:
 		setAdditionalProperties(properties);
 	}
 }//GEN-LAST:event_deleteActionPerformed
+
+private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
+parent.setWorking("Testing connection...", true);
+
+    SwingWorker worker = new SwingWorker<Void, Void>() {
+
+        public Void doInBackground() {
+            
+            try {
+                Map<String, String> props = new HashMap<String, String>();
+                
+                props.put(HTTPSenderProperties.HTTP_URL, HTTPSender.this.httpURL.getText());
+                String response = (String) parent.mirthClient.invokeConnectorService(name, "testConnection", props);
+
+                if (response == null) {
+                    throw new ClientException("Failed to invoke service.");
+                } else { 
+                    parent.alertInformation(parent, response);
+                }
+
+                return null;
+            } catch (ClientException e) {
+                parent.alertError(parent, e.getMessage());
+                return null;
+            }
+        }
+
+        public void done() {
+            parent.setWorking("", false);
+        }
+    };
+
+    worker.execute();
+}//GEN-LAST:event_testConnectionActionPerformed
     
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_deleteButtonActionPerformed
     {// GEN-HEADEREND:event_deleteButtonActionPerformed
@@ -1055,6 +1103,7 @@ private void deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:
     private javax.swing.ButtonGroup responseHeadersButtonGroup;
     private javax.swing.JLabel responseHeadersLabel;
     private com.webreach.mirth.client.ui.components.MirthCheckBox rotateMessages;
+    private javax.swing.JButton testConnection;
     private com.webreach.mirth.client.ui.components.MirthRadioButton usePersistentQueuesNoRadio;
     private com.webreach.mirth.client.ui.components.MirthRadioButton usePersistentQueuesYesRadio;
     // End of variables declaration//GEN-END:variables
