@@ -64,6 +64,7 @@ public class DICOMSender extends ConnectorClass
     public Properties getProperties()
     {
         Properties properties = new Properties();
+        properties.put(DICOMSenderProperties.DATATYPE, name);        
         properties.put(DICOMSenderProperties.DICOM_ADDRESS, listenerAddressField.getText());
         properties.put(DICOMSenderProperties.DICOM_PORT, listenerPortField.getText());
         properties.put(DICOMSenderProperties.DICOM_LOCALADDRESS, localAddressField.getText());
