@@ -8,6 +8,7 @@
 	<clientClassName>com.webreach.mirth.connectors.tcp.TCPSender</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.tcp.TcpConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.tcp.TCPSenderProperties</sharedClassName>
+	<serviceClassName>com.webreach.mirth.connectors.tcp.TcpConnectorService</serviceClassName>
 	<library path="tcp-client.jar">
 		<type>CLIENT</type>
 	</library>
