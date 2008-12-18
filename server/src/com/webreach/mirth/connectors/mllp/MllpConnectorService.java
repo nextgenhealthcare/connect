@@ -2,6 +2,7 @@ package com.webreach.mirth.connectors.mllp;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.Map;
 
 import com.webreach.mirth.connectors.ConnectorService;
@@ -13,24 +14,20 @@ public class MllpConnectorService implements ConnectorService {
             String host = params.get(LLPSenderProperties.LLP_ADDRESS);
             int port = Integer.parseInt(params.get(LLPSenderProperties.LLP_PORT));
             int timeout = Integer.parseInt(params.get(LLPSenderProperties.LLP_SERVER_TIMEOUT));
-            
-            InetSocketAddress address = null;
             Socket socket = null;
-            
+
             try {
-                address = new InetSocketAddress(host, port);
+                InetSocketAddress address = new InetSocketAddress(host, port);
                 socket = new Socket();
                 socket.connect(address, timeout);
-                return "Sucessfully connected to host: " + address.toString();
+                return "Sucessfully connected to host.";
+            } catch (SocketTimeoutException ste) {
+                return "Timed out connecting to host.";
             } catch (Exception e) {
-                if (address != null) {
-                    return "Could not connect to host: " + address.toString();
-                } else {
-                    return "Could not connect to host.";
-                }
+                return "Could not connect to host.";
             } finally {
                 if (socket != null) {
-                    socket.close();    
+                    socket.close();
                 }
             }
         }
