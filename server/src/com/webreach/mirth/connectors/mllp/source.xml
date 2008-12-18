@@ -8,6 +8,7 @@
 	<clientClassName>com.webreach.mirth.connectors.mllp.LLPListener</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.mllp.MllpConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.mllp.LLPListenerProperties</sharedClassName>
+	<serviceClassName>com.webreach.mirth.connectors.mllp.MllpConnectorService</serviceClassName>
 	<library path="mllp-client.jar">
 		<type>CLIENT</type>
 	</library>
