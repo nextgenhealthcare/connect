@@ -15,16 +15,22 @@ public class MllpConnectorService implements ConnectorService {
             int port = Integer.parseInt(params.get(LLPSenderProperties.LLP_PORT));
             int timeout = Integer.parseInt(params.get(LLPSenderProperties.LLP_SERVER_TIMEOUT));
             Socket socket = null;
+            InetSocketAddress address = null;
 
             try {
-                InetSocketAddress address = new InetSocketAddress(host, port);
+                address = new InetSocketAddress(host, port);
+            } catch (Exception e) {
+                return "Invalid host or port.";
+            }
+
+            try {
                 socket = new Socket();
                 socket.connect(address, timeout);
-                return "Sucessfully connected to host.";
+                return "Sucessfully connected to host: " + address.getAddress().getHostAddress();
             } catch (SocketTimeoutException ste) {
-                return "Timed out connecting to host.";
+                return "Timed out connecting to host: " + address.getAddress().getHostAddress();
             } catch (Exception e) {
-                return "Could not connect to host.";
+                return "Could not connect to host: " + address.getAddress().getHostAddress();
             } finally {
                 if (socket != null) {
                     socket.close();
