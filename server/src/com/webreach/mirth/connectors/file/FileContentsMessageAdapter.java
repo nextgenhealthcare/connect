@@ -4,6 +4,7 @@ import org.mule.providers.AbstractMessageAdapter;
 import org.mule.umo.MessagingException;
 import org.mule.umo.provider.MessageTypeNotSupportedException;
 import org.mule.umo.provider.UniqueIdNotSupportedException;
+import org.mule.util.StringMessageHelper;
 
 import com.webreach.mirth.connectors.file.filesystems.FileInfo;
 
@@ -17,7 +18,7 @@ public class FileContentsMessageAdapter extends AbstractMessageAdapter {
         } else if (message instanceof byte[]) {
             setMessage((byte[]) message);
         } else if (message instanceof String) {
-            setMessage(((String) message).getBytes());
+        	 setMessage(StringMessageHelper.getBytes((String)message)); 
         } else {
             throw new MessageTypeNotSupportedException(message, getClass());
         }
