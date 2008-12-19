@@ -35,6 +35,8 @@ import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.QueuedSenderProperties;
+import com.webreach.mirth.util.ConnectionTestResponse;
+
 import java.util.Map;
 import org.jdesktop.swingworker.SwingWorker;
 
@@ -725,12 +727,14 @@ parent.setWorking("Testing connection...", true);
                 props.put(LLPSenderProperties.LLP_ADDRESS, LLPSender.this.hostAddressField.getText());
                 props.put(LLPSenderProperties.LLP_PORT, LLPSender.this.hostPortField.getText());
                 props.put(LLPSenderProperties.LLP_SERVER_TIMEOUT, LLPSender.this.serverTimeoutField.getText());
-                String response = (String) parent.mirthClient.invokeConnectorService(name, "testConnection", props);
+                ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(name, "testConnection", props);
 
                 if (response == null) {
                     throw new ClientException("Failed to invoke service.");
+                } else if(response == ConnectionTestResponse.SUCCESS) { 
+                    parent.alertInformation(parent, response.getMessage());
                 } else { 
-                    parent.alertInformation(parent, response);
+                    parent.alertWarning(parent, response.getMessage());
                 }
 
                 return null;

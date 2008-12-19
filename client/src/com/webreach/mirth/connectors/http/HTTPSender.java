@@ -56,6 +56,8 @@ import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.QueuedSenderProperties;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.webreach.mirth.util.ConnectionTestResponse;
+
 import org.jdesktop.swingworker.SwingWorker;
 
 /**
@@ -1023,12 +1025,14 @@ parent.setWorking("Testing connection...", true);
                 Map<String, String> props = new HashMap<String, String>();
                 
                 props.put(HTTPSenderProperties.HTTP_URL, HTTPSender.this.httpURL.getText());
-                String response = (String) parent.mirthClient.invokeConnectorService(name, "testConnection", props);
+                ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(name, "testConnection", props);
 
                 if (response == null) {
                     throw new ClientException("Failed to invoke service.");
+                } else if(response == ConnectionTestResponse.SUCCESS) { 
+                    parent.alertInformation(parent, response.getMessage());
                 } else { 
-                    parent.alertInformation(parent, response);
+                    parent.alertWarning(parent, response.getMessage());
                 }
 
                 return null;
