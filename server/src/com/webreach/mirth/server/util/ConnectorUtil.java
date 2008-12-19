@@ -24,7 +24,7 @@ public class ConnectorUtil {
             socket = new Socket();
             socket.connect(address, timeout);
             response = ConnectionTestResponse.SUCCESS;
-            response.setMessage(("Sucessfully connected to host: " + address.getAddress().getHostAddress() + ":" + address.getPort()));
+            response.setMessage("Sucessfully connected to host: " + address.getAddress().getHostAddress() + ":" + address.getPort());
             return response;
         } catch (SocketTimeoutException ste) {
             response = ConnectionTestResponse.TIME_OUT;
