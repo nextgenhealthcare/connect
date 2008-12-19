@@ -731,7 +731,7 @@ parent.setWorking("Testing connection...", true);
 
                 if (response == null) {
                     throw new ClientException("Failed to invoke service.");
-                } else if(response == ConnectionTestResponse.SUCCESS) { 
+                } else if(response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) { 
                     parent.alertInformation(parent, response.getMessage());
                 } else { 
                     parent.alertWarning(parent, response.getMessage());
