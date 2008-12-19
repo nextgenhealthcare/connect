@@ -1,16 +1,24 @@
 package com.webreach.mirth.util;
 
-public enum ConnectionTestResponse {
-    SUCCESS, TIME_OUT, FAILURE;
-
-    private String message;
-
-    ConnectionTestResponse() {
-
+public class ConnectionTestResponse {
+    public enum Type {
+        SUCCESS, TIME_OUT, FAILURE
     }
 
-    ConnectionTestResponse(String message) {
+    private String message;
+    private Type type;
+
+    public ConnectionTestResponse(Type type, String message) {
+        this.type = type;
         this.message = message;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
     }
 
     public String getMessage() {

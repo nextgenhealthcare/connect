@@ -10,30 +10,21 @@ public class ConnectorUtil {
     public static ConnectionTestResponse testConnection(String host, int port, int timeout) throws Exception {
         Socket socket = null;
         InetSocketAddress address = null;
-        ConnectionTestResponse response = null;
 
         try {
             address = new InetSocketAddress(host, port);
         } catch (Exception e) {
-            response = ConnectionTestResponse.FAILURE;
-            response.setMessage("Invalid host or port.");
-            return response;
+            return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, "Invalid host or port.");
         }
 
         try {
             socket = new Socket();
             socket.connect(address, timeout);
-            response = ConnectionTestResponse.SUCCESS;
-            response.setMessage("Sucessfully connected to host: " + address.getAddress().getHostAddress() + ":" + address.getPort());
-            return response;
+            return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Sucessfully connected to host: " + address.getAddress().getHostAddress() + ":" + address.getPort());
         } catch (SocketTimeoutException ste) {
-            response = ConnectionTestResponse.TIME_OUT;
-            response.setMessage("Timed out connecting to host: " + address.getAddress().getHostAddress() + ":" + address.getPort());
-            return response;
+            return new ConnectionTestResponse(ConnectionTestResponse.Type.TIME_OUT, "Timed out connecting to host: " + address.getAddress().getHostAddress() + ":" + address.getPort());
         } catch (Exception e) {
-            response = ConnectionTestResponse.FAILURE;
-            response.setMessage("Could not connect to host: " + address.getAddress().getHostAddress() + ":" + address.getPort());
-            return response;
+            return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, "Could not connect to host: " + address.getAddress().getHostAddress() + ":" + address.getPort());
         } finally {
             if (socket != null) {
                 socket.close();
