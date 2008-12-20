@@ -966,12 +966,7 @@ parent.setWorking("Testing connection...", true);
         public Void doInBackground() {
             
             try {
-                Map<String, String> props = new HashMap<String, String>();
-                
-                props.put(LLPListenerProperties.LLP_ADDRESS, LLPListener.this.listenerAddressField.getText());
-                props.put(LLPListenerProperties.LLP_PORT, LLPListener.this.listenerPortField.getText());
-                props.put(LLPListenerProperties.LLP_RECEIVE_TIMEOUT, LLPListener.this.receiveTimeoutField.getText());
-                ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(name, "testConnection", props);
+                ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(name, "testConnection", getProperties());
 
                 if (response == null) {
                     throw new ClientException("Failed to invoke service.");

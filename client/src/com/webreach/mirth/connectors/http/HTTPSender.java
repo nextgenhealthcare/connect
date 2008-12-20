@@ -1022,10 +1022,7 @@ parent.setWorking("Testing connection...", true);
         public Void doInBackground() {
             
             try {
-                Map<String, String> props = new HashMap<String, String>();
-                
-                props.put(HTTPSenderProperties.HTTP_URL, HTTPSender.this.httpURL.getText());
-                ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(name, "testConnection", props);
+                ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(name, "testConnection", getProperties());
 
                 if (response == null) {
                     throw new ClientException("Failed to invoke service.");

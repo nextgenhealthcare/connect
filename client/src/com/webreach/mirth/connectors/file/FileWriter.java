@@ -28,9 +28,12 @@ package com.webreach.mirth.connectors.file;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.jdesktop.swingworker.SwingWorker;
 
+import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.connectors.ConnectorClass;
+import com.webreach.mirth.util.ConnectionTestResponse;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -372,14 +375,15 @@ public class FileWriter extends ConnectorClass
         encodingLabel = new javax.swing.JLabel();
         templateLabel = new javax.swing.JLabel();
         fileContentsTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(false,false);
+        testConnection = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
         schemeLabel.setText("Method:");
 
-        schemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "file", "ftp", "sftp", "smb" }));
-        schemeComboBox.setToolTipText("The basic method used to access files to be read - file (local filesystem), FTP, SFTP, or Samba share.");
+        schemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "file", "ftp", "sftp" }));
+        schemeComboBox.setToolTipText("The basic method used to access files to be read - file (local filesystem), FTP, or SFTP.");
         schemeComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 schemeComboBoxActionPerformed(evt);
@@ -512,6 +516,13 @@ public class FileWriter extends ConnectorClass
 
         fileContentsTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
+        testConnection.setText("Test Write");
+        testConnection.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                testConnectionActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -534,7 +545,10 @@ public class FileWriter extends ConnectorClass
                     .add(usernameLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(schemeComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(layout.createSequentialGroup()
+                        .add(schemeComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(testConnection))
                     .add(layout.createSequentialGroup()
                         .add(hostField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -574,7 +588,8 @@ public class FileWriter extends ConnectorClass
             .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(schemeLabel)
-                    .add(schemeComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(schemeComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(testConnection))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(directoryLabel)
@@ -629,7 +644,7 @@ public class FileWriter extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(templateLabel)
-                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 120, Short.MAX_VALUE))
+                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -732,6 +747,39 @@ public class FileWriter extends ConnectorClass
         }
     }//GEN-LAST:event_schemeComboBoxActionPerformed
 
+private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
+parent.setWorking("Testing connection...", true);
+
+    SwingWorker worker = new SwingWorker<Void, Void>() {
+
+        public Void doInBackground() {
+            
+            try {
+                ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(name, "testWrite", getProperties());
+                
+                if (response == null) {
+                    throw new ClientException("Failed to invoke service.");
+                } else if(response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) { 
+                    parent.alertInformation(parent, response.getMessage());
+                } else { 
+                    parent.alertWarning(parent, response.getMessage());
+                }
+
+                return null;
+            } catch (ClientException e) {
+                parent.alertError(parent, e.getMessage());
+                return null;
+            }
+        }
+
+        public void done() {
+            parent.setWorking("", false);
+        }
+    };
+
+    worker.execute();
+}//GEN-LAST:event_testConnectionActionPerformed
+
     private void fileTypeASCIIActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_fileTypeASCIIActionPerformed
     {// GEN-HEADEREND:event_fileTypeASCIIActionPerformed
         encodingLabel.setEnabled(true);
@@ -779,6 +827,7 @@ public class FileWriter extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthComboBox schemeComboBox;
     private javax.swing.JLabel schemeLabel;
     private javax.swing.JLabel templateLabel;
+    private javax.swing.JButton testConnection;
     private com.webreach.mirth.client.ui.components.MirthTextField usernameField;
     private javax.swing.JLabel usernameLabel;
     private javax.swing.JLabel validateConnectionLabel;

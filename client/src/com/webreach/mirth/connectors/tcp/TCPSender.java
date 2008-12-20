@@ -619,13 +619,8 @@ parent.setWorking("Testing connection...", true);
         public Void doInBackground() {
             
             try {
-                Map<String, String> props = new HashMap<String, String>();
+                ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(name, "testConnection", getProperties());
                 
-                props.put(TCPSenderProperties.TCP_ADDRESS, TCPSender.this.hostAddressField.getText());
-                props.put(TCPSenderProperties.TCP_PORT, TCPSender.this.hostPortField.getText());
-                props.put(TCPSenderProperties.TCP_SERVER_TIMEOUT, TCPSender.this.serverTimeoutField.getText());
-                ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(name, "testConnection", props);
-
                 if (response == null) {
                     throw new ClientException("Failed to invoke service.");
                 } else if(response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) { 
