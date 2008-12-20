@@ -10,7 +10,7 @@ import com.webreach.mirth.util.ConnectionTestResponse;
 
 public class FileWriterService implements ConnectorService {
     public Object invoke(String method, Object object, String sessionsId) throws Exception {
-        if (method.equals("testConnection")) {
+        if (method.equals("testRead")) {
             Map<String, String> params = (Map<String, String>) object;
             String scheme = params.get(FileWriterProperties.FILE_SCHEME);
             URL address = new URL(params.get(FileWriterProperties.FILE_HOST));
