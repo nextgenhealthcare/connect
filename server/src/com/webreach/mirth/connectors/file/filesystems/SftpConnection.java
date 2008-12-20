@@ -129,6 +129,24 @@ public class SftpConnection implements FileSystemConnection {
 		return files;
 	}
 
+	public boolean canRead(String readDir) {
+	    try {
+	        client.cd(readDir);
+	        return true;
+	    } catch (Exception e) {
+	        return false;
+	    }
+	}
+	
+	public boolean canWrite(String writeDir) {
+        try {
+            client.cd(writeDir);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+	}
+	
 	public InputStream readFile(String file, String fromDir) throws Exception {
 		client.cd(fromDir);
 		return client.get(file);

@@ -8,6 +8,7 @@
 	<clientClassName>com.webreach.mirth.connectors.file.FileWriter</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.file.FileConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.file.FileWriterProperties</sharedClassName>
+	<serviceClassName>com.webreach.mirth.connectors.file.FileWriterService</serviceClassName>
 	<library path="file-client.jar">
 		<type>CLIENT</type>
 	</library>

@@ -8,6 +8,7 @@
 	<clientClassName>com.webreach.mirth.connectors.file.FileReader</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.file.FileConnector</serverClassName>
 	<sharedClassName>com.webreach.mirth.connectors.file.FileReaderProperties</sharedClassName>
+	<serviceClassName>com.webreach.mirth.connectors.file.FileReaderService</serviceClassName>
 	<library path="file-client.jar">
 		<type>CLIENT</type>
 	</library>

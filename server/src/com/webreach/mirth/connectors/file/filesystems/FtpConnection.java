@@ -135,6 +135,22 @@ public class FtpConnection implements FileSystemConnection {
 		return v;
 	}
 
+	public boolean canRead(String readDir) {
+	    try {
+	        return client.changeWorkingDirectory(readDir);
+	    } catch (IOException e) {
+	        return false;
+	    }
+	}
+	
+	public boolean canWrite(String writeDir) {
+        try {
+            return client.changeWorkingDirectory(writeDir);
+        } catch (IOException e) {
+            return false;
+        }
+	}
+	
 	public InputStream readFile(String file, String fromDir)
 		throws Exception
 	{

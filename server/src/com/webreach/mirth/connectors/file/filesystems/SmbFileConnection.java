@@ -144,6 +144,22 @@ public class SmbFileConnection implements FileSystemConnection {
             throw new MuleException(new Message("file", 1), e);
         }
     }
+    
+    public boolean canRead(String readDir) {
+        try {
+            return getSmbFile(share, getPath(readDir, null), auth).canRead();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public boolean canWrite(String writeDir) {
+        try {
+            return getSmbFile(share, getPath(writeDir, null), auth).canWrite();
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     public InputStream readFile(String name, String dir) throws MuleException {
         SmbFile src = null;

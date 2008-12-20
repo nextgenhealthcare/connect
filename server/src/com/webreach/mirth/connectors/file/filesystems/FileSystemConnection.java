@@ -89,4 +89,10 @@ public interface FileSystemConnection {
 	
 	/** Test if the connection is valid */
 	public boolean isValid();
+	
+	/** Test if can read from specified directory **/
+	public boolean canRead(String readDir);
+	
+	/** Test if can write to specified directory **/
+	public boolean canWrite(String writeDir);
 }

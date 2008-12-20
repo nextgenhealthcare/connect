@@ -116,6 +116,16 @@ public class FileConnection implements FileSystemConnection {
 			throw new MuleException(new Message("file", 1), e);
 		}
 	}
+	
+	public boolean canRead(String readDir) {
+	    File readDirectory = new File(readDir);
+	    return readDirectory.canRead();
+	}
+	
+	public boolean canWrite(String writeDir) {
+        File readDirectory = new File(writeDir);
+        return readDirectory.canWrite();
+	}
 
 	public InputStream readFile(String file, String fromDir)
 		throws MuleException
