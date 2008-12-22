@@ -27,7 +27,13 @@ package com.webreach.mirth.connectors.soap;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.OutputStream;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,7 +41,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.zip.GZIPInputStream;
 
-import javax.swing.*;
+import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -61,9 +67,7 @@ import sun.misc.BASE64Decoder;
 import com.l2fprod.common.propertysheet.Property;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.BeanBinder;
-import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.MirthFileFilter;
 import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.model.Channel;
@@ -738,13 +742,11 @@ reconnectIntervalLabel.setEnabled(true);
 }//GEN-LAST:event_usePersistentQueuesYesRadioActionPerformed
 
 private void browseWSDLfileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseWSDLfileButtonActionPerformed
-    JFileChooser wsdlXMLfile = new JFileChooser();
-    wsdlXMLfile.setFileFilter(new MirthFileFilter("WSDL"));
-    int returnVal = wsdlXMLfile.showOpenDialog(this);
-    if (returnVal == JFileChooser.APPROVE_OPTION) {
-    	Frame.userPreferences.put("currentDirectory", wsdlXMLfile.getCurrentDirectory().getPath());
-        wsdlUrl.setText(wsdlXMLfile.getSelectedFile().getPath());
-    }
+	File wsdlXMLfile = parent.importFile("WSDL");
+	
+	if (wsdlXMLfile != null) {
+		wsdlUrl.setText(wsdlXMLfile.getPath());
+	}
 }//GEN-LAST:event_browseWSDLfileButtonActionPerformed
 
     private void rebuildEnvelopeActionPerformed(java.awt.event.ActionEvent evt)

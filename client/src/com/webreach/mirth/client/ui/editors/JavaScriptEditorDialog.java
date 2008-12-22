@@ -42,7 +42,6 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
@@ -268,24 +267,15 @@ public class JavaScriptEditorDialog extends javax.swing.JDialog implements DropT
 
     private void openFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileButtonActionPerformed
 // TODO add your handling code here:
-        JFileChooser importFileChooser = new JFileChooser();
-
-        File currentDir = new File(Frame.userPreferences.get("currentDirectory", ""));
-        if (currentDir.exists()) {
-            importFileChooser.setCurrentDirectory(currentDir);
-        }
-        int returnVal = importFileChooser.showOpenDialog(this);
-        File importFile = null;
-
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            Frame.userPreferences.put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
-            importFile = importFileChooser.getSelectedFile();
-            try {
+    	File importFile = parent.importFile(null);
+    	
+    	if (importFile != null) {
+    		try {
                 scriptContent.setText(FileUtil.read(importFile));
             } catch (IOException e) {
                 parent.alertError(this, "Unable to read file.");
             }
-        }
+    	}
     }//GEN-LAST:event_openFileButtonActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_cancelButtonActionPerformed

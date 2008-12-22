@@ -374,20 +374,11 @@ public class MessageBrowser extends javax.swing.JPanel {
     }
 
     public void importMessages() {
-        JFileChooser importFileChooser = new JFileChooser();
-        importFileChooser.setFileFilter(new MirthFileFilter("XML"));
-
-        File currentDir = new File(Preferences.systemNodeForPackage(Mirth.class).get("currentDirectory", ""));
-        if (currentDir.exists()) {
-            importFileChooser.setCurrentDirectory(currentDir);
-        }
-        int returnVal = importFileChooser.showOpenDialog(this);
-        File importFile = null;
-        String channelId = parent.getSelectedChannelIdFromDashboard();
-
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            Preferences.systemNodeForPackage(Mirth.class).put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
-            importFile = importFileChooser.getSelectedFile();
+    	File importFile = parent.importFile("XML");
+    	String channelId = parent.getSelectedChannelIdFromDashboard();
+    	
+    	if (importFile != null)
+    	{
             String messageXML = "";
             BufferedReader br = null;
 
@@ -433,7 +424,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 }
                 parent.alertException(this, e.getStackTrace(), "Invalid message file. Message importing will stop. " + e.getMessage());
             }
-        }
+    	}
     }
     
     /**

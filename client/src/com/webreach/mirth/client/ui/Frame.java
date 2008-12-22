@@ -99,6 +99,7 @@ import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.UpdateInfo;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
+import com.webreach.mirth.model.Connector.Mode;
 import com.webreach.mirth.model.converters.ObjectCloner;
 import com.webreach.mirth.model.converters.ObjectClonerException;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
@@ -725,12 +726,14 @@ public class Frame extends JXFrame
         addTask("doMoveDestinationDown", "Move Dest. Down", "Move the currently selected destination down.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_down.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doEditFilter", UIConstants.EDIT_FILTER, "Edit the filter for the currently selected destination.", "F", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/edit.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doEditTransformer", UIConstants.EDIT_TRANSFORMER, "Edit the transformer for the currently selected destination.", "T", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/edit.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doImportConnector", "Import Connector", "Import the currently displayed connector from an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doExportConnector", "Export Connector", "Export the currently displayed connector to an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doExport", "Export Channel", "Export the currently selected channel to an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doValidateChannelScripts", "Validate Script", "Validate the currently viewed script.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), channelEditTasks, channelEditPopupMenu);
 
         setNonFocusable(channelEditTasks);
-        setVisibleTasks(channelEditTasks, channelEditPopupMenu, 0, 10, false);
-        setVisibleTasks(channelEditTasks, channelEditPopupMenu, 11, 11, true);
+        setVisibleTasks(channelEditTasks, channelEditPopupMenu, 0, 14, false);
+        setVisibleTasks(channelEditTasks, channelEditPopupMenu, 13, 13, true);
         taskPaneContainer.add(channelEditTasks);
     }
 
@@ -2020,21 +2023,10 @@ public class Frame extends JXFrame
 
     public void doImportGlobalScripts()
     {
-        JFileChooser importFileChooser = new JFileChooser();
-        importFileChooser.setFileFilter(new MirthFileFilter("XML"));
-
-        File currentDir = new File(userPreferences.get("currentDirectory", ""));
-        if (currentDir.exists())
-            importFileChooser.setCurrentDirectory(currentDir);
-
-        int returnVal = importFileChooser.showOpenDialog(this);
-        File importFile = null;
-
-        if (returnVal == JFileChooser.APPROVE_OPTION)
-        {
-            userPreferences.put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
-            importFile = importFileChooser.getSelectedFile();
-
+    	File importFile = importFile("XML");
+    	
+    	if (importFile != null)
+    	{
             try
             {
                 String scriptsXML = FileUtil.read(importFile);
@@ -2049,7 +2041,7 @@ public class Frame extends JXFrame
                 alertException(this, e.getStackTrace(), "Invalid scripts file. " + e.getMessage());
                 return;
             }
-        }
+    	}
     }
 
     public void doExportGlobalScripts()
@@ -2064,44 +2056,11 @@ public class Frame extends JXFrame
             else
                 return;
         }
-
-        JFileChooser exportFileChooser = new JFileChooser();
-        exportFileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        exportFileChooser.setFileFilter(new MirthFileFilter("XML"));
-
-        File currentDir = new File(userPreferences.get("currentDirectory", ""));
-        if (currentDir.exists())
-            exportFileChooser.setCurrentDirectory(currentDir);
-
-        int returnVal = exportFileChooser.showSaveDialog(this);
-        File exportFile = null;
-
-        if (returnVal == JFileChooser.APPROVE_OPTION)
-        {
-            userPreferences.put("currentDirectory", exportFileChooser.getCurrentDirectory().getPath());
-            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-            String channelXML = serializer.toXML(globalScriptsPanel.exportAllScripts());
-            exportFile = exportFileChooser.getSelectedFile();
-
-            int length = exportFile.getName().length();
-
-            if (length < 4 || !exportFile.getName().substring(length - 4, length).equals(".xml"))
-                exportFile = new File(exportFile.getAbsolutePath() + ".xml");
-
-            if (exportFile.exists())
-                if (!alertOption(this, "This file already exists.  Would you like to overwrite it?"))
-                    return;
-
-            try
-            {
-                FileUtil.write(exportFile, channelXML, false);
-                alertInformation(this, "The global scripts were written to " + exportFile.getPath() + ".");
-            }
-            catch (IOException ex)
-            {
-                alertError(this, "File could not be written.");
-            }
-        }
+        
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        String globalScriptsXML = serializer.toXML(globalScriptsPanel.exportAllScripts());
+        
+        exportFile(globalScriptsXML, null, "XML", "Global Scripts export");
     }
 
     public void doValidateChannelScripts()
@@ -2977,22 +2936,10 @@ public class Frame extends JXFrame
 
     public void doImport()
     {
-        JFileChooser importFileChooser = new JFileChooser();
-        importFileChooser.setFileFilter(new MirthFileFilter("XML"));
-
-        File currentDir = new File(userPreferences.get("currentDirectory", ""));
-        if (currentDir.exists())
-            importFileChooser.setCurrentDirectory(currentDir);
-
-        int returnVal = importFileChooser.showOpenDialog(this);
-        File importFile = null;
-
-        if (returnVal == JFileChooser.APPROVE_OPTION)
-        {
-            userPreferences.put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
-            importFile = importFileChooser.getSelectedFile();
-            importChannel(importFile, true);
-        }
+    	File importFile = importFile("XML");
+    	
+    	if (importFile != null)
+    		importChannel(importFile, true);
     }
 
     public void importChannel(File importFile, boolean showAlerts)
@@ -3145,49 +3092,11 @@ public class Frame extends JXFrame
             channel = channelEditPanel.currentChannel;
         else
             channel = channelPanel.getSelectedChannel();
-
-        JFileChooser exportFileChooser = new JFileChooser();
-        exportFileChooser.setSelectedFile(new File(channel.getName()));
-        exportFileChooser.setFileFilter(new MirthFileFilter("XML"));
-
-        File currentDir = new File(userPreferences.get("currentDirectory", ""));
-        if (currentDir.exists())
-            exportFileChooser.setCurrentDirectory(currentDir);
-
-        int returnVal = exportFileChooser.showSaveDialog(this);
-        File exportFile = null;
-
-        if (returnVal == JFileChooser.APPROVE_OPTION)
-        {
-            userPreferences.put("currentDirectory", exportFileChooser.getCurrentDirectory().getPath());
-            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-            String channelXML = serializer.toXML(channel);
-            exportFile = exportFileChooser.getSelectedFile();
-
-            int length = exportFile.getName().length();
-
-            if (length < 4 || !exportFile.getName().substring(length - 4, length).equals(".xml"))
-                exportFile = new File(exportFile.getAbsolutePath() + ".xml");
-
-            if (exportFile.exists())
-                if (!alertOption(this, "This file already exists.  Would you like to overwrite it?"))
-                    return false;
-
-            try
-            {
-                FileUtil.write(exportFile, channelXML, false);
-                alertInformation(this, channel.getName() + " was written to " + exportFile.getPath() + ".");
-            }
-            catch (IOException ex)
-            {
-                alertError(this, "File could not be written.");
-                return false;
-            }
-            return true;
-        }
-        else
-            return false;
-
+        
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        String channelXML = serializer.toXML(channel);
+        
+        return exportFile(channelXML, channel.getName(), "XML", "Channel");
     }
 
     public void doExportAll()
@@ -3231,6 +3140,129 @@ public class Frame extends JXFrame
                 alertError(this, "File could not be written.");
             }
         }
+    }
+    
+    /**
+     * Import a file with the default defined file filter type.
+     * @return
+     */
+    public File importFile(String type)
+    {
+        JFileChooser importFileChooser = new JFileChooser();
+        if (type != null)
+        	importFileChooser.setFileFilter(new MirthFileFilter(type));
+
+        File currentDir = new File(userPreferences.get("currentDirectory", ""));
+        if (currentDir.exists())
+            importFileChooser.setCurrentDirectory(currentDir);
+
+        int returnVal = importFileChooser.showOpenDialog(this);
+        File importFile = null;
+
+        if (returnVal == JFileChooser.APPROVE_OPTION)
+        {
+            userPreferences.put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
+            importFile = importFileChooser.getSelectedFile();
+        }
+        
+        return importFile;
+    }
+    
+    /**
+     * Export a file with the default defined file filter type.
+     * @param fileContents
+     * @param fileName
+     * @return
+     */
+    public boolean exportFile(String fileContents, String defaultFileName, String type, String name)
+    {
+        JFileChooser exportFileChooser = new JFileChooser();
+        
+        if (defaultFileName != null)
+        	exportFileChooser.setSelectedFile(new File(defaultFileName));
+        if (type != null)
+        	exportFileChooser.setFileFilter(new MirthFileFilter(type));
+
+        File currentDir = new File(userPreferences.get("currentDirectory", ""));
+        if (currentDir.exists())
+            exportFileChooser.setCurrentDirectory(currentDir);
+
+        int returnVal = exportFileChooser.showSaveDialog(this);
+        File exportFile = null;
+
+        if (returnVal == JFileChooser.APPROVE_OPTION)
+        {
+            userPreferences.put("currentDirectory", exportFileChooser.getCurrentDirectory().getPath());
+            exportFile = exportFileChooser.getSelectedFile();
+
+            int length = exportFile.getName().length();
+
+            if (length < 4 || !exportFile.getName().substring(length - 4, length).equalsIgnoreCase("." + type.toLowerCase()))
+                exportFile = new File(exportFile.getAbsolutePath() + "." + type.toLowerCase());
+
+            if (exportFile.exists())
+                if (!alertOption(this, "This file already exists.  Would you like to overwrite it?"))
+                    return false;
+
+            try
+            {
+                FileUtil.write(exportFile, fileContents, false);
+                alertInformation(this, name + " was written to " + exportFile.getPath() + ".");
+            }
+            catch (IOException ex)
+            {
+                alertError(this, "File could not be written.");
+                return false;
+            }
+            return true;
+        }
+        else
+            return false;
+    }
+    
+    public void doImportConnector()
+    {
+    	File connectorFile = importFile("XML");
+    	
+    	if (connectorFile != null) {
+	    	try {
+				String connectorXML = ImportConverter.convertConnector(connectorFile);
+				ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+				Connector connector = (Connector) serializer.fromXML(connectorXML);
+				channelEditPanel.importConnector(connector);
+			} catch (Exception e) {
+				alertException(this, e.getStackTrace(), e.getMessage());
+			}
+    	}
+    }
+    
+    public void doExportConnector()
+    {
+        if (changesHaveBeenMade())
+        {
+            if (alertOption(this, "This channel has been modified. You must save the channel changes before you can export. Would you like to save them now?"))
+            {
+                if (!channelEditPanel.saveChanges())
+                    return;
+            }
+            else
+                return;
+
+            disableSave();
+        }
+
+        Connector connector = channelEditPanel.exportSelectedConnector();
+        
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        String connectorXML = serializer.toXML(connector);
+        
+        String fileName = channelEditPanel.currentChannel.getName();
+        if (connector.getMode().equals(Mode.SOURCE))
+        	fileName += " Source";
+        else
+        	fileName += " " + connector.getName();
+        
+        exportFile(connectorXML, fileName, "XML", "Connector");
     }
 
     public void doCloneChannel()
@@ -3962,62 +3994,20 @@ public class Frame extends JXFrame
             else
                 return;
         }
-
-        JFileChooser exportFileChooser = new JFileChooser();
-        exportFileChooser.setFileFilter(new MirthFileFilter("XML"));
-
-        File currentDir = new File(Preferences.systemNodeForPackage(Mirth.class).get("currentDirectory", ""));
-        if (currentDir.exists())
-            exportFileChooser.setCurrentDirectory(currentDir);
-
-        int returnVal = exportFileChooser.showSaveDialog(this);
-        File exportFile = null;
-
-        if (returnVal == JFileChooser.APPROVE_OPTION)
-        {
-            Preferences.systemNodeForPackage(Mirth.class).put("currentDirectory", exportFileChooser.getCurrentDirectory().getPath());
-            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-            String alertXML = serializer.toXML(alerts);
-            exportFile = exportFileChooser.getSelectedFile();
-
-            int length = exportFile.getName().length();
-
-            if (length < 4 || !exportFile.getName().substring(length - 4, length).equals(".xml"))
-                exportFile = new File(exportFile.getAbsolutePath() + ".xml");
-
-            if (exportFile.exists())
-                if (!alertOption(this, "This file already exists.  Would you like to overwrite it?"))
-                    return;
-
-            try
-            {
-                FileUtil.write(exportFile, alertXML, false);
-                alertInformation(this, "All alerts were written to " + exportFile.getPath() + ".");
-            }
-            catch (IOException ex)
-            {
-                alertError(this, "File could not be written.");
-            }
-        }
+        
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        String alertXML = serializer.toXML(alerts);
+        
+        exportFile(alertXML, null, "XML", "Alerts export");
     }
 
     public void doImportAlerts()
     {
-        JFileChooser importFileChooser = new JFileChooser();
-        importFileChooser.setFileFilter(new MirthFileFilter("XML"));
-
-        File currentDir = new File(Preferences.systemNodeForPackage(Mirth.class).get("currentDirectory", ""));
-        if (currentDir.exists())
-            importFileChooser.setCurrentDirectory(currentDir);
-
-        int returnVal = importFileChooser.showOpenDialog(this);
-        File importFile = null;
-
-        if (returnVal == JFileChooser.APPROVE_OPTION)
-        {
-            Preferences.systemNodeForPackage(Mirth.class).put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
-            importFile = importFileChooser.getSelectedFile();
-            try
+    	File importFile = importFile("XML");
+    	
+    	if (importFile != null)
+    	{
+    		try
             {
                 String alertXML = FileUtil.read(importFile);
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
@@ -4034,7 +4024,7 @@ public class Frame extends JXFrame
             {
                 alertError(this, "Invalid alert file.");
             }
-        }
+    	}
     }
 
 
@@ -4143,62 +4133,20 @@ public class Frame extends JXFrame
             else
                 return;
         }
-
-        JFileChooser exportFileChooser = new JFileChooser();
-        exportFileChooser.setFileFilter(new MirthFileFilter("XML"));
-
-        File currentDir = new File(Preferences.systemNodeForPackage(Mirth.class).get("currentDirectory", ""));
-        if (currentDir.exists())
-            exportFileChooser.setCurrentDirectory(currentDir);
-
-        int returnVal = exportFileChooser.showSaveDialog(this);
-        File exportFile = null;
-
-        if (returnVal == JFileChooser.APPROVE_OPTION)
-        {
-            Preferences.systemNodeForPackage(Mirth.class).put("currentDirectory", exportFileChooser.getCurrentDirectory().getPath());
-            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-            String codeTemplateXML = serializer.toXML(codeTemplates);
-            exportFile = exportFileChooser.getSelectedFile();
-
-            int length = exportFile.getName().length();
-
-            if (length < 4 || !exportFile.getName().substring(length - 4, length).equals(".xml"))
-                exportFile = new File(exportFile.getAbsolutePath() + ".xml");
-
-            if (exportFile.exists())
-                if (!alertOption(this, "This file already exists.  Would you like to overwrite it?"))
-                    return;
-
-            try
-            {
-                FileUtil.write(exportFile, codeTemplateXML, false);
-                alertInformation(this, "All Code templates were written to " + exportFile.getPath() + ".");
-            }
-            catch (IOException ex)
-            {
-                alertError(this, "File could not be written.");
-            }
-        }
+        
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        String codeTemplateXML = serializer.toXML(codeTemplates);
+        
+        exportFile(codeTemplateXML, null, "XML", "Code templates export");
     }
 
     public void doImportCodeTemplates()
     {
-        JFileChooser importFileChooser = new JFileChooser();
-        importFileChooser.setFileFilter(new MirthFileFilter("XML"));
-
-        File currentDir = new File(Preferences.systemNodeForPackage(Mirth.class).get("currentDirectory", ""));
-        if (currentDir.exists())
-            importFileChooser.setCurrentDirectory(currentDir);
-
-        int returnVal = importFileChooser.showOpenDialog(this);
-        File importFile = null;
-
-        if (returnVal == JFileChooser.APPROVE_OPTION)
-        {
-            Preferences.systemNodeForPackage(Mirth.class).put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
-            importFile = importFileChooser.getSelectedFile();
-            try
+    	File importFile = importFile("XML");
+    	
+    	if (importFile != null)
+    	{
+    		try
             {
                 String codeTemplatesXML = FileUtil.read(importFile);
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
@@ -4214,7 +4162,7 @@ public class Frame extends JXFrame
             {
                 alertError(this, "Invalid code template file.");
             }
-        }
+    	}
     }
 
     public boolean exportChannelOnError()

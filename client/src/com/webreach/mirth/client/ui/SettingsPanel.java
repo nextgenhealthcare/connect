@@ -25,6 +25,7 @@
 
 package com.webreach.mirth.client.ui;
 
+import java.awt.Cursor;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -32,17 +33,14 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.prefs.Preferences;
 
-import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.util.FileUtil;
-import com.webreach.mirth.connectors.email.EmailSenderProperties;
 import com.webreach.mirth.model.ServerConfiguration;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.util.ImportConverter;
-import java.awt.Cursor;
 
 /**
  * The main configuration panel.
@@ -606,22 +604,11 @@ public class SettingsPanel extends javax.swing.JPanel
             saveSettings();
         }
         
-        JFileChooser backupFileChooser = new JFileChooser();
-        backupFileChooser.setFileFilter(new MirthFileFilter("XML"));
-        
-        File currentDir = new File(userPreferences.get("currentDirectory", ""));
-        if (currentDir.exists())
-            backupFileChooser.setCurrentDirectory(currentDir);
-        
-        int returnVal = backupFileChooser.showOpenDialog(this);
-        File backupFile = null;
-        
-        if (returnVal == JFileChooser.APPROVE_OPTION)
-        {
-            userPreferences.put("currentDirectory", backupFileChooser.getCurrentDirectory().getPath());
-            backupFile = backupFileChooser.getSelectedFile();
-            
-            String backupXML = null;
+    	File backupFile = parent.importFile("XML");
+    	
+    	if (backupFile != null)
+    	{
+    		String backupXML = null;
             try
             {
                 backupXML = FileUtil.read(backupFile);
@@ -654,7 +641,7 @@ public class SettingsPanel extends javax.swing.JPanel
             {
                 parent.alertError(this, "Invalid server configuration file.");
             }
-        }
+    	}
     }//GEN-LAST:event_restoreButtonActionPerformed
 
     private void backupButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_backupButtonActionPerformed
@@ -668,58 +655,29 @@ public class SettingsPanel extends javax.swing.JPanel
             else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION)
                 return;
         }
+        
         String backupDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-        JFileChooser backupFileChooser = new JFileChooser();
-        backupFileChooser.setSelectedFile(new File(backupDate.substring(0,10) + " Mirth Backup.xml"));
-        backupFileChooser.setFileFilter(new MirthFileFilter("XML"));
         
-        File currentDir = new File(userPreferences.get("currentDirectory", ""));
-        if (currentDir.exists())
-            backupFileChooser.setCurrentDirectory(currentDir);
-        
-        int returnVal = backupFileChooser.showSaveDialog(this);
-        File backupFile = null;
-        
-        if (returnVal == JFileChooser.APPROVE_OPTION)
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        ServerConfiguration configuration = null;
+        try
         {
-            userPreferences.put("currentDirectory", backupFileChooser.getCurrentDirectory().getPath());
-            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-            ServerConfiguration configuration = null;
-            try
-            {
-                configuration = parent.mirthClient.getServerConfiguration();
-            }
-            catch (ClientException e)
-            {
-                parent.alertException(this, e.getStackTrace(), e.getMessage());
-                return;
-            }
-            
-            configuration.setDate(backupDate);
-            String backupXML = serializer.toXML(configuration);
-            backupFile = backupFileChooser.getSelectedFile();
-            
-            int length = backupFile.getName().length();
-            
-            if (length < 4 || !backupFile.getName().substring(length - 4, length).equals(".xml"))
-                backupFile = new File(backupFile.getAbsolutePath() + ".xml");
-            
-            if (backupFile.exists())
-                if (!parent.alertOption(this, "This file already exists.  Would you like to overwrite it?"))
-                    return;
-            
-            try
-            {
-                FileUtil.write(backupFile, backupXML, false);
-                parent.alertInformation(this, "The current server configuration was written to " + backupFile.getPath() + ".");
-                userPreferences.put("lastBackup", backupDate);
-                lastBackup.setText(backupDate);
-            }
-            catch (IOException ex)
-            {
-                parent.alertError(this, "File could not be written.");
-            }
-            
+            configuration = parent.mirthClient.getServerConfiguration();
+        }
+        catch (ClientException e)
+        {
+            parent.alertException(this, e.getStackTrace(), e.getMessage());
+            return;
+        }
+        
+        configuration.setDate(backupDate);
+        String backupXML = serializer.toXML(configuration);
+        
+        boolean fileWritten = parent.exportFile(backupXML, backupDate.substring(0,10) + " Mirth Backup.xml", "XML", "Server Configuration");
+        if (fileWritten)
+        {
+        	userPreferences.put("lastBackup", backupDate);
+            lastBackup.setText(backupDate);
         }
     }//GEN-LAST:event_backupButtonActionPerformed
 

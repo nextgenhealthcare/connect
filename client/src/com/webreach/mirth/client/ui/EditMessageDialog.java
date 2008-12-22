@@ -39,8 +39,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
-import javax.swing.JFileChooser;
-
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.EDITokenMarker;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
@@ -302,20 +300,11 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
 
     private void processBinaryFileButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_processBinaryFileButtonActionPerformed
     {//GEN-HEADEREND:event_processBinaryFileButtonActionPerformed
-        JFileChooser importFileChooser = new JFileChooser();
-                
-        File currentDir = new File(Frame.userPreferences.get("currentDirectory", ""));
-        if (currentDir.exists())
-            importFileChooser.setCurrentDirectory(currentDir);
-        
-        int returnVal = importFileChooser.showOpenDialog(this);
-        File importFile = null;
-        
-        if (returnVal == JFileChooser.APPROVE_OPTION)
-        {
-            Frame.userPreferences.put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
-            importFile = importFileChooser.getSelectedFile();
-            try 
+    	File importFile = parent.importFile(null);
+    	
+    	if (importFile != null)
+    	{
+    		try 
             {
             	message.setRawData(FileUtil.readBinaryBase64(importFile));
                 parent.processMessage(message);
@@ -325,24 +314,15 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
             {
                 parent.alertError(this, "Unable to read file.");
             }
-        }
+    	}
     }//GEN-LAST:event_processBinaryFileButtonActionPerformed
 
     private void openFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileButtonActionPerformed
 // TODO add your handling code here:
-        JFileChooser importFileChooser = new JFileChooser();
-                
-        File currentDir = new File(Frame.userPreferences.get("currentDirectory", ""));
-        if (currentDir.exists())
-            importFileChooser.setCurrentDirectory(currentDir);
-        
-        int returnVal = importFileChooser.showOpenDialog(this);
-        File importFile = null;
-        
-        if (returnVal == JFileChooser.APPROVE_OPTION)
-        {
-            Frame.userPreferences.put("currentDirectory", importFileChooser.getCurrentDirectory().getPath());
-            importFile = importFileChooser.getSelectedFile();
+    	File importFile = parent.importFile(null);
+    	
+    	if (importFile != null)
+    	{
             try 
             {
             	messageContent.setText(FileUtil.read(importFile));
@@ -351,7 +331,7 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
             {
                 parent.alertError(this, "Unable to read file.");
             }
-        }
+    	}
     }//GEN-LAST:event_openFileButtonActionPerformed
     
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_closeButtonActionPerformed

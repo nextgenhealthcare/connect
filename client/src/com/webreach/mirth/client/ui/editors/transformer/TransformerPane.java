@@ -44,7 +44,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,7 +58,6 @@ import java.util.prefs.Preferences;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -82,7 +80,6 @@ import com.webreach.mirth.client.ui.Frame;
 import com.webreach.mirth.client.ui.MapperDropData;
 import com.webreach.mirth.client.ui.MessageBuilderDropData;
 import com.webreach.mirth.client.ui.Mirth;
-import com.webreach.mirth.client.ui.MirthFileFilter;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.TreeTransferable;
 import com.webreach.mirth.client.ui.UIConstants;
@@ -91,7 +88,6 @@ import com.webreach.mirth.client.ui.components.MirthTree;
 import com.webreach.mirth.client.ui.editors.BasePanel;
 import com.webreach.mirth.client.ui.editors.EditorTableCellEditor;
 import com.webreach.mirth.client.ui.editors.MirthEditorPane;
-import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.client.ui.util.VariableListUtil;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
@@ -974,24 +970,11 @@ public class TransformerPane extends MirthEditorPane implements
     /*
      * Import the transfomer
      */
-    public void doImport() {
-        JFileChooser importFileChooser = new JFileChooser();
-        importFileChooser.setFileFilter(new MirthFileFilter("XML"));
-
-        File currentDir = new File(Preferences.systemNodeForPackage(Mirth.class).get("currentDirectory", ""));
-        if (currentDir.exists()) {
-            importFileChooser.setCurrentDirectory(currentDir);
-        }
-        int returnVal = importFileChooser.showOpenDialog(this);
-        File importFile = null;
-
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            Preferences.systemNodeForPackage(Mirth.class).put(
-                    "currentDirectory",
-                    importFileChooser.getCurrentDirectory().getPath());
-            importFile = importFileChooser.getSelectedFile();
-            importTransformer(importFile);
-        }
+    public void doImport() {	
+    	File importFile = parent.importFile("XML");
+    	
+    	if (importFile != null)
+    		importTransformer(importFile);
     }
 
     private void importTransformer(File importFile) {
@@ -1050,42 +1033,11 @@ public class TransformerPane extends MirthEditorPane implements
         if (invalidVar) {
             return;
         }
-        JFileChooser exportFileChooser = new JFileChooser();
-        exportFileChooser.setFileFilter(new MirthFileFilter("XML"));
-
-        File currentDir = new File(Preferences.systemNodeForPackage(Mirth.class).get("currentDirectory", ""));
-        if (currentDir.exists()) {
-            exportFileChooser.setCurrentDirectory(currentDir);
-        }
-        int returnVal = exportFileChooser.showSaveDialog(this);
-        File exportFile = null;
-
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            Preferences.systemNodeForPackage(Mirth.class).put(
-                    "currentDirectory",
-                    exportFileChooser.getCurrentDirectory().getPath());
-            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-            String transformerXML = serializer.toXML(transformer);
-            exportFile = exportFileChooser.getSelectedFile();
-
-            int length = exportFile.getName().length();
-
-            if (length < 4 || !exportFile.getName().substring(length - 4, length).equals(".xml")) {
-                exportFile = new File(exportFile.getAbsolutePath() + ".xml");
-            }
-            if (exportFile.exists()) {
-                if (!parent.alertOption(this,
-                        "This file already exists.  Would you like to overwrite it?")) {
-                    return;
-                }
-            }
-            try {
-                FileUtil.write(exportFile, transformerXML, false);
-                parent.alertInformation(this, "Transformer was written to " + exportFile.getPath() + ".");
-            } catch (IOException ex) {
-                parent.alertError(this, "File could not be written.");
-            }
-        }
+        
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        String transformerXML = serializer.toXML(transformer);
+        
+        parent.exportFile(transformerXML, null, "XML", "Transformer");
     }
 
     /*

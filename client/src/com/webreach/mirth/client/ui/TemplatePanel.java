@@ -21,9 +21,7 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.prefs.Preferences;
 
-import javax.swing.JFileChooser;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -433,22 +431,11 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
 
     private void openFileButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_openFileButtonActionPerformed
     {//GEN-HEADEREND:event_openFileButtonActionPerformed
-
-        JFileChooser fileChooser = new JFileChooser();
-
-        File currentDir = new File(Preferences.systemNodeForPackage(Mirth.class).get("currentDirectory", ""));
-        if (currentDir.exists())
-            fileChooser.setCurrentDirectory(currentDir);
-
-        int returnVal = fileChooser.showOpenDialog(PlatformUI.MIRTH_FRAME);
-        File file = null;
-
-        if (returnVal == JFileChooser.APPROVE_OPTION)
-        {
-            Preferences.systemNodeForPackage(Mirth.class).put("currentDirectory", fileChooser.getCurrentDirectory().getPath());
-            file = fileChooser.getSelectedFile();
-
-            try
+    	File file = PlatformUI.MIRTH_FRAME.importFile(null);
+    	
+    	if (file != null)
+    	{
+    		try
             {
                 if (getProtocol().equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DICOM))){
                     //pasteBox.setText(file.getPath());
@@ -464,8 +451,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                 PlatformUI.MIRTH_FRAME.alertException(this, e.getStackTrace(),"Invalid template file. " + e.getMessage());
                 return;
             }
-        }
-
+    	}
     }//GEN-LAST:event_openFileButtonActionPerformed
 
     private void pasteBoxFocusLost(java.awt.event.FocusEvent evt)//GEN-FIRST:event_pasteBoxFocusLost

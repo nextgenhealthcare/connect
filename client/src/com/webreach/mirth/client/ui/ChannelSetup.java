@@ -34,6 +34,7 @@ import com.webreach.mirth.client.ui.util.VariableListUtil;
 import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.model.*;
 import com.webreach.mirth.model.CodeTemplate.ContextType;
+import com.webreach.mirth.model.Connector.Mode;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.ObjectCloner;
 import com.webreach.mirth.model.converters.ObjectClonerException;
@@ -1796,8 +1797,8 @@ public class ChannelSetup extends javax.swing.JPanel
 
     private void scriptsComponentShown(java.awt.event.ComponentEvent evt)//GEN-FIRST:event_scriptsComponentShown
     {//GEN-HEADEREND:event_scriptsComponentShown
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 10, false);
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 12, 12, true);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 12, false);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 14, 14, true);
     }//GEN-LAST:event_scriptsComponentShown
     
     private void summaryNameFieldKeyReleased(java.awt.event.KeyEvent evt)// GEN-FIRST:event_summaryNameFieldKeyReleased
@@ -1848,8 +1849,8 @@ public class ChannelSetup extends javax.swing.JPanel
     /** Action when the summary tab is shown. */
     private void summaryComponentShown(java.awt.event.ComponentEvent evt)// GEN-FIRST:event_summaryComponentShown
     {
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 10, false);
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 12, 12, false);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 12, false);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 14, 14, false);
     }
     
     /** Action when the source tab is shown. */
@@ -1857,8 +1858,8 @@ public class ChannelSetup extends javax.swing.JPanel
     {
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 1, true);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 8, false);
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 9, 11, true);
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 12, 12, false);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 9, 13, true);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 14, 14, false);
         
         // Update number of rules and steps on the filter and transformer
         parent.updateFilterTaskName(currentChannel.getSourceConnector().getFilter().getRules().size());
@@ -1881,8 +1882,8 @@ public class ChannelSetup extends javax.swing.JPanel
     private void destinationComponentShown(java.awt.event.ComponentEvent evt)// GEN-FIRST:event_destinationComponentShown
     {
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 1, true);
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 10, true);
-        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 12, 12, false);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 2, 12, true);
+        parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 14, 14, false);
         
         checkVisibleDestinationTasks();
         
@@ -2205,6 +2206,63 @@ public class ChannelSetup extends javax.swing.JPanel
     public String getSourceDatatype()
     {
         return (String) incomingProtocol.getSelectedItem();
+    }
+    
+    public Connector exportSelectedConnector()
+    {
+        if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX)
+        {
+            return currentChannel.getSourceConnector();
+        }
+        else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX)
+        {
+            return currentChannel.getDestinationConnectors().get(getSelectedDestinationIndex());
+        }
+        else
+        {
+        	return null;
+        }
+    }
+    
+    public void importConnector(Connector connector)
+    {
+    	loadingChannel = true;
+    	
+    	// If the connector is a source, then set it, change the dropdown, and set the incoming data protocol.
+        if ((channelView.getSelectedIndex() == SOURCE_TAB_INDEX) && (connector.getMode().equals(Mode.SOURCE)))
+        {
+            currentChannel.setSourceConnector(connector);
+            sourceSourceDropdown.setSelectedItem(currentChannel.getSourceConnector().getTransportName());
+            if (currentChannel.getSourceConnector().getTransformer().getInboundProtocol() != null)
+                incomingProtocol.setSelectedItem(parent.protocols.get(currentChannel.getSourceConnector().getTransformer().getInboundProtocol()));
+        }
+        // If the connector is a destination, then check/generate its name, add it, and re-make the destination table.
+        else if ((channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX) && (connector.getMode().equals(Mode.DESTINATION)))
+        {
+        	List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
+        	for (Connector destinationConnector : destinationConnectors)
+        	{
+        		if (destinationConnector.getName().equalsIgnoreCase(connector.getName()))
+        			connector.setName(getNewDestinationName(destinationConnectors.size() + 1));
+        	}
+        	destinationConnectors.add(connector);
+            makeDestinationTable(false);
+        }
+        // If the mode and tab don't match, display an error message and return.
+        else
+        {
+        	String errorMessage = "You must be on the Source tab to import a Source connector.";
+        	if (connector.getMode().equals(Mode.DESTINATION))
+        		errorMessage = "You must be on the Destinations tab to import a Destination connector.";
+        	parent.alertError(parent, errorMessage);
+        	
+        	loadingChannel = false;
+        	return;
+        }
+
+        loadingChannel = false;
+        
+        parent.enableSave();
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables

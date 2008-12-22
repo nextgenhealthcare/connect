@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.prefs.Preferences;
 
 import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -27,7 +26,6 @@ import org.jdesktop.swingx.decorator.HighlighterPipeline;
 import com.webreach.mirth.client.ui.CellData;
 import com.webreach.mirth.client.ui.ImageCellRenderer;
 import com.webreach.mirth.client.ui.Mirth;
-import com.webreach.mirth.client.ui.MirthFileFilter;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.RefreshTableModel;
 import com.webreach.mirth.client.ui.UIConstants;
@@ -714,24 +712,12 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
     
     private void browseButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_browseButtonActionPerformed
     {//GEN-HEADEREND:event_browseButtonActionPerformed
-        JFileChooser pluginFileChooser = new JFileChooser();
-        pluginFileChooser.setFileFilter(new MirthFileFilter("ZIP"));
-        
-        Preferences userPreferences = Preferences.systemNodeForPackage(Mirth.class);
-        
-        File currentDir = new File(userPreferences.get("currentDirectory", ""));
-        if (currentDir.exists())
-            pluginFileChooser.setCurrentDirectory(currentDir);
-        
-        int returnVal = pluginFileChooser.showOpenDialog(this);
-        File pluginFile = null;
-        
-        if (returnVal == JFileChooser.APPROVE_OPTION)
-        {
-            userPreferences.put("currentDirectory", pluginFileChooser.getCurrentDirectory().getPath());
-            pluginFile = pluginFileChooser.getSelectedFile();
-            fileText.setText(pluginFile.getAbsolutePath());
-        }
+    	File pluginFile = PlatformUI.MIRTH_FRAME.importFile("ZIP");
+    	
+    	if (pluginFile != null)
+    	{
+    		fileText.setText(pluginFile.getAbsolutePath());
+    	}
     }//GEN-LAST:event_browseButtonActionPerformed
     
     
