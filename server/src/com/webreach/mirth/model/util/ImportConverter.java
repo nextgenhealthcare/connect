@@ -472,6 +472,30 @@ public class ImportConverter {
 		}
 		return updateLocalAndGlobalVariables(filterXML);
 	}
+	
+	/**
+	 * Convert a connector.  Added in 1.8 and shouldn't be called
+	 * on pre-1.8 connectors.
+	 * 
+	 * @param connector
+	 * @return
+	 * @throws Exception
+	 */
+	public static String convertConnector(File connector) throws Exception {
+		String connectorXML = "";
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		Document document;
+		DocumentBuilder builder;
+
+		builder = factory.newDocumentBuilder();
+		document = builder.parse(connector);
+		Element connectorRoot = document.getDocumentElement();
+
+		DocumentSerializer docSerializer = new DocumentSerializer();
+		connectorXML = docSerializer.toXML(document);
+
+		return connectorXML;
+	}
 
 	public static String convertTransformer(File transformer, Protocol incoming, Protocol outgoing) throws Exception {
 		String transformerXML = "";
