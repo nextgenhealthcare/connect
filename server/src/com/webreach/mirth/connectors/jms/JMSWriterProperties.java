@@ -47,7 +47,8 @@ public class JMSWriterProperties implements ComponentProperties
     public static final String JMS_ACK_MODE = "acknowledgementMode";
     public static final String JMS_ADDITIONAL_PROPERTIES = "connectionFactoryProperties";
     public static final String JMS_TEMPLATE = "template";
-
+    public static final String JMS_BROKER_URL = "brokerUrl";
+    
     public Properties getDefaults()
     {
         Properties properties = new Properties();
@@ -65,6 +66,7 @@ public class JMSWriterProperties implements ComponentProperties
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         properties.put(JMS_ADDITIONAL_PROPERTIES, serializer.toXML(new Properties()));
         properties.put(JMS_TEMPLATE, "${message.encodedData}");
+        properties.put(JMS_BROKER_URL, "tcp://localhost");
         return properties;
     }
 

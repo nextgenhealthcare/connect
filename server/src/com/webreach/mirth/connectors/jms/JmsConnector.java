@@ -74,6 +74,7 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
 	private boolean persistentDelivery;
 	private Map jndiProviderProperties;
 	private Map connectionFactoryProperties;
+	private String brokerUrl;
 	private Connection connection;
 	private String specification = JmsConstants.JMS_SPECIFICATION_102B;
 	private JmsSupport jmsSupport;
@@ -133,6 +134,7 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
 			}
 			if (connectionFactory != null && connectionFactoryProperties != null && !connectionFactoryProperties.isEmpty()) {
 				// apply connection factory properties
+			    connectionFactoryProperties.put("brokerUrl", brokerUrl);
 				BeanUtils.populateWithoutFail(connectionFactory, connectionFactoryProperties, true);
 			}
 		} catch (Exception e) {
