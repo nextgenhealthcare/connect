@@ -1248,11 +1248,11 @@ public class Frame extends JXFrame
     /**
      * Sends the channel passed in to the server, updating it or adding it.
      */
-    public boolean updateChannel(Channel curr)
+    public boolean updateChannel(Channel curr, boolean override)
     {
         try
         {
-            if (!mirthClient.updateChannel(curr, false))
+            if (!mirthClient.updateChannel(curr, override))
             {
                 if (alertOption(this, "This channel has been modified since you first opened it.  Would you like to overwrite it?"))
                     mirthClient.updateChannel(curr, true);
@@ -2598,7 +2598,7 @@ public class Frame extends JXFrame
             {
 
                 channel.setEnabled(true);
-                updateChannel(channel);
+                updateChannel(channel, false);
                 return null;
             }
 
@@ -2628,7 +2628,7 @@ public class Frame extends JXFrame
             public Void doInBackground()
             {
                 channel.setEnabled(false);
-                updateChannel(channel);
+                updateChannel(channel, false);
                 return null;
             }
 
@@ -2945,6 +2945,7 @@ public class Frame extends JXFrame
     public void importChannel(File importFile, boolean showAlerts)
     {
         String channelXML = "";
+        boolean overwrite = false;
 
         try
         {
@@ -3016,6 +3017,8 @@ public class Frame extends JXFrame
                 }
                 else
                 {
+                	overwrite = true;
+                	
                     for (Channel channel : channels.values())
                     {
                         if (channel.getName().equalsIgnoreCase(channelName))
@@ -3054,7 +3057,7 @@ public class Frame extends JXFrame
             {
                 PropertyVerifier.checkChannelProperties(importChannel);
                 PropertyVerifier.checkConnectorProperties(importChannel, channelEditPanel.transports);
-                updateChannel(importChannel);
+                updateChannel(importChannel, overwrite);
                 doShowChannel();
             }
         }

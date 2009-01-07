@@ -892,7 +892,7 @@ public class ChannelSetup extends javax.swing.JPanel
             if (!parent.channels.containsKey(currentChannel.getId()))
                 currentChannel.setId(parent.mirthClient.getGuid());
             
-            updated = parent.updateChannel(currentChannel);
+            updated = parent.updateChannel(currentChannel, false);
             
             try
             {
