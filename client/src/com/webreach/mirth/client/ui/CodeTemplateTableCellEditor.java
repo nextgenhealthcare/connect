@@ -127,6 +127,9 @@ public class CodeTemplateTableCellEditor extends AbstractCellEditor implements T
      */
     public boolean isCellEditable(EventObject evt)
     {
+    	if (evt == null)
+    		return false;
+    	
         if (evt instanceof MouseEvent)
         {
             return ((MouseEvent) evt).getClickCount() >= 2;

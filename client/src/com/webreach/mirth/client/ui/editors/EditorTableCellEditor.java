@@ -110,6 +110,9 @@ public class EditorTableCellEditor extends AbstractCellEditor implements TableCe
      */
     public boolean isCellEditable(EventObject evt)
     {
+    	if (evt == null)
+    		return false;
+    	
         if (evt instanceof MouseEvent)
         {
             return ((MouseEvent) evt).getClickCount() >= 2;

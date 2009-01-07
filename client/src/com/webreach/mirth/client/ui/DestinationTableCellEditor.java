@@ -129,6 +129,9 @@ public class DestinationTableCellEditor extends AbstractCellEditor implements Ta
      */
     public boolean isCellEditable(EventObject evt)
     {
+    	if (evt == null)
+    		return false;
+    	
         if (evt instanceof MouseEvent)
         {
             return ((MouseEvent) evt).getClickCount() >= 2;
