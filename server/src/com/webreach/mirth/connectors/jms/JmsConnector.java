@@ -74,7 +74,6 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
 	private boolean persistentDelivery;
 	private Map jndiProviderProperties;
 	private Map connectionFactoryProperties;
-	private String brokerUrl;
 	private Connection connection;
 	private String specification = JmsConstants.JMS_SPECIFICATION_102B;
 	private JmsSupport jmsSupport;
@@ -129,14 +128,7 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
 			} else {
 				jmsSupport = new Jms11Support(this, jndiContext, jndiDestinations, forceJndiDestinations);
 			}
-			if ((connectionFactory == null) && (connectionFactoryClass != null)) {
-				connectionFactory = createConnectionFactory();
-			}
-			if (connectionFactory != null && connectionFactoryProperties != null && !connectionFactoryProperties.isEmpty()) {
-				// apply connection factory properties
-			    connectionFactoryProperties.put("brokerUrl", brokerUrl);
-				BeanUtils.populateWithoutFail(connectionFactory, connectionFactoryProperties, true);
-			}
+			
 		} catch (Exception e) {
 			throw new InitialisationException(new Message(Messages.FAILED_TO_CREATE_X, "Jms Connector"), e, this);
 		}
@@ -168,9 +160,15 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
 
 	protected ConnectionFactory createConnectionFactory() throws InitialisationException, NamingException {
 
+		// If JNDI is being used, connectionFactoryClass will be null.
 		if (connectionFactoryClass != null) {
 			try {
-				return (ConnectionFactory) Class.forName(connectionFactoryClass).newInstance();
+				ConnectionFactory connectionFactory = (ConnectionFactory) Class.forName(connectionFactoryClass).newInstance();
+				if (connectionFactory != null && connectionFactoryProperties != null && !connectionFactoryProperties.isEmpty()) {
+					// apply connection factory properties
+					BeanUtils.populateWithoutFail(connectionFactory, connectionFactoryProperties, true);
+				}
+				return connectionFactory;
 			} catch (Exception e) {
 				throw new InitialisationException(e, this);
 			}
@@ -187,14 +185,6 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
 
 	protected Connection createConnection() throws NamingException, JMSException, InitialisationException {
 		Connection connection = null;
-
-		if (connectionFactoryClass != null) {
-			try {
-				connectionFactory = (ConnectionFactory) Class.forName(connectionFactoryClass).newInstance();
-			} catch (Exception e) {
-				logger.error(e);
-			}
-		}
 
 		if (connectionFactory == null) {
 			connectionFactory = createConnectionFactory();
