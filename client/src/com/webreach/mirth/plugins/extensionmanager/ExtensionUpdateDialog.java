@@ -276,20 +276,20 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
                     if (install)
                     {
                         String name = (String)loadedExtensionTable.getModel().getValueAt(i, EXTENSION_NAME_COLUMN_NUMBER);
-                        UpdateInfo plugin = extensionUpdates.get(name);
-                        statusLabel.setText("Downloading extension: " + plugin.getName());
+                        UpdateInfo extension = extensionUpdates.get(name);
+                        statusLabel.setText("Downloading extension: " + extension.getName());
                         if (cancel)
                         {
                             break;
                         }
                         progressBar.setVisible(true);
-                        File file = pluginUtil.downloadFileToDisk(plugin.getUri(), statusLabel, progressBar);
+                        File file = pluginUtil.downloadFileToDisk(extension.getUri(), statusLabel, progressBar);
                         progressBar.setVisible(false);
                         if (cancel)
                         {
                             break;
                         }
-                        statusLabel.setText("Updating extension: " + plugin.getName());
+                        statusLabel.setText("Updating extension: " + extension.getName());
                         parent.install(file);
                         installedUpdates = true;
                     }
@@ -382,8 +382,12 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
             String installedVersion = "New";
             if (updateInfo.getType().equals(UpdateInfo.Type.SERVER)) {
             	installedVersion = PlatformUI.SERVER_VERSION;
-            } else if (!updateInfo.isNew()){
-            	installedVersion = extensions.get(updateInfo.getName()).getPluginVersion();
+            } else if (!updateInfo.isNew()) {
+            	for (MetaData metaData : extensions.values()) {
+            		if (metaData.getPath().equalsIgnoreCase(updateInfo.getPath())) {
+            			installedVersion = extensions.get(updateInfo.getName()).getPluginVersion();
+            		}
+            	}
             }
             
             tableData[i][EXTENSION_INSTALLED_VERSION_COLUMN_NUMBER] = installedVersion;
