@@ -14,6 +14,7 @@ public class UpdateInfo {
     private boolean isNew;
     private boolean optional;
     private String author;
+    private String path;
 
     public String getName() {
         return name;
@@ -78,12 +79,20 @@ public class UpdateInfo {
     public void setNew(boolean isNew) {
         this.isNew = isNew;
     }
-    
+
     public boolean isOptional() {
-		return optional;
-	}
-    
+        return optional;
+    }
+
     public void setOptional(boolean optional) {
-		this.optional = optional;
-	}
+        this.optional = optional;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
 }
