@@ -32,8 +32,10 @@ import java.io.InputStreamReader;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpConnectionManager;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.SimpleHttpConnectionManager;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
@@ -55,13 +57,14 @@ public class ServerConnection {
 	
 	public ServerConnection(String address, int timeout) {
         this.address = address;
-        HttpClientParams params = new HttpClientParams();
-
-        if (timeout > -1) {
-            params.setSoTimeout(timeout);
-        }
         
-        client = new HttpClient(params);
+        HttpClientParams httpClientParams = new HttpClientParams();
+    	HttpConnectionManager httpConnectionManager = new SimpleHttpConnectionManager();
+    	httpClientParams.setSoTimeout(timeout);
+        httpConnectionManager.getParams().setConnectionTimeout(10 * 1000);
+        httpConnectionManager.getParams().setSoTimeout(timeout);
+        
+        client = new HttpClient(httpClientParams, httpConnectionManager);
         Protocol mirthHttps = new Protocol("https", new EasySSLProtocolSocketFactory(), 8443);
         Protocol.registerProtocol("https", mirthHttps);
 	}
