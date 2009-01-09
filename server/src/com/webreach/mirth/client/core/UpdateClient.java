@@ -72,7 +72,7 @@ public class UpdateClient {
             components.put(cmd.getPath(), cmd.getPluginVersion());
         }
 
-        components.put("Mirth", version);
+        components.put("mirth", version);
         serverInfo.setComponents(components);
         serverInfo.setServerId(serverId);
 
