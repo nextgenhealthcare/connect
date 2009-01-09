@@ -91,7 +91,7 @@ public class ExtensionUtil {
 
             return tempFile;
         } catch (Exception e) {
-            statusLabel.setText("Could not download file");
+            statusLabel.setText("Could not download file.");
         } finally {
             try {
                 if (in != null) {

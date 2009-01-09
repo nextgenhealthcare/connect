@@ -291,9 +291,13 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
                         {
                             break;
                         }
-                        statusLabel.setText("Updating extension: " + extension.getName());
-                        parent.install(file);
-                        installedUpdates = true;
+                        if (file == null) {
+                        	parent.alertError(progressBar, "Could not download " + name + " from:\n" + extension.getUri());
+                        } else {
+	                        statusLabel.setText("Updating extension: " + extension.getName());
+	                        parent.install(file);
+	                        installedUpdates = true;
+                        }
                     }
                 }
                 
