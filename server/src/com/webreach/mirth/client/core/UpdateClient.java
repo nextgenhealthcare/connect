@@ -10,11 +10,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpConnectionManager;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.SimpleHttpConnectionManager;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatistics;
@@ -115,9 +120,13 @@ public class UpdateClient {
             throw new ClientException(e);
         }
 
-        HttpClientParams httpParams = new HttpClientParams();
-        httpParams.setSoTimeout(10 * 1000);
-        HttpClient httpClient = new HttpClient(httpParams);
+        HttpClientParams httpClientParams = new HttpClientParams();
+    	HttpConnectionManager httpConnectionManager = new SimpleHttpConnectionManager();
+    	httpClientParams.setSoTimeout(10 * 1000);
+        httpConnectionManager.getParams().setConnectionTimeout(10 * 1000);
+        httpConnectionManager.getParams().setSoTimeout(10 * 1000);
+        HttpClient httpClient = new HttpClient(httpClientParams, httpConnectionManager);
+
         PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url") + URL_USAGE_STATISTICS);
         NameValuePair[] params = { new NameValuePair("serverId", client.getServerId()), new NameValuePair("version", client.getVersion()), new NameValuePair("data", serializer.toXML(usageData)) };
         post.setRequestBody(params);
@@ -142,9 +151,13 @@ public class UpdateClient {
     }
 
     public void registerUser(User user) throws ClientException {
-        HttpClientParams httpParams = new HttpClientParams();
-        httpParams.setSoTimeout(10 * 1000);
-        HttpClient httpClient = new HttpClient(httpParams);
+    	HttpClientParams httpClientParams = new HttpClientParams();
+    	HttpConnectionManager httpConnectionManager = new SimpleHttpConnectionManager();
+    	httpClientParams.setSoTimeout(10 * 1000);
+        httpConnectionManager.getParams().setConnectionTimeout(10 * 1000);
+        httpConnectionManager.getParams().setSoTimeout(10 * 1000);
+        HttpClient httpClient = new HttpClient(httpClientParams, httpConnectionManager);
+
         PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url") + URL_REGISTRATION);
         NameValuePair[] params = { new NameValuePair("serverId", client.getServerId()), new NameValuePair("user", serializer.toXML(requestUser)) };
         post.setRequestBody(params);
@@ -163,9 +176,13 @@ public class UpdateClient {
     }
 
     private List<UpdateInfo> getUpdatesFromUri(ServerInfo serverInfo) throws Exception {
-        HttpClientParams httpParams = new HttpClientParams();
-        httpParams.setSoTimeout(10 * 1000);
-        HttpClient httpClient = new HttpClient(httpParams);
+    	HttpClientParams httpClientParams = new HttpClientParams();
+    	HttpConnectionManager httpConnectionManager = new SimpleHttpConnectionManager();
+    	httpClientParams.setSoTimeout(10 * 1000);
+        httpConnectionManager.getParams().setConnectionTimeout(10 * 1000);
+        httpConnectionManager.getParams().setSoTimeout(10 * 1000);
+        HttpClient httpClient = new HttpClient(httpClientParams, httpConnectionManager);
+
         PostMethod post = new PostMethod(PropertyLoader.getProperty(client.getServerProperties(), "update.url") + URL_UPDATES);
         NameValuePair[] params = { new NameValuePair("serverInfo", serializer.toXML(serverInfo)) };
         post.setRequestBody(params);
