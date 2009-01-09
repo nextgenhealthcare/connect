@@ -256,7 +256,7 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
             {
                 for (int i = 0; i < loadedExtensionTable.getModel().getRowCount(); i++)
                 {
-                	if (loadedExtensionTable.getModel().getValueAt(i,EXTENSION_TYPE_COLUMN_NUMBER).equals(UpdateInfo.Type.SERVER)) {
+                	if (loadedExtensionTable.getModel().getValueAt(i,EXTENSION_TYPE_COLUMN_NUMBER).toString().equalsIgnoreCase(UpdateInfo.Type.SERVER.toString())) {
                 		if (((Boolean)loadedExtensionTable.getModel().getValueAt(i,EXTENSION_INSTALL_COLUMN_NUMBER)).booleanValue()) {
                 			String serverName = (String) loadedExtensionTable.getModel().getValueAt(i, EXTENSION_NAME_COLUMN_NUMBER);
                 			String serverUrl = extensionUpdates.get(serverName).getUri();
@@ -273,7 +273,9 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
                 for (int i = 0; i < loadedExtensionTable.getModel().getRowCount(); i++)
                 {
                     boolean install = ((Boolean)loadedExtensionTable.getModel().getValueAt(i,EXTENSION_INSTALL_COLUMN_NUMBER)).booleanValue();
-                    if (install)
+                    boolean server = loadedExtensionTable.getModel().getValueAt(i,EXTENSION_TYPE_COLUMN_NUMBER).toString().equalsIgnoreCase(UpdateInfo.Type.SERVER.toString());
+                    
+                    if (install && !server)
                     {
                         String name = (String)loadedExtensionTable.getModel().getValueAt(i, EXTENSION_NAME_COLUMN_NUMBER);
                         UpdateInfo extension = extensionUpdates.get(name);
@@ -301,8 +303,9 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
             public void done()
             {
             	checkForUpdatesButton.setEnabled(true);
+            	installSelectedButton.setEnabled(true);
             	if (installedUpdates){
-	                statusLabel.setText("Updates Installed!");
+	                statusLabel.setText("Updates installed!");
 	                parent.finishInstall();
 	                dispose();
             	}
@@ -355,10 +358,10 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
         int tableSize = 0;
         
         if (extensionUpdates.size() > 0){
-        	statusLabel.setText("Ready to Install Updates!");
+        	statusLabel.setText("Ready to install updates!");
         	installSelectedButton.setEnabled(true);
         } else {
-        	statusLabel.setText("No Updates Found.");
+        	statusLabel.setText("No updates found.");
         }
         
         tableSize = extensionUpdates.size();
@@ -370,7 +373,10 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
         {
         	tableData[i][EXTENSION_NEW_COLUMN_NUMBER] = updateInfo.isNew();
        		tableData[i][EXTENSION_INSTALL_COLUMN_NUMBER] = !updateInfo.isIgnored();
-            tableData[i][EXTENSION_TYPE_COLUMN_NUMBER] = updateInfo.getType();
+       		String type = updateInfo.getType().toString();
+       		if (type.length() > 1)
+       			type = type.substring(0,1).toUpperCase() + type.substring(1).toLowerCase();
+            tableData[i][EXTENSION_TYPE_COLUMN_NUMBER] = type;
             tableData[i][EXTENSION_NAME_COLUMN_NUMBER] = updateInfo.getName();
             
             String priority = PRIORITY_RECOMMENDED;
