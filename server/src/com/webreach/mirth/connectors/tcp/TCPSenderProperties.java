@@ -56,7 +56,7 @@ public class TCPSenderProperties extends QueuedSenderProperties
         properties.put(TCP_SERVER_TIMEOUT, "5000");
         properties.put(TCP_BUFFER_SIZE, "65536");
         properties.put(TCP_KEEP_CONNECTION_OPEN, "0");
-        properties.put(TCP_MAX_RETRY_COUNT, "50");
+        properties.put(TCP_MAX_RETRY_COUNT, "2");
         properties.put(TCP_CHAR_ENCODING, "hex");
         properties.put(TCP_ACK_TIMEOUT, "5000");
         properties.put(CONNECTOR_CHARSET_ENCODING, "DEFAULT_ENCODING");

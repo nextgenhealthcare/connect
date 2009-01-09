@@ -63,7 +63,7 @@ public class LLPSenderProperties extends QueuedSenderProperties
         properties.put(LLP_SERVER_TIMEOUT, "5000");
         properties.put(LLP_BUFFER_SIZE, "65536");
         properties.put(LLP_KEEP_CONNECTION_OPEN, "0");
-        properties.put(LLP_MAX_RETRY_COUNT, "50");
+        properties.put(LLP_MAX_RETRY_COUNT, "2");
         properties.put(LLP_CHAR_ENCODING, "hex");
         properties.put(LLP_START_OF_MESSAGE_CHARACTER, "0x0B");
         properties.put(LLP_END_OF_MESSAGE_CHARACTER, "0x1C");
