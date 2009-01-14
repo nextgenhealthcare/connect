@@ -3,7 +3,7 @@
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>1.8.0</mirthVersion>
-	<url>http://extensions.mirthproject.org</url>
+	<url>http://www.webreachinc.com</url>
 	<description>This connector allows Mirth to send messages using DICOM protocol.</description>
 	<clientClassName>com.webreach.mirth.connectors.dimse.DICOMSender</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.dimse.DICOMConnector</serverClassName>
