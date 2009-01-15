@@ -3,6 +3,7 @@ package com.webreach.mirth.server.mule.adaptors;
 import java.io.Reader;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 import org.mule.umo.MessagingException;
 import org.mule.umo.UMOException;
@@ -48,7 +49,7 @@ public class HL7v2Adaptor extends Adaptor implements BatchAdaptor {
 		byte endOfRecord = (byte) 0x0D;
 
 		Scanner scanner = new Scanner(src);
-		scanner.useDelimiter("\r");
+		scanner.useDelimiter(Pattern.compile("\r\n|\r|\n"));
 		StringBuilder message = new StringBuilder();
 		char data[] = { (char) startOfMessage, (char) endOfMessage };
 		while (scanner.hasNext()) {
