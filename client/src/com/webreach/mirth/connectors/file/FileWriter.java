@@ -334,9 +334,9 @@ public class FileWriter extends ConnectorClass
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
-
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+    private void initComponents()
+    {
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
         buttonGroup3 = new javax.swing.ButtonGroup();
@@ -379,13 +379,14 @@ public class FileWriter extends ConnectorClass
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-
         schemeLabel.setText("Method:");
 
-        schemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "file", "ftp", "sftp" }));
-        schemeComboBox.setToolTipText("The basic method used to access files to be read - file (local filesystem), FTP, or SFTP.");
-        schemeComboBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        schemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "file", "ftp", "sftp", "smb" }));
+        schemeComboBox.setToolTipText("The basic method used to access files to be written - file (local filesystem), FTP, SFTP, or Samba share.");
+        schemeComboBox.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 schemeComboBoxActionPerformed(evt);
             }
         });
@@ -396,7 +397,7 @@ public class FileWriter extends ConnectorClass
 
         hostLabel.setText("ftp://");
 
-        hostField.setToolTipText("The name or IP address of the host (computer) on which the files to be read can be found.");
+        hostField.setToolTipText("The name or IP address of the host (computer) on which the files will be written.");
 
         pathLabel.setText("/");
 
@@ -412,8 +413,10 @@ public class FileWriter extends ConnectorClass
         anonymousYes.setText("Yes");
         anonymousYes.setToolTipText("Connects to the file anonymously instead of using a username and password.");
         anonymousYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        anonymousYes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        anonymousYes.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 anonymousYesActionPerformed(evt);
             }
         });
@@ -425,8 +428,10 @@ public class FileWriter extends ConnectorClass
         anonymousNo.setText("No");
         anonymousNo.setToolTipText("Connects to the file using a username and password instead of anonymously.");
         anonymousNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        anonymousNo.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        anonymousNo.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 anonymousNoActionPerformed(evt);
             }
         });
@@ -517,8 +522,10 @@ public class FileWriter extends ConnectorClass
         fileContentsTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         testConnection.setText("Test Write");
-        testConnection.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        testConnection.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
                 testConnectionActionPerformed(evt);
             }
         });
