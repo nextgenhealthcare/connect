@@ -373,7 +373,7 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
         tableData = new Object[tableSize][EXTENSION_TABLE_NUMBER_OF_COLUMNS];
         
         int i = 0;
-        for (UpdateInfo updateInfo: extensionUpdates.values())
+        for (UpdateInfo updateInfo : extensionUpdates.values())
         {
         	tableData[i][EXTENSION_NEW_COLUMN_NUMBER] = updateInfo.isNew();
        		tableData[i][EXTENSION_INSTALL_COLUMN_NUMBER] = !updateInfo.isIgnored();
@@ -395,7 +395,7 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
             } else if (!updateInfo.isNew()) {
             	for (MetaData metaData : extensions.values()) {
             		if (metaData.getPath().equalsIgnoreCase(updateInfo.getPath())) {
-            			installedVersion = extensions.get(updateInfo.getName()).getPluginVersion();
+            			installedVersion = extensions.get(metaData.getName()).getPluginVersion();
             		}
             	}
             }
