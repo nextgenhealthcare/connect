@@ -537,7 +537,9 @@ public abstract class AbstractConnector implements UMOConnector, ExceptionListen
 
 		if (this instanceof VMConnector) {
 			UMOMessageReceiver receiver = (UMOMessageReceiver) receivers.get(getReceiverKey(component, endpoint));
-			receiver.stop();
+			if(receiver != null) { // check if the receiver wasn't initialized (only happens if channel initial state is stopped and was never started)
+				receiver.stop();
+			} 
 		} else {
 			UMOEndpointURI endpointUri = endpoint.getEndpointURI();
 			if (logger.isInfoEnabled()) {
