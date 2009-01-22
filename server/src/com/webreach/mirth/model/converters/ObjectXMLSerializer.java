@@ -32,6 +32,7 @@ import org.w3c.dom.Document;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.Annotations;
+import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.io.xml.XppDriver;
 
 public class ObjectXMLSerializer implements IXMLSerializer<Object>{
@@ -46,6 +47,17 @@ public class ObjectXMLSerializer implements IXMLSerializer<Object>{
 		Annotations.configureAliases(xstream, aliases);
 		xstream.setMode(XStream.NO_REFERENCES);
 	}
+	
+	public ObjectXMLSerializer(Class<?>[] aliases, Converter[] converters){
+		xstream = new XStream(new XppDriver());
+		Annotations.configureAliases(xstream, aliases);
+		xstream.setMode(XStream.NO_REFERENCES);
+		
+		for(int i = 0; i < converters.length; i++) {
+			xstream.registerConverter(converters[i]);
+		}
+	}
+		
 	public String toXML(Object source) {
 		return xstream.toXML(source);
 	}
