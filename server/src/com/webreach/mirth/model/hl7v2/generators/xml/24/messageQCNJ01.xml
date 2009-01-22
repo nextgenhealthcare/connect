@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>QCNJ01</name>
+    <description>Cancel Query/Acknowledge Message</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>QID</segment>
+    </segments>
+</message>

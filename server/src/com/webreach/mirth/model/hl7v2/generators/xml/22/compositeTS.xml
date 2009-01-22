@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>TS</name>
+    <description>Time Stamp</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TS.1</name>
+            <description>Value</description>
+            <datatype>Time</datatype>
+        </field>
+    </elements>
+</segment>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>ORGO20</name>
+    <description>General Clinical Order Response</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MSA</segment>
+        <segment minOccurs="0">ERR</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+        <group minOccurs="0">
+            <group minOccurs="0">
+                <segment>PID</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            </group>
+            <group maxOccurs="unbounded">
+                <segment>ORC</segment>
+                <segment minOccurs="0">OBR</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">CTI</segment>
+            </group>
+        </group>
+    </segments>
+</message>

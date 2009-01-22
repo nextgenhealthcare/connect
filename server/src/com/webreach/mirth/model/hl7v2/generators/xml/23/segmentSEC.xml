@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>SEC</name>
+    <description>Security Segment</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>SEC.1</name>
+            <description>Login</description>
+            <datatype>PPN</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>SEC.2</name>
+            <description>Password</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>SEC.3</name>
+            <description>ClientID</description>
+            <datatype>XON</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>SEC.4</name>
+            <description>AccessLevel</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>SEC.5</name>
+            <description>Revised By</description>
+            <datatype>PPN</datatype>
+        </field>
+    </elements>
+</segment>

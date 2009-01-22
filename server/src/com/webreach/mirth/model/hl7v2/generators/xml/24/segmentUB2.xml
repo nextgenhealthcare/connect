@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>UB2</name>
+    <description>UB92 Data</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB2.1</name>
+            <description>Set ID</description>
+            <datatype>SI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB2.2</name>
+            <description>Co-Insurance Days (9)</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="7">
+            <name>UB2.3</name>
+            <description>Condition Code (24-30)</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB2.4</name>
+            <description>Covered Days (7)</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB2.5</name>
+            <description>Non-Covered Days (8)</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="12">
+            <name>UB2.6</name>
+            <description>Value Amount &amp; Code</description>
+            <datatype>UVC</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="8">
+            <name>UB2.7</name>
+            <description>Occurrence Code &amp; Date (32-35)</description>
+            <datatype>OCD</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="2">
+            <name>UB2.8</name>
+            <description>Occurrence Span Code/Dates (36)</description>
+            <datatype>OSP</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="2">
+            <name>UB2.9</name>
+            <description>UB92 Locator 2 (State)</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="2">
+            <name>UB2.10</name>
+            <description>UB92 Locator 11 (State)</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB2.11</name>
+            <description>UB92 Locator 31 (National)</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="3">
+            <name>UB2.12</name>
+            <description>Document Control Number</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="23">
+            <name>UB2.13</name>
+            <description>UB92 Locator 49 (National)</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="5">
+            <name>UB2.14</name>
+            <description>UB92 Locator 56 (State)</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB2.15</name>
+            <description>UB92 Locator 57 (National)</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="2">
+            <name>UB2.16</name>
+            <description>UB92 Locator 78 (State)</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>UB2.17</name>
+            <description>Special Visit Count</description>
+            <datatype>NM</datatype>
+        </field>
+    </elements>
+</segment>

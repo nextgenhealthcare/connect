@@ -1,0 +1,18 @@
+<pluginMetaData path="rulebuilder">
+	<name>Rule Builder Filter Rule</name>
+	<author>WebReach, Inc.</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>1.8.0</mirthVersion>
+	<url>http://www.webreachinc.com</url>
+	<description>This plugin provides a Rule Builder type for Mirth filters.</description>
+	<enabled>true</enabled>
+	<extensionPoint>
+		<name>Rule Builder</name>
+		<type>CLIENT_FILTER_RULE</type>
+		<className>com.webreach.mirth.plugins.rulebuilder.RuleBuilderPlugin</className>
+		<mode>CLIENT</mode>
+	</extensionPoint>
+	<library path="rulebuilder-client.jar">
+		<type>CLIENT</type>	
+	</library>
+</pluginMetaData>

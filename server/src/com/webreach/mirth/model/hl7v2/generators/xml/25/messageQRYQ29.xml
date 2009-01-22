@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>QRYQ29</name>
+    <description>Pharmacy/Treatment Encoded Order Information</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment>QRD</segment>
+        <segment minOccurs="0">QRF</segment>
+        <segment minOccurs="0">DSC</segment>
+    </segments>
+</message>

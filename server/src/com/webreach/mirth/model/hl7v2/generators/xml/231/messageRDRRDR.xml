@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>RDRRDR</name>
+    <description>Pharmacy Dispense Information Query Response</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MSA</segment>
+        <segment minOccurs="0">ERR</segment>
+        <group maxOccurs="unbounded">
+            <segment>QRD</segment>
+            <segment minOccurs="0">QRF</segment>
+            <group minOccurs="0">
+                <segment>PID</segment>
+                <segment minOccurs="0">NTE</segment>
+            </group>
+            <group maxOccurs="unbounded">
+                <segment>ORC</segment>
+                <group minOccurs="0">
+                    <segment>RXE</segment>
+                    <segment>RXR</segment>
+                    <segment minOccurs="0">RXC</segment>
+                </group>
+                <group maxOccurs="unbounded">
+                    <segment>RXD</segment>
+                    <segment>RXR</segment>
+                    <segment minOccurs="0" maxOccurs="unbounded">RXC</segment>
+                </group>
+            </group>
+        </group>
+        <segment minOccurs="0">DSC</segment>
+    </segments>
+</message>

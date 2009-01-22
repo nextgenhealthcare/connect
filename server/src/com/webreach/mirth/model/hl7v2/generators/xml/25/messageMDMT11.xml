@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>MDMT11</name>
+    <description>Document Cancel Notification</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment>EVN</segment>
+        <segment>PID</segment>
+        <segment>PV1</segment>
+        <group maxOccurs="unbounded" minOccurs="0">
+            <segment>ORC</segment>
+            <group maxOccurs="unbounded" minOccurs="0">
+                <segment>TQ1</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">TQ2</segment>
+            </group>
+            <segment>OBR</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+        </group>
+        <segment>TXA</segment>
+    </segments>
+</message>

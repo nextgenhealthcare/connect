@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>MRG</name>
+    <description>Merge Patient Information</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>MRG.1</name>
+            <description>Prior Patient ID - Internal</description>
+            <datatype>CK</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>MRG.2</name>
+            <description>Prior Alternate Patient ID</description>
+            <datatype>CK</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>MRG.3</name>
+            <description>Prior Patient Account Number</description>
+            <datatype>CK</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>MRG.4</name>
+            <description>Prior Patient ID - External</description>
+            <datatype>CK</datatype>
+        </field>
+    </elements>
+</segment>

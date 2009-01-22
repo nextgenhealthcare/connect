@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>PTH</name>
+    <description>Pathway</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PTH.1</name>
+            <description>Action Code</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PTH.2</name>
+            <description>Pathway ID</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PTH.3</name>
+            <description>Pathway Instance ID</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PTH.4</name>
+            <description>Pathway Established Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PTH.5</name>
+            <description>Pathway Lifecycle Status</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PTH.6</name>
+            <description>Change Pathway Lifecycle Status Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+    </elements>
+</segment>

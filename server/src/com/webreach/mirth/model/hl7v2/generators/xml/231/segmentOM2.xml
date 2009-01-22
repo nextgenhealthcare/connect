@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>OM2</name>
+    <description>Numeric Observation Segment</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM2.1</name>
+            <description>Sequence Number - Test/Observation Master File</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM2.2</name>
+            <description>Units of Measure</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM2.3</name>
+            <description>Range of Decimal Precision</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM2.4</name>
+            <description>Corresponding Si Units of Measure</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM2.5</name>
+            <description>Si Conversion Factor</description>
+            <datatype>TX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM2.6</name>
+            <description>Reference (normal) Range - Ordinal &amp; Continuous OBS</description>
+            <datatype>RFR</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM2.7</name>
+            <description>Critical Range For Ordinal &amp; Continuous OBS</description>
+            <datatype>NR</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM2.8</name>
+            <description>Absolute Range For Ordinal &amp; Continuous OBS</description>
+            <datatype>RFR</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM2.9</name>
+            <description>Delta Check Criteria</description>
+            <datatype>DLT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OM2.10</name>
+            <description>Minimum Meaningful Increments</description>
+            <datatype>NM</datatype>
+        </field>
+    </elements>
+</segment>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>MFNM05</name>
+    <description>Patient Location Master File</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MFI</segment>
+        <group maxOccurs="unbounded">
+            <segment>MFE</segment>
+            <segment>LOC</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">LCH</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">LRL</segment>
+            <group maxOccurs="unbounded">
+                <segment>LDP</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">LCH</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">LCC</segment>
+            </group>
+        </group>
+    </segments>
+</message>

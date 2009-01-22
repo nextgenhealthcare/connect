@@ -1,0 +1,18 @@
+<pluginMetaData path="imageviewer">
+	<name>Image Viewer</name>
+	<author>WebReach, Inc.</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>1.8.0</mirthVersion>
+	<url>http://www.webreachinc.com</url>
+	<description>This plugin provides image attachment viewing capability in message browser.</description>
+	<enabled>true</enabled>
+	<extensionPoint>
+		<name>Image Viewer</name>
+		<type>ATTACHMENT_VIEWER</type>
+		<className>com.webreach.mirth.plugins.imageviewer.ImageViewer</className>
+		<mode>CLIENT</mode>
+	</extensionPoint>
+	<library path="imageviewer-client.jar">
+		<type>CLIENT</type>	
+	</library>
+</pluginMetaData>

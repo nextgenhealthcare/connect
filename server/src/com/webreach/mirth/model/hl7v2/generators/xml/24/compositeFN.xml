@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>FN</name>
+    <description>Familiy Name</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FN.1</name>
+            <description>Surname</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FN.2</name>
+            <description>Own Surname Prefix</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FN.3</name>
+            <description>Own Surname</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FN.4</name>
+            <description>Surname Prefix From Partner/Spouse</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>FN.5</name>
+            <description>Surname From Partner/Spouse</description>
+            <datatype>ST</datatype>
+        </field>
+    </elements>
+</segment>
