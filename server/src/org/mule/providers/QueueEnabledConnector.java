@@ -83,7 +83,9 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 		// TODO Auto-generated method stub
 		super.stopDispatchers(component, endpoint);
 		stopQueueThread();
-		dispatcher.doDispose();
+		if(dispatcher != null) {
+			dispatcher.doDispose();
+		}
 	}
 
 	public void setQueues() {
