@@ -63,6 +63,11 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 		if (queueThread != null) {
 			try {
 				killQueueThread = true;
+				
+				if(dispatcher != null) {
+					dispatcher.doDispose();
+				}
+				
 				queueThread.interrupt();
 				queueThread.join();
 			} catch (Exception e) {
@@ -82,10 +87,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 	public void stopDispatchers(UMOComponent component, UMOEndpoint endpoint) throws UMOException {
 		// TODO Auto-generated method stub
 		super.stopDispatchers(component, endpoint);
-		stopQueueThread();
-		if(dispatcher != null) {
-			dispatcher.doDispose();
-		}
+		stopQueueThread();	
 	}
 
 	public void setQueues() {
