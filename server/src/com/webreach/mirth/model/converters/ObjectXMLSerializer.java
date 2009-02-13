@@ -27,23 +27,28 @@
 package com.webreach.mirth.model.converters;
 
 import java.util.Map;
+import java.util.WeakHashMap;
 
 import org.w3c.dom.Document;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.basic.StringConverter;
 import com.thoughtworks.xstream.annotations.Annotations;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.io.xml.XppDriver;
 
 public class ObjectXMLSerializer implements IXMLSerializer<Object>{
 	private XStream xstream;
-	
+	private static final Map<String, String> stringCache = new WeakHashMap<String, String>();
+
 	public ObjectXMLSerializer() {
 		xstream = new XStream(new XppDriver());
+        xstream.registerConverter(new StringConverter(stringCache));
 		xstream.setMode(XStream.NO_REFERENCES);
 	}
 	public ObjectXMLSerializer(Class<?>[] aliases){
 		xstream = new XStream(new XppDriver());
+        xstream.registerConverter(new StringConverter(stringCache));
 		Annotations.configureAliases(xstream, aliases);
 		xstream.setMode(XStream.NO_REFERENCES);
 	}
