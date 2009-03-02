@@ -53,4 +53,6 @@ public interface Queue
     boolean offer(Object o, long timeout) throws Exception;
 
     void delete() throws Exception;
+    
+    public Object removeTop() throws Exception;
 }

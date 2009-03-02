@@ -513,7 +513,15 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 					doRemove(queue, id);
 				}
 			}
-
+			
+			public Object removeTop() throws Exception { 
+				Object id = queue.poll(Long.MAX_VALUE);
+				if (id != null) {
+					doRemove(queue, id);
+				}
+				return id;
+			}
+			
 			public Object take() throws InterruptedException {
 				return poll(Long.MAX_VALUE);
 			}

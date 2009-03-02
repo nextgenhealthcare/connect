@@ -1,6 +1,7 @@
 package org.mule.providers;
 
 import java.net.SocketException;
+import java.util.List;
 
 import javax.resource.spi.work.Work;
 
@@ -17,6 +18,7 @@ import org.mule.util.queue.QueueSession;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.QueuedMessage;
+import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.ControllerFactory;
@@ -183,9 +185,13 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 									
 									logger.debug("retrying queued message: id = " + theMessage.getMessageObject().getId() + ", endpointUri = " + theMessage.getEndpointUri().toString());
 									if (dispatcher.sendPayload(theMessage)) {
+										// message sent, so poll is and start processing quickly to this destination
+										
 										queue.poll(getPollMaxTime());
 										connected = true;
 									} else {
+										// didn't throw an exception, but still failed to send.  reset the queued status
+										
 										if (isRotateQueue()) {
 											rotateCurrentMessage();
 										}
@@ -198,15 +204,35 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 									}
 	
 									if (theMessage != null && theMessage.getMessageObject().getStatus().equals(MessageObject.Status.ERROR)) {
+										// normal failure to connect to destination, reset the queued status
+										
 										if (isRotateQueue()) {
 											rotateCurrentMessage();
 										}
 										logger.debug("Conection error [" + t + "] " + " at " + theMessage.getEndpointUri().toString() + " queue size " + new Integer(queue.size()).toString());
 										messageObjectController.resetQueuedStatus(theMessage.getMessageObject());
 									} else {
-										if (!interrupted) {
-											logger.warn("Error reading message off the queue. Queue out of sync with filesystem", t);
-											queueSession.resyncQueue(getName());
+										if (!interrupted) {		
+											// we have a corrupted queued message file and need to remove it and set the message to errored
+											
+											try {
+												Object id = queue.removeTop();
+												logger.error("Encountered invalid queued message.  Message removed from queue: queueId=" + getQueueName());
+												if(id != null) { 
+													MessageObjectFilter filter = new MessageObjectFilter();
+													filter.setId((String)id);
+													
+													String tempTableId = System.currentTimeMillis() + "";
+													messageObjectController.createMessagesTempTable(filter, tempTableId, true);
+													List<MessageObject> messages = messageObjectController.getMessagesByPageLimit(0, 1, 1, tempTableId, filter);
+													if(messages.size() > 0) { 
+														MessageObject message = messages.get(0);
+														messageObjectController.setError(message, Constants.ERROR_400, "Invalid queued message.", t, null);
+													}
+												}
+											} catch(Exception e) {
+												// do nothing here, this is an invalid state
+											}
 										}
 									}
 									connected = false;
