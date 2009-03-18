@@ -976,8 +976,8 @@ public class Shell {
             // What if the key matches *two* channels, e.g. it's the ID of one
             // and
             // the name of another? Unlikely but possible...
-            if (key != Token.WILDCARD)
-                break;
+            //if (result.size() > 0  && key != Token.WILDCARD)
+            //    break;
         }
         return result;
     }
@@ -996,8 +996,8 @@ public class Shell {
             }
 
             // Again, what if the key matches two channels?
-            if (key != Token.WILDCARD)
-                break;
+            //if (key != Token.WILDCARD)
+            //    break;
 
         }
         return result;
