@@ -25,15 +25,14 @@
 
 package com.webreach.mirth.connectors.file;
 
-import java.util.Properties;
-
-import org.apache.log4j.Logger;
-import org.jdesktop.swingworker.SwingWorker;
-
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.util.ConnectionTestResponse;
+import org.apache.log4j.Logger;
+import org.jdesktop.swingworker.SwingWorker;
+
+import java.util.Properties;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -65,7 +64,9 @@ public class FileWriter extends ConnectorClass
             properties.put(FileWriterProperties.FILE_SCHEME, FileWriterProperties.SCHEME_SFTP);
         else if (((String) schemeComboBox.getSelectedItem()).equals("smb"))
             properties.put(FileWriterProperties.FILE_SCHEME, FileWriterProperties.SCHEME_SMB);
-        else {
+        else if (((String) schemeComboBox.getSelectedItem()).equals("webdav"))
+            properties.put(FileReaderProperties.FILE_SCHEME, FileWriterProperties.SCHEME_WEBDAV);
+	    else {
            	// This "can't happen"
             logger.error("Unrecognized this.schemeComboBox value '" + schemeComboBox.getSelectedItem() + "', using 'file' instead");
             properties.put(FileWriterProperties.FILE_SCHEME, FileWriterProperties.SCHEME_FILE);
@@ -80,13 +81,23 @@ public class FileWriter extends ConnectorClass
         
         properties.put(FileWriterProperties.FILE_NAME, fileNameField.getText());
 
-        if (anonymousYes.isSelected())
+        if (anonymousYes.isSelected()) {
             properties.put(FileWriterProperties.FILE_ANONYMOUS, UIConstants.YES_OPTION);
+			if (((String) schemeComboBox.getSelectedItem()).equals(FileWriterProperties.SCHEME_WEBDAV)) {
+				properties.put(FileWriterProperties.FILE_USERNAME, "null");
+				properties.put(FileWriterProperties.FILE_PASSWORD, "null");
+			}
+        }
         else
             properties.put(FileWriterProperties.FILE_ANONYMOUS, UIConstants.NO_OPTION);
 
         properties.put(FileWriterProperties.FILE_USERNAME, usernameField.getText());
         properties.put(FileWriterProperties.FILE_PASSWORD, new String(passwordField.getPassword()));
+
+        if (secureModeYes.isSelected())
+            properties.put(FileWriterProperties.FILE_SECURE_MODE, UIConstants.YES_OPTION);
+        else
+            properties.put(FileWriterProperties.FILE_SECURE_MODE, UIConstants.NO_OPTION);
 
         if (passiveModeYes.isSelected())
             properties.put(FileWriterProperties.FILE_PASSIVE_MODE, UIConstants.YES_OPTION);
@@ -193,11 +204,14 @@ public class FileWriter extends ConnectorClass
             schemeComboBox.setSelectedItem("sftp");
         else if (schemeValue.equals(FileWriterProperties.SCHEME_SMB))
             schemeComboBox.setSelectedItem("smb");
-        else {
+        else if (schemeValue.equals(FileWriterProperties.SCHEME_WEBDAV))
+            schemeComboBox.setSelectedItem("webdav");
+	    else {
            	// This "can't happen"
             logger.error("Unrecognized props[\"scheme\"] value '" + schemeValue + "', using 'file' instead");
             schemeComboBox.setSelectedItem("file");
         }
+
         schemeComboBoxActionPerformed(null);
         
         setDirHostPath(props, true, false);
@@ -217,6 +231,21 @@ public class FileWriter extends ConnectorClass
             anonymousNoActionPerformed(null);
             usernameField.setText((String) props.get(FileWriterProperties.FILE_USERNAME));
             passwordField.setText((String) props.get(FileWriterProperties.FILE_PASSWORD));
+        }
+
+        if (((String) props.get(FileWriterProperties.FILE_SECURE_MODE)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
+            secureModeYes.setSelected(true);
+            secureModeNo.setSelected(false);
+	        if (schemeValue.equals(FileWriterProperties.SCHEME_WEBDAV)) {
+	            hostLabel.setText("https://");
+	        }
+        }
+        else {
+            secureModeYes.setSelected(false);
+            secureModeNo.setSelected(true);
+	        if (schemeValue.equals(FileWriterProperties.SCHEME_WEBDAV)) {
+	            hostLabel.setText("http://");
+	        }
         }
 
         if (((String) props.get(FileWriterProperties.FILE_PASSIVE_MODE)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
@@ -334,14 +363,15 @@ public class FileWriter extends ConnectorClass
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents()
-    {
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
         buttonGroup3 = new javax.swing.ButtonGroup();
         buttonGroup4 = new javax.swing.ButtonGroup();
         buttonGroup5 = new javax.swing.ButtonGroup();
+        buttonGroup6 = new javax.swing.ButtonGroup();
         schemeLabel = new javax.swing.JLabel();
         schemeComboBox = new com.webreach.mirth.client.ui.components.MirthComboBox();
         directoryLabel = new javax.swing.JLabel();
@@ -359,9 +389,9 @@ public class FileWriter extends ConnectorClass
         usernameField = new com.webreach.mirth.client.ui.components.MirthTextField();
         passwordLabel = new javax.swing.JLabel();
         passwordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
-        passiveModeLabel = new javax.swing.JLabel();
-        passiveModeYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        passiveModeNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        secureModeLabel = new javax.swing.JLabel();
+        secureModeYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        secureModeNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         validateConnectionLabel = new javax.swing.JLabel();
         validateConnectionYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         validateConnectionNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
@@ -376,17 +406,19 @@ public class FileWriter extends ConnectorClass
         templateLabel = new javax.swing.JLabel();
         fileContentsTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(false,false);
         testConnection = new javax.swing.JButton();
+        passiveModeLabel = new javax.swing.JLabel();
+        passiveModeYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        passiveModeNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+
         schemeLabel.setText("Method:");
 
-        schemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "file", "ftp", "sftp", "smb" }));
-        schemeComboBox.setToolTipText("The basic method used to access files to be written - file (local filesystem), FTP, SFTP, or Samba share.");
-        schemeComboBox.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        schemeComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "file", "ftp", "sftp", "smb", "webdav" }));
+        schemeComboBox.setToolTipText("The basic method used to access files to be written - file (local filesystem), FTP, SFTP, Samba share, or WebDAV.");
+        schemeComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 schemeComboBoxActionPerformed(evt);
             }
         });
@@ -413,10 +445,8 @@ public class FileWriter extends ConnectorClass
         anonymousYes.setText("Yes");
         anonymousYes.setToolTipText("Connects to the file anonymously instead of using a username and password.");
         anonymousYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        anonymousYes.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        anonymousYes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 anonymousYesActionPerformed(evt);
             }
         });
@@ -428,10 +458,8 @@ public class FileWriter extends ConnectorClass
         anonymousNo.setText("No");
         anonymousNo.setToolTipText("Connects to the file using a username and password instead of anonymously.");
         anonymousNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        anonymousNo.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        anonymousNo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 anonymousNoActionPerformed(evt);
             }
         });
@@ -444,22 +472,32 @@ public class FileWriter extends ConnectorClass
 
         passwordField.setToolTipText("The password used to gain access to the server.");
 
-        passiveModeLabel.setText("Passive Mode:");
+        secureModeLabel.setText("Secure Mode:");
 
-        passiveModeYes.setBackground(new java.awt.Color(255, 255, 255));
-        passiveModeYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup2.add(passiveModeYes);
-        passiveModeYes.setText("Yes");
-        passiveModeYes.setToolTipText("Select Yes to connect to the server in \"passive mode\". Passive mode sometimes allows a connection through a firewall that normal mode does not.");
-        passiveModeYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        secureModeYes.setBackground(new java.awt.Color(255, 255, 255));
+        secureModeYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup6.add(secureModeYes);
+        secureModeYes.setText("Yes");
+        secureModeYes.setToolTipText("Select Yes to connect to the server in \"passive mode\". Passive mode sometimes allows a connection through a firewall that normal mode does not.");
+        secureModeYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        secureModeYes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                secureModeYesActionPerformed(evt);
+            }
+        });
 
-        passiveModeNo.setBackground(new java.awt.Color(255, 255, 255));
-        passiveModeNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup2.add(passiveModeNo);
-        passiveModeNo.setSelected(true);
-        passiveModeNo.setText("No");
-        passiveModeNo.setToolTipText("Select Yes to connect to the server in \"normal mode\" as opposed to passive mode.");
-        passiveModeNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        secureModeNo.setBackground(new java.awt.Color(255, 255, 255));
+        secureModeNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup6.add(secureModeNo);
+        secureModeNo.setSelected(true);
+        secureModeNo.setText("No");
+        secureModeNo.setToolTipText("Select Yes to connect to the server in \"normal mode\" as opposed to passive mode.");
+        secureModeNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        secureModeNo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                secureModeNoActionPerformed(evt);
+            }
+        });
 
         validateConnectionLabel.setText("Validate Connection:");
 
@@ -522,13 +560,28 @@ public class FileWriter extends ConnectorClass
         fileContentsTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         testConnection.setText("Test Write");
-        testConnection.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        testConnection.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 testConnectionActionPerformed(evt);
             }
         });
+
+        passiveModeLabel.setText("Passive Mode:");
+
+        passiveModeYes.setBackground(new java.awt.Color(255, 255, 255));
+        passiveModeYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup2.add(passiveModeYes);
+        passiveModeYes.setText("Yes");
+        passiveModeYes.setToolTipText("Select Yes to connect to the server in \"passive mode\". Passive mode sometimes allows a connection through a firewall that normal mode does not.");
+        passiveModeYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        passiveModeNo.setBackground(new java.awt.Color(255, 255, 255));
+        passiveModeNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        buttonGroup2.add(passiveModeNo);
+        passiveModeNo.setSelected(true);
+        passiveModeNo.setText("No");
+        passiveModeNo.setToolTipText("Select Yes to connect to the server in \"normal mode\" as opposed to passive mode.");
+        passiveModeNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -545,11 +598,12 @@ public class FileWriter extends ConnectorClass
                     .add(hostLabel)
                     .add(directoryLabel)
                     .add(schemeLabel)
-                    .add(passiveModeLabel)
+                    .add(secureModeLabel)
                     .add(passwordLabel)
                     .add(validateConnectionLabel)
                     .add(appendToFileLabel)
-                    .add(usernameLabel))
+                    .add(usernameLabel)
+                    .add(passiveModeLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
@@ -570,9 +624,9 @@ public class FileWriter extends ConnectorClass
                     .add(usernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(passwordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
-                        .add(passiveModeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(secureModeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(passiveModeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(secureModeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(layout.createSequentialGroup()
                         .add(validateConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -587,7 +641,11 @@ public class FileWriter extends ConnectorClass
                         .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE)
-                    .add(directoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(directoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(layout.createSequentialGroup()
+                        .add(passiveModeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(passiveModeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -626,6 +684,11 @@ public class FileWriter extends ConnectorClass
                     .add(passwordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(secureModeLabel)
+                    .add(secureModeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(secureModeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(passiveModeLabel)
                     .add(passiveModeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(passiveModeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -651,7 +714,7 @@ public class FileWriter extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(templateLabel)
-                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE))
+                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -674,9 +737,9 @@ public class FileWriter extends ConnectorClass
         passwordField.setText("anonymous");
     }//GEN-LAST:event_anonymousYesActionPerformed
 
-    private void onSchemeChange(boolean enableHost, boolean enableOthers, boolean anonymous, boolean allowAppend) {
+    private void onSchemeChange(boolean enableHost, boolean anonymous, boolean allowAppend, String scheme) {
         
-            // act like the appropriate Anonymous button was selected.
+        // act like the appropriate Anonymous button was selected.
         if (anonymous) {
             
             anonymousNo.setSelected(false);
@@ -697,15 +760,18 @@ public class FileWriter extends ConnectorClass
         directoryLabel.setEnabled(!enableHost);
         directoryField.setEnabled(!enableHost);
 
-        anonymousLabel.setEnabled(enableOthers);
-        anonymousYes.setEnabled(enableOthers);
-        anonymousNo.setEnabled(enableOthers);
-        passiveModeLabel.setEnabled(enableOthers);
-        passiveModeYes.setEnabled(enableOthers);
-        passiveModeNo.setEnabled(enableOthers);
-        validateConnectionLabel.setEnabled(enableOthers);
-        validateConnectionYes.setEnabled(enableOthers);
-        validateConnectionNo.setEnabled(enableOthers);
+        anonymousLabel.setEnabled(false);
+        anonymousYes.setEnabled(false);
+        anonymousNo.setEnabled(false);
+		passiveModeLabel.setEnabled(false);
+		passiveModeYes.setEnabled(false);
+		passiveModeNo.setEnabled(false);
+        secureModeLabel.setEnabled(false);
+        secureModeYes.setEnabled(false);
+        secureModeNo.setEnabled(false);
+        validateConnectionLabel.setEnabled(false);
+        validateConnectionYes.setEnabled(false);
+        validateConnectionNo.setEnabled(false);
         
         if (allowAppend) {
         	
@@ -724,33 +790,70 @@ public class FileWriter extends ConnectorClass
         	appendToFileYes.setEnabled(false); 
         	appendToFileLabel.setEnabled(false);
         }
+
+	    if (scheme.equals(FileWriterProperties.SCHEME_FTP)) {
+
+			anonymousLabel.setEnabled(true);
+			anonymousYes.setEnabled(true);
+			anonymousNo.setEnabled(true);
+			passiveModeLabel.setEnabled(true);
+			passiveModeYes.setEnabled(true);
+			passiveModeNo.setEnabled(true);
+			validateConnectionLabel.setEnabled(true);
+			validateConnectionYes.setEnabled(true);
+			validateConnectionNo.setEnabled(true);
+
+	    } else if (scheme.equals(FileWriterProperties.SCHEME_WEBDAV)) {
+
+			anonymousLabel.setEnabled(true);
+			anonymousYes.setEnabled(true);
+			anonymousNo.setEnabled(true);
+			secureModeLabel.setEnabled(true);
+			secureModeYes.setEnabled(true);
+			secureModeNo.setEnabled(true);
+
+		    // set Passive Mode and validate connection to No.
+		    passiveModeNo.setSelected(true);
+		    validateConnectionNo.setSelected(true);
+		    
+	    }
     }
 
     private void schemeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_schemeComboBoxActionPerformed
         String text = (String) schemeComboBox.getSelectedItem();
         
         // if File is selected
-        if (text.equals("file")) {
+        if (text.equals(FileWriterProperties.SCHEME_FILE)) {
             
-            onSchemeChange(false, false, true, true);
+            onSchemeChange(false, true, true, FileWriterProperties.SCHEME_FTP);
         }
         // else if FTP is selected
-        else if (text.equals("ftp")) {
+        else if (text.equals(FileWriterProperties.SCHEME_FTP)) {
             
-            onSchemeChange(true, true, anonymousYes.isSelected(), false);
+            onSchemeChange(true, anonymousYes.isSelected(), false, FileWriterProperties.SCHEME_FTP);
             hostLabel.setText("ftp://");
         }
         // else if SFTP is selected
-        else if (text.equals("sftp")) {
+        else if (text.equals(FileWriterProperties.SCHEME_SFTP)) {
             
-            onSchemeChange(true, false, false, true);
+            onSchemeChange(true, false, true, FileWriterProperties.SCHEME_SFTP);
             hostLabel.setText("sftp://");
         }
-        // else if SFTP is selected
-        else if (text.equals("smb")) {
+        // else if SMB is selected
+        else if (text.equals(FileWriterProperties.SCHEME_SMB)) {
             
-            onSchemeChange(true, false, false, true);
+            onSchemeChange(true, false, true, FileWriterProperties.SCHEME_SMB);
             hostLabel.setText("smb://");
+        }
+        // else if WEBDAV is selected
+        else if (text.equals(FileWriterProperties.SCHEME_WEBDAV)) {
+
+            onSchemeChange(true, anonymousYes.isSelected(), false, FileWriterProperties.SCHEME_WEBDAV);
+            if (secureModeYes.isSelected()) {
+                hostLabel.setText("https://");
+            } else {
+                hostLabel.setText("http://");
+            }
         }
     }//GEN-LAST:event_schemeComboBoxActionPerformed
 
@@ -787,6 +890,18 @@ parent.setWorking("Testing connection...", true);
     worker.execute();
 }//GEN-LAST:event_testConnectionActionPerformed
 
+private void secureModeYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_secureModeYesActionPerformed
+    // only WebDAV has access to here.
+    // change host label to 'https://'
+    hostLabel.setText("https://");
+}//GEN-LAST:event_secureModeYesActionPerformed
+
+private void secureModeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_secureModeNoActionPerformed
+    // only WebDAV has access to here.
+    // change host label to 'http://'
+    hostLabel.setText("http://");
+}//GEN-LAST:event_secureModeNoActionPerformed
+
     private void fileTypeASCIIActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_fileTypeASCIIActionPerformed
     {// GEN-HEADEREND:event_fileTypeASCIIActionPerformed
         encodingLabel.setEnabled(true);
@@ -812,6 +927,7 @@ parent.setWorking("Testing connection...", true);
     private javax.swing.ButtonGroup buttonGroup3;
     private javax.swing.ButtonGroup buttonGroup4;
     private javax.swing.ButtonGroup buttonGroup5;
+    private javax.swing.ButtonGroup buttonGroup6;
     private com.webreach.mirth.client.ui.components.MirthComboBox charsetEncodingCombobox;
     private com.webreach.mirth.client.ui.components.MirthTextField directoryField;
     private javax.swing.JLabel directoryLabel;
@@ -833,6 +949,9 @@ parent.setWorking("Testing connection...", true);
     private javax.swing.JLabel pathLabel;
     private com.webreach.mirth.client.ui.components.MirthComboBox schemeComboBox;
     private javax.swing.JLabel schemeLabel;
+    private javax.swing.JLabel secureModeLabel;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton secureModeNo;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton secureModeYes;
     private javax.swing.JLabel templateLabel;
     private javax.swing.JButton testConnection;
     private com.webreach.mirth.client.ui.components.MirthTextField usernameField;

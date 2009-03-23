@@ -25,9 +25,9 @@
 
 package com.webreach.mirth.connectors.file;
 
-import java.util.Properties;
-
 import com.webreach.mirth.model.ComponentProperties;
+
+import java.util.Properties;
 
 public class FileReaderProperties implements ComponentProperties
 {
@@ -39,6 +39,7 @@ public class FileReaderProperties implements ComponentProperties
     public static final String FILE_ANONYMOUS = "FTPAnonymous";
     public static final String FILE_USERNAME = "username";
     public static final String FILE_PASSWORD = "password";
+	public static final String FILE_SECURE_MODE = "secure";
     public static final String FILE_PASSIVE_MODE = "passive";
     public static final String FILE_VALIDATE_CONNECTION = "validateConnections";
     public static final String FILE_POLLING_TYPE = "pollingType";
@@ -64,6 +65,7 @@ public class FileReaderProperties implements ComponentProperties
 	public static final String SCHEME_FTP = "ftp";
 	public static final String SCHEME_SFTP = "sftp";
 	public static final String SCHEME_SMB = "smb";
+	public static final String SCHEME_WEBDAV = "webdav";
 
     public Properties getDefaults()
     {
@@ -75,6 +77,7 @@ public class FileReaderProperties implements ComponentProperties
         properties.put(FILE_ANONYMOUS, "1");
         properties.put(FILE_USERNAME, "anonymous");
         properties.put(FILE_PASSWORD, "anonymous");
+	    properties.put(FILE_SECURE_MODE, "1");
         properties.put(FILE_PASSIVE_MODE, "1");
         properties.put(FILE_VALIDATE_CONNECTION, "1");
         properties.put(FILE_POLLING_TYPE, "interval");

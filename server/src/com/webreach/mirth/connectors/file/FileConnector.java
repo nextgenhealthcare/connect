@@ -9,14 +9,12 @@
 
 package com.webreach.mirth.connectors.file;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
-
+import com.webreach.mirth.connectors.file.filesystems.FileSystemConnection;
+import com.webreach.mirth.connectors.file.filesystems.FileSystemConnectionFactory;
+import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.SystemEvent;
+import com.webreach.mirth.server.controllers.ControllerFactory;
+import com.webreach.mirth.server.controllers.EventController;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool.ObjectPool;
@@ -39,12 +37,13 @@ import org.mule.umo.provider.UMOMessageDispatcher;
 import org.mule.umo.provider.UMOMessageReceiver;
 import org.mule.util.Utility;
 
-import com.webreach.mirth.connectors.file.filesystems.FileSystemConnection;
-import com.webreach.mirth.connectors.file.filesystems.FileSystemConnectionFactory;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.EventController;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * <code>FileConnector</code> is used for setting up listeners on a directory
@@ -84,6 +83,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	public static final String PROPERTY_CHANNEL_ID = "channelId";
 	public static final String PROPERTY_SCHEME = "scheme";
     public static final String PROPERTY_PASSIVE_MODE = "passive";
+	public static final String PROPERTY_SECURE_MODE = "secure";
 
 	public static final String SORT_NAME = "name";
 	public static final String SORT_DATE = "date";
@@ -103,6 +103,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	public static final String SCHEME_FTP = "ftp";
 	public static final String SCHEME_SFTP = "sftp";
 	public static final String SCHEME_SMB = "smb";
+	public static final String SCHEME_WEBDAV = "webdav";
 
 	/**
 	 * Time in milliseconds to poll. On each poll the poll() method is called
@@ -140,12 +141,13 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	private String inboundProtocol;
 	private String scheme = SCHEME_FILE;
 	private boolean passive = false;
-	
+	private boolean secure = false;
+
 	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.mule.providers.AbstractConnector#doInitialise()
-	 */
+		 * (non-Javadoc)
+		 *
+		 * @see org.mule.providers.AbstractConnector#doInitialise()
+		 */
 	public FileConnector() {
 		filenameParser = new VariableFilenameParser();
 		// ast: try to set the default encoding
@@ -359,7 +361,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 		// since we're about to actually use them.
 		String username = replace(getUsername(), messageObject);
 		String password = replace(getPassword(), messageObject);
-		String key = FileSystemConnectionFactory.getPoolKey(getScheme(), username, password, uri.getHost(), uri.getPort());
+		String key = FileSystemConnectionFactory.getPoolKey(getScheme(), username, password, uri.getHost(), uri.getPort(), isSecure());
 		ObjectPool pool = (ObjectPool) pools.get(key);
 		if (pool == null) {
 			GenericObjectPool.Config config = new GenericObjectPool.Config();
@@ -367,7 +369,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 				config.testOnBorrow = true;
 				config.testOnReturn = true;
 			}
-			pool = new GenericObjectPool(new FileSystemConnectionFactory(getScheme(), username, password, uri.getHost(), uri.getPort(), isPassive()), config);
+			pool = new GenericObjectPool(new FileSystemConnectionFactory(getScheme(), username, password, uri.getHost(), uri.getPort(), isPassive(), isSecure()), config);
 
 			pools.put(key, pool);
 		}
@@ -720,5 +722,13 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 
 	public void setPassive(boolean passive) {
 		this.passive = passive;
+	}
+
+	public boolean isSecure() {
+		return secure;
+	}
+
+	public void setSecure(boolean secure) {
+		this.secure = secure;
 	}
 }

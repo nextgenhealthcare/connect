@@ -1,17 +1,16 @@
 package com.webreach.mirth.connectors.file.filesystems;
 
-import java.io.IOException;
-
+import com.webreach.mirth.connectors.file.FileConnector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool.PoolableObjectFactory;
 
-import com.webreach.mirth.connectors.file.FileConnector;
+import java.io.IOException;
 
 /** A factory to create instances of FileSystemConnection based on the
  *  endpoint and connector properties, and to adapt between them and the
  *  connection pool.
- *  
+ *
  * @author Erik Horstkotte
  */
 public class FileSystemConnectionFactory implements PoolableObjectFactory {
@@ -24,9 +23,10 @@ public class FileSystemConnectionFactory implements PoolableObjectFactory {
 	private String host;
 	private int port;
 	private boolean passive;
+	private boolean secure;
 
 	/** Construct a FileSystemConnectionFactory from the endpoint URI and connector properties */
-	public FileSystemConnectionFactory(String scheme, String username, String password, String host, int port, boolean passive) {
+	public FileSystemConnectionFactory(String scheme, String username, String password, String host, int port, boolean passive, boolean secure) {
 
 		this.scheme = scheme;
 		this.username = username;
@@ -34,16 +34,13 @@ public class FileSystemConnectionFactory implements PoolableObjectFactory {
 		this.host = host;
 		this.port = port;
 		this.passive = passive;
+		this.secure = secure;
 	}
 
 	/** Gets a pool key for connections on this endpoint
-	 * 
-	 * @param uri
-	 * @param connector
-	 * @return
 	 */
-	public static String getPoolKey(String scheme, String username, String password, String host, int port) {
-		
+	public static String getPoolKey(String scheme, String username, String password, String host, int port, boolean secure) {
+
 		if (scheme.equals(FileConnector.SCHEME_FILE)) {
 			return "file://";
 		}
@@ -56,6 +53,25 @@ public class FileSystemConnectionFactory implements PoolableObjectFactory {
 		else if (scheme.equals(FileConnector.SCHEME_SMB)) {
 		    return "smb://" + username + ":" + password + "@" + host + ":" + port;
 		}
+		else if (scheme.equals(FileConnector.SCHEME_WEBDAV)) {
+			String webdavScheme = "";
+
+			if (secure) {
+				webdavScheme = "https://";
+				if (port < 0) {
+					port = 443;
+				}
+			} else {
+				webdavScheme = "http://";
+				if (port < 0) {
+					port = 80;
+				}
+			}
+			if (username.equals("null"))
+				return webdavScheme + host + ":" + port;
+			else
+				return webdavScheme + username + ":" + password + "@" + host + ":" + port;
+		}
 		else {
 			logger.error("getPoolKey doesn't handle scheme " + scheme);
 			return "default";
@@ -63,7 +79,7 @@ public class FileSystemConnectionFactory implements PoolableObjectFactory {
 	}
 
 	public Object makeObject() throws Exception {
-		
+
 		if (scheme.equals(FileConnector.SCHEME_FILE)) {
 			return new FileConnection();
 		}
@@ -75,6 +91,9 @@ public class FileSystemConnectionFactory implements PoolableObjectFactory {
 		}
 		else if (scheme.equals(FileConnector.SCHEME_SMB)) {
 		    return new SmbFileConnection(host, username, password);
+		}
+		else if (scheme.equals(FileConnector.SCHEME_WEBDAV)) {
+			return new WebDavConnection(host, secure, username, password);
 		}
 		else {
 			logger.error("makeObject doesn't handle scheme " + scheme);

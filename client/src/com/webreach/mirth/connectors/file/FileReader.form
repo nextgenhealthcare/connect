@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<Form version="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+<Form version="1.3" maxVersion="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <NonVisualComponents>
     <Component class="javax.swing.ButtonGroup" name="buttonGroup1">
     </Component>
@@ -17,6 +17,8 @@
     <Component class="javax.swing.ButtonGroup" name="buttonGroup7">
     </Component>
     <Component class="javax.swing.ButtonGroup" name="buttonGroup8">
+    </Component>
+    <Component class="javax.swing.ButtonGroup" name="buttonGroup9">
     </Component>
   </NonVisualComponents>
   <Properties>
@@ -51,7 +53,7 @@
                   <Component id="directoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="hostLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="schemeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="passiveModeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="secureModeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="validateConnectionLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="pollingTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -67,6 +69,7 @@
                   <Component id="encodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="pollingTimeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="passiveModeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -98,9 +101,9 @@
                       <Component id="validateConnectionNo" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="passiveModeYes" min="-2" max="-2" attributes="0"/>
+                      <Component id="secureModeYes" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="passiveModeNo" min="-2" max="-2" attributes="0"/>
+                      <Component id="secureModeNo" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="usernameField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
@@ -139,6 +142,11 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="mirthVariableList1" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" attributes="0">
+                      <Component id="passiveModeYes" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="passiveModeNo" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace pref="20" max="32767" attributes="0"/>
@@ -187,6 +195,12 @@
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="passwordLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="passwordField" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="secureModeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="secureModeYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="secureModeNo" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
@@ -290,14 +304,15 @@
     <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="schemeComboBox">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="4">
+          <StringArray count="5">
             <StringItem index="0" value="file"/>
             <StringItem index="1" value="ftp"/>
             <StringItem index="2" value="sftp"/>
             <StringItem index="3" value="smb"/>
+            <StringItem index="4" value="webdav"/>
           </StringArray>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="The basic method used to access files to be read - file (local filesystem), FTP, SFTP, or Samba share."/>
+        <Property name="toolTipText" type="java.lang.String" value="The basic method used to access files to be read - file (local filesystem), FTP, SFTP, Samba share, or WebDAV"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="schemeComboBoxActionPerformed"/>
@@ -839,6 +854,66 @@
         </Property>
       </Properties>
     </Component>
+    <Component class="javax.swing.JLabel" name="secureModeLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Secure Mode:"/>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="secureModeYes">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="buttonGroup9"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to connect to the server via HTTPS.&lt;br&gt;Select No to connect via HTTP.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="secureModeYesActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="secureModeNo">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="buttonGroup9"/>
+        </Property>
+        <Property name="selected" type="boolean" value="true"/>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to connect to the server via HTTPS.&lt;br&gt;Select No to connect via HTTP.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="secureModeNoActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="testConnection">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Test Read"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="testConnectionActionPerformed"/>
+      </Events>
+    </Component>
     <Component class="javax.swing.JLabel" name="passiveModeLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Passive Mode:"/>
@@ -884,14 +959,6 @@
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
-    </Component>
-    <Component class="javax.swing.JButton" name="testConnection">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Test Read"/>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="testConnectionActionPerformed"/>
-      </Events>
     </Component>
   </SubComponents>
 </Form>
