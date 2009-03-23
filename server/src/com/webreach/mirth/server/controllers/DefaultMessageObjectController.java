@@ -303,7 +303,10 @@ public class DefaultMessageObjectController extends MessageObjectController {
     // ast: allow ordering with derby
     public List<MessageObject> getMessagesByPage(int page, int pageSize, int maxMessages, String uid, boolean descending) throws ControllerException {
         logger.debug("retrieving messages by page: page=" + page);
-
+        
+        int last = maxMessages;
+        int first =1;
+        
         try {
             Map parameterMap = new HashMap();
             parameterMap.put("uid", uid);
@@ -312,13 +315,15 @@ public class DefaultMessageObjectController extends MessageObjectController {
             // reprocessing messages in the correct order.
             if (descending) {
                 parameterMap.put("order", "DESC");
+                last = maxMessages - (page * pageSize);
+                first = last - pageSize + 1;
             } else {
                 parameterMap.put("order", "ASC");
+                first = page * pageSize;
+                last = (page + 1) * pageSize;
             }
 
             if ((page != -1) && (pageSize != -1)) {
-                int last = maxMessages - (page * pageSize);
-                int first = last - pageSize + 1;
                 parameterMap.put("first", first);
                 parameterMap.put("last", last);
             }
