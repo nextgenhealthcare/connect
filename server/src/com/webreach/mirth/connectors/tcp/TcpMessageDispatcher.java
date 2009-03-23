@@ -71,11 +71,6 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
 
 	protected Map<String, Socket> connectedSockets = new HashMap<String, Socket>();
 
-	// ast:queue variables
-	protected Queue queue = null;
-
-	protected Queue errorQueue = null;
-
 	// ///////////////////////////////////////////////////////////////
 	/**
 	 * logger used by this class
@@ -132,7 +127,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
 		String host = replacer.replaceURLValues(endpointUri, messageObject);
 		
 		try {
-			if (queue != null) {
+			if (connector.isUsePersistentQueues()) {
 				connector.putMessageInQueue(event.getEndpoint().getEndpointURI(), messageObject);
 				return;
 			} else {
