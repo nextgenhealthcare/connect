@@ -15,28 +15,19 @@
 
 package com.webreach.mirth.connectors.http;
 
-import java.net.BindException;
-import java.net.SocketException;
-import java.net.URISyntaxException;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
-
-import org.apache.commons.httpclient.ConnectMethod;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpConnection;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpState;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.QueuedMessage;
+import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
+import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
+import com.webreach.mirth.server.controllers.MonitoringController.Event;
+import com.webreach.mirth.server.util.VMRouter;
+import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
-import org.apache.commons.httpclient.methods.DeleteMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.methods.*;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.mule.config.i18n.Message;
 import org.mule.impl.MuleMessage;
@@ -55,19 +46,14 @@ import org.mule.umo.provider.DispatchException;
 import org.mule.umo.provider.ReceiveException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.transformer.UMOTransformer;
-
 import sun.misc.BASE64Encoder;
 
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.QueuedMessage;
-import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.controllers.AlertController;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
-import com.webreach.mirth.server.controllers.MonitoringController.Event;
-import com.webreach.mirth.server.util.VMRouter;
+import java.net.BindException;
+import java.net.SocketException;
+import java.net.URISyntaxException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * <p>
@@ -372,8 +358,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher imple
 
 		if (httpMethod.getStatusCode() >= 400) {
 			logger.error("HTTP Error message. Full Response: \r\n" + fullResponse);
-			String exceptionText = "Http call returned a status of: " + httpMethod.getStatusCode() + " " + httpMethod.getStatusText();
-			ep = new ExceptionPayload(new Exception(exceptionText));
+			ep = new ExceptionPayload(new Exception(fullResponse));
             alertController.sendAlerts(connector.getChannelId(), Constants.ERROR_404, null, ep.getException());
 			messageObjectController.setError(messageObject, Constants.ERROR_404, "HTTP Error", ep.getException(), null);
 		}
