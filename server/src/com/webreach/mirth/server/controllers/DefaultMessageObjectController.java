@@ -319,7 +319,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
                 first = last - pageSize + 1;
             } else {
                 parameterMap.put("order", "ASC");
-                first = page * pageSize;
+                first =  (page * pageSize) + 1;
                 last = (page + 1) * pageSize;
             }
 
