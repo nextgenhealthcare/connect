@@ -67,6 +67,7 @@ public class VariableList extends javax.swing.JPanel
         variables.add("Entity Encoder");
         variables.add("CDATA Tag");
         variables.add("DICOM Message Raw Data");
+	    variables.add("Message with Attachment Data");
         variables.addAll(additionalVariables);
     
         mirthVariableList.removeAll();

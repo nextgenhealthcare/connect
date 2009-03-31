@@ -25,17 +25,14 @@
 
 package com.webreach.mirth.client.ui;
 
+import com.webreach.mirth.client.ui.panels.reference.ReferenceTable;
+import org.jdesktop.swingx.JXList;
+
+import javax.swing.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.swing.JComponent;
-import javax.swing.TransferHandler;
-
-import org.jdesktop.swingx.JXList;
-
-import com.webreach.mirth.client.ui.panels.reference.ReferenceTable;
 
 public class VariableListHandler extends TransferHandler
 {
@@ -62,6 +59,7 @@ public class VariableListHandler extends TransferHandler
         staticVelocityReferences.put("Original File Name", "${ORIGINALNAME}");
         staticVelocityReferences.put("Count", "${COUNT}");
         staticVelocityReferences.put("DICOM Message Raw Data", "${DICOMMESSAGE}");
+	    staticVelocityReferences.put("Message with Attachment Data", "${MESSAGEATTACH}");
         staticVelocityReferences.put("Formatted Date", "${date.get('yyyy-M-d H.m.s')}");
         staticVelocityReferences.put("Entity Encoder", "${encoder.encode()}");
         
