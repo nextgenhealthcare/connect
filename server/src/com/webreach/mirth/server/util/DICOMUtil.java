@@ -91,20 +91,7 @@ public class DICOMUtil {
 
     }
     public static List<Attachment> getMessageAttachments(MessageObject message) throws SerializerException {
-        List<Attachment> attachments = null;
-        if(message.isAttachment()){
-            MessageObjectController mos = ControllerFactory.getFactory().createMessageObjectController();
-            try {
-                if(message.getCorrelationId() != null)
-                    attachments = mos.getAttachmentsByMessageId(message.getCorrelationId());
-                else
-                    attachments = mos.getAttachmentsByMessageId(message.getId());
-            }
-            catch (Exception e){
-                throw new SerializerException(e.getMessage());
-            }
-        }
-        return attachments;
+        return AttachmentUtil.getMessageAttachments(message);
     }
     
     public static String convertDICOM(String imageType,MessageObject message){
@@ -138,18 +125,7 @@ public class DICOMUtil {
     }    
     
     public static String reAttachMessage(MessageObject message){
-        String messageData = message.getEncodedData();
-        MessageObjectController mos = ControllerFactory.getFactory().createMessageObjectController();
-        try {
-            List<Attachment> list  = mos.getAttachmentsByMessageId(message.getCorrelationId());
-            for(Attachment attachment : list){
-                messageData = messageData.replaceAll(attachment.getAttachmentId(),new String(attachment.getData()));
-            }
-        }
-        catch(Exception e){
-            e.printStackTrace();
-        }
-        return messageData;
+        return AttachmentUtil.reAttachMessage(message);
     }
     
 }
