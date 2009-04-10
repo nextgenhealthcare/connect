@@ -39,11 +39,11 @@ public class VariableList extends javax.swing.JPanel
     {
         initComponents();
     }
-    
+
     public void setPrefixAndSuffix(String prefix, String suffix){
         mirthVariableList.setPrefixAndSuffix(prefix, suffix);
     }
-    
+
     /**
      * Set the variable list from a list of steps.
      */
@@ -69,7 +69,7 @@ public class VariableList extends javax.swing.JPanel
         variables.add("DICOM Message Raw Data");
 	    variables.add("Message with Attachment Data");
         variables.addAll(additionalVariables);
-    
+
         mirthVariableList.removeAll();
         mirthVariableList.setListData(variables.toArray());
 
