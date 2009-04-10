@@ -77,6 +77,7 @@ public class VariableListHandler extends TransferHandler
         staticJsReferences.put("Count", "var count = 0;\nif(globalMap.get('count') != undefined) {\n\tcount = globalMap.get('count');\n\tcount++;\n\tglobalMap.put('count', count);\n} else {\n\tcount=1;\n\tglobalMap.put('count',count);\n}\n");
         staticJsReferences.put("Original File Name", "$('originalFilename')");
         staticJsReferences.put("DICOM Message Raw Data", "var rawData = DICOMUtil.getDICOMRawData(messageObject);");
+        staticJsReferences.put("Message with Attachments", "var rawData = AttachmentUtil.reAttachMessage(messageObject)");
         staticJsReferences.put("Formatted Date", "var dateString = DateUtil.getCurrentDate('yyyy-M-d H.m.s');");
         staticJsReferences.put("Entity Encoder", "var encodedMessage = Entities.getInstance().encode('message');");
     }
