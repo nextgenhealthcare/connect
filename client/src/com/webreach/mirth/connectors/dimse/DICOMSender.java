@@ -416,17 +416,29 @@ public class DICOMSender extends ConnectorClass
 
         jLabel2.setText("Remote Port:");
 
+        listenerPortField.setToolTipText("Remote PORT to send to.");
+
+        listenerAddressField.setToolTipText("Remote IP to send to.");
+
         fileContentsTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         jLabel3.setText("Template:");
+
+        accepttoField.setToolTipText("Timeout in ms for receiving A-ASSOCIATE-AC, 5s by default.");
 
         jLabel4.setText("Timeout A-ASSOCIATE-AC (ms):");
 
         jLabel5.setText("Max Async operations:");
 
+        asyncField.setToolTipText("Maximum number of outstanding operations it may invoke asynchronously, unlimited by default.");
+
         jLabel6.setText("Transcoder Buffer Size (KB):");
 
+        bufsizeField.setToolTipText("Transcoder buffer size in KB, 1KB by default.");
+
         jLabel7.setText("TCP Connection Timeout (ms):");
+
+        connecttoField.setToolTipText("Timeout in ms for TCP connect, no timeout by default.");
 
         jLabel8.setText("Priority:");
 
@@ -434,6 +446,7 @@ public class DICOMSender extends ConnectorClass
         highPriority.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         priorityButtonGroup.add(highPriority);
         highPriority.setText("High");
+        highPriority.setToolTipText("Priority of the C-STORE operation, MEDIUM by default.");
         highPriority.setMargin(new java.awt.Insets(0, 0, 0, 0));
         highPriority.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -446,6 +459,7 @@ public class DICOMSender extends ConnectorClass
         priorityButtonGroup.add(mediumPriority);
         mediumPriority.setSelected(true);
         mediumPriority.setText("Medium");
+        mediumPriority.setToolTipText("Priority of the C-STORE operation, MEDIUM by default.");
         mediumPriority.setMargin(new java.awt.Insets(0, 0, 0, 0));
         mediumPriority.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -457,6 +471,7 @@ public class DICOMSender extends ConnectorClass
         lowPriority.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         priorityButtonGroup.add(lowPriority);
         lowPriority.setText("Low");
+        lowPriority.setToolTipText("Priority of the C-STORE operation, MEDIUM by default.");
         lowPriority.setMargin(new java.awt.Insets(0, 0, 0, 0));
         lowPriority.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -466,9 +481,15 @@ public class DICOMSender extends ConnectorClass
 
         jLabel9.setText("Keystore Password:");
 
+        keyStorePasswordField.setToolTipText("Password for keystore file.");
+
         jLabel10.setText("Keystore:");
 
+        keyStoreField.setToolTipText("File path or URL of P12 or JKS keystore, resource:tls/test_sys_2.p12 by default.");
+
         jLabel11.setText("Key Password:");
+
+        keyPasswordField.setToolTipText("Password for accessing the key in the keystore, keystore password by default.");
 
         jLabel12.setText("Client Authentication TLS:");
 
@@ -477,12 +498,14 @@ public class DICOMSender extends ConnectorClass
         clientAuthTLSButtonGroup.add(noclientauthYes);
         noclientauthYes.setSelected(true);
         noclientauthYes.setText("Yes");
+        noclientauthYes.setToolTipText("Enable client authentification for TLS.");
         noclientauthYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         noclientauthNo.setBackground(new java.awt.Color(255, 255, 255));
         noclientauthNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         clientAuthTLSButtonGroup.add(noclientauthNo);
         noclientauthNo.setText("No");
+        noclientauthNo.setToolTipText("Enable client authentification for TLS.");
         noclientauthNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         jLabel13.setText("Accept ssl v2 TLS handshake:");
@@ -492,19 +515,27 @@ public class DICOMSender extends ConnectorClass
         nossl2ButtonGroup.add(nossl2Yes);
         nossl2Yes.setSelected(true);
         nossl2Yes.setText("Yes");
+        nossl2Yes.setToolTipText("Enable acceptance of SSLv2Hello TLS handshake.");
         nossl2Yes.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         nossl2No.setBackground(new java.awt.Color(255, 255, 255));
         nossl2No.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         nossl2ButtonGroup.add(nossl2No);
         nossl2No.setText("No");
+        nossl2No.setToolTipText("Enable acceptance of SSLv2Hello TLS handshake.");
         nossl2No.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         jLabel14.setText("User Name:");
 
+        usernameField.setToolTipText("Enable User Identity Negotiation with specified username and  optional passcode.");
+
         jLabel15.setText("Pass Code:");
 
+        passcodeField.setToolTipText("Optional passcode for User Identity Negotiation, only effective with option -username.");
+
         jLabel16.setText("P-DATA-TF PDUs  max length received (KB):");
+
+        rcvpdulenField.setToolTipText("Maximal length in KB of received P-DATA-TF PDUs, 16KB by default.");
 
         jLabel17.setText("Pack PDV:");
 
@@ -512,6 +543,7 @@ public class DICOMSender extends ConnectorClass
         pdv1Yes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         pdv1ButtonGroup.add(pdv1Yes);
         pdv1Yes.setText("Yes");
+        pdv1Yes.setToolTipText("Send only one PDV in one P-Data-TF PDU, pack command and data PDV in one P-DATA-TF PDU by default.");
         pdv1Yes.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         pdv1No.setBackground(new java.awt.Color(255, 255, 255));
@@ -519,23 +551,40 @@ public class DICOMSender extends ConnectorClass
         pdv1ButtonGroup.add(pdv1No);
         pdv1No.setSelected(true);
         pdv1No.setText("No");
+        pdv1No.setToolTipText("Send only one PDV in one P-Data-TF PDU, pack command and data PDV in one P-DATA-TF PDU by default.");
         pdv1No.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         jLabel18.setText("DIMSE-RSP interval period (s):");
 
+        reaperField.setToolTipText("Period in ms to check for outstanding DIMSE-RSP, 10s by default.");
+
         jLabel19.setText("A-RELEASE-RP timeout (s):");
+
+        releasetoField.setToolTipText("Timeout in ms for receiving A-RELEASE-RP, 5s by default.");
 
         jLabel20.setText("DIMSE-RSP timeout (s):");
 
+        rsptoField.setToolTipText("Timeout in ms for receiving DIMSE-RSP, 60s by default.");
+
         jLabel21.setText("Shutdown delay (ms):");
+
+        shutdowndelayField.setToolTipText("Delay in ms for closing the listening socket, 1000ms by default.");
 
         jLabel22.setText("P-DATA-TF PDUs max length sent (KB):");
 
+        sndpdulenField.setToolTipText("Maximal length in KB of sent P-DATA-TF PDUs, 16KB by default.");
+
         jLabel23.setText("Socket Close Delay After A-ABORT (ms):");
+
+        soclosedelayField.setToolTipText("Delay in ms for Socket close after sending A-ABORT, 50ms by default.");
 
         jLabel24.setText("Receive Socket Buffer Size (KB):");
 
+        sorcvbufField.setToolTipText("Set SO_RCVBUF socket option to specified value in KB.");
+
         jLabel25.setText("Send Socket Buffer Size (KB):");
+
+        sosndbufField.setToolTipText("Set SO_SNDBUF socket option to specified value in KB.");
 
         jLabel26.setText("Request Storage Commitment:");
 
@@ -544,12 +593,14 @@ public class DICOMSender extends ConnectorClass
         stgcmtButtonGroup.add(stgcmtYes);
         stgcmtYes.setSelected(true);
         stgcmtYes.setText("Yes");
+        stgcmtYes.setToolTipText("Request storage commitment of (successfully) sent objects afterwards.");
         stgcmtYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         stgcmtNo.setBackground(new java.awt.Color(255, 255, 255));
         stgcmtNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         stgcmtButtonGroup.add(stgcmtNo);
         stgcmtNo.setText("No");
+        stgcmtNo.setToolTipText("Request storage commitment of (successfully) sent objects afterwards.");
         stgcmtNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         jLabel27.setText("TCP Delay:");
@@ -559,12 +610,14 @@ public class DICOMSender extends ConnectorClass
         tcpdelayButtonGroup.add(tcpdelayYes);
         tcpdelayYes.setSelected(true);
         tcpdelayYes.setText("Yes");
+        tcpdelayYes.setToolTipText("Set TCP_NODELAY socket option to false, true by default.");
         tcpdelayYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         tcpdelayNo.setBackground(new java.awt.Color(255, 255, 255));
         tcpdelayNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         tcpdelayButtonGroup.add(tcpdelayNo);
         tcpdelayNo.setText("No");
+        tcpdelayNo.setToolTipText("Set TCP_NODELAY socket option to false, true by default.");
         tcpdelayNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         jLabel28.setText("TLS:");
@@ -573,6 +626,7 @@ public class DICOMSender extends ConnectorClass
         tlswithout.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         tlsButtonGroup.add(tlswithout);
         tlswithout.setText("Without");
+        tlswithout.setToolTipText("Enable TLS connection without, 3DES or AES encryption.");
         tlswithout.setMargin(new java.awt.Insets(0, 0, 0, 0));
         tlswithout.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -584,6 +638,7 @@ public class DICOMSender extends ConnectorClass
         tls3des.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         tlsButtonGroup.add(tls3des);
         tls3des.setText("3DES");
+        tls3des.setToolTipText("Enable TLS connection without, 3DES or AES encryption.");
         tls3des.setMargin(new java.awt.Insets(0, 0, 0, 0));
         tls3des.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -595,6 +650,7 @@ public class DICOMSender extends ConnectorClass
         tlsaes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         tlsButtonGroup.add(tlsaes);
         tlsaes.setText("AES");
+        tlsaes.setToolTipText("Enable TLS connection without, 3DES or AES encryption.");
         tlsaes.setMargin(new java.awt.Insets(0, 0, 0, 0));
         tlsaes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -604,7 +660,11 @@ public class DICOMSender extends ConnectorClass
 
         jLabel29.setText("Trust Store:");
 
+        truststoreField.setToolTipText("File path or URL of JKS truststore, resource:tls/mesa_certs.jks by default.");
+
         jLabel30.setText("Trust Store Password:");
+
+        truststorepwField.setToolTipText("Password for truststore file.");
 
         jLabel31.setText("Default Presentation Syntax:");
 
@@ -612,6 +672,7 @@ public class DICOMSender extends ConnectorClass
         ts1Yes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         ts1ButtonGroup.add(ts1Yes);
         ts1Yes.setText("Yes");
+        ts1Yes.setToolTipText("Offer Default Transfer Syntax in separate Presentation Context. By default offered with Explicit VR Little Endian TS in one PC.");
         ts1Yes.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         ts1No.setBackground(new java.awt.Color(255, 255, 255));
@@ -619,6 +680,7 @@ public class DICOMSender extends ConnectorClass
         ts1ButtonGroup.add(ts1No);
         ts1No.setSelected(true);
         ts1No.setText("No");
+        ts1No.setToolTipText("Offer Default Transfer Syntax in separate Presentation Context. By default offered with Explicit VR Little Endian TS in one PC.");
         ts1No.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         jLabel32.setText("Request Positive User Identity Response:");
@@ -627,6 +689,7 @@ public class DICOMSender extends ConnectorClass
         uidnegrspYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         uidnegrspButtonGroup.add(uidnegrspYes);
         uidnegrspYes.setText("Yes");
+        uidnegrspYes.setToolTipText("Request positive User Identity Negotation response, only effective with option -username.");
         uidnegrspYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         uidnegrspNo.setBackground(new java.awt.Color(255, 255, 255));
@@ -634,6 +697,7 @@ public class DICOMSender extends ConnectorClass
         uidnegrspButtonGroup.add(uidnegrspNo);
         uidnegrspNo.setSelected(true);
         uidnegrspNo.setText("No");
+        uidnegrspNo.setToolTipText("Request positive User Identity Negotation response, only effective with option -username.");
         uidnegrspNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         tlsno.setBackground(new java.awt.Color(255, 255, 255));
@@ -641,12 +705,15 @@ public class DICOMSender extends ConnectorClass
         tlsButtonGroup.add(tlsno);
         tlsno.setSelected(true);
         tlsno.setText("No TLS");
+        tlsno.setToolTipText("Enable TLS connection without, 3DES or AES encryption.");
         tlsno.setMargin(new java.awt.Insets(0, 0, 0, 0));
         tlsno.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 tlsnoActionPerformed(evt);
             }
         });
+
+        applicationEntityField.setToolTipText("Remote Application Entity");
 
         jLabel33.setText("Remote Application Entity:");
 
@@ -655,6 +722,12 @@ public class DICOMSender extends ConnectorClass
         jLabel35.setText("Local Port:");
 
         jLabel36.setText("Local Application Entity:");
+
+        localAddressField.setToolTipText("Local IP to send to.");
+
+        localPortField.setToolTipText("Local PORT to send to.");
+
+        localApplicationEntityField.setToolTipText("Local Application Entity");
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -725,7 +798,6 @@ public class DICOMSender extends ConnectorClass
                             .add(accepttoField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(passcodeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(usernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(keyPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(layout.createSequentialGroup()
                                 .add(highPriority, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -792,7 +864,8 @@ public class DICOMSender extends ConnectorClass
                                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                     .add(localApplicationEntityField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                     .add(localPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .add(localAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 124, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
+                                    .add(localAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 124, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                            .add(keyPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                     .add(layout.createSequentialGroup()
                         .add(206, 206, 206)
                         .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE)))
@@ -946,8 +1019,8 @@ public class DICOMSender extends ConnectorClass
                             .add(jLabel29))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(keyPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel11)))
+                            .add(jLabel11)
+                            .add(keyPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(keyStorePasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)

@@ -28,9 +28,11 @@
         <EmptyBorder/>
       </Border>
     </Property>
+    <Property name="toolTipText" type="java.lang.String" value="send only one PDV in one P-Data-TF PDU, pack command and data PDV in one P-DATA-TF PDU by default."/>
   </Properties>
   <AuxValues>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
@@ -352,8 +354,14 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="listenerPortField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Enter the port that we should be listening for incoming connections."/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="listenerAddressField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Enter the local IP where the DICOM Listener should be listening. "/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel5">
       <Properties>
@@ -361,6 +369,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="asyncField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Maximum number of outstanding operations performed asynchronously, unlimited by default."/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel17">
       <Properties>
@@ -381,6 +392,7 @@
           <ComponentRef name="buttonGroup5"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="Send only one PDV in one P-Data-TF PDU, pack command and data PDV in one P-DATA-TF PDU by default."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -401,6 +413,7 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="Send only one PDV in one P-Data-TF PDU, pack command and data PDV in one P-DATA-TF PDU by default."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -412,6 +425,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="reaperField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Period in ms to check for outstanding DIMSE-RSP, 10s by default"/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel19">
       <Properties>
@@ -419,6 +435,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="releasetoField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Timeout in ms for receiving A-RELEASE-RP, 5s by default."/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel23">
       <Properties>
@@ -426,6 +445,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="soclosedelayField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Delay in ms for Socket close after sending A-ABORT, 50ms by default."/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel22">
       <Properties>
@@ -438,8 +460,14 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="sndpdulenField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Maximal length in KB of received P-DATA-TF PDUs, 16KB by default."/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="rcvpdulenField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Maximal length in KB of received P-DATA-TF PDUs, 16KB by default."/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel6">
       <Properties>
@@ -457,10 +485,19 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="sorcvbufField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Set SO_SNDBUF socket option to specified value in KB."/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="sosndbufField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Set SO_RCVBUF socket option to specified value in KB."/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="bufsizeField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Minimal buffer size to write received object to file, 1KB by default."/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel27">
       <Properties>
@@ -482,6 +519,7 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="Set TCP_NODELAY socket option to false, true by default."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -501,6 +539,7 @@
           <ComponentRef name="buttonGroup1"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="Set TCP_NODELAY socket option to false, true by default."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -512,6 +551,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="requesttoField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Timeout in ms for receiving -ASSOCIATE-RQ, 5s by default."/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel21">
       <Properties>
@@ -519,6 +561,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="idletoField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Timeout in ms for receiving DIMSE-RQ, 60s by default."/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel26">
       <Properties>
@@ -526,6 +571,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="rspdelayField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Delay in ms for DIMSE-RSP; useful for testing asynchronous mode."/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel28">
       <Properties>
@@ -546,6 +594,7 @@
           <ComponentRef name="buttonGroup4"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="Accept also Explict VR Big Endian transfer syntax."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -569,6 +618,7 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="Accept also Explict VR Big Endian transfer syntax."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -596,6 +646,7 @@
           <ComponentRef name="buttonGroup3"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="Accept only default transfer syntax."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -619,6 +670,7 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="Accept only default transfer syntax."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -633,6 +685,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="destField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Store received objects into files in specified directory &lt;dir&gt;. Do not store received objects by default."/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel31">
       <Properties>
@@ -653,6 +708,7 @@
           <ComponentRef name="buttonGroup2"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="Accept only transfer syntax with uncompressed pixel data."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -676,6 +732,7 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="Accept only transfer syntax with uncompressed pixel data."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -703,6 +760,7 @@
           <ComponentRef name="buttonGroup6"/>
         </Property>
         <Property name="text" type="java.lang.String" value="3DES"/>
+        <Property name="toolTipText" type="java.lang.String" value="Enable TLS connection without, 3DES or AES encryption."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -725,6 +783,7 @@
           <ComponentRef name="buttonGroup6"/>
         </Property>
         <Property name="text" type="java.lang.String" value="AES"/>
+        <Property name="toolTipText" type="java.lang.String" value="Enable TLS connection without, 3DES or AES encryption."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -747,6 +806,7 @@
           <ComponentRef name="buttonGroup6"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Without"/>
+        <Property name="toolTipText" type="java.lang.String" value="Enable TLS connection without, 3DES or AES encryption."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -770,6 +830,7 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="No TLS"/>
+        <Property name="toolTipText" type="java.lang.String" value="Enable TLS connection without, 3DES or AES encryption."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -798,6 +859,7 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="Enable client authentification for TLS."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -817,6 +879,7 @@
           <ComponentRef name="buttonGroup7"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="Enable client authentification for TLS."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -842,6 +905,7 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="Enable acceptance of SSLv2Hello TLS handshake."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -861,6 +925,7 @@
           <ComponentRef name="buttonGroup8"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="Enable acceptance of SSLv2Hello TLS handshake."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -872,6 +937,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="keyStoreField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="File path or URL of P12 or JKS keystore, resource:tls/test_sys_2.p12 by default."/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel33">
       <Properties>
@@ -879,6 +947,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="truststoreField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="File path or URL of JKS truststore, resource:tls/mesa_certs.jks by default."/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel9">
       <Properties>
@@ -886,6 +957,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="keyStorePasswordField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Password for keystore file."/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel34">
       <Properties>
@@ -893,6 +967,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="truststorepwField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Password for truststore file."/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel11">
       <Properties>
@@ -900,8 +977,14 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="keyPasswordField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Password for accessing the key in the keystore."/>
+      </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="applicationEntityField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="If specified, only requests with a matching called AE title will be accepted"/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel3">
       <Properties>

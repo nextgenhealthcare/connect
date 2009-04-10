@@ -377,12 +377,19 @@ public class DICOMListener extends ConnectorClass
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        setToolTipText("send only one PDV in one P-Data-TF PDU, pack command and data PDV in one P-DATA-TF PDU by default.");
 
         jLabel1.setText("Listener Address:");
 
         jLabel2.setText("Listener Port:");
 
+        listenerPortField.setToolTipText("Enter the port that we should be listening for incoming connections.");
+
+        listenerAddressField.setToolTipText("Enter the local IP where the DICOM Listener should be listening. ");
+
         jLabel5.setText("Max Async operations:");
+
+        asyncField.setToolTipText("Maximum number of outstanding operations performed asynchronously, unlimited by default.");
 
         jLabel17.setText("Pack PDV:");
 
@@ -390,6 +397,7 @@ public class DICOMListener extends ConnectorClass
         pdv1Yes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup5.add(pdv1Yes);
         pdv1Yes.setText("Yes");
+        pdv1Yes.setToolTipText("Send only one PDV in one P-Data-TF PDU, pack command and data PDV in one P-DATA-TF PDU by default.");
         pdv1Yes.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         pdv1No.setBackground(new java.awt.Color(255, 255, 255));
@@ -397,23 +405,40 @@ public class DICOMListener extends ConnectorClass
         buttonGroup5.add(pdv1No);
         pdv1No.setSelected(true);
         pdv1No.setText("No");
+        pdv1No.setToolTipText("Send only one PDV in one P-Data-TF PDU, pack command and data PDV in one P-DATA-TF PDU by default.");
         pdv1No.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         jLabel18.setText("DIMSE-RSP interval period (s):");
 
+        reaperField.setToolTipText("Period in ms to check for outstanding DIMSE-RSP, 10s by default");
+
         jLabel19.setText("A-RELEASE-RP timeout (s):");
 
+        releasetoField.setToolTipText("Timeout in ms for receiving A-RELEASE-RP, 5s by default.");
+
         jLabel23.setText("Socket Close Delay After A-ABORT (ms):");
+
+        soclosedelayField.setToolTipText("Delay in ms for Socket close after sending A-ABORT, 50ms by default.");
 
         jLabel22.setText("P-DATA-TF PDUs max length sent (KB):");
 
         jLabel16.setText("P-DATA-TF PDUs  max length received (KB):");
+
+        sndpdulenField.setToolTipText("Maximal length in KB of received P-DATA-TF PDUs, 16KB by default.");
+
+        rcvpdulenField.setToolTipText("Maximal length in KB of received P-DATA-TF PDUs, 16KB by default.");
 
         jLabel6.setText("Transcoder Buffer Size (KB):");
 
         jLabel25.setText("Send Socket Buffer Size (KB):");
 
         jLabel24.setText("Receive Socket Buffer Size (KB):");
+
+        sorcvbufField.setToolTipText("Set SO_SNDBUF socket option to specified value in KB.");
+
+        sosndbufField.setToolTipText("Set SO_RCVBUF socket option to specified value in KB.");
+
+        bufsizeField.setToolTipText("Minimal buffer size to write received object to file, 1KB by default.");
 
         jLabel27.setText("TCP Delay:");
 
@@ -422,19 +447,27 @@ public class DICOMListener extends ConnectorClass
         buttonGroup1.add(tcpdelayYes);
         tcpdelayYes.setSelected(true);
         tcpdelayYes.setText("Yes");
+        tcpdelayYes.setToolTipText("Set TCP_NODELAY socket option to false, true by default.");
         tcpdelayYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         tcpdelayNo.setBackground(new java.awt.Color(255, 255, 255));
         tcpdelayNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup1.add(tcpdelayNo);
         tcpdelayNo.setText("No");
+        tcpdelayNo.setToolTipText("Set TCP_NODELAY socket option to false, true by default.");
         tcpdelayNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         jLabel20.setText("ASSOCIATE-RQ timeout (ms):");
 
+        requesttoField.setToolTipText("Timeout in ms for receiving -ASSOCIATE-RQ, 5s by default.");
+
         jLabel21.setText("DIMSE-RQ timeout (ms):");
 
+        idletoField.setToolTipText("Timeout in ms for receiving DIMSE-RQ, 60s by default.");
+
         jLabel26.setText("DIMSE-RSP delay (ms):");
+
+        rspdelayField.setToolTipText("Delay in ms for DIMSE-RSP; useful for testing asynchronous mode.");
 
         jLabel28.setText("Accept Explict VR Big Endian:");
 
@@ -442,6 +475,7 @@ public class DICOMListener extends ConnectorClass
         bigendianYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup4.add(bigendianYes);
         bigendianYes.setText("Yes");
+        bigendianYes.setToolTipText("Accept also Explict VR Big Endian transfer syntax.");
         bigendianYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
         bigendianYes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -454,6 +488,7 @@ public class DICOMListener extends ConnectorClass
         buttonGroup4.add(bigendianNo);
         bigendianNo.setSelected(true);
         bigendianNo.setText("No");
+        bigendianNo.setToolTipText("Accept also Explict VR Big Endian transfer syntax.");
         bigendianNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
         bigendianNo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -467,6 +502,7 @@ public class DICOMListener extends ConnectorClass
         deftsYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup3.add(deftsYes);
         deftsYes.setText("Yes");
+        deftsYes.setToolTipText("Accept only default transfer syntax.");
         deftsYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
         deftsYes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -479,6 +515,7 @@ public class DICOMListener extends ConnectorClass
         buttonGroup3.add(deftsNo);
         deftsNo.setSelected(true);
         deftsNo.setText("No");
+        deftsNo.setToolTipText("Accept only default transfer syntax.");
         deftsNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
         deftsNo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -488,12 +525,15 @@ public class DICOMListener extends ConnectorClass
 
         jLabel30.setText("Store Recieved Objects in Directory:");
 
+        destField.setToolTipText("Store received objects into files in specified directory <dir>. Do not store received objects by default.");
+
         jLabel31.setText("Only Uncompressed Pixel Data:");
 
         nativeYes.setBackground(new java.awt.Color(255, 255, 255));
         nativeYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup2.add(nativeYes);
         nativeYes.setText("Yes");
+        nativeYes.setToolTipText("Accept only transfer syntax with uncompressed pixel data.");
         nativeYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
         nativeYes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -506,6 +546,7 @@ public class DICOMListener extends ConnectorClass
         buttonGroup2.add(nativeNo);
         nativeNo.setSelected(true);
         nativeNo.setText("No");
+        nativeNo.setToolTipText("Accept only transfer syntax with uncompressed pixel data.");
         nativeNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
         nativeNo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -519,6 +560,7 @@ public class DICOMListener extends ConnectorClass
         tls3des.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup6.add(tls3des);
         tls3des.setText("3DES");
+        tls3des.setToolTipText("Enable TLS connection without, 3DES or AES encryption.");
         tls3des.setMargin(new java.awt.Insets(0, 0, 0, 0));
         tls3des.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -530,6 +572,7 @@ public class DICOMListener extends ConnectorClass
         tlsaes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup6.add(tlsaes);
         tlsaes.setText("AES");
+        tlsaes.setToolTipText("Enable TLS connection without, 3DES or AES encryption.");
         tlsaes.setMargin(new java.awt.Insets(0, 0, 0, 0));
         tlsaes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -541,6 +584,7 @@ public class DICOMListener extends ConnectorClass
         tlswithout.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup6.add(tlswithout);
         tlswithout.setText("Without");
+        tlswithout.setToolTipText("Enable TLS connection without, 3DES or AES encryption.");
         tlswithout.setMargin(new java.awt.Insets(0, 0, 0, 0));
         tlswithout.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -553,6 +597,7 @@ public class DICOMListener extends ConnectorClass
         buttonGroup6.add(tlsno);
         tlsno.setSelected(true);
         tlsno.setText("No TLS");
+        tlsno.setToolTipText("Enable TLS connection without, 3DES or AES encryption.");
         tlsno.setMargin(new java.awt.Insets(0, 0, 0, 0));
         tlsno.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -567,12 +612,14 @@ public class DICOMListener extends ConnectorClass
         buttonGroup7.add(noclientauthYes);
         noclientauthYes.setSelected(true);
         noclientauthYes.setText("Yes");
+        noclientauthYes.setToolTipText("Enable client authentification for TLS.");
         noclientauthYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         noclientauthNo.setBackground(new java.awt.Color(255, 255, 255));
         noclientauthNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup7.add(noclientauthNo);
         noclientauthNo.setText("No");
+        noclientauthNo.setToolTipText("Enable client authentification for TLS.");
         noclientauthNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         jLabel13.setText("Accept ssl v2 TLS handshake:");
@@ -582,23 +629,37 @@ public class DICOMListener extends ConnectorClass
         buttonGroup8.add(nossl2Yes);
         nossl2Yes.setSelected(true);
         nossl2Yes.setText("Yes");
+        nossl2Yes.setToolTipText("Enable acceptance of SSLv2Hello TLS handshake.");
         nossl2Yes.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         nossl2No.setBackground(new java.awt.Color(255, 255, 255));
         nossl2No.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup8.add(nossl2No);
         nossl2No.setText("No");
+        nossl2No.setToolTipText("Enable acceptance of SSLv2Hello TLS handshake.");
         nossl2No.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         jLabel10.setText("Keystore:");
 
+        keyStoreField.setToolTipText("File path or URL of P12 or JKS keystore, resource:tls/test_sys_2.p12 by default.");
+
         jLabel33.setText("Trust Store:");
+
+        truststoreField.setToolTipText("File path or URL of JKS truststore, resource:tls/mesa_certs.jks by default.");
 
         jLabel9.setText("Keystore Password:");
 
+        keyStorePasswordField.setToolTipText("Password for keystore file.");
+
         jLabel34.setText("Trust Store Password:");
 
+        truststorepwField.setToolTipText("Password for truststore file.");
+
         jLabel11.setText("Key Password:");
+
+        keyPasswordField.setToolTipText("Password for accessing the key in the keystore.");
+
+        applicationEntityField.setToolTipText("If specified, only requests with a matching called AE title will be accepted");
 
         jLabel3.setText("Application Entity:");
 
