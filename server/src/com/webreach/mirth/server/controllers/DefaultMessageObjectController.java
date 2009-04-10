@@ -49,11 +49,7 @@ import com.webreach.mirth.model.MessageObject.Status;
 import com.webreach.mirth.model.converters.ObjectCloner;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.builders.ErrorMessageBuilder;
-import com.webreach.mirth.server.util.DICOMUtil;
-import com.webreach.mirth.server.util.DatabaseUtil;
-import com.webreach.mirth.server.util.SqlConfig;
-import com.webreach.mirth.server.util.UUIDGenerator;
-import com.webreach.mirth.server.util.VMRouter;
+import com.webreach.mirth.server.util.*;
 import com.webreach.mirth.util.Encrypter;
 import com.webreach.mirth.util.EncryptionException;
 import com.webreach.mirth.util.QueueUtil;
@@ -498,8 +494,15 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
                                     // get attachment for old message
                                     if (message.isAttachment()) {
-                                        String rawData = DICOMUtil.getDICOMRawData(message);
-                                        message.setRawData(rawData);
+                                        if(message.getRawDataProtocol().equals(MessageObject.Protocol.DICOM)) {
+                                            String rawData = DICOMUtil.getDICOMRawData(message);
+                                            message.setRawData(rawData);
+                                        }
+                                        else {
+                                            String rawData = AttachmentUtil.reAttachMessage(message);
+                                            message.setRawData(rawData);
+                                        }
+
                                     }
 
                                     if (replace) {
