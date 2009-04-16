@@ -104,6 +104,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 		socket.setReceiveBufferSize(connector.getBufferSize());
 		socket.setSendBufferSize(connector.getBufferSize());
 		socket.setSoTimeout(connector.getSendTimeout());
+		socket.setKeepAlive(connector.isKeepAlive());
 		connectedSockets.put(endpoint, socket);
 		monitoringController.updateStatus(connector, connectorType, Event.CONNECTED, socket);
 		return socket;
