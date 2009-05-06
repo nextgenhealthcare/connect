@@ -60,6 +60,8 @@ public class CodeTemplatePanel extends javax.swing.JPanel
     private final JPanel blankPanel;
     private boolean updating = false;
     private SyntaxDocument jsMappingDoc;
+    private final String functionCodeExample = "// modify function_name and parameters as you wish.\n// one function per template is recommended. i.e.) create a new code template for each new function.\nfunction function_name() {\n\t// write code here.\n}";
+    
     /**
      * Creates the Channel Editor panel. Calls initComponents() and sets up the
      * model, dropdowns, and mouse listeners.
@@ -253,7 +255,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
                     }
 
                     codeTemplate.setName(getNewCodeTemplateName(tableSize));
-                    codeTemplate.setCode("");
+                    codeTemplate.setCode(functionCodeExample);
                     codeTemplate.setTooltip("");
                     codeTemplate.setScope(ContextType.MESSAGE_CONTEXT.getContext());
                     codeTemplate.setType(CodeSnippetType.FUNCTION);
