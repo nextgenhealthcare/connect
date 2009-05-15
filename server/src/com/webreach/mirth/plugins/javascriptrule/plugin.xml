@@ -2,7 +2,7 @@
 	<name>Javascript Filter Rule</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>1.8.0</mirthVersion>
+	<mirthVersion>1.8.1</mirthVersion>
 	<url>http://www.webreachinc.com</url>
 	<description>This plugin provides a JavaScript rule-type for Mirth filters</description>
 	<enabled>true</enabled>

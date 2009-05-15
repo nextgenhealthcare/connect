@@ -2,7 +2,7 @@
 	<name>Extension Manager</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>1.8.0</mirthVersion>
+	<mirthVersion>1.8.1</mirthVersion>
 	<url>http://www.webreachinc.com</url>
 	<description>This plugin provides a GUI to manager, install and update Mirth extensions</description>
 	<enabled>true</enabled>

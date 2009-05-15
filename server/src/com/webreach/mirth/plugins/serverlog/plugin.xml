@@ -2,7 +2,7 @@
 	<name>Server Log</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>1.8.0</mirthVersion>
+	<mirthVersion>1.8.1</mirthVersion>
 	<url>http://www.webreachinc.com</url>
 	<description>This plugin allows you to view the server log on the Mirth administrator.</description>
 	<enabled>true</enabled>

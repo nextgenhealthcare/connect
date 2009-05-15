@@ -2,7 +2,7 @@
 	<name>DICOM Listener</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>1.8.0</mirthVersion>
+	<mirthVersion>1.8.1</mirthVersion>
 	<url>http://www.webreachinc.com</url>
 	<description>This connector allows Mirth to listen for incoming messages over a standard TCP connection.</description>
 	<clientClassName>com.webreach.mirth.connectors.dimse.DICOMListener</clientClassName>

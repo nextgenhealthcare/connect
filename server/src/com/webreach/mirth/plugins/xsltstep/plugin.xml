@@ -2,7 +2,7 @@
 	<name>XSLT Transformer Step</name>
 	<author>WebReach, Inc.</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>1.8.0</mirthVersion>
+	<mirthVersion>1.8.1</mirthVersion>
 	<url>http://www.webreachinc.com</url>
 	<description>This plugin provides a XSLT support step-type for Mirth transformers</description>
 	<enabled>true</enabled>
