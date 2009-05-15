@@ -414,7 +414,7 @@ public class Shell {
         out.println("resetstats\n\tRemoves all stats from all Channels\n");
         out.println("dump stats|events \"path\"\n\tDumps stats or events to specified file\n");
         out.println("user list\n\tReturns a list of the current users\n");
-        out.println("user add username \"password\" \"name\" \"email\"\n\tAdds the specified user\n");
+        out.println("user add username \"password\" \"firstName\" \"lastName\" \"organization\" \"email\"\n\tAdds the specified user\n");
         out.println("user remove id|username\n\tRemoves the specified user\n");
         out.println("user changepw id|username \"newpassword\"\n\tChanges the specified user's password\n");
         out.println("shutdown\n\tShuts down the server\n");
