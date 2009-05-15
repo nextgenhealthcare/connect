@@ -161,7 +161,8 @@ public class MessagePrunerService implements ServerPlugin, Job {
 	public Properties getDefaultProperties() {
 		Properties properties = new Properties();
 		properties.put("name", "Message Pruner");
-		properties.put("interval", "hourly"); // 5 minutes
+		properties.put("interval", "daily");
+		properties.put("time", "12:00 AM");
 		properties.put("allowBatchPruning", "1");
 		return properties;
 	}
