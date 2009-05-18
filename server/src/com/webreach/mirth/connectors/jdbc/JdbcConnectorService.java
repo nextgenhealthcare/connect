@@ -5,10 +5,10 @@ import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 
 import com.webreach.mirth.connectors.ConnectorService;
 
@@ -21,17 +21,36 @@ public class JdbcConnectorService implements ConnectorService {
 
             try {
                 Properties properties = (Properties) object;
-                Map<String, List<String>> schemaInfo = new HashMap<String, List<String>>();
+                Map<String, List<String>> schemaInfo = new TreeMap<String, List<String>>();
 
                 String driver = properties.getProperty(DatabaseReaderProperties.DATABASE_DRIVER);
                 String address = properties.getProperty(DatabaseReaderProperties.DATABASE_URL);
                 String user = properties.getProperty(DatabaseReaderProperties.DATABASE_USERNAME);
                 String password = properties.getProperty(DatabaseReaderProperties.DATABASE_PASSWORD);
+                String schema = null;
 
                 Class.forName(driver);
                 connection = DriverManager.getConnection(address, user, password);
                 DatabaseMetaData dbMetaData = connection.getMetaData();
-                tableResult = dbMetaData.getTables(null, null, null, new String[] { "TABLE" });
+                
+                // Use a schema if the user name matches one of the schemas.
+                // Fix for Oracle: MIRTH-1045
+                ResultSet schemasResult = null;
+                try {
+                	schemasResult = dbMetaData.getSchemas();
+	                while (schemasResult.next()) {
+	                	String schemaResult = schemasResult.getString(1);
+	                	if (user.equalsIgnoreCase(schemaResult)) {
+	                		schema = schemaResult;                		
+	                	}
+                	}
+                } finally {
+                	if (schemasResult != null) {
+                		schemasResult.close();
+                    }
+                }
+                
+                tableResult = dbMetaData.getTables(null, schema, null, new String[] { "TABLE" });
 
                 while (tableResult.next()) {
                     String tableName = tableResult.getString("TABLE_NAME");
