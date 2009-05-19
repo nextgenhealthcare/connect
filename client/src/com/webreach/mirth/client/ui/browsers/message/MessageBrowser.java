@@ -81,11 +81,7 @@ import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.client.ui.util.FileUtil;
-import com.webreach.mirth.model.Attachment;
-import com.webreach.mirth.model.ExtensionPoint;
-import com.webreach.mirth.model.ExtensionPointDefinition;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.PluginMetaData;
+import com.webreach.mirth.model.*;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
@@ -316,7 +312,7 @@ public class MessageBrowser extends javax.swing.JPanel {
     public AttachmentViewer getAttachmentViewer(String type) {
         if (loadedPanelPlugins.size() > 0) {
             for (AttachmentViewer plugin : loadedPanelPlugins.values()) {
-                if (plugin.getViewerType().equals(type)) {
+                if (type.toUpperCase().contains(plugin.getViewerType().toUpperCase())) {
                     return plugin;
                 }
             }

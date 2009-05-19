@@ -17,6 +17,7 @@ import javax.swing.UIManager;
 
 import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.plugins.AttachmentViewer;
+import sun.misc.BASE64Decoder;
 
 public class ImageViewer extends AttachmentViewer {
 
@@ -27,7 +28,7 @@ public class ImageViewer extends AttachmentViewer {
     }
     
 	public String getViewerType() {
-		return "Image";
+		return "IMAGE";
 	}
 
 	public boolean handleMultiple() {
@@ -42,7 +43,9 @@ public class ImageViewer extends AttachmentViewer {
 
 			Attachment attachment = parent.mirthClient.getAttachment((String) attachmentIds.get(0));
 			byte[] rawData = attachment.getData();
-			ByteArrayInputStream bis = new ByteArrayInputStream(rawData);
+            BASE64Decoder decoder = new BASE64Decoder();
+            byte[] rawImage = decoder.decodeBuffer(new String(rawData));
+			ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
 
 			image = ImageIO.read(bis);
 

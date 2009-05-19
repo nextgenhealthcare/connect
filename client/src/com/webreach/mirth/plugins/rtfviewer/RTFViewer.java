@@ -13,6 +13,7 @@ import javax.swing.JScrollPane;
 
 import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.plugins.AttachmentViewer;
+import sun.misc.BASE64Decoder;
 
 /**
  * Created by IntelliJ IDEA.
@@ -46,7 +47,9 @@ public class RTFViewer extends AttachmentViewer {
 		try {
 	
 			Attachment attachment = parent.mirthClient.getAttachment((String) attachmentIds.get(0));
-            JEditorPane jEditorPane = new JEditorPane("text/rtf",new String(attachment.getData()));
+            BASE64Decoder decoder = new BASE64Decoder();
+            byte[] rawRTF = decoder.decodeBuffer(new String(attachment.getData()));
+            JEditorPane jEditorPane = new JEditorPane("text/rtf", new String(rawRTF));
             jEditorPane.setEditable(false);
             JScrollPane scrollPane = new javax.swing.JScrollPane();
             scrollPane.setViewportView(jEditorPane);            
