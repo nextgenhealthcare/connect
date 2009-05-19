@@ -8,14 +8,10 @@ import com.webreach.mirth.server.controllers.ControllerFactory;
 
 import java.util.List;
 
-/**
- * Created by IntelliJ IDEA.
- * User: dans
- * Date: Apr 9, 2009
- * Time: 2:45:28 PM
- * To change this template use File | Settings | File Templates.
- */
+import org.apache.log4j.Logger;
+
 public class AttachmentUtil {
+    private static Logger logger = Logger.getLogger(AttachmentUtil.class);    
     public static String reAttachMessage(MessageObject message){
         String messageData = message.getEncodedData();
         if(messageData == null || messageData.equals("")){
@@ -23,13 +19,15 @@ public class AttachmentUtil {
         }
         MessageObjectController mos = ControllerFactory.getFactory().createMessageObjectController();
         try {
-            List<Attachment> list  = getMessageAttachments(message); 
-            for(Attachment attachment : list){
-                messageData = messageData.replaceAll(attachment.getAttachmentId(),new String(attachment.getData()));
+            List<Attachment> list  = getMessageAttachments(message);
+            if(list != null){
+                for(Attachment attachment : list){
+                    messageData = messageData.replaceAll(attachment.getAttachmentId(),new String(attachment.getData()));
+                }
             }
         }
         catch(Exception e){
-            e.printStackTrace();
+            logger.error("Error reattaching attachments",e);
         }
         return messageData;
     }

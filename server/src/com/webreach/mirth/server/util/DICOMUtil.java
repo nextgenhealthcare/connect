@@ -21,6 +21,7 @@ import com.webreach.mirth.model.converters.DICOMSerializer;
 import com.webreach.mirth.model.converters.SerializerException;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MessageObjectController;
+import org.apache.log4j.Logger;
 
 /**
  * Created by IntelliJ IDEA.
@@ -30,6 +31,7 @@ import com.webreach.mirth.server.controllers.MessageObjectController;
  * To change this template use File | Settings | File Templates.
  */
 public class DICOMUtil {
+    private static Logger logger = Logger.getLogger(AttachmentUtil.class);
     public static String getDICOMRawData(MessageObject message) {
         String mergedMessage;
         if(message.isAttachment()){
@@ -48,7 +50,7 @@ public class DICOMUtil {
                 }
             }
             catch (Exception e){
-                e.printStackTrace();
+                logger.error("Error merging DICOM data", e);
                 mergedMessage = message.getRawData();
             }
         }
@@ -64,7 +66,7 @@ public class DICOMUtil {
             return decoder.decodeBuffer(getDICOMRawData(message));    
         }
         catch (IOException ie){
-            ie.printStackTrace();
+            logger.error("Error getting DICOM message", ie);
         }
         return message.getRawData().getBytes();
     }
@@ -119,7 +121,7 @@ public class DICOMUtil {
             return base64Encoder.encode(f.toByteArray());
         }
         catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Error Converting DICOM image", e);
         }
         return "";
     }    
