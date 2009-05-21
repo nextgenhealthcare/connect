@@ -114,7 +114,7 @@ public class ManagerTray {
 
         // Resource file "duke.gif" must exist at the same directory
         // as this class file.
-        ImageIcon icon = new ImageIcon(this.getClass().getResource("images/mirthlogo1616.png"));
+        ImageIcon icon = new ImageIcon(this.getClass().getResource("images/mirth_32_ico.png"));
         TrayIcon mirthTrayIcon = new TrayIcon(icon, "Mirth Server Manager", menu);
 
         // Action listener for left click.

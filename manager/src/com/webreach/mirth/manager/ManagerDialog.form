@@ -11,6 +11,7 @@
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
@@ -84,8 +85,8 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="headingLabel" min="-2" pref="257" max="-2" attributes="0"/>
-                      <EmptySpace pref="122" max="32767" attributes="0"/>
+                      <Component id="headingLabel" min="-2" pref="304" max="-2" attributes="0"/>
+                      <EmptySpace pref="75" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -108,7 +109,7 @@
                 <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="ff" green="ff" red="ff" type="rgb"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="Mirth Server Manager"/>
+                <Property name="text" type="java.lang.String" value="Mirth Connect Server Manager"/>
               </Properties>
             </Component>
           </SubComponents>
@@ -151,7 +152,7 @@
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="serviceButtonContainer" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="16" max="32767" attributes="0"/>
+                          <EmptySpace pref="19" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -175,7 +176,6 @@
                           <Group type="102" alignment="0" attributes="0">
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="startup" alignment="0" min="-2" pref="271" max="-2" attributes="0"/>
                                   <Group type="102" alignment="0" attributes="0">
                                       <Component id="startButton" linkSize="2" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
@@ -196,8 +196,9 @@
                                       <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
                                       <Component id="jLabel12" min="-2" max="-2" attributes="0"/>
                                   </Group>
+                                  <Component id="startup" alignment="0" min="-2" max="-2" attributes="0"/>
                               </Group>
-                              <EmptySpace pref="36" max="32767" attributes="0"/>
+                              <EmptySpace pref="26" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                     </DimensionLayout>
@@ -234,7 +235,7 @@
                   <SubComponents>
                     <Component class="javax.swing.JLabel" name="jLabel11">
                       <Properties>
-                        <Property name="text" type="java.lang.String" value="Starts the Windows Mirth service"/>
+                        <Property name="text" type="java.lang.String" value="Starts the Mirth Connect service"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JButton" name="startButton">
@@ -255,12 +256,12 @@
                     </Component>
                     <Component class="javax.swing.JLabel" name="jLabel12">
                       <Properties>
-                        <Property name="text" type="java.lang.String" value="Stops the Windows Mirth service"/>
+                        <Property name="text" type="java.lang.String" value="Stops the Mirth Connect service"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JLabel" name="jLabel13">
                       <Properties>
-                        <Property name="text" type="java.lang.String" value="Restarts the Windows Mirth service"/>
+                        <Property name="text" type="java.lang.String" value="Restarts the Mirth Connect service"/>
                       </Properties>
                     </Component>
                     <Component class="javax.swing.JButton" name="restartButton">
@@ -276,7 +277,7 @@
                         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                           <Color blue="ff" green="ff" red="ff" type="rgb"/>
                         </Property>
-                        <Property name="text" type="java.lang.String" value="Start Mirth Server Manager on Windows startup"/>
+                        <Property name="text" type="java.lang.String" value="Start Mirth Connect Server Manager on Windows startup"/>
                       </Properties>
                       <Events>
                         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="startupActionPerformed"/>
@@ -292,7 +293,7 @@
                     </Component>
                     <Component class="javax.swing.JLabel" name="jLabel20">
                       <Properties>
-                        <Property name="text" type="java.lang.String" value="Refreshes the Windows Mirth service status"/>
+                        <Property name="text" type="java.lang.String" value="Refreshes the Mirth Connect service status"/>
                       </Properties>
                     </Component>
                   </SubComponents>
@@ -339,13 +340,13 @@
                                               <Component id="serverWebstartPort" max="32767" attributes="1"/>
                                               <Component id="serverAdministratorPort" alignment="0" pref="60" max="32767" attributes="1"/>
                                           </Group>
-                                          <EmptySpace pref="16" max="32767" attributes="0"/>
+                                          <EmptySpace pref="12" max="32767" attributes="0"/>
                                           <Group type="103" groupAlignment="0" attributes="0">
                                               <Component id="jLabel5" alignment="1" min="-2" max="-2" attributes="0"/>
                                               <Component id="jLabel6" alignment="1" min="-2" max="-2" attributes="0"/>
                                           </Group>
                                       </Group>
-                                      <Component id="jScrollPane1" pref="174" max="32767" attributes="1"/>
+                                      <Component id="jScrollPane1" pref="170" max="32767" attributes="1"/>
                                   </Group>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="0" attributes="0">
@@ -405,12 +406,12 @@
                 </Component>
                 <Component class="javax.swing.JLabel" name="jLabel3">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Administator Port:"/>
+                    <Property name="text" type="java.lang.String" value="Administrator Port:"/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JLabel" name="jLabel1">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="WebStart Port:"/>
+                    <Property name="text" type="java.lang.String" value="Web Start Port:"/>
                   </Properties>
                 </Component>
                 <Container class="javax.swing.JScrollPane" name="jScrollPane1">
@@ -654,7 +655,7 @@
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="jLabel14" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="webreachLink" min="-2" max="-2" attributes="0"/>
+                                  <Component id="mirthSupportLink" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="jLabel17" min="-2" max="-2" attributes="0"/>
                               </Group>
@@ -672,7 +673,7 @@
                                   </Group>
                               </Group>
                           </Group>
-                          <EmptySpace pref="47" max="32767" attributes="0"/>
+                          <EmptySpace pref="41" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -697,7 +698,7 @@
                           <EmptySpace pref="68" max="32767" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="jLabel14" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="webreachLink" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="mirthSupportLink" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="jLabel17" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
@@ -741,12 +742,12 @@
                     <Property name="text" type="java.lang.String" value="Need Help?  Contact"/>
                   </Properties>
                 </Component>
-                <Component class="javax.swing.JLabel" name="webreachLink">
+                <Component class="javax.swing.JLabel" name="mirthSupportLink">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;font color=blue&gt;&lt;u&gt;WebReach, Inc.&lt;/u&gt;&lt;/font&gt;&lt;/html&gt;"/>
+                    <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;font color=blue&gt;&lt;u&gt;Mirth Corporation&lt;/u&gt;&lt;/font&gt;&lt;/html&gt;"/>
                   </Properties>
                   <Events>
-                    <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="webreachLinkMouseClicked"/>
+                    <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="mirthSupportLinkMouseClicked"/>
                   </Events>
                 </Component>
                 <Component class="javax.swing.JLabel" name="jLabel17">
