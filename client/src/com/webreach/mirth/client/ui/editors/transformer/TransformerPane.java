@@ -209,7 +209,7 @@ public class TransformerPane extends MirthEditorPane implements
                 return false;
             }
             int row = s.getSequenceNumber();
-            setRowData(s, row);
+            setRowData(s, row, false);
         }
 
         parent.setCurrentContentPage((JPanel) this);
@@ -520,6 +520,8 @@ public class TransformerPane extends MirthEditorPane implements
                 return canEdit[columnIndex];
             }
         });
+        
+        transformerTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 
         transformerTableModel = (DefaultTableModel) transformerTable.getModel();
 
@@ -837,7 +839,7 @@ public class TransformerPane extends MirthEditorPane implements
         setPanelData(type, d);
     }
 
-    private void setRowData(Step step, int row) {
+    private void setRowData(Step step, int row, boolean selectRow) {
         // TODO: Check the logic of this with plugins
         Object[] tableData = new Object[NUMBER_OF_COLUMNS];
 
@@ -856,7 +858,8 @@ public class TransformerPane extends MirthEditorPane implements
 
             updating = true;
             transformerTableModel.addRow(tableData);
-            transformerTable.setRowSelectionInterval(row, row);
+            if (selectRow)
+            	transformerTable.setRowSelectionInterval(row, row);
             updating = false;
         } catch (Exception e) {
             parent.alertException(this, e.getStackTrace(), e.getMessage());
@@ -922,7 +925,7 @@ public class TransformerPane extends MirthEditorPane implements
                 e.printStackTrace();
             }
 
-            setRowData(step, rowCount);
+            setRowData(step, rowCount, true);
             prevSelRow = rowCount;
             updateStepNumbers();
             transformerTable.setRowSelectionInterval(rowCount, rowCount);

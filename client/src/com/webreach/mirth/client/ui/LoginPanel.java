@@ -46,12 +46,12 @@ public class LoginPanel extends javax.swing.JFrame
     {
         PlatformUI.CLIENT_VERSION = version;
         initComponents();
-        setTitle("Mirth Administrator - Login");
+        setTitle("Mirth Connect Administrator - Login");
         serverName.setText(mirthServer);
         jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         jLabel5.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setIconImage(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/mirthlogo1616.png")).getImage());
+        setIconImage(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/mirth_32_ico.png")).getImage());
         setLocationRelativeTo(null);
         setVisible(true);
         username.grabFocus();
@@ -59,25 +59,25 @@ public class LoginPanel extends javax.swing.JFrame
         password.setText(pass);        
         errorPane.setVisible(false);
         
-        webreachImage.setIcon(UIConstants.WEBREACH_LOGO);
-        webreachImage.setText("");
-        webreachImage.setToolTipText(UIConstants.WEBREACH_TOOLTIP);
-        webreachImage.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        mirthCorpImage.setIcon(UIConstants.MIRTHCORP_LOGO);
+        mirthCorpImage.setText("");
+        mirthCorpImage.setToolTipText(UIConstants.MIRTHCORP_TOOLTIP);
+        mirthCorpImage.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
-        webreachImage.addMouseListener(new java.awt.event.MouseAdapter() {
+        mirthCorpImage.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-            	BareBonesBrowserLaunch.openURL(UIConstants.WEBREACH_URL);
+            	BareBonesBrowserLaunch.openURL(UIConstants.MIRTHCORP_URL);
             }
         });
         
-        webreachImage1.setIcon(UIConstants.WEBREACH_LOGO);
-        webreachImage1.setText("");
-        webreachImage1.setToolTipText(UIConstants.WEBREACH_TOOLTIP);
-        webreachImage1.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        mirthCorpImage1.setIcon(UIConstants.MIRTHCORP_LOGO);
+        mirthCorpImage1.setText("");
+        mirthCorpImage1.setToolTipText(UIConstants.MIRTHCORP_TOOLTIP);
+        mirthCorpImage1.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
-        webreachImage1.addMouseListener(new java.awt.event.MouseAdapter() {
+        mirthCorpImage1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-            	BareBonesBrowserLaunch.openURL(UIConstants.WEBREACH_URL);
+            	BareBonesBrowserLaunch.openURL(UIConstants.MIRTHCORP_URL);
             }
         });
         
@@ -110,17 +110,17 @@ public class LoginPanel extends javax.swing.JFrame
         username = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         password = new javax.swing.JPasswordField();
-        webreachImage = new javax.swing.JLabel();
+        mirthCorpImage = new javax.swing.JLabel();
         loggingIn = new javax.swing.JPanel();
         mirthHeadingPanel1 = new com.webreach.mirth.client.ui.MirthHeadingPanel();
         jLabel5 = new javax.swing.JLabel();
         loginProgress = new javax.swing.JProgressBar();
         status = new javax.swing.JLabel();
         jSeparator2 = new javax.swing.JSeparator();
-        webreachImage1 = new javax.swing.JLabel();
+        mirthCorpImage1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Mirth Administrator Login");
+        setTitle("Mirth Connect Administrator Login");
         setResizable(false);
 
         loginMain.setBackground(new java.awt.Color(255, 255, 255));
@@ -165,7 +165,7 @@ public class LoginPanel extends javax.swing.JFrame
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18));
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("Mirth Administrator Login");
+        jLabel2.setText("Mirth Connect Administrator Login");
 
         org.jdesktop.layout.GroupLayout mirthHeadingPanel2Layout = new org.jdesktop.layout.GroupLayout(mirthHeadingPanel2);
         mirthHeadingPanel2.setLayout(mirthHeadingPanel2Layout);
@@ -199,7 +199,7 @@ public class LoginPanel extends javax.swing.JFrame
             }
         });
 
-        webreachImage.setText(" ");
+        mirthCorpImage.setText(" ");
 
         org.jdesktop.layout.GroupLayout loginMainLayout = new org.jdesktop.layout.GroupLayout(loginMain);
         loginMain.setLayout(loginMainLayout);
@@ -228,7 +228,7 @@ public class LoginPanel extends javax.swing.JFrame
             .add(mirthHeadingPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, loginMainLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(webreachImage)
+                .add(mirthCorpImage)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 235, Short.MAX_VALUE)
                 .add(loginButton)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -262,7 +262,7 @@ public class LoginPanel extends javax.swing.JFrame
                 .add(loginMainLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(closeButton)
                     .add(loginButton)
-                    .add(webreachImage))
+                    .add(mirthCorpImage))
                 .addContainerGap())
         );
 
@@ -270,7 +270,7 @@ public class LoginPanel extends javax.swing.JFrame
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 18));
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel5.setText("Mirth Administrator Login");
+        jLabel5.setText("Mirth Connect Administrator Login");
 
         org.jdesktop.layout.GroupLayout mirthHeadingPanel1Layout = new org.jdesktop.layout.GroupLayout(mirthHeadingPanel1);
         mirthHeadingPanel1.setLayout(mirthHeadingPanel1Layout);
@@ -293,7 +293,7 @@ public class LoginPanel extends javax.swing.JFrame
 
         status.setText("Please wait: Logging in...");
 
-        webreachImage1.setText(" ");
+        mirthCorpImage1.setText(" ");
 
         org.jdesktop.layout.GroupLayout loggingInLayout = new org.jdesktop.layout.GroupLayout(loggingIn);
         loggingIn.setLayout(loggingInLayout);
@@ -314,7 +314,7 @@ public class LoginPanel extends javax.swing.JFrame
                 .addContainerGap())
             .add(loggingInLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(webreachImage1)
+                .add(mirthCorpImage1)
                 .addContainerGap(365, Short.MAX_VALUE))
         );
         loggingInLayout.setVerticalGroup(
@@ -328,7 +328,7 @@ public class LoginPanel extends javax.swing.JFrame
                 .add(66, 66, 66)
                 .add(jSeparator2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 15, Short.MAX_VALUE)
-                .add(webreachImage1)
+                .add(mirthCorpImage1)
                 .addContainerGap())
         );
 
@@ -482,14 +482,14 @@ public class LoginPanel extends javax.swing.JFrame
     private javax.swing.JButton loginButton;
     private javax.swing.JPanel loginMain;
     private javax.swing.JProgressBar loginProgress;
+    private javax.swing.JLabel mirthCorpImage;
+    private javax.swing.JLabel mirthCorpImage1;
     private com.webreach.mirth.client.ui.MirthHeadingPanel mirthHeadingPanel1;
     private com.webreach.mirth.client.ui.MirthHeadingPanel mirthHeadingPanel2;
     private javax.swing.JPasswordField password;
     private javax.swing.JTextField serverName;
     private javax.swing.JLabel status;
     private javax.swing.JTextField username;
-    private javax.swing.JLabel webreachImage;
-    private javax.swing.JLabel webreachImage1;
     // End of variables declaration//GEN-END:variables
 
 }

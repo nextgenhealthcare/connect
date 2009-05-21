@@ -29,7 +29,7 @@ public class MirthTheme extends SkyBluer
 
     protected ColorUIResource getPrimary2()
     {
-        return new ColorUIResource(0x94b4c6);
+        return new ColorUIResource(0x9EB1C9);
     }
 
     protected ColorUIResource getPrimary3()

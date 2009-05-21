@@ -43,13 +43,15 @@ public class UIConstants
 
     // for Frame
     public static final int TASK_PANE_WIDTH = 170;
-    public static final String TITLE_TEXT = "Mirth Administrator";
+    public static final String TITLE_TEXT = "Mirth Connect Administrator";
     public static final int MIRTH_WIDTH = 950;
     public static final int MIRTH_HEIGHT = 650;
-    public static final ImageIcon WEBREACH_LOGO_GRAY = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/webreachGray.png"));
-    public static final ImageIcon WEBREACH_LOGO = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/webreach.png"));
-    public static final String WEBREACH_TOOLTIP = "WebReach, Inc.";
-    public static final String WEBREACH_URL = "http://www.webreachinc.com";
+    public static final ImageIcon MIRTHCORP_LOGO = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/mirthcorp_24h.png"));
+    public static final ImageIcon MIRTHCONNECT_LOGO_GRAY = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/mirthconnect_gray_24h.png"));
+    public static final String MIRTHCORP_TOOLTIP = "Mirth Corporation";
+    public static final String MIRTHCONNECT_TOOLTIP = "Mirth Connect";
+    public static final String MIRTHCORP_URL = "http://www.mirthcorp.com";
+    public static final String MIRTHCONNECT_URL = "http://www.mirthcorp.com/products/mirth-connect";
     public static final String EDIT_FILTER = "Edit Filter";
     public static final String EDIT_TRANSFORMER = "Edit Transformer";
     public static final int EDIT_FILTER_TASK_NUMBER = 9;
@@ -73,10 +75,6 @@ public class UIConstants
     public static final Color BACKGROUND_COLOR = new Color(255, 255, 255);
     public static final Color TITLE_TEXT_COLOR = new Color(0, 0, 0);
     public static final Color HEADER_TITLE_TEXT_COLOR = new Color(255, 255, 255);
-    public static final Color BANNER_DARK_BACKGROUND = new Color(170, 170, 170);
-    public static final Color BANNER_LIGHT_BACKGROUND = new Color(220, 220, 220);
-    public static final Color NONEDITABLE_LINE_BACKGROUND = new Color(255, 255, 224);
-    public static final Color DRAG_HIGHLIGHTER_COLOR = new Color(255, 255, 220);
     public static final Color COMBO_BOX_BACKGROUND = new Color(220, 220, 220);
 
     // for JSplitPane
@@ -89,7 +87,7 @@ public class UIConstants
     public static final Font DIALOG_FONT = new Font("Dialog", Font.PLAIN, 12);
 
     // issue link
-    public static final String ISSUE_TRACKER_LOCATION = "http://www.mirthproject.org/jira";
+    public static final String ISSUE_TRACKER_LOCATION = "http://www.mirthcorp.com/community/issues/";
     
     // help links
     public static final String ALERTS_HELP_LOCATION = "Alerts";
@@ -154,6 +152,6 @@ public class UIConstants
     public static final ImageIcon RED_BULLET = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_red.png"));
 
     // for privacy
-    public static final String PRIVACY_URL = "http://www.webreachinc.com/privacy#mirth";
+    public static final String PRIVACY_URL = "http://www.mirthcorp.com/company/about/privacy#mirthconnect";
     public static final String PRIVACY_TOOLTIP = "Privacy Information";
 }

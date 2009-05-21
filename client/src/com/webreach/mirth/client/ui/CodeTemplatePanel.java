@@ -108,6 +108,8 @@ public class CodeTemplatePanel extends javax.swing.JPanel
     public void makeCodeTemplateTable()
     {
         updateCodeTemplateTable(false);
+        
+        templateTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 
         // Set the custom cell editor for the CodeTemplate Name column.
         templateTable.getColumnModel().getColumn(templateTable.getColumnNumber(TEMPLATE_NAME_COLUMN_NAME)).setCellEditor(new CodeTemplateTableCellEditor());

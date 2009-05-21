@@ -154,8 +154,8 @@ public class Mirth
                 // UIManager.put("TabbedPane.tabAreaBackground",new
                 // Color(225,225,225));
                 UIManager.put("TabbedPane.contentBorderInsets", new InsetsUIResource(0, 0, 0, 0));
-                UIManager.put("TaskPaneContainer.backgroundGradientStart", new Color(0xc0d2dc));
-                UIManager.put("TaskPaneContainer.backgroundGradientEnd", new Color(0x94b4c6));
+                UIManager.put("TaskPaneContainer.backgroundGradientStart", new Color(0x9EB1C9));
+                UIManager.put("TaskPaneContainer.backgroundGradientEnd", new Color(0x9EB1C9));
                 UIManager.put("TextPane.font", UIConstants.TEXTFIELD_PLAIN_FONT);
                 UIManager.put("TextPane.font", UIConstants.TEXTFIELD_PLAIN_FONT);
                 UIManager.put("ToggleButton.font", UIConstants.TEXTFIELD_PLAIN_FONT);
@@ -201,7 +201,7 @@ public class Mirth
         		} catch (IOException e) {
         			e.printStackTrace();
         		}
-                PlatformUI.BACKGROUND_IMAGE = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/header.jpg"));
+                PlatformUI.BACKGROUND_IMAGE = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/header_nologo.png"));
                 login = new LoginPanel(server, version, username, password);
             }
         });

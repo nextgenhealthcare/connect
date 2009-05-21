@@ -302,6 +302,8 @@ public class ChannelSetup extends javax.swing.JPanel
             }
         });
         
+        destinationTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+        
         // Set the custom cell editor for the Destination Name column.
         destinationTable.getColumnModel().getColumn(destinationTable.getColumnModel().getColumnIndex(DESTINATION_COLUMN_NAME)).setCellEditor(new DestinationTableCellEditor());
         

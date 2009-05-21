@@ -95,6 +95,8 @@ public class AlertPanel extends javax.swing.JPanel
     public void makeAlertTable()
     {
         updateAlertTable(false);
+        
+        alertTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 
         // Set the custom cell editor for the Alert Name column.
         alertTable.getColumnModel().getColumn(alertTable.getColumnNumber(ALERT_NAME_COLUMN_NAME)).setCellEditor(new AlertTableCellEditor());
@@ -724,6 +726,8 @@ public class AlertPanel extends javax.swing.JPanel
                 return false;
             }
         };
+        
+        emailsTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 
         // Set the custom cell editor for the Destination Name column.
         emailsTable.getColumnModel().getColumn(emailsTable.getColumnModel().getColumnIndex(EMAIL_COLUMN_NAME)).setCellEditor(new EmailsTableCellEditor());

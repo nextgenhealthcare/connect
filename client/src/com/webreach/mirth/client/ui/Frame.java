@@ -211,7 +211,7 @@ public class Frame extends JXFrame
 
         setTitle(UIConstants.TITLE_TEXT + " - " + PlatformUI.SERVER_NAME);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        setIconImage(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/mirthlogo1616.png")).getImage());
+        setIconImage(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/mirth_32_ico.png")).getImage());
         makePaneContainer();
 
         connectionError = false;
@@ -456,19 +456,19 @@ public class Frame extends JXFrame
         container.setBorder(null);
         container.setTitleFont(new Font("Tahoma", Font.BOLD, 18));
         container.setTitleForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
-        JLabel webreachImage = new JLabel();
-        webreachImage.setIcon(UIConstants.WEBREACH_LOGO_GRAY);
-        webreachImage.setText(" ");
-        webreachImage.setToolTipText(UIConstants.WEBREACH_TOOLTIP);
-        webreachImage.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        JLabel mirthConnectImage = new JLabel();
+        mirthConnectImage.setIcon(UIConstants.MIRTHCONNECT_LOGO_GRAY);
+        mirthConnectImage.setText(" ");
+        mirthConnectImage.setToolTipText(UIConstants.MIRTHCONNECT_TOOLTIP);
+        mirthConnectImage.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
-        webreachImage.addMouseListener(new java.awt.event.MouseAdapter() {
+        mirthConnectImage.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-            	BareBonesBrowserLaunch.openURL(UIConstants.WEBREACH_URL);
+            	BareBonesBrowserLaunch.openURL(UIConstants.MIRTHCONNECT_URL);
             }
         });
         
-        ((JPanel)container.getComponent(0)).add(webreachImage);
+        ((JPanel)container.getComponent(0)).add(mirthConnectImage);
 
         component.setBorder(new LineBorder(Color.GRAY, 1));
         component.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -609,7 +609,7 @@ public class Frame extends JXFrame
     {
         // Create View pane
         viewPane = new JXTaskPane();
-        viewPane.setTitle("Mirth");
+        viewPane.setTitle("Mirth Connect");
         viewPane.setFocusable(false);
 
         addTask("doShowDashboard", "Dashboard", "Contains information about your currently deployed channels.", "D", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/status.png")), viewPane, null);
@@ -900,8 +900,8 @@ public class Frame extends JXFrame
         otherPane.setFocusable(false);
         addTask("doHelp", "Help on this topic", "Open browser for help on this topic.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/help.png")), otherPane, null);
         addTask("goToAbout", "About Mirth", "View the about page for Mirth.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/about.png")), otherPane, null);
-        addTask("goToMirth", "Visit MirthProject.org", "View Mirth's homepage.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/home.png")), otherPane, null);
-        addTask("doReportIssue", "Report Issue", "Visit the Mirth Project's issue tracker.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bug.png")), otherPane, null);
+        addTask("goToMirth", "Visit mirthcorp.com", "View Mirth's homepage.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/home.png")), otherPane, null);
+        addTask("doReportIssue", "Report Issue", "Visit Mirth's issue tracker.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bug.png")), otherPane, null);
         addTask("doLogout", "Logout", "Logout and return to the login screen.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/disconnect.png")), otherPane, null);
         setNonFocusable(otherPane);
         taskPaneContainer.add(otherPane);
@@ -1200,6 +1200,9 @@ public class Frame extends JXFrame
         }
         else if (alertPanel != null && currentContentPage == alertPanel && alertTasks.getContentPane().getComponent(1).isVisible())
         {
+        	alertPanel.stopAlertEditing();
+        	alertPanel.stopEmailEditing();
+        	
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the alerts?");
 
             if (option == JOptionPane.YES_OPTION)
@@ -1218,6 +1221,8 @@ public class Frame extends JXFrame
         }
         else if (codeTemplatePanel != null && currentContentPage == codeTemplatePanel && codeTemplateTasks.getContentPane().getComponent(1).isVisible())
         {
+        	codeTemplatePanel.stopCodeTemplateEditing();
+        	
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the code templates?");
 
             if (option == JOptionPane.YES_OPTION)
@@ -1635,7 +1640,7 @@ public class Frame extends JXFrame
 
     public void goToMirth()
     {
-        BareBonesBrowserLaunch.openURL("http://www.mirthproject.org/");
+        BareBonesBrowserLaunch.openURL("http://www.mirthcorp.com/");
     }
 
     public void goToAbout()

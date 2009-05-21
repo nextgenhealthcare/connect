@@ -227,7 +227,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
                 return false;
             }
             int row = s.getSequenceNumber();
-            setRowData(s, row);
+            setRowData(s, row, false);
         }
 
         tabTemplatePanel.setDefaultComponent();
@@ -538,6 +538,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
             }
           
         });
+        
+        filterTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 
         filterTableModel = (DefaultTableModel) filterTable.getModel();
 
@@ -827,7 +829,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
     }
 
     // display a rule in the table
-    private void setRowData(Rule rule, int row)
+    private void setRowData(Rule rule, int row, boolean selectRow)
     {
         Object[] tableData = new Object[NUMBER_OF_COLUMNS];
 
@@ -850,7 +852,8 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
             
             updating = true;
             filterTableModel.addRow(tableData);
-            filterTable.setRowSelectionInterval(row, row);
+            if (selectRow)
+            	filterTable.setRowSelectionInterval(row, row);
             updating = false;
         }
         catch (Exception e)
@@ -932,7 +935,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
 
        
 		
-        setRowData(rule, rowCount);
+        setRowData(rule, rowCount, true);
         prevSelRow = rowCount;
         updateRuleNumbers();
         filterTable.setRowSelectionInterval(rowCount, rowCount);

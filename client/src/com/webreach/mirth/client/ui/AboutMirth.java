@@ -27,6 +27,7 @@ package com.webreach.mirth.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.Calendar;
 
 /** Creates the About Mirth dialog. The content is loaded from about.txt. */
 public class AboutMirth extends javax.swing.JDialog
@@ -62,14 +63,14 @@ public class AboutMirth extends javax.swing.JDialog
     public void loadContent()
     {
         StringBuilder content = new StringBuilder();
-        content.append("Mirth Administrator\n\n");
+        content.append("Mirth Connect Administrator\n\n");
 
         content.append("Version " + PlatformUI.SERVER_VERSION + "\n\n");
         content.append("Built on " + PlatformUI.BUILD_DATE + "\n\n");
         content.append("Server ID: " + PlatformUI.SERVER_ID + "\n\n");
         
-        content.append("Developed by:\nGerald Bortis (geraldb@webreachinc.com)\nChris Lang (chrisl@webreachinc.com)\nBrendan Haverlock (brendanh@webreachinc.com)\nJacob Brauer (jacobb@webreachinc.com)\nFrancisco J. Sanchez (morenull@gmail.com)\nDan Svanstedt (dans@webreachinc.com)\nChristopher Ro (chrisr@webreachinc.com)\nAlberto Sáez Torres (albersato@gmail.com)\nGreg Ward (greg.ward@intelerad.com)\nAndrzej Jan Taramina (andrzej@chaeron.com)\n\n");
-        content.append("(c) Copyright Mirth contributors and others 2005-08. All rights reserved. Visit http://www.mirthproject.org\n\n");
+        content.append("Developed by:\nGerald Bortis (geraldb@mirthcorp.com)\nChris Lang (chrisl@mirthcorp.com)\nBrendan Haverlock (brendanh@mirthcorp.com)\nJacob Brauer (jacobb@mirthcorp.com)\nFrancisco J. Sanchez (morenull@gmail.com)\nDan Svanstedt (dans@mirthcorp.com)\nChristopher Ro (chrisr@mirthcorp.com)\nAlberto Sáez Torres (albersato@gmail.com)\nGreg Ward (greg.ward@intelerad.com)\nAndrzej Jan Taramina (andrzej@chaeron.com)\n\n");
+        content.append("(c) 2005-" + Calendar.getInstance().get(Calendar.YEAR)  + " Mirth Corporation. All rights reserved. Visit http://www.mirthcorp.com\n\n");
         content.append("This product includes software developed by SymphonySoft Limited (http://www.symphonysoft.com) and its contributors.\n\n");
         content.append("This product includes software developed by the Apache Software Foundation (http://www.apache.org/).\n\n");
         content.append("This product includes all or a portion of the HL7 Vocabulary database, or is derived from the HL7 Vocabulary database, subject to a license from Health Level Seven, Inc.\n\n");
