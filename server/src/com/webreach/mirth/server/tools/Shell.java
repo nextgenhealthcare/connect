@@ -788,14 +788,14 @@ public class Shell {
     private void commandAllChannelStats(Token[] arguments) throws ClientException {
         // out.println("Mirth Channel Statistics Dump: "
         // + (new Date()).toString() + "\n");
-        out.println("Received\tFiltered\tSent\t\tError\t\tName");
+        out.println("Received\tFiltered\tQueued\t\tSent\t\tErrored\t\tAlerted\t\tName");
 
         List<Channel> channels = client.getChannel(null);
 
         for (Iterator iter = channels.iterator(); iter.hasNext();) {
             Channel channel = (Channel) iter.next();
             ChannelStatistics stats = client.getStatistics(channel.getId());
-            out.println(stats.getReceived() + "\t\t" + stats.getFiltered() + "\t\t" + stats.getSent() + "\t\t" + stats.getError() + "\t\t" + channel.getName());
+            out.println(stats.getReceived() + "\t\t" + stats.getFiltered() + "\t\t" + stats.getQueued() + "\t\t" + stats.getSent() + "\t\t" + stats.getError() + "\t\t" + stats.getAlerted() + "\t\t" + channel.getName());
         }
     }
 
@@ -806,9 +806,9 @@ public class Shell {
         for (Iterator<Channel> iter = allChannels.iterator(); iter.hasNext();) {
             Channel channel = iter.next();
             if (channel.isEnabled()) {
-                enable = "ENABLED";
+                enable = "YES";
             } else {
-                enable = "DISABLED";
+                enable = "NO";
             }
             out.println(channel.getId() + "\t" + enable + "\t\t" + channel.getName());
         }
@@ -891,8 +891,10 @@ public class Shell {
             out.println("Channel Stats for " + channel.getName());
             out.println("Received: " + stats.getReceived());
             out.println("Filtered: " + stats.getFiltered());
+            out.println("Queued: " + stats.getQueued());
             out.println("Sent: " + stats.getSent());
-            out.println("Error: " + stats.getError());
+            out.println("Errored: " + stats.getError());
+            out.println("Alerted: " + stats.getAlerted());
         }
     }
 
@@ -1071,14 +1073,14 @@ public class Shell {
 
         StringBuilder builder = new StringBuilder();
         builder.append("Mirth Channel Statistics Dump: " + (new Date()).toString() + "\n");
-        builder.append("Name, Received, Filtered, Sent, Error\n");
+        builder.append("Name, Received, Filtered, Queued, Sent, Errored, Alerted\n");
 
         List<Channel> channels = client.getChannel(null);
 
         for (Iterator iter = channels.iterator(); iter.hasNext();) {
             Channel channel = (Channel) iter.next();
             ChannelStatistics stats = client.getStatistics(channel.getId());
-            builder.append(channel.getName() + ", " + stats.getReceived() + ", " + stats.getFiltered() + ", " + stats.getSent() + ", " + stats.getError() + "\n");
+            builder.append(channel.getName() + ", " + stats.getReceived() + ", " + stats.getFiltered() + ", " + stats.getQueued() + ", " + stats.getSent() + ", " + stats.getError() + ", " + stats.getAlerted() + "\n");
         }
 
         File dumpFile = new File(dumpFilename);
