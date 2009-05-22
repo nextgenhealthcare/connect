@@ -64,6 +64,7 @@ import com.webreach.mirth.server.mule.adaptors.AdaptorFactory;
 import com.webreach.mirth.server.util.CompiledScriptCache;
 import com.webreach.mirth.server.util.JavaScriptScopeUtil;
 import com.webreach.mirth.server.util.UUIDGenerator;
+import com.webreach.mirth.server.util.JavaScriptUtil;
 import com.webreach.mirth.util.StringUtil;
 
 public class JavaScriptTransformer extends AbstractEventAwareTransformer {
@@ -243,7 +244,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			}
 		} catch (Exception e) {
 			if (e instanceof RhinoException) {
-				e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 5, "Filter/Transformer");
+				e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 5, "Filter/Transformer",null);
 			}
 
 			logger.error(errorBuilder.buildErrorMessage(Constants.ERROR_300, null, e));
@@ -376,7 +377,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		Logger scriptLogger = Logger.getLogger("filter");
 		String phase = new String();
 
-		try {
+        try {
 			Context context = getContext();
 			Scriptable scope = getScope();
 
@@ -445,7 +446,14 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			return messageObject;
 		} catch (Exception e) {
 			if (e instanceof RhinoException) {
-				e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 5, phase.toUpperCase());
+                try {
+                    String script = scriptController.getScript(scriptId);
+                    int linenumber = ((RhinoException) e).lineNumber();
+                    String errorReport = JavaScriptUtil.getSourceCode(script, linenumber, 5);
+                    e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 5, phase.toUpperCase(), errorReport);
+                } catch(Exception ee) {
+                    e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 5, phase.toUpperCase(), null);
+                }
 			}
 
 			if (phase.equals("filter")) {

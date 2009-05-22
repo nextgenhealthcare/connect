@@ -11,7 +11,7 @@ public class MirthJavascriptTransformerException extends Exception {
 	Exception exception;
 	private String lineSeperator = System.getProperty("line.separator");
 
-	public MirthJavascriptTransformerException(RhinoException e, String channelId, String connectorName, int lineOffset, String scriptSource) {
+	public MirthJavascriptTransformerException(RhinoException e, String channelId, String connectorName, int lineOffset, String scriptSource, String sourceCode) {
 		super(e);
 		exception = e;
 
@@ -32,6 +32,10 @@ public class MirthJavascriptTransformerException extends Exception {
 			sBuilder.append("SCRIPT SOURCE:\t" + scriptSource);
 			sBuilder.append(lineSeperator);
 		}
+        if(sourceCode != null){
+            sBuilder.append("SOURCE CODE:\t" + sourceCode);
+            sBuilder.append(lineSeperator);
+        }
 		sBuilder.append("LINE NUMBER:\t").append(e.lineNumber() - lineOffset);
 		sBuilder.append(lineSeperator);
 		if (e.lineSource() != null){

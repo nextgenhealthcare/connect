@@ -42,6 +42,9 @@ import com.webreach.mirth.server.MirthJavascriptTransformerException;
 import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.EventController;
+import com.webreach.mirth.server.controllers.ScriptController;
+
+import java.io.IOException;
 
 public class JavaScriptUtil {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -143,7 +146,10 @@ public class JavaScriptUtil {
                 if (messageObject != null) {
                     connectorName = messageObject.getConnectorName();
                 }
-                e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 1, scriptType);
+                ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
+                String script = scriptController.getScript(scriptId);
+                String sourceCode = JavaScriptUtil.getSourceCode(script, ((RhinoException) e).lineNumber(),1);
+                e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 1, scriptType, sourceCode);
             }
             throw e;
         } finally {
@@ -178,7 +184,7 @@ public class JavaScriptUtil {
             }
         } catch (EvaluatorException e) {
             if (e instanceof RhinoException) {
-                MirthJavascriptTransformerException mjte = new MirthJavascriptTransformerException((RhinoException) e, null, null, 1, scriptId);
+                MirthJavascriptTransformerException mjte = new MirthJavascriptTransformerException((RhinoException) e, null, null, 1, scriptId,null);
                 throw new Exception(mjte);
             } else {
                 throw new Exception(e);
@@ -250,4 +256,22 @@ public class JavaScriptUtil {
         if (compiledScriptCache.getCompiledScript(scriptId) != null)
             compiledScriptCache.removeCompiledScript(scriptId);
     }
+    // utility to get source code from script. Used to generate error report.
+    public static String getSourceCode(String script, int lineNumber,int offset){
+        String lineSep = System.getProperty("line.separator");
+        String[] lines = script.split("\n");
+        int linenumber = lineNumber - offset;
+        if(linenumber < 5){
+            linenumber = 5;
+        }
+        int currentLineNumber = linenumber-5;
+        String sourceCode = "";
+        String currentLine;
+        while(currentLineNumber < linenumber+5){
+            sourceCode = sourceCode + lineSep + (currentLineNumber) + ": " + lines[currentLineNumber-1];
+            currentLineNumber++;
+        }
+        return sourceCode;
+    }
+
 }
