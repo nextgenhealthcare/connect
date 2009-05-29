@@ -1,28 +1,28 @@
 package com.webreach.mirth.server.util;
 
-import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Attachment;
+import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.SerializerException;
-import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.ControllerFactory;
+import com.webreach.mirth.server.controllers.MessageObjectController;
+import org.apache.log4j.Logger;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 public class AttachmentUtil {
-    private static Logger logger = Logger.getLogger(AttachmentUtil.class);    
+
+    private static Logger logger = Logger.getLogger(AttachmentUtil.class);
+
     public static String reAttachMessage(MessageObject message){
         String messageData = message.getEncodedData();
         if(messageData == null || messageData.equals("")){
             messageData = message.getRawData();
         }
-        MessageObjectController mos = ControllerFactory.getFactory().createMessageObjectController();
         try {
             List<Attachment> list  = getMessageAttachments(message);
             if(list != null){
                 for(Attachment attachment : list){
-                    messageData = messageData.replaceAll(attachment.getAttachmentId(),new String(attachment.getData()));
+                    messageData = messageData.replaceAll(attachment.getAttachmentId(), new String(attachment.getData()).replaceAll("\\\\", "\\\\\\\\"));
                 }
             }
         }
