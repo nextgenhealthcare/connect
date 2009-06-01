@@ -1,11 +1,11 @@
 <jnlp href="webstart.jnlp">
 	<information>
-		<title>Mirth Administrator</title>
-		<vendor>WebReach, Inc.</vendor>
-		<homepage href="http://www.mirthproject.org" />
-		<description>Open source HL7 integration engine.</description>
+		<title>Mirth Connect Administrator</title>
+		<vendor>Mirth Corporation</vendor>
+		<homepage href="http://www.mirthcorp.com" />
+		<description>Open Source Healthcare Integration Engine</description>
 		
-		<icon href="mirth_logo_64.jpg" />
+		<icon href="mirth_64_ico.png" />
 
 		<shortcut online="true">
             <!-- put a shortcut on the desktop -->

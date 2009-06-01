@@ -154,7 +154,7 @@ public class DefaultConfigurationController extends ConfigurationController{
         String updateUrl = serverProperties.getProperty("update.url");
         
         if ((updateUrl == null) || (updateUrl.length() == 0)) {
-            serverProperties.setProperty("update.url", "http://updates.mirthproject.org");
+            serverProperties.setProperty("update.url", "http://updates.mirthcorp.com");
         }
 
         // update.enabled
