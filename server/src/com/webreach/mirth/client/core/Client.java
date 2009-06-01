@@ -792,29 +792,6 @@ public class Client {
         serverConnection.executePostMethod(USER_SERVLET, params);
     }
 
-    /**
-     * Submits an error message to the Mirth Project.
-     * 
-     * @param message
-     */
-    public void submitError(String message) {
-        Error error = new Error();
-        error.setJavaVersion(System.getProperty("java.version"));
-        error.setOsArchitecture(System.getProperty("os.arch"));
-        error.setOsName(System.getProperty("os.name"));
-        error.setOsVersion(System.getProperty("os.version"));
-        error.setStackTrace(message);
-        error.setDate(new ErrorDate());
-
-        ServerConnection errorServerConnection = new ServerConnection("http://www.mirthproject.org:8083/errors");
-
-        try {
-            errorServerConnection.executePostMethod("/create", error.getAsParams());
-        } catch (ClientException e) {
-            logger.error("could not submit error", e);
-        }
-    }
-
     public Attachment getAttachment(String attachmentId) throws ClientException {
         logger.debug("getting Attachment: " + attachmentId);
         NameValuePair[] params = { new NameValuePair("op", "getAttachment"), new NameValuePair("attachmentId", attachmentId) };
