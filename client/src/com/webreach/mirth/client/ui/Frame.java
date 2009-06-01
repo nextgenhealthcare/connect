@@ -1082,14 +1082,6 @@ public class Frame extends JXFrame
         return owner;
     }
 
-    /*
-     * Send the message to MirthProject.org
-     */
-    public void sendError(String message)
-    {
-        mirthClient.submitError(message);
-    }
-
     /**
      * Sets the 'index' in 'pane' to be bold
      */

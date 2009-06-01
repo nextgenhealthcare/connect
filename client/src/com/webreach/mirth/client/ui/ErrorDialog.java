@@ -85,9 +85,6 @@ public class ErrorDialog extends javax.swing.JDialog
     /** Loads the contents of the error */
     public void loadContent(String message)
     {
-        if (emailAddress.getText().length() > 0)
-            message = emailAddress.getText() + " " + message;
-
         errorContent.setText(message);
     }
 
@@ -98,12 +95,9 @@ public class ErrorDialog extends javax.swing.JDialog
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents()
-    {
-        submit = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
-        emailAddress = new javax.swing.JTextField();
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
         cancel = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         errorContent = new javax.swing.JTextPane();
@@ -113,22 +107,10 @@ public class ErrorDialog extends javax.swing.JDialog
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Submit Error");
-        submit.setText("Submit");
-        submit.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
-                submitActionPerformed(evt);
-            }
-        });
-
-        jLabel1.setText("Email Address (optional):");
 
         cancel.setText("Close");
-        cancel.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        cancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelActionPerformed(evt);
             }
         });
@@ -140,7 +122,7 @@ public class ErrorDialog extends javax.swing.JDialog
         question.setBackground(new java.awt.Color(224, 223, 227));
         question.setBorder(null);
         question.setEditable(false);
-        question.setText("An unexpected error has occurred.  Would you like to submit this error to MirthProject.org?");
+        question.setText("An unexpected error has occurred.  If this is a severe error and you are on Mirth Support, please contact the Mirth Help Desk.");
         question.setFocusable(false);
         questionPane.setViewportView(question);
 
@@ -151,27 +133,15 @@ public class ErrorDialog extends javax.swing.JDialog
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(jLabel1)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(emailAddress, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 149, Short.MAX_VALUE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(submit)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(cancel))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, cancel)
                     .add(layout.createSequentialGroup()
                         .add(image)
                         .add(20, 20, 20)
-                        .add(questionPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 374, Short.MAX_VALUE)
+                        .add(questionPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 364, Short.MAX_VALUE)
                         .add(20, 20, 20))
-                    .add(layout.createSequentialGroup()
-                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 414, Short.MAX_VALUE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 404, Short.MAX_VALUE))
                 .addContainerGap())
         );
-
-        layout.linkSize(new java.awt.Component[] {cancel, submit}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
@@ -182,13 +152,10 @@ public class ErrorDialog extends javax.swing.JDialog
                 .add(15, 15, 15)
                 .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
-                    .add(cancel)
-                    .add(emailAddress, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(submit))
+                .add(cancel)
                 .addContainerGap())
         );
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -197,23 +164,13 @@ public class ErrorDialog extends javax.swing.JDialog
         this.dispose();
     }// GEN-LAST:event_cancelActionPerformed
 
-    private void submitActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_submitActionPerformed
-    {// GEN-HEADEREND:event_submitActionPerformed
-        if (parent.alertOkCancel(this, "The information collected is anonymous, but please verify that the error message itself does not contain any personal health information."))
-            parent.sendError(errorContent.getText());
-        this.dispose();
-    }// GEN-LAST:event_submitActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancel;
-    private javax.swing.JTextField emailAddress;
     private javax.swing.JTextPane errorContent;
     private javax.swing.JLabel image;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextPane question;
     private javax.swing.JScrollPane questionPane;
-    private javax.swing.JButton submit;
     // End of variables declaration//GEN-END:variables
 
 }
