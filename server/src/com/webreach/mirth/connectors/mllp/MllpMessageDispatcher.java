@@ -46,6 +46,7 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.QueuedMessage;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MonitoringController;
@@ -79,6 +80,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 
 	private MllpConnector connector;
 	private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
+	private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
 	private AlertController alertController = ControllerFactory.getFactory().createAlertController();
 	private TemplateValueReplacer replacer = new TemplateValueReplacer();
 	private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
@@ -179,7 +181,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 							if (socket != null) {
 								doDispose(socket);
 							}
-							logger.warn("Can't connect to the endpoint: " + connector.getName() + ", waiting " + new Float(connector.getReconnectMillisecs() / 1000) + " seconds before reconnecting \r\n(" + exs + ")");
+							logger.warn("Can't connect to the endpoint: " + channelController.getChannelName(connector.getChannelId()) + " - " + channelController.getDestinationName(connector.getName()) + " \r\nWaiting " + new Float(connector.getReconnectMillisecs() / 1000) + " seconds before reconnecting... \r\n(" + exs + ")");
 							try {
 								Thread.sleep(connector.getReconnectMillisecs());
 							} catch (Throwable t) {
@@ -190,7 +192,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 							}
 						} else {
 							exceptionMessage = "Unable to connect to destination";
-							logger.error("Can't connect to the endpoint: " + connector.getName() + ", payload not sent");
+							logger.error("Can't connect to the endpoint: " + channelController.getChannelName(connector.getChannelId()) + " - " + channelController.getDestinationName(connector.getName()) + " \r\nPayload not sent");
 							exceptionWriting = exs;
 						}
 					}
