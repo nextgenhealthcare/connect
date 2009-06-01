@@ -22,6 +22,7 @@ public class AttachmentUtil {
             List<Attachment> list  = getMessageAttachments(message);
             if(list != null){
                 for(Attachment attachment : list){
+	                // backslash escaping - http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4626653
                     messageData = messageData.replaceAll(attachment.getAttachmentId(), new String(attachment.getData()).replaceAll("\\\\", "\\\\\\\\"));
                 }
             }
