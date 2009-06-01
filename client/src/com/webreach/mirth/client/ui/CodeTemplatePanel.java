@@ -143,7 +143,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
         {
             public void valueChanged(ListSelectionEvent evt)
             {
-                if(updating && !isDeleting)
+                if((updating && !isDeleting) || templateTable.isEditing())
                     return;
                 
                 if (!evt.getValueIsAdjusting())
