@@ -50,6 +50,12 @@ public class RTFViewer extends AttachmentViewer {
             BASE64Decoder decoder = new BASE64Decoder();
             byte[] rawRTF = decoder.decodeBuffer(new String(attachment.getData()));
             JEditorPane jEditorPane = new JEditorPane("text/rtf", new String(rawRTF));
+
+			if (jEditorPane.getDocument().getLength() == 0) {
+				// decoded when it should not have been.  i.e.) the attachment data was not encoded.
+				jEditorPane.setText(new String(attachment.getData()));
+			}
+			
             jEditorPane.setEditable(false);
             JScrollPane scrollPane = new javax.swing.JScrollPane();
             scrollPane.setViewportView(jEditorPane);            
