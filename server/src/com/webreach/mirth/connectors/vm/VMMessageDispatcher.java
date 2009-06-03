@@ -35,6 +35,7 @@ import org.mule.umo.provider.UMOConnector;
 import org.mule.util.queue.Queue;
 import org.mule.util.queue.QueueSession;
 
+import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
@@ -212,9 +213,31 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
 		}
 		//this could be done with the one-liner below, however we need to ensure something
 		Object response = null;
-	
+		
 		UMOEvent event = new MuleEvent(new MuleMessage(template), receiver.getEndpoint(), new MuleSession(), connector.isSynchronised());
-		response = receiver.dispatchMessage(event);
+        
+		// Check to see if the channel that is being written to exists.
+		String channelId = event.getEndpoint().getName();
+    	Channel channel = ControllerFactory.getFactory().createChannelController().getChannelCache().get(channelId);
+    	boolean channelNone = false;
+    	if (channel == null) {
+    		channelNone = true;
+    	}
+		
+    	// Use inline routing if "Wait for Channel Response" is set to true or the destination channel doesn't exist.
+    	// If "Wait for Channel Response" is set to false, the message is written to the destination channel's queue.
+    	// This is the same behavior that happens when using VMRouter.routeMessage("name", "message", true, false).
+		if (connector.isSynchronised() || channelNone) {
+        	response = receiver.dispatchMessage(event);
+        } else {
+        	QueueSession session = ((VMConnector) receiver.getConnector()).getQueueSession();
+        	Queue queue = session.getQueue(event.getEndpoint().getEndpointURI().getAddress());
+        	try {
+	        	queue.put(event);
+            } catch (Exception e) {
+                logger.error("Unable to route: " + e.getMessage());
+            }
+        }
 	
 		//UMOMessage response = receiver.routeMessage(new MuleMessage(messageObject.getEncodedData()), connector.isSynchronised());
 		if (response != null && response instanceof MuleMessage)
