@@ -45,7 +45,8 @@ public class ReferenceListFactory
     public ReferenceListFactory()
     {
         references = new LinkedHashMap<String, ArrayList<CodeTemplate>>();
-        setup();
+        if (parent != null) // null parent check to let forms load in NetBeans
+            setup();
     }
 
     public static ReferenceListFactory getInstance()
@@ -153,7 +154,8 @@ public class ReferenceListFactory
     
     public ArrayList<CodeTemplate> getVariableListItems(String itemName, int context)
     {
-        updateUserTemplates();
+        if (parent != null) // null parent check to let forms load in NetBeans
+            updateUserTemplates();
         
         if (itemName == ListType.ALL.getValue())
         {
