@@ -2,7 +2,7 @@
   <dontWrapJar>true</dontWrapJar>
   <headerType>console</headerType>
   <jar>mirth-launcher.jar</jar>
-  <outfile>C:\Documents and Settings\geraldb\workspace\Server\Mirth.exe</outfile>
+  <outfile>C:\Users\geraldb\workspace\Server\Mirth.exe</outfile>
   <errTitle></errTitle>
   <cmdLine>mirth-launcher.xml</cmdLine>
   <chdir>.</chdir>
@@ -12,7 +12,7 @@
   <customProcName>true</customProcName>
   <stayAlive>false</stayAlive>
   <manifest></manifest>
-  <icon>C:\Documents and Settings\geraldb\workspace\Server\Mirth.ico</icon>
+  <icon>C:\Users\geraldb\workspace\Server\Mirth.ico</icon>
   <jre>
     <path></path>
     <minVersion>1.5.0</minVersion>

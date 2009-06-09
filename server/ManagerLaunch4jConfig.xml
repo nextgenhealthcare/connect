@@ -2,7 +2,7 @@
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
   <jar>mirth-manager.jar</jar>
-  <outfile>C:\Documents and Settings\geraldb\workspace\Server\MirthServerManager.exe</outfile>
+  <outfile>C:\Users\geraldb\workspace\Server\MirthServerManager.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
@@ -11,8 +11,8 @@
   <supportUrl></supportUrl>
   <customProcName>true</customProcName>
   <stayAlive>false</stayAlive>
-  <manifest>C:\Documents and Settings\geraldb\workspace\Server\MirthServerManager.exe.manifest</manifest>
-  <icon>C:\Documents and Settings\geraldb\workspace\Server\Mirth.ico</icon>
+  <manifest>C:\Users\geraldb\workspace\Server\MirthServerManager.exe.manifest</manifest>
+  <icon>C:\Users\geraldb\workspace\Server\Mirth.ico</icon>
   <var>-Djava.library.path=lib/</var>
   <jre>
     <path></path>
