@@ -4211,6 +4211,10 @@ public class Frame extends JXFrame
         {
             doSaveGlobalScripts();
         }
+        else if (currentContentPage == codeTemplatePanel)
+        {
+            doSaveCodeTemplates();
+        }
         else if (currentContentPage == settingsPane)
         {
             doSaveSettings();
