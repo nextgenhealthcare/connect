@@ -33,14 +33,19 @@ import org.w3c.dom.Document;
 
 
 public class HL7V3Serializer implements IXMLSerializer<String> {
+	
+	private boolean stripNamespaces = true;
 
-	public static Map getDefaultProperties() {
+	public static Map<String, String> getDefaultProperties() {
 		Map<String, String> map = new HashMap<String, String>();
+		map.put("stripNamespaces", "true");
 		return map;
 	}
 	
-	public HL7V3Serializer() {
-
+	public HL7V3Serializer(Map hl7v3Properties) {
+		if (hl7v3Properties != null && hl7v3Properties.get("stripNamespaces") != null) {
+			this.stripNamespaces = Boolean.parseBoolean((String) hl7v3Properties.get("stripNamespaces"));
+		}
 	}
 	
 	public String toXML(String source) throws SerializerException {

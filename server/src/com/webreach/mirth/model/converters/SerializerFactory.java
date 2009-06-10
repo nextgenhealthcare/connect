@@ -10,7 +10,7 @@ public class SerializerFactory {
 		if (protocol.equals(Protocol.HL7V2)) {
 			return new ER7Serializer(properties);
 		} else if (protocol.equals(Protocol.HL7V3)) {
-			return new HL7V3Serializer();
+			return new HL7V3Serializer(properties);
 		} else if (protocol.equals(Protocol.X12)) {
 			return new X12Serializer(properties);
 		} else if (protocol.equals(Protocol.EDI)) {
@@ -22,7 +22,7 @@ public class SerializerFactory {
 		} else if (protocol.equals(Protocol.DELIMITED)) {
 			return new DelimitedSerializer(properties);
 		} else {
-			return new DefaultXMLSerializer();
+			return new DefaultXMLSerializer(properties);
 		}
 	}
 

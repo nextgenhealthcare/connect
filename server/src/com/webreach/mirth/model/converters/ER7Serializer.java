@@ -53,13 +53,15 @@ public class ER7Serializer implements IXMLSerializer<String> {
 	private XMLParser xmlParser;
 	private boolean useStrictParser = false;
 	private boolean useStrictValidation = false;
+	private boolean stripNamespaces = true;
 	private boolean handleRepetitions = false;
 	private boolean convertLFtoCR = true;
 
-	public static Map getDefaultProperties() {
+	public static Map<String, String> getDefaultProperties() {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("useStrictParser", "false");
 		map.put("useStrictValidation", "false");
+		map.put("stripNamespaces", "true");
 		map.put("handleRepetitions", "false");
 		map.put("convertLFtoCR", "true");
 		return map;
@@ -71,6 +73,9 @@ public class ER7Serializer implements IXMLSerializer<String> {
 		}
 		if (er7Properties != null && er7Properties.get("useStrictValidation") != null) {
 			this.useStrictValidation = Boolean.parseBoolean((String) er7Properties.get("useStrictValidation"));
+		}
+		if (er7Properties != null && er7Properties.get("stripNamespaces") != null) {
+			this.stripNamespaces = Boolean.parseBoolean((String) er7Properties.get("stripNamespaces"));
 		}
 		if (er7Properties != null && er7Properties.get("handleRepetitions") != null) {
 			this.handleRepetitions = Boolean.parseBoolean((String) er7Properties.get("handleRepetitions"));

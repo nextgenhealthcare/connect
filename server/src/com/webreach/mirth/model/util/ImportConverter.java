@@ -294,6 +294,11 @@ public class ImportConverter {
 				}
 				convertChannelConnectorsFor1_8(document, channelRoot);
 			}
+			
+			// Run for all version prior to 1.8.1
+			if (minorVersion < 8 || (minorVersion == 8 && patchVersion < 1)) {  
+				updateTransformerFor1_8_1(document);	
+			}
 		}
 
 		DocumentSerializer docSerializer = new DocumentSerializer();
@@ -912,6 +917,65 @@ public class ImportConverter {
 						}
 					}
 				}
+			}
+		}
+	}
+	
+	private static void updateTransformerFor1_8_1(Document document) {
+		Element inboundPropertiesElement, outboundPropertiesElement;
+		
+		NodeList transformers = document.getElementsByTagName("transformer");
+
+		for (int i = 0; i < transformers.getLength(); i++) {
+			Element transformerRoot = (Element) transformers.item(i);
+
+			// Update the inbound protocol properties.
+			if (transformerRoot.getElementsByTagName("inboundProtocol").item(0).getTextContent().equals("XML") ||
+				transformerRoot.getElementsByTagName("inboundProtocol").item(0).getTextContent().equals("HL7V2") ||
+				transformerRoot.getElementsByTagName("inboundProtocol").item(0).getTextContent().equals("HL7V3")) {
+				
+				if (transformerRoot.getElementsByTagName("inboundProperties").getLength() == 0) {
+					inboundPropertiesElement = document.createElement("inboundProperties");
+					transformerRoot.appendChild(inboundPropertiesElement);
+				}
+				
+				inboundPropertiesElement = (Element)transformerRoot.getElementsByTagName("inboundProperties").item(0);
+				
+				Element stripNamespacesProperty = document.createElement("property");
+				stripNamespacesProperty.setAttribute("name", "stripNamespaces");
+				stripNamespacesProperty.setTextContent("true");
+				
+				// Override stripNamespaces on inbound if the old removeNamespace was set to false
+				NodeList propertyNames = document.getElementsByTagName("property");
+				for (int j = 0; j < propertyNames.getLength(); j++) {
+					Node nameAttribute = propertyNames.item(j).getAttributes().getNamedItem("name");
+					if (propertyNames.item(j).getAttributes().getLength() > 0 && nameAttribute != null) {
+						if (nameAttribute.getNodeValue().equals("removeNamespace")) {
+							stripNamespacesProperty.setTextContent(propertyNames.item(j).getTextContent());
+						}
+					}
+				}
+				
+				inboundPropertiesElement.appendChild(stripNamespacesProperty);
+			}
+			
+			// Update the outbound protocol properties.
+			if (transformerRoot.getElementsByTagName("outboundProtocol").item(0).getTextContent().equals("XML") ||
+				transformerRoot.getElementsByTagName("outboundProtocol").item(0).getTextContent().equals("HL7V2") ||
+				transformerRoot.getElementsByTagName("outboundProtocol").item(0).getTextContent().equals("HL7V3")) {
+				
+				if (transformerRoot.getElementsByTagName("outboundProperties").getLength() == 0) {
+					outboundPropertiesElement = document.createElement("outboundProperties");
+					transformerRoot.appendChild(outboundPropertiesElement);
+				}
+				
+				outboundPropertiesElement = (Element)transformerRoot.getElementsByTagName("outboundProperties").item(0);
+				
+				Element stripNamespacesProperty = document.createElement("property");
+				stripNamespacesProperty.setAttribute("name", "stripNamespaces");
+				stripNamespacesProperty.setTextContent("true");
+				
+				outboundPropertiesElement.appendChild(stripNamespacesProperty);
 			}
 		}
 	}

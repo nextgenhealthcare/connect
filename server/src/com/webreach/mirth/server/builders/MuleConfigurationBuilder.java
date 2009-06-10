@@ -374,7 +374,6 @@ public class MuleConfigurationBuilder {
 			properties.put("inboundProtocol", transformer.getInboundProtocol());
 			properties.put("outboundProtocol", transformer.getOutboundProtocol());
 			properties.put("encryptData", channel.getProperties().get("encryptData"));
-			properties.put("removeNamespace", channel.getProperties().get("removeNamespace"));
 			properties.put("mode", connector.getMode().toString());
 
 			// put the outbound template in the templates table

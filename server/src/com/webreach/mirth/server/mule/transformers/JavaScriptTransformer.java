@@ -63,8 +63,8 @@ import com.webreach.mirth.server.mule.adaptors.Adaptor;
 import com.webreach.mirth.server.mule.adaptors.AdaptorFactory;
 import com.webreach.mirth.server.util.CompiledScriptCache;
 import com.webreach.mirth.server.util.JavaScriptScopeUtil;
-import com.webreach.mirth.server.util.UUIDGenerator;
 import com.webreach.mirth.server.util.JavaScriptUtil;
+import com.webreach.mirth.server.util.UUIDGenerator;
 import com.webreach.mirth.util.StringUtil;
 
 public class JavaScriptTransformer extends AbstractEventAwareTransformer {
@@ -79,12 +79,11 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 	private String inboundProtocol;
 	private String outboundProtocol;
-	private Map inboundProperties;
-	private Map outboundProperties;
+	private Map<String, String> inboundProperties;
+	private Map<String, String> outboundProperties;
 	private String channelId;
 	private String connectorName;
 	private boolean encryptData;
-	private boolean removeNamespace;
 	private String scriptId;
 	private String templateId;
 	private String mode;
@@ -138,14 +137,6 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
 	public void setEncryptData(boolean encryptData) {
 		this.encryptData = encryptData;
-	}
-
-	public boolean isRemoveNamespace() {
-		return this.removeNamespace;
-	}
-
-	public void setRemoveNamespace(boolean removeNamespace) {
-		this.removeNamespace = removeNamespace;
 	}
 
 	public String getScriptId() {
@@ -268,25 +259,39 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			// 2. Protocols are different
 			// 3. Properties are different than the protocol defaults
 			// 4. The outbound template is not empty
+			// Stop checking the following checks only if emptyFilterAndTransformer has been set to true
 			if (script != null || !this.inboundProtocol.equals(this.outboundProtocol)) {
 				emptyFilterAndTransformer = false;
-			} else if (this.inboundProperties != null) {
+			}
+			if (emptyFilterAndTransformer && this.inboundProperties != null) {
 				// Check to see if the properties are equal to the default
 				// properties
-				Map defaultProperties = DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(Protocol.valueOf(inboundProtocol));
-
-				if (!this.inboundProperties.equals(defaultProperties)) {
-					emptyFilterAndTransformer = false;
+				Map<String, String> defaultProperties = DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(Protocol.valueOf(inboundProtocol));
+				
+				// Only compare properties that exist in inbound and default
+				// Anything not existing in inbound will use the default
+				for (Map.Entry<String, String> e : inboundProperties.entrySet()) {
+					String defaultValue = defaultProperties.get(e.getKey());
+					if ((defaultValue != null) && !e.getValue().equalsIgnoreCase(defaultValue)) {
+						emptyFilterAndTransformer = false;
+					}
 				}
-			} else if (this.outboundProperties != null) {
+			}
+			if (emptyFilterAndTransformer && this.outboundProperties != null) {
 				// Check to see if the properties are equal to the default
 				// properties
-				Map defaultProperties = DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(Protocol.valueOf(outboundProtocol));
+				Map<String, String> defaultProperties = DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(Protocol.valueOf(outboundProtocol));
 
-				if (!this.outboundProperties.equals(defaultProperties)) {
-					emptyFilterAndTransformer = false;
+				// Only compare properties that exist in outbound and default
+				// Anything not existing in outbound will use the default
+				for (Map.Entry<String, String> e : outboundProperties.entrySet()) {
+					String defaultValue = defaultProperties.get(e.getKey());
+					if ((defaultValue != null) && !e.getValue().equalsIgnoreCase(defaultValue)) {
+						emptyFilterAndTransformer = false;
+					}
 				}
-			} else if (template != null && !template.equalsIgnoreCase("")) {
+			}
+			if (emptyFilterAndTransformer && template != null && !template.equalsIgnoreCase("")) {
 				emptyFilterAndTransformer = false;
 			}
 
@@ -472,7 +477,6 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		logger.debug("generating script");
 
 		StringBuilder newScript = new StringBuilder();
-		newScript.append("default xml namespace = '';\n");
 
 		// script used to check for exitence of segment
 		newScript.append("function validate(mapping, defaultValue, replacement) {");
@@ -551,22 +555,51 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		// ast: Allow ending whitespaces to the output XML
 		newScript.append("XML.prettyPrinting=false;");
 
-		if (removeNamespace) {
+		// Check to see if the property to strip namespaces off of incoming messages has been set to false.
+		// For XML, HL7v2, and HL7v3 stripNamespaces can be turned off.
+		boolean stripIncomingNamespaces = true;
+		
+		if (Protocol.valueOf(inboundProtocol).equals(Protocol.XML) || Protocol.valueOf(inboundProtocol).equals(Protocol.HL7V2) || Protocol.valueOf(inboundProtocol).equals(Protocol.HL7V3)) {
+			if ((inboundProperties != null) && (inboundProperties.get("stripNamespaces") != null)) {
+				stripIncomingNamespaces = Boolean.parseBoolean((String) inboundProperties.get("stripNamespaces"));
+			}
+		}
+		
+		if (stripIncomingNamespaces) {
 			newScript.append("var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
 		} else {
 			newScript.append("var newMessage = message;\n");
 		}
 
 		newScript.append("msg = new XML(newMessage);\n");
-
+		
+		// Set the default namespace if there is one left on the root node, otherwise set it to ''.
+		newScript.append("if (msg.namespace(\"\") != undefined) { default xml namespace = msg.namespace(\"\"); } else { default xml namespace = ''; }\n");
+		
 		// turn the template into an E4X XML object
 		if (template != null && template.length() > 0) {
 			// We have to remove the namespaces so E4X allows use to use the
 			// msg[''] syntax
-			newScript.append("var newTemplate = template.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
+
+			// Check to see if the property to strip namespaces off of outbound templates has been set to false.
+			// For XML, HL7v2, and HL7v3 stripNamespaces can be turned off.
+			boolean stripOutboundNamespaces = true;
+			
+			if (Protocol.valueOf(outboundProtocol).equals(Protocol.XML) || Protocol.valueOf(outboundProtocol).equals(Protocol.HL7V2) || Protocol.valueOf(outboundProtocol).equals(Protocol.HL7V3)) {
+				if ((outboundProperties != null) && (outboundProperties.get("stripNamespaces") != null)) {
+					stripOutboundNamespaces = Boolean.parseBoolean((String) outboundProperties.get("stripNamespaces"));
+				}
+			}
+			
+			if (stripOutboundNamespaces) {
+				newScript.append("var newTemplate = template.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n");
+			} else {
+				newScript.append("var newTemplate = template;\n");
+			}
+			
 			newScript.append("tmp = new XML(newTemplate);\n");
 		}
-
+		
 		try {
 			List<CodeTemplate> templates = codeTemplateController.getCodeTemplate(null);
 			for (CodeTemplate template : templates) {

@@ -44,7 +44,7 @@ public class EDISerializer implements IXMLSerializer<String> {
 	private String elementDelim = "*";
 	private String subelementDelim = ":";
 	
-	public static Map getDefaultProperties() {
+	public static Map<String, String> getDefaultProperties() {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("segmentDelimiter", "~");
 		map.put("elementDelimiter", "*");

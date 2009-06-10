@@ -6,8 +6,8 @@ public class X12Serializer extends EDISerializer {
 
 	private boolean inferX12Delimiters = true;
 	
-	public static Map getDefaultProperties() {
-		Map map = EDISerializer.getDefaultProperties();
+	public static Map<String, String> getDefaultProperties() {
+		Map<String, String> map = EDISerializer.getDefaultProperties();
 		map.put("inferX12Delimiters", "true");
 		return map;
 	}

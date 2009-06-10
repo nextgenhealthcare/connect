@@ -46,7 +46,7 @@ public class DelimitedSerializer extends SAXParser implements IXMLSerializer<Str
 	private DelimitedProperties props;
 	private DelimitedReader delimitedBatchReader = null;
 	
-	public static Map getDefaultProperties() {
+	public static Map<String, String> getDefaultProperties() {
 		return DelimitedProperties.getDefaultProperties();
 	}
 	

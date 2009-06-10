@@ -5,7 +5,6 @@ import java.util.Properties;
 public class ChannelProperties implements ComponentProperties
 {
     public static final String SYNCHRONOUS = "synchronous";
-    public static final String REMOVE_NAMESPACE = "removeNamespace";
     public static final String TRANSACTIONAL= "transactional";
     public static final String INITIAL_STATE = "initialState";
     public static final String DONT_STORE_FILTERED = "dont_store_filtered";
@@ -18,7 +17,6 @@ public class ChannelProperties implements ComponentProperties
     {
         Properties properties = new Properties();
         properties.put(SYNCHRONOUS, "true");
-        properties.put(REMOVE_NAMESPACE, "true");
         properties.put(TRANSACTIONAL, "false");
         properties.put(INITIAL_STATE, "started");
         properties.put(DONT_STORE_FILTERED, "false");

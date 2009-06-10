@@ -99,7 +99,7 @@ public abstract class Adaptor {
     }
 
     public IXMLSerializer<String> getSerializer(Map properties) {
-        return new DefaultXMLSerializer();
+        return new DefaultXMLSerializer(properties);
     }
 
     protected abstract void populateMessage(boolean flag) throws AdaptorException;

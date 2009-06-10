@@ -31,7 +31,7 @@ public class NCPDPSerializer  implements IXMLSerializer<String> {
 	private boolean useStrictValidation = false;
     public boolean validationError = false;
     
-	public static Map getDefaultProperties() {
+	public static Map<String, String> getDefaultProperties() {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("segmentDelimiter", "0x1E");
 		map.put("groupDelimiter", "0x1D");

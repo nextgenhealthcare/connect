@@ -34,13 +34,18 @@ import org.w3c.dom.Document;
 
 public class DefaultXMLSerializer implements IXMLSerializer<String> {
 
-	public static Map getDefaultProperties() {
+	private boolean stripNamespaces = true;
+	
+	public static Map<String, String> getDefaultProperties() {
 		Map<String, String> map = new HashMap<String, String>();
+		map.put("stripNamespaces", "true");
 		return map;
 	}
 	
-	public DefaultXMLSerializer() {
-
+	public DefaultXMLSerializer(Map xmlProperties) {
+		if (xmlProperties != null && xmlProperties.get("stripNamespaces") != null) {
+			this.stripNamespaces = Boolean.parseBoolean((String) xmlProperties.get("stripNamespaces"));
+		}
 	}
 
 	public String toXML(String source) throws SerializerException {

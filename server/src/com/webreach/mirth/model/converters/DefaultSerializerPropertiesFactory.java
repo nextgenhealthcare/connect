@@ -5,7 +5,7 @@ import java.util.Map;
 import com.webreach.mirth.model.MessageObject.Protocol;
 
 public class DefaultSerializerPropertiesFactory {
-	public static Map getDefaultSerializerProperties(Protocol protocol) {
+	public static Map<String, String> getDefaultSerializerProperties(Protocol protocol) {
 		if (protocol.equals(Protocol.HL7V2)) {
 			return ER7Serializer.getDefaultProperties();
 		} else if (protocol.equals(Protocol.HL7V3)) {
