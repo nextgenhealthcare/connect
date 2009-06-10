@@ -38,11 +38,9 @@ import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.provider.UMOConnector;
-import org.mule.util.queue.Queue;
 
 import sun.misc.BASE64Decoder;
 
-import com.webreach.mirth.connectors.mllp.MllpConnector;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.QueuedMessage;
 import com.webreach.mirth.server.Constants;
@@ -467,7 +465,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
 
 				connector.setSendSocketValid(false);
 
-				if (maxRetries != MllpConnector.KEEP_RETRYING_INDEFINETLY) {
+				if (maxRetries != TcpConnector.KEEP_RETRYING_INDEFINETLY) {
 					retryCount++;
 				}
 				// ast: we now work with the endpoint
