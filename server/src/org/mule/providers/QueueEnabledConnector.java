@@ -172,7 +172,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 								QueuedMessage theMessage = null;
 								
 								try {
-									thePayload = (Object) queue.peek();
+									thePayload = queue.peek();
 									
 									if(thePayload instanceof MessageObject) { 
 										MessageObject messageObject = (MessageObject)thePayload;
@@ -181,6 +181,11 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 										continue;
 									} else {
 										theMessage = (QueuedMessage) thePayload;
+										
+										if(theMessage.getMessageObject() == null) { 
+											queue.poll(getPollMaxTime());
+											continue;
+										}
 									}
 									
 									logger.debug("retrying queued message: id = " + theMessage.getMessageObject().getId() + ", endpointUri = " + theMessage.getEndpointUri().toString());
