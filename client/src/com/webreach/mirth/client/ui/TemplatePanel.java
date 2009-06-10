@@ -34,8 +34,10 @@ import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 import com.webreach.mirth.client.ui.beans.DelimitedProperties;
 import com.webreach.mirth.client.ui.beans.EDIProperties;
 import com.webreach.mirth.client.ui.beans.HL7Properties;
+import com.webreach.mirth.client.ui.beans.HL7V3Properties;
 import com.webreach.mirth.client.ui.beans.NCPDPProperties;
 import com.webreach.mirth.client.ui.beans.X12Properties;
+import com.webreach.mirth.client.ui.beans.XMLProperties;
 import com.webreach.mirth.client.ui.editors.BoundPropertiesSheetDialog;
 import com.webreach.mirth.client.ui.editors.MirthEditorPane;
 import com.webreach.mirth.client.ui.util.FileUtil;
@@ -477,10 +479,14 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             new BoundPropertiesSheetDialog(dataProperties, new X12Properties());
         else if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2)))
             new BoundPropertiesSheetDialog(dataProperties, new HL7Properties());
+        else if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V3)))
+            new BoundPropertiesSheetDialog(dataProperties, new HL7V3Properties());
         else if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.NCPDP)))
             new BoundPropertiesSheetDialog(dataProperties, new NCPDPProperties());
         else if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DELIMITED)))
         	new BoundPropertiesSheetDialog(dataProperties, new DelimitedProperties(), 550, 370);
+        else if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.XML)))
+        	new BoundPropertiesSheetDialog(dataProperties, new XMLProperties());
         updateText();
     }//GEN-LAST:event_propertiesActionPerformed
 
@@ -491,8 +497,10 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12)) ||
                 ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI)) ||
                 ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2)) ||
+                ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V3)) ||
                 ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.NCPDP)) ||
-                ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DELIMITED)))
+                ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DELIMITED)) ||
+                ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.XML)))
             properties.setEnabled(true);
         else
             properties.setEnabled(false);

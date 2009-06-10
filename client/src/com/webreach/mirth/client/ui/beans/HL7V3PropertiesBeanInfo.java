@@ -1,9 +1,3 @@
-/*
- * HL7PropertiesBeanInfo.java
- *
- * Created on March 8, 2007, 4:33 PM
- */
-
 package com.webreach.mirth.client.ui.beans;
 
 import java.beans.BeanDescriptor;
@@ -13,13 +7,13 @@ import java.beans.MethodDescriptor;
 import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
 
-public class HL7PropertiesBeanInfo extends SimpleBeanInfo
+public class HL7V3PropertiesBeanInfo extends SimpleBeanInfo
 {
     
     // Bean descriptor//GEN-FIRST:BeanDescriptor
     /*lazy BeanDescriptor*/
     private static BeanDescriptor getBdescriptor(){
-        BeanDescriptor beanDescriptor = new BeanDescriptor  ( com.webreach.mirth.client.ui.beans.HL7Properties.class , null ); // NOI18N//GEN-HEADEREND:BeanDescriptor
+        BeanDescriptor beanDescriptor = new BeanDescriptor  ( com.webreach.mirth.client.ui.beans.HL7V3Properties.class , null ); // NOI18N//GEN-HEADEREND:BeanDescriptor
         
         // Here you can add code for customizing the BeanDescriptor.
         
@@ -27,37 +21,18 @@ public class HL7PropertiesBeanInfo extends SimpleBeanInfo
     
     
     // Property identifiers//GEN-FIRST:Properties
-    private static final int PROPERTY_handleRepetitions = 0;
-    private static final int PROPERTY_useStrictParser = 1;
-    private static final int PROPERTY_useStrictValidation = 2;
-    private static final int PROPERTY_stripNamespaces = 3;
-    private static final int PROPERTY_convertLFtoCR = 4;
+    private static final int PROPERTY_stripNamespaces = 0;
+
     // Property array 
     /*lazy PropertyDescriptor*/
     private static PropertyDescriptor[] getPdescriptor(){
-        PropertyDescriptor[] properties = new PropertyDescriptor[5];
+        PropertyDescriptor[] properties = new PropertyDescriptor[1];
     
         try {
-            properties[PROPERTY_handleRepetitions] = new PropertyDescriptor ( "handleRepetitions", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isHandleRepetitions", "setHandleRepetitions" ); // NOI18N
-            properties[PROPERTY_handleRepetitions].setDisplayName ( "Handle Repetitions" );
-            properties[PROPERTY_handleRepetitions].setShortDescription ( "Handle repetition characters (applies to Non-Strict Parser only)." );
-            properties[PROPERTY_handleRepetitions].setBound ( true );
-            properties[PROPERTY_useStrictParser] = new PropertyDescriptor ( "useStrictParser", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isUseStrictParser", "setUseStrictParser" ); // NOI18N
-            properties[PROPERTY_useStrictParser].setDisplayName ( "Use Strict Parser" );
-            properties[PROPERTY_useStrictParser].setShortDescription ( "Parse messages based upon strict HL7 specifications." );
-            properties[PROPERTY_useStrictParser].setBound ( true );
-            properties[PROPERTY_useStrictValidation] = new PropertyDescriptor ( "useStrictValidation", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isUseStrictValidation", "setUseStrictValidation" ); // NOI18N
-            properties[PROPERTY_useStrictValidation].setDisplayName ( "Validate in Strict Parser" );
-            properties[PROPERTY_useStrictValidation].setShortDescription ( "Validate messages using HL7 specifications (applies to Strict Parser only)." );
-            properties[PROPERTY_useStrictValidation].setBound ( true );
-            properties[PROPERTY_stripNamespaces] = new PropertyDescriptor ( "stripNamespaces", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isStripNamespaces", "setStripNamespaces" ); // NOI18N
+            properties[PROPERTY_stripNamespaces] = new PropertyDescriptor ( "stripNamespaces", com.webreach.mirth.client.ui.beans.HL7V3Properties.class, "isStripNamespaces", "setStripNamespaces" ); // NOI18N
             properties[PROPERTY_stripNamespaces].setDisplayName ( "Strip Namespaces" );
-            properties[PROPERTY_stripNamespaces].setShortDescription ( "Strips namespace definitions from the transformed XML message (applies to Strict Parser only).  Will not remove namespace prefixes.  If you do not strip namespaces your default xml namespace will be set to the incoming data namespace.  If your outbound template namespace is different, you will have to set \"default xml namespace = 'namespace';\" via JavaScript before template mappings." );
+            properties[PROPERTY_stripNamespaces].setShortDescription ( "Strips namespace definitions from the transformed XML message.  Will not remove namespace prefixes.  If you do not strip namespaces your default xml namespace will be set to the incoming data namespace.  If your outbound template namespace is different, you will have to set \"default xml namespace = 'namespace';\" via JavaScript before template mappings." );
             properties[PROPERTY_stripNamespaces].setBound ( true );
-            properties[PROPERTY_convertLFtoCR] = new PropertyDescriptor ( "convertLFtoCR", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isConvertLFtoCR", "setConvertLFtoCR" ); // NOI18N
-            properties[PROPERTY_convertLFtoCR].setDisplayName ( "Convert LF to CR" );
-            properties[PROPERTY_convertLFtoCR].setShortDescription ( "Convert linefeeds (\\n) to carriage returns (\\r) automatically (applies to Non-Strict Parser only)." );
-            properties[PROPERTY_convertLFtoCR].setBound ( true );
         }
         catch(IntrospectionException e) {
             e.printStackTrace();

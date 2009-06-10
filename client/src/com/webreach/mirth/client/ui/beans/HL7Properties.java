@@ -9,9 +9,6 @@ package com.webreach.mirth.client.ui.beans;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 
-/**
- * @author brendanh
- */
 public class HL7Properties implements Serializable
 {
     
@@ -67,7 +64,30 @@ public class HL7Properties implements Serializable
     public void setUseStrictValidation(boolean useStrictValidation) {
         this.useStrictValidation = useStrictValidation;
     }
+    
+    /**
+     * Holds value of property stripNamespaces.
+     */
+    private boolean stripNamespaces = true;
 
+    /**
+     * Getter for property stripNamespaces.
+     * @return Value of property stripNamespaces.
+     */
+    public boolean isStripNamespaces()
+    {
+        return this.stripNamespaces;
+    }
+
+    /**
+     * Setter for property stripNamespaces.
+     * @param stripNamespaces New value of property stripNamespaces.
+     */
+    public void setStripNamespaces(boolean stripNamespaces)
+    {
+        this.stripNamespaces = stripNamespaces;
+    }
+    
     /**
      * Holds value of property handleRepetitions.
      */
