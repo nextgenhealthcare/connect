@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -150,7 +152,7 @@ public class FilePersistenceStrategy implements QueuePersistenceStrategy
 
     protected void restoreFiles(File dir, List msgs) throws IOException, ClassNotFoundException
     {
-        File[] files = dir.listFiles();
+        File[] files = dirListByAscendingDate(dir); 
         for (int i = 0; i < files.length; i++) {
             if (files[i].isDirectory()) {
                 restoreFiles(files[i], msgs);
@@ -163,6 +165,19 @@ public class FilePersistenceStrategy implements QueuePersistenceStrategy
             }
         }
     }
+    
+    private File[] dirListByAscendingDate(File folder) {
+    	File files[] = folder.listFiles();
+    	if (files == null) {
+    		return null;
+    	}
+    	Arrays.sort(files, new Comparator<File>() {
+    		public int compare(final File o1, final File o2) {
+    			return new Long(o1.lastModified()).compareTo(new Long(o2.lastModified()));
+    		}
+    	});
+        return files;
+      } 
 
     /*
      * (non-Javadoc)
