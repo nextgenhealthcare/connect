@@ -174,6 +174,12 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 								try {
 									thePayload = queue.peek();
 									
+									// Remove a null queued message (blank file)
+									if (thePayload == null) {
+										queue.poll(getPollMaxTime());
+										continue;
+									}
+									
 									if(thePayload instanceof MessageObject) { 
 										MessageObject messageObject = (MessageObject)thePayload;
 										messageObjectController.setError(messageObject, getConnectorErrorCode(), "Unsupported message format in queue.", new Exception("Unsupported message format in queue.  Removing message from the queue.  Reprocessing this message will fix this problem."), null);
@@ -182,6 +188,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 									} else {
 										theMessage = (QueuedMessage) thePayload;
 										
+										// Remove a queued message with a null message object
 										if(theMessage.getMessageObject() == null) { 
 											queue.poll(getPollMaxTime());
 											continue;
