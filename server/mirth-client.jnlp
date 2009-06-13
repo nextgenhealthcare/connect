@@ -5,7 +5,7 @@
 		<homepage href="http://www.mirthcorp.com" />
 		<description>Open Source Healthcare Integration Engine</description>
 		
-		<icon href="mirth_64_ico.png" />
+		<icon href="mirth_128_ico.png" />
 
 		<shortcut online="true">
             <!-- put a shortcut on the desktop -->
