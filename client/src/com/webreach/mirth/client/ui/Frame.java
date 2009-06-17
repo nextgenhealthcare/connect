@@ -899,7 +899,7 @@ public class Frame extends JXFrame
         otherPane.setTitle("Other");
         otherPane.setFocusable(false);
         addTask("doHelp", "Help on this topic", "Open browser for help on this topic.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/help.png")), otherPane, null);
-        addTask("goToAbout", "About Mirth", "View the about page for Mirth.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/about.png")), otherPane, null);
+        addTask("goToAbout", "About Mirth Connect", "View the about page for Mirth Connect.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/about.png")), otherPane, null);
         addTask("goToMirth", "Visit mirthcorp.com", "View Mirth's homepage.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/home.png")), otherPane, null);
         addTask("doReportIssue", "Report Issue", "Visit Mirth's issue tracker.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bug.png")), otherPane, null);
         addTask("doLogout", "Logout", "Logout and return to the login screen.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/disconnect.png")), otherPane, null);
