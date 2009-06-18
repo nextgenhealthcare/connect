@@ -153,6 +153,12 @@ public class DefaultConfigurationController extends ConfigurationController{
         // update.url
         String updateUrl = serverProperties.getProperty("update.url");
         
+        // migrate old update url
+        if ((updateUrl != null) && (updateUrl.equalsIgnoreCase("http://updates.mirthproject.org"))) {
+            serverProperties.setProperty("update.url", "http://updates.mirthcorp.com");
+        }
+        
+        // set new update url
         if ((updateUrl == null) || (updateUrl.length() == 0)) {
             serverProperties.setProperty("update.url", "http://updates.mirthcorp.com");
         }
