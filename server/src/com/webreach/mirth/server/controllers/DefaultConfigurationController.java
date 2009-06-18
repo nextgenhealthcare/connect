@@ -178,13 +178,18 @@ public class DefaultConfigurationController extends ConfigurationController{
             serverProperties.setProperty("firstlogin", "1");
         }
 
-        // server.resetglobalvariables
+        // Check for the old "clearGlobal" property and migrate it.
         String clearGlobal = serverProperties.getProperty("clearGlobal");
-        
+                
         if ((clearGlobal != null) && (clearGlobal.length() > 0)) {
             serverProperties.setProperty("server.resetglobalvariables", clearGlobal);
             serverProperties.remove("clearGlobal");
-        } else {
+        }
+        
+        // server.resetglobalvariables
+        String resetGlobalVariables = serverProperties.getProperty("server.resetglobalvariables");
+        
+        if ((resetGlobalVariables == null) || (resetGlobalVariables.length() == 0)) {
             serverProperties.setProperty("server.resetglobalvariables", "1");
         }
 
