@@ -1,9 +1,9 @@
 <pluginMetaData path="dashboardstatus">
 	<name>Dashboard Connector Status Monitor</name>
-	<author>WebReach, Inc.</author>
+	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>1.8.1</mirthVersion>
-	<url>http://www.webreachinc.com</url>
+	<url>http://www.mirthcorp.com</url>
 	<description>This plugin provides a real-time connection status column on the Mirth client</description>
 	<enabled>true</enabled>
 	<extensionPoint>

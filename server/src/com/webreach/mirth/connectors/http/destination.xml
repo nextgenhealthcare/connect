@@ -1,9 +1,9 @@
 <connectorMetaData path="http">
 	<name>HTTP Sender</name>
-	<author>WebReach, Inc.</author>
+	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>1.8.1</mirthVersion>
-	<url>http://www.webreachinc.com</url>
+	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to send messages to an HTTP server. Custom header properties can be specified.</description>
 	<clientClassName>com.webreach.mirth.connectors.http.HTTPSender</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.http.HttpConnector</serverClassName>

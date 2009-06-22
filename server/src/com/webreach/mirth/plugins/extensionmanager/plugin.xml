@@ -1,9 +1,9 @@
 <pluginMetaData path="extensionmanager">
 	<name>Extension Manager</name>
-	<author>WebReach, Inc.</author>
+	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>1.8.1</mirthVersion>
-	<url>http://www.webreachinc.com</url>
+	<url>http://www.mirthcorp.com</url>
 	<description>This plugin provides a GUI to manager, install and update Mirth extensions</description>
 	<enabled>true</enabled>
 	<extensionPoint>

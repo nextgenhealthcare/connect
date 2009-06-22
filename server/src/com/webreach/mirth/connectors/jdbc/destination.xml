@@ -1,9 +1,9 @@
 <connectorMetaData path="jdbc">
 	<name>Database Writer</name>
-	<author>WebReach, Inc.</author>
+	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>1.8.1</mirthVersion>
-	<url>http://www.webreachinc.com</url>
+	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to write to any JDBC-compatabile database with Insert, Update or JavaScript statements.</description>
 	<clientClassName>com.webreach.mirth.connectors.jdbc.DatabaseWriter</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.jdbc.JdbcConnector</serverClassName>

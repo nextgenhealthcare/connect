@@ -1,9 +1,9 @@
 <connectorMetaData path="email">
 	<name>Email Sender</name>
-	<author>WebReach, Inc.</author>
+	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>1.8.1</mirthVersion>
-	<url>http://www.webreachinc.com</url>
+	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to send Email messages via SMTP. The velocity template engine is available to dynamically create messages.</description>
 	<clientClassName>com.webreach.mirth.connectors.email.EmailSender</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.email.SmtpConnector</serverClassName>

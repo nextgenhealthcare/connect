@@ -1,9 +1,9 @@
 <connectorMetaData path="js">
 	<name>JavaScript Reader</name>
-	<author>WebReach, Inc.</author>
+	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>1.8.1</mirthVersion>
-	<url>http://www.webreachinc.com</url>
+	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to execute arbitrary JavaScript to pull in messages to a channel.</description>
 	<clientClassName>com.webreach.mirth.connectors.js.JavaScriptReader</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.js.JavaScriptConnector</serverClassName>

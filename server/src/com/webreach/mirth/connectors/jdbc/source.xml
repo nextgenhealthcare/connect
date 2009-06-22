@@ -1,9 +1,9 @@
 <connectorMetaData path="jdbc">
 	<name>Database Reader</name>
-	<author>WebReach, Inc.</author>
+	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>1.8.1</mirthVersion>
-	<url>http://www.webreachinc.com</url>
+	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to poll any supported JDBC-compatabile database for data. Rows are returned as XML and JavaScript can be used for advanced logic.</description>
 	<clientClassName>com.webreach.mirth.connectors.jdbc.DatabaseReader</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.jdbc.JdbcConnector</serverClassName>

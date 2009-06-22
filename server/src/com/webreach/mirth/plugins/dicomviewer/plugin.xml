@@ -1,9 +1,9 @@
 <pluginMetaData path="dicomviewer">
 	<name>DICOM Viewer</name>
-	<author>WebReach, Inc.</author>
+	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>1.8.1</mirthVersion>
-	<url>http://www.webreachinc.com</url>
+	<url>http://www.mirthcorp.com</url>
 	<description>This plugin provides DICOM attachment viewing capability in message browser.</description>
 	<enabled>true</enabled>
 	<extensionPoint>

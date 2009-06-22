@@ -1,9 +1,9 @@
 <pluginMetaData path="rulebuilder">
 	<name>Rule Builder Filter Rule</name>
-	<author>WebReach, Inc.</author>
+	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>1.8.1</mirthVersion>
-	<url>http://www.webreachinc.com</url>
+	<url>http://www.mirthcorp.com</url>
 	<description>This plugin provides a Rule Builder type for Mirth filters.</description>
 	<enabled>true</enabled>
 	<extensionPoint>

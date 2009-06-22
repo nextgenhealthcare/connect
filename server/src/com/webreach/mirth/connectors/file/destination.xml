@@ -1,9 +1,9 @@
 <connectorMetaData path="file">
 	<name>File Writer</name>
-	<author>WebReach, Inc.</author>
+	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
 	<mirthVersion>1.8.1</mirthVersion>
-	<url>http://www.webreachinc.com</url>
+	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to write files to a local or network file system. A velocity template is available to dynamically generate files.</description>
 	<clientClassName>com.webreach.mirth.connectors.file.FileWriter</clientClassName>
 	<serverClassName>com.webreach.mirth.connectors.file.FileConnector</serverClassName>
