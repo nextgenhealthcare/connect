@@ -375,5 +375,15 @@ public class DatabaseConnection {
             DatabaseUtil.close(statement);
         }
     }
+    
+    /**
+     * Returns the database connection (java.sql.Connection) this
+     * class is using.
+     * 
+     * @return connection
+     */
+    public Connection getConnection() {
+    	return this.connection;
+    }
 
 }
