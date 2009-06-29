@@ -147,9 +147,9 @@ public class DatabaseConnection {
             logger.debug("executing update:\n" + expression);
             boolean results = statement.execute(expression);
             if (results) {
-                return 1;
+                return -1;
             } else {
-                return 0;
+                return statement.getUpdateCount();
             }
         } catch (SQLException e) {
             throw e;
@@ -186,9 +186,9 @@ public class DatabaseConnection {
 
             boolean results = statement.execute();
             if (results) {
-                return 1;
+                return -1;
             } else {
-                return 0;
+            	return statement.getUpdateCount();
             }
         } catch (SQLException e) {
             throw e;
