@@ -273,7 +273,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 				}
 			}
 		} catch (IOException e) {
-			logger.warn("Write raised exception: '" + e.getMessage() + "' attempting to reconnect.");
+			logger.warn("Can't connect to the queued endpoint: " + channelController.getChannelName(connector.getChannelId()) + " - " + channelController.getDestinationName(connector.getName()) + " \r\n'" + e.getMessage() + "' attempting to reconnect.");
 			try {
 				if (socket != null) {
 					monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED, socket);
@@ -290,7 +290,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 			} catch (InterruptedException ie) {
 				throw ie;
 			} catch (Exception ers) {
-				logger.warn("Write raised exception: '" + e.getMessage() + "' ceasing reconnecting.");
+				logger.warn("Can't connect to the queued endpoint: " + channelController.getChannelName(connector.getChannelId()) + " - " + channelController.getDestinationName(connector.getName()) + " \r\n'" + e.getMessage() + "' ceasing reconnecting.");
 				sendException = ers;
 			}
 		} catch (Exception e) {
