@@ -364,17 +364,47 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
         try {
         	int totalRowCount = 0;
-        	int rowCount;
+        	int rowCount = 0;
         	do { 
         		Map parameterMap = getFilterMap(filter, null);
         		parameterMap.put("limit", limit);
-        		rowCount = SqlConfig.getSqlMapClient().delete("Message.pruneMessages", parameterMap);
+        		
+        		// Retry blocks of pruning if they fail in case of deadlocks
+        		int retryCount = 0;
+        		do {
+        			try {
+        				rowCount = SqlConfig.getSqlMapClient().delete("Message.pruneMessages", parameterMap);
+        				retryCount = 0;
+        			} catch (Exception e) {
+        				if (retryCount < 10) {
+	        				logger.error("Could not prune messages, retry count: " + retryCount, e);
+	        				retryCount++;
+        				} else {
+        					throw e;  // Quit trying to prune after 10 failures
+        				}
+        			}
+        		} while (retryCount > 0);
+        		
         		totalRowCount += rowCount;
         		Thread.sleep(100);
         	} while(rowCount > 0);
         	
-            SqlConfig.getSqlMapClient().delete("Message.deleteUnusedAttachments");
-            
+    		// Retry attachment pruning if it fails in case of deadlocks
+    		int retryCount = 0;
+    		do {
+    			try {
+    				SqlConfig.getSqlMapClient().delete("Message.deleteUnusedAttachments");
+    				retryCount = 0;
+    			} catch (Exception e) {
+    				if (retryCount < 10) {
+        				logger.error("Could not prune attachments, retry count: " + retryCount, e);
+        				retryCount++;
+    				} else {
+    					throw e;  // Quit trying to prune after 10 failures
+    				}
+    			}
+    		} while (retryCount > 0);
+        	
             if (DatabaseUtil.statementExists("Message.vacuumMessageTable")) {
                 SqlConfig.getSqlMapClient().update("Message.vacuumMessageTable");
             }
