@@ -115,8 +115,8 @@ public class JavaScriptConnector extends AbstractServiceEnabledConnector {
 			logger.error("Could not get user functions.", e);
 		}
 		
-		script.append("function doScript() {");
-		script.append(scriptString + "}\n");
+		script.append("function doScript() {\n");
+		script.append(scriptString + "\n}\n");
 		script.append("doScript()\n");
 		return script.toString();
 	}
