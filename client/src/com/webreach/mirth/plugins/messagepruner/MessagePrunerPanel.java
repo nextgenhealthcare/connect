@@ -20,15 +20,10 @@ import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.RefreshTableModel;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
-import com.webreach.mirth.client.ui.components.MirthRadioButton;
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.client.ui.components.MirthTimePicker;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 
-/**
- *
- * @author  brendanh
- */
 public class MessagePrunerPanel extends javax.swing.JPanel
 {
     private final String NAME_COLUMN_NAME = "Channel";
