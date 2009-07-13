@@ -40,7 +40,7 @@ public class MessagePrunerService implements ServerPlugin, Job {
 	private static LinkedList<String[]> log;
 	private static final int LOG_SIZE = 250;
 	private static boolean allowBatchPruning;
-	private static final int PRUNER_LIMIT = 1000;
+	private static int pruningBlockSize;
 	
 	public void init(Properties properties) {
 		jobDetail = new JobDetail("prunerJob", Scheduler.DEFAULT_GROUP, MessagePrunerService.class);
@@ -50,6 +50,12 @@ public class MessagePrunerService implements ServerPlugin, Job {
 				allowBatchPruning = true;
 			} else {
 				allowBatchPruning = false;
+			}
+			
+			if (properties.getProperty("pruningBlockSize") != null && !properties.getProperty("pruningBlockSize").equals("")) {
+				pruningBlockSize = Integer.parseInt(properties.getProperty("pruningBlockSize"));
+			} else {
+				pruningBlockSize = 1000;
 			}
 
 			schedFact = new StdSchedulerFactory();
@@ -122,6 +128,13 @@ public class MessagePrunerService implements ServerPlugin, Job {
 			} else {
 				allowBatchPruning = false;
 			}
+			
+			if (properties.getProperty("pruningBlockSize") != null && !properties.getProperty("pruningBlockSize").equals("")) {
+				pruningBlockSize = Integer.parseInt(properties.getProperty("pruningBlockSize"));
+			} else {
+				pruningBlockSize = 1000;
+			}
+			
 			sched.deleteJob("prunerJob", Scheduler.DEFAULT_GROUP);
 			sched.scheduleJob(jobDetail, createTrigger(properties));
 
@@ -164,6 +177,7 @@ public class MessagePrunerService implements ServerPlugin, Job {
 		properties.put("interval", "daily");
 		properties.put("time", "12:00 AM");
 		properties.put("allowBatchPruning", "1");
+		properties.put("pruningBlockSize", "1000");
 		return properties;
 	}
 
@@ -243,7 +257,7 @@ public class MessagePrunerService implements ServerPlugin, Job {
 				filter.setEndDate(endDate);
 				filter.setIgnoreQueued(true);
 
-				int result = ControllerFactory.getFactory().createMessageObjectController().pruneMessages(filter, PRUNER_LIMIT);
+				int result = ControllerFactory.getFactory().createMessageObjectController().pruneMessages(filter, pruningBlockSize);
 
 				Calendar calendar = Calendar.getInstance();
 				calendar.setTime(calendar.getTime());
