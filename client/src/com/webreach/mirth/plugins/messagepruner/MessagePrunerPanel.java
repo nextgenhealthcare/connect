@@ -19,6 +19,7 @@ import com.webreach.mirth.client.ui.Mirth;
 import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.client.ui.RefreshTableModel;
 import com.webreach.mirth.client.ui.UIConstants;
+import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.components.MirthRadioButton;
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.client.ui.components.MirthTimePicker;
@@ -42,6 +43,7 @@ public class MessagePrunerPanel extends javax.swing.JPanel
     public MessagePrunerPanel()
     {
         initComponents();
+        pruningBlockSizeField.setDocument(new MirthFieldConstraints(0, false, false, true));
         makeLogTable();
     }
     
@@ -78,6 +80,12 @@ public class MessagePrunerPanel extends javax.swing.JPanel
         } else { 
             batchNo.setSelected(true);
         }
+
+        if(properties.getProperty("pruningBlockSize") != null && !properties.getProperty("pruningBlockSize").equals("")) {
+            pruningBlockSizeField.setText(properties.getProperty("pruningBlockSize"));
+        } else {
+            pruningBlockSizeField.setText("1000");
+        }
         
         updateTable(log);
     }
@@ -113,6 +121,11 @@ public class MessagePrunerPanel extends javax.swing.JPanel
         } else { 
             properties.put("allowBatchPruning", UIConstants.NO_OPTION);
         }
+
+        if (pruningBlockSizeField.getText().equals("")) {
+        	pruningBlockSizeField.setText("1000");
+        }
+        properties.put("pruningBlockSize", pruningBlockSizeField.getText());
             
         return properties;
     }
@@ -218,6 +231,8 @@ public class MessagePrunerPanel extends javax.swing.JPanel
         batchYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         jLabel2 = new javax.swing.JLabel();
         batchNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        pruningBlockSizeLabel = new javax.swing.JLabel();
+        pruningBlockSizeField = new com.webreach.mirth.client.ui.components.MirthTextField();
         jPanel2 = new javax.swing.JPanel();
         logPane = new javax.swing.JScrollPane();
         logTable = null;
@@ -311,6 +326,8 @@ public class MessagePrunerPanel extends javax.swing.JPanel
             }
         });
 
+        pruningBlockSizeLabel.setText("Pruning Block Size:");
+
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -347,11 +364,16 @@ public class MessagePrunerPanel extends javax.swing.JPanel
                                     .add(timeOfDayMonthly, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                             .add(timeOfDayLabel)))
                     .add(jPanel1Layout.createSequentialGroup()
-                        .add(jLabel2)
+                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, pruningBlockSizeLabel)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(batchYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(batchNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(jPanel1Layout.createSequentialGroup()
+                                .add(batchYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(batchNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(pruningBlockSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(12, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -393,6 +415,10 @@ public class MessagePrunerPanel extends javax.swing.JPanel
                     .add(jLabel2)
                     .add(batchYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(batchNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(pruningBlockSizeLabel)
+                    .add(pruningBlockSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -539,6 +565,8 @@ private void batchNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST
     private com.webreach.mirth.client.ui.components.MirthTable logTable;
     private com.webreach.mirth.client.ui.components.MirthRadioButton monthButton;
     private javax.swing.JLabel monthlyAtLabel;
+    private com.webreach.mirth.client.ui.components.MirthTextField pruningBlockSizeField;
+    private javax.swing.JLabel pruningBlockSizeLabel;
     private com.webreach.mirth.client.ui.components.MirthTimePicker timeOfDay;
     private javax.swing.JLabel timeOfDayLabel;
     private com.webreach.mirth.client.ui.components.MirthTimePicker timeOfDayMonthly;
