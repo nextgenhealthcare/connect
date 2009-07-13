@@ -301,6 +301,7 @@ public class MessagePrunerPanel extends javax.swing.JPanel
         batchYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup2.add(batchYes);
         batchYes.setText("Yes");
+        batchYes.setToolTipText("Turning batch pruning on increases message pruning performance by allowing channels with the same pruning settings to be pruned in one delete.");
         batchYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
         batchYes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -314,6 +315,7 @@ public class MessagePrunerPanel extends javax.swing.JPanel
         batchNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup2.add(batchNo);
         batchNo.setText("No");
+        batchNo.setToolTipText("Turning batch pruning off decreases message pruning performance, but displays how many messages are pruned from each individual channel.");
         batchNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
         batchNo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -322,6 +324,8 @@ public class MessagePrunerPanel extends javax.swing.JPanel
         });
 
         pruningBlockSizeLabel.setText("Pruning Block Size:");
+
+        pruningBlockSizeField.setToolTipText("The number of messages to be pruned in each delete block. Increase this size for high performance systems with large message volumes.");
 
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);

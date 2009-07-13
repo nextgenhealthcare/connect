@@ -351,6 +351,7 @@
               <ComponentRef name="buttonGroup2"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Yes"/>
+            <Property name="toolTipText" type="java.lang.String" value="Turning batch pruning on increases message pruning performance by allowing channels with the same pruning settings to be pruned in one delete."/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -378,6 +379,7 @@
               <ComponentRef name="buttonGroup2"/>
             </Property>
             <Property name="text" type="java.lang.String" value="No"/>
+            <Property name="toolTipText" type="java.lang.String" value="Turning batch pruning off decreases message pruning performance, but displays how many messages are pruned from each individual channel."/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -392,6 +394,9 @@
           </Properties>
         </Component>
         <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="pruningBlockSizeField">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" value="The number of messages to be pruned in each delete block. Increase this size for high performance systems with large message volumes."/>
+          </Properties>
         </Component>
       </SubComponents>
     </Container>
