@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>MFDMFA</name>
+    <description>None</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MFI</segment>
+        <segment minOccurs="0">MFA</segment>
+    </segments>
+</message>

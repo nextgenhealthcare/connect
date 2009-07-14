@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>ED</name>
+    <description>Encapsulated Data</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ED.1</name>
+            <description>Source Application</description>
+            <datatype>HD</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ED.2</name>
+            <description>Type of Data</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ED.3</name>
+            <description>Data Subtype</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ED.4</name>
+            <description>Encoding</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>ED.5</name>
+            <description>Data</description>
+            <datatype>TX</datatype>
+        </field>
+    </elements>
+</segment>

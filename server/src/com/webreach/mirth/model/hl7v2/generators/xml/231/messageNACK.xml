@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>NACK</name>
+    <description>Negative Acknowledgement</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0">ERR</segment>
+        <segment>MSA</segment>
+    </segments>
+</message>

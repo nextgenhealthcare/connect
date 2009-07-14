@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>CM0</name>
+    <description>Clinical Study Master</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CM0.1</name>
+            <description>Set ID</description>
+            <datatype>SI</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>CM0.2</name>
+            <description>Sponsor Study ID</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="3">
+            <name>CM0.3</name>
+            <description>Alternate Study ID</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>CM0.4</name>
+            <description>Title of Study</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CM0.5</name>
+            <description>Chairman of Study</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CM0.6</name>
+            <description>Last IRB Approval Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CM0.7</name>
+            <description>Total Accrual to Date</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CM0.8</name>
+            <description>Last Accrual Date</description>
+            <datatype>DT</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CM0.9</name>
+            <description>Contact for Study</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CM0.10</name>
+            <description>Contact's Tel. Number</description>
+            <datatype>XTN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CM0.11</name>
+            <description>Contact's Address</description>
+            <datatype>XAD</datatype>
+        </field>
+    </elements>
+</segment>

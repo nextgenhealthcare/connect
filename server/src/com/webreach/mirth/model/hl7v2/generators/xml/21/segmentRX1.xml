@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>RX1</name>
+    <description>No Description</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.1</name>
+            <description>Unused</description>
+            <datatype>UN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.2</name>
+            <description>Unused</description>
+            <datatype>UN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.3</name>
+            <description>Route</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.4</name>
+            <description>Site Administered</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.5</name>
+            <description>Iv Solution Rate</description>
+            <datatype>CQ</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.6</name>
+            <description>Drug Strength</description>
+            <datatype>CQ</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.7</name>
+            <description>Final Concentration</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.8</name>
+            <description>Final Volume In Ml.</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.9</name>
+            <description>Drug Dose</description>
+            <datatype>CM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.10</name>
+            <description>Drug Role</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.11</name>
+            <description>Prescription Sequence Num</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.12</name>
+            <description>Quantity Dispensed</description>
+            <datatype>CQ</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.13</name>
+            <description>Unused</description>
+            <datatype>UN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.14</name>
+            <description>Drug ID</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="5">
+            <name>RX1.15</name>
+            <description>Component Drug Ids</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.16</name>
+            <description>Prescription Type</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.17</name>
+            <description>Substitution Status</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.18</name>
+            <description>Rx Order Status</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.19</name>
+            <description>Number of Refills</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.20</name>
+            <description>Unused</description>
+            <datatype>UN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.21</name>
+            <description>Refills Remaining</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.22</name>
+            <description>Dea Class</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.23</name>
+            <description>Ordering Md's Dea Number</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.24</name>
+            <description>Unused</description>
+            <datatype>UN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.25</name>
+            <description>Last Refill Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.26</name>
+            <description>Rx Number</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RX1.27</name>
+            <description>Prn Status</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="5">
+            <name>RX1.28</name>
+            <description>Pharmacy Instructions</description>
+            <datatype>TX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="5">
+            <name>RX1.29</name>
+            <description>Patient Instruction</description>
+            <datatype>TX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>RX1.30</name>
+            <description>Instructions (Sig)</description>
+            <datatype>TX</datatype>
+        </field>
+    </elements>
+</segment>

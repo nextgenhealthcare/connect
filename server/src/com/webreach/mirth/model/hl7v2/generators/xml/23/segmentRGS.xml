@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>RGS</name>
+    <description>Resource Group</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>RGS.1</name>
+            <description>Set ID</description>
+            <datatype>SI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RGS.2</name>
+            <description>Segment Action Code</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RGS.3</name>
+            <description>Resource Group ID</description>
+            <datatype>CE</datatype>
+        </field>
+    </elements>
+</segment>

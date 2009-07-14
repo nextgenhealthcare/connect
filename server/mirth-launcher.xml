@@ -1,0 +1,9 @@
+<launcher>
+	<classpath base=".">
+		<lib path="mirth-server.jar" />
+		<lib path="lib/" />
+		<lib path="lib/jetty" />
+		<lib path="lib/mule" />
+		<lib path="lib/custom" />
+	</classpath>
+</launcher>

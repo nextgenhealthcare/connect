@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>IPC</name>
+    <description>Imaging Procedure Control Segment</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>IPC.1</name>
+            <description>Accession Identifier</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>IPC.2</name>
+            <description>Requested Procedure ID</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>IPC.3</name>
+            <description>Study Instance Uid</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>IPC.4</name>
+            <description>Scheduled Procedure Step ID</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IPC.5</name>
+            <description>Modality</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>IPC.6</name>
+            <description>Protocol Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IPC.7</name>
+            <description>Scheduled Station Name</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>IPC.8</name>
+            <description>Scheduled Procedure Step Location</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>IPC.9</name>
+            <description>Scheduled Ae Title</description>
+            <datatype>ST</datatype>
+        </field>
+    </elements>
+</segment>

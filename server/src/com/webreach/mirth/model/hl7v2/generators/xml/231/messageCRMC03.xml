@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>CRMC03</name>
+    <description>Correct/Update Registration Information</description>
+    <segments>
+        <segment>MSH</segment>
+        <group maxOccurs="unbounded">
+            <segment>PID</segment>
+            <segment minOccurs="0">PV1</segment>
+            <segment>CSR</segment>
+            <segment minOccurs="0">CSP</segment>
+        </group>
+    </segments>
+</message>

@@ -1,0 +1,13 @@
+package com.webreach.mirth.model.hl7v2.v${version}.composite;
+import com.webreach.mirth.model.hl7v2.*;
+
+public class _${name} extends Composite {
+	public _${name}(){
+		fields = new Class[]{${fields}};
+		repeats = new int[]{${repeats}};
+		required = new boolean[]{${required}};
+		fieldDescriptions = new String[]{${fieldDescriptions}};
+		description = "${description}";
+		name = "${name}";
+	}
+}
