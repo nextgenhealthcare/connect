@@ -762,19 +762,19 @@ private void emailFromFieldActionPerformed(java.awt.event.ActionEvent evt) {//GE
 }//GEN-LAST:event_emailFromFieldActionPerformed
 
 private void useAuthenticationYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useAuthenticationYesActionPerformed
-    emailUsernameLabel.setEnabled(false);
-    emailUsernameField.setEnabled(false);
-
-    emailPasswordLabel.setEnabled(false);
-    emailPasswordField.setEnabled(false);
-}//GEN-LAST:event_useAuthenticationYesActionPerformed
-
-private void useAuthenticationNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useAuthenticationNoActionPerformed
     emailUsernameLabel.setEnabled(true);
     emailUsernameField.setEnabled(true);
 
     emailPasswordLabel.setEnabled(true);
     emailPasswordField.setEnabled(true);
+}//GEN-LAST:event_useAuthenticationYesActionPerformed
+
+private void useAuthenticationNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useAuthenticationNoActionPerformed
+    emailUsernameLabel.setEnabled(false);
+    emailUsernameField.setEnabled(false);
+
+    emailPasswordLabel.setEnabled(false);
+    emailPasswordField.setEnabled(false);
 }//GEN-LAST:event_useAuthenticationNoActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
