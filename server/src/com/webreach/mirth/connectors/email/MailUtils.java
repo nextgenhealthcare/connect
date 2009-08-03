@@ -79,7 +79,7 @@ public class MailUtils
         }
         
         Session session;
-        if (url.getPassword() != null) {
+        if (connector.isUseAuthentication()) {
             props.put("mail." + protocol + ".auth", "true");
             Authenticator auth = connector.getAuthenticator();
             if(auth==null) {

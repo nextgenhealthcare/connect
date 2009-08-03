@@ -52,6 +52,7 @@ public class Pop3Connector extends AbstractServiceEnabledConnector implements Ma
 	private String port = DEFAULT_POP3_PORT;
 
 	private String channelId;
+	private boolean useAuthentication;
 
 	public String getChannelId() {
 		return this.channelId;
@@ -141,5 +142,15 @@ public class Pop3Connector extends AbstractServiceEnabledConnector implements Ma
     public String getEmailSecure() {
         return "none";
     }
+
+    public boolean isUseAuthentication() {
+        return useAuthentication;
+    }
+
+    public void setUseAuthentication(boolean useAuthentication) {
+        this.useAuthentication = useAuthentication;
+    }
+    
+    
 
 }

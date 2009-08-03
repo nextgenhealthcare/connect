@@ -120,6 +120,7 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
     private List attachmentNames = null;
     private List attachmentContents = null;
     private List attachmentTypes = null;
+    private boolean useAuthentication;
 
     public SmtpConnector() throws InitialisationException
     {
@@ -459,4 +460,12 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
 	public String getEmailSecure() {
 		return emailSecure;
 	}
+    public boolean isUseAuthentication() {
+        return useAuthentication;
+    }
+    public void setUseAuthentication(boolean useAuthentication) {
+        this.useAuthentication = useAuthentication;
+    }
+	
+	
 }

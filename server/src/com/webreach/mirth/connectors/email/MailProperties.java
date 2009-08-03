@@ -29,4 +29,5 @@ public interface MailProperties {
     public static final String SUBJECT_PROPERTY = "subject";
     public static final String CUSTOM_HEADERS_MAP_PROPERTY = "customHeaders";
     public static final String SENT_DATE_PROPERTY = "sentDate";
+    public static final String USE_AUTHENTICATION = "useAuthentication";
 }

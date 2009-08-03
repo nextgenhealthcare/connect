@@ -26,4 +26,6 @@ public interface MailConnector extends UMOConnector
     public String getPort();
     
     public String getEmailSecure();
+    
+    public boolean isUseAuthentication();
 }
