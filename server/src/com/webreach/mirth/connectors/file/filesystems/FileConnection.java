@@ -119,12 +119,12 @@ public class FileConnection implements FileSystemConnection {
 	
 	public boolean canRead(String readDir) {
 	    File readDirectory = new File(readDir);
-	    return readDirectory.canRead();
+	    return readDirectory.isDirectory() && readDirectory.canRead();
 	}
 	
 	public boolean canWrite(String writeDir) {
-        File readDirectory = new File(writeDir);
-        return readDirectory.canWrite();
+        File writeDirectory = new File(writeDir);
+        return writeDirectory.isDirectory() && writeDirectory.canWrite();
 	}
 
 	public InputStream readFile(String file, String fromDir)
