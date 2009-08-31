@@ -7,6 +7,7 @@ import org.dcm4che2.net.UserIdentity;
 import org.dcm4che2.net.pdu.AAssociateRJ;
 import org.dcm4che2.tool.dcmsnd.DcmSnd;
 import org.mule.providers.AbstractMessageDispatcher;
+import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
@@ -32,7 +33,7 @@ public class DICOMMessageDispatcher extends AbstractMessageDispatcher {
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
 	private MonitoringController.ConnectorType connectorType = MonitoringController.ConnectorType.SENDER;
 	private AlertController alertController = ControllerFactory.getFactory().createAlertController();
-    
+	private TemplateValueReplacer replacer = new TemplateValueReplacer();
         private HashMap as2ts = new HashMap();
  
     public DICOMMessageDispatcher(DICOMConnector connector) {
@@ -46,14 +47,15 @@ public class DICOMMessageDispatcher extends AbstractMessageDispatcher {
         // do sending logic
         System.out.println("DICOMMEssageDispatcher doSend");
         monitoringController.updateStatus(connector, connectorType, MonitoringController.Event.BUSY);        
-        MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);        
-		String data = messageObject.getEncodedData();
+        MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
+        DICOMConnector dicomConnector = (DICOMConnector) connector;
+        String template = replacer.replaceValues(dicomConnector.getTemplate(), messageObject);
         File tempFile = File.createTempFile("temp","tmp");
-        FileUtil.write(tempFile.getAbsolutePath(),false,FileUtil.decode(data));
+        FileUtil.write(tempFile.getAbsolutePath(),false,FileUtil.decode(template));
         if (messageObject == null) {
 			return null;
 		}
-        DICOMConnector dicomConnector = (DICOMConnector) connector;
+
         UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
 
         DcmSnd dcmSnd = new DcmSnd();
