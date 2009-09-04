@@ -135,7 +135,7 @@ public class DefaultExtensionController extends ExtensionController {
                     }
                 }
             } catch (Exception e) {
-                logger.error(e);
+                logger.error("Error initializing extensions.", e);
             }
         }
     }

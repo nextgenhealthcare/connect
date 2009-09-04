@@ -475,6 +475,12 @@ public class MuleConfigurationBuilder {
 				keysOfValuesThatAreLists.add("attachmentNames");
 				keysOfValuesThatAreLists.add("attachmentContents");
 				keysOfValuesThatAreLists.add("attachmentTypes");
+				
+				keysOfValuesThatAreLists.add("requestParamsName");
+				keysOfValuesThatAreLists.add("requestParamsKey");
+				keysOfValuesThatAreLists.add("requestParamsValue");
+				keysOfValuesThatAreLists.add("assertionParamsKey");
+				keysOfValuesThatAreLists.add("assertionParamsValue");
 
 				// only add non-null, non-empty, non-Mule properties to the list
 				// the getProperties method could not be used since this is a
