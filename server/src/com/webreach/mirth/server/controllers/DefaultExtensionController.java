@@ -177,7 +177,7 @@ public class DefaultExtensionController extends ExtensionController {
     }
 
     public Object invokeConnectorService(String name, String method, Object object, String sessionsId) throws Exception {
-        ConnectorMetaData connectorMetaData = (ConnectorMetaData) connectors.get(name);
+        ConnectorMetaData connectorMetaData = connectors.get(name);
 
         if (connectorMetaData.getServiceClassName() != null) {
             ConnectorService connectorService = (ConnectorService) Class.forName(connectorMetaData.getServiceClassName()).newInstance();

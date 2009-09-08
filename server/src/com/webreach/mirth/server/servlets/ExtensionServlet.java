@@ -117,13 +117,13 @@ public class ExtensionServlet extends MirthServlet {
 				} else if (operation.equals("invoke")) {
 					String name = request.getParameter("name");
 					String method = request.getParameter("method");
-					Object object = (Object) serializer.fromXML(request.getParameter("object"));
+					Object object = serializer.fromXML(request.getParameter("object"));
 					String sessionId = request.getSession().getId();
 					out.println(serializer.toXML(extensionController.invoke(name, method, object, sessionId)));
 				} else if (operation.equals("invokeConnectorService")) {
 					String name = request.getParameter("name");
 					String method = request.getParameter("method");
-					Object object = (Object) serializer.fromXML(request.getParameter("object"));
+					Object object = serializer.fromXML(request.getParameter("object"));
 					String sessionId = request.getSession().getId();
 					out.println(serializer.toXML(extensionController.invokeConnectorService(name, method, object, sessionId)));
 				} else if (operation.equals("uninstallExtension")) {

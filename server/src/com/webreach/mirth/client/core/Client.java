@@ -297,7 +297,7 @@ public class Client {
     public Object invokePluginMethod(String pluginName, String method, Object object) throws ClientException {
         logger.debug("invoking method " + method + " on " + pluginName);
         NameValuePair[] params = { new NameValuePair("op", "invoke"), new NameValuePair("name", pluginName), new NameValuePair("method", method), new NameValuePair("object", serializer.toXML(object)) };
-        return (Object) serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params));
+        return serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params));
     }
 
     /**
@@ -309,7 +309,7 @@ public class Client {
     public Object invokeConnectorService(String connectorName, String method, Object object) throws ClientException {
         logger.debug("invoking connector service " + method + " on " + connectorName);
         NameValuePair[] params = { new NameValuePair("op", "invokeConnectorService"), new NameValuePair("name", connectorName), new NameValuePair("method", method), new NameValuePair("object", serializer.toXML(object)) };
-        return (Object) serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params));
+        return serializer.fromXML(serverConnection.executePostMethod(EXTENSION_SERVLET, params));
     }
 
     /**
