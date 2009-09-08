@@ -8,6 +8,7 @@ package com.webreach.mirth.plugins.messagepruner;
 
 import java.util.Calendar;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
 import java.util.prefs.Preferences;
 
@@ -42,7 +43,7 @@ public class MessagePrunerPanel extends javax.swing.JPanel
         makeLogTable();
     }
     
-    public void setProperties(Properties properties, LinkedList<String[]> log)
+    public void setProperties(Properties properties, List<String[]> log)
     {
         if(properties.getProperty("interval").equals("hourly"))
         {
@@ -150,7 +151,7 @@ public class MessagePrunerPanel extends javax.swing.JPanel
         logPane.setViewportView(logTable);
     }
     
-    public void updateTable(LinkedList<String[]> logs)
+    public void updateTable(List<String[]> logs)
     {
         Object[][] tableData = null;
 

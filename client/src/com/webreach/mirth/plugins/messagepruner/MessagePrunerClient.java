@@ -10,6 +10,8 @@
 package com.webreach.mirth.plugins.messagepruner;
 
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Properties;
 
 import org.jdesktop.swingworker.SwingWorker;
 
@@ -33,6 +35,9 @@ public class MessagePrunerClient extends ClientPanelPlugin
     {
         setWorking("Loading pruner properties...", true);
 
+        final Properties serverProperties = new Properties();
+        final List<String[]> log = new LinkedList<String[]>();
+        
         SwingWorker worker = new SwingWorker<Void, Void>()
         {
             public Void doInBackground()
@@ -41,7 +46,12 @@ public class MessagePrunerClient extends ClientPanelPlugin
                 {
                 	if (!confirmLeave())
                 		return null;
-                    refresh();
+
+                	if (getPropertiesFromServer() != null) {
+                	    serverProperties.putAll(getPropertiesFromServer());
+                	}
+               	        
+                	log.addAll((List<String[]>) invoke("getLog", null));
                 }
                 catch (ClientException e)
                 {
@@ -52,6 +62,7 @@ public class MessagePrunerClient extends ClientPanelPlugin
 
             public void done()
             {
+                ((MessagePrunerPanel) getComponent()).setProperties(serverProperties, log);
                 setWorking("", false);
             }
         };
@@ -90,7 +101,7 @@ public class MessagePrunerClient extends ClientPanelPlugin
     
     public void refresh() throws ClientException
     {
-        ((MessagePrunerPanel) getComponent()).setProperties(getPropertiesFromServer(), (LinkedList<String[]>) invoke("getLog", null));
+        
     }
     
     public void save() throws ClientException
