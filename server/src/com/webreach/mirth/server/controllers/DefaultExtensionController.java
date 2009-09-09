@@ -172,7 +172,7 @@ public class DefaultExtensionController extends ExtensionController {
             plugin.stop();
     }
 
-    public Object invoke(String name, String method, Object object, String sessionId) {
+    public Object invoke(String name, String method, Object object, String sessionId) throws Exception {
         return loadedPlugins.get(name).invoke(method, object, sessionId);
     }
 

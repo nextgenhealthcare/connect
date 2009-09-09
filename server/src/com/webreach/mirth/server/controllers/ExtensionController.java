@@ -115,7 +115,7 @@ public abstract class ExtensionController extends Controller {
 
     public abstract void deployTriggered();
 
-    public abstract Object invoke(String name, String method, Object object, String sessionId);
+    public abstract Object invoke(String name, String method, Object object, String sessionId) throws Exception;
 
     public abstract Object invokeConnectorService(String name, String method, Object object, String sessionsId) throws Exception;
 

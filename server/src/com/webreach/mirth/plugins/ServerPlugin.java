@@ -13,7 +13,7 @@ public interface ServerPlugin {
 
     public void stop();
 
-    public Object invoke(String method, Object object, String sessionId);
+    public Object invoke(String method, Object object, String sessionId) throws Exception;
 
     public Properties getDefaultProperties();
 }
