@@ -830,7 +830,7 @@ public class FileWriter extends ConnectorClass
         // else if FTP is selected
         else if (text.equals(FileWriterProperties.SCHEME_FTP)) {
             
-            onSchemeChange(true, anonymousYes.isSelected(), false, FileWriterProperties.SCHEME_FTP);
+            onSchemeChange(true, anonymousYes.isSelected(), true, FileWriterProperties.SCHEME_FTP);
             hostLabel.setText("ftp://");
         }
         // else if SFTP is selected
