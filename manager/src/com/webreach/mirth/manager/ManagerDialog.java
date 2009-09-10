@@ -184,7 +184,7 @@ public class ManagerDialog extends javax.swing.JDialog {
         launchButton = new javax.swing.JButton();
         okButton = new javax.swing.JButton();
 
-        setTitle("Mirth Server Manager");
+        setTitle("Mirth Connect Server Manager");
         setResizable(false);
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
