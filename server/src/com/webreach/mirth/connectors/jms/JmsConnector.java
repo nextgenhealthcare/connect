@@ -16,13 +16,21 @@ package com.webreach.mirth.connectors.jms;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import javax.jms.*;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.ExceptionListener;
+import javax.jms.JMSException;
+import javax.jms.Session;
+import javax.jms.XAConnectionFactory;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.apache.commons.lang.UnhandledException;
 import org.mule.MuleManager;
 import org.mule.MuleRuntimeException;
 import org.mule.config.i18n.Message;
@@ -31,8 +39,9 @@ import org.mule.impl.internal.events.ConnectionEvent;
 import org.mule.impl.internal.events.ConnectionEventListener;
 import org.mule.providers.AbstractServiceEnabledConnector;
 import org.mule.providers.ConnectException;
-import org.mule.providers.ReplyToHandler;
 import org.mule.providers.FatalConnectException;
+import org.mule.providers.ReplyToHandler;
+import org.mule.providers.TemplateValueReplacer;
 import org.mule.transaction.TransactionCoordination;
 import org.mule.umo.TransactionException;
 import org.mule.umo.UMOComponent;
@@ -44,7 +53,6 @@ import org.mule.umo.lifecycle.LifecycleException;
 import org.mule.umo.manager.UMOServerEvent;
 import org.mule.util.BeanUtils;
 import org.mule.util.ClassHelper;
-import org.apache.commons.lang.UnhandledException;
 
 import com.webreach.mirth.connectors.jms.xa.ConnectionFactoryWrapper;
 
@@ -87,7 +95,9 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
 	private String redeliveryHandler = DefaultRedeliveryHandler.class.getName();
 	private String channelId;
 	private int frequency = 10000;
-    private boolean recoverJmsConnections = true;    
+    private boolean recoverJmsConnections = true;   
+    
+    private TemplateValueReplacer replacer = new TemplateValueReplacer();
 
     public JmsConnector() {
 		receivers = new ConcurrentHashMap();
@@ -165,6 +175,12 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
 			try {
 				ConnectionFactory connectionFactory = (ConnectionFactory) Class.forName(connectionFactoryClass).newInstance();
 				if (connectionFactory != null && connectionFactoryProperties != null && !connectionFactoryProperties.isEmpty()) {
+				    // replace connection factory property values
+				    for (Iterator<Entry<String, String>> iterator = connectionFactoryProperties.entrySet().iterator(); iterator.hasNext();) {
+                        Entry<String, String> entry = iterator.next();
+                        entry.setValue(replacer.replaceValues(entry.getValue()));
+                    }
+				    
 					// apply connection factory properties
 					BeanUtils.populateWithoutFail(connectionFactory, connectionFactoryProperties, true);
 				}
