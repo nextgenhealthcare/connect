@@ -62,7 +62,7 @@ public class FileWriterService implements ConnectorService {
                     return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, "Unable to connect to: " + fileHost);
                 }
             } catch (Exception e) {
-                return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, "Unable to connect to: " + fileHost);
+                return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, "Unable to connect to: " + fileHost + ", Reason: " + e.getMessage());
             }
         }
 
