@@ -172,14 +172,19 @@ public class FtpConnection implements FileSystemConnection {
 
 	public boolean canAppend() {
 
-		return false;
+		return true;
 	}
 	
 	public void writeFile(String file, String toDir, boolean append, byte[] message)
 		throws Exception
 	{
 		cdmake(toDir);
-		client.storeFile(file, new ByteArrayInputStream(message));
+		
+		if (append) {
+		    client.appendFile(file, new ByteArrayInputStream(message));
+		} else {
+		    client.storeFile(file, new ByteArrayInputStream(message));    
+		}
 	}
 
 	public void delete(String file, String fromDir, boolean mayNotExist)
