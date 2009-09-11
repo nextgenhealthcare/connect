@@ -3,6 +3,8 @@ package com.webreach.mirth.model.converters.tests;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import junit.framework.Assert;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,16 +25,16 @@ public class DocumentSerailizerTest {
 	public void testToXML() throws Exception {
 		DocumentSerializer serializer = new DocumentSerializer();
 
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder parser = factory.newDocumentBuilder();
+		DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 		Document document = parser.newDocument();
 		
 		Element element = document.createElement("root");
 		element.setTextContent("Hello\r\nworld!");
 		document.appendChild(element);
 		
-		String xml = serializer.toXML(document);
-		System.out.println(xml);
+		String actual = serializer.toXML(document);
+		String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>Hello&#xd;\nworld!</root>\n";
+		Assert.assertEquals(expected, actual);
 	}
 
 	@Test
