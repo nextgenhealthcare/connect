@@ -74,16 +74,14 @@ public class DocumentSerializer implements IXMLSerializer<Document> {
 
 		StringWriter stringWriter = new StringWriter();
 		XMLSerializer serializer = new XMLSerializer(stringWriter, of);
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
 
 		try {
 			serializer.serialize(source);
-			os.write(stringWriter.toString().getBytes());
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 		}
 
-		return os.toString();
+		return stringWriter.toString();
 	}
 
 	public Document fromXML(String source) {
