@@ -5,21 +5,15 @@ import java.io.IOException;
 import java.util.Stack;
 
 import org.apache.log4j.Logger;
+import org.apache.xerces.parsers.SAXParser;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
-import com.sun.org.apache.xerces.internal.parsers.SAXParser;
 import com.webreach.mirth.model.ncpdp.NCPDPReference;
 
-/**
- * Created by IntelliJ IDEA.
- * User: dans
- * Date: Jun 5, 2007
- * Time: 2:45:42 PM
- * To change this template use File | Settings | File Templates.
- */
+
 public class NCPDPReader extends SAXParser {
 	private Logger logger = Logger.getLogger(this.getClass());
 
