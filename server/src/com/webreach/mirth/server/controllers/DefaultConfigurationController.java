@@ -96,6 +96,7 @@ public class DefaultConfigurationController extends ConfigurationController{
     private static SecretKey encryptionKey = null;
     private static String serverId = null;
     private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
+    private static final String TEMP_DIR = "mirthTempDir";
     private boolean isEngineStarting = true;
 
     private static Properties versionProperties = PropertyLoader.loadProperties("version");
@@ -125,6 +126,11 @@ public class DefaultConfigurationController extends ConfigurationController{
 
     private void initialize() {
         try {
+            if (mirthProperties.getProperty(TEMP_DIR) != null) {
+                String tempDirPath = StringUtils.replace(mirthProperties.getProperty(TEMP_DIR), "${mirthHomeDir}", baseDir);
+                System.setProperty("java.io.tmpdir", tempDirPath);
+            }
+            
             if (mirthProperties.getProperty(CHARSET) != null) {
                 System.setProperty(CHARSET, mirthProperties.getProperty(CHARSET));
             }
