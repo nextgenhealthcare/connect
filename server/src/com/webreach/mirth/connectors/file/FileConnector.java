@@ -84,6 +84,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	public static final String PROPERTY_SCHEME = "scheme";
     public static final String PROPERTY_PASSIVE_MODE = "passive";
 	public static final String PROPERTY_SECURE_MODE = "secure";
+	public static final String PROPERTY_REGEX = "regex";
 
 	public static final String SORT_NAME = "name";
 	public static final String SORT_DATE = "date";
@@ -142,7 +143,8 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	private String scheme = SCHEME_FILE;
 	private boolean passive = false;
 	private boolean secure = false;
-
+    private boolean regex = false;
+    
 	/*
 		 * (non-Javadoc)
 		 *
@@ -731,4 +733,12 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 	public void setSecure(boolean secure) {
 		this.secure = secure;
 	}
+
+    public boolean isRegex() {
+        return regex;
+    }
+
+    public void setRegex(boolean regex) {
+        this.regex = regex;
+    }
 }

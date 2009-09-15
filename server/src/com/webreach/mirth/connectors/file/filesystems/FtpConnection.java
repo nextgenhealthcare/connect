@@ -15,6 +15,7 @@ import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 
 import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
+import com.webreach.mirth.connectors.file.filters.RegexFilenameFilter;
 
 /**
  * The FileSystemConnection class for files accessed via FTP.
@@ -104,10 +105,16 @@ public class FtpConnection implements FileSystemConnection {
 		}
 	}
 
-	public List<FileInfo> listFiles(String fromDir, String filenamePattern)
+	public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex)
 		throws Exception
 	{
-	    FilenameFilter filenameFilter = new FilenameWildcardFilter(filenamePattern);
+        FilenameFilter filenameFilter;
+        
+        if (isRegex) {
+            filenameFilter = new RegexFilenameFilter(filenamePattern);    
+        } else {
+            filenameFilter = new FilenameWildcardFilter(filenamePattern);
+        }
 	    
 		if (!client.changeWorkingDirectory(fromDir)) {
 			logger.error("listFiles.changeWorkingDirectory: " + client.getReplyCode() + "-" + client.getReplyString());

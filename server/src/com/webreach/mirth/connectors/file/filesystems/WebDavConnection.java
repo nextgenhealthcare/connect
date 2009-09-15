@@ -1,6 +1,8 @@
 package com.webreach.mirth.connectors.file.filesystems;
 
 import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
+import com.webreach.mirth.connectors.file.filters.RegexFilenameFilter;
+
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.HttpsURL;
 import org.apache.commons.logging.Log;
@@ -102,9 +104,15 @@ public class WebDavConnection implements FileSystemConnection
 	}
 
 
-	public List<FileInfo> listFiles(String fromDir, String filenamePattern) throws Exception {
-
-		FilenameFilter filenameFilter = new FilenameWildcardFilter(filenamePattern);
+	public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex) throws Exception {
+        FilenameFilter filenameFilter;
+        
+        if (isRegex) {
+            filenameFilter = new RegexFilenameFilter(filenamePattern);    
+        } else {
+            filenameFilter = new FilenameWildcardFilter(filenamePattern);
+        }
+		
 		client.setPath(fromDir);
 		if (!client.isCollection()) {
 			throw new Exception ("Path is currently a file: '" + client.getHost() + client.getPath() + "'");

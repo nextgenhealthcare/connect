@@ -18,6 +18,7 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.UserInfo;
 import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
+import com.webreach.mirth.connectors.file.filters.RegexFilenameFilter;
 
 public class SftpConnection implements FileSystemConnection {
 
@@ -107,10 +108,16 @@ public class SftpConnection implements FileSystemConnection {
 		}
 	}
 
-	public List<FileInfo> listFiles(String fromDir, String filenamePattern)
+	public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex)
 		throws Exception
 	{
-	    FilenameFilter filenameFilter = new FilenameWildcardFilter(filenamePattern);
+        FilenameFilter filenameFilter;
+        
+        if (isRegex) {
+            filenameFilter = new RegexFilenameFilter(filenamePattern);    
+        } else {
+            filenameFilter = new FilenameWildcardFilter(filenamePattern);
+        }
 	    
 		client.cd(fromDir);
 		Vector entries = client.ls(".");

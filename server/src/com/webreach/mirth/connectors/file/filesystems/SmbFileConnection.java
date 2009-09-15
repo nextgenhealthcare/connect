@@ -79,9 +79,9 @@ public class SmbFileConnection implements FileSystemConnection {
     }
 
     private NtlmPasswordAuthentication auth = null;
-    private String share = null;
+    private SmbFile share = null;
 
-    public SmbFileConnection(String share, String domainAndUser, String password) {
+    public SmbFileConnection(String share, String domainAndUser, String password) throws Exception {
         String[] params = Pattern.compile("[\\\\|/|@|:|;]").split(domainAndUser);
         String domain = null;
         String username = null;
@@ -97,7 +97,7 @@ public class SmbFileConnection implements FileSystemConnection {
             auth = new NtlmPasswordAuthentication(domain, username, password);
         }
 
-        this.share = "smb://" + share;
+        this.share = new SmbFile("smb://" + share, auth);
     }
 
     private String getPath(String dir, String name) {
@@ -108,20 +108,16 @@ public class SmbFileConnection implements FileSystemConnection {
         }
     }
 
-    private SmbFile getSmbFile(String context, String name, NtlmPasswordAuthentication auth) throws Exception {
-        if (auth != null) {
-            return new SmbFile(context, name, auth);
-        } else {
-            return new SmbFile(context, name);
-        }
+    private SmbFile getSmbFile(SmbFile context, String name) throws Exception {
+        return new SmbFile(context, name);
     }
 
-    public List<FileInfo> listFiles(String dir, String filenamePattern) throws Exception {
+    public List<FileInfo> listFiles(String dir, String filenamePattern, boolean isRegex) throws Exception {
         SmbFile readDirectory = null;
         SmbFilenameFilter filenameFilter = new SmbFilenameWildcardFilter(filenamePattern);
 
         try {
-            readDirectory = getSmbFile(share, getPath(dir, null), auth);
+            readDirectory = getSmbFile(share, getPath(dir, null));
         } catch (Exception e) {
             throw new MuleException(new Message(Messages.FILE_X_DOES_NOT_EXIST, dir), e);
         }
@@ -144,18 +140,18 @@ public class SmbFileConnection implements FileSystemConnection {
             throw new MuleException(new Message("file", 1), e);
         }
     }
-    
+
     public boolean canRead(String readDir) {
         try {
-            return getSmbFile(share, getPath(readDir, null), auth).canRead();
+            return getSmbFile(share, getPath(readDir, null)).canRead();
         } catch (Exception e) {
             return false;
         }
     }
-    
+
     public boolean canWrite(String writeDir) {
         try {
-            return getSmbFile(share, getPath(writeDir, null), auth).canWrite();
+            return getSmbFile(share, getPath(writeDir, null)).canWrite();
         } catch (Exception e) {
             return false;
         }
@@ -165,7 +161,7 @@ public class SmbFileConnection implements FileSystemConnection {
         SmbFile src = null;
 
         try {
-            src = getSmbFile(share, getPath(dir, name), auth);
+            src = getSmbFile(share, getPath(dir, name));
             return new SmbFileInputStream(src);
         } catch (Exception e) {
             throw new MuleException(new Message("file", 1, src.getPath()), e);
@@ -187,13 +183,13 @@ public class SmbFileConnection implements FileSystemConnection {
         SmbFile dstDir = null;
 
         try {
-            dstDir = getSmbFile(share, getPath(dir, null), auth);
+            dstDir = getSmbFile(share, getPath(dir, null));
 
             if (!dstDir.exists()) {
                 dstDir.mkdirs();
             }
-            
-            dst = getSmbFile(share, getPath(dir, name), auth);
+
+            dst = getSmbFile(share, getPath(dir, name));
             os = new SmbFileOutputStream(dst, append);
             os.write(message);
         } finally {
@@ -207,7 +203,7 @@ public class SmbFileConnection implements FileSystemConnection {
         SmbFile src = null;
 
         try {
-            src = getSmbFile(share, getPath(dir, name), auth);
+            src = getSmbFile(share, getPath(dir, name));
             src.delete();
 
             if (src.exists()) {
@@ -224,23 +220,23 @@ public class SmbFileConnection implements FileSystemConnection {
         SmbFile src = null;
         SmbFile dst = null;
         SmbFile dstDir = null;
-        
+
         try {
-            src = getSmbFile(share, getPath(fromDir, fromName), auth);
-            dstDir = getSmbFile(share, getPath(toDir, null), auth);
-            
+            src = getSmbFile(share, getPath(fromDir, fromName));
+            dstDir = getSmbFile(share, getPath(toDir, null));
+
             if (!dstDir.exists()) {
                 dstDir.mkdirs();
             }
-            
-            dst = getSmbFile(share, getPath(toDir, toName), auth);
-            
+
+            dst = getSmbFile(share, getPath(toDir, toName));
+
             try {
-                dst.delete();    
+                dst.delete();
             } catch (Exception e) {
                 // ignore if file alread doesn't exist
             }
-            
+
             src.renameTo(dst);
         } catch (Exception e) {
             throw new MuleException(new Message("file", 4, src.getPath(), dst.getPath()), e);
