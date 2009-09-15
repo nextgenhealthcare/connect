@@ -98,7 +98,7 @@ public class ServerConnection {
 				throw new ClientException("method failed: " + post.getStatusLine());
 			}
 
-			BufferedReader reader = new BufferedReader(new InputStreamReader(post.getResponseBodyAsStream()));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(post.getResponseBodyAsStream(), post.getResponseCharSet()));
 
 			StringBuffer result = new StringBuffer();
 			String input = new String();
@@ -143,7 +143,7 @@ public class ServerConnection {
 				throw new ClientException("method failed: " + post.getStatusLine());
 			}
 
-			BufferedReader reader = new BufferedReader(new InputStreamReader(post.getResponseBodyAsStream()));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(post.getResponseBodyAsStream(), post.getResponseCharSet()));
 
 			StringBuffer result = new StringBuffer();
 			String input = new String();

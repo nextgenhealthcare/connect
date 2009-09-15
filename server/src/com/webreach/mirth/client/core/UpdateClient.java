@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpConnectionManager;
 import org.apache.commons.httpclient.HttpStatus;
@@ -19,7 +17,6 @@ import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.SimpleHttpConnectionManager;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatistics;
@@ -194,7 +191,7 @@ public class UpdateClient {
                 throw new Exception("Failed to connect to update server: " + post.getStatusLine());
             }
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(post.getResponseBodyAsStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(post.getResponseBodyAsStream(), post.getResponseCharSet()));
             StringBuilder result = new StringBuilder();
             String input = new String();
 
