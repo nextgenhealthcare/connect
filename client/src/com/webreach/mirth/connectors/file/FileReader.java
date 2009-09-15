@@ -137,7 +137,12 @@ public class FileReader extends ConnectorClass
         properties.put(FileReaderProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
         
         properties.put(FileReaderProperties.FILE_FILTER, fileNameFilter.getText());
-        
+
+        if (filenameFilterRegexCheckBox.isSelected())
+            properties.put(FileReaderProperties.FILE_REGEX, UIConstants.YES_OPTION);
+        else
+            properties.put(FileReaderProperties.FILE_REGEX, UIConstants.NO_OPTION);
+
         if (processBatchFilesYes.isSelected())
             properties.put(FileReaderProperties.FILE_PROCESS_BATCH_FILES, UIConstants.YES_OPTION);
         else
@@ -342,6 +347,13 @@ public class FileReader extends ConnectorClass
         parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(FileReaderProperties.CONNECTOR_CHARSET_ENCODING));
         
         fileNameFilter.setText((String) props.get(FileReaderProperties.FILE_FILTER));
+
+        if (((String) props.get(FileReaderProperties.FILE_REGEX)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
+            filenameFilterRegexCheckBox.setSelected(true);
+        }
+        else {
+            filenameFilterRegexCheckBox.setSelected(true);
+        }
         
         if (((String) props.get(FileReaderProperties.FILE_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION))
         {
@@ -544,6 +556,7 @@ public class FileReader extends ConnectorClass
         passiveModeLabel = new javax.swing.JLabel();
         passiveModeYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         passiveModeNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        filenameFilterRegexCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -857,6 +870,10 @@ public class FileReader extends ConnectorClass
         passiveModeNo.setToolTipText("Select Yes to connect to the server in \"normal mode\" as opposed to passive mode.");
         passiveModeNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
+        filenameFilterRegexCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        filenameFilterRegexCheckBox.setText("Regex");
+        filenameFilterRegexCheckBox.setToolTipText("If Regex is checked, the pattern is treated as a regular expression.  If Regex is not checked, it is treated as a pattern that supports wildcards and a comma separated list.");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -920,7 +937,10 @@ public class FileReader extends ConnectorClass
                         .add(anonymousYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(anonymousNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(fileNameFilter, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(layout.createSequentialGroup()
+                        .add(fileNameFilter, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(filenameFilterRegexCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(directoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
                         .add(schemeComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -975,7 +995,8 @@ public class FileReader extends ConnectorClass
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(filenameFilterLabel)
-                            .add(fileNameFilter, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(fileNameFilter, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(filenameFilterRegexCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(anonymousLabel)
@@ -1358,6 +1379,7 @@ private void secureModeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeBinary;
     private javax.swing.JLabel fileTypeLabel;
     private javax.swing.JLabel filenameFilterLabel;
+    private com.webreach.mirth.client.ui.components.MirthCheckBox filenameFilterRegexCheckBox;
     private com.webreach.mirth.client.ui.components.MirthTextField hostField;
     private javax.swing.JLabel hostLabel;
     private com.webreach.mirth.client.ui.components.MirthVariableList mirthVariableList1;
