@@ -68,14 +68,14 @@ public class MirthPlainDocument extends AbstractDocument {
 
 	/**
 	 * Constructs a plain text document. A default root element is created, and
-	 * the tab size set to 8.
+	 * the tab size set to 4.
 	 * 
 	 * @param c
 	 *            the container for the content
 	 */
 	public MirthPlainDocument(Content c) {
 		super(c);
-		putProperty(tabSizeAttribute, new Integer(8));
+		putProperty(tabSizeAttribute, new Integer(4));
 		defaultRoot = createDefaultRoot();
 	}
 
