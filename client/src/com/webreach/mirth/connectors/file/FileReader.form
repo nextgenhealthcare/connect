@@ -972,7 +972,7 @@
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Regex"/>
-        <Property name="toolTipText" type="java.lang.String" value="If Regex is checked, the pattern is treated as a regular expression.  If Regex is not checked, it is treated as a pattern that supports wildcards and a comma separated list."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If Regex is checked, the pattern is treated as a regular expression.&lt;br&gt;If Regex is not checked, it is treated as a pattern that supports wildcards and a comma separated list.&lt;/html&gt;"/>
       </Properties>
     </Component>
   </SubComponents>
