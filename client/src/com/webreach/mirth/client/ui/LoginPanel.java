@@ -404,6 +404,7 @@ public class LoginPanel extends javax.swing.JFrame
                         loggingIn.setVisible(false);
                         loginMain.setVisible(true);
                         loginProgress.setIndeterminate(false);
+                        password.grabFocus();
                     }
                 }
                 catch(Exception e)
