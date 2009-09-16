@@ -107,7 +107,7 @@ public class TextAreaDefaults
             this.eolMarkerColor = new Color(0x009999);
             this.eolMarkers = false; // true;
             this.paintInvalid = false; // true;
-            this.font = new Font("Courier", Font.PLAIN, 14);
+            this.font = new Font("Courier New", Font.PLAIN, 14);
         }
         else
         {
@@ -123,7 +123,7 @@ public class TextAreaDefaults
             this.eolMarkerColor = Color.lightGray;// Color(0x009999);
             this.eolMarkers = true; // true;
             this.paintInvalid = false; // true;
-            this.font = new Font("Courier", Font.PLAIN, 12);
+            this.font = new Font("Courier New", Font.PLAIN, 12);
 
         }
 
