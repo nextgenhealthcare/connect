@@ -25,6 +25,8 @@
 
 package com.webreach.mirth.client.ui.components;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
@@ -38,9 +40,11 @@ public class MirthFieldConstraints extends PlainDocument
 
     // optional uppercase conversion, letters only, and numbers only.
     private boolean toUppercase = false;
-    private boolean lettersOnly = false;
-    private boolean numbersOnly = false;
-
+    private Pattern pattern;
+    private static final String NUMERIC_PATTERN = "^[0-9]*$";
+    private static final String ALPHA_PATTERN = "^[a-zA-Z_\\-\\s]*$";
+    private static final String ALPHA_NUMERIC_PATTERN = "^[a-zA-Z_0-9\\-\\s]*$";
+    private static final String MATCH_ALL_PATTERN = "^.*$";
     /**
      * Constructor that sets a character number limit. Set limit to 0 for no
      * limit.
@@ -50,7 +54,12 @@ public class MirthFieldConstraints extends PlainDocument
         super();
         this.limit = limit;
     }
-
+    public MirthFieldConstraints(String newPattern)
+    {
+        super();
+        this.limit = 0;
+        pattern = Pattern.compile(newPattern);
+    }
     /**
      * Constructor that sets a character number limit, uppercase conversion, letters only, and
      * numbers only. Set limit to 0 for no limit.
@@ -60,8 +69,17 @@ public class MirthFieldConstraints extends PlainDocument
         super();
         this.limit = limit;
         this.toUppercase = toUppercase;
-        this.lettersOnly = lettersOnly;
-        this.numbersOnly = numbersOnly;
+        String patternString = MATCH_ALL_PATTERN;
+        if(lettersOnly && numbersOnly){
+            patternString = ALPHA_NUMERIC_PATTERN;
+        }
+        else if(lettersOnly){
+            patternString = ALPHA_PATTERN;
+        }
+        else if(numbersOnly){
+            patternString = NUMERIC_PATTERN;
+        }
+        pattern = Pattern.compile(patternString);
     }
 
     /**
@@ -70,54 +88,19 @@ public class MirthFieldConstraints extends PlainDocument
      */
     public void insertString(int offset, String str, AttributeSet attr) throws BadLocationException
     {
-        if (str == null)
+        if (str == null) {
             return;
-        if ((getLength() + str.length()) <= limit || limit == 0)
-        {
-            if (toUppercase)
+        }
+        
+        if ((getLength() + str.length()) <= limit || limit == 0) {
+            if (toUppercase) {
                 str = str.toUpperCase();
-            if (lettersOnly && numbersOnly)
-            {
-                char[] chars = str.toCharArray();
-                
-                for (char c : chars)
-                {
-                    int cVal = (int)c;
-                    if ((cVal < 65 || cVal > 90) && (cVal < 97 || cVal > 122) && (cVal != 32) && (cVal != 45) && (cVal != 95))
-                    {
-                        try
-                        {
-                            if (Double.isNaN(Double.parseDouble(c + "")))
-                                return;
-                        }
-                        catch (Exception e)
-                        {
-                            return;
-                        }
-                    }
-                }
             }
-            else if (lettersOnly)
-            {
-                char[] chars = str.toCharArray();
-                
-                for (char c : chars)
-                {
-                    if ((c < 65 || c > 90) && (c < 97 && c > 122))
-                        return;
-                }
-            }
-            else if (numbersOnly)
-            {
-                try
-                {
-                    if (Double.isNaN(Double.parseDouble(str)))
-                        return;
-                }
-                catch (Exception e)
-                {
-                    return;
-                }
+            
+            Matcher matcher = pattern.matcher(this.getText(0, getLength())+str);
+            
+            if (!matcher.find()) {
+                return;
             }
 
             super.insertString(offset, str, attr);

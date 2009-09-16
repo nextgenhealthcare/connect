@@ -47,6 +47,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Stack;
 import java.util.prefs.Preferences;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -1535,28 +1537,12 @@ public class Frame extends JXFrame
             return false;
         }
 
-        // Following code copied from MirthFieldConstaints, must be the same to
-        // check for valid channel names the same way.
-        char[] chars = name.toCharArray();
-        for (char c : chars)
-        {
-            int cVal = (int) c;
-            if ((cVal < 65 || cVal > 90) && (cVal < 97 || cVal > 122) && (cVal != 32) && (cVal != 45) && (cVal != 95))
-            {
-                try
-                {
-                    if (Double.isNaN(Double.parseDouble(c + "")))
-                    {
-                        alertWarning(this, "Channel name cannot have special characters besides hyphen, underscore, and space.");
-                        return false;
-                    }
-                }
-                catch (Exception e)
-                {
-                    alertWarning(this, "Channel name cannot have special characters besides hyphen, underscore, and space.");
-                    return false;
-                }
-            }
+        Pattern alphaNumericPattern = Pattern.compile("^[a-zA-Z_0-9\\-\\s]*$");
+        Matcher matcher = alphaNumericPattern.matcher(name);
+        
+        if (!matcher.find()) {
+        	alertWarning(this, "Channel name cannot have special characters besides hyphen, underscore, and space.");
+            return false;
         }
 
         for (Channel channel : channels.values())
