@@ -280,17 +280,11 @@ public class SOAPSender extends ConnectorClass
         resetInvalidProperties();
         boolean valid = true;
         
-        if (((String) props.getProperty(SOAPSenderProperties.SOAP_METHOD)).equals(SOAPSenderProperties.SOAP_DEFAULT_DROPDOWN))
+        if (((String) props.getProperty(SOAPSenderProperties.SOAP_SERVICE_ENDPOINT)).length() == 0)
         {
             valid = false;
             if (highlight)
-            	method.setBackground(UIConstants.INVALID_COLOR);
-        }
-        if (((String) props.getProperty(SOAPSenderProperties.SOAP_URL)).length() == 0)
-        {
-            valid = false;
-            if (highlight)
-            	wsdlUrl.setBackground(UIConstants.INVALID_COLOR);
+            	serviceEndpoint.setBackground(UIConstants.INVALID_COLOR);
         }
         if (((String) props.getProperty(SOAPSenderProperties.SOAP_ENVELOPE)).length() == 0)
         {
@@ -328,9 +322,9 @@ public class SOAPSender extends ConnectorClass
     }
     private void resetInvalidProperties()
     {
-        method.setBackground(UIConstants.COMBO_BOX_BACKGROUND);
-        wsdlUrl.setBackground(null);
+    	serviceEndpoint.setBackground(null);
         soapEnvelope.setBackground(null);
+        reconnectInterval.setBackground(null);
     }
     
     public String doValidate(Properties props, boolean highlight)
