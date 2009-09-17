@@ -21,11 +21,11 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
+import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
-import org.jdesktop.swingx.decorator.ConditionalHighlighter;
+import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.Highlighter;
-import org.jdesktop.swingx.decorator.HighlighterPipeline;
+import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.model.ExtensionPoint;
@@ -392,24 +392,15 @@ public class DashboardPanel extends javax.swing.JPanel
             lastRow = UIConstants.ERROR_CONSTANT;
         
         // Add the highlighters.  Always add the error highlighter.
-        HighlighterPipeline highlighter = new HighlighterPipeline();
-        
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
-            highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
+        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+        	statusTable.addHighlighter(highlighter);
         }
         
-        Highlighter errorHighlighter = new ConditionalHighlighter(Color.PINK, null, -1, -1)
+        HighlightPredicate errorHighlighterPredicate = new HighlightPredicate()
         {
-            @Override
-            protected Color computeBackground(Component arg0, ComponentAdapter arg1)
-            {
-                arg0.setBackground(Color.PINK);
-                return super.computeBackground(arg0, arg1);
-            }
-            
-            @Override
-            protected boolean test(ComponentAdapter adapter)
+            public boolean isHighlighted(Component renderer, ComponentAdapter adapter)
             {
                 if (adapter.column == statusTable.getColumnNumber(ERROR_COLUMN_NAME))
                 {
@@ -420,8 +411,8 @@ public class DashboardPanel extends javax.swing.JPanel
             }
         };
         
-        highlighter.addHighlighter(errorHighlighter);
-        statusTable.setHighlighters(highlighter);
+        Highlighter errorHighlighter = new ColorHighlighter(errorHighlighterPredicate, Color.PINK, Color.BLACK, Color.PINK, Color.BLACK);
+        statusTable.addHighlighter(errorHighlighter);
     }
     
     /**

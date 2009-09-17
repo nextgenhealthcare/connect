@@ -31,6 +31,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GradientPaint;
 import java.awt.Window;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -40,12 +41,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Stack;
+import java.util.UUID;
 import java.util.prefs.Preferences;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -62,6 +65,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
+import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
@@ -76,6 +80,7 @@ import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.action.ActionFactory;
 import org.jdesktop.swingx.action.ActionManager;
 import org.jdesktop.swingx.action.BoundAction;
+import org.jdesktop.swingx.painter.MattePainter;
 import org.syntax.jedit.JEditTextArea;
 
 import com.webreach.mirth.client.core.Client;
@@ -385,9 +390,19 @@ public class Frame extends JXFrame
         statusBar = new StatusBar();
         statusBar.setBorder(BorderFactory.createEmptyBorder());
         contentPane.setBorder(BorderFactory.createEmptyBorder());
-
+        
         buildContentPanel(rightContainer, contentPane, false);
 
+        // Set task pane container background painter
+        MattePainter taskPanePainter = new MattePainter(new GradientPaint(0f, 0f, UIConstants.JX_CONTAINER_BACKGROUND_COLOR, 0f, 1f, UIConstants.JX_CONTAINER_BACKGROUND_COLOR));
+        taskPanePainter.setPaintStretched(true);
+        taskPaneContainer.setBackgroundPainter(taskPanePainter);
+        
+        // Set main content container title painter
+        MattePainter contentTitlePainter = new MattePainter(new GradientPaint(0f, 0f, UIConstants.JX_CONTAINER_BACKGROUND_COLOR, 0f, 1f, UIConstants.JX_CONTAINER_BACKGROUND_COLOR));
+        contentTitlePainter.setPaintStretched(true);
+        rightContainer.setTitlePainter(contentTitlePainter);
+        
         splitPane.add(rightContainer, JSplitPane.RIGHT);
         splitPane.add(taskPane, JSplitPane.LEFT);
         taskPane.setMinimumSize(new Dimension(UIConstants.TASK_PANE_WIDTH, 0));
@@ -424,14 +439,14 @@ public class Frame extends JXFrame
         statusUpdater.start();
 
         // DEBUGGING THE UIDefaults:
-        /*
-         * UIDefaults uiDefaults = UIManager.getDefaults(); Enumeration enum1 =
-         * uiDefaults.keys(); while (enum1.hasMoreElements()) { Object key =
-         * enum1.nextElement(); Object val = uiDefaults.get(key);
-         * if(key.toString().indexOf("ComboBox") != -1)
-         * System.out.println("UIManager.put(\"" + key.toString() + "\",\"" +
-         * (null != val ? val.toString() : "(null)") + "\");"); }
-         */
+        
+//         UIDefaults uiDefaults = UIManager.getDefaults(); Enumeration enum1 =
+//         uiDefaults.keys(); while (enum1.hasMoreElements()) { Object key =
+//         enum1.nextElement(); Object val = uiDefaults.get(key);
+////         if(key.toString().indexOf("ComboBox") != -1)
+//         System.out.println("UIManager.put(\"" + key.toString() + "\",\"" +
+//         (null != val ? val.toString() : "(null)") + "\");"); }
+         
 
     }
 
@@ -477,16 +492,6 @@ public class Frame extends JXFrame
         component.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
 
         container.getContentContainer().add(component);
-
-        if (UIManager.getColor("TaskPaneContainer.backgroundGradientStart") != null)
-            container.setTitleDarkBackground(UIManager.getColor("TaskPaneContainer.backgroundGradientStart"));
-        else
-            container.setTitleDarkBackground(UIManager.getColor("InternalFrame.activeTitleBackground"));
-
-        if (UIManager.getColor("TaskPaneContainer.backgroundGradientEnd") != null)
-            container.setTitleLightBackground(UIManager.getColor("TaskPaneContainer.backgroundGradientEnd"));
-        else
-            container.setTitleDarkBackground(UIManager.getColor("InternalFrame.inactiveTitleBackground"));
     }
 
     /**

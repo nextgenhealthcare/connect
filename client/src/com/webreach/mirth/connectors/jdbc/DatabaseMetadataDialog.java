@@ -40,8 +40,8 @@ import java.util.prefs.Preferences;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
-import org.jdesktop.swingx.decorator.HighlighterPipeline;
+import org.jdesktop.swingx.decorator.Highlighter;
+import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.Frame;
@@ -138,9 +138,8 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
         includedMetaDataTable.getColumnExt(INCLUDED_TYPE_COLUMN_NAME).setVisible(false);
 
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
-            HighlighterPipeline highlighter = new HighlighterPipeline();
-            highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
-            includedMetaDataTable.setHighlighters(highlighter);
+        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+        	includedMetaDataTable.setHighlighters(highlighter);
         }
 
         includedMetaDataTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {

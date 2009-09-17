@@ -7,13 +7,12 @@
 package com.webreach.mirth.plugins.messagepruner;
 
 import java.util.Calendar;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 import java.util.prefs.Preferences;
 
-import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
-import org.jdesktop.swingx.decorator.HighlighterPipeline;
+import org.jdesktop.swingx.decorator.Highlighter;
+import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.webreach.mirth.client.ui.CenterCellRenderer;
 import com.webreach.mirth.client.ui.Mirth;
@@ -185,15 +184,12 @@ public class MessagePrunerPanel extends javax.swing.JPanel
             });
         }
         
-        // Add the highlighters.  Always add the error highlighter.
-        HighlighterPipeline highlighter = new HighlighterPipeline();
-        
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
-            highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
+        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+        	logTable.setHighlighters(highlighter);
         }
 
-        logTable.setHighlighters(highlighter);
     }
     
     /** This method is called from within the constructor to

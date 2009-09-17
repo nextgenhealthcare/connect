@@ -26,7 +26,6 @@
 package com.webreach.mirth.client.ui;
 
 import javax.swing.ImageIcon;
-import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 
 /**
@@ -43,7 +42,7 @@ public class StatusBar extends javax.swing.JPanel
         left.setText("Connected to: " + PlatformUI.SERVER_NAME);
         left.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/server.png")));
         progressBar.setEnabled(false);
-        progressBar.setForeground(UIManager.getColor("TaskPaneContainer.backgroundGradientEnd"));
+        progressBar.setForeground(UIConstants.JX_CONTAINER_BACKGROUND_COLOR);
         this.setBorder(new BevelBorder(BevelBorder.LOWERED));
     }
 

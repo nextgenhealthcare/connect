@@ -41,10 +41,10 @@ import java.util.Map;
 import java.util.prefs.Preferences;
 
 import org.jdesktop.swingworker.SwingWorker;
-import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
 import org.jdesktop.swingx.decorator.Filter;
 import org.jdesktop.swingx.decorator.FilterPipeline;
-import org.jdesktop.swingx.decorator.HighlighterPipeline;
+import org.jdesktop.swingx.decorator.Highlighter;
+import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.decorator.PatternFilter;
 
 import com.webreach.mirth.client.core.ClientException;
@@ -188,9 +188,8 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
         
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
-            HighlighterPipeline highlighter = new HighlighterPipeline();
-            highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
-            loadedExtensionTable.setHighlighters(highlighter);
+        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+        	loadedExtensionTable.setHighlighters(highlighter);
         }
         loadedExtensionTable.addMouseListener(new MouseListener()
         {

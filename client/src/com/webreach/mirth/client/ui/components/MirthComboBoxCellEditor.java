@@ -30,7 +30,7 @@ import java.util.EventObject;
 
 import javax.swing.DefaultCellEditor;
 
-import org.jdesktop.swingx.JXComboBox;
+import javax.swing.JComboBox;
 
 import com.webreach.mirth.client.ui.editors.MirthEditorPane;
 
@@ -40,7 +40,7 @@ public class MirthComboBoxCellEditor extends DefaultCellEditor
 
     public MirthComboBoxCellEditor(String[] items, MirthEditorPane pane)
     {
-        super(new JXComboBox(items));
+        super(new JComboBox(items));
         parent = pane;
     }
 

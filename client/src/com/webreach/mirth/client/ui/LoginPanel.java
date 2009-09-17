@@ -30,7 +30,7 @@ import java.util.Properties;
 
 import javax.swing.ImageIcon;
 
-import org.jdesktop.swingx.util.SwingWorker;
+import org.jdesktop.swingworker.SwingWorker;
 
 import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.client.core.ClientException;

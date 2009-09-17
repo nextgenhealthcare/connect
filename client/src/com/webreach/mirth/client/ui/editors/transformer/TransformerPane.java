@@ -58,6 +58,7 @@ import java.util.prefs.Preferences;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JComboBox;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -67,13 +68,12 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import org.jdesktop.swingx.JXComboBox;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.action.ActionFactory;
 import org.jdesktop.swingx.action.BoundAction;
-import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
-import org.jdesktop.swingx.decorator.HighlighterPipeline;
+import org.jdesktop.swingx.decorator.Highlighter;
+import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.webreach.mirth.client.ui.CenterCellRenderer;
 import com.webreach.mirth.client.ui.Frame;
@@ -537,7 +537,7 @@ public class TransformerPane extends MirthEditorPane implements
         MirthComboBoxCellEditor comboBox = new MirthComboBoxCellEditor(
                 defaultComboBoxValues, this);
 
-        ((JXComboBox) comboBox.getComponent()).addItemListener(new ItemListener() {
+        ((JComboBox) comboBox.getComponent()).addItemListener(new ItemListener() {
 
             public void itemStateChanged(ItemEvent evt) {
                 if (evt.getStateChange() == evt.SELECTED) {
@@ -594,13 +594,8 @@ public class TransformerPane extends MirthEditorPane implements
         transformerTable.setRowSelectionAllowed(true);
         transformerTable.getTableHeader().setReorderingAllowed(false);
 
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean(
-                "highlightRows", true)) {
-            HighlighterPipeline highlighter = new HighlighterPipeline();
-            highlighter.addHighlighter(new AlternateRowHighlighter(
-                    UIConstants.HIGHLIGHTER_COLOR,
-                    UIConstants.BACKGROUND_COLOR,
-                    UIConstants.TITLE_TEXT_COLOR));
+        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
             transformerTable.setHighlighters(highlighter);
         }
 

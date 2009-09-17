@@ -57,8 +57,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.text.DateFormatter;
 
 import org.jdesktop.swingworker.SwingWorker;
-import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
-import org.jdesktop.swingx.decorator.HighlighterPipeline;
+import org.jdesktop.swingx.decorator.Highlighter;
+import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.EDITokenMarker;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
@@ -81,7 +81,11 @@ import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.client.ui.util.FileUtil;
-import com.webreach.mirth.model.*;
+import com.webreach.mirth.model.Attachment;
+import com.webreach.mirth.model.ExtensionPoint;
+import com.webreach.mirth.model.ExtensionPointDefinition;
+import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.MessageObject.Protocol;
 import com.webreach.mirth.model.converters.DocumentSerializer;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
@@ -337,10 +341,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         quickSearch.setText("");
         advSearchFilterPopup.reset();
 
-        long currentTime = System.currentTimeMillis();
-
-        mirthDatePicker1.setDateInMillis(currentTime);
-        mirthDatePicker2.setDateInMillis(currentTime);
+        mirthDatePicker1.setDate(Calendar.getInstance().getTime());
+        mirthDatePicker2.setDate(Calendar.getInstance().getTime());
 
         mirthTimePicker1.setDate("00:00 am");
         mirthTimePicker2.setDate("11:59 pm");
@@ -609,11 +611,11 @@ public class MessageBrowser extends javax.swing.JPanel {
         lastRow = UIConstants.ERROR_CONSTANT;*/
 
         // Set highlighter.
-        HighlighterPipeline highlighter = new HighlighterPipeline();
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
-            highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
+        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+        	messageTable.setHighlighters(highlighter);
         }
-        messageTable.setHighlighters(highlighter);
+        
         deselectRows();
     }
 
@@ -635,9 +637,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         deselectRows();
 
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
-            HighlighterPipeline highlighter = new HighlighterPipeline();
-            highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
-            messageTable.setHighlighters(highlighter);
+        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+        	messageTable.setHighlighters(highlighter);
         }
 
         messagePane.setViewportView(messageTable);
@@ -775,11 +776,10 @@ public class MessageBrowser extends javax.swing.JPanel {
 
 
         // Set highlighter.
-        HighlighterPipeline highlighter = new HighlighterPipeline();
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
-            highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
+        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+        	mappingsTable.setHighlighters(highlighter);
         }
-        mappingsTable.setHighlighters(highlighter);
 
     }
 
@@ -832,11 +832,11 @@ public class MessageBrowser extends javax.swing.JPanel {
                 }
             });
             // Set highlighter.
-            HighlighterPipeline highlighter = new HighlighterPipeline();
             if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
-                highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
+            	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+            	attachmentTable.setHighlighters(highlighter);
             }
-            attachmentTable.setHighlighters(highlighter);
+            
             attachmentTable.setSelectionMode(0);
             attachmentTable.getColumnExt(NUMBER_COLUMN_NAME).setMinWidth(UIConstants.WIDTH_SHORT_MIN);
             attachmentTable.getColumnExt(NUMBER_COLUMN_NAME).setMaxWidth(UIConstants.WIDTH_SHORT_MAX);

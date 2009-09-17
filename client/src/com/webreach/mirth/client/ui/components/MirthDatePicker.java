@@ -48,7 +48,14 @@ public class MirthDatePicker extends JXDatePicker
         this.setFocusable(true);
         setFormats(new String[] { "EEE MM-dd-yyyy" });
         getEditor().setFont(UIConstants.TEXTFIELD_PLAIN_FONT);
-        UIManager.put("JXDatePicker.arrowDown.image", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/calendar_view_month.png")));
+        
+        super.getMonthView().setMonthStringBackground(UIConstants.JX_CONTAINER_BACKGROUND_COLOR);
+        super.getMonthView().setMonthStringForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
+        UIManager.put("JXDatePicker.arrowIcon", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/calendar_view_month.png")));
+        
+        // old swingx 0.8 key
+        // UIManager.put("JXDatePicker.arrowDown.image", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/calendar_view_month.png")));
+        
         // must call updateUI() so that the first mirthDatePicker uses this
         // button image.
         updateUI();

@@ -20,8 +20,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.jdesktop.swingworker.SwingWorker;
-import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
-import org.jdesktop.swingx.decorator.HighlighterPipeline;
+import org.jdesktop.swingx.decorator.Highlighter;
+import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.webreach.mirth.client.ui.CellData;
 import com.webreach.mirth.client.ui.ImageCellRenderer;
@@ -193,9 +193,8 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
         
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
-            HighlighterPipeline highlighter = new HighlighterPipeline();
-            highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
-            loadedConnectorsTable.setHighlighters(highlighter);
+        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+        	loadedConnectorsTable.setHighlighters(highlighter);
         }
         
         loadedConnectorsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
@@ -316,12 +315,12 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
             lastConnectorRow = UIConstants.ERROR_CONSTANT;
         
         // Set highlighter.
-        HighlighterPipeline highlighter = new HighlighterPipeline();
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
-            highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
+        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+        	loadedConnectorsTable.setHighlighters(highlighter);
         }
-        loadedConnectorsTable.setHighlighters(highlighter);
+        
     }
     
     /** The action called when a connector is selected. Sets tasks as well. */
@@ -395,9 +394,8 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
         
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
-            HighlighterPipeline highlighter = new HighlighterPipeline();
-            highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
-            loadedPluginsTable.setHighlighters(highlighter);
+        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+        	loadedPluginsTable.setHighlighters(highlighter);
         }
         
         loadedPluginsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
@@ -505,12 +503,12 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
             lastPluginRow = UIConstants.ERROR_CONSTANT;
         
         // Set highlighter.
-        HighlighterPipeline highlighter = new HighlighterPipeline();
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
-            highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
+        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+        	loadedPluginsTable.setHighlighters(highlighter);
         }
-        loadedPluginsTable.setHighlighters(highlighter);
+        
     }
     
     /** The action called when a plugin is selected. Sets tasks as well. */

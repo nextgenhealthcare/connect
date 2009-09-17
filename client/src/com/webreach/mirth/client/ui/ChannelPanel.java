@@ -26,8 +26,8 @@ import javax.swing.ImageIcon;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
-import org.jdesktop.swingx.decorator.HighlighterPipeline;
+import org.jdesktop.swingx.decorator.Highlighter;
+import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.model.Channel;
@@ -209,12 +209,12 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
             lastRow = UIConstants.ERROR_CONSTANT;
         
         // Set highlighter.
-        HighlighterPipeline highlighter = new HighlighterPipeline();
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
-            highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
+        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+        	channelTable.setHighlighters(highlighter);
         }
-        channelTable.setHighlighters(highlighter);
+
     }
 
     /**

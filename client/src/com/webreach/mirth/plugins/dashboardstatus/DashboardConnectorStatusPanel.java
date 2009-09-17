@@ -19,8 +19,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
-import org.jdesktop.swingx.decorator.HighlighterPipeline;
+import org.jdesktop.swingx.decorator.Highlighter;
+import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.webreach.mirth.client.ui.CellData;
 import com.webreach.mirth.client.ui.Frame;
@@ -334,15 +334,11 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
             });
         }
 
-        // Add the highlighters.  Always add the error highlighter.
-        HighlighterPipeline highlighter = new HighlighterPipeline();
-
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
-            highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
+        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+        	logTable.setHighlighters(highlighter);
         }
-
-        logTable.setHighlighters(highlighter);
 
         if (channelSelected) {
             logTable.getColumnExt(CHANNEL_COLUMN_HEADER).setVisible(false);

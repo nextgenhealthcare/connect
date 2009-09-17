@@ -37,8 +37,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.jdesktop.swingworker.SwingWorker;
-import org.jdesktop.swingx.decorator.AlternateRowHighlighter;
-import org.jdesktop.swingx.decorator.HighlighterPipeline;
+import org.jdesktop.swingx.decorator.Highlighter;
+import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.core.ListHandlerException;
@@ -141,9 +141,8 @@ public class EventBrowser extends javax.swing.JPanel
         
         eventField.setText("");
         levelComboBox.setSelectedIndex(0);
-        long currentTime = System.currentTimeMillis();
-        mirthDatePicker1.setDateInMillis(currentTime);
-        mirthDatePicker2.setDateInMillis(currentTime);     
+        mirthDatePicker1.setDate(Calendar.getInstance().getTime());
+        mirthDatePicker2.setDate(Calendar.getInstance().getTime());     
         filterButtonActionPerformed(null);
         descriptionTabbedPane.setSelectedIndex(0);
     }
@@ -241,12 +240,12 @@ public class EventBrowser extends javax.swing.JPanel
         }
 
         // Set highlighter.
-        HighlighterPipeline highlighter = new HighlighterPipeline();
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
-            highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
+        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+        	eventTable.setHighlighters(highlighter);
         }
-        eventTable.setHighlighters(highlighter);
+
         deselectRows();
     }
     
@@ -270,9 +269,8 @@ public class EventBrowser extends javax.swing.JPanel
         
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
-            HighlighterPipeline highlighter = new HighlighterPipeline();
-            highlighter.addHighlighter(new AlternateRowHighlighter(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR, UIConstants.TITLE_TEXT_COLOR));
-            eventTable.setHighlighters(highlighter);
+        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+        	eventTable.setHighlighters(highlighter);
         }
         
         eventPane.setViewportView(eventTable);
@@ -755,7 +753,7 @@ public class EventBrowser extends javax.swing.JPanel
     {// GEN-FIRST:event_filterButtonActionPerformed      
         if (mirthDatePicker1.getDate() != null && mirthDatePicker2.getDate() != null)
         {
-            if (mirthDatePicker1.getDateInMillis() > mirthDatePicker2.getDateInMillis())
+            if (mirthDatePicker1.getDate().after(mirthDatePicker2.getDate()))
             {
                 JOptionPane.showMessageDialog(parent, "Start date cannot be after the end date.");
                 return;
@@ -779,13 +777,13 @@ public class EventBrowser extends javax.swing.JPanel
         if (mirthDatePicker1.getDate() != null)
         {
             Calendar calendarStart = Calendar.getInstance();
-            calendarStart.setTimeInMillis(mirthDatePicker1.getDateInMillis());
+            calendarStart.setTime(mirthDatePicker1.getDate());
             systemEventFilter.setStartDate(calendarStart);
         }
         if (mirthDatePicker2.getDate() != null)
         {
             Calendar calendarEnd = Calendar.getInstance();
-            calendarEnd.setTimeInMillis(mirthDatePicker2.getDateInMillis());
+            calendarEnd.setTime(mirthDatePicker2.getDate());
             systemEventFilter.setEndDate(calendarEnd);
         }
 

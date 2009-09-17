@@ -30,9 +30,9 @@ import java.awt.Component;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
-import org.jdesktop.swingx.JXComboBox;
+import javax.swing.JComboBox;
 
-public class MirthComboBoxCellRenderer extends JXComboBox implements TableCellRenderer
+public class MirthComboBoxCellRenderer extends JComboBox implements TableCellRenderer
 {
     public MirthComboBoxCellRenderer(String[] items)
     {
