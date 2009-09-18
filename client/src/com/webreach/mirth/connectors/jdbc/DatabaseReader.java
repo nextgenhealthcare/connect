@@ -90,7 +90,7 @@ public class DatabaseReader extends ConnectorClass
         
         initComponents();
         
-        drivers.add(0, new DriverInfo("Please Select One", "Please Select One"));
+        drivers.add(0, new DriverInfo("Please Select One", "Please Select One", ""));
         String[] driverNames = new String[drivers.size()];
         
         for (int i = 0; i < drivers.size(); i++)
@@ -530,6 +530,7 @@ public class DatabaseReader extends ConnectorClass
         processResultsInOrderNoButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         processResultsInOrderYesButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         jLabel10 = new javax.swing.JLabel();
+        insertURLTemplateButton = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -699,6 +700,13 @@ public class DatabaseReader extends ConnectorClass
 
         jLabel10.setText("Process Results in Order:");
 
+        insertURLTemplateButton.setText("Insert URL Template");
+        insertURLTemplateButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                insertURLTemplateButtonActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -730,7 +738,10 @@ public class DatabaseReader extends ConnectorClass
                             .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                 .add(databaseUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .add(databaseURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .add(databaseDriverCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(layout.createSequentialGroup()
+                                    .add(databaseDriverCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                    .add(insertURLTemplateButton))
                                 .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                                     .add(readOnUpdateYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                     .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -784,7 +795,8 @@ public class DatabaseReader extends ConnectorClass
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(databaseDriverCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel1))
+                            .add(jLabel1)
+                            .add(insertURLTemplateButton))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(databaseURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -838,9 +850,9 @@ public class DatabaseReader extends ConnectorClass
                     .add(jLabel9))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(databaseUpdateSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 89, Short.MAX_VALUE)
+                    .add(databaseUpdateSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
                     .add(onUpdateLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 89, Short.MAX_VALUE))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -878,6 +890,29 @@ private void generateSelectActionPerformed(java.awt.event.ActionEvent evt) {//GE
 private void generateUpdateSelectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateUpdateSelectActionPerformed
 	showDatabaseMetaData(STATEMENT_TYPE.UPDATE_TYPE);
 }//GEN-LAST:event_generateUpdateSelectActionPerformed
+
+private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insertURLTemplateButtonActionPerformed
+
+	if (!databaseURLField.getText().equals("")) {
+		if (!parent.alertOption(parent, "Are you sure you would like to replace your current connection URL with the template URL?")) {
+			return;
+		}
+	}
+	
+    String template = "";
+    
+    for (int i = 0; i < drivers.size(); i++)
+    {
+        DriverInfo driverInfo = drivers.get(i);
+        if (driverInfo.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem())))
+        	template = driverInfo.getTemplate();
+    }
+    
+	databaseURLField.setText(template);
+	databaseURLField.grabFocus();
+	parent.enableSave();
+
+}//GEN-LAST:event_insertURLTemplateButtonActionPerformed
     
 	public void showDatabaseMetaData(STATEMENT_TYPE type) { 
 		Properties connectionProperties = getProperties();
@@ -1015,6 +1050,7 @@ private void generateUpdateSelectActionPerformed(java.awt.event.ActionEvent evt)
     private javax.swing.JButton generateSelect;
     private javax.swing.JButton generateUpdateConnection;
     private javax.swing.JButton generateUpdateSelect;
+    private javax.swing.JButton insertURLTemplateButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;

@@ -70,7 +70,7 @@ public class DatabaseWriter extends ConnectorClass
 
         initComponents();
         
-        drivers.add(0, new DriverInfo("Please Select One", "Please Select One"));
+        drivers.add(0, new DriverInfo("Please Select One", "Please Select One", ""));
         String[] driverNames = new String[drivers.size()];
         
         for (int i = 0; i < drivers.size(); i++)
@@ -259,6 +259,7 @@ public class DatabaseWriter extends ConnectorClass
         generateConnection = new javax.swing.JButton();
         jLabel7 = new javax.swing.JLabel();
         generateInsert = new javax.swing.JButton();
+        insertURLTemplateButton = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -327,6 +328,13 @@ public class DatabaseWriter extends ConnectorClass
             }
         });
 
+        insertURLTemplateButton.setText("Insert URL Template");
+        insertURLTemplateButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                insertURLTemplateButtonActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -343,7 +351,11 @@ public class DatabaseWriter extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(databaseURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(databaseDriverCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(layout.createSequentialGroup()
+                        .add(databaseDriverCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(insertURLTemplateButton)
+                        .addContainerGap())
                     .add(databaseUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -373,7 +385,8 @@ public class DatabaseWriter extends ConnectorClass
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(jLabel1)
-                            .add(databaseDriverCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(databaseDriverCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(insertURLTemplateButton))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(jLabel2)
@@ -398,7 +411,7 @@ public class DatabaseWriter extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(sqlLabel)
-                    .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE))
+                    .add(databaseSQLTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 205, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -406,6 +419,29 @@ public class DatabaseWriter extends ConnectorClass
 private void generateInsertActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateInsertActionPerformed
 	showDatabaseMetaData(STATEMENT_TYPE.INSERT_TYPE);
 }//GEN-LAST:event_generateInsertActionPerformed
+
+private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insertURLTemplateButtonActionPerformed
+
+	if (!databaseURLField.getText().equals("")) {
+		if (!parent.alertOption(parent, "Are you sure you would like to replace your current connection URL with the template URL?")) {
+			return;
+		}
+	}
+	
+    String template = "";
+    
+    for (int i = 0; i < drivers.size(); i++)
+    {
+        DriverInfo driverInfo = drivers.get(i);
+        if (driverInfo.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem())))
+        	template = driverInfo.getTemplate();
+    }
+    
+	databaseURLField.setText(template);
+	databaseURLField.grabFocus();
+	parent.enableSave();
+
+}//GEN-LAST:event_insertURLTemplateButtonActionPerformed
     
 	public void showDatabaseMetaData(STATEMENT_TYPE type) { 
 		Properties connectionProperties = getProperties();
@@ -489,6 +525,7 @@ private void generateInsertActionPerformed(java.awt.event.ActionEvent evt) {//GE
     private com.webreach.mirth.client.ui.components.MirthTextField databaseUsernameField;
     private javax.swing.JButton generateConnection;
     private javax.swing.JButton generateInsert;
+    private javax.swing.JButton insertURLTemplateButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
