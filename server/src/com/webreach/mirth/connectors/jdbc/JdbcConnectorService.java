@@ -50,7 +50,7 @@ public class JdbcConnectorService implements ConnectorService {
                     }
                 }
                 
-                tableResult = dbMetaData.getTables(null, schema, null, new String[] { "TABLE" });
+                tableResult = dbMetaData.getTables(null, schema, null, new String[] { "TABLE", "VIEW" });
 
                 while (tableResult.next()) {
                     String tableName = tableResult.getString("TABLE_NAME");
