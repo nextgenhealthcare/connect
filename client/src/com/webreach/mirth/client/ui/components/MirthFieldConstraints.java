@@ -53,7 +53,9 @@ public class MirthFieldConstraints extends PlainDocument
     {
         super();
         this.limit = limit;
+        pattern = Pattern.compile(MATCH_ALL_PATTERN);
     }
+    
     public MirthFieldConstraints(String newPattern)
     {
         super();
