@@ -41,7 +41,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -65,8 +64,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
-import javax.swing.UIDefaults;
-import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 
@@ -4002,7 +3999,48 @@ public class Frame extends JXFrame
             {
                 String alertXML = FileUtil.read(importFile);
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-                alerts = (List<Alert>) serializer.fromXML(alertXML);
+                
+                boolean append = false;
+
+                List<Alert> newAlerts = (List<Alert>) serializer.fromXML(alertXML);
+                if (alerts != null && alerts.size() > 0) {
+                    if (alertOption(this, "Would you like to append these alerts to the existing alerts?")) {
+                        append = true;
+                    }
+                }
+                
+                if (append) {
+                	for (Alert newAlert : newAlerts) {
+                		newAlert.setId(UUID.randomUUID().toString());
+                		
+                        // make sure the name doesn't already exist
+                        for (Alert alert : alerts)
+                        {
+                        	// If the name already exists, generate a new unique name
+                            if (alert.getName().equalsIgnoreCase(newAlert.getName())) {
+                            	String newAlertName = "Alert ";
+                            	
+                            	boolean uniqueName = false;
+                            	int i = 0;
+                            	while (!uniqueName) {
+                            		i++;
+                            		uniqueName = true;
+                            		for (Alert alertLookup : alerts) {
+                            			if (alertLookup.getName().equalsIgnoreCase(newAlertName + i)) {
+                            				uniqueName = false;
+                            			}
+                            		}
+                            	}
+
+                        		newAlert.setName(newAlertName + i);
+                            }
+                        }
+                		
+                		alerts.add(newAlert);
+                	}
+                } else {
+                	alerts = newAlerts;
+                }
                 
                 alertInformation(this, "All alerts imported sucessfully.");
                 
@@ -4141,7 +4179,48 @@ public class Frame extends JXFrame
             {
                 String codeTemplatesXML = FileUtil.read(importFile);
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-                codeTemplates = (List<CodeTemplate>) serializer.fromXML(codeTemplatesXML);
+                
+                boolean append = false;
+
+                List<CodeTemplate> newCodeTemplates = (List<CodeTemplate>) serializer.fromXML(codeTemplatesXML);
+                if (codeTemplates != null && codeTemplates.size() > 0) {
+                    if (alertOption(this, "Would you like to append these code templates to the existing code templates?")) {
+                        append = true;
+                    }
+                }
+                
+                if (append) {
+                	for (CodeTemplate newCodeTemplate : newCodeTemplates) {
+                		newCodeTemplate.setId(UUID.randomUUID().toString());
+                		
+                        // make sure the name doesn't already exist
+                        for (CodeTemplate codeTemplate : codeTemplates)
+                        {
+                        	// If the name already exists, generate a new unique name
+                            if (codeTemplate.getName().equalsIgnoreCase(newCodeTemplate.getName())) {
+                            	String newCodeTemplateName = "Template ";
+                            	
+                            	boolean uniqueName = false;
+                            	int i = 0;
+                            	while (!uniqueName) {
+                            		i++;
+                            		uniqueName = true;
+                            		for (CodeTemplate codeTemplateLookup : codeTemplates) {
+                            			if (codeTemplateLookup.getName().equalsIgnoreCase(newCodeTemplateName + i)) {
+                            				uniqueName = false;
+                            			}
+                            		}
+                            	}
+
+                        		newCodeTemplate.setName(newCodeTemplateName + i);
+                            }
+                        }
+                		
+                		codeTemplates.add(newCodeTemplate);
+                	}
+                } else {
+                	codeTemplates = newCodeTemplates;
+                }
                 
                 alertInformation(this, "All code templates imported sucessfully.");
                 
