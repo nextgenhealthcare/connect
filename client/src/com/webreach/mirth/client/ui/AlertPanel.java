@@ -86,6 +86,7 @@ public class AlertPanel extends javax.swing.JPanel
         makeApplyToChannelsTable();
         makeEmailsTable();
         setAlertErrorList();
+        setAlertTemplateVariableList();
     }
 
     /**
@@ -478,6 +479,19 @@ public class AlertPanel extends javax.swing.JPanel
         errorScrollPane.setViewportView(errorList);
     }
 
+    public void setAlertTemplateVariableList()
+    {
+        ArrayList<String> variables = new ArrayList<String>();
+        variables.add("ERROR");
+        variables.add("SYSTIME");
+        variables.add("channelName");
+        variables.add("date");
+
+        templateVariableList.removeAll();
+        templateVariableList.setListData(variables.toArray());
+        templateVariablesPane.setViewportView(templateVariableList);
+    }
+
     /** Loads a selected connector and returns true on success. */
     public boolean loadAlert()
     {
@@ -840,9 +854,9 @@ public class AlertPanel extends javax.swing.JPanel
     }
 
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // ">//GEN-BEGIN:initComponents
-    private void initComponents()
-    {
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
         split = new javax.swing.JSplitPane();
         alertPane = new javax.swing.JScrollPane();
         alertTable = null;
@@ -861,105 +875,205 @@ public class AlertPanel extends javax.swing.JPanel
         template = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
         errorPanel = new javax.swing.JPanel();
         errorScrollPane = new javax.swing.JScrollPane();
-        errorList = new MirthVariableList("", "");
+        errorList = new MirthVariableList("","");
+        templateVariablesPanel = new javax.swing.JPanel();
+        templateVariablesPane = new javax.swing.JScrollPane();
+        templateVariableList = new com.webreach.mirth.client.ui.components.MirthVariableList();
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+
         split.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         split.setDividerLocation(125);
         split.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+
         alertPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         alertPane.setViewportView(alertTable);
 
         split.setLeftComponent(alertPane);
 
         bottomPane.setBackground(new java.awt.Color(255, 255, 255));
+
         applyToChannelsPanel.setBackground(new java.awt.Color(255, 255, 255));
-        applyToChannelsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0), "Apply to Channels", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        applyToChannelsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0), "Apply to Channels"));
+
         applyToChannelsScrollPane.setViewportView(applyToChannelsTable);
 
         org.jdesktop.layout.GroupLayout applyToChannelsPanelLayout = new org.jdesktop.layout.GroupLayout(applyToChannelsPanel);
         applyToChannelsPanel.setLayout(applyToChannelsPanelLayout);
-        applyToChannelsPanelLayout.setHorizontalGroup(applyToChannelsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(org.jdesktop.layout.GroupLayout.TRAILING, applyToChannelsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE));
-        applyToChannelsPanelLayout.setVerticalGroup(applyToChannelsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(org.jdesktop.layout.GroupLayout.TRAILING, applyToChannelsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 130, Short.MAX_VALUE));
+        applyToChannelsPanelLayout.setHorizontalGroup(
+            applyToChannelsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, applyToChannelsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)
+        );
+        applyToChannelsPanelLayout.setVerticalGroup(
+            applyToChannelsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, applyToChannelsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 90, Short.MAX_VALUE)
+        );
 
         errorPane.setBackground(new java.awt.Color(255, 255, 255));
-        errorPane.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0), "Error Matching Field", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        errorPane.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0), "Error Matching Field"));
+
         errorField.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         org.jdesktop.layout.GroupLayout errorPaneLayout = new org.jdesktop.layout.GroupLayout(errorPane);
         errorPane.setLayout(errorPaneLayout);
-        errorPaneLayout.setHorizontalGroup(errorPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(errorField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE));
-        errorPaneLayout.setVerticalGroup(errorPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(errorField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 141, Short.MAX_VALUE));
+        errorPaneLayout.setHorizontalGroup(
+            errorPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(errorField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE)
+        );
+        errorPaneLayout.setVerticalGroup(
+            errorPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(errorField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 97, Short.MAX_VALUE)
+        );
 
         emailsPane.setBackground(new java.awt.Color(255, 255, 255));
-        emailsPane.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0), "Emails to Receive Alerts", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        emailsPane.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0), "Emails to Receive Alerts"));
+
         emailsScrollPane.setViewportView(emailsTable);
 
         addButton.setText("Add");
-        addButton.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        addButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addButtonActionPerformed(evt);
             }
         });
 
         removeButton.setText("Remove");
-        removeButton.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        removeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 removeButtonActionPerformed(evt);
             }
         });
 
         org.jdesktop.layout.GroupLayout emailsPaneLayout = new org.jdesktop.layout.GroupLayout(emailsPane);
         emailsPane.setLayout(emailsPaneLayout);
-        emailsPaneLayout.setHorizontalGroup(emailsPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(org.jdesktop.layout.GroupLayout.TRAILING, emailsPaneLayout.createSequentialGroup().add(emailsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(emailsPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false).add(addButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).add(removeButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))));
-        emailsPaneLayout.setVerticalGroup(emailsPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(emailsPaneLayout.createSequentialGroup().add(addButton).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(removeButton).addContainerGap(78, Short.MAX_VALUE)).add(emailsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 130, Short.MAX_VALUE));
+        emailsPaneLayout.setHorizontalGroup(
+            emailsPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, emailsPaneLayout.createSequentialGroup()
+                .add(emailsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(emailsPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                    .add(addButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(removeButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+        );
+        emailsPaneLayout.setVerticalGroup(
+            emailsPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(emailsPaneLayout.createSequentialGroup()
+                .add(addButton)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(removeButton)
+                .addContainerGap(38, Short.MAX_VALUE))
+            .add(emailsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 90, Short.MAX_VALUE)
+        );
 
         templatePane.setBackground(new java.awt.Color(255, 255, 255));
-        templatePane.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0), "Error Template", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
+        templatePane.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0), "Error Template"));
+
         template.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         org.jdesktop.layout.GroupLayout templatePaneLayout = new org.jdesktop.layout.GroupLayout(templatePane);
         templatePane.setLayout(templatePaneLayout);
-        templatePaneLayout.setHorizontalGroup(templatePaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 550, Short.MAX_VALUE));
-        templatePaneLayout.setVerticalGroup(templatePaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 111, Short.MAX_VALUE));
+        templatePaneLayout.setHorizontalGroup(
+            templatePaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE)
+        );
+        templatePaneLayout.setVerticalGroup(
+            templatePaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)
+        );
 
         errorPanel.setBackground(new java.awt.Color(255, 255, 255));
-        errorPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0), "Error Codes", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(0, 0, 0)));
-        errorList.setModel(new javax.swing.AbstractListModel()
-        {
+        errorPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0), "Error Codes"));
+
+        errorList.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-
-            public int getSize()
-            {
-                return strings.length;
-            }
-
-            public Object getElementAt(int i)
-            {
-                return strings[i];
-            }
+            public int getSize() { return strings.length; }
+            public Object getElementAt(int i) { return strings[i]; }
         });
         errorScrollPane.setViewportView(errorList);
 
         org.jdesktop.layout.GroupLayout errorPanelLayout = new org.jdesktop.layout.GroupLayout(errorPanel);
         errorPanel.setLayout(errorPanelLayout);
-        errorPanelLayout.setHorizontalGroup(errorPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(errorScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 166, Short.MAX_VALUE));
-        errorPanelLayout.setVerticalGroup(errorPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(errorScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 141, Short.MAX_VALUE));
+        errorPanelLayout.setHorizontalGroup(
+            errorPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(errorScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 166, Short.MAX_VALUE)
+        );
+        errorPanelLayout.setVerticalGroup(
+            errorPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(errorScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 97, Short.MAX_VALUE)
+        );
+
+        templateVariablesPanel.setBackground(new java.awt.Color(255, 255, 255));
+        templateVariablesPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0), "Error Template Variables"));
+
+        templateVariableList.setModel(new javax.swing.AbstractListModel() {
+            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() { return strings.length; }
+            public Object getElementAt(int i) { return strings[i]; }
+        });
+        templateVariablesPane.setViewportView(templateVariableList);
+
+        org.jdesktop.layout.GroupLayout templateVariablesPanelLayout = new org.jdesktop.layout.GroupLayout(templateVariablesPanel);
+        templateVariablesPanel.setLayout(templateVariablesPanelLayout);
+        templateVariablesPanelLayout.setHorizontalGroup(
+            templateVariablesPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(templateVariablesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 166, Short.MAX_VALUE)
+        );
+        templateVariablesPanelLayout.setVerticalGroup(
+            templateVariablesPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(templateVariablesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)
+        );
 
         org.jdesktop.layout.GroupLayout bottomPaneLayout = new org.jdesktop.layout.GroupLayout(bottomPane);
         bottomPane.setLayout(bottomPaneLayout);
-        bottomPaneLayout.setHorizontalGroup(bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(bottomPaneLayout.createSequentialGroup().addContainerGap().add(bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(org.jdesktop.layout.GroupLayout.LEADING, templatePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).add(bottomPaneLayout.createSequentialGroup().add(errorPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(errorPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)).add(bottomPaneLayout.createSequentialGroup().add(applyToChannelsPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(emailsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))).addContainerGap()));
-        bottomPaneLayout.setVerticalGroup(bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(bottomPaneLayout.createSequentialGroup().addContainerGap().add(bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(applyToChannelsPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).add(emailsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(errorPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).add(errorPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(templatePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addContainerGap()));
+        bottomPaneLayout.setHorizontalGroup(
+            bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(bottomPaneLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(bottomPaneLayout.createSequentialGroup()
+                        .add(applyToChannelsPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(emailsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(bottomPaneLayout.createSequentialGroup()
+                        .add(bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, templatePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(errorPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(templateVariablesPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(errorPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap())
+        );
+        bottomPaneLayout.setVerticalGroup(
+            bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(bottomPaneLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(applyToChannelsPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(emailsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(errorPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(errorPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(templatePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(templateVariablesPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+
         split.setRightComponent(bottomPane);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
-        layout.setHorizontalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(split, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 578, Short.MAX_VALUE));
-        layout.setVerticalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(split, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 512, Short.MAX_VALUE));
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(split, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 578, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(split, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 512, Short.MAX_VALUE)
+        );
     }// </editor-fold>//GEN-END:initComponents
 
     private void removeButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_removeButtonActionPerformed
@@ -993,42 +1107,27 @@ public class AlertPanel extends javax.swing.JPanel
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addButton;
-
     private javax.swing.JScrollPane alertPane;
-
     private com.webreach.mirth.client.ui.components.MirthTable alertTable;
-
     private javax.swing.JPanel applyToChannelsPanel;
-
     private javax.swing.JScrollPane applyToChannelsScrollPane;
-
     private com.webreach.mirth.client.ui.components.MirthTable applyToChannelsTable;
-
     private javax.swing.JPanel bottomPane;
-
     private javax.swing.JPanel emailsPane;
-
     private javax.swing.JScrollPane emailsScrollPane;
-
     private com.webreach.mirth.client.ui.components.MirthTable emailsTable;
-
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea errorField;
-
     private com.webreach.mirth.client.ui.components.MirthVariableList errorList;
-
     private javax.swing.JPanel errorPane;
-
     private javax.swing.JPanel errorPanel;
-
     private javax.swing.JScrollPane errorScrollPane;
-
     private javax.swing.JButton removeButton;
-
     private javax.swing.JSplitPane split;
-
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea template;
-
     private javax.swing.JPanel templatePane;
+    private com.webreach.mirth.client.ui.components.MirthVariableList templateVariableList;
+    private javax.swing.JScrollPane templateVariablesPane;
+    private javax.swing.JPanel templateVariablesPanel;
     // End of variables declaration//GEN-END:variables
 
 }
