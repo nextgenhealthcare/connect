@@ -31,14 +31,16 @@ import java.io.Serializable;
 public class DriverInfo implements Serializable {
 	private String className;
 	private String name;
+	private String template;
 
 	public DriverInfo() {
 
 	}
 
-	public DriverInfo(String name, String className) {
+	public DriverInfo(String name, String className, String template) {
 		this.name = name;
 		this.className = className;
+		this.template = template;
 	}
 
 	public String getClassName() {
@@ -56,12 +58,21 @@ public class DriverInfo implements Serializable {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	public String getTemplate() {
+		return this.template;
+	}
+
+	public void setTemplate(String template) {
+		this.template = template;
+	}
 
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(this.getClass().getName() + "[");
 		builder.append("name=" + getName() + ", ");
-		builder.append("className=" + getClassName());
+		builder.append("className=" + getClassName() + ", ");
+		builder.append("template=" + getTemplate());
 		builder.append("]");
 		return builder.toString();
 	}

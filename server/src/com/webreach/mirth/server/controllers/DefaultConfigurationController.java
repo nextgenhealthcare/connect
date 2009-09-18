@@ -624,7 +624,7 @@ public class DefaultConfigurationController extends ConfigurationController{
 
                 for (int i = 0; i < driversElement.getElementsByTagName("driver").getLength(); i++) {
                     Element driverElement = (Element) driversElement.getElementsByTagName("driver").item(i);
-                    DriverInfo driver = new DriverInfo(driverElement.getAttribute("name"), driverElement.getAttribute("class"));
+                    DriverInfo driver = new DriverInfo(driverElement.getAttribute("name"), driverElement.getAttribute("class"), driverElement.getAttribute("template"));
                     logger.debug("found database driver: " + driver);
                     drivers.add(driver);
                 }
