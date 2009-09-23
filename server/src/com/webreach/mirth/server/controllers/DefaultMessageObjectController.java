@@ -280,6 +280,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
             parameterMap.put("offset", offset);
             parameterMap.put("limit", pageSize);
+            parameterMap.put("offpluslim", offset + pageSize);
 
             parameterMap.putAll(getFilterMap(filter, uid));
 

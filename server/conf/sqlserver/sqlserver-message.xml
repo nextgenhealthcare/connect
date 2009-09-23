@@ -193,7 +193,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<select id="getMessageByPageLimit" parameterClass="java.util.Map" resultMap="get-message-result">
 		SELECT * FROM (
 			SELECT TOP $limit$ * FROM (
-				SELECT TOP ($offset$ + $limit$)
+				SELECT TOP $offpluslim$
 					MESSAGE.*
 				FROM
 					MESSAGE
