@@ -99,6 +99,7 @@ import com.webreach.mirth.model.CodeTemplate;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.PasswordRequirements;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.UpdateInfo;
 import com.webreach.mirth.model.User;
@@ -4364,4 +4365,7 @@ public class Frame extends JXFrame
     	return status.get(dashboardPanel.getSelectedStatus()).getChannelId();
     }
     
+    public PasswordRequirements getPasswordRequirements() throws ClientException{
+    	return mirthClient.getPasswordRequirements();
+    }
 }

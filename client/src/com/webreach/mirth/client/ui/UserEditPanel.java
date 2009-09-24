@@ -1,7 +1,12 @@
 package com.webreach.mirth.client.ui;
 
+import java.util.Vector;
+
+import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
+import com.webreach.mirth.model.PasswordRequirements;
 import com.webreach.mirth.model.User;
+import com.webreach.mirth.model.util.PasswordRequirementsChecker;
 
 public class UserEditPanel extends javax.swing.JPanel {
 
@@ -108,7 +113,21 @@ public class UserEditPanel extends javax.swing.JPanel {
         if (checkPasswords && !String.valueOf(password.getPassword()).equals(String.valueOf(confirmPassword.getPassword()))) {
             return "Passwords must be the same.";
         }
-
+        
+        try {
+            PasswordRequirements requirements = parent.getPasswordRequirements();
+            Vector<String> passwordProblems = PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements(String.valueOf(password.getPassword()), requirements);
+            if (passwordProblems != null){
+                String retString = "";
+                for (String problem : passwordProblems){
+                    retString += problem + "\n";
+                }
+                return retString;
+            }
+        } catch (ClientException e) {
+            return "Unable to retrieve password policy";
+        }        
+        
         return null;
     }
 
