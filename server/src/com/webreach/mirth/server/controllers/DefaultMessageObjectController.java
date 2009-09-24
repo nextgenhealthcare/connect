@@ -49,7 +49,12 @@ import com.webreach.mirth.model.MessageObject.Status;
 import com.webreach.mirth.model.converters.ObjectCloner;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 import com.webreach.mirth.server.builders.ErrorMessageBuilder;
-import com.webreach.mirth.server.util.*;
+import com.webreach.mirth.server.util.AttachmentUtil;
+import com.webreach.mirth.server.util.DICOMUtil;
+import com.webreach.mirth.server.util.DatabaseUtil;
+import com.webreach.mirth.server.util.SqlConfig;
+import com.webreach.mirth.server.util.UUIDGenerator;
+import com.webreach.mirth.server.util.VMRouter;
 import com.webreach.mirth.util.Encrypter;
 import com.webreach.mirth.util.EncryptionException;
 import com.webreach.mirth.util.QueueUtil;
@@ -157,7 +162,33 @@ public class DefaultMessageObjectController extends MessageObjectController {
             Channel channel = channelCache.get(channelId);
 
             if (channel.getProperties().containsKey("store_messages")) {
-                if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
+                // If replacing messages that were stored on special conditions
+                // ("store errored only" or "do not store filtered messages"),
+                // then try to remove the old message if the new one succeeded.
+                if (checkIfMessageExists) {
+                    if (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) {
+                        MessageObjectFilter filter = new MessageObjectFilter();
+                        filter.setId(messageObject.getId());
+                        try {
+                            removeMessages(filter);
+                        } catch (ControllerException e) {
+                            logger.error("Could not remove old message: id=" + messageObject.getId(), e);
+                        }
+                    }
+                    if (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
+                        MessageObjectFilter filter = new MessageObjectFilter();
+                        filter.setId(messageObject.getId());
+                        try {
+                            removeMessages(filter);
+                        } catch (ControllerException e) {
+                            logger.error("Could not remove old message: id=" + messageObject.getId(), e);
+                        }
+                    }
+                }
+                
+                if (channel.getProperties().get("store_messages").equals("false") || 
+                        (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) || 
+                        (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
                     logger.debug("message is not stored");
                     return;
                 } else if (channel.getProperties().getProperty("encryptData").equals("true")) {
@@ -741,7 +772,13 @@ public class DefaultMessageObjectController extends MessageObjectController {
                     }
 
                     if (existingId != null) {
-                        oldStatus = MessageObject.Status.valueOf(lookupMessageStatus(existingId));
+                        String messageStatus = lookupMessageStatus(existingId);
+                        
+                        // The message status will be null if the destination message was
+                        // reprocessed without the associated source message being in the database
+                        if (messageStatus != null) {
+                            oldStatus = MessageObject.Status.valueOf(lookupMessageStatus(existingId));
+                        }
                     } else {
                         oldStatus = null;
                     }
