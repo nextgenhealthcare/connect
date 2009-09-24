@@ -1986,7 +1986,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                codeTemplatePanel.updateCodeTemplateTable(false);
+                codeTemplatePanel.updateCodeTemplateTable();
                 setBold(viewPane, UIConstants.ERROR_CONSTANT);
                 setPanelName("Code Templates");
                 setCurrentContentPage(codeTemplatePanel);
@@ -4071,7 +4071,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                codeTemplatePanel.updateCodeTemplateTable(false);
+                codeTemplatePanel.updateCodeTemplateTable();
                 setWorking("", false);
             }
         };
@@ -4158,7 +4158,7 @@ public class Frame extends JXFrame
         if (changesHaveBeenMade())
         {
             if (alertOption(this, "Would you like to save the changes made to the code templates?"))
-                codeTemplatePanel.saveCodeTemplate();
+                saveCodeTemplates();
             else
                 return;
         }
@@ -4226,7 +4226,7 @@ public class Frame extends JXFrame
                 
                 enableSave();
                 codeTemplatePanel.loadCodeTemplate();
-                codeTemplatePanel.updateCodeTemplateTable(false);
+                codeTemplatePanel.updateCodeTemplateTable();
             }
             catch (Exception e)
             {

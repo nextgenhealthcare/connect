@@ -52,7 +52,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
 {
     private Frame parent;
     private boolean isDeleting = false;
-    private int lastTemplateRow;
+    private int lastModelRow;
     private final String TEMPLATE_NAME_COLUMN_NAME = "Name";
     private final String TEMPLATE_CONTEXT_COLUMN_NAME = "Context";
     private final String TEMPLATE_TYPE_COLUMN_NAME = "Type";
@@ -69,7 +69,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
     public CodeTemplatePanel()
     {
         this.parent = PlatformUI.MIRTH_FRAME;
-        lastTemplateRow = -1;
+        lastModelRow = -1;
         blankPanel = new JPanel();
         initComponents();
         
@@ -107,17 +107,17 @@ public class CodeTemplatePanel extends javax.swing.JPanel
      */
     public void makeCodeTemplateTable()
     {
-        updateCodeTemplateTable(false);
+        updateCodeTemplateTable();
         
         templateTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 
         // Set the custom cell editor for the CodeTemplate Name column.
-        templateTable.getColumnModel().getColumn(templateTable.getColumnNumber(TEMPLATE_NAME_COLUMN_NAME)).setCellEditor(new CodeTemplateTableCellEditor());
+        templateTable.getColumnModel().getColumn(templateTable.getColumnModel().getColumnIndex(TEMPLATE_NAME_COLUMN_NAME)).setCellEditor(new CodeTemplateTableCellEditor());
 
         templateTable.setSelectionMode(0);
         templateTable.setRowSelectionAllowed(true);
         templateTable.setRowHeight(UIConstants.ROW_HEIGHT);
-        templateTable.setSortable(false);
+        templateTable.setSortable(true);
         templateTable.setOpaque(true);
         templateTable.setDragEnabled(false);
 
@@ -135,38 +135,25 @@ public class CodeTemplatePanel extends javax.swing.JPanel
         	templateTable.setHighlighters(highlighter);
         }
 
-        // This action is called when a new selection is made on the
-        // codeTemplate
-        // table.
+        // This action is called when a new selection is made on the codeTemplate table.
         templateTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
         {
             public void valueChanged(ListSelectionEvent evt)
             {
-                if((updating && !isDeleting) || templateTable.isEditing())
+                if(updating || isDeleting || templateTable.isEditing())
                     return;
                 
                 if (!evt.getValueIsAdjusting())
                 {
-                    if (lastTemplateRow != -1 && lastTemplateRow != templateTable.getSelectedRow() && lastTemplateRow < templateTable.getRowCount() && !isDeleting)
+                    if (lastModelRow != -1 && 
+                    	lastModelRow != getSelectedCodeTemplateModelIndex() && 
+                    	lastModelRow < templateTable.getModel().getRowCount())
                     {
-                        saveCodeTemplate();        
+                        saveCodeTemplate();
                     }
                     
-                    if (!loadCodeTemplate())
-                    {
-                        int rowCount = templateTable.getRowCount();
-                        if (rowCount > 0 && lastTemplateRow == rowCount)
-                            templateTable.setRowSelectionInterval(lastTemplateRow - 1, lastTemplateRow - 1);
-                        else if (lastTemplateRow != -1 && lastTemplateRow < rowCount)
-                            templateTable.setRowSelectionInterval(lastTemplateRow, lastTemplateRow);
-
-                        lastTemplateRow = templateTable.getSelectedRow();
-                    }
-                    else
-                    {
-                        lastTemplateRow = templateTable.getSelectedRow();
-                    }                   
-
+                    loadCodeTemplate();
+                    refreshTableRow();
                     checkVisibleTemplateTasks();
                 }
             }
@@ -227,7 +214,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
         });
     }
 
-    public void updateCodeTemplateTable(boolean addNew)
+    public void updateCodeTemplateTable()
     {
         Object[][] tableData = null;
         int tableSize = 0;
@@ -236,54 +223,22 @@ public class CodeTemplatePanel extends javax.swing.JPanel
         {
             tableSize = parent.codeTemplates.size();
 
-            if (addNew)
-                tableSize++;
-
             tableData = new Object[tableSize][4];
             for (int i = 0; i < tableSize; i++)
             {
-                if (tableSize - 1 == i && addNew)
+                CodeTemplate codeTemplate = parent.codeTemplates.get(i);
+                tableData[i][0] = codeTemplate.getName();
+                tableData[i][1] = codeTemplate.getType().getValue();
+                
+                for(ContextType c : ContextType.values())
                 {
-                    CodeTemplate codeTemplate = new CodeTemplate();
-
-                    try
-                    {
-                        codeTemplate.setId(parent.mirthClient.getGuid());
-                    }
-                    catch (ClientException e)
-                    {
-                        parent.alertException(this, e.getStackTrace(), e.getMessage());
-                    }
-
-                    codeTemplate.setName(getNewCodeTemplateName(tableSize));
-                    codeTemplate.setCode(functionCodeExample);
-                    codeTemplate.setTooltip("");
-                    codeTemplate.setScope(ContextType.MESSAGE_CONTEXT.getContext());
-                    codeTemplate.setType(CodeSnippetType.FUNCTION);
-                    tableData[i][0] = codeTemplate.getName();
-                    tableData[i][1] = CodeSnippetType.FUNCTION.getValue();
-                    tableData[i][2] = ContextType.MESSAGE_CONTEXT.getValue();
-                    tableData[i][3] = codeTemplate.getTooltip();
-                    parent.codeTemplates.add(codeTemplate);
+                    if(c.getContext() == codeTemplate.getScope())
+                        tableData[i][2] = c.getValue();
                 }
-                else
-                {
-                    CodeTemplate codeTemplate = parent.codeTemplates.get(i);
-                    tableData[i][0] = codeTemplate.getName();
-                    tableData[i][1] = codeTemplate.getType().getValue();
-                    
-                    for(ContextType c : ContextType.values())
-                    {
-                        if(c.getContext() == codeTemplate.getScope())
-                            tableData[i][2] = c.getValue();
-                    }
-                    
-                    tableData[i][3] = codeTemplate.getTooltip();
-                }
+                
+                tableData[i][3] = codeTemplate.getTooltip();
             }
         }
-
-        int row = UIConstants.ERROR_CONSTANT;
 
         if (templateTable != null)
         {
@@ -305,12 +260,12 @@ public class CodeTemplatePanel extends javax.swing.JPanel
                 }
             });
         }
-        if (addNew)
-        {
-            templateTable.setRowSelectionInterval(templateTable.getRowCount() - 1, templateTable.getRowCount() - 1);
-        } 
         
-        lastTemplateRow = templateTable.getSelectedRow();
+        refreshTableRow();
+    }
+    
+    private void refreshTableRow() {
+    	lastModelRow = getSelectedCodeTemplateModelIndex();
     }
     
     public void validateCodeTemplate()
@@ -348,12 +303,11 @@ public class CodeTemplatePanel extends javax.swing.JPanel
     
     public void setDefaultCodeTemplate()
     {
-        lastTemplateRow = -1;
+        lastModelRow = -1;
 
         if (parent.codeTemplates.size() > 0)
         {
             templateTable.setRowSelectionInterval(0, 0);
-            lastTemplateRow = 0;
         }
         else
         {
@@ -366,7 +320,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
      */
     public void checkVisibleTemplateTasks()
     {
-        int selected = getCodeTemplateIndex();
+        int selected = getSelectedCodeTemplateModelIndex();
 
         if (selected == UIConstants.ERROR_CONSTANT)
         {
@@ -386,10 +340,10 @@ public class CodeTemplatePanel extends javax.swing.JPanel
         }
     }
 
-    /** Loads a selected connector and returns true on success. */
+    /** Loads a selected code template and returns true on success. */
     public boolean loadCodeTemplate()
     {
-        int index = getCodeTemplateIndex();
+        int index = getSelectedCodeTemplateModelIndex();
 
         if (index == UIConstants.ERROR_CONSTANT)
             return false;
@@ -418,10 +372,10 @@ public class CodeTemplatePanel extends javax.swing.JPanel
 
     public boolean saveCodeTemplate()
     {
-        if (lastTemplateRow == UIConstants.ERROR_CONSTANT)
+        if (lastModelRow == UIConstants.ERROR_CONSTANT)
             return false;
 
-        int index = getCodeTemplateIndex(lastTemplateRow);
+        int index = lastModelRow;
 
         boolean changed = parent.codeTemplateTasks.getContentPane().getComponent(1).isVisible();
                
@@ -449,41 +403,20 @@ public class CodeTemplatePanel extends javax.swing.JPanel
         return true;
     }
 
-    /** Get the currently selected codeTemplate table index */
-    public int getSelectedCodeTemplateIndex()
+    /** Get the currently selected codeTemplate model index */
+    public int getSelectedCodeTemplateModelIndex()
     {
+    	int index = -1;
+    	
         if (templateTable.isEditing())
-            return templateTable.getEditingRow();
+        	index = templateTable.getEditingRow();
         else
-            return templateTable.getSelectedRow();
-    }
-
-    /** Get a codeTemplate connector index by passing in its name */
-    private int getCodeTemplateIndex(int selectedRow)
-    {
-        String codeTemplateName = (String) templateTable.getValueAt(selectedRow, templateTable.getColumnNumber(TEMPLATE_NAME_COLUMN_NAME));
-        for (int i = 0; i < parent.codeTemplates.size(); i++)
-        {
-            if (parent.codeTemplates.get(i).getName().equalsIgnoreCase(codeTemplateName))
-                return i;
-        }
-        return UIConstants.ERROR_CONSTANT;
-    }
-
-    /** Get the index of the currently selected codeTemplate. */
-    public int getCodeTemplateIndex()
-    {
-        if (templateTable.getSelectedRow() >= 0 && templateTable.getSelectedRow() < templateTable.getRowCount())
-            return getCodeTemplateIndex(templateTable.getSelectedRow());
-        return UIConstants.ERROR_CONSTANT;
-    }
-
-    public void setSelectedCodeTemplateIndex(int index)
-    {
-        if (index == UIConstants.ERROR_CONSTANT)
-            deselectCodeTemplateRows();
-        else
-            templateTable.setRowSelectionInterval(index, index);
+        	index = templateTable.getSelectedRow();
+        
+        if (index == -1)
+        	return index;
+        
+        return templateTable.convertRowIndexToModel(index);
     }
 
     /**
@@ -499,7 +432,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
             boolean exists = false;
             for (int j = 0; j < size - 1; j++)
             {
-                if (((String) templateTable.getValueAt(j, templateTable.getColumnNumber(TEMPLATE_NAME_COLUMN_NAME))).equalsIgnoreCase(temp + i))
+                if (((String) templateTable.getModel().getValueAt(j, templateTable.getColumnModel().getColumnIndex(TEMPLATE_NAME_COLUMN_NAME))).equalsIgnoreCase(temp + i))
                     exists = true;
             }
             if (!exists)
@@ -529,8 +462,39 @@ public class CodeTemplatePanel extends javax.swing.JPanel
     public void addCodeTemplate()
     {
         stopCodeTemplateEditing();
-        updateCodeTemplateTable(true);
-        templatePane.getViewport().setViewPosition(new Point(0, templateTable.getRowHeight() * templateTable.getRowCount()));
+        saveCodeTemplate();
+        
+        RefreshTableModel model = (RefreshTableModel) templateTable.getModel();
+        
+        CodeTemplate codeTemplate = new CodeTemplate();
+		try
+		{
+		    codeTemplate.setId(parent.mirthClient.getGuid());
+		}
+		catch (ClientException e)
+		{
+		    parent.alertException(this, e.getStackTrace(), e.getMessage());
+		}
+		
+		codeTemplate.setName(getNewCodeTemplateName(model.getRowCount() + 1));
+		codeTemplate.setCode(functionCodeExample);
+		codeTemplate.setTooltip("");
+		codeTemplate.setScope(ContextType.MESSAGE_CONTEXT.getContext());
+		codeTemplate.setType(CodeSnippetType.FUNCTION);
+		
+		Object[] rowData = new Object[4];
+		rowData[0] = codeTemplate.getName();
+		rowData[1] = CodeSnippetType.FUNCTION.getValue();
+		rowData[2] = ContextType.MESSAGE_CONTEXT.getValue();
+		rowData[3] = codeTemplate.getTooltip();
+		
+		parent.codeTemplates.add(codeTemplate);
+		model.addRow(rowData);
+		
+		int newViewIndex = templateTable.convertRowIndexToView(templateTable.getModel().getRowCount() - 1);
+		templateTable.setRowSelectionInterval(newViewIndex, newViewIndex);
+		
+        templatePane.getViewport().setViewPosition(new Point(0, templateTable.getRowHeight() * templateTable.getModel().getRowCount()));
         parent.enableSave();
     }
 
@@ -541,15 +505,30 @@ public class CodeTemplatePanel extends javax.swing.JPanel
         isDeleting = true;
 
         stopCodeTemplateEditing();
-        parent.codeTemplates.remove(getCodeTemplateIndex());
+        
+        RefreshTableModel model = (RefreshTableModel) templateTable.getModel();
 
-        updateCodeTemplateTable(false);
+        int selectedModelIndex = getSelectedCodeTemplateModelIndex();
+        int newViewIndex = templateTable.convertRowIndexToView(selectedModelIndex);
+        if (newViewIndex == (model.getRowCount() - 1)) {
+        	newViewIndex--;
+        }
+        
+        // must set lastModelRow to -1 so that when setting the new
+        // row selection below the old data won't try to be saved.
+        lastModelRow = -1;
+        parent.codeTemplates.remove(selectedModelIndex);
+        model.removeRow(selectedModelIndex);
+        
         parent.enableSave();
        
         isDeleting = false;
 
-        if (parent.codeTemplates.size() == 0)
-            resetBlankPane();
+        if (parent.codeTemplates.size() == 0) {
+            deselectCodeTemplateRows();
+        } else {
+            templateTable.setRowSelectionInterval(newViewIndex, newViewIndex);
+        }
     }
 
     /** Clears the selection in the table and sets the tasks appropriately */
@@ -708,8 +687,8 @@ public class CodeTemplatePanel extends javax.swing.JPanel
             parent.setVisibleTasks(parent.codeTemplateTasks, parent.codeTemplatePopupMenu, 6, 6, false);
         }    
         
-        if(getSelectedCodeTemplateIndex() != UIConstants.ERROR_CONSTANT)
-            templateTable.setValueAt((String)type.getSelectedItem(), getSelectedCodeTemplateIndex(), templateTable.getColumnNumber(TEMPLATE_TYPE_COLUMN_NAME));
+        if(getSelectedCodeTemplateModelIndex() != UIConstants.ERROR_CONSTANT)
+            templateTable.getModel().setValueAt((String)type.getSelectedItem(), getSelectedCodeTemplateModelIndex(), templateTable.getColumnModel().getColumnIndex(TEMPLATE_TYPE_COLUMN_NAME));
         updating = false;
     }//GEN-LAST:event_typeActionPerformed
 
@@ -719,8 +698,8 @@ public class CodeTemplatePanel extends javax.swing.JPanel
             return;
         
         updating = true;
-        if(getSelectedCodeTemplateIndex() != UIConstants.ERROR_CONSTANT)
-            templateTable.setValueAt((String)context.getSelectedItem(), getSelectedCodeTemplateIndex(), templateTable.getColumnNumber(TEMPLATE_CONTEXT_COLUMN_NAME));
+        if(getSelectedCodeTemplateModelIndex() != UIConstants.ERROR_CONSTANT)
+            templateTable.getModel().setValueAt((String)context.getSelectedItem(), getSelectedCodeTemplateModelIndex(), templateTable.getColumnModel().getColumnIndex(TEMPLATE_CONTEXT_COLUMN_NAME));
         updating = false;
     }//GEN-LAST:event_contextActionPerformed
 
@@ -730,8 +709,8 @@ public class CodeTemplatePanel extends javax.swing.JPanel
             return;
         
         updating = true;
-        if(getSelectedCodeTemplateIndex() != UIConstants.ERROR_CONSTANT)
-            templateTable.setValueAt(description.getText(), getSelectedCodeTemplateIndex(), templateTable.getColumnNumber(TEMPLATE_DESCRIPTION_COLUMN_NAME));
+        if(getSelectedCodeTemplateModelIndex() != UIConstants.ERROR_CONSTANT)
+            templateTable.getModel().setValueAt(description.getText(), getSelectedCodeTemplateModelIndex(), templateTable.getColumnModel().getColumnIndex(TEMPLATE_DESCRIPTION_COLUMN_NAME));
         updating = false;
     }//GEN-LAST:event_descriptionKeyReleased
 
