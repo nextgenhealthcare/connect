@@ -59,9 +59,11 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.model.Configuration;
 import com.webreach.mirth.model.DriverInfo;
+import com.webreach.mirth.model.PasswordRequirements;
 import com.webreach.mirth.model.ServerConfiguration;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.webreach.mirth.model.util.PasswordRequirementsChecker;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
 import com.webreach.mirth.server.builders.MuleConfigurationBuilder;
@@ -105,7 +107,9 @@ public class DefaultConfigurationController extends ConfigurationController{
     private JavaScriptUtil javaScriptUtil = JavaScriptUtil.getInstance();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
-
+    
+    private PasswordRequirements passwordRequirements;
+    
     // singleton pattern
     private static DefaultConfigurationController instance = null;
 
@@ -148,6 +152,8 @@ public class DefaultConfigurationController extends ConfigurationController{
             }
 
             loadDefaultProperties();
+            
+            this.passwordRequirements = PasswordRequirementsChecker.getInstance().loadPasswordRequirements();
         } catch (Exception e) {
             logger.warn(e);
         }
@@ -804,4 +810,8 @@ public class DefaultConfigurationController extends ConfigurationController{
     public String getBaseDir() {
         return baseDir;
     }
+
+	public PasswordRequirements getPasswordRequirements() {
+		return passwordRequirements;
+	}
 }

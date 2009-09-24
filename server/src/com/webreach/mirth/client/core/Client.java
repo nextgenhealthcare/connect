@@ -45,6 +45,7 @@ import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.ExtensionLibrary;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.MetaData;
+import com.webreach.mirth.model.PasswordRequirements;
 import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.model.Preferences;
 import com.webreach.mirth.model.ServerConfiguration;
@@ -830,5 +831,10 @@ public class Client {
 
     public UpdateClient getUpdateClient(User requestUser) {
         return new UpdateClient(this, requestUser);
+    }
+    
+    public PasswordRequirements getPasswordRequirements() throws ClientException {
+        NameValuePair[] params = { new NameValuePair("op", "getPasswordRequirements")};
+        return (PasswordRequirements) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
     }
 }

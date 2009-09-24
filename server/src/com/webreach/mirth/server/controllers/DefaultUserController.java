@@ -29,13 +29,16 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.Credentials;
+import com.webreach.mirth.model.PasswordRequirements;
 import com.webreach.mirth.model.Preference;
 import com.webreach.mirth.model.Preferences;
 import com.webreach.mirth.model.User;
+import com.webreach.mirth.model.util.PasswordRequirementsChecker;
 import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.util.EncryptionException;
@@ -81,6 +84,16 @@ public class DefaultUserController extends UserController {
 
     public void updateUser(User user, String plainTextPassword) throws ControllerException {
         try {
+
+            PasswordRequirements passwordRequirments = ControllerFactory.getFactory().createConfigurationController().getPasswordRequirements();
+            Vector<String> responses = PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements(plainTextPassword, passwordRequirments);
+            if (responses != null) {
+                String resString = "";
+                for (String response : responses) {
+                    resString += response + "\n";
+                }
+                throw new ControllerException(resString);
+            }
             if (user.getId() == null) {
                 logger.debug("adding user: " + user);
                 SqlConfig.getSqlMapClient().insert("User.insertUser", getUserMap(user, plainTextPassword));
@@ -98,7 +111,7 @@ public class DefaultUserController extends UserController {
 
         try {
             SqlConfig.getSqlMapClient().delete("User.deleteUser", user);
-            
+
             if (DatabaseUtil.statementExists("User.vacuumPersonTable")) {
                 SqlConfig.getSqlMapClient().update("User.vacuumPersonTable");
             }
@@ -198,11 +211,11 @@ public class DefaultUserController extends UserController {
 
             SqlConfig.getSqlMapClient().delete("User.deleteUserPreference", parameterMap);
             SqlConfig.getSqlMapClient().update("User.insertUserPreference", parameterMap);
-            
+
             if (DatabaseUtil.statementExists("User.vacuumPreferencesTable")) {
                 SqlConfig.getSqlMapClient().update("User.vacuumPreferencesTable");
             }
-            
+
         } catch (Exception e) {
             throw new ControllerException(e);
         }

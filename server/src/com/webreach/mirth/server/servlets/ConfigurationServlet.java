@@ -94,6 +94,9 @@ public class ConfigurationServlet extends MirthServlet {
                     configurationController.setGlobalScripts((Map<String, String>) serializer.fromXML(scripts));
                 } else if (operation.equals("shutdown")) {
                     configurationController.shutdown();
+                } else if (operation.equals("getPasswordRequirements")) {
+                    response.setContentType("application/xml");
+                    out.println(serializer.toXML(configurationController.getPasswordRequirements()));
                 }
 
             }

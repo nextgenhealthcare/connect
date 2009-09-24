@@ -34,6 +34,7 @@ import javax.crypto.SecretKey;
 
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.DriverInfo;
+import com.webreach.mirth.model.PasswordRequirements;
 import com.webreach.mirth.model.ServerConfiguration;
 
 /**
@@ -125,7 +126,8 @@ public abstract class ConfigurationController extends Controller {
     public abstract ServerConfiguration getServerConfiguration() throws ControllerException;
 
     public abstract void setServerConfiguration(ServerConfiguration serverConfiguration) throws ControllerException;
-
+    
+    public abstract PasswordRequirements getPasswordRequirements();
     // status
     
     public abstract int getStatus();
