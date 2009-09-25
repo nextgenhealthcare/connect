@@ -352,7 +352,7 @@ public class FileReader extends ConnectorClass
             filenameFilterRegexCheckBox.setSelected(true);
         }
         else {
-            filenameFilterRegexCheckBox.setSelected(true);
+            filenameFilterRegexCheckBox.setSelected(false);
         }
         
         if (((String) props.get(FileReaderProperties.FILE_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION))
@@ -871,7 +871,7 @@ public class FileReader extends ConnectorClass
         passiveModeNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         filenameFilterRegexCheckBox.setBackground(new java.awt.Color(255, 255, 255));
-        filenameFilterRegexCheckBox.setText("Regex");
+        filenameFilterRegexCheckBox.setText("Regular Expression");
         filenameFilterRegexCheckBox.setToolTipText("<html>If Regex is checked, the pattern is treated as a regular expression.<br>If Regex is not checked, it is treated as a pattern that supports wildcards and a comma separated list.</html>");
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
