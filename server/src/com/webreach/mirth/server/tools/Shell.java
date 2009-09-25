@@ -150,6 +150,7 @@ public class Shell {
             } else {
                 runConsole();
             }
+            client.cleanup();
             client.logout();
             out.println("Disconnected from server.");
         } catch (ClientException ce) {

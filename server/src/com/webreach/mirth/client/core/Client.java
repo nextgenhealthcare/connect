@@ -97,6 +97,11 @@ public class Client {
     public int getTimeout() {
         return timeout;
     }
+    
+    public void cleanup() {
+        if (serverConnection != null)
+            serverConnection.shutdownTimeoutThread();
+    }
 
     /**
      * Logs a user in to the Mirth server using the specified name and password.

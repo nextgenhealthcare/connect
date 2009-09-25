@@ -43,12 +43,14 @@ import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.httpclient.util.IdleConnectionTimeoutThread;
 
 import com.webreach.mirth.client.core.ssl.EasySSLProtocolSocketFactory;
 
 public class ServerConnection {
 	private HttpClient client;
 	private String address;
+	private IdleConnectionTimeoutThread idleConnectionTimeoutThread;
 
 	public ServerConnection(String address) {
 	    // default timeout is inifinite
@@ -67,6 +69,14 @@ public class ServerConnection {
         client = new HttpClient(httpClientParams, httpConnectionManager);
         Protocol mirthHttps = new Protocol("https", new EasySSLProtocolSocketFactory(), 8443);
         Protocol.registerProtocol("https", mirthHttps);
+        
+        // Close connections that have been idle for more than 5 seconds every 5 seconds.
+        // This should help avoid stale connections.
+        idleConnectionTimeoutThread = new IdleConnectionTimeoutThread();
+        idleConnectionTimeoutThread.addConnectionManager(httpConnectionManager);
+        idleConnectionTimeoutThread.setTimeoutInterval(5000);
+        idleConnectionTimeoutThread.setConnectionTimeout(5000);
+        idleConnectionTimeoutThread.start();
 	}
 
 	/**
@@ -161,5 +171,11 @@ public class ServerConnection {
 				post.releaseConnection();
 			}
 		}
+	}
+	
+	public void shutdownTimeoutThread() {
+	    if (idleConnectionTimeoutThread != null) {
+	        idleConnectionTimeoutThread.shutdown();
+	    }
 	}
 }

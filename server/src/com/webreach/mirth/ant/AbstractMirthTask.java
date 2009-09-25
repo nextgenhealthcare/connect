@@ -114,7 +114,8 @@ public abstract class AbstractMirthTask extends Task {
 	}
 
 	protected void disconnectClient() throws ClientException {
-		client.logout();
+		client.cleanup();
+	    client.logout();
 	}
 
 	protected String getChannelEnabledString(ChannelStatus channelStatus) throws ClientException {
