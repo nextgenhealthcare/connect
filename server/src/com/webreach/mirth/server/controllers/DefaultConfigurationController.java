@@ -132,7 +132,15 @@ public class DefaultConfigurationController extends ConfigurationController{
         try {
             if (mirthProperties.getProperty(TEMP_DIR) != null) {
                 String tempDirPath = StringUtils.replace(mirthProperties.getProperty(TEMP_DIR), "${mirthHomeDir}", baseDir);
+                File tempDir = new File(tempDirPath);
+                
+                if (!tempDir.exists()) {
+                    tempDir.mkdirs();
+                    logger.debug("Created tmpdir: " + tempDir.getAbsolutePath());
+                }
+                
                 System.setProperty("java.io.tmpdir", tempDirPath);
+                logger.debug("Set tmpdir to: " + tempDirPath);
             }
             
             if (mirthProperties.getProperty(CHARSET) != null) {
