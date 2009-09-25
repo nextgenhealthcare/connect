@@ -1026,6 +1026,7 @@ public class Frame extends JXFrame
                 alertWarning(parentComponent, "Sorry your connection to Mirth has either timed out or there was an error in the connection.  Please login again.");
                 if (!exportChannelOnError())
                     return;
+                mirthClient.cleanup();
                 this.dispose();
                 Mirth.main(new String[] { PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION });
                 return;
@@ -1038,6 +1039,7 @@ public class Frame extends JXFrame
                 alertWarning(parentComponent, "The Mirth server " + PlatformUI.SERVER_NAME + " is no longer running.  Please start it and login again.");
                 if (!exportChannelOnError())
                     return;
+                mirthClient.cleanup();
                 this.dispose();
                 Mirth.main(new String[] { PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION });
                 return;
@@ -1813,6 +1815,7 @@ public class Frame extends JXFrame
 
         try
         {
+            mirthClient.cleanup();
             mirthClient.logout();
             this.dispose();
             Mirth.main(new String[] { PlatformUI.SERVER_NAME, PlatformUI.CLIENT_VERSION });
