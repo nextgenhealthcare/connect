@@ -25,94 +25,101 @@
 
 package com.webreach.mirth.model.converters;
 
-import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.log4j.Logger;
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
 public class DocumentSerializer implements IXMLSerializer<Document> {
-	private Logger logger = Logger.getLogger(this.getClass());
-	private String[] cDataElements = null;
-	private boolean preserveSpace;
+    private Logger logger = Logger.getLogger(this.getClass());
+    private String[] cDataElements = null;
 
-	public DocumentSerializer() {
-		this.preserveSpace = true;
-	}
+    public DocumentSerializer() {
+        
+    }
+    
+    public DocumentSerializer(String[] cDataElements) {
+        this.cDataElements = cDataElements;
+    }
 
-	public DocumentSerializer(String[] cDataElements) {
-		this.cDataElements = cDataElements;
-		this.preserveSpace = true;
-	}
+    public String toXML(Document source) {
+        Writer writer = new StringWriter();
 
-	public boolean isPreserveSpace() {
-		return this.preserveSpace;
-	}
+        try {
+            TransformerFactory factory = TransformerFactory.newInstance();
+            factory.setAttribute("indent-number", new Integer(4));
+            Transformer transformer = factory.newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
 
-	public void setPreserveSpace(boolean preserveSpace) {
-		this.preserveSpace = preserveSpace;
-	}
+            if (source.getDoctype() != null) {
+                String publicDoctype = source.getDoctype().getPublicId();
+                String systemDoctype = source.getDoctype().getSystemId();
 
-	public String toXML(Document source) {
-		OutputFormat of = new OutputFormat(source);
+                if ((publicDoctype != null) && (publicDoctype.length() > 0)) {
+                    transformer.setOutputProperty(OutputKeys.DOCTYPE_PUBLIC, publicDoctype);
+                }
 
-		if (cDataElements != null) {
-			of.setCDataElements(cDataElements);
-		}
+                if ((systemDoctype != null) && (systemDoctype.length() > 0)) {
+                    transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, systemDoctype);
+                }
+            }
 
-		of.setOmitXMLDeclaration(false);
-		of.setIndenting(true);
-		of.setPreserveSpace(preserveSpace);
-		of.setLineSeparator(System.getProperty("line.separator"));
+            if (cDataElements != null) {
+                StringBuilder cDataElementsString = new StringBuilder();
 
-		StringWriter stringWriter = new StringWriter();
-		XMLSerializer serializer = new XMLSerializer(stringWriter, of);
+                for (int i = 0; i < cDataElements.length; i++) {
+                    cDataElementsString.append(cDataElements[i] + " ");
+                }
 
-		try {
-			serializer.serialize(source);
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
+                transformer.setOutputProperty(OutputKeys.CDATA_SECTION_ELEMENTS, cDataElementsString.toString());
+            }
 
-		return stringWriter.toString();
-	}
+            transformer.transform(new DOMSource(source), new StreamResult(writer));
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
 
-	public Document fromXML(String source) {
-		Document document = null;
+        return writer.toString();
+    }
 
-		try {
-			document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(source)));
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
+    public Document fromXML(String source) {
+        Document document = null;
 
-		return document;
-	}
+        try {
+            document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(source)));
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
 
-	public Map<String, String> getMetadata() throws SerializerException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+        return document;
+    }
 
-	public Map<String, String> getMetadataFromDocument(Document doc) throws SerializerException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Map<String, String> getMetadata() {
+        return null;
+    }
 
-	public Map<String, String> getMetadataFromEncoded(String source) throws SerializerException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Map<String, String> getMetadataFromDocument(Document doc) throws SerializerException {
+        return null;
+    }
 
-	public Map<String, String> getMetadataFromXML(String xmlSource) throws SerializerException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public Map<String, String> getMetadataFromEncoded(String source) throws SerializerException {
+        return null;
+    }
+
+    public Map<String, String> getMetadataFromXML(String xmlSource) throws SerializerException {
+        return null;
+    }
 }

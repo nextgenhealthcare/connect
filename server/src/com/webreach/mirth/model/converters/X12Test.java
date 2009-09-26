@@ -46,7 +46,6 @@ public class X12Test {
 		X12Serializer serializer = new X12Serializer(true);
 		String xmloutput = serializer.toXML(testMessage);
 		DocumentSerializer docser = new DocumentSerializer();
-		docser.setPreserveSpace(false);
 		String x12 = serializer.fromXML(xmloutput);
 		stopwatch.stop();
 

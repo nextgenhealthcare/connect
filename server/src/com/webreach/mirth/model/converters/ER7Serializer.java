@@ -318,7 +318,6 @@ public class ER7Serializer implements IXMLSerializer<String> {
 		if (useStrictParser) {
 			try {
 				DocumentSerializer serializer = new DocumentSerializer();
-				serializer.setPreserveSpace(true);
 				String source = serializer.toXML(document);
 				Message message = xmlParser.parse(source);
 				Terser terser = new Terser(message);

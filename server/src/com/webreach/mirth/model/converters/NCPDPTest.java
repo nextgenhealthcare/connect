@@ -126,7 +126,6 @@ public class NCPDPTest {
 		String xmloutput = serializer.toXML(testMessage);
 		//System.out.println(xmloutput);
 		DocumentSerializer docser = new DocumentSerializer();
-		docser.setPreserveSpace(true);
 		Document doc = docser.fromXML(xmloutput);
 		XMLReader xr = XMLReaderFactory.createXMLReader();
 

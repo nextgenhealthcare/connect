@@ -142,7 +142,6 @@ public class    DICOMSerializer implements IXMLSerializer<String> {
     
     private Map<String, String> getMetadata(String sourceMessage) {
 		DocumentSerializer docSerializer = new DocumentSerializer();
-		docSerializer.setPreserveSpace(true);
 		Document document = docSerializer.fromXML(sourceMessage);
 		return getMetadataFromDocument(document);
 	}

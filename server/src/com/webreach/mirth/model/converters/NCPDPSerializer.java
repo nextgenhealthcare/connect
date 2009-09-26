@@ -163,7 +163,6 @@ public class NCPDPSerializer  implements IXMLSerializer<String> {
     }
 	private Map<String, String> getMetadata(String sourceMessage) throws SerializerException {
 		DocumentSerializer docSerializer = new DocumentSerializer();
-		docSerializer.setPreserveSpace(true);
 		Document document = docSerializer.fromXML(sourceMessage);
 		return getMetadataFromDocument(document);
 	}

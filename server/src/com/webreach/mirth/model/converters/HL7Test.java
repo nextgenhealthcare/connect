@@ -63,7 +63,6 @@ public class HL7Test {
 		}else{
 			
 			DocumentSerializer docser = new DocumentSerializer();
-			docser.setPreserveSpace(false);
 			Document doc = docser.fromXML(xmloutput);
 			er7 = serializer.fromXML(docser.toXML(doc));
 			stopwatch.stop();
@@ -72,7 +71,6 @@ public class HL7Test {
 		
 		//System.out.println(xmloutput);
 		DocumentSerializer docser = new DocumentSerializer();
-		docser.setPreserveSpace(false);
 		Document doc = docser.fromXML(xmloutput);
 		
 		
