@@ -457,7 +457,6 @@ public class DatabaseReader extends ConnectorClass
             document.appendChild(resultElement);
             
             DocumentSerializer docSerializer = new DocumentSerializer();
-            docSerializer.setPreserveSpace(false);
             
             String xml = docSerializer.toXML(document);
             

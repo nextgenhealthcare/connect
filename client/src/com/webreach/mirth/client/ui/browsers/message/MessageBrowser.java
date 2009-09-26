@@ -1031,7 +1031,6 @@ public class MessageBrowser extends javax.swing.JPanel {
                 } else if (protocol.equals(MessageObject.Protocol.XML) || protocol.equals(Protocol.HL7V3)) {
                     newDoc.setTokenMarker(new XMLTokenMarker());
                     DocumentSerializer serializer = new DocumentSerializer();
-                    serializer.setPreserveSpace(false);
 
                     try {
                         Document doc = serializer.fromXML(message);
