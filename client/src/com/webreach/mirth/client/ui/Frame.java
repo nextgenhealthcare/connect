@@ -185,7 +185,6 @@ public class Frame extends JXFrame
     private boolean connectionError;
     private ArrayList<CharsetEncodingInformation> availableCharsetEncodings = null;
     private List<String> charsetEncodings = null;
-    private boolean highlightersSet = false;
     private boolean isEditingChannel = false;
     private Stack<String> workingStack = new Stack<String>();
     public LinkedHashMap<MessageObject.Protocol, String> protocols;
@@ -193,6 +192,7 @@ public class Frame extends JXFrame
     private Map<String, ConnectorMetaData> loadedConnectors;
     private UpdateClient updateClient = null;
     private boolean refreshingStatuses = false;
+    private Map<String, Integer> safeErrorFailCountMap = new HashMap<String, Integer>();
 
     public Frame()
     {
@@ -1000,14 +1000,30 @@ public class Frame extends JXFrame
     		new CustomErrorDialog((java.awt.Dialog)owner, message, question);
     	}
     }
-
+    
     /**
      * Alerts the user with an exception dialog with the passed in stack trace.
      */
     public void alertException(Component parentComponent, StackTraceElement[] strace, String message)
-    {    	
+    {       
+        alertException(parentComponent, strace, message, null);
+    }
+    
+    /**
+     * Alerts the user with an exception dialog with the passed in stack trace.
+     */
+    public void alertException(Component parentComponent, StackTraceElement[] strace, String message, String safeErrorKey)
+    {
         if (connectionError)
             return;
+        
+        if (safeErrorKey != null) {
+            increaseSafeErrorFailCount(safeErrorKey);
+            
+            if (getSafeErrorFailCount(safeErrorKey) < 3) {
+                return;
+            }
+        }
         
         parentComponent = getVisibleComponent(parentComponent);
 
@@ -1055,10 +1071,10 @@ public class Frame extends JXFrame
         Window owner = getWindowForComponent(parentComponent);
         
         if (owner instanceof java.awt.Frame) {
-    		new ErrorDialog((java.awt.Frame)owner, stackTrace);
-    	} else { // window instanceof Dialog
-    		new ErrorDialog((java.awt.Dialog)owner, stackTrace);
-    	}
+            new ErrorDialog((java.awt.Frame)owner, stackTrace);
+        } else { // window instanceof Dialog
+            new ErrorDialog((java.awt.Dialog)owner, stackTrace);
+        }
     }
     
     private Component getVisibleComponent(Component component) {
@@ -2251,6 +2267,23 @@ public class Frame extends JXFrame
     	}
     }
     
+    public synchronized void increaseSafeErrorFailCount(String safeErrorKey) {
+        int safeErrorFailCount = getSafeErrorFailCount(safeErrorKey) + 1;
+        this.safeErrorFailCountMap.put(safeErrorKey, safeErrorFailCount);
+    }
+    
+    public synchronized void resetSafeErrorFailCount(String safeErrorKey) {
+        this.safeErrorFailCountMap.put(safeErrorKey, 0);
+    }
+    
+    public synchronized int getSafeErrorFailCount(String safeErrorKey) {
+        if (safeErrorFailCountMap.containsKey(safeErrorKey)) {
+            return safeErrorFailCountMap.get(safeErrorKey);
+        } else {
+            return 0;
+        }
+    }
+    
     public void doRefreshStatuses()
     {
     	// Don't allow anything to be getting or setting refreshingStatuses
@@ -2282,6 +2315,7 @@ public class Frame extends JXFrame
                 try
                 {
                     status = mirthClient.getChannelStatusList();
+                    resetSafeErrorFailCount("doRefreshStatuses");
 
                     if (status != null)
                     {
@@ -2345,7 +2379,7 @@ public class Frame extends JXFrame
                 catch (ClientException e)
                 {
                 	status = null;
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage(), "doRefreshStatuses");
                 }
                 
                 return null;
