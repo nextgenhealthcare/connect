@@ -164,31 +164,17 @@ public class CodeTemplatePanel extends javax.swing.JPanel
         {
             public void mousePressed(java.awt.event.MouseEvent evt)
             {
-                showTemplatePopupMenu(evt, true);
+                checkSelectionAndPopupMenu(evt);
             }
 
             public void mouseReleased(java.awt.event.MouseEvent evt)
             {
-                showTemplatePopupMenu(evt, true);
+                checkSelectionAndPopupMenu(evt);
             }
         });
 
         templatePane.setViewportView(templateTable);
 
-        // Mouse listener for trigger-button popup on the table pane (not actual
-        // table).
-        templatePane.addMouseListener(new java.awt.event.MouseAdapter()
-        {
-            public void mousePressed(java.awt.event.MouseEvent evt)
-            {
-                showTemplatePopupMenu(evt, false);
-            }
-
-            public void mouseReleased(java.awt.event.MouseEvent evt)
-            {
-                showTemplatePopupMenu(evt, false);
-            }
-        });
         // Key Listener trigger for CTRL-S and DEL
         templateTable.addKeyListener(new KeyListener()
         {
@@ -440,18 +426,17 @@ public class CodeTemplatePanel extends javax.swing.JPanel
         }
         return "";
     }
-
+    
     /**
-     * Shows the trigger-button popup menu. If the trigger was pressed on a row
-     * of the codeTemplate table, that row should be selected as well.
+     * Shows the popup menu when the trigger button (right-click) has been
+     * pushed.
      */
-    private void showTemplatePopupMenu(java.awt.event.MouseEvent evt, boolean onTable)
+    private void checkSelectionAndPopupMenu(java.awt.event.MouseEvent evt)
     {
-        if (evt.isPopupTrigger())
-        {
-            if (onTable)
-            {
-                int row = templateTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+        int row = templateTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+        
+        if (evt.isPopupTrigger()) {
+            if (row != -1) {
                 templateTable.setRowSelectionInterval(row, row);
             }
             parent.codeTemplatePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());

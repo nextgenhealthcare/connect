@@ -47,23 +47,6 @@ public class UserPanel extends javax.swing.JPanel
         initComponents();
         makeUsersTable();
         usersTable.setBorder(BorderFactory.createEmptyBorder());
-        usersPane.addMouseListener(new java.awt.event.MouseAdapter()
-        {
-            public void mousePressed(java.awt.event.MouseEvent evt)
-            {
-                showUserPopupMenu(evt, false);
-            }
-
-            public void mouseReleased(java.awt.event.MouseEvent evt)
-            {
-                showUserPopupMenu(evt, false);
-            }
-
-            public void mouseClicked(java.awt.event.MouseEvent evt)
-            {
-                deselectRows();
-            }
-        });
         setBorder(BorderFactory.createEmptyBorder());
         setVisible(true);
     }
@@ -112,12 +95,12 @@ public class UserPanel extends javax.swing.JPanel
         {
             public void mousePressed(java.awt.event.MouseEvent evt)
             {
-                showUserPopupMenu(evt, true);
+                checkSelectionAndPopupMenu(evt);
             }
 
             public void mouseReleased(java.awt.event.MouseEvent evt)
             {
-                showUserPopupMenu(evt, true);
+                checkSelectionAndPopupMenu(evt);
             }
 
             public void mouseClicked(java.awt.event.MouseEvent evt)
@@ -207,19 +190,20 @@ public class UserPanel extends javax.swing.JPanel
     }
 
     /**
-     * Shows the popup menu on trigger buton (right-click).
+     * Shows the popup menu when the trigger button (right-click) has been
+     * pushed.  Deselects the rows if no row was selected.
      */
-    private void showUserPopupMenu(java.awt.event.MouseEvent evt, boolean onTable)
+    private void checkSelectionAndPopupMenu(java.awt.event.MouseEvent evt)
     {
-        if (evt.isPopupTrigger())
-        {
-            if (onTable)
-            {
-                int row = usersTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+        int row = usersTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+        if (row == -1) {
+            deselectRows();
+        }
+        
+        if (evt.isPopupTrigger()) {
+            if (row != -1) {
                 usersTable.setRowSelectionInterval(row, row);
             }
-            else
-                deselectRows();
             parent.userPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
     }

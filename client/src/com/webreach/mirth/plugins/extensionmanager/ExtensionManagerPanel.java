@@ -210,12 +210,12 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
         {
             public void mousePressed(java.awt.event.MouseEvent evt)
             {
-                showConnectorPopupMenu(evt, true);
+                checkConnectorSelectionAndPopupMenu(evt);
             }
             
             public void mouseReleased(java.awt.event.MouseEvent evt)
             {
-                showConnectorPopupMenu(evt, true);
+                checkConnectorSelectionAndPopupMenu(evt);
             }
             
             public void mouseClicked(java.awt.event.MouseEvent evt)
@@ -343,21 +343,20 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
     }
     
     /**
-     * Show the popup menu on trigger button press (right-click). If it's on the
-     * table then the row should be selected, if not any selected rows should be
-     * deselected first.
+     * Shows the popup menu when the trigger button (right-click) has been
+     * pushed.  Deselects the rows if no row was selected.
      */
-    private void showConnectorPopupMenu(java.awt.event.MouseEvent evt, boolean onTable)
+    private void checkConnectorSelectionAndPopupMenu(java.awt.event.MouseEvent evt)
     {
-        if (evt.isPopupTrigger())
-        {
-            if (onTable)
-            {
-                int row = loadedConnectorsTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+        int row = loadedConnectorsTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+        if (row == -1) {
+            deselectConnectorRows();
+        }
+        
+        if (evt.isPopupTrigger()) {
+            if (row != -1) {
                 loadedConnectorsTable.setRowSelectionInterval(row, row);
             }
-            else
-                deselectConnectorRows();
             parent.getPopupMenu().show(evt.getComponent(), evt.getX(), evt.getY());
         }
     }
@@ -411,12 +410,12 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
         {
             public void mousePressed(java.awt.event.MouseEvent evt)
             {
-                showPluginPopupMenu(evt, true);
+                checkPluginSelectionAndPopupMenu(evt);
             }
             
             public void mouseReleased(java.awt.event.MouseEvent evt)
             {
-                showPluginPopupMenu(evt, true);
+                checkPluginSelectionAndPopupMenu(evt);
             }
             
             public void mouseClicked(java.awt.event.MouseEvent evt)
@@ -531,21 +530,20 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
     }
     
     /**
-     * Show the popup menu on trigger button press (right-click). If it's on the
-     * table then the row should be selected, if not any selected rows should be
-     * deselected first.
+     * Shows the popup menu when the trigger button (right-click) has been
+     * pushed.  Deselects the rows if no row was selected.
      */
-    private void showPluginPopupMenu(java.awt.event.MouseEvent evt, boolean onTable)
+    private void checkPluginSelectionAndPopupMenu(java.awt.event.MouseEvent evt)
     {
-        if (evt.isPopupTrigger())
-        {
-            if (onTable)
-            {
-                int row = loadedPluginsTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+        int row = loadedPluginsTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+        if (row == -1) {
+            deselectPluginRows();
+        }
+        
+        if (evt.isPopupTrigger()) {
+            if (row != -1) {
                 loadedPluginsTable.setRowSelectionInterval(row, row);
             }
-            else
-                deselectPluginRows();
             parent.getPopupMenu().show(evt.getComponent(), evt.getX(), evt.getY());
         }
     }

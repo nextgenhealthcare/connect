@@ -120,12 +120,12 @@ public class ChannelSetup extends javax.swing.JPanel
         {
             public void mousePressed(java.awt.event.MouseEvent evt)
             {
-                showChannelEditPopupMenu(evt, false);
+                showChannelEditPopupMenu(evt);
             }
             
             public void mouseReleased(java.awt.event.MouseEvent evt)
             {
-                showChannelEditPopupMenu(evt, false);
+                showChannelEditPopupMenu(evt);
             }
         });
         
@@ -183,18 +183,27 @@ public class ChannelSetup extends javax.swing.JPanel
     }
     
     /**
-     * Shows the trigger-button popup menu. If the trigger was pressed on a row
-     * of the destination table, that row should be selected as well.
+     * Shows the popup menu when the trigger button (right-click) has been
+     * pushed.
      */
-    private void showChannelEditPopupMenu(java.awt.event.MouseEvent evt, boolean onTable)
+    private void checkSelectionAndPopupMenu(java.awt.event.MouseEvent evt)
     {
-        if (evt.isPopupTrigger())
-        {
-            if (onTable)
-            {
-                int row = destinationTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+        int row = destinationTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+        
+        if (evt.isPopupTrigger()) {
+            if (row != -1) {
                 destinationTable.setRowSelectionInterval(row, row);
             }
+            showChannelEditPopupMenu(evt);
+        }
+    }
+    
+    /**
+     * Shows the trigger-button popup menu.
+     */
+    private void showChannelEditPopupMenu(java.awt.event.MouseEvent evt)
+    {
+        if (evt.isPopupTrigger()) {
             parent.channelEditPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
     }
@@ -390,12 +399,12 @@ public class ChannelSetup extends javax.swing.JPanel
         {
             public void mousePressed(java.awt.event.MouseEvent evt)
             {
-                showChannelEditPopupMenu(evt, true);
+                checkSelectionAndPopupMenu(evt);
             }
             
             public void mouseReleased(java.awt.event.MouseEvent evt)
             {
-                showChannelEditPopupMenu(evt, true);
+                checkSelectionAndPopupMenu(evt);
             }
         });
         
@@ -416,20 +425,7 @@ public class ChannelSetup extends javax.swing.JPanel
         
         destinationTablePane.setViewportView(destinationTable);
         destinationTablePane.setWheelScrollingEnabled(true);
-        // Mouse listener for trigger-button popup on the table pane (not actual
-        // table).
-        destinationTablePane.addMouseListener(new java.awt.event.MouseAdapter()
-        {
-            public void mousePressed(java.awt.event.MouseEvent evt)
-            {
-                showChannelEditPopupMenu(evt, false);
-            }
-            
-            public void mouseReleased(java.awt.event.MouseEvent evt)
-            {
-                showChannelEditPopupMenu(evt, false);
-            }
-        });
+
         // Key Listener trigger for CTRL-S and DEL
         destinationTable.addKeyListener(new KeyListener()
         {

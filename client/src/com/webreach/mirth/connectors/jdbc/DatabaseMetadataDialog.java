@@ -169,7 +169,6 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
         {
             public void mousePressed(java.awt.event.MouseEvent evt)
             {
-                //showAlertPopupMenu(evt, true);
             }
 
             public void mouseReleased(java.awt.event.MouseEvent evt)

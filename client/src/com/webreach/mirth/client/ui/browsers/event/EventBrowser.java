@@ -106,24 +106,6 @@ public class EventBrowser extends javax.swing.JPanel
             values[i] = SystemEvent.Level.values()[i - 1].toString();
 
         levelComboBox.setModel(new javax.swing.DefaultComboBoxModel(values));
-        
-        eventPane.addMouseListener(new java.awt.event.MouseAdapter()
-        {
-            public void mousePressed(java.awt.event.MouseEvent evt)
-            {
-                showEventPopupMenu(evt, false);
-            }
-            
-            public void mouseReleased(java.awt.event.MouseEvent evt)
-            {
-                showEventPopupMenu(evt, false);
-            }
-            
-            public void mouseClicked(java.awt.event.MouseEvent evt)
-            {
-                deselectRows();
-            }
-        });
     }
     
     /**
@@ -288,12 +270,12 @@ public class EventBrowser extends javax.swing.JPanel
         {
             public void mousePressed(java.awt.event.MouseEvent evt)
             {
-                showEventPopupMenu(evt, true);
+                checkSelectionAndPopupMenu(evt);
             }
             
             public void mouseReleased(java.awt.event.MouseEvent evt)
             {
-                showEventPopupMenu(evt, true);
+                checkSelectionAndPopupMenu(evt);
             }
         });
         
@@ -378,24 +360,22 @@ public class EventBrowser extends javax.swing.JPanel
         
         return numberOfPages;
     }
-
+    
     /**
-     * Shows the trigger button (right-click) popup menu.
+     * Shows the popup menu when the trigger button (right-click) has been
+     * pushed.  Deselects the rows if no row was selected.
      */
-    private void showEventPopupMenu(java.awt.event.MouseEvent evt, boolean onTable)
+    private void checkSelectionAndPopupMenu(java.awt.event.MouseEvent evt)
     {
-        if (evt.isPopupTrigger())
-        {
-            if (onTable)
-            {
-                int row = eventTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
-                if (row > -1)
-                {
-                    eventTable.setRowSelectionInterval(row, row);
-                }
+        int row = eventTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+        if (row == -1) {
+            deselectRows();
+        }
+        
+        if (evt.isPopupTrigger()) {
+            if (row != -1) {
+                eventTable.setRowSelectionInterval(row, row);
             }
-            else
-                deselectRows();
             parent.eventPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
     }

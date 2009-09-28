@@ -78,23 +78,6 @@ public class DashboardPanel extends javax.swing.JPanel
         tabs.addChangeListener(changeListener);
         
         makeStatusTable();
-        statusPane.addMouseListener(new java.awt.event.MouseAdapter()
-        {
-            public void mousePressed(java.awt.event.MouseEvent evt)
-            {
-                showStatusPopupMenu(evt, false);
-            }
-            
-            public void mouseReleased(java.awt.event.MouseEvent evt)
-            {
-                showStatusPopupMenu(evt, false);
-            }
-            
-            public void mouseClicked(java.awt.event.MouseEvent evt)
-            {
-                deselectRows();
-            }
-        });
         
         this.setDoubleBuffered(true);
     }
@@ -332,12 +315,12 @@ public class DashboardPanel extends javax.swing.JPanel
         {
             public void mousePressed(java.awt.event.MouseEvent evt)
             {
-                showStatusPopupMenu(evt, true);
+                checkSelectionAndPopupMenu(evt);
             }
             
             public void mouseReleased(java.awt.event.MouseEvent evt)
             {
-                showStatusPopupMenu(evt, true);
+                checkSelectionAndPopupMenu(evt);
             }
             
             public void mouseClicked(java.awt.event.MouseEvent evt)
@@ -417,19 +400,19 @@ public class DashboardPanel extends javax.swing.JPanel
     
     /**
      * Shows the popup menu when the trigger button (right-click) has been
-     * pushed.
+     * pushed.  Deselects the rows if no row was selected.
      */
-    private void showStatusPopupMenu(java.awt.event.MouseEvent evt, boolean onTable)
+    private void checkSelectionAndPopupMenu(java.awt.event.MouseEvent evt)
     {
-        if (evt.isPopupTrigger())
-        {
-            if (onTable)
-            {
-                int row = statusTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+        int row = statusTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+        if (row == -1) {
+            deselectRows();
+        }
+        
+        if (evt.isPopupTrigger()) {
+            if (row != -1) {
                 statusTable.setRowSelectionInterval(row, row);
             }
-            else
-                deselectRows();
             parent.statusPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
     }

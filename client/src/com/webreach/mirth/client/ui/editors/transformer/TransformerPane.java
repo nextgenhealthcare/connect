@@ -610,23 +610,11 @@ public class TransformerPane extends MirthEditorPane implements
         transformerTable.addMouseListener(new MouseAdapter() {
 
             public void mousePressed(MouseEvent evt) {
-                showTransformerPopupMenu(evt, true);
+                checkSelectionAndPopupMenu(evt);
             }
 
             public void mouseReleased(MouseEvent evt) {
-                showTransformerPopupMenu(evt, true);
-            }
-        });
-
-        // listen for mouse clicks on the empty part of the pane
-        transformerTablePane.addMouseListener(new MouseAdapter() {
-
-            public void mousePressed(MouseEvent evt) {
-                showTransformerPopupMenu(evt, false);
-            }
-
-            public void mouseReleased(MouseEvent evt) {
-                showTransformerPopupMenu(evt, false);
+                checkSelectionAndPopupMenu(evt);
             }
         });
 
@@ -662,13 +650,18 @@ public class TransformerPane extends MirthEditorPane implements
         });
     }
 
-    private void showTransformerPopupMenu(MouseEvent evt, boolean onTable) {
+    /**
+     * Shows the popup menu when the trigger button (right-click) has been
+     * pushed.
+     */
+    private void checkSelectionAndPopupMenu(java.awt.event.MouseEvent evt)
+    {
+        int row = transformerTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+        
         if (evt.isPopupTrigger()) {
-            if (onTable) {
-                int row = transformerTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+            if (row != -1) {
                 transformerTable.setRowSelectionInterval(row, row);
             }
-
             transformerPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
     }

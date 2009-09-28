@@ -161,26 +161,6 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         pageSizeField.setDocument(new MirthFieldConstraints(3, false, false, true));
 
-        messagePane.addMouseListener(new java.awt.event.MouseAdapter() {
-
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                showMessagePopupMenu(evt, false);
-            }
-
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                showMessagePopupMenu(evt, false);
-            }
-
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                deselectRows();
-            }
-        });
-        attachmentsPane.addMouseListener(new java.awt.event.MouseAdapter() {
-
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                deselectAttachmentRows();
-            }
-        });
         attachmentPopupMenu = new JPopupMenu();
         JMenuItem viewAttach = new JMenuItem("View Attachment");
         viewAttach.setIcon(new ImageIcon(Frame.class.getResource("images/attach.png")));
@@ -654,11 +634,11 @@ public class MessageBrowser extends javax.swing.JPanel {
         messageTable.addMouseListener(new java.awt.event.MouseAdapter() {
 
             public void mousePressed(java.awt.event.MouseEvent evt) {
-                showMessagePopupMenu(evt, true);
+                checkMessageSelectionAndPopupMenu(evt);
             }
 
             public void mouseReleased(java.awt.event.MouseEvent evt) {
-                showMessagePopupMenu(evt, true);
+                checkMessageSelectionAndPopupMenu(evt);
             }
 
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -817,11 +797,11 @@ public class MessageBrowser extends javax.swing.JPanel {
             attachmentTable.addMouseListener(new java.awt.event.MouseAdapter() {
 
                 public void mousePressed(java.awt.event.MouseEvent evt) {
-                    showAttachmentPopupMenu(evt, true);
+                    checkAttachmentSelectionAndPopupMenu(evt);
                 }
 
                 public void mouseReleased(java.awt.event.MouseEvent evt) {
-                    showAttachmentPopupMenu(evt, true);
+                    checkAttachmentSelectionAndPopupMenu(evt);
                 }
 
                 public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -870,36 +850,40 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         mappingsPane.setViewportView(mappingsTable);
     }
-
+    
     /**
-     * Shows the trigger button (right-click) popup menu.
+     * Shows the popup menu when the trigger button (right-click) has been
+     * pushed.  Deselects the rows if no row was selected.
      */
-    private void showMessagePopupMenu(java.awt.event.MouseEvent evt, boolean onTable) {
+    private void checkMessageSelectionAndPopupMenu(java.awt.event.MouseEvent evt)
+    {
+        int row = messageTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+        if (row == -1) {
+            deselectRows();
+        }
+        
         if (evt.isPopupTrigger()) {
-            if (onTable) {
-                int row = messageTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
-                if (row > -1) {
-                    messageTable.setRowSelectionInterval(row, row);
-                }
-            } else {
-                deselectRows();
+            if (row != -1) {
+                messageTable.setRowSelectionInterval(row, row);
             }
             parent.messagePopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
     }
-
+    
     /**
-     * Shows the trigger button (right-click) popup menu.
+     * Shows the popup menu when the trigger button (right-click) has been
+     * pushed.  Deselects the rows if no row was selected.
      */
-    private void showAttachmentPopupMenu(java.awt.event.MouseEvent evt, boolean onTable) {
+    private void checkAttachmentSelectionAndPopupMenu(java.awt.event.MouseEvent evt)
+    {
+        int row = attachmentTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+        if (row == -1) {
+            deselectAttachmentRows();
+        }
+        
         if (evt.isPopupTrigger()) {
-            if (onTable) {
-                int row = attachmentTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
-                if (row > -1) {
-                    attachmentTable.setRowSelectionInterval(row, row);
-                }
-            } else {
-                deselectAttachmentRows();
+            if (row != -1) {
+                attachmentTable.setRowSelectionInterval(row, row);
             }
             attachmentPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }

@@ -57,24 +57,6 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
         lastRow = -1;
         makeChannelTable();
 
-        channelPane.addMouseListener(new java.awt.event.MouseAdapter()
-        {
-            public void mousePressed(java.awt.event.MouseEvent evt)
-            {
-                showChannelPopupMenu(evt, false);
-            }
-
-            public void mouseReleased(java.awt.event.MouseEvent evt)
-            {
-                showChannelPopupMenu(evt, false);
-            }
-
-            public void mouseClicked(java.awt.event.MouseEvent evt)
-            {
-                deselectRows();
-            }
-        });
-
         channelPane.setComponentPopupMenu(parent.channelPopupMenu);
     }
 
@@ -123,12 +105,12 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
         {
             public void mousePressed(java.awt.event.MouseEvent evt)
             {
-                showChannelPopupMenu(evt, true);
+                checkSelectionAndPopupMenu(evt);
             }
 
             public void mouseReleased(java.awt.event.MouseEvent evt)
             {
-                showChannelPopupMenu(evt, true);
+                checkSelectionAndPopupMenu(evt);
             }
 
             public void mouseClicked(java.awt.event.MouseEvent evt)
@@ -216,23 +198,22 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
         }
 
     }
-
+    
     /**
-     * Show the popup menu on trigger button press (right-click). If it's on the
-     * table then the row should be selected, if not any selected rows should be
-     * deselected first.
+     * Shows the popup menu when the trigger button (right-click) has been
+     * pushed.  Deselects the rows if no row was selected.
      */
-    private void showChannelPopupMenu(java.awt.event.MouseEvent evt, boolean onTable)
+    private void checkSelectionAndPopupMenu(java.awt.event.MouseEvent evt)
     {
-        if (evt.isPopupTrigger())
-        {
-            if (onTable)
-            {
-                int row = channelTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+        int row = channelTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+        if (row == -1) {
+            deselectRows();
+        }
+        
+        if (evt.isPopupTrigger()) {
+            if (row != -1) {
                 channelTable.setRowSelectionInterval(row, row);
             }
-            else
-                deselectRows();
             parent.channelPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
     }

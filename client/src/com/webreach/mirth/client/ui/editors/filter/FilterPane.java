@@ -646,25 +646,12 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         {
             public void mousePressed(MouseEvent evt)
             {
-                showFilterPopupMenu(evt, true);
+                checkSelectionAndPopupMenu(evt);
             }
 
             public void mouseReleased(MouseEvent evt)
             {
-                showFilterPopupMenu(evt, true);
-            }
-        });
-
-        filterTablePane.addMouseListener(new MouseAdapter()
-        {
-            public void mousePressed(MouseEvent evt)
-            {
-                showFilterPopupMenu(evt, false);
-            }
-
-            public void mouseReleased(MouseEvent evt)
-            {
-                showFilterPopupMenu(evt, false);
+                checkSelectionAndPopupMenu(evt);
             }
         });
 
@@ -707,16 +694,18 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         });
     }
 
-    private void showFilterPopupMenu(MouseEvent evt, boolean onTable)
+    /**
+     * Shows the popup menu when the trigger button (right-click) has been
+     * pushed.
+     */
+    private void checkSelectionAndPopupMenu(java.awt.event.MouseEvent evt)
     {
-        if (evt.isPopupTrigger())
-        {
-            if (onTable)
-            {
-                int row = filterTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+        int row = filterTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
+        
+        if (evt.isPopupTrigger()) {
+            if (row != -1) {
                 filterTable.setRowSelectionInterval(row, row);
             }
-
             filterPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
     }

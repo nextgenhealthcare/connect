@@ -443,18 +443,15 @@ public class TreePanel extends javax.swing.JPanel
     }
 
     /**
-     * Shows the trigger-button popup menu. If the trigger was pressed on a row
-     * of the destination table, that row should be selected as well.
+     * Shows the trigger-button popup menu.
      */
-    private void showTreePopupMenu(java.awt.event.MouseEvent evt, boolean onTree)
+    private void showTreePopupMenu(java.awt.event.MouseEvent evt)
     {
         if (evt.isPopupTrigger())
         {
-            if (onTree)
-            {
-                int row = tree.getRowForLocation(evt.getX(), evt.getY());
-                tree.setSelectionRow(row);
-            }
+            int row = tree.getRowForLocation(evt.getX(), evt.getY());
+            tree.setSelectionRow(row);
+            
             popupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
     }
@@ -526,13 +523,13 @@ public class TreePanel extends javax.swing.JPanel
 
             public void mousePressed(MouseEvent e)
             {
-                showTreePopupMenu(e, true);
+                showTreePopupMenu(e);
 
             }
 
             public void mouseReleased(MouseEvent e)
             {
-                showTreePopupMenu(e, true);
+                showTreePopupMenu(e);
             }
 
         });
