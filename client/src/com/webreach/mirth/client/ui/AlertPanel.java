@@ -59,8 +59,9 @@ import com.webreach.mirth.model.Channel;
 public class AlertPanel extends javax.swing.JPanel
 {
     private Frame parent;
-    private boolean isDeleting = false;
-    private int lastAlertRow, lastEmailRow;
+    private boolean isDeletingAlert = false;
+    private boolean updatingAlertTable = false;
+    private int lastAlertRow;
     private final String ALERT_NAME_COLUMN_NAME = "Name";
     private final String ALERT_STATUS_COLUMN_NAME = "Status";
     private final String APPLY_CHANNEL_NAME_COLUMN_NAME = "Channel Name";
@@ -79,7 +80,6 @@ public class AlertPanel extends javax.swing.JPanel
     {
         this.parent = PlatformUI.MIRTH_FRAME;
         lastAlertRow = -1;
-        lastEmailRow = -1;
         blankPanel = new JPanel();
         initComponents();
         makeAlertTable();
@@ -95,19 +95,19 @@ public class AlertPanel extends javax.swing.JPanel
      */
     public void makeAlertTable()
     {
-        updateAlertTable(false);
+        updateAlertTable();
         
         alertTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 
         // Set the custom cell editor for the Alert Name column.
-        alertTable.getColumnModel().getColumn(alertTable.getColumnNumber(ALERT_NAME_COLUMN_NAME)).setCellEditor(new AlertTableCellEditor());
+        alertTable.getColumnModel().getColumn(alertTable.getColumnModelIndex(ALERT_NAME_COLUMN_NAME)).setCellEditor(new AlertTableCellEditor());
         alertTable.getColumnExt(ALERT_STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
 
         alertTable.setSelectionMode(0);
         alertTable.setRowSelectionAllowed(true);
         alertTable.setRowHeight(UIConstants.ROW_HEIGHT);
         alertTable.setFocusable(false);
-        alertTable.setSortable(false);
+        alertTable.setSortable(true);
         alertTable.setOpaque(true);
         alertTable.setDragEnabled(false);
 
@@ -126,28 +126,20 @@ public class AlertPanel extends javax.swing.JPanel
         {
             public void valueChanged(ListSelectionEvent evt)
             {
+                if(updatingAlertTable || isDeletingAlert || alertTable.isEditing())
+                    return;
+                
                 if (!evt.getValueIsAdjusting())
                 {
-                    if (lastAlertRow != -1 && lastAlertRow != alertTable.getSelectedRow() && lastAlertRow < alertTable.getRowCount() && !isDeleting)
+                    if (lastAlertRow != -1 && 
+                        lastAlertRow != alertTable.getSelectedModelIndex() && 
+                        lastAlertRow < alertTable.getModel().getRowCount())
                     {
                         saveAlert();
                     }
-
-                    if (!loadAlert())
-                    {
-                        int rowCount = alertTable.getRowCount();
-                        if (rowCount > 0 && lastAlertRow == rowCount)
-                            alertTable.setRowSelectionInterval(lastAlertRow - 1, lastAlertRow - 1);
-                        else if (lastAlertRow != -1 && lastAlertRow < rowCount)
-                            alertTable.setRowSelectionInterval(lastAlertRow, lastAlertRow);
-                        
-                        lastAlertRow = alertTable.getSelectedRow();
-                    }
-                    else
-                    {
-                        lastAlertRow = alertTable.getSelectedRow();
-                    }
-
+                    
+                    loadAlert();
+                    refreshAlertTableRow();
                     checkVisibleAlertTasks();
                 }
             }
@@ -194,7 +186,7 @@ public class AlertPanel extends javax.swing.JPanel
         });
     }
 
-    public void updateAlertTable(boolean addNew)
+    public void updateAlertTable()
     {
         Object[][] tableData = null;
         int tableSize = 0;
@@ -203,49 +195,24 @@ public class AlertPanel extends javax.swing.JPanel
         {
             tableSize = parent.alerts.size();
 
-            if (addNew)
-                tableSize++;
-
             tableData = new Object[tableSize][2];
             for (int i = 0; i < tableSize; i++)
             {
-                if (tableSize - 1 == i && addNew)
-                {
-                    Alert alert = new Alert();
-
-                    try
-                    {
-                        alert.setId(parent.mirthClient.getGuid());
-                    }
-                    catch (ClientException e)
-                    {
-                    	parent.alertException(this, e.getStackTrace(), e.getMessage());
-                    }
-
-                    alert.setName(getNewAlertName(tableSize));
-                    alert.setEnabled(false);
-                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), DISABLED_TEXT);
-                    tableData[i][1] = alert.getName();
-                    parent.alerts.add(alert);
-                }
+                Alert alert = parent.alerts.get(i);
+                if (alert.isEnabled())
+                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")), ENABLED_TEXT);
                 else
-                {
-                    Alert alert = parent.alerts.get(i);
-                    if (alert.isEnabled())
-                        tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")), ENABLED_TEXT);
-                    else
-                        tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), DISABLED_TEXT);
-                    tableData[i][1] = alert.getName();
-                }
+                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), DISABLED_TEXT);
+                tableData[i][1] = alert.getName();
             }
         }
-
-        int row = UIConstants.ERROR_CONSTANT;
 
         if (alertTable != null)
         {
             RefreshTableModel model = (RefreshTableModel) alertTable.getModel();
+            updatingAlertTable = true;
             model.refreshDataVector(tableData);
+            updatingAlertTable = false;
         }
         else
         {
@@ -260,24 +227,21 @@ public class AlertPanel extends javax.swing.JPanel
                 }
             });
         }
-        if (addNew)
-        {
-            alertTable.setRowSelectionInterval(alertTable.getRowCount() - 1, alertTable.getRowCount() - 1);
-        }
         
-        row = alertTable.getSelectedRow();
-        lastAlertRow = row;
+        refreshAlertTableRow();
+    }
+    
+    private void refreshAlertTableRow() {
+        lastAlertRow = alertTable.getSelectedModelIndex();
     }
 
     public void setDefaultAlert()
     {
         lastAlertRow = -1;
-        lastEmailRow = -1;
 
         if (parent.alerts.size() > 0)
         {
             alertTable.setRowSelectionInterval(0, 0);
-            lastAlertRow = 0;
         }
         else
         {
@@ -290,7 +254,7 @@ public class AlertPanel extends javax.swing.JPanel
      */
     public void checkVisibleAlertTasks()
     {
-        int selected = getAlertIndex();
+        int selected = alertTable.getSelectedModelIndex();
 
         if (selected == UIConstants.ERROR_CONSTANT)
         {
@@ -327,7 +291,7 @@ public class AlertPanel extends javax.swing.JPanel
         applyToChannelsTable.setFocusable(false);
         applyToChannelsTable.setOpaque(true);
         applyToChannelsTable.getTableHeader().setReorderingAllowed(false);
-        applyToChannelsTable.setSortable(false);
+        applyToChannelsTable.setSortable(true);
 
         applyToChannelsTable.getColumnExt(APPLY_STATUS_COLUMN_NAME).setMaxWidth(50);
         applyToChannelsTable.getColumnExt(APPLY_STATUS_COLUMN_NAME).setMinWidth(50);
@@ -344,7 +308,7 @@ public class AlertPanel extends javax.swing.JPanel
         {
             public void valueChanged(ListSelectionEvent e)
             {
-                if (applyToChannelsTable.getSelectedColumn() == 1)
+                if (applyToChannelsTable.convertColumnIndexToModel(applyToChannelsTable.getSelectedColumn()) == 1)
                 {
                     parent.enableSave();
                 }
@@ -481,7 +445,7 @@ public class AlertPanel extends javax.swing.JPanel
     /** Loads a selected connector and returns true on success. */
     public boolean loadAlert()
     {
-        int index = getAlertIndex();
+        int index = alertTable.getSelectedModelIndex();
 
         if (index == UIConstants.ERROR_CONSTANT)
             return false;
@@ -508,7 +472,7 @@ public class AlertPanel extends javax.swing.JPanel
         if (lastAlertRow == UIConstants.ERROR_CONSTANT)
             return false;
         
-        int index = getAlertIndex(lastAlertRow);
+        int index = lastAlertRow;
         
         boolean changed = parent.alertTasks.getContentPane().getComponent(1).isVisible();
 
@@ -541,43 +505,6 @@ public class AlertPanel extends javax.swing.JPanel
         return channelList;
     }
 
-    /** Get the currently selected alert table index */
-    public int getSelectedAlertIndex()
-    {
-        if (alertTable.isEditing())
-            return alertTable.getEditingRow();
-        else
-            return alertTable.getSelectedRow();
-    }
-
-    /** Get a alert connector index by passing in its name */
-    private int getAlertIndex(int selectedRow)
-    {
-        String alertName = (String) alertTable.getValueAt(selectedRow, alertTable.getColumnNumber(ALERT_NAME_COLUMN_NAME));
-        for (int i = 0; i < parent.alerts.size(); i++)
-        {
-            if (parent.alerts.get(i).getName().equalsIgnoreCase(alertName))
-                return i;
-        }
-        return UIConstants.ERROR_CONSTANT;
-    }
-
-    /** Get the index of the currently selected alert. */
-    public int getAlertIndex()
-    {
-        if (alertTable.getSelectedRow() >= 0 && alertTable.getSelectedRow() < alertTable.getRowCount())
-            return getAlertIndex(alertTable.getSelectedRow());
-        return UIConstants.ERROR_CONSTANT;
-    }
-
-    public void setSelectedAlertIndex(int index)
-    {
-        if (index == UIConstants.ERROR_CONSTANT)
-            deselectAlertRows();
-        else
-            alertTable.setRowSelectionInterval(index, index);
-    }
-
     /**
      * Get the name that should be used for a new alert so that it is unique.
      */
@@ -590,7 +517,7 @@ public class AlertPanel extends javax.swing.JPanel
             boolean exists = false;
             for (int j = 0; j < size - 1; j++)
             {
-                if (((String) alertTable.getValueAt(j, alertTable.getColumnNumber(ALERT_NAME_COLUMN_NAME))).equalsIgnoreCase(temp + i))
+                if (((String) alertTable.getModel().getValueAt(j, alertTable.getColumnModelIndex(ALERT_NAME_COLUMN_NAME))).equalsIgnoreCase(temp + i))
                     exists = true;
             }
             if (!exists)
@@ -619,24 +546,57 @@ public class AlertPanel extends javax.swing.JPanel
     public void addAlert()
     {
         stopAlertEditing();
-        updateAlertTable(true);
-        alertPane.getViewport().setViewPosition(new Point(0, alertTable.getRowHeight() * alertTable.getRowCount()));
+        saveAlert();
+        
+        RefreshTableModel model = (RefreshTableModel) alertTable.getModel();
+        
+        Alert alert = new Alert();
+        
+        try
+        {
+            alert.setId(parent.mirthClient.getGuid());
+        }
+        catch (ClientException e)
+        {
+            parent.alertException(this, e.getStackTrace(), e.getMessage());
+        }
+        
+        alert.setName(getNewAlertName(model.getRowCount() + 1));
+        alert.setEnabled(false);
+        
+        Object[] rowData = new Object[2];
+        rowData[0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), DISABLED_TEXT);
+        rowData[1] = alert.getName();
+        
+        parent.alerts.add(alert);
+        model.addRow(rowData);
+        
+        int newViewIndex = alertTable.convertRowIndexToView(alertTable.getModel().getRowCount() - 1);
+        alertTable.setRowSelectionInterval(newViewIndex, newViewIndex);
+        
+        alertPane.getViewport().setViewPosition(new Point(0, alertTable.getRowHeight() * alertTable.getModel().getRowCount()));
         parent.enableSave();
     }
 
     public void enableAlert()
     {
         stopAlertEditing();
-        parent.alerts.get(getAlertIndex()).setEnabled(true);
-        updateAlertTable(false);
+        parent.alerts.get(alertTable.getSelectedModelIndex()).setEnabled(true);
+        
+        CellData enabled = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")), ENABLED_TEXT);
+        alertTable.getModel().setValueAt(enabled, alertTable.getSelectedModelIndex(), alertTable.getColumnModelIndex(ALERT_STATUS_COLUMN_NAME));
+        
         parent.enableSave();
     }
 
     public void disableAlert()
     {
         stopAlertEditing();
-        parent.alerts.get(getAlertIndex()).setEnabled(false);
-        updateAlertTable(false);
+        parent.alerts.get(alertTable.getSelectedModelIndex()).setEnabled(false);
+        
+        CellData disabled = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), DISABLED_TEXT);
+        alertTable.getModel().setValueAt(disabled, alertTable.getSelectedModelIndex(), alertTable.getColumnModelIndex(ALERT_STATUS_COLUMN_NAME));
+        
         parent.enableSave();
     }
 
@@ -644,16 +604,33 @@ public class AlertPanel extends javax.swing.JPanel
     {
         if (!parent.alertOption(this, "Are you sure you want to delete this alert?"))
             return;
-        isDeleting = true;
+        isDeletingAlert = true;
 
         stopAlertEditing();
-        parent.alerts.remove(getAlertIndex());
-        updateAlertTable(false);
-        parent.enableSave();
-        isDeleting = false;
+        
+        RefreshTableModel model = (RefreshTableModel) alertTable.getModel();
 
-        if (parent.alerts.size() == 0)
+        int selectedModelIndex = alertTable.getSelectedModelIndex();
+        int newViewIndex = alertTable.convertRowIndexToView(selectedModelIndex);
+        if (newViewIndex == (model.getRowCount() - 1)) {
+            newViewIndex--;
+        }
+        
+        // must set lastModelRow to -1 so that when setting the new
+        // row selection below the old data won't try to be saved.
+        lastAlertRow = -1;
+        parent.alerts.remove(selectedModelIndex);
+        model.removeRow(selectedModelIndex);
+        
+        parent.enableSave();
+       
+        isDeletingAlert = false;
+
+        if (parent.alerts.size() == 0) {
             resetBlankPane();
+        } else {
+            alertTable.setRowSelectionInterval(newViewIndex, newViewIndex);
+        }
     }
 
     public void makeEmailsTable()
@@ -665,10 +642,7 @@ public class AlertPanel extends javax.swing.JPanel
             public void valueChanged(ListSelectionEvent evt)
             {
                 if (emailsTable.getSelectedRow() != -1)
-                {
-                    lastEmailRow = emailsTable.getSelectedRow();
                     removeButton.setEnabled(true);
-                }
                 else
                     removeButton.setEnabled(false);
             }
@@ -727,14 +701,14 @@ public class AlertPanel extends javax.swing.JPanel
         emailsTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 
         // Set the custom cell editor for the Destination Name column.
-        emailsTable.getColumnModel().getColumn(emailsTable.getColumnModel().getColumnIndex(EMAIL_COLUMN_NAME)).setCellEditor(new EmailsTableCellEditor());
+        emailsTable.getColumnModel().getColumn(emailsTable.getColumnModelIndex(EMAIL_COLUMN_NAME)).setCellEditor(new EmailsTableCellEditor());
 
         emailsTable.setSelectionMode(0);
         emailsTable.setRowSelectionAllowed(true);
         emailsTable.setRowHeight(UIConstants.ROW_HEIGHT);
         emailsTable.setDragEnabled(false);
         emailsTable.setOpaque(true);
-        emailsTable.setSortable(false);
+        emailsTable.setSortable(true);
         emailsTable.getTableHeader().setReorderingAllowed(false);
 
         if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
@@ -788,7 +762,7 @@ public class AlertPanel extends javax.swing.JPanel
     {
         ArrayList<String> emails = new ArrayList<String>();
 
-        for (int i = 0; i < emailsTable.getRowCount(); i++)
+        for (int i = 0; i < emailsTable.getModel().getRowCount(); i++)
             if (((String) emailsTable.getModel().getValueAt(i, 0)).length() > 0)
                 emails.add((String) emailsTable.getModel().getValueAt(i, 0));
 
@@ -820,22 +794,13 @@ public class AlertPanel extends javax.swing.JPanel
     public void stopAlertEditing()
     {
         if (alertTable.isEditing())
-            alertTable.getColumnModel().getColumn(alertTable.getColumnModel().getColumnIndex(ALERT_NAME_COLUMN_NAME)).getCellEditor().stopCellEditing();
+            alertTable.getColumnModel().getColumn(alertTable.getColumnModelIndex(ALERT_NAME_COLUMN_NAME)).getCellEditor().stopCellEditing();
     }
 
     public void stopEmailEditing()
     {
         if (emailsTable.isEditing())
-            emailsTable.getColumnModel().getColumn(emailsTable.getColumnModel().getColumnIndex(EMAIL_COLUMN_NAME)).getCellEditor().stopCellEditing();
-    }
-
-    /** Get the currently selected destination index */
-    public int getSelectedEmailRow()
-    {
-        if (emailsTable.isEditing())
-            return emailsTable.getEditingRow();
-        else
-            return emailsTable.getSelectedRow();
+            emailsTable.getColumnModel().getColumn(emailsTable.getColumnModelIndex(EMAIL_COLUMN_NAME)).getCellEditor().stopCellEditing();
     }
 
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
@@ -1064,20 +1029,25 @@ public class AlertPanel extends javax.swing.JPanel
     private void removeButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_removeButtonActionPerformed
     {// GEN-HEADEREND:event_removeButtonActionPerformed
         stopEmailEditing();
-        if (getSelectedEmailRow() != -1 && !emailsTable.isEditing())
+        if (emailsTable.getSelectedModelIndex() != -1 && !emailsTable.isEditing())
         {
-            ((DefaultTableModel) emailsTable.getModel()).removeRow(getSelectedEmailRow());
+            DefaultTableModel model = (DefaultTableModel) emailsTable.getModel();
 
-            if (emailsTable.getRowCount() != 0)
-            {
-                if (lastEmailRow == 0)
-                    emailsTable.setRowSelectionInterval(0, 0);
-                else if (lastEmailRow == emailsTable.getRowCount())
-                    emailsTable.setRowSelectionInterval(lastEmailRow - 1, lastEmailRow - 1);
-                else
-                    emailsTable.setRowSelectionInterval(lastEmailRow, lastEmailRow);
+            int selectedModelIndex = emailsTable.getSelectedModelIndex();
+            int newViewIndex = emailsTable.convertRowIndexToView(selectedModelIndex);
+            if (newViewIndex == (model.getRowCount() - 1)) {
+                newViewIndex--;
             }
+            
+            // must set lastModelRow to -1 so that when setting the new
+            // row selection below the old data won't try to be saved.
+            // lastEmailRow = -1;
+            model.removeRow(selectedModelIndex);
 
+            if (emailsTable.getModel().getRowCount() != 0) {
+                emailsTable.setRowSelectionInterval(newViewIndex, newViewIndex);
+            }
+            
             parent.enableSave();
         }
     }// GEN-LAST:event_removeButtonActionPerformed

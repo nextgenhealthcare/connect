@@ -112,7 +112,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
         templateTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 
         // Set the custom cell editor for the CodeTemplate Name column.
-        templateTable.getColumnModel().getColumn(templateTable.getColumnModel().getColumnIndex(TEMPLATE_NAME_COLUMN_NAME)).setCellEditor(new CodeTemplateTableCellEditor());
+        templateTable.getColumnModel().getColumn(templateTable.getColumnModelIndex(TEMPLATE_NAME_COLUMN_NAME)).setCellEditor(new CodeTemplateTableCellEditor());
 
         templateTable.setSelectionMode(0);
         templateTable.setRowSelectionAllowed(true);
@@ -146,7 +146,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
                 if (!evt.getValueIsAdjusting())
                 {
                     if (lastModelRow != -1 && 
-                    	lastModelRow != getSelectedCodeTemplateModelIndex() && 
+                    	lastModelRow != templateTable.getSelectedModelIndex() && 
                     	lastModelRow < templateTable.getModel().getRowCount())
                     {
                         saveCodeTemplate();
@@ -251,7 +251,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
     }
     
     private void refreshTableRow() {
-    	lastModelRow = getSelectedCodeTemplateModelIndex();
+    	lastModelRow = templateTable.getSelectedModelIndex();
     }
     
     public void validateCodeTemplate()
@@ -306,7 +306,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
      */
     public void checkVisibleTemplateTasks()
     {
-        int selected = getSelectedCodeTemplateModelIndex();
+        int selected = templateTable.getSelectedModelIndex();
 
         if (selected == UIConstants.ERROR_CONSTANT)
         {
@@ -329,7 +329,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
     /** Loads a selected code template and returns true on success. */
     public boolean loadCodeTemplate()
     {
-        int index = getSelectedCodeTemplateModelIndex();
+        int index = templateTable.getSelectedModelIndex();
 
         if (index == UIConstants.ERROR_CONSTANT)
             return false;
@@ -389,22 +389,6 @@ public class CodeTemplatePanel extends javax.swing.JPanel
         return true;
     }
 
-    /** Get the currently selected codeTemplate model index */
-    public int getSelectedCodeTemplateModelIndex()
-    {
-    	int index = -1;
-    	
-        if (templateTable.isEditing())
-        	index = templateTable.getEditingRow();
-        else
-        	index = templateTable.getSelectedRow();
-        
-        if (index == -1)
-        	return index;
-        
-        return templateTable.convertRowIndexToModel(index);
-    }
-
     /**
      * Get the name that should be used for a new codeTemplate so that it is
      * unique.
@@ -418,7 +402,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
             boolean exists = false;
             for (int j = 0; j < size - 1; j++)
             {
-                if (((String) templateTable.getModel().getValueAt(j, templateTable.getColumnModel().getColumnIndex(TEMPLATE_NAME_COLUMN_NAME))).equalsIgnoreCase(temp + i))
+                if (((String) templateTable.getModel().getValueAt(j, templateTable.getColumnModelIndex(TEMPLATE_NAME_COLUMN_NAME))).equalsIgnoreCase(temp + i))
                     exists = true;
             }
             if (!exists)
@@ -493,7 +477,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
         
         RefreshTableModel model = (RefreshTableModel) templateTable.getModel();
 
-        int selectedModelIndex = getSelectedCodeTemplateModelIndex();
+        int selectedModelIndex = templateTable.getSelectedModelIndex();
         int newViewIndex = templateTable.convertRowIndexToView(selectedModelIndex);
         if (newViewIndex == (model.getRowCount() - 1)) {
         	newViewIndex--;
@@ -534,7 +518,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
     public void stopCodeTemplateEditing()
     {
         if (templateTable.isEditing())
-            templateTable.getColumnModel().getColumn(templateTable.getColumnModel().getColumnIndex(TEMPLATE_NAME_COLUMN_NAME)).getCellEditor().stopCellEditing();
+            templateTable.getColumnModel().getColumn(templateTable.getColumnModelIndex(TEMPLATE_NAME_COLUMN_NAME)).getCellEditor().stopCellEditing();
     }
 
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
@@ -672,8 +656,8 @@ public class CodeTemplatePanel extends javax.swing.JPanel
             parent.setVisibleTasks(parent.codeTemplateTasks, parent.codeTemplatePopupMenu, 6, 6, false);
         }    
         
-        if(getSelectedCodeTemplateModelIndex() != UIConstants.ERROR_CONSTANT)
-            templateTable.getModel().setValueAt((String)type.getSelectedItem(), getSelectedCodeTemplateModelIndex(), templateTable.getColumnModel().getColumnIndex(TEMPLATE_TYPE_COLUMN_NAME));
+        if(templateTable.getSelectedModelIndex() != UIConstants.ERROR_CONSTANT)
+            templateTable.getModel().setValueAt((String)type.getSelectedItem(), templateTable.getSelectedModelIndex(), templateTable.getColumnModelIndex(TEMPLATE_TYPE_COLUMN_NAME));
         updating = false;
     }//GEN-LAST:event_typeActionPerformed
 
@@ -683,8 +667,8 @@ public class CodeTemplatePanel extends javax.swing.JPanel
             return;
         
         updating = true;
-        if(getSelectedCodeTemplateModelIndex() != UIConstants.ERROR_CONSTANT)
-            templateTable.getModel().setValueAt((String)context.getSelectedItem(), getSelectedCodeTemplateModelIndex(), templateTable.getColumnModel().getColumnIndex(TEMPLATE_CONTEXT_COLUMN_NAME));
+        if(templateTable.getSelectedModelIndex() != UIConstants.ERROR_CONSTANT)
+            templateTable.getModel().setValueAt((String)context.getSelectedItem(), templateTable.getSelectedModelIndex(), templateTable.getColumnModelIndex(TEMPLATE_CONTEXT_COLUMN_NAME));
         updating = false;
     }//GEN-LAST:event_contextActionPerformed
 
@@ -694,8 +678,8 @@ public class CodeTemplatePanel extends javax.swing.JPanel
             return;
         
         updating = true;
-        if(getSelectedCodeTemplateModelIndex() != UIConstants.ERROR_CONSTANT)
-            templateTable.getModel().setValueAt(description.getText(), getSelectedCodeTemplateModelIndex(), templateTable.getColumnModel().getColumnIndex(TEMPLATE_DESCRIPTION_COLUMN_NAME));
+        if(templateTable.getSelectedModelIndex() != UIConstants.ERROR_CONSTANT)
+            templateTable.getModel().setValueAt(description.getText(), templateTable.getSelectedModelIndex(), templateTable.getColumnModelIndex(TEMPLATE_DESCRIPTION_COLUMN_NAME));
         updating = false;
     }//GEN-LAST:event_descriptionKeyReleased
 

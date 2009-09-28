@@ -86,4 +86,22 @@ public class MirthTable extends JXTable
         }
         return UIConstants.ERROR_CONSTANT;
     }
+    
+    public int getColumnModelIndex(String columnName) {
+        return this.convertColumnIndexToModel(this.getColumnModel().getColumnIndex(columnName));
+    }
+    
+    public int getSelectedModelIndex() {
+        int index = -1;
+        
+        if (this.isEditing())
+            index = this.getEditingRow();
+        else
+            index = this.getSelectedRow();
+        
+        if (index == -1)
+            return index;
+        
+        return this.convertRowIndexToModel(index);
+    }
 }

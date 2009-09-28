@@ -1752,7 +1752,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                alertPanel.updateAlertTable(false);
+                alertPanel.updateAlertTable();
                 setBold(viewPane, 4);
                 setPanelName("Alerts");
                 setCurrentContentPage(alertPanel);
@@ -3903,7 +3903,7 @@ public class Frame extends JXFrame
 
             public void done()
             {
-                alertPanel.updateAlertTable(false);
+                alertPanel.updateAlertTable();
                 setWorking("", false);
             }
         };
@@ -3931,30 +3931,36 @@ public class Frame extends JXFrame
         {
             public Void doInBackground()
             {
-                try
-                {
-                    Properties serverProperties = mirthClient.getServerProperties();
-                    if (!(serverProperties.getProperty("smtp.host") != null && ((String) serverProperties.getProperty("smtp.host")).length() > 0) || !(serverProperties.getProperty("smtp.port") != null && ((String) serverProperties.getProperty("smtp.port")).length() > 0))
-                        alertWarning(PlatformUI.MIRTH_FRAME, "The SMTP server on the settings page is not specified or is incomplete.  An SMTP server is required to send alerts.");
-
-                    alertPanel.saveAlert();
-                    mirthClient.updateAlerts(alerts);
-                }
-                catch (ClientException e)
-                {
-                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                }
+                saveAlerts();
                 return null;
             }
 
             public void done()
             {
-                disableSave();
                 setWorking("", false);
             }
         };
 
         worker.execute();
+    }
+    
+    public boolean saveAlerts() {
+        try
+        {
+            Properties serverProperties = mirthClient.getServerProperties();
+            if (!(serverProperties.getProperty("smtp.host") != null && ((String) serverProperties.getProperty("smtp.host")).length() > 0) || !(serverProperties.getProperty("smtp.port") != null && ((String) serverProperties.getProperty("smtp.port")).length() > 0))
+                alertWarning(PlatformUI.MIRTH_FRAME, "The SMTP server on the settings page is not specified or is incomplete.  An SMTP server is required to send alerts.");
+
+            alertPanel.saveAlert();
+            mirthClient.updateAlerts(alerts);
+            disableSave();
+        }
+        catch (ClientException e)
+        {
+            alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+            return false;
+        }
+        return true;
     }
 
     public void doDeleteAlert()
@@ -3982,7 +3988,7 @@ public class Frame extends JXFrame
         if (changesHaveBeenMade())
         {
             if (alertOption(this, "Would you like to save the changes made to the alerts?"))
-                alertPanel.saveAlert();
+                saveAlerts();
             else
                 return;
         }
@@ -4050,7 +4056,7 @@ public class Frame extends JXFrame
                 
                 enableSave();
                 alertPanel.loadAlert();
-                alertPanel.updateAlertTable(false);
+                alertPanel.updateAlertTable();
                 
             }
             catch (Exception e)
