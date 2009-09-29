@@ -145,7 +145,7 @@ public class DICOMUtil {
             ImagePlus image = new ImagePlus("ImageName", imageStack.getProcessor(sliceIndex));
             return saveAsJpeg(image, 100);
         } catch (IOException e) {
-            logger.error(e);
+            logger.error("Error converting dcm file: " + e);
         }
         return null;
     }
@@ -175,7 +175,7 @@ public class DICOMUtil {
             writer.write(null, iioImage, param);
             return baos.toByteArray();
         } catch (Exception e) {
-            logger.error(e);
+            logger.error("Error converting dcm file: " + e);
         }
         return null;
     }
