@@ -285,9 +285,9 @@ public class ReferenceListFactory
         variablelistItems.add(new CodeTemplate("Put Connector Variable Map", "The variable map that will be sent to the connector.", "connectorMap.put(key,'')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Get Channel Variable Map", "The variable map that can be used anywhere in the channel.", "channelMap.get('')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Put Channel Variable Map", "The variable map that can be used anywhere in the channel.", "channelMap.put(key,'')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Get Response Variable Map", "The variable map that stores responses.", "responseMap.get('')", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Put Success Response Variable", "The variable map that stores responses.", "responseMap.put(connector, ResponseFactory.getSuccessResponse('message'))", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Put Error Response Variable", "The variable map that stores responses.", "responseMap.put(connector, ResponseFactory.getFailureResponse('message'))", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Get Response Variable Map", "The variable map that stores responses.", "responseMap.get('')", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Put Success Response Variable", "The variable map that stores responses.", "responseMap.put(connector, ResponseFactory.getSuccessResponse('message'))", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Put Error Response Variable", "The variable map that stores responses.", "responseMap.put(connector, ResponseFactory.getFailureResponse('message'))", CodeSnippetType.VARIABLE, ContextType.CHANNEL_CONTEXT.getContext()));
 
         return variablelistItems;
     }
