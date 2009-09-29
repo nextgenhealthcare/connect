@@ -150,7 +150,7 @@ public class DICOMUtil {
         return null;
     }
 
-    public static byte[] saveAsJpeg(ImagePlus imp, int quality) {
+    private static byte[] saveAsJpeg(ImagePlus imp, int quality) {
         int width = imp.getWidth();
         int height = imp.getHeight();
         int biType = BufferedImage.TYPE_INT_RGB;
