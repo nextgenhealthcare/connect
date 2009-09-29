@@ -36,6 +36,8 @@ public class Token {
 	static Token EXPORTCFG = addKeyword("exportcfg");
 	static Token IMPORTCFG = addKeyword("importcfg");
 	static Token IMPORT = addKeyword("import");
+	static Token IMPORTALERTS = addKeyword("importalerts");
+    static Token EXPORTALERTS = addKeyword("exportalerts");
 	static Token IMPORTSCRIPT = addKeyword("importscript");
 	static Token EXPORTSCRIPT = addKeyword("exportscript");
     static Token IMPORTCODETEMPLATES = addKeyword("importcodetemplates");

@@ -57,6 +57,7 @@ import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.core.ListHandlerException;
 import com.webreach.mirth.client.core.SystemEventListHandler;
+import com.webreach.mirth.model.Alert;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.ChannelStatistics;
 import com.webreach.mirth.model.ChannelStatus;
@@ -247,6 +248,10 @@ public class Shell {
                     commandImportConfig(arguments);
                 } else if (arg1 == Token.IMPORT) {
                     commandImport(arguments);
+                } else if (arg1 == Token.IMPORTALERTS) {
+                    commandImportAlerts(arguments);
+                } else if (arg1 == Token.EXPORTALERTS) {
+                    commandExportAlerts(arguments);
                 } else if (arg1 == Token.IMPORTSCRIPT) {
                     commandImportScript(arguments);
                 } else if (arg1 == Token.EXPORTSCRIPT) {
@@ -408,6 +413,8 @@ public class Shell {
         out.println("export id|\"name\"|* \"path\"\n\tExports the specified channel to <path>\n");
         out.println("importcfg \"path\"\n\tImports configuration specified by <path>\n");
         out.println("exportcfg \"path\"\n\tExports the configuration to <path>\n");
+        out.println("importalerts \"path\"\n\tImports alerts specified by <path>\n");
+        out.println("exportalerts \"path\"\n\tExports alerts to <path>\n");
         out.println("importscript Deploy|Preprocessor|Postprocessor|Shutdown \"path\"\n\tImports global script specified by <path>\n");
         out.println("exportscript Deploy|Preprocessor|Postprocessor|Shutdown \"path\"\n\tExports global script to <path>\n");
         out.println("importcodetemplates \"path\"\n\tImports code templates specified by <path>\n");
@@ -653,6 +660,38 @@ public class Shell {
 
         File fXml = new File(path);
         doImportChannel(fXml, force);
+    }
+    
+    private void commandImportAlerts(Token[] arguments) throws ClientException {
+        String path = arguments[1].getText();
+        File fXml = new File(path);
+
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        try {
+            client.updateAlerts((List<Alert>) serializer.fromXML(readFile(fXml)));
+        } catch (IOException e) {
+            error("cannot read " + path, e);
+            return;
+        }
+
+        out.println("Alerts Import Complete");
+    }
+    
+    private void commandExportAlerts(Token[] arguments) throws ClientException {
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        String path = arguments[1].getText();
+
+        try {
+            List<Alert> alerts = client.getAlert(null);
+            File fXml = new File(path);
+            out.println("Exporting alerts");
+            String alertsXML = serializer.toXML(alerts);
+            writeFile(fXml, alertsXML, false);
+        } catch (IOException e) {
+            error("unable to write file " + path + ": " + e, e);
+        }
+
+        out.println("Alerts Export Complete.");
     }
 
     private void commandExportScript(Token[] arguments) throws ClientException {
