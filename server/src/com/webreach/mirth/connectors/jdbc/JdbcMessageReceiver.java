@@ -241,7 +241,21 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
                     return null;
                 }
             } else {
-                return (List) new QueryRunner().query(connection, readStmt, JdbcUtils.getParams(getEndpointURI(), readParams, null), new MapListHandler());
+                boolean validConnection = true;
+                if (connection.isClosed()) {
+                    try {
+                        connection = connector.getConnection(null);
+                    } catch (Exception e) {
+                        validConnection = false;
+                        logger.error(e);
+                    }
+                }
+                
+                if (validConnection) {
+                    return (List) new QueryRunner().query(connection, readStmt, JdbcUtils.getParams(getEndpointURI(), readParams, null), new MapListHandler());
+                } else {
+                    return new ArrayList();
+                }
             }
         } catch (Exception e) {
             alertController.sendAlerts(((JdbcConnector) connector).getChannelId(), Constants.ERROR_406, null, e);

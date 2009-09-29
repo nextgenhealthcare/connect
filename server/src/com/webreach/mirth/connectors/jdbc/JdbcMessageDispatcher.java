@@ -1,6 +1,7 @@
 package com.webreach.mirth.connectors.jdbc;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,10 +115,18 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
                 writeStmt = JdbcUtils.parseStatement(writeStmt, paramNames);
                 Object[] paramValues = JdbcUtils.getParams(endpointURI, paramNames, messageObject);
                 connection = connector.getConnection(messageObject);
-                int numRows = new QueryRunner().update(connection, writeStmt, paramValues);
-
-                if (numRows != 1) {
-                    logger.warn("Row count for write should be 1 and not " + numRows);
+                
+                int numRows = -1;
+                try {
+                    numRows = new QueryRunner().update(connection, writeStmt, paramValues);
+                } catch (SQLException e) {
+                    // If the connection was closed, get a new connection and try again
+                    if (connection.isClosed()) { 
+                        connection = connector.getConnection(messageObject);
+                        numRows = new QueryRunner().update(connection, writeStmt, paramValues);
+                    } else {
+                        throw e;
+                    }
                 }
 
                 JdbcUtils.commitAndClose(connection);

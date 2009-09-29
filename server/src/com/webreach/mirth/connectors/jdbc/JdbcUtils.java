@@ -19,13 +19,13 @@ import com.webreach.mirth.model.MessageObject;
 
 public abstract class JdbcUtils {
     public static void close(Connection con) throws SQLException {
-        if (con != null) {
+        if (con != null && !con.isClosed()) {
             con.close();
         }
     }
 
     public static void commitAndClose(Connection con) throws SQLException {
-        if (con != null) {
+        if (con != null && !con.isClosed()) {
             if (con.getAutoCommit() == false) {
                 con.commit();
             }
@@ -35,7 +35,7 @@ public abstract class JdbcUtils {
     }
 
     public static void rollbackAndClose(Connection con) throws SQLException {
-        if (con != null) {
+        if (con != null && !con.isClosed()) {
             if (con.getAutoCommit() == false) {
                 con.rollback();
             }
