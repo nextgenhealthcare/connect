@@ -1,17 +1,24 @@
 package com.webreach.mirth.server.util;
 
-import ij.plugin.DICOM;
 import ij.ImagePlus;
 import ij.ImageStack;
+import ij.plugin.DICOM;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Iterator;
+import java.util.List;
 
-import javax.imageio.*;
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+
+import org.apache.log4j.Logger;
 
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
@@ -22,7 +29,6 @@ import com.webreach.mirth.model.converters.DICOMSerializer;
 import com.webreach.mirth.model.converters.SerializerException;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MessageObjectController;
-import org.apache.log4j.Logger;
 
 /**
  * Created by IntelliJ IDEA. User: Date: Oct 4, 2007 Time: 10:42:11 AM To change
