@@ -11,6 +11,7 @@ public class Alert {
 	private String expression;
 	private String template;
 	private boolean enabled;
+	private String subject;
 	private List<String> channels;
 	private List<String> emails;
 
@@ -75,7 +76,15 @@ public class Alert {
 		this.enabled = enabled;
 	}
 
-	public boolean equals(Object that) {
+	public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public boolean equals(Object that) {
 		if (this == that) {
 			return true;
 		}
@@ -88,6 +97,7 @@ public class Alert {
 		
 		return
 			EqualsUtil.areEqual(this.getId(), alert.getId()) &&
+			EqualsUtil.areEqual(this.getSubject(), alert.getSubject()) &&
 			EqualsUtil.areEqual(this.isEnabled(), alert.isEnabled()) &&
 			EqualsUtil.areEqual(this.getExpression(), alert.getExpression()) &&
 			EqualsUtil.areEqual(this.getTemplate(), alert.getTemplate()) &&
