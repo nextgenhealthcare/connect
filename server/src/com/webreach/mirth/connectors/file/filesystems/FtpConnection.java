@@ -186,12 +186,16 @@ public class FtpConnection implements FileSystemConnection {
 		throws Exception
 	{
 		cdmake(toDir);
+		InputStream is = new ByteArrayInputStream(message);
 		
 		if (append) {
-		    client.appendFile(file, new ByteArrayInputStream(message));
+		    client.appendFile(file, is);
 		} else {
-		    client.storeFile(file, new ByteArrayInputStream(message));    
+		    client.storeFile(file, is);    
 		}
+		
+		// have to close it since append or store don't close the stream
+		is.close();
 	}
 
 	public void delete(String file, String fromDir, boolean mayNotExist)
