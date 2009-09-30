@@ -28,7 +28,7 @@
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="split" alignment="0" pref="512" max="32767" attributes="0"/>
+          <Component id="split" alignment="0" pref="468" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
   </Layout>
@@ -87,49 +87,51 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="1" attributes="0">
-                          <Group type="102" attributes="0">
+                  <Group type="102" attributes="0">
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="emailSubjectPanel" alignment="0" max="32767" attributes="0"/>
+                          <Group type="102" alignment="1" attributes="0">
                               <Component id="applyToChannelsPanel" max="32767" attributes="1"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="emailsPane" max="32767" attributes="1"/>
                           </Group>
                           <Group type="102" alignment="1" attributes="0">
-                              <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="templatePane" alignment="0" max="32767" attributes="0"/>
-                                  <Component id="errorPane" alignment="1" max="32767" attributes="1"/>
-                              </Group>
+                              <Component id="errorPane" max="32767" attributes="2"/>
+                              <EmptySpace min="-2" max="-2" attributes="0"/>
+                              <Component id="errorPanel" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="1" attributes="0">
+                              <Component id="templatePane" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="templateVariablesPanel" min="-2" max="-2" attributes="0"/>
-                                  <Component id="errorPanel" alignment="0" min="-2" max="-2" attributes="0"/>
-                              </Group>
+                              <Component id="templateVariablesPanel" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
                           <Component id="applyToChannelsPanel" max="32767" attributes="0"/>
                           <Component id="emailsPane" max="32767" attributes="0"/>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="errorPane" max="32767" attributes="1"/>
-                          <Component id="errorPanel" alignment="0" max="32767" attributes="0"/>
+                          <Component id="errorPanel" max="32767" attributes="1"/>
+                          <Component id="errorPane" alignment="0" max="32767" attributes="2"/>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <Component id="emailSubjectPanel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="templatePane" max="32767" attributes="0"/>
-                          <Component id="templateVariablesPanel" max="32767" attributes="0"/>
+                          <Component id="templateVariablesPanel" max="32767" attributes="1"/>
+                          <Component id="templatePane" alignment="0" max="32767" attributes="2"/>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -159,7 +161,7 @@
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="applyToChannelsScrollPane" alignment="1" pref="90" max="32767" attributes="0"/>
+                      <Component id="applyToChannelsScrollPane" alignment="1" pref="63" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
               </Layout>
@@ -204,7 +206,7 @@
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="errorField" alignment="0" pref="97" max="32767" attributes="0"/>
+                      <Component id="errorField" alignment="0" pref="68" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
               </Layout>
@@ -255,9 +257,9 @@
                           <Component id="addButton" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="removeButton" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="38" max="32767" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
                       </Group>
-                      <Component id="emailsScrollPane" alignment="0" pref="90" max="32767" attributes="0"/>
+                      <Component id="emailsScrollPane" alignment="0" pref="63" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
               </Layout>
@@ -318,7 +320,7 @@
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="template" alignment="0" pref="95" max="32767" attributes="0"/>
+                      <Component id="template" alignment="0" pref="60" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
               </Layout>
@@ -358,7 +360,7 @@
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="errorScrollPane" alignment="0" pref="97" max="32767" attributes="0"/>
+                      <Component id="errorScrollPane" alignment="0" pref="68" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
               </Layout>
@@ -414,7 +416,7 @@
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="templateVariablesPane" alignment="0" pref="95" max="32767" attributes="0"/>
+                      <Component id="templateVariablesPane" alignment="0" pref="60" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
               </Layout>
@@ -444,6 +446,39 @@
                     </Component>
                   </SubComponents>
                 </Container>
+              </SubComponents>
+            </Container>
+            <Container class="javax.swing.JPanel" name="emailSubjectPanel">
+              <Properties>
+                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
+                </Property>
+                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                  <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
+                    <TitledBorder title="Email Subject">
+                      <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+                        <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+                      </Border>
+                    </TitledBorder>
+                  </Border>
+                </Property>
+              </Properties>
+
+              <Layout>
+                <DimensionLayout dim="0">
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="emailSubjectField" alignment="0" pref="550" max="32767" attributes="0"/>
+                  </Group>
+                </DimensionLayout>
+                <DimensionLayout dim="1">
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="emailSubjectField" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                </DimensionLayout>
+              </Layout>
+              <SubComponents>
+                <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="emailSubjectField">
+                </Component>
               </SubComponents>
             </Container>
           </SubComponents>

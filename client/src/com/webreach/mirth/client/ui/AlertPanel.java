@@ -456,6 +456,7 @@ public class AlertPanel extends javax.swing.JPanel
         updateApplyToChannelsTable(current);
         updateEmailsTable(current);
         errorField.setText(current.getExpression());
+        emailSubjectField.setText(current.getSubject());
         template.setText(current.getTemplate());
 
         int dividerLocation = split.getDividerLocation();
@@ -484,6 +485,7 @@ public class AlertPanel extends javax.swing.JPanel
         stopEmailEditing();
 
         current.setEmails(getEmails());
+        current.setSubject(emailSubjectField.getText());
         current.setTemplate(template.getText());
 
         parent.alertTasks.getContentPane().getComponent(1).setVisible(changed);
@@ -829,6 +831,8 @@ public class AlertPanel extends javax.swing.JPanel
         templateVariablesPanel = new javax.swing.JPanel();
         templateVariablesPane = new javax.swing.JScrollPane();
         templateVariableList = new com.webreach.mirth.client.ui.components.MirthVariableList();
+        emailSubjectPanel = new javax.swing.JPanel();
+        emailSubjectField = new com.webreach.mirth.client.ui.components.MirthTextField();
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
@@ -856,7 +860,7 @@ public class AlertPanel extends javax.swing.JPanel
         );
         applyToChannelsPanelLayout.setVerticalGroup(
             applyToChannelsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, applyToChannelsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 90, Short.MAX_VALUE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, applyToChannelsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 63, Short.MAX_VALUE)
         );
 
         errorPane.setBackground(new java.awt.Color(255, 255, 255));
@@ -872,7 +876,7 @@ public class AlertPanel extends javax.swing.JPanel
         );
         errorPaneLayout.setVerticalGroup(
             errorPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(errorField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 97, Short.MAX_VALUE)
+            .add(errorField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
         );
 
         emailsPane.setBackground(new java.awt.Color(255, 255, 255));
@@ -911,8 +915,8 @@ public class AlertPanel extends javax.swing.JPanel
                 .add(addButton)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(removeButton)
-                .addContainerGap(38, Short.MAX_VALUE))
-            .add(emailsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 90, Short.MAX_VALUE)
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .add(emailsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 63, Short.MAX_VALUE)
         );
 
         templatePane.setBackground(new java.awt.Color(255, 255, 255));
@@ -928,7 +932,7 @@ public class AlertPanel extends javax.swing.JPanel
         );
         templatePaneLayout.setVerticalGroup(
             templatePaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)
+            .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE)
         );
 
         errorPanel.setBackground(new java.awt.Color(255, 255, 255));
@@ -949,7 +953,7 @@ public class AlertPanel extends javax.swing.JPanel
         );
         errorPanelLayout.setVerticalGroup(
             errorPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(errorScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 97, Short.MAX_VALUE)
+            .add(errorScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
         );
 
         templateVariablesPanel.setBackground(new java.awt.Color(255, 255, 255));
@@ -970,7 +974,21 @@ public class AlertPanel extends javax.swing.JPanel
         );
         templateVariablesPanelLayout.setVerticalGroup(
             templateVariablesPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(templateVariablesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)
+            .add(templateVariablesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE)
+        );
+
+        emailSubjectPanel.setBackground(new java.awt.Color(255, 255, 255));
+        emailSubjectPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0), "Email Subject"));
+
+        org.jdesktop.layout.GroupLayout emailSubjectPanelLayout = new org.jdesktop.layout.GroupLayout(emailSubjectPanel);
+        emailSubjectPanel.setLayout(emailSubjectPanelLayout);
+        emailSubjectPanelLayout.setHorizontalGroup(
+            emailSubjectPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(emailSubjectField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 550, Short.MAX_VALUE)
+        );
+        emailSubjectPanelLayout.setVerticalGroup(
+            emailSubjectPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(emailSubjectField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
         );
 
         org.jdesktop.layout.GroupLayout bottomPaneLayout = new org.jdesktop.layout.GroupLayout(bottomPane);
@@ -979,19 +997,20 @@ public class AlertPanel extends javax.swing.JPanel
             bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(bottomPaneLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(bottomPaneLayout.createSequentialGroup()
+                .add(bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(emailSubjectPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, bottomPaneLayout.createSequentialGroup()
                         .add(applyToChannelsPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(emailsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .add(bottomPaneLayout.createSequentialGroup()
-                        .add(bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, templatePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(errorPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, bottomPaneLayout.createSequentialGroup()
+                        .add(errorPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(templateVariablesPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(errorPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                        .add(errorPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, bottomPaneLayout.createSequentialGroup()
+                        .add(templatePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(templateVariablesPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         bottomPaneLayout.setVerticalGroup(
@@ -1003,12 +1022,14 @@ public class AlertPanel extends javax.swing.JPanel
                     .add(emailsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(errorPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(errorPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(errorPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(errorPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(emailSubjectPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(templatePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(templateVariablesPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(templateVariablesPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(templatePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -1022,7 +1043,7 @@ public class AlertPanel extends javax.swing.JPanel
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(split, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 512, Short.MAX_VALUE)
+            .add(split, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 468, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -1068,6 +1089,8 @@ public class AlertPanel extends javax.swing.JPanel
     private javax.swing.JScrollPane applyToChannelsScrollPane;
     private com.webreach.mirth.client.ui.components.MirthTable applyToChannelsTable;
     private javax.swing.JPanel bottomPane;
+    private com.webreach.mirth.client.ui.components.MirthTextField emailSubjectField;
+    private javax.swing.JPanel emailSubjectPanel;
     private javax.swing.JPanel emailsPane;
     private javax.swing.JScrollPane emailsScrollPane;
     private com.webreach.mirth.client.ui.components.MirthTable emailsTable;
