@@ -50,6 +50,7 @@ import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.webreach.mirth.client.core.ClientException;
+import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.client.ui.components.MirthVariableList;
 import com.webreach.mirth.model.Alert;
@@ -82,6 +83,7 @@ public class AlertPanel extends javax.swing.JPanel
         lastAlertRow = -1;
         blankPanel = new JPanel();
         initComponents();
+        emailSubjectField.setDocument(new MirthFieldConstraints(998));
         makeAlertTable();
         makeApplyToChannelsTable();
         makeEmailsTable();
