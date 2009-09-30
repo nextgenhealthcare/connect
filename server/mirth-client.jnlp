@@ -39,7 +39,7 @@
 		<jar download="eager" href="client-lib/log4j-1.2.14.jar" />
 		<jar download="eager" href="client-lib/looks-2.2.2.jar" />
 		<jar download="eager" href="client-lib/qname.jar" />
-		<jar download="eager" href="client-lib/rhino-1.6r2.jar" />
+		<jar download="eager" href="client-lib/rhino-1.7r2.jar" />
 		<jar download="eager" href="client-lib/swing-layout.jar" />
 		<jar download="eager" href="client-lib/swing-worker.jar" />
 		<jar download="eager" href="client-lib/swingx-1.0.jar" />

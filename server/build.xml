@@ -90,6 +90,7 @@
 			<include name="com/webreach/mirth/model/**" />
 			<include name="com/webreach/mirth/util/**" />
 			<include name="com/thoughtworks/**" />
+			<include name="org/mozilla/**" />
 		</jar>
 	</target>
 
@@ -665,7 +666,6 @@
 			<include name="com/webreach/mirth/plugins/*.class" />
 			<include name="com/webreach/mirth/connectors/*.class" />
 			<include name="org/**" />
-			<include name="ca/**" />
 
 			<exclude name="com/webreach/mirth/server/launcher/**" />
 			<exclude name="com/webreach/mirth/server/mbeans/**" />
