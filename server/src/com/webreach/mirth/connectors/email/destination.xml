@@ -2,7 +2,7 @@
 	<name>Email Sender</name>
 	<author>Mirth Corporation</author>
 	<pluginVersion>@mirthversion</pluginVersion>
-	<mirthVersion>1.8.1</mirthVersion>
+	<mirthVersion>1.8.2</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to send Email messages via SMTP. The velocity template engine is available to dynamically create messages.</description>
 	<clientClassName>com.webreach.mirth.connectors.email.EmailSender</clientClassName>

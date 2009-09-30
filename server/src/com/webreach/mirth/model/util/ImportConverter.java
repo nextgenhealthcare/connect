@@ -295,7 +295,7 @@ public class ImportConverter {
 				convertChannelConnectorsFor1_8(document, channelRoot);
 			}
 			
-			// Run for all version prior to 1.8.1
+			// Run for all version prior to 1.8.2
 			if (minorVersion < 8 || (minorVersion == 8 && patchVersion < 1)) {  
 				updateTransformerFor1_8_1(document);	
 			}
