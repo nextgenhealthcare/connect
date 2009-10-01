@@ -11,7 +11,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<parameter property="enabled" />
 		<parameter property="expression" jdbcType="CLOB" />
 		<parameter property="template" jdbcType="CLOB" />
-		<parameter property="subject" />
+		<parameter property="subject" jdbcType="VARCHAR" />
 	</parameterMap>
 
 	<resultMap class="com.webreach.mirth.model.Alert" id="get-alert-result">
