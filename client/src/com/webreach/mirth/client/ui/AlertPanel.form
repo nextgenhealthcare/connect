@@ -90,21 +90,22 @@
                   <Group type="102" attributes="0">
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="emailSubjectPanel" alignment="0" max="32767" attributes="0"/>
                           <Group type="102" alignment="1" attributes="0">
                               <Component id="applyToChannelsPanel" max="32767" attributes="1"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="emailsPane" max="32767" attributes="1"/>
                           </Group>
                           <Group type="102" alignment="1" attributes="0">
-                              <Component id="errorPane" max="32767" attributes="2"/>
-                              <EmptySpace min="-2" max="-2" attributes="0"/>
-                              <Component id="errorPanel" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="1" attributes="0">
-                              <Component id="templatePane" max="32767" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="errorPane" max="32767" attributes="2"/>
+                                  <Component id="emailSubjectPanel" max="32767" attributes="0"/>
+                                  <Component id="templatePane" alignment="1" max="32767" attributes="0"/>
+                              </Group>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="templateVariablesPanel" min="-2" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="1" attributes="0">
+                                  <Component id="templateVariablesPanel" alignment="0" min="-2" max="-2" attributes="1"/>
+                                  <Component id="errorPanel" alignment="1" min="-2" max="-2" attributes="1"/>
+                              </Group>
                           </Group>
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -125,13 +126,15 @@
                           <Component id="errorPane" alignment="0" max="32767" attributes="2"/>
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Component id="emailSubjectPanel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="templateVariablesPanel" max="32767" attributes="1"/>
-                          <Component id="templatePane" alignment="0" max="32767" attributes="2"/>
+                          <Group type="102" attributes="0">
+                              <Component id="emailSubjectPanel" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="templatePane" max="32767" attributes="2"/>
+                          </Group>
+                          <Component id="templateVariablesPanel" max="32767" attributes="2"/>
                       </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -303,7 +306,7 @@
                 </Property>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                    <TitledBorder title="Error Template">
+                    <TitledBorder title="Email Body">
                       <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
                         <EmptyBorder bottom="0" left="0" right="0" top="0"/>
                       </Border>
@@ -399,7 +402,7 @@
                 </Property>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-                    <TitledBorder title="Error Template Variables">
+                    <TitledBorder title="Alert Variables">
                       <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
                         <EmptyBorder bottom="0" left="0" right="0" top="0"/>
                       </Border>
@@ -416,7 +419,7 @@
                 </DimensionLayout>
                 <DimensionLayout dim="1">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="templateVariablesPane" alignment="0" pref="60" max="32767" attributes="0"/>
+                      <Component id="templateVariablesPane" alignment="0" pref="107" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
               </Layout>
@@ -467,7 +470,7 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="emailSubjectField" alignment="0" pref="550" max="32767" attributes="0"/>
+                      <Component id="emailSubjectField" alignment="0" pref="370" max="32767" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
