@@ -195,23 +195,26 @@ public class DefaultAlertController extends AlertController {
         Properties properties = ControllerFactory.getFactory().createConfigurationController().getServerProperties();
         final String fromAddress = PropertyLoader.getProperty(properties, "smtp.from");
         final String toAddresses = generateEmailList(emails);
-        String body = errorMessage;
+
+        Map<String, Object> context = new HashMap<String, Object>();
+        context.put("channelName", ControllerFactory.getFactory().createChannelController().getChannelName(channelId));
+        context.put("ERROR", errorMessage);
+        context.put("error", errorMessage);
+        context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
+        context.put("date", new DateTool());
         
         if (subject != null) {
-            subject = replacer.replaceValues(subject);
+            subject = replacer.replaceValues(subject, context);
         }
         
+        // if there is no subject, set it to the default value
         if ((subject == null) || (subject.length() == 0)) {
             subject = "Mirth Connect Alert";
         }
 
+        String body = errorMessage;
+
         if (template != null) {
-            Map<String, Object> context = new HashMap<String, Object>();
-            context.put("channelName", ControllerFactory.getFactory().createChannelController().getChannelName(channelId));
-            context.put("ERROR", errorMessage);
-            context.put("error", errorMessage);
-            context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
-            context.put("date", new DateTool());
             body = replacer.replaceValues(template, context);
         }
 
