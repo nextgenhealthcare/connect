@@ -23,7 +23,7 @@ APP_NAME="Mirth"
 APP_LONG_NAME="Mirth"
 
 # Wrapper
-WRAPPER_CMD="wrapper-x86-32bit"
+WRAPPER_CMD="wrapper"
 WRAPPER_CONF="conf/wrapper.conf"
 
 # Priority at which to run the wrapper.  See "man nice" for valid priorities.

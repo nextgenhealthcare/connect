@@ -640,9 +640,10 @@
 			<fileset file="${basedir}/StopMirth-NT.bat" />
 
 			<!-- executables -->
-			<fileset file="${basedir}/wrapper.exe" />
+			<fileset file="${basedir}/wrapper-windows-x86-32.exe" />
 			<fileset file="${basedir}/mirth-daemon" />
-			<fileset file="${basedir}/wrapper-x86-32bit" />
+			<fileset file="${basedir}/wrapper-linux-x86-32" />
+			<fileset file="${basedir}/wrapper-linux-x86-64" />
 			<fileset file="${basedir}/mirth-client-core.jar" />
 			<fileset file="${basedir}/mirth-manager.jar" />
 
@@ -813,8 +814,9 @@
 				<exclude name="uninstall.ico" />
 				<exclude name="UninstallMirth-NT.bat" />
 				<exclude name="upgrade.xml" />
-				<exclude name="wrapper.exe" />
-				<exclude name="wrapper-x86-32bit" />
+				<exclude name="wrapper-windows-x86-32.exe" />
+				<exclude name="wrapper-linux-x86-32" />
+				<exclude name="wrapper-linux-x86-64" />
 				<exclude name="source/**" />
 				<exclude name="conf/wrapper.conf" />
 			</fileset>
