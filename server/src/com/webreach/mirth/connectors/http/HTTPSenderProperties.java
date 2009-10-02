@@ -41,6 +41,7 @@ public class HTTPSenderProperties extends QueuedSenderProperties
     public static final String CHANNEL_ID = "replyChannelId";
     public static final String HTTP_HEADER_PROPERTIES = "headerVariables";
     public static final String HTTP_EXCLUDE_HEADERS = "excludeHeaders";
+    public static final String HTTP_MULTIPART = "multipart";
     
     public Properties getDefaults()
     {
@@ -56,6 +57,7 @@ public class HTTPSenderProperties extends QueuedSenderProperties
         
         properties.put(HTTP_HEADER_PROPERTIES, serializer.toXML(new Properties()));
         properties.put(HTTP_EXCLUDE_HEADERS, "0");
+        properties.put(HTTP_MULTIPART, "0");
         properties.put(CHANNEL_ID, "sink");
         return properties;
     }

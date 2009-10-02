@@ -92,6 +92,8 @@ public class HttpConnector extends TcpConnector
     private boolean excludeHeaders = false;
     private String payloadEncoding;
     private boolean appendPayload;
+    private boolean multipart;
+    
     public String getChannelId() {
 		return this.channelId;
 	}
@@ -309,4 +311,12 @@ public class HttpConnector extends TcpConnector
 	public void setAppendPayload(boolean appendPayload) {
 		this.appendPayload = appendPayload;
 	}
+
+    public boolean isMultipart() {
+        return multipart;
+    }
+
+    public void setMultipart(boolean multipart) {
+        this.multipart = multipart;
+    }
 }

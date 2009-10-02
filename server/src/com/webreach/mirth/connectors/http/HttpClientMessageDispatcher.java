@@ -28,6 +28,9 @@ import com.webreach.mirth.server.util.VMRouter;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.*;
+import org.apache.commons.httpclient.methods.multipart.FilePart;
+import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
+import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.mule.config.i18n.Message;
 import org.mule.impl.MuleMessage;
@@ -48,6 +51,7 @@ import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.transformer.UMOTransformer;
 import sun.misc.BASE64Encoder;
 
+import java.io.File;
 import java.net.BindException;
 import java.net.SocketException;
 import java.net.URISyntaxException;
@@ -165,21 +169,29 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher imple
 		Map requestVariables = connector.getRequestVariables();
 		
 		if (connector.getMethod().equals("post")) {
-			// We add all the parameters from the connector to the post
-			PostMethod postMethod = new PostMethod(uri.toString());
-			if (requestVariables != null && requestVariables.size() > 0) {
-				for (Iterator iter = requestVariables.keySet().iterator(); iter.hasNext();) {
-					String key = (String) iter.next();
-					// one of our variables can be $payload (or current
-					// payload_key)
-					// set our request entity to this if set
-					if (key.equals(PAYLOAD_KEY)) {
-						postMethod.setRequestEntity(new StringRequestEntity(replacer.replaceValues((String) requestVariables.get(key), messageObject)));
-					} else {
-						postMethod.addParameter(key, replacer.replaceValues((String) requestVariables.get(key), messageObject));
-					}
-				}
-			}
+		    PostMethod postMethod = new PostMethod(uri.toString());
+            // We add all the parameters from the connector to the post
+            if (requestVariables != null && requestVariables.size() > 0) {
+                for (Iterator iter = requestVariables.keySet().iterator(); iter.hasNext();) {
+                    String key = (String) iter.next();
+                    // one of our variables can be $payload (or current
+                    // payload_key)
+                    // set our request entity to this if set
+                    if (key.equals(PAYLOAD_KEY)) {
+                        if (connector.isMultipart()) {
+                            File file = File.createTempFile(messageObject.getChannelId(), ".tmp");
+                            Part[] parts = new Part[1];
+                            parts[0] = new FilePart(file.getName(), file);
+                            postMethod.setRequestEntity(new MultipartRequestEntity(parts, postMethod.getParams()));
+                        } else {
+                            postMethod.setRequestEntity(new StringRequestEntity(replacer.replaceValues((String) requestVariables.get(key), messageObject)));    
+                        }
+                    } else {
+                        postMethod.addParameter(key, replacer.replaceValues((String) requestVariables.get(key), messageObject));
+                    }
+                }
+            }
+		    
 			httpMethod = postMethod;
 		} else if (connector.getMethod().equals("get")) {
 			// We need to add all the parameters to the get request
