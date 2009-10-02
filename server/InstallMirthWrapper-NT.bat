@@ -1,9 +1,17 @@
 @echo off
 setlocal
 
-rem Copyright (c) 1999, 2006 Tanuki Software Inc.
+rem Copyright (c) 1999, 2009 Tanuki Software, Ltd.
+rem http://www.tanukisoftware.com
+rem All rights reserved.
 rem
-rem Java Service Wrapper general NT service start script
+rem This software is the proprietary information of Tanuki Software.
+rem You shall use it only in accordance with the terms of the
+rem license agreement you entered into with Tanuki Software.
+rem http://wrapper.tanukisoftware.org/doc/english/licenseOverview.html
+rem
+rem Java Service Wrapper general NT service install script.
+rem Optimized for use with version 3.3.6 of the Wrapper.
 rem
 
 if "%OS%"=="Windows_NT" goto nt
@@ -41,10 +49,10 @@ if not %_WRAPPER_CONF%=="" goto startup
 set _WRAPPER_CONF="%_REALPATH%.\conf\wrapper.conf"
 
 rem
-rem Start the Wrapper NT service.
+rem Install the Wrapper as an NT service.
 rem
 :startup
-"%_WRAPPER_EXE%" -t %_WRAPPER_CONF%
+"%_WRAPPER_EXE%" -i %_WRAPPER_CONF%
 if not errorlevel 1 goto :eof
-
+pause
 
