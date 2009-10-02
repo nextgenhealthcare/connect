@@ -11,7 +11,7 @@
   <supportUrl></supportUrl>
   <customProcName>true</customProcName>
   <stayAlive>false</stayAlive>
-  <manifest></manifest>
+  <manifest>C:\Users\geraldb\workspace\Server\Mirth.exe.manifest</manifest>
   <icon>C:\Users\geraldb\workspace\Server\Mirth.ico</icon>
   <jre>
     <path></path>
