@@ -179,7 +179,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher imple
                     // set our request entity to this if set
                     if (key.equals(PAYLOAD_KEY)) {
                         if (connector.isMultipart()) {
-                            File file = File.createTempFile(messageObject.getChannelId(), ".tmp");
+                            File file = File.createTempFile(messageObject.getId(), ".tmp");
                             Part[] parts = new Part[1];
                             parts[0] = new FilePart(file.getName(), file);
                             postMethod.setRequestEntity(new MultipartRequestEntity(parts, postMethod.getParams()));
