@@ -24,6 +24,7 @@ import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
+import com.webreach.mirth.server.util.FileUtil;
 import com.webreach.mirth.server.util.VMRouter;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.auth.AuthScope;
@@ -179,9 +180,11 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher imple
                     // set our request entity to this if set
                     if (key.equals(PAYLOAD_KEY)) {
                         if (connector.isMultipart()) {
-                            File file = File.createTempFile(messageObject.getId(), ".tmp");
+                            File tempFile = File.createTempFile(messageObject.getId(), ".tmp");
+                            String multipartBody = replacer.replaceValues((String) requestVariables.get(key), messageObject);
+                            FileUtil.write(tempFile.getAbsolutePath(), false, multipartBody);
                             Part[] parts = new Part[1];
-                            parts[0] = new FilePart(file.getName(), file);
+                            parts[0] = new FilePart(tempFile.getName(), tempFile);
                             postMethod.setRequestEntity(new MultipartRequestEntity(parts, postMethod.getParams()));
                         } else {
                             postMethod.setRequestEntity(new StringRequestEntity(replacer.replaceValues((String) requestVariables.get(key), messageObject)));    
