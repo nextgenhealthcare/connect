@@ -634,10 +634,10 @@
 			<fileset file="${basedir}/keystore" />
 
 			<!-- windows service files -->
-			<fileset file="${basedir}/InstallMirth-NT.bat" />
-			<fileset file="${basedir}/UninstallMirth-NT.bat" />
-			<fileset file="${basedir}/StartMirth-NT.bat" />
-			<fileset file="${basedir}/StopMirth-NT.bat" />
+			<fileset file="${basedir}/InstallMirthWrapper-NT.bat" />
+			<fileset file="${basedir}/UninstallMirthWrapper-NT.bat" />
+			<fileset file="${basedir}/StartMirthWrapper-NT.bat" />
+			<fileset file="${basedir}/StopMirthWrapper-NT.bat" />
 
 			<!-- executables -->
 			<fileset file="${basedir}/wrapper-windows-x86-32.exe" />
