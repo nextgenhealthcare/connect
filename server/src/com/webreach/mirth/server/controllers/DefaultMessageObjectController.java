@@ -207,7 +207,43 @@ public class DefaultMessageObjectController extends MessageObjectController {
             messageObject.getChannelMap().put(RECEIVE_SOCKET, socket);
         }
     }
+	
+	public void updateMessageStatus(String channelId, String messageId, MessageObject.Status newStatus) {
+		// update the stats counts
+		if (newStatus.equals(MessageObject.Status.TRANSFORMED)) {
+			statisticsController.incrementReceivedCount(channelId);
+		} else if (newStatus.equals(MessageObject.Status.FILTERED)) {
+			statisticsController.incrementFilteredCount(channelId);
+		} else if (newStatus.equals(MessageObject.Status.ERROR)) {
+			statisticsController.incrementErrorCount(channelId);
+		} else if (newStatus.equals(MessageObject.Status.SENT)) {
+			statisticsController.incrementSentCount(channelId);
+		} else if (newStatus.equals(MessageObject.Status.QUEUED)) {
+			statisticsController.incrementQueuedCount(channelId);
+		}
+		Channel channel = ControllerFactory.getFactory().createChannelController().getChannelCache().get(channelId);
+		if (channel == null) {
+			logger.warn("Cannot update message " + messageId + " status as the channel " + channelId + " doesn't exists ");
+			return;
+		}
+		if (channel.getProperties().containsKey("store_messages")) {
+			if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && (newStatus==MessageObject.Status.ERROR)) || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && (newStatus==MessageObject.Status.FILTERED))) {
+					logger.debug("message " + messageId + " status is not stored because channel store configuration parameters");
+					return;
+			}
+		}
 
+		try {
+			HashMap<String,String> params = new HashMap<String,String>();
+			params.put("status", newStatus.toString());
+			params.put("id", messageId);
+			SqlConfig.getSqlMapClient().update("Message.updateMessageStatus",params);
+		} catch (SQLException e) {
+			logger.error("Error updating message " + messageId + " status due to a database problem", e);
+		}
+	}
+    
+    
     public void importMessage(MessageObject messageObject) {
         writeMessageToDatabase(messageObject, true);
     }
@@ -462,9 +498,17 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
         while ((page * interval) < size) {
             for (MessageObject message : getMessagesByPage(page, interval, size, uid, true)) {
-                String connectorId = ControllerFactory.getFactory().createChannelController().getConnectorId(message.getChannelId(), message.getConnectorName());
-                String queueName = QueueUtil.getInstance().getQueueName(message.getChannelId(), connectorId);
-                QueueUtil.getInstance().removeMessageFromQueue(queueName, message.getId());
+            	String queueName = message.getConnectorMap().get(QueueUtil.QUEUE_NAME).toString();
+            	String messageId = message.getConnectorMap().get(QueueUtil.MESSAGE_ID).toString();
+
+            	if ((queueName == null) || (queueName.length() == 0)) {
+	                String connectorId = ControllerFactory.getFactory().createChannelController().getConnectorId(message.getChannelId(), message.getConnectorName());
+	                queueName = QueueUtil.getInstance().getQueueName(message.getChannelId(), connectorId);
+            	}
+            	if ((messageId == null) || (messageId.length() == 0)) {
+            	    messageId = message.getId();
+            	}
+	            QueueUtil.getInstance().removeMessageFromQueue(queueName, messageId );
                 ControllerFactory.getFactory().createChannelStatisticsController().decrementQueuedCount(message.getChannelId());
             }
 

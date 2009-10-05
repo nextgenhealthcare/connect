@@ -17,6 +17,7 @@ package com.webreach.mirth.connectors.vm;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.mule.MuleManager;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
 import org.mule.impl.MuleEvent;
@@ -28,6 +29,8 @@ import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOExceptionPayload;
 import org.mule.umo.UMOMessage;
+import org.mule.umo.endpoint.EndpointException;
+import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.provider.DispatchException;
 import org.mule.umo.provider.NoReceiverForEndpointException;
@@ -44,6 +47,7 @@ import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
+import com.webreach.mirth.util.QueueUtil;
 
 /**
  * <code>VMMessageDispatcher</code> is used for providing in memory
@@ -181,12 +185,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
             else
             {
                 VMMessageReceiver receiver = connector.getReceiver(event.getEndpoint().getEndpointURI());
-                if (receiver == null)
-                {
-                    logger.warn("No receiver for endpointUri: " + event.getEndpoint().getEndpointURI());
-                    return;
-                }
-                routeTemplatedMessage(messageObject, receiver);
+                routeTemplatedMessage(messageObject, receiver, event.getEndpoint());
             }
             if (logger.isDebugEnabled())
             {
@@ -204,56 +203,81 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
         }
     }
 
-	private void routeTemplatedMessage(MessageObject messageObject, VMMessageReceiver receiver) throws UMOException {
-		String template = connector.getTemplate();
-		if (template != null){
-			template = replacer.replaceValues(template, messageObject);
-		}else{
-			template = messageObject.getEncodedData();
-		}
-		//this could be done with the one-liner below, however we need to ensure something
+	private void routeTemplatedMessage(MessageObject messageObject, VMMessageReceiver receiver,UMOEndpoint endpoint) throws UMOException {
+		
+		String template = "";
+		UMOEvent event = null;
 		Object response = null;
 		
-		UMOEvent event = new MuleEvent(new MuleMessage(template), receiver.getEndpoint(), new MuleSession(), connector.isSynchronised());
-        
+		// If the destination is the sink, it's not necessary to replace the template values
+		if (!endpoint.getEndpointURI().getAddress().equals(VMConnector.SINK_CONNECTOR_ADDRESS)) {
+			template = connector.getTemplate();
+			if (template != null) {
+				template = replacer.replaceValues(template, messageObject);
+			} else {
+				template = messageObject.getEncodedData();
+			}
+			// this could be done with the one-liner below, however we need to ensure something
+			response = null;
+			
+			event = new MuleEvent(new MuleMessage(template), endpoint, new MuleSession(), connector.isSynchronised());
+		} else {
+			messageObjectController.setSuccess(messageObject, "Message sinked successfully", null);
+			return;
+		}
+		
 		// Check to see if the channel that is being written to exists.
 		String channelId = event.getEndpoint().getName();
     	Channel channel = ControllerFactory.getFactory().createChannelController().getChannelCache().get(channelId);
-    	boolean channelNone = false;
+    	boolean channelWriterNone = false;
     	if (channel == null) {
-    		channelNone = true;
+    		channelWriterNone = true;
     	}
 		
     	// Use inline routing if "Wait for Channel Response" is set to true or the destination channel doesn't exist.
     	// If "Wait for Channel Response" is set to false, the message is written to the destination channel's queue.
     	// This is the same behavior that happens when using VMRouter.routeMessage("name", "message", true, false).
-		if (connector.isSynchronised() || channelNone) {
-        	response = receiver.dispatchMessage(event);
+		if (connector.isSynchronised() || channelWriterNone) {
+			if (receiver != null) 
+				response = receiver.dispatchMessage(event);
+			else 
+				throw new NoReceiverForEndpointException(new Message(Messages.NO_RECEIVER_X_FOR_ENDPOINT_X, connector.getName(), endpoint.getEndpointURI()));
         } else {
-        	QueueSession session = ((VMConnector) receiver.getConnector()).getQueueSession();
-        	Queue queue = session.getQueue(event.getEndpoint().getEndpointURI().getAddress());
+        	String queueName = endpoint.getEndpointURI().getAddress();
+        	QueueSession session = MuleManager.getInstance().getQueueManager().getQueueSession();
+            Queue queue = session.getQueue(queueName);
+            // Add some properties about the source to the new message
+            Channel sourceChannel = ControllerFactory.getFactory().createChannelController().getChannelCache().get(messageObject.getChannelId());
+            if (sourceChannel != null) {
+                event.setProperty(VMConnector.SOURCE_CHANNEL_ID, sourceChannel.getId());
+                event.setProperty(VMConnector.SOURCE_MESSAGE_ID, messageObject.getId());
+            }
+            // Add the related queue to the message data
+            messageObject.getConnectorMap().put(QueueUtil.QUEUE_NAME, queueName);
+            messageObject.getConnectorMap().put(QueueUtil.MESSAGE_ID, event.getId());
+            
         	try {
+        		// Set the message to queued in the DB before the queue event.  This ensures the 
+        	    // message will be in DB before processing the message in the destination queue.
+        		messageObjectController.setQueued(messageObject, "Message queued successfully", null);
 	        	queue.put(event);
+    			return;
             } catch (Exception e) {
                 logger.error("Unable to route: " + e.getMessage());
+                throw new EndpointException(new Message(Messages.INTERRUPTED_QUEUING_EVENT_FOR_X, connector.getName(), endpoint.getEndpointURI()));
             }
         }
 	
-		//UMOMessage response = receiver.routeMessage(new MuleMessage(messageObject.getEncodedData()), connector.isSynchronised());
-		if (response != null && response instanceof MuleMessage)
-		{
+		if ((response != null) && (response instanceof MuleMessage)) {
 			MuleMessage muleResponse = (MuleMessage)response;
 		    UMOExceptionPayload payload = muleResponse.getExceptionPayload();
-		    if (payload != null)
-		    {
+		    if (payload != null) {
 		        alertController.sendAlerts(((VMConnector) connector).getChannelId(), Constants.ERROR_412, "Error routing message", payload.getException());
 		        messageObjectController.setError(messageObject, Constants.ERROR_412, "Error routing message", payload.getException(), null);
-		    }
-		    else
-		    {
+		    } else {
 		        messageObjectController.setSuccess(messageObject, "Message routed successfully", null);
 		    }
-		}else{
+		} else {
 			messageObjectController.setSuccess(messageObject, "Message routed successfully", null);
 		}
 	}
@@ -270,42 +294,23 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
         UMOMessage retMessage = null;
         UMOEndpointURI endpointUri = event.getEndpoint().getEndpointURI();
         MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
-        if (messageObject == null)
-        {
+        
+        if (messageObject == null) {
             return null;
         }
         
-        try
-        {
+        try {
             VMMessageReceiver receiver = connector.getReceiver(endpointUri);
-            if (receiver == null)
-            {
-                if (connector.isQueueEvents())
-                {
-                    if (logger.isDebugEnabled())
-                    {
-                        logger.debug("Writing to queue as there is no receiver on connector: " + connector.getName() + ", for endpointUri: " + event.getEndpoint().getEndpointURI());
-                    }
-                    doDispatch(event);
-                    return null;
-                }
-                else
-                {
-                    throw new NoReceiverForEndpointException(new Message(Messages.NO_RECEIVER_X_FOR_ENDPOINT_X, connector.getName(), event.getEndpoint().getEndpointURI()));
-                }
-            }
-
-            routeTemplatedMessage(messageObject, receiver);
+            routeTemplatedMessage(messageObject, receiver, event.getEndpoint());
             logger.debug("sent event on endpointUri: " + event.getEndpoint().getEndpointURI());
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             alertController.sendAlerts(((VMConnector) connector).getChannelId(), Constants.ERROR_412, "Error routing message", e);
             messageObjectController.setError(messageObject, Constants.ERROR_412, "Error routing message", e, null);
             throw (e);
-        }finally{
+        } finally {
         	 monitoringController.updateStatus(connector, connectorType, Event.DONE);
         }
+        
         return retMessage;
     }
 

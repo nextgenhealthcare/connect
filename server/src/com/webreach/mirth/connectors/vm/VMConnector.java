@@ -54,6 +54,11 @@ import com.webreach.mirth.server.util.VMRegistry;
 
 public class VMConnector extends AbstractServiceEnabledConnector
 {
+	// Sink connector address (specified in mule-template.conf)
+	public static final String SINK_CONNECTOR_ADDRESS = "vm://sink";
+	public static final String SOURCE_CHANNEL_ID = "channelId";
+	public static final String SOURCE_MESSAGE_ID = "messageId";
+	
     private boolean queueEvents = false;
     private int maxQueues = 16;
     private QueueProfile queueProfile;

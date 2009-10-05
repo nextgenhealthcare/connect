@@ -31,6 +31,7 @@ import org.mule.umo.provider.UMOConnector;
 import org.mule.util.queue.Queue;
 import org.mule.util.queue.QueueSession;
 
+import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
@@ -172,6 +173,29 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
 		QueueSession qs = vmConnector.getQueueSession();
 		Queue queue = qs.getQueue(endpoint.getEndpointURI().getAddress());
 		UMOEvent event = (UMOEvent) queue.take();
+		
+		// Allows a message set as queued in a different channel, since it could be set to SENT
+		if ((event.getProperty(VMConnector.SOURCE_CHANNEL_ID) != null) || (event.getProperty(VMConnector.SOURCE_MESSAGE_ID) != null)) {
+		    String channelId = event.getProperty(VMConnector.SOURCE_CHANNEL_ID).toString();
+		    String messageId = event.getProperty(VMConnector.SOURCE_MESSAGE_ID).toString();
+			
+	        boolean updateMessageStatus = true;
+	        
+	        if ((channelId == null) || (channelId.length() == 0)) {
+	            updateMessageStatus = false;
+	            logger.warn("Unable to update message " + messageId + " status as no channel has been identified");
+	        }
+	        if ((messageId == null) || (messageId.length() == 0)) {
+	            updateMessageStatus = false;
+	            logger.warn("Unable to update message status in channel " + channelId + " as no messageId has been identified in channel");
+	        }
+	        
+	        if (updateMessageStatus) {
+	            ControllerFactory.getFactory().createChannelStatisticsController().decrementQueuedCount(channelId);
+	            ControllerFactory.getFactory().createMessageObjectController().updateMessageStatus(channelId, messageId, MessageObject.Status.SENT);
+	        }
+		}
+		
 		// TODO: Check post processor logic on this
 		monitoringController.updateStatus(componentName, connectorType, Event.BUSY, null);
 		try {

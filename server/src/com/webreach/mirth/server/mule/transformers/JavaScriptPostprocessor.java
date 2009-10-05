@@ -35,7 +35,7 @@ public class JavaScriptPostprocessor {
 		if (object instanceof MessageObject) {
 			doPostProcess((MessageObject) object);
 		} else {
-			logger.error("could not postprocess, object is not of type MessageObject");
+			logger.error("Could not postprocess, object is not of type MessageObject. Cannot wait for response on Channel Writer: None.");
 			throw new IllegalArgumentException("Object is not of type MessageObject");
 		}
 	}

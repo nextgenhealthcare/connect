@@ -43,6 +43,8 @@ public abstract class MessageObjectController extends Controller {
     public abstract void removeAllFilterTables();
 
     public abstract void updateMessage(MessageObject incomingMessageObject, boolean checkIfMessageExists);
+    
+    public abstract void updateMessageStatus(String channelId, String messageId, MessageObject.Status newStatus);
 
     public abstract void importMessage(MessageObject messageObject);
 

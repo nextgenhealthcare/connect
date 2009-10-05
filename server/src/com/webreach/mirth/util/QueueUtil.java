@@ -17,6 +17,8 @@ import com.webreach.mirth.server.controllers.ControllerFactory;
 
 public class QueueUtil {
 	private Log logger = LogFactory.getLog(getClass());
+	final public static String QUEUE_NAME = "queueName";
+	final public static String MESSAGE_ID = "messageId";
 	private static QueueUtil instance = null;
 
 	private QueueUtil() {
@@ -75,7 +77,7 @@ public class QueueUtil {
 		try {
 			queue.remove(messageId);
 		} catch (Exception e) {
-			logger.debug("Could not remove message: " + messageId + " from queue: " + queueName);
+			logger.warn("Could not remove message: " + messageId + " from queue: " + queueName+" Error: "+e);
 		}
 	}
 
