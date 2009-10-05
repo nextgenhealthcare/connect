@@ -616,7 +616,7 @@ public class HTTPSender extends ConnectorClass
     }
 
     private void checkMultipartEnabled() {
-        if (put.isSelected()) {
+        if (post.isSelected()) {
             multipartLabel.setEnabled(true);
             multipartYesButton.setEnabled(true);
             multipartNoButton.setEnabled(true);
