@@ -203,7 +203,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
         }
     }
 
-	private void routeTemplatedMessage(MessageObject messageObject, VMMessageReceiver receiver,UMOEndpoint endpoint) throws UMOException {
+	private void routeTemplatedMessage(MessageObject messageObject, VMMessageReceiver receiver, UMOEndpoint endpoint) throws UMOException {
 		
 		String template = "";
 		UMOEvent event = null;
@@ -227,7 +227,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
 		}
 		
 		// Check to see if the channel that is being written to exists.
-		String channelId = event.getEndpoint().getName();
+		String channelId = event.getEndpoint().getEndpointURI().getAddress();
     	Channel channel = ControllerFactory.getFactory().createChannelController().getChannelCache().get(channelId);
     	boolean channelWriterNone = false;
     	if (channel == null) {

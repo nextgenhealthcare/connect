@@ -32,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import org.doomdark.uuid.UUIDGenerator;
 import org.mule.MuleManager;
 import org.mule.config.MuleConfiguration;
+import org.mule.umo.UMOEvent;
 import org.mule.util.file.DeleteException;
 
 import com.webreach.mirth.model.QueuedMessage;
@@ -71,10 +72,13 @@ public class FilePersistenceStrategy implements QueuePersistenceStrategy
     	String id = null;
     	
     	if (obj instanceof QueuedMessage) {
-    		id = ((QueuedMessage) obj).getMessageObject().getId();
+    	    id = ((QueuedMessage) obj).getMessageObject().getId();
+	    } else if (obj instanceof UMOEvent) {
+    	    id = ((UMOEvent) obj).getId();
     	} else {
-    		id = getId(obj);
+    	    id = getId(obj);
     	}
+
         
         File file = new File(store, queue + File.separator + id + EXTENSION);
         file.getParentFile().mkdirs();

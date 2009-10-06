@@ -18,7 +18,7 @@ import com.webreach.mirth.server.controllers.ControllerFactory;
 public class QueueUtil {
 	private Log logger = LogFactory.getLog(getClass());
 	final public static String QUEUE_NAME = "queueName";
-	final public static String MESSAGE_ID = "messageId";
+	final public static String MESSAGE_ID = "queueMessageId";
 	private static QueueUtil instance = null;
 
 	private QueueUtil() {
