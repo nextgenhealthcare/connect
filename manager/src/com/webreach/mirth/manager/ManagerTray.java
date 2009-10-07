@@ -125,7 +125,15 @@ public class ManagerTray {
             }
         });
 
-        SystemTray tray = SystemTray.getDefaultSystemTray();
+        SystemTray tray = null;
+        try {
+            tray = SystemTray.getDefaultSystemTray();
+        } catch (Throwable t) {
+            // Exit the manager in case of the following error:
+            // java.lang.UnsatisfiedLinkError: C:\Program Files (x86)\Mirth\lib\tray.dll: Can't load IA 32-bit .dll on a AMD 64-bit platform
+            t.printStackTrace();
+            System.exit(1);
+        }
 
         tray.addTrayIcon(mirthTrayIcon);
     }
