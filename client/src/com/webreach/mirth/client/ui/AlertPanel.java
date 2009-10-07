@@ -116,7 +116,7 @@ public class AlertPanel extends javax.swing.JPanel
         alertTable.getColumnExt(ALERT_STATUS_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         alertTable.getColumnExt(ALERT_STATUS_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
 
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
         	alertTable.setHighlighters(highlighter);
@@ -300,7 +300,7 @@ public class AlertPanel extends javax.swing.JPanel
 
         applyToChannelsTable.getColumnExt(APPLY_CHANNEL_ID_COLUMN_NAME).setVisible(false);
 
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
         	applyToChannelsTable.setHighlighters(highlighter);
@@ -715,7 +715,7 @@ public class AlertPanel extends javax.swing.JPanel
         emailsTable.setSortable(true);
         emailsTable.getTableHeader().setReorderingAllowed(false);
 
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
         	emailsTable.setHighlighters(highlighter);

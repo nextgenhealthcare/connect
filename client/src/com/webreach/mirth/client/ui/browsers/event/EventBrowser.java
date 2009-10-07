@@ -114,7 +114,7 @@ public class EventBrowser extends javax.swing.JPanel
     public void loadNew()
     {
         // Set the default page size
-        pageSize = Preferences.systemNodeForPackage(Mirth.class).getInt("messageBrowserPageSize", 20);
+        pageSize = Preferences.userNodeForPackage(Mirth.class).getInt("messageBrowserPageSize", 20);
     	pageSizeField.setText(pageSize + "");
         
         // use the start filters and make the table.
@@ -222,7 +222,7 @@ public class EventBrowser extends javax.swing.JPanel
         }
 
         // Set highlighter.
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
         	eventTable.setHighlighters(highlighter);
@@ -249,7 +249,7 @@ public class EventBrowser extends javax.swing.JPanel
         eventTable.setRowSelectionAllowed(true);
         deselectRows();
         
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
         	eventTable.setHighlighters(highlighter);

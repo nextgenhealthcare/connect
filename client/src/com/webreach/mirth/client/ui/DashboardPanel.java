@@ -188,7 +188,7 @@ public class DashboardPanel extends javax.swing.JPanel
                 
                 split.setBottomComponent(tabs);
                 split.setDividerSize(6);
-                split.setDividerLocation((int)(3 * Preferences.systemNodeForPackage(Mirth.class).getInt("height", UIConstants.MIRTH_HEIGHT)/5));
+                split.setDividerLocation((int)(3 * Preferences.userNodeForPackage(Mirth.class).getInt("height", UIConstants.MIRTH_HEIGHT)/5));
                 split.setResizeWeight(0.5);
             }
         }
@@ -375,7 +375,7 @@ public class DashboardPanel extends javax.swing.JPanel
             lastRow = UIConstants.ERROR_CONSTANT;
         
         // Add the highlighters.  Always add the error highlighter.
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
         	statusTable.addHighlighter(highlighter);

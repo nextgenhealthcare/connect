@@ -89,7 +89,7 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
         makeLogTable();
 
         logSizeTextField.setDocument(new MirthFieldConstraints(3, false, false, true));     // max 999. all numbers. default to 250.
-        userPreferences = Preferences.systemNodeForPackage(Mirth.class);
+        userPreferences = Preferences.userNodeForPackage(Mirth.class);
         currentDashboardLogSize = userPreferences.getInt("dashboardLogSize", 250);
         logSizeTextField.setText(currentDashboardLogSize + "");
 
@@ -334,7 +334,7 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
             });
         }
 
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
         	logTable.setHighlighters(highlighter);

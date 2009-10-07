@@ -67,7 +67,7 @@ public class Mirth
         UIManager.put("Tree.openIcon", UIConstants.OPEN_ICON);
         UIManager.put("Tree.closedIcon", UIConstants.CLOSED_ICON);
 
-        userPreferences = Preferences.systemNodeForPackage(Mirth.class);        
+        userPreferences = Preferences.userNodeForPackage(Mirth.class);        
         login.setStatus("Loading components...");
         PlatformUI.MIRTH_FRAME.setupFrame(m, login);
 

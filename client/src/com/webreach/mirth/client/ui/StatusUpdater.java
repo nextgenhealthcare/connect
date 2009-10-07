@@ -42,7 +42,7 @@ public class StatusUpdater implements Runnable
     public StatusUpdater()
     {
         this.parent = PlatformUI.MIRTH_FRAME;
-        userPreferences = Preferences.systemNodeForPackage(Mirth.class);
+        userPreferences = Preferences.userNodeForPackage(Mirth.class);
         interrupted = false;
     }
 

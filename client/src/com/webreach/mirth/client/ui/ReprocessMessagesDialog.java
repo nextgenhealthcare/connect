@@ -116,7 +116,7 @@ public class ReprocessMessagesDialog extends javax.swing.JDialog {
         includedDestinationsTable.getColumnExt(INCLUDED_STATUS_COLUMN_NAME).setMinWidth(50);
         includedDestinationsTable.getColumnExt(INCLUDED_ID_COLUMN_NAME).setVisible(false);
         
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
         	includedDestinationsTable.setHighlighters(highlighter);
         }

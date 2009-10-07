@@ -186,7 +186,7 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog
         loadedExtensionTable.getColumnExt(EXTENSION_IGNORE_COLUMN_NAME).setMaxWidth(50);
         loadedExtensionTable.getColumnExt(EXTENSION_IGNORE_COLUMN_NAME).setMinWidth(50);
         
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
         	loadedExtensionTable.setHighlighters(highlighter);

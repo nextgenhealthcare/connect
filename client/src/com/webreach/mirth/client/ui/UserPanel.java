@@ -181,7 +181,7 @@ public class UserPanel extends javax.swing.JPanel
             lastRow = UIConstants.ERROR_CONSTANT;
         
         // Set highlighter.
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
         	usersTable.setHighlighters(highlighter);

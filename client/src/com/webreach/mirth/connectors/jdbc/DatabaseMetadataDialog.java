@@ -137,7 +137,7 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
         includedMetaDataTable.getColumnExt(INCLUDED_STATUS_COLUMN_NAME).setMinWidth(50);
         includedMetaDataTable.getColumnExt(INCLUDED_TYPE_COLUMN_NAME).setVisible(false);
 
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
         	includedMetaDataTable.setHighlighters(highlighter);
         }

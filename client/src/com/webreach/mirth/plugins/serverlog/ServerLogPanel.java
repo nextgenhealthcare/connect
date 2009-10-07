@@ -64,7 +64,7 @@ public class ServerLogPanel extends javax.swing.JPanel {
         makeLogTextArea();
 
         logSizeTextField.setDocument(new MirthFieldConstraints(2, false, false, true));     // max 100. all numbers. default to 50.
-        userPreferences = Preferences.systemNodeForPackage(Mirth.class);
+        userPreferences = Preferences.userNodeForPackage(Mirth.class);
         currentServerLogSize = userPreferences.getInt("serverLogSize", 50);
         logSizeTextField.setText(currentServerLogSize + "");
     }
@@ -228,7 +228,7 @@ public class ServerLogPanel extends javax.swing.JPanel {
             });
         }
 
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
         	logTable.setHighlighters(highlighter);

@@ -594,7 +594,7 @@ public class TransformerPane extends MirthEditorPane implements
         transformerTable.setRowSelectionAllowed(true);
         transformerTable.getTableHeader().setReorderingAllowed(false);
 
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
             transformerTable.setHighlighters(highlighter);
         }

@@ -744,7 +744,7 @@ private void secureConnectionSSLActionPerformed(java.awt.event.ActionEvent evt) 
     {
         intervalTime.setDocument(new MirthFieldConstraints(3, false, false, true));
         messageBrowserPageSizeField.setDocument(new MirthFieldConstraints(3, false, false, true));
-        userPreferences = Preferences.systemNodeForPackage(Mirth.class);
+        userPreferences = Preferences.userNodeForPackage(Mirth.class);
         int interval = userPreferences.getInt("intervalTime", 10);
         intervalTime.setText(interval + "");
         

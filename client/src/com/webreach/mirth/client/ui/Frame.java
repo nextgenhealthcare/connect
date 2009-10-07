@@ -374,7 +374,7 @@ public class Frame extends JXFrame
         login.setStatus("Loading plugins...");
         loadPlugins();
         login.setStatus("Loading preferences...");
-        userPreferences = Preferences.systemNodeForPackage(Mirth.class);
+        userPreferences = Preferences.userNodeForPackage(Mirth.class);
         userPreferences.put("defaultServer", PlatformUI.SERVER_NAME);
         login.setStatus("Loading GUI components...");
         splitPane.setDividerSize(0);
@@ -1822,7 +1822,7 @@ public class Frame extends JXFrame
         if (currentContentPage == dashboardPanel)
             su.interruptThread();
 
-        userPreferences = Preferences.systemNodeForPackage(Mirth.class);
+        userPreferences = Preferences.userNodeForPackage(Mirth.class);
         userPreferences.putInt("maximizedState", getExtendedState());
         userPreferences.putInt("width", getWidth());
         userPreferences.putInt("height", getHeight());

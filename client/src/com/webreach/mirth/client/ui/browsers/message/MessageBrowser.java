@@ -309,7 +309,7 @@ public class MessageBrowser extends javax.swing.JPanel {
      */
     public void loadNew() {
         // Set the default page size
-        pageSize = Preferences.systemNodeForPackage(Mirth.class).getInt("messageBrowserPageSize", 20);
+        pageSize = Preferences.userNodeForPackage(Mirth.class).getInt("messageBrowserPageSize", 20);
         pageSizeField.setText(pageSize + "");
 
         // use the start filters and make the table.
@@ -428,7 +428,7 @@ public class MessageBrowser extends javax.swing.JPanel {
  
         JFileChooser exportFileChooser = new JFileChooser();
 
-        File currentDir = new File(Preferences.systemNodeForPackage(Mirth.class).get("currentDirectory", ""));
+        File currentDir = new File(Preferences.userNodeForPackage(Mirth.class).get("currentDirectory", ""));
         if (currentDir.exists()) {
             exportFileChooser.setCurrentDirectory(currentDir);
         }
@@ -591,7 +591,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         lastRow = UIConstants.ERROR_CONSTANT;*/
 
         // Set highlighter.
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
         	messageTable.setHighlighters(highlighter);
         }
@@ -616,7 +616,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         messageTable.setRowSelectionAllowed(true);
         deselectRows();
 
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
         	messageTable.setHighlighters(highlighter);
         }
@@ -756,7 +756,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
 
         // Set highlighter.
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
         	mappingsTable.setHighlighters(highlighter);
         }
@@ -812,7 +812,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 }
             });
             // Set highlighter.
-            if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+            if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
             	attachmentTable.setHighlighters(highlighter);
             }

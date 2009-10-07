@@ -191,7 +191,7 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
             lastRow = UIConstants.ERROR_CONSTANT;
         
         // Set highlighter.
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
         	channelTable.setHighlighters(highlighter);

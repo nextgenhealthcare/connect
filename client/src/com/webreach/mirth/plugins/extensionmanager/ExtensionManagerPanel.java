@@ -191,7 +191,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
         
         loadedConnectorsTable.getColumnExt(PLUGIN_STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
         
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
         	loadedConnectorsTable.setHighlighters(highlighter);
@@ -315,7 +315,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
             lastConnectorRow = UIConstants.ERROR_CONSTANT;
         
         // Set highlighter.
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
         	loadedConnectorsTable.setHighlighters(highlighter);
@@ -391,7 +391,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
         
         loadedPluginsTable.getColumnExt(PLUGIN_STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
         
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
         	loadedPluginsTable.setHighlighters(highlighter);
@@ -502,7 +502,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
             lastPluginRow = UIConstants.ERROR_CONSTANT;
         
         // Set highlighter.
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
         	loadedPluginsTable.setHighlighters(highlighter);

@@ -129,7 +129,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel
 
         templateTable.getColumnExt(TEMPLATE_DESCRIPTION_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
 
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
         	templateTable.setHighlighters(highlighter);

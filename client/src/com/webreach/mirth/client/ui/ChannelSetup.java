@@ -350,7 +350,7 @@ public class ChannelSetup extends javax.swing.JPanel
         
         destinationTable.setOpaque(true);
         
-        if (Preferences.systemNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
         	destinationTable.setHighlighters(highlighter);
