@@ -492,7 +492,7 @@ public class TransactionalQueueManager extends AbstractXAResourceManager impleme
 					Object id = doStore(queue, item);
 					try {
 						if (!queue.offer(id, 0, timeout)) {
-							doRemove(queue, item);
+							doRemove(queue, id);
 							return false;
 						} else {
 							return true;

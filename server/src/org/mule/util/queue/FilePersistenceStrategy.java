@@ -47,6 +47,7 @@ public class FilePersistenceStrategy implements QueuePersistenceStrategy
     private static final Log logger = LogFactory.getLog(FilePersistenceStrategy.class);
 
     public static final String EXTENSION = ".msg";
+    public static final String IDSEPARATOR = "__";
 
     private File store;
 
@@ -56,10 +57,9 @@ public class FilePersistenceStrategy implements QueuePersistenceStrategy
     {
     }
 
-    protected String getId(Object obj)
+    protected String getFileName(String objId)
     {
-        String id = gen.generateRandomBasedUUID().toString();
-        return id;
+    	return FilePersistenceQueue.getInstance().generateId() + IDSEPARATOR + objId + EXTENSION;
     }
 
     /*
@@ -69,22 +69,22 @@ public class FilePersistenceStrategy implements QueuePersistenceStrategy
      */
     public Object store(String queue, Object obj) throws IOException
     {
-    	String id = null;
+    	String id = "";
     	
     	if (obj instanceof QueuedMessage) {
     	    id = ((QueuedMessage) obj).getMessageObject().getId();
 	    } else if (obj instanceof UMOEvent) {
     	    id = ((UMOEvent) obj).getId();
     	} else {
-    	    id = getId(obj);
+    	    id = gen.generateRandomBasedUUID().toString();
     	}
-
         
-        File file = new File(store, queue + File.separator + id + EXTENSION);
+    	File file = new File(store, queue + File.separator + getFileName(id));
         file.getParentFile().mkdirs();
         ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file));
         oos.writeObject(obj);
         oos.close();
+        FilePersistenceQueue.getInstance().putInMessageMap(queue, id, file);
         return id;
     }
     
@@ -93,6 +93,7 @@ public class FilePersistenceStrategy implements QueuePersistenceStrategy
 			// NOTE: could not use FileUtils here because the listFiles
 			// method
 			// does not return directories
+			FilePersistenceQueue.getInstance().clearQueueMessageMap(queue);
 			File file = new File(store, queue);
 			FileUtils.forceDelete(file);
 		}
@@ -105,13 +106,13 @@ public class FilePersistenceStrategy implements QueuePersistenceStrategy
      */
     public void remove(String queue, Object id) throws IOException
     {
-        File file = new File(store, queue + File.separator + id + EXTENSION);
-        if (file.exists()) {
+    	File file = FilePersistenceQueue.getInstance().peekFromMessageMap(queue, id.toString());
+    	if ((file != null) && (file.exists())) {
             if (!file.delete()) {
-                throw new DeleteException(file);
+            	throw new DeleteException(file);
             }
         } else {
-            throw new FileNotFoundException(file.toString());
+        	throw new FileNotFoundException(file.toString());
         }
     }
 
@@ -122,7 +123,11 @@ public class FilePersistenceStrategy implements QueuePersistenceStrategy
      */
     public Object load(String queue, Object id) throws IOException
     {
-        File file = new File(store, queue + File.separator + id + EXTENSION);
+    	File file = FilePersistenceQueue.getInstance().getFromMessageMap(queue, id.toString());
+    	// If getFromMessageMap returned null, the file does not exist yet
+    	if (file == null) {
+    		file = new File(store, queue + File.separator + id + EXTENSION);
+    	}
         ObjectInputStream ois = null;
         try {
             ois = new ObjectInputStream(new FileInputStream(file));
@@ -142,10 +147,11 @@ public class FilePersistenceStrategy implements QueuePersistenceStrategy
      * 
      * @see org.mule.transaction.xa.queue.QueuePersistenceStrategy#restore()
      */
-    public List restore() throws IOException
+    public List<Holder> restore() throws IOException
     {
         try {
-            List msgs = new ArrayList();
+            List<Holder>  msgs = new ArrayList<Holder>();
+        	FilePersistenceQueue.getInstance().clearQueueMap();
             restoreFiles(store, msgs);
             logger.debug("Restore retrieved " + msgs.size() + " objects");
             return msgs;
@@ -154,35 +160,60 @@ public class FilePersistenceStrategy implements QueuePersistenceStrategy
         }
     }
 
-    protected void restoreFiles(File dir, List msgs) throws IOException, ClassNotFoundException
+    protected void restoreFiles(File dir, List<Holder> msgs) throws IOException, ClassNotFoundException
     {
-        File[] files = dirListByAscendingDate(dir); 
+        File[] files = dirListByAscendingName(dir); 
+        int extensionLength = EXTENSION.length();
+        int idSeparatorLength = IDSEPARATOR.length();
+        String queue = dir.getName();
+        String id = "";
         for (int i = 0; i < files.length; i++) {
             if (files[i].isDirectory()) {
                 restoreFiles(files[i], msgs);
             } else if (files[i].getName().endsWith(EXTENSION)) {
-                String id = files[i].getCanonicalPath();
-                id = id.substring(store.getCanonicalPath().length() + 1, id.length() - EXTENSION.length());
-                String queue = id.substring(0, id.indexOf(File.separator));
-                id = id.substring(queue.length() + 1);
-                msgs.add(new HolderImpl(queue, id));
+            	try {
+            		String fileName = files[i].getName();
+            		int idSeparatorIndex = fileName.lastIndexOf(IDSEPARATOR);
+            		if (idSeparatorIndex < 0){
+            			idSeparatorIndex = 0 ;
+            			logger.warn("File " + files[i].getAbsolutePath() + " doesn't have a sequence number. This is only normal if you've just updated Mirth Connect.");
+            		} else {
+            			idSeparatorIndex += idSeparatorLength;
+            		}
+            		id = fileName.substring(idSeparatorIndex, fileName.length() - extensionLength);
+                    FilePersistenceQueue.getInstance().putInMessageMap(queue, id, files[i]);
+	                msgs.add(new HolderImpl(queue, id));
+            	} catch (Exception e) {
+            		logger.warn("Error loading queues. The queued message " + files[i].getCanonicalPath() + " could not load.");
+            	}
             }
         }
     }
-    
-    private File[] dirListByAscendingDate(File folder) {
-    	File files[] = folder.listFiles();
-    	if (files == null) {
-    		return null;
-    	}
-    	Arrays.sort(files, new Comparator<File>() {
-    		public int compare(final File o1, final File o2) {
-    			return new Long(o1.lastModified()).compareTo(new Long(o2.lastModified()));
-    		}
-    	});
-        return files;
-      } 
 
+    public static File[] dirListByAscendingName(File folder) {
+
+        File files[] = folder.listFiles();
+        if (files == null) {
+        	return null;
+        }
+        Arrays.sort(files, new Comparator<File>()
+        {
+            public int compare(final File f1, final File f2) {
+                try {
+                    String n1 = f1.getName();
+                    String n2 = f2.getName();
+                    Long l1 = Long.parseLong(n1.substring(0, n1.indexOf(IDSEPARATOR)));
+                    Long l2 = Long.parseLong(n2.substring(0, n2.indexOf(IDSEPARATOR)));
+                    return new Long(l1).compareTo(l2);
+                } catch (Exception e) {
+                    return new Long(f1.lastModified()).compareTo(new Long(f2.lastModified()));
+                }
+            }
+        });
+        return files;
+    }
+    
+    
     /*
      * (non-Javadoc)
      * 
@@ -210,7 +241,7 @@ public class FilePersistenceStrategy implements QueuePersistenceStrategy
     {
         private String queue;
         private Object id;
-
+        
         public HolderImpl(String queue, Object id)
         {
             this.queue = queue;
