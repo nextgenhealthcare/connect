@@ -287,11 +287,11 @@ public class FtpConnection implements FileSystemConnection {
 	// Lifecycle methods
 	
 	public void activate() {
-		client.setReaderThread(true);
+
 	}
 
 	public void passivate() {
-		client.setReaderThread(false);
+
 	}
 
 	public void destroy() {
