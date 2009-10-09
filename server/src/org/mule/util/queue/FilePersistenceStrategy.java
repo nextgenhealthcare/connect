@@ -180,6 +180,9 @@ public class FilePersistenceStrategy implements QueuePersistenceStrategy
             		} else {
             			idSeparatorIndex += idSeparatorLength;
             		}
+            		if (idSeparatorIndex > 0) {
+            		    FilePersistenceQueue.getInstance().updateQueueId(fileName.substring(0,idSeparatorIndex - IDSEPARATOR.length()));
+            		}
             		id = fileName.substring(idSeparatorIndex, fileName.length() - extensionLength);
                     FilePersistenceQueue.getInstance().putInMessageMap(queue, id, files[i]);
 	                msgs.add(new HolderImpl(queue, id));

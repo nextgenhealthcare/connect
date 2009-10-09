@@ -54,7 +54,6 @@ public class FilePersistenceQueue {
     }
 
     public void putInMessageMap(String queue, String id, File f) {
-        updateQueueId(id);
         if (!queueMap.containsKey(queue)) {
             queueMap.put(queue, new HashMap<String, File>());
         }
