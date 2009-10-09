@@ -664,7 +664,7 @@ public class FileReader extends ConnectorClass
         checkFileAgeYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup6.add(checkFileAgeYes);
         checkFileAgeYes.setText("Yes");
-        checkFileAgeYes.setToolTipText("Select Yes to skip processing files which are older than the specified age.");
+        checkFileAgeYes.setToolTipText("Select Yes to skip files that are created within the specified age below.");
         checkFileAgeYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
         checkFileAgeYes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -692,7 +692,7 @@ public class FileReader extends ConnectorClass
             public Object getElementAt(int i) { return strings[i]; }
         });
 
-        fileAge.setToolTipText("If Check File Age Yes is selected, the maximum age of a file, in milliseconds, that should be processed.");
+        fileAge.setToolTipText("If Check File Age Yes is selected, only the files created that are older than the specified value in milliseconds will be processed.");
 
         sortFilesByLabel.setText("Sort Files By:");
 

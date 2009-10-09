@@ -405,6 +405,7 @@
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Rotate Messages in Queue"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, upon unsuccessful re-try, it will rotate and put the queued message to the back of the queue&lt;br&gt; in order to prevent it from clogging the queue and to let the other subsequent messages in queue be processed.&lt;br&gt;If the order of messages processed is important, this should be unchecked.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="usePersistentQueuesNoRadio">
@@ -444,6 +445,7 @@
           <ComponentRef name="buttonGroup1"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, the connector will store any messages that are unable to be successfully processed in a file-based queue.&lt;br&gt;Messages will be automatically resent until the queue is manually cleared or the message is successfully sent.&lt;br&gt;The default queue location is (Mirth Directory)/.mule/queuestore/(ChannelID),&lt;br&gt; where (Mirth Directory) is the main Mirth install root and (ChannelID) is the unique id of the current channel.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -537,7 +539,7 @@
           <ComponentRef name="multipartButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Only enabled if Send Response To selects a channel.&lt;br&gt;If Include is selected, the HTTP headers of the response received are included in the message sent to the selected channel.&lt;br&gt;If Exclude is selected, the HTTP headers are not included.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="Set to use multipart in the Content-Type header. It can only be used with POST."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -557,7 +559,7 @@
           <ComponentRef name="multipartButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Only enabled if Send Response To selects a channel.&lt;br&gt;If Include is selected, the HTTP headers of the response received are included in the message sent to the selected channel.&lt;br&gt;If Exclude is selected, the HTTP headers are not included.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="Set not to use multipart in the Content-Type header."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>

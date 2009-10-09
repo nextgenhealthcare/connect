@@ -27,6 +27,7 @@
   </Properties>
   <AuxValues>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
@@ -246,6 +247,9 @@
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="pathField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The directory (folder) in which the files to be read can be found."/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="fileNameLabel">
       <Properties>
@@ -348,7 +352,7 @@
           <ComponentRef name="buttonGroup6"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="Select Yes to connect to the server in &quot;passive mode&quot;. Passive mode sometimes allows a connection through a firewall that normal mode does not."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to connect to the server via HTTPS.&lt;br&gt;Select No to connect via HTTP.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -372,7 +376,7 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="Select Yes to connect to the server in &quot;normal mode&quot; as opposed to passive mode."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select Yes to connect to the server via HTTPS.&lt;br&gt;Select No to connect via HTTP.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>

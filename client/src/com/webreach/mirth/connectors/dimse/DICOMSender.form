@@ -118,7 +118,6 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="pdv1No" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="connecttoField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
                           <Component id="accepttoField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
                           <Component id="passcodeField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
                           <Component id="usernameField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
@@ -143,7 +142,7 @@
                                   <Component id="keyStoreField" alignment="0" min="-2" pref="150" max="-2" attributes="1"/>
                                   <Component id="truststoreField" alignment="0" min="-2" pref="150" max="-2" attributes="1"/>
                               </Group>
-                              <EmptySpace max="-2" attributes="0"/>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="1" attributes="0">
                                   <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
                                   <Component id="jLabel30" min="-2" max="-2" attributes="0"/>
@@ -155,31 +154,6 @@
                               </Group>
                           </Group>
                           <Component id="asyncField" min="-2" pref="50" max="-2" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="soclosedelayField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
-                                  <Component id="shutdowndelayField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
-                                  <Component id="rsptoField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
-                                  <Component id="releasetoField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
-                                  <Component id="reaperField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="jLabel22" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jLabel24" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jLabel25" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jLabel16" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="rcvpdulenField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
-                                  <Component id="sndpdulenField" alignment="1" min="-2" pref="50" max="-2" attributes="0"/>
-                                  <Component id="sorcvbufField" alignment="1" min="-2" pref="50" max="-2" attributes="0"/>
-                                  <Component id="sosndbufField" alignment="1" min="-2" pref="50" max="-2" attributes="0"/>
-                                  <Component id="bufsizeField" alignment="1" min="-2" pref="50" max="-2" attributes="0"/>
-                              </Group>
-                          </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <Group type="103" groupAlignment="1" max="-2" attributes="0">
                                   <Group type="102" alignment="0" attributes="1">
@@ -206,11 +180,40 @@
                               </Group>
                           </Group>
                           <Component id="keyPasswordField" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
+                          <Component id="connecttoField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="soclosedelayField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
+                                  <Component id="shutdowndelayField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
+                                  <Component id="rsptoField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
+                                  <Component id="releasetoField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
+                                  <Component id="reaperField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="1" attributes="0">
+                                  <Component id="jLabel22" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel16" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel25" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel24" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="sorcvbufField" min="-2" pref="50" max="-2" attributes="0"/>
+                                  <Component id="sosndbufField" min="-2" pref="50" max="-2" attributes="0"/>
+                                  <Group type="103" alignment="0" groupAlignment="0" attributes="0">
+                                      <Component id="rcvpdulenField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
+                                      <Component id="sndpdulenField" alignment="1" min="-2" pref="50" max="-2" attributes="0"/>
+                                      <Component id="bufsizeField" alignment="1" min="-2" pref="50" max="-2" attributes="0"/>
+                                  </Group>
+                              </Group>
+                          </Group>
                       </Group>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="206" max="-2" attributes="0"/>
-                      <Component id="fileContentsTextPane" pref="370" max="32767" attributes="0"/>
+                      <Component id="fileContentsTextPane" pref="380" max="32767" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -285,7 +288,7 @@
                   </Group>
               </Group>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
+                  <Group type="102" attributes="0">
                       <EmptySpace min="-2" pref="7" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jLabel18" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -343,13 +346,13 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="sorcvbufField" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel24" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="sosndbufField" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel25" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="sorcvbufField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabel24" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
@@ -406,7 +409,7 @@
                           <Component id="keyPasswordField" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
+                  <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="keyStorePasswordField" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel9" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -846,7 +849,7 @@
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="sorcvbufField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="Set SO_RCVBUF socket option to specified value in KB."/>
+        <Property name="toolTipText" type="java.lang.String" value="Set receive socket buffer to specified value in KB."/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel25">
@@ -856,7 +859,7 @@
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="sosndbufField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="Set SO_SNDBUF socket option to specified value in KB."/>
+        <Property name="toolTipText" type="java.lang.String" value="Set send socket buffer to specified value in KB."/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel26">

@@ -433,6 +433,8 @@ public class FileWriter extends ConnectorClass
 
         pathLabel.setText("/");
 
+        pathField.setToolTipText("The directory (folder) in which the files to be read can be found.");
+
         fileNameLabel.setText("File Name:");
 
         fileNameField.setToolTipText("The file name to give to the generated file.");
@@ -478,7 +480,7 @@ public class FileWriter extends ConnectorClass
         secureModeYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup6.add(secureModeYes);
         secureModeYes.setText("Yes");
-        secureModeYes.setToolTipText("Select Yes to connect to the server in \"passive mode\". Passive mode sometimes allows a connection through a firewall that normal mode does not.");
+        secureModeYes.setToolTipText("<html>Select Yes to connect to the server via HTTPS.<br>Select No to connect via HTTP.</html>");
         secureModeYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
         secureModeYes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -491,7 +493,7 @@ public class FileWriter extends ConnectorClass
         buttonGroup6.add(secureModeNo);
         secureModeNo.setSelected(true);
         secureModeNo.setText("No");
-        secureModeNo.setToolTipText("Select Yes to connect to the server in \"normal mode\" as opposed to passive mode.");
+        secureModeNo.setToolTipText("<html>Select Yes to connect to the server via HTTPS.<br>Select No to connect via HTTP.</html>");
         secureModeNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
         secureModeNo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

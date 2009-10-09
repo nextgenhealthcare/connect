@@ -377,7 +377,7 @@ public class DICOMListener extends ConnectorClass
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
-        setToolTipText("send only one PDV in one P-Data-TF PDU, pack command and data PDV in one P-DATA-TF PDU by default.");
+        setToolTipText("");
 
         jLabel1.setText("Listener Address:");
 
@@ -420,11 +420,11 @@ public class DICOMListener extends ConnectorClass
 
         soclosedelayField.setToolTipText("Delay in ms for Socket close after sending A-ABORT, 50ms by default.");
 
-        jLabel22.setText("P-DATA-TF PDUs max length sent (KB):");
+        jLabel22.setText("Receive Socket Buffer Size (KB):");
 
-        jLabel16.setText("P-DATA-TF PDUs  max length received (KB):");
+        jLabel16.setText("P-DATA-TF PDUs max length sent (KB):");
 
-        sndpdulenField.setToolTipText("Maximal length in KB of received P-DATA-TF PDUs, 16KB by default.");
+        sndpdulenField.setToolTipText("Maximal length in KB of sent P-DATA-TF PDUs, 16KB by default.");
 
         rcvpdulenField.setToolTipText("Maximal length in KB of received P-DATA-TF PDUs, 16KB by default.");
 
@@ -432,11 +432,11 @@ public class DICOMListener extends ConnectorClass
 
         jLabel25.setText("Send Socket Buffer Size (KB):");
 
-        jLabel24.setText("Receive Socket Buffer Size (KB):");
+        jLabel24.setText("P-DATA-TF PDUs max length received (KB):");
 
-        sorcvbufField.setToolTipText("Set SO_SNDBUF socket option to specified value in KB.");
+        sorcvbufField.setToolTipText("Set receive socket buffer to specified value in KB");
 
-        sosndbufField.setToolTipText("Set SO_RCVBUF socket option to specified value in KB.");
+        sosndbufField.setToolTipText("Set send socket buffer to specified value in KB");
 
         bufsizeField.setToolTipText("Minimal buffer size to write received object to file, 1KB by default.");
 
@@ -744,7 +744,7 @@ public class DICOMListener extends ConnectorClass
                             .add(requesttoField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(idletoField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(releasetoField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(18, 18, 18)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                             .add(jLabel22)
                             .add(jLabel6)
@@ -762,7 +762,7 @@ public class DICOMListener extends ConnectorClass
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(truststoreField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(keyStoreField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(18, 18, 18)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                             .add(jLabel9)
                             .add(jLabel34))
@@ -770,7 +770,7 @@ public class DICOMListener extends ConnectorClass
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(truststorepwField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(keyStorePasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(50, Short.MAX_VALUE))
+                .addContainerGap(36, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)

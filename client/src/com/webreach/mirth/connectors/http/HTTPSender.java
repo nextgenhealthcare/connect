@@ -789,6 +789,7 @@ public class HTTPSender extends ConnectorClass
 
         rotateMessages.setBackground(new java.awt.Color(255, 255, 255));
         rotateMessages.setText("Rotate Messages in Queue");
+        rotateMessages.setToolTipText("<html>If checked, upon unsuccessful re-try, it will rotate and put the queued message to the back of the queue<br> in order to prevent it from clogging the queue and to let the other subsequent messages in queue be processed.<br>If the order of messages processed is important, this should be unchecked.</html>");
 
         usePersistentQueuesNoRadio.setBackground(new java.awt.Color(255, 255, 255));
         usePersistentQueuesNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -806,6 +807,7 @@ public class HTTPSender extends ConnectorClass
         usePersistentQueuesYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup1.add(usePersistentQueuesYesRadio);
         usePersistentQueuesYesRadio.setText("Yes");
+        usePersistentQueuesYesRadio.setToolTipText("<html>If checked, the connector will store any messages that are unable to be successfully processed in a file-based queue.<br>Messages will be automatically resent until the queue is manually cleared or the message is successfully sent.<br>The default queue location is (Mirth Directory)/.mule/queuestore/(ChannelID),<br> where (Mirth Directory) is the main Mirth install root and (ChannelID) is the unique id of the current channel.</html>");
         usePersistentQueuesYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         usePersistentQueuesYesRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -854,14 +856,14 @@ public class HTTPSender extends ConnectorClass
         multipartYesButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         multipartButtonGroup.add(multipartYesButton);
         multipartYesButton.setText("Yes");
-        multipartYesButton.setToolTipText("<html>Only enabled if Send Response To selects a channel.<br>If Include is selected, the HTTP headers of the response received are included in the message sent to the selected channel.<br>If Exclude is selected, the HTTP headers are not included.</html>");
+        multipartYesButton.setToolTipText("Set to use multipart in the Content-Type header. It can only be used with POST.");
         multipartYesButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         multipartNoButton.setBackground(new java.awt.Color(255, 255, 255));
         multipartNoButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         multipartButtonGroup.add(multipartNoButton);
         multipartNoButton.setText("No");
-        multipartNoButton.setToolTipText("<html>Only enabled if Send Response To selects a channel.<br>If Include is selected, the HTTP headers of the response received are included in the message sent to the selected channel.<br>If Exclude is selected, the HTTP headers are not included.</html>");
+        multipartNoButton.setToolTipText("Set not to use multipart in the Content-Type header.");
         multipartNoButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);

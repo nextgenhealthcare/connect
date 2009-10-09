@@ -531,7 +531,7 @@
           <ComponentRef name="buttonGroup6"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="Select Yes to skip processing files which are older than the specified age."/>
+        <Property name="toolTipText" type="java.lang.String" value="Select Yes to skip files that are created within the specified age below."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -584,7 +584,7 @@
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="fileAge">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="If Check File Age Yes is selected, the maximum age of a file, in milliseconds, that should be processed."/>
+        <Property name="toolTipText" type="java.lang.String" value="If Check File Age Yes is selected, only the files created that are older than the specified value in milliseconds will be processed."/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="sortFilesByLabel">
