@@ -98,7 +98,9 @@ public abstract class PollingMessageReceiver extends AbstractMessageReceiver imp
 			}
 		} catch (InterruptedException e) {
 		} finally {
-		    ControllerFactory.getFactory().createMonitoringController().updateStatus(connector, connectorType, Event.DISCONNECTED);
+		    // MIRTH-1025
+		    // Other channels could share the same VMConnector and change their status.
+		    // ControllerFactory.getFactory().createMonitoringController().updateStatus(connector, connectorType, Event.DISCONNECTED);
 		}
 	}
 
