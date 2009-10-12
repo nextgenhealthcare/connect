@@ -11,16 +11,11 @@ import java.util.List;
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 
+import org.apache.commons.codec.binary.Base64;
+
 import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.plugins.AttachmentViewer;
-import sun.misc.BASE64Decoder;
 
-/**
- * Created by IntelliJ IDEA.
- * Date: Jan 22, 2008
- * Time: 10:36:03 AM
- * To change this template use File | Settings | File Templates.
- */
 public class RTFViewer extends AttachmentViewer {
     
     public RTFViewer(String name)
@@ -47,8 +42,7 @@ public class RTFViewer extends AttachmentViewer {
 		try {
 	
 			Attachment attachment = parent.mirthClient.getAttachment((String) attachmentIds.get(0));
-            BASE64Decoder decoder = new BASE64Decoder();
-            byte[] rawRTF = decoder.decodeBuffer(new String(attachment.getData()));
+            byte[] rawRTF = new Base64().decode(attachment.getData());
             JEditorPane jEditorPane = new JEditorPane("text/rtf", new String(rawRTF));
 
 			if (jEditorPane.getDocument().getLength() == 0) {

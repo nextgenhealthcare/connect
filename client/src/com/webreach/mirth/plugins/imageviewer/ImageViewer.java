@@ -15,9 +15,10 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 
+import org.apache.commons.codec.binary.Base64;
+
 import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.plugins.AttachmentViewer;
-import sun.misc.BASE64Decoder;
 
 public class ImageViewer extends AttachmentViewer {
 
@@ -43,8 +44,7 @@ public class ImageViewer extends AttachmentViewer {
 
 			Attachment attachment = parent.mirthClient.getAttachment((String) attachmentIds.get(0));
 			byte[] rawData = attachment.getData();
-            BASE64Decoder decoder = new BASE64Decoder();
-            byte[] rawImage = decoder.decodeBuffer(new String(rawData));
+            byte[] rawImage = new Base64().decode(rawData);
 			ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
 
 			image = ImageIO.read(bis);

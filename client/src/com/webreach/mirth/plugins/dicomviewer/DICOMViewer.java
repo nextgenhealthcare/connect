@@ -7,7 +7,7 @@ import java.awt.Point;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
-import sun.misc.BASE64Decoder;
+import org.apache.commons.codec.binary.Base64;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.plugins.AttachmentViewer;
@@ -36,9 +36,8 @@ public class DICOMViewer extends AttachmentViewer {
     // do viewing code
         try {
             String messageId = parent.mirthClient.getAttachment((String) attachmentIds.get(0)).getMessageId();
-            BASE64Decoder decoder = new BASE64Decoder();
             MessageObject message = parent.messageBrowser.getMessageObjectById(messageId);
-            byte[] rawImage = decoder.decodeBuffer(parent.mirthClient.getDICOMMessage(message));
+            byte[] rawImage = new Base64().decode(parent.mirthClient.getDICOMMessage(message).getBytes());
             ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
             DICOM dcm = new DICOM(bis);
             dcm.run(message.getType());

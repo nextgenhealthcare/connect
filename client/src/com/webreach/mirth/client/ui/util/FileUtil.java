@@ -34,7 +34,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 
-import sun.misc.BASE64Encoder;
+import org.apache.commons.codec.binary.Base64;
 
 public class FileUtil
 {
@@ -99,8 +99,7 @@ public class FileUtil
 		// Close the input stream and return bytes
 		is.close();
 		
-		BASE64Encoder encoder = new BASE64Encoder();
-		return encoder.encode(bytes);
+		return new String(new Base64().encode(bytes));
     }
 
 }

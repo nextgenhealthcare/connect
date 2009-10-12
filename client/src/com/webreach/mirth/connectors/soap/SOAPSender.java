@@ -55,14 +55,13 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.codec.binary.Base64;
 import org.jdesktop.swingworker.SwingWorker;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import sun.misc.BASE64Decoder;
 
 import com.l2fprod.common.propertysheet.Property;
 import com.webreach.mirth.client.core.ClientException;
@@ -171,7 +170,7 @@ public class SOAPSender extends ConnectorClass
        
         try{
         	if (encodedDefinition != null){
-	        	byte[] byteDefinition = new BASE64Decoder().decodeBuffer(encodedDefinition);
+	        	byte[] byteDefinition = new Base64().decode(encodedDefinition.getBytes());
 		        ByteArrayInputStream bais = new ByteArrayInputStream(byteDefinition);
 		        GZIPInputStream gs = new GZIPInputStream(bais);
 		        ObjectInputStream ois = new ObjectInputStream(gs);

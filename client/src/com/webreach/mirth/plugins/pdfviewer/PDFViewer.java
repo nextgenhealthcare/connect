@@ -9,10 +9,11 @@ import java.awt.event.WindowEvent;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
+import org.apache.commons.codec.binary.Base64;
+
 import com.adobe.acrobat.Viewer;
 import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.plugins.AttachmentViewer;
-import sun.misc.BASE64Decoder;
 
 public class PDFViewer extends AttachmentViewer
 {
@@ -47,8 +48,7 @@ public class PDFViewer extends AttachmentViewer
 	
 			Attachment attachment = parent.mirthClient.getAttachment((String) attachmentIds.get(0));
 			byte[] rawData = attachment.getData();
-            BASE64Decoder decoder = new BASE64Decoder();
-            byte[] rawPDF = decoder.decodeBuffer(new String(rawData));
+            byte[] rawPDF = new Base64().decode(rawData);
 			ByteArrayInputStream bis = new ByteArrayInputStream(rawPDF);
 	
 			viewer.setDocumentInputStream(bis);
