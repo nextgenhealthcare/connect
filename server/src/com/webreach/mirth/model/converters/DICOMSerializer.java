@@ -22,6 +22,7 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.dcm4che2.data.BasicDicomObject;
 import org.dcm4che2.data.DicomElement;
@@ -40,9 +41,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
 public class    DICOMSerializer implements IXMLSerializer<String> {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -391,16 +389,9 @@ public class    DICOMSerializer implements IXMLSerializer<String> {
         return dcmObj;
     }
     private static String encodeMessage(byte[] message){
-        BASE64Encoder encoder = new BASE64Encoder();
-        return encoder.encode(message);
+        return new String(new Base64().encode(message));
     }
     private static byte[] decodeMessage(String message) throws SerializerException{
-        try {
-            BASE64Decoder decoder = new BASE64Decoder();
-            return decoder.decodeBuffer(message);
-        }
-        catch(IOException io){
-            throw new SerializerException(io.getMessage());
-        }
+        return new Base64().decode(message.getBytes());
     }    
 }

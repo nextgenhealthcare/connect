@@ -29,11 +29,9 @@ package com.webreach.mirth.util;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
 /**
  * This class implements DES decryption and encryption.
@@ -73,7 +71,7 @@ public class Encrypter {
 			byte[] utf8 = source.getBytes(UTF8_ENCODING);
 			byte[] enc = ecipher.doFinal(utf8);
 
-			return new BASE64Encoder().encode(enc);
+			return new String(new Base64().encode(enc));
 		} catch (Exception e) {
 			throw new EncryptionException("Could not encrypt string.", e);
 		}
@@ -91,7 +89,7 @@ public class Encrypter {
 		}
 
 		try {
-			byte[] dec = new BASE64Decoder().decodeBuffer(source);
+			byte[] dec = new Base64().decode(source.getBytes());
 			byte[] utf8 = dcipher.doFinal(dec);
 
 			return new String(utf8, UTF8_ENCODING);

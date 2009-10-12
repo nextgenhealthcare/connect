@@ -11,6 +11,7 @@ package com.webreach.mirth.connectors.file;
 
 import java.io.IOException;
 
+import org.apache.commons.codec.binary.Base64;
 import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.TemplateValueReplacer;
 import org.mule.providers.VariableFilenameParser;
@@ -18,8 +19,6 @@ import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpointURI;
-
-import sun.misc.BASE64Decoder;
 
 import com.webreach.mirth.connectors.file.filesystems.FileSystemConnection;
 import com.webreach.mirth.model.MessageObject;
@@ -96,8 +95,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
 			// don't automatically include line break
 			byte[] buffer = null;
 			if (connector.isBinary()) {
-				BASE64Decoder base64 = new BASE64Decoder();
-				buffer = base64.decodeBuffer(template);
+				buffer = new Base64().decode(template.getBytes());
 			} else {
 				buffer = template.getBytes(connector.getCharsetEncoding());
 			}

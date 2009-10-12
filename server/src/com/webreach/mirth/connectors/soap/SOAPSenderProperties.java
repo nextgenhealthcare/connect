@@ -31,7 +31,7 @@ import java.io.ObjectOutputStream;
 import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
 
-import sun.misc.BASE64Encoder;
+import org.apache.commons.codec.binary.Base64;
 
 import com.webreach.mirth.model.QueuedSenderProperties;
 import com.webreach.mirth.model.ws.WSDefinition;
@@ -83,7 +83,7 @@ public class SOAPSenderProperties extends QueuedSenderProperties
 		oos.flush();
 		oos.close();
 		byte[] compressedDefinition = baos.toByteArray();
-		String encodedDefintion = new BASE64Encoder().encode(compressedDefinition);
+		String encodedDefintion = new String(new Base64().encode(compressedDefinition));
 		baos.close();
 		return encodedDefintion;
 	}

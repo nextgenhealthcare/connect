@@ -40,8 +40,7 @@ import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Document;
 import javax.swing.text.rtf.RTFEditorKit;
 
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
+import org.apache.commons.codec.binary.Base64;
 
 public class FileUtil {
 	public static void write(String fileName, boolean append, String data) throws IOException {
@@ -49,11 +48,11 @@ public class FileUtil {
 	}
 
 	public static byte[] decode(String data) throws IOException {
-		return new BASE64Decoder().decodeBuffer(data);
+		return new Base64().decode(data.getBytes());
 	}
 
 	public static String encode(byte[] data) throws IOException {
-		return new BASE64Encoder().encode(data);
+		return new String(new Base64().encode(data));
 	}
 
 	public static void write(String fileName, boolean append, byte[] bytes) throws IOException {

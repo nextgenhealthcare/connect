@@ -33,6 +33,7 @@ import javax.resource.spi.work.Work;
 import javax.resource.spi.work.WorkException;
 import javax.resource.spi.work.WorkManager;
 
+import org.apache.commons.codec.binary.Base64;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
 import org.mule.impl.MuleMessage;
@@ -48,8 +49,6 @@ import org.mule.umo.lifecycle.DisposeException;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageAdapter;
-
-import sun.misc.BASE64Encoder;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.Response;
@@ -292,8 +291,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
 			String str_data;
 			//if we are receiving binary, base64 the bytes
 			if (((TcpConnector)connector).isBinary()) {
-				BASE64Encoder encoder = new BASE64Encoder();
-				str_data = encoder.encode(data);
+				str_data = new String(new Base64().encode(data));
 			} else {
 				String charset = connector.getCharsetEncoding();
 				str_data = new String(data, charset);

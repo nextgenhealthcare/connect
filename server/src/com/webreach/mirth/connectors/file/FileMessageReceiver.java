@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Map;
 
+import org.apache.commons.codec.binary.Base64;
 import org.mule.MuleException;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
@@ -33,8 +34,6 @@ import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageAdapter;
 import org.mule.umo.routing.RoutingException;
-
-import sun.misc.BASE64Encoder;
 
 import com.webreach.mirth.connectors.file.filesystems.FileInfo;
 import com.webreach.mirth.connectors.file.filesystems.FileSystemConnection;
@@ -225,8 +224,7 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 						byte[] contents = getBytesFromFile(file);
 						String message = "";
 						if (fileConnector.isBinary()) {
-							BASE64Encoder encoder = new BASE64Encoder();
-							message = encoder.encode(contents);
+							message = new String(new Base64().encode(contents));
 						} else {
 							message = new String(contents, fileConnector.getCharsetEncoding());
 						}

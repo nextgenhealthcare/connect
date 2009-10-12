@@ -27,6 +27,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mule.impl.MuleMessage;
@@ -38,8 +39,6 @@ import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.provider.UMOConnector;
-
-import sun.misc.BASE64Decoder;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.QueuedMessage;
@@ -232,8 +231,7 @@ public class TcpMessageDispatcher extends AbstractMessageDispatcher implements Q
 		byte[] buffer = null;
 		//When working with binary data the template has to be base64 encoded
 		if (connector.isBinary()) {
-			BASE64Decoder base64 = new BASE64Decoder();
-			buffer = base64.decodeBuffer(data);
+			buffer = new Base64().decode(data.getBytes());
 		} else {
 			buffer = data.getBytes(connector.getCharsetEncoding());
 		}

@@ -18,10 +18,8 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriteParam;
 import javax.imageio.ImageWriter;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
-
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
 
 import com.webreach.mirth.model.Attachment;
 import com.webreach.mirth.model.MessageObject;
@@ -63,28 +61,20 @@ public class DICOMUtil {
     }
 
     public static byte[] getDICOMMessage(MessageObject message) {
-        BASE64Decoder decoder = new BASE64Decoder();
-        try {
-            return decoder.decodeBuffer(getDICOMRawData(message));
-        } catch (IOException ie) {
-            logger.error("Error getting DICOM message", ie);
-        }
-        return message.getRawData().getBytes();
+        return new Base64().decode(getDICOMRawData(message).getBytes());
     }
 
     public static String mergeHeaderAttachments(MessageObject message, List<Attachment> attachments) throws IOException, SerializerException {
         ArrayList<byte[]> images = new ArrayList();
-        BASE64Decoder decoder = new BASE64Decoder();
-        BASE64Encoder encoder = new BASE64Encoder();
+        Base64 base64 = new Base64();
         for (Attachment attach : attachments) {
-            byte[] image = decoder.decodeBuffer(new String(attach.getData()));
-            images.add(image);
+            images.add(base64.decode(attach.getData()));
         }
         byte[] headerData;
         if (message.getRawDataProtocol().equals(MessageObject.Protocol.DICOM)) {
-            headerData = decoder.decodeBuffer(message.getRawData());
+            headerData = base64.decode(message.getRawData().getBytes());
         } else if (message.getEncodedDataProtocol().equals(MessageObject.Protocol.DICOM)) {
-            headerData = decoder.decodeBuffer(message.getEncodedData());
+            headerData = base64.decode(message.getEncodedData().getBytes());
         } else {
             return "";
         }
@@ -102,13 +92,12 @@ public class DICOMUtil {
 
     public static String returnOther(MessageObject message, String format) {
         String encodedData = getDICOMRawData(message);
-        BASE64Decoder decoder = new BASE64Decoder();
-        BASE64Encoder base64Encoder = new BASE64Encoder();
+        Base64 base64 = new Base64();
         // use new method for jpegs
         if (format.equalsIgnoreCase("jpg") || format.equalsIgnoreCase("jpeg"))
-            return base64Encoder.encode(dicomToJpg(1, message));
+            return new String(base64.encode(dicomToJpg(1, message)));
         try {
-            byte[] rawImage = decoder.decodeBuffer(encodedData);
+            byte[] rawImage = base64.decode(encodedData.getBytes());
             ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
             DICOM dcm = new DICOM(bis);
             dcm.run(message.getType());
@@ -120,7 +109,7 @@ public class DICOMUtil {
             g.drawImage(dcm.getImage(), 0, 0, null);
             g.dispose();
             ImageIO.write(bi, format, f);
-            return base64Encoder.encode(f.toByteArray());
+            return new String(base64.encode(f.toByteArray()));
         } catch (IOException e) {
             logger.error("Error Converting DICOM image", e);
         }
@@ -133,21 +122,17 @@ public class DICOMUtil {
 
     public static byte[] dicomToJpg(int sliceIndex, MessageObject message) {
         String encodedData = getDICOMRawData(message);
-        BASE64Decoder decoder = new BASE64Decoder();
-        try {
-            ByteArrayInputStream bis = new ByteArrayInputStream(decoder.decodeBuffer(encodedData));
-            DICOM dcm = new DICOM(bis);
-            dcm.run("dcm");
-            ImageStack imageStack = dcm.getImageStack();
-            if (imageStack.getSize() < sliceIndex || sliceIndex < 1) {
-                return null;
-            }
-            ImagePlus image = new ImagePlus("ImageName", imageStack.getProcessor(sliceIndex));
-            return saveAsJpeg(image, 100);
-        } catch (IOException e) {
-            logger.error("Error converting dcm file", e);
+        Base64 base64 = new Base64();
+        ByteArrayInputStream bis = new ByteArrayInputStream(base64.decode(encodedData.getBytes()));
+        DICOM dcm = new DICOM(bis);
+        dcm.run("dcm");
+        ImageStack imageStack = dcm.getImageStack();
+        if (imageStack.getSize() < sliceIndex || sliceIndex < 1) {
+            return null;
         }
-        return null;
+        ImagePlus image = new ImagePlus("ImageName", imageStack.getProcessor(sliceIndex));
+        
+        return saveAsJpeg(image, 100);
     }
 
     private static byte[] saveAsJpeg(ImagePlus imp, int quality) {

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 
+import org.apache.commons.codec.binary.Base64;
 import org.dcm4che2.data.BasicDicomObject;
 import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
@@ -26,8 +27,6 @@ import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
-
-import sun.misc.BASE64Encoder;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.DICOMSerializer;
@@ -192,8 +191,7 @@ public class DICOMMessageReceiver extends AbstractMessageReceiver {
                     dos.writeFileMetaInformation(fmi);
                     dataStream.copyTo(dos);
                     dos.close();        
-                    BASE64Encoder encoder = new BASE64Encoder();
-                    String dcmString = encoder.encode(baos.toByteArray());
+                    String dcmString = new String(new Base64().encode(baos.toByteArray()));
                     returnMessage = routeMessage(new MuleMessage(dcmString), endpoint.isSynchronous());
                     // We need to check the message status
                     if (returnMessage != null && returnMessage instanceof MuleMessage) {

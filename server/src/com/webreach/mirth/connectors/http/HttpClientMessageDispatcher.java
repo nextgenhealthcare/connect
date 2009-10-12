@@ -15,20 +15,30 @@
 
 package com.webreach.mirth.connectors.http;
 
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.QueuedMessage;
-import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.controllers.AlertController;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
-import com.webreach.mirth.server.controllers.MonitoringController.Event;
-import com.webreach.mirth.server.util.FileUtil;
-import com.webreach.mirth.server.util.VMRouter;
-import org.apache.commons.httpclient.*;
+import java.io.File;
+import java.net.BindException;
+import java.net.SocketException;
+import java.net.URISyntaxException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.httpclient.ConnectMethod;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpConnection;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.HttpState;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.*;
+import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
+import org.apache.commons.httpclient.methods.DeleteMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
@@ -50,15 +60,18 @@ import org.mule.umo.provider.DispatchException;
 import org.mule.umo.provider.ReceiveException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.transformer.UMOTransformer;
-import sun.misc.BASE64Encoder;
 
-import java.io.File;
-import java.net.BindException;
-import java.net.SocketException;
-import java.net.URISyntaxException;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
+import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.QueuedMessage;
+import com.webreach.mirth.server.Constants;
+import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.ControllerFactory;
+import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
+import com.webreach.mirth.server.controllers.MonitoringController.Event;
+import com.webreach.mirth.server.util.FileUtil;
+import com.webreach.mirth.server.util.VMRouter;
 
 /**
  * <p>
@@ -142,7 +155,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher imple
 				// Add User Creds
 				StringBuffer header = new StringBuffer();
 				header.append("Basic ");
-				header.append(new BASE64Encoder().encode(endpointUri.getUserInfo().getBytes()));
+				header.append(new String(new Base64().encode(endpointUri.getUserInfo().getBytes())));
 				httpMethod.addRequestHeader(HttpConstants.HEADER_AUTHORIZATION, header.toString());
 			}
 
@@ -264,7 +277,7 @@ public class HttpClientMessageDispatcher extends AbstractMessageDispatcher imple
 				StringBuffer header = new StringBuffer();
 				header.append("Basic ");
 				String creds = uri.getUsername() + ":" + uri.getPassword();
-				header.append(new BASE64Encoder().encode(creds.getBytes()));
+				header.append(new String(new Base64().encode(creds.getBytes())));
 				httpMethod.addRequestHeader(HttpConstants.HEADER_AUTHORIZATION, header.toString());
 			}
 			// add headers
