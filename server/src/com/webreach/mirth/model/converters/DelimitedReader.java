@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
+import org.apache.xerces.parsers.SAXParser;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Script;
@@ -36,7 +37,6 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.sun.org.apache.xerces.internal.parsers.SAXParser;
 import com.webreach.mirth.server.util.CompiledScriptCache;
 import com.webreach.mirth.server.util.JavaScriptScopeUtil;
 

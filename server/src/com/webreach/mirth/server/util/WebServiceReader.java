@@ -26,7 +26,10 @@
 
 package com.webreach.mirth.server.util;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -50,8 +53,6 @@ import javax.wsdl.extensions.soap.SOAPOperation;
 import javax.wsdl.xml.WSDLLocator;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.DocumentBuilder;
 
 import org.apache.axis.utils.NetworkUtils;
 import org.apache.commons.httpclient.Credentials;
@@ -70,16 +71,12 @@ import org.apache.wsif.schema.ElementType;
 import org.apache.wsif.schema.Parser;
 import org.apache.wsif.schema.SchemaType;
 import org.apache.wsif.schema.SequenceElement;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 
 import com.ibm.wsdl.xml.WSDLReaderImpl;
 import com.webreach.mirth.model.ws.WSDefinition;
 import com.webreach.mirth.model.ws.WSOperation;
 import com.webreach.mirth.model.ws.WSParameter;
-import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
-import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 
 public class WebServiceReader {
 	private String wsdlSource;

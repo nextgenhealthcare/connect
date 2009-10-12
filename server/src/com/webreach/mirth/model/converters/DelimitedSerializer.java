@@ -33,12 +33,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.apache.xerces.parsers.SAXParser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
-
-import com.sun.org.apache.xerces.internal.parsers.SAXParser;
 
 public class DelimitedSerializer extends SAXParser implements IXMLSerializer<String> {
 	private Logger logger = Logger.getLogger(this.getClass());
