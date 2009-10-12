@@ -230,7 +230,7 @@ public class DefaultInputHandler extends InputHandler
     {
         int modifiers = evt.getModifiers();
         char c = evt.getKeyChar();
-        if (c != KeyEvent.CHAR_UNDEFINED && (modifiers & KeyEvent.ALT_MASK) == 0)
+        if (c != KeyEvent.CHAR_UNDEFINED && (modifiers & KeyEvent.META_MASK) == 0)
         {
             if (c >= 0x20 && c != 0x7f)
             {
