@@ -168,7 +168,8 @@ public class AlertPanel extends javax.swing.JPanel
         {
             public void keyPressed(KeyEvent e)
             {
-                if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
+                boolean isAccelerated = (e.getModifiers() & java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0;
+                if ((e.getKeyCode() == KeyEvent.VK_S) && isAccelerated)
                 {
                     PlatformUI.MIRTH_FRAME.doSaveAlerts();
                 }
@@ -338,7 +339,8 @@ public class AlertPanel extends javax.swing.JPanel
         {
             public void keyPressed(KeyEvent e)
             {
-                if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown())
+                boolean isAccelerated = (e.getModifiers() & java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0;
+                if ((e.getKeyCode() == KeyEvent.VK_S) && isAccelerated)
                 {
                     PlatformUI.MIRTH_FRAME.doSaveAlerts();
                 }

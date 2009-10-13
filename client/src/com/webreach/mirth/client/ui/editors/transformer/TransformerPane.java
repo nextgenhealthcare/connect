@@ -630,8 +630,9 @@ public class TransformerPane extends MirthEditorPane implements
         transformerTable.addKeyListener(new KeyListener() {
 
             public void keyPressed(KeyEvent e) {
-                // TODO Auto-generated method stub
-                if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown()) {
+                boolean isAccelerated = (e.getModifiers() & java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0;
+                if ((e.getKeyCode() == KeyEvent.VK_S) && isAccelerated)
+                {
                     PlatformUI.MIRTH_FRAME.doContextSensitiveSave();
                 }
                 else if (e.getKeyCode() == KeyEvent.VK_DELETE)

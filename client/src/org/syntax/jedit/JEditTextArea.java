@@ -2069,7 +2069,7 @@ public class JEditTextArea extends JComponent {
 			if (popup != null && popup.isVisible())
 				return;
 
-			setSelectionRectangular((evt.getModifiers() & InputEvent.CTRL_MASK) != 0);
+			setSelectionRectangular((evt.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0);
 			select(getMarkPosition(), xyToOffset(evt.getX(), evt.getY()));
 		}
 
@@ -2134,7 +2134,7 @@ public class JEditTextArea extends JComponent {
 		private void doSingleClick(MouseEvent evt, int line, int offset, int dot) {
 			if (isEnabled()) {
 				if ((evt.getModifiers() & InputEvent.SHIFT_MASK) != 0) {
-					rectSelect = (evt.getModifiers() & InputEvent.CTRL_MASK) != 0;
+					rectSelect = (evt.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0;
 					select(getMarkPosition(), dot);
 				} else
 					setCaretPosition(dot);

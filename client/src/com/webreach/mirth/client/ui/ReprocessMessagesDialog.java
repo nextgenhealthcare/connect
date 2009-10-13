@@ -134,7 +134,8 @@ public class ReprocessMessagesDialog extends javax.swing.JDialog {
         includedDestinationsTable.addKeyListener(new KeyListener() {
 
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown()) {
+                boolean isAccelerated = (e.getModifiers() & java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0;
+                if ((e.getKeyCode() == KeyEvent.VK_S) && isAccelerated) {
                     PlatformUI.MIRTH_FRAME.doSaveAlerts();
                 }
             }

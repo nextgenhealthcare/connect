@@ -26,15 +26,21 @@
 package com.webreach.mirth.client.ui;
 
 import java.awt.Color;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.prefs.Preferences;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.plaf.InsetsUIResource;
+import javax.swing.text.DefaultEditorKit;
+import javax.swing.text.JTextComponent;
+import javax.swing.text.JTextComponent.KeyBinding;
 
 import org.jdesktop.swingx.plaf.LookAndFeelAddons;
 import org.jdesktop.swingx.plaf.windows.WindowsLookAndFeelAddons;
@@ -89,6 +95,38 @@ public class Mirth
         PlatformUI.MIRTH_FRAME.setVisible(true);
     }
 
+    private static void createMacKeyBindings() {
+        int acceleratorKey = java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+        // Add the common KeyBindings for macs
+        KeyBinding[] defaultBindings = {
+             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_C, acceleratorKey), DefaultEditorKit.copyAction),
+             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_V, acceleratorKey), DefaultEditorKit.pasteAction),
+             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_X, acceleratorKey), DefaultEditorKit.cutAction),
+             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_A, acceleratorKey), DefaultEditorKit.selectAllAction),
+             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, acceleratorKey), DefaultEditorKit.deleteNextWordAction),
+             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, acceleratorKey), DefaultEditorKit.deletePrevWordAction),
+             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, acceleratorKey), DefaultEditorKit.nextWordAction),
+             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_KP_RIGHT, acceleratorKey), DefaultEditorKit.nextWordAction),
+             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, acceleratorKey), DefaultEditorKit.previousWordAction),
+             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_KP_LEFT, acceleratorKey), DefaultEditorKit.previousWordAction),
+             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, acceleratorKey | InputEvent.SHIFT_MASK), DefaultEditorKit.selectionNextWordAction),
+             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_KP_RIGHT, acceleratorKey | InputEvent.SHIFT_MASK), DefaultEditorKit.selectionNextWordAction),
+             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, acceleratorKey | InputEvent.SHIFT_MASK), DefaultEditorKit.selectionPreviousWordAction),
+             new KeyBinding(KeyStroke.getKeyStroke(KeyEvent.VK_KP_LEFT, acceleratorKey | InputEvent.SHIFT_MASK), DefaultEditorKit.selectionPreviousWordAction)
+        };
+
+        keyMapBindings(new javax.swing.JTextField(), defaultBindings);
+        keyMapBindings(new javax.swing.JEditorPane(), defaultBindings);
+        keyMapBindings(new javax.swing.JTextArea(), defaultBindings);
+        keyMapBindings(new com.webreach.mirth.client.ui.components.MirthTextArea(), defaultBindings);
+        keyMapBindings(new com.webreach.mirth.client.ui.components.MirthTextField(), defaultBindings);
+        keyMapBindings(new com.webreach.mirth.client.ui.components.MirthTextPane(), defaultBindings);
+    }
+
+    private static void keyMapBindings(JTextComponent comp, KeyBinding[] bindings){
+        JTextComponent.loadKeymap(comp.getKeymap(), bindings, comp.getActions());
+    }
+    
     /**
      * Application entry point. Sets up the login panel and its layout as well.
      * 
@@ -142,6 +180,9 @@ public class Mirth
                     UIManager.setLookAndFeel(look);
                     UIManager.put("win.xpstyle.name", "metallic");
                     LookAndFeelAddons.setAddon(WindowsLookAndFeelAddons.class);
+                    if (System.getProperty("os.name").toLowerCase().lastIndexOf("mac") != -1) {
+                        createMacKeyBindings();
+                    }
                 }
                 catch (Exception e)
                 {
