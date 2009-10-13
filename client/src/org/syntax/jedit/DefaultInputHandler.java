@@ -299,7 +299,7 @@ public class DefaultInputHandler extends InputHandler
                     modifiers |= InputEvent.ALT_MASK;
                     break;
                 case 'C':
-                    modifiers |= InputEvent.CTRL_MASK;
+                    modifiers |= Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
                     break;
                 case 'M':
                     modifiers |= InputEvent.META_MASK;
