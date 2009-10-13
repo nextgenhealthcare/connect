@@ -39,7 +39,7 @@ import org.apache.commons.codec.binary.Base64;
 
 public class FileUtil {
 
-    private static final String CHARSET = "UTF-8";
+    public static final String CHARSET = "UTF-8";
 
     public static void write(File file, String data, boolean append) throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file, append), CHARSET);

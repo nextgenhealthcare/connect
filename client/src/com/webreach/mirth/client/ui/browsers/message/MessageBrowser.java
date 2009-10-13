@@ -32,8 +32,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -362,7 +363,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
             try {
                 String endOfMessage = "</com.webreach.mirth.model.MessageObject>";
-                br = new BufferedReader(new FileReader(importFile));
+                br = new BufferedReader(new InputStreamReader(new FileInputStream(importFile), FileUtil.CHARSET));
                 StringBuffer buffer = new StringBuffer();
                 String line;
 
