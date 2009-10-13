@@ -32,27 +32,29 @@ import java.util.Scanner;
 public class MirthLauncher {
 	private static final String INSTALL_TEMP = "install_temp";
 	private static final String UNINSTALL_FILE = "uninstall";
+	private static final String DEFAULT_LAUNCHER_FILE = "mirth-launcher.xml";
 
 	public static void main(String[] args) {
-		if (args[0] != null) {
+	    String launcherFile = DEFAULT_LAUNCHER_FILE;
+	    if (args.length > 0) {
+	        launcherFile = args[0];
+	    }
+	    
+		try {
 			try {
-				try {
-					uninstallExtensions();
-					installExtensions();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				ClasspathBuilder builder = new ClasspathBuilder(args[0]);
-				URLClassLoader classLoader = new URLClassLoader(builder.getClasspath());
-				Class mirthClass = classLoader.loadClass("com.webreach.mirth.server.Mirth");
-				Thread mirthThread = (Thread) mirthClass.newInstance();
-				mirthThread.setContextClassLoader(classLoader);
-				mirthThread.start();
+				uninstallExtensions();
+				installExtensions();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		} else {
-			System.out.println("usage: java Launcher launcher.xml");
+			ClasspathBuilder builder = new ClasspathBuilder(launcherFile);
+			URLClassLoader classLoader = new URLClassLoader(builder.getClasspath());
+			Class mirthClass = classLoader.loadClass("com.webreach.mirth.server.Mirth");
+			Thread mirthThread = (Thread) mirthClass.newInstance();
+			mirthThread.setContextClassLoader(classLoader);
+			mirthThread.start();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
