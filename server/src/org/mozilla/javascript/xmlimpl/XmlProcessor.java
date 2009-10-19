@@ -58,11 +58,6 @@ class XmlProcessor implements Serializable {
     
     private static final long serialVersionUID = 6903514433204808713L;
     
-    // Remove "<?xml*>" and all control characters that do not parse in this version of e4x (\x00-\x1F besides TAB, LF, and CR)
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=336551 - E4X: Implement ability to process new XML("<?xml...?> ...")
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=478905 - E4X: XML parsing of string with Unicode character U2028 fails with "illegal XML character" message
-    private static final Pattern invalidXmlPattern = Pattern.compile("<\\?xml[^>]*\\?>|[\\x00-\\x08]|[\\x0B-\\x0C]|[\\x0E-\\x1F]");
-    
     private boolean ignoreComments;
     private boolean ignoreProcessingInstructions;
     private boolean ignoreWhitespace;
@@ -251,12 +246,20 @@ class XmlProcessor implements Serializable {
             }
         }
     }
-
+    	
     final Node toXml(String defaultNamespaceUri, String xml) throws org.xml.sax.SAXException {
         //    See ECMA357 10.3.1
         DocumentBuilder builder = null;
         try {
-            xml = invalidXmlPattern.matcher(xml).replaceAll("");
+            // Remove "<?xml*?>"
+            // https://bugzilla.mozilla.org/show_bug.cgi?id=336551 - E4X: Implement ability to process new XML("<?xml...?> ...")
+            xml = xml.trim();
+            if (xml.substring(0,5).equals("<?xml")) {    		
+            	int index = xml.indexOf("?>");
+            	if (index > 0) {
+            	    xml = xml.substring(index + 2).trim();
+            	}
+       		}
             
             String syntheticXml = "<parent xmlns=\"" + defaultNamespaceUri +
                 "\">" + xml + "</parent>";
@@ -290,7 +293,17 @@ class XmlProcessor implements Serializable {
             }
             NodeList rv = document.getDocumentElement().getChildNodes();
             if (rv.getLength() > 1) {
-                throw ScriptRuntime.constructError("SyntaxError", "XML objects may contain at most one node.");
+                // throw ScriptRuntime.constructError("SyntaxError", "XML objects may contain at most one node.");
+                
+                // This is because of PI (processing instruction), #text, or #node elements
+                Node node = rv.item(0);
+            	for (int k = 0; k < rv.getLength(); k++) {
+            	    if (rv.item(k).getNodeType() == Node.ELEMENT_NODE) {
+            	        node = rv.item(k);
+            	    }
+            	}
+                document.getDocumentElement().removeChild(node);
+                return node;
             } else if (rv.getLength() == 0) {
                 Node node = document.createTextNode("");
                 return node;
