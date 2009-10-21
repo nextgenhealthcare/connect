@@ -1897,7 +1897,7 @@ public class ChannelSetup extends javax.swing.JPanel
             }
         }
         
-        if(currentChannel.getSourceConnector().getTransportName().equalsIgnoreCase(DATABASE_READER) || currentChannel.getSourceConnector().getTransportName().equalsIgnoreCase(HTTP_LISTENER))
+        if (currentChannel.getSourceConnector().getTransportName().equalsIgnoreCase(DATABASE_READER))
         {
             currentChannel.getSourceConnector().getTransformer().setInboundTemplate("");
             
