@@ -305,7 +305,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
                     String generatedDatabaseScript = generateDatabaseScript(databaseScript, false);
                     logger.debug("compiling database script");
                     Script compiledDatabaseScript = context.compileString(generatedDatabaseScript, scriptId, 1, null);
-                    compiledScriptCache.putCompiledScript(scriptId, compiledDatabaseScript);
+                    compiledScriptCache.putCompiledScript(scriptId, compiledDatabaseScript, generatedDatabaseScript);
                 }
             }
 
@@ -316,7 +316,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
                     String generatedDatabaseScript = generateDatabaseScript(ackScript, true);
                     logger.debug("compiling database ack script");
                     Script compiledDatabaseScript = context.compileString(generatedDatabaseScript, ackScriptId, 1, null);
-                    compiledScriptCache.putCompiledScript(ackScriptId, compiledDatabaseScript);
+                    compiledScriptCache.putCompiledScript(ackScriptId, compiledDatabaseScript, generatedDatabaseScript);
                 }
             }
         } catch (Exception e) {

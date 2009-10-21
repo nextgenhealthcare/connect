@@ -80,7 +80,8 @@ public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 				createdContext = true;
 
 				logger.debug("compiling preprocessing script");
-				Script compiledPreprocessingScript = context.compileString(generatePreprocessingScript(preprocessingScript), preprocessingScriptId, 1, null);
+				String generatedPreprocessingScript = generatePreprocessingScript(preprocessingScript);
+				Script compiledPreprocessingScript = context.compileString(generatedPreprocessingScript, preprocessingScriptId, 1, null);
 				String decompiledPreprocessingScript = context.decompileScript(compiledPreprocessingScript, 0);
 
 				Script compiledDefaultScript = context.compileString(generatePreprocessingScript(LOCAL_DEFAULT_SCRIPT), preprocessingScriptId, 1, null);
@@ -88,7 +89,7 @@ public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 
 				if (!decompiledDefaultScript.equals(decompiledPreprocessingScript)) {
 					logger.debug("adding preprocessor script");
-					compiledScriptCache.putCompiledScript(preprocessingScriptId, compiledPreprocessingScript);
+					compiledScriptCache.putCompiledScript(preprocessingScriptId, compiledPreprocessingScript, generatedPreprocessingScript);
 				}
 			} else {
 				logger.debug("clearing preprocessor script from previous deploy");

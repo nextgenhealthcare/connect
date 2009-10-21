@@ -69,7 +69,7 @@ public class JavaScriptConnector extends AbstractServiceEnabledConnector {
 					String generatedScript = generateScript(databaseScript);
 					logger.debug("compiling script");
 					Script compiledScript = context.compileString(generatedScript, scriptId, 1, null);
-					compiledScriptCache.putCompiledScript(scriptId, compiledScript);
+					compiledScriptCache.putCompiledScript(scriptId, compiledScript, generatedScript);
 				}
 			}
 

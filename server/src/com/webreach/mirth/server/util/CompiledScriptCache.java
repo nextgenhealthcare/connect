@@ -35,6 +35,7 @@ import org.mozilla.javascript.Script;
 public class CompiledScriptCache {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private Map<String, Script> compiledScripts = new HashMap<String, Script>();
+	private Map<String, String> sourceScripts = new HashMap<String, String>();
 
 	// singleton pattern
 	private static CompiledScriptCache instance = null;
@@ -56,13 +57,19 @@ public class CompiledScriptCache {
 		return compiledScripts.get(id);
 	}
 
-	public void putCompiledScript(String id, Script compiledScript) {
+	public String getSourceScript(String id) {
+		return sourceScripts.get(id);
+	}
+	
+	public void putCompiledScript(String id, Script compiledScript, String sourceScript) {
 		logger.debug("adding script to cache");
 		compiledScripts.put(id, compiledScript);
+		sourceScripts.put(id, sourceScript);
 	}
     
     public void removeCompiledScript(String id) {
         logger.debug("removing script from cache");
         compiledScripts.remove(id);
+        sourceScripts.remove(id);
     }
 }

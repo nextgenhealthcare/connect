@@ -231,7 +231,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				String generatedScript = generateScript(script);
 				logger.debug("compiling filter script");
 				Script compiledScript = context.compileString(generatedScript, scriptId, 1, null);
-				compiledScriptCache.putCompiledScript(scriptId, compiledScript);
+				compiledScriptCache.putCompiledScript(scriptId, compiledScript, generatedScript);
 			}
 		} catch (Exception e) {
 			if (e instanceof RhinoException) {
@@ -452,7 +452,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		} catch (Exception e) {
 			if (e instanceof RhinoException) {
                 try {
-                    String script = scriptController.getScript(scriptId);
+                    String script = CompiledScriptCache.getInstance().getSourceScript(scriptId);
                     int linenumber = ((RhinoException) e).lineNumber();
                     String errorReport = JavaScriptUtil.getSourceCode(script, linenumber, 5);
                     e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 5, phase.toUpperCase(), errorReport);

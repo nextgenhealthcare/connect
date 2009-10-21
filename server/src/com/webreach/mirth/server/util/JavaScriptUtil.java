@@ -179,7 +179,7 @@ public class JavaScriptUtil {
 
             if ((defaultScript == null) || !decompiledScript.equals(decompiledDefaultScript)) {
                 logger.debug("adding script " + scriptId);
-                compiledScriptCache.putCompiledScript(scriptId, compiledScript);
+                compiledScriptCache.putCompiledScript(scriptId, compiledScript, generatedScript);
                 scriptInserted = true;
             }
         } catch (EvaluatorException e) {
@@ -266,9 +266,8 @@ public class JavaScriptUtil {
         }
         int currentLineNumber = linenumber-5;
         String sourceCode = "";
-        String currentLine;
-        while(currentLineNumber < linenumber+5){
-            sourceCode = sourceCode + lineSep + (currentLineNumber) + ": " + lines[currentLineNumber-1];
+        while((currentLineNumber < (linenumber+5)) && (currentLineNumber < lines.length)  ){
+        	sourceCode = sourceCode + lineSep + (currentLineNumber) + ": " + lines[currentLineNumber-1];
             currentLineNumber++;
         }
         return sourceCode;
