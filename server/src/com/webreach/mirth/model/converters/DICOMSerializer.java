@@ -354,14 +354,14 @@ public class    DICOMSerializer implements IXMLSerializer<String> {
         // 2. Add pixel data to DicomObject
         if(images != null && !images.isEmpty()){
             if(images.size() > 1){
-                DicomElement dicomElement = dcmObj.putFragments(Tag.PixelData, null, dcmObj.bigEndian(), images.size());
+                DicomElement dicomElement = dcmObj.putFragments(Tag.PixelData, VR.OB, dcmObj.bigEndian(), images.size());
                 for(byte[] image : images){
                     dicomElement.addFragment(image);
                 }
                 dcmObj.add(dicomElement);
             }
             else {
-                dcmObj.putBytes(Tag.PixelData,VR.OW, images.get(0));
+                dcmObj.putBytes(Tag.PixelData,VR.OB, images.get(0));
             }
         }
         // get byteArray from dicomObject
@@ -393,5 +393,5 @@ public class    DICOMSerializer implements IXMLSerializer<String> {
     }
     private static byte[] decodeMessage(String message) throws SerializerException{
         return new Base64().decode(message.getBytes());
-    }    
+    }
 }
