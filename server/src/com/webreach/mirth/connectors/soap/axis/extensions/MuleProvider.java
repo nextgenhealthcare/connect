@@ -68,9 +68,11 @@ public class MuleProvider extends RPCProvider
                                   Method method, Object obj,
                                   Object[] argValues)
             throws Exception {
-    		try{
+    		try {
     			return new ServiceProxy.AxisServiceHandler(receiver, true).invoke(obj, method, argValues);
-    		}catch (Throwable e){
+    		} catch (Exception eaf) {
+    			throw eaf;
+    		} catch (Throwable e) {
     			throw new Exception(e);
     		}
    // 	return ServiceProxy.createAxisServiceHandler(msgCon, synchronous)

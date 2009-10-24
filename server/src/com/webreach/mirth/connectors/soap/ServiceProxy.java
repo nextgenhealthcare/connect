@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.axis.AxisFault;
+import org.apache.axis.Constants;
 import org.apache.axis.message.SOAPEnvelope;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -165,37 +167,44 @@ public class ServiceProxy {
 	            		MessageObject messageObject = (MessageObject)data;
 	            		postProcessor.doPostProcess(messageObject);
 	            		Map responseMap = messageObject.getResponseMap();
-						
-						String errorString = "";
-						
 						if (!connector.getResponseValue().equalsIgnoreCase("None")){
-								return ((Response)responseMap.get(connector.getResponseValue())).getMessage();
-						}else if (messageObject.getStatus().equals(Status.ERROR)){
-	            			return messageObject.getErrors();
-	            		}else if (messageObject.getStatus().equals(Status.FILTERED)){
+							String responseValue = connector.getResponseValue();
+							Response responseData = (Response)responseMap.get(responseValue);
+							if (responseData.getStatus() == Response.Status.FAILURE) {
+								AxisFault axisFault = new AxisFault(responseData.getMessage());
+								axisFault.removeFaultDetail(Constants.QNAME_FAULTDETAIL_STACKTRACE);
+								axisFault.setFaultCodeAsString(Constants.FAULT_CLIENT);
+								throw axisFault;
+							} else {
+								return responseData.getMessage();
+							}
+						} else if (messageObject.getStatus().equals(Status.ERROR)) {
+							throw new AxisFault(messageObject.getErrors());
+	            		} else if (messageObject.getStatus().equals(Status.FILTERED)) {
 	            			return "Message: " + messageObject.getId() + " has been filtered";
-	            		}else if (messageObject.getStatus().equals(Status.TRANSFORMED) || messageObject.getStatus().equals(Status.RECEIVED)){
+	            		} else if (messageObject.getStatus().equals(Status.TRANSFORMED) || messageObject.getStatus().equals(Status.RECEIVED)) {
 	            			return "Message: " + messageObject.getId() + " has been successfully received";
-	            		}else{
+	            		} else {
 	            			return messageObject.toString();
 	            		}
-	            	}else if (data instanceof SOAPEnvelope){
+	            	} else if (data instanceof SOAPEnvelope) {
 	            		return ((SOAPEnvelope)data).toString();
-	            	}else if (data != null){
+	            	} else if (data != null) {
 	            		return data.toString();
-	            	}else{
+	            	} else {
 	            		return null;
 	            	}
 	            } else {
 	                return null;
-	            }
-			}catch (Exception e){
-				logger.error(e);
-				return e.getMessage();
-			}finally{
+	            }	            
+			} catch (AxisFault af1) {
+				throw af1;
+			} catch (Exception e) {
+				logger.error("Detected axis exception", e);
+				throw e;
+			} finally {
 				monitoringController.updateStatus(receiver.getConnector(), connectorType, com.webreach.mirth.server.controllers.MonitoringController.Event.DONE);
 				//monitoringController.updateStatus(receiver.getConnector(), connectorType, com.webreach.mirth.server.controllers.MonitoringController.Event.DISCONNECTED);
-				
 			}
 		}
 	}
