@@ -27,7 +27,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 				ID = $id$
 			</isNotNull>
 			<isNotNull prepend="AND" property="event">
-				LOWER(EVENT) LIKE LOWER('$event$')
+				LOWER(SUBSTRING(EVENT,1,DATALENGTH(EVENT))) LIKE LOWER('$event$')
 			</isNotNull>
 			<isNotNull prepend="AND" property="level">
 				EVENT_LEVEL = '$level$'
