@@ -75,6 +75,7 @@ public class SftpConnection implements FileSystemConnection {
 
 	/** The JSch SFTP client instance */
 	private ChannelSftp client = null;
+	private String lastDir = null;
 
 	public SftpConnection(String host, int port, String username, String password) throws Exception {
 		
@@ -108,9 +109,9 @@ public class SftpConnection implements FileSystemConnection {
 		}
 	}
 
-	public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex)
-		throws Exception
+	public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex) throws Exception
 	{
+	    lastDir = fromDir;
         FilenameFilter filenameFilter;
         
         if (isRegex) {
@@ -138,6 +139,7 @@ public class SftpConnection implements FileSystemConnection {
 
 	public boolean canRead(String readDir) {
 	    try {
+	        lastDir = readDir;
 	        client.cd(readDir);
 	        return true;
 	    } catch (Exception e) {
@@ -147,6 +149,7 @@ public class SftpConnection implements FileSystemConnection {
 	
 	public boolean canWrite(String writeDir) {
         try {
+            lastDir = writeDir;
             client.cd(writeDir);
             return true;
         } catch (Exception e) {
@@ -155,6 +158,7 @@ public class SftpConnection implements FileSystemConnection {
 	}
 	
 	public InputStream readFile(String file, String fromDir) throws Exception {
+	    lastDir = fromDir;
 		client.cd(fromDir);
 		return client.get(file);
 	}
@@ -169,9 +173,9 @@ public class SftpConnection implements FileSystemConnection {
 		return true;
 	}
 	
-	public void writeFile(String file, String toDir, boolean append, byte[] message)
-		throws Exception
+	public void writeFile(String file, String toDir, boolean append, byte[] message) throws Exception
 	{
+	    lastDir = toDir;
 		cdmake(toDir);
 		int mode = 0;
 		if (append)
@@ -181,8 +185,7 @@ public class SftpConnection implements FileSystemConnection {
 		client.put(new ByteArrayInputStream(message), file, mode);
 	}
 
-	public void delete(String file, String fromDir, boolean mayNotExist)
-		throws Exception
+	public void delete(String file, String fromDir, boolean mayNotExist) throws Exception
 	{
 		client.cd(fromDir);
 		try {
@@ -260,6 +263,10 @@ public class SftpConnection implements FileSystemConnection {
 	}
 
 	public boolean isValid() {
-		return client.isConnected();
+	    if (lastDir == null) {
+	        return client.isConnected();
+	    } else {
+	        return client.isConnected() && canRead(lastDir);
+	    }
 	}
 }
