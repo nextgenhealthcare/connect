@@ -31,7 +31,7 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Component id="channelView" alignment="0" pref="726" max="32767" attributes="0"/>
+          <Component id="channelView" alignment="0" pref="681" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
@@ -102,34 +102,29 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="lastModified" pref="243" max="32767" attributes="0"/>
-                                  <Component id="summaryRevision" alignment="0" pref="243" max="32767" attributes="0"/>
-                              </Group>
-                          </Group>
-                          <Group type="102" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="storeMessages" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Group type="102" alignment="0" attributes="0">
-                                              <Component id="storeMessagesAll" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="storeMessagesDays" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
-                                              <Component id="numDays" min="-2" pref="30" max="-2" attributes="0"/>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="days" min="-2" max="-2" attributes="0"/>
-                                          </Group>
-                                          <Component id="storeMessagesErrors" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="storeFiltered" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      </Group>
-                                  </Group>
+                                  <Component id="summaryRevision" pref="188" max="32767" attributes="0"/>
+                                  <Component id="lastModified" alignment="0" pref="188" max="32767" attributes="0"/>
                               </Group>
-                              <EmptySpace pref="302" max="32767" attributes="0"/>
                           </Group>
-                          <Component id="jScrollPane1" pref="634" max="32767" attributes="2"/>
+                          <Component id="storeMessages" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="storeMessagesAll" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="storeMessagesDays" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
+                                      <Component id="numDays" min="-2" pref="30" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="days" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Component id="storeMessagesErrors" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="storeFiltered" alignment="0" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                          </Group>
+                          <Component id="jScrollPane1" alignment="0" pref="579" max="32767" attributes="2"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -522,7 +517,7 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="sourceConnectorPane" alignment="0" pref="701" max="32767" attributes="0"/>
+                          <Component id="sourceConnectorPane" alignment="0" pref="656" max="32767" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="sourceSourceLabel" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
@@ -635,9 +630,9 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="destinationTablePane" alignment="0" pref="701" max="32767" attributes="0"/>
+                          <Component id="destinationTablePane" alignment="0" pref="656" max="32767" attributes="0"/>
                           <Group type="102" alignment="1" attributes="0">
-                              <Component id="destinationConnectorPane" pref="509" max="32767" attributes="0"/>
+                              <Component id="destinationConnectorPane" pref="464" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="destinationVariableList" min="-2" pref="186" max="-2" attributes="0"/>
                           </Group>
