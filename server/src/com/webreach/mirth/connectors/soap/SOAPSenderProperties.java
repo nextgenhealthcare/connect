@@ -28,21 +28,22 @@ package com.webreach.mirth.connectors.soap;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.codec.binary.Base64;
 
 import com.webreach.mirth.model.QueuedSenderProperties;
+import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.ws.WSDefinition;
 
-public class SOAPSenderProperties extends QueuedSenderProperties
-{ 
+public class SOAPSenderProperties extends QueuedSenderProperties {
     public static final String name = "SOAP Sender";
 
     public static final String SOAP_ENVELOPE_HEADER = "<?xml version=\"1.0\" encoding=\"utf-16\"?>\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:soapenc=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n";
     public static final String SOAP_ENVELOPE_FOOTER = "</soap:Envelope>";
-   
+
     public static final String DATATYPE = "DataType";
     public static final String SOAP_HOST = "host";
     public static final String SOAP_SERVICE_ENDPOINT = "serviceEndpoint";
@@ -54,37 +55,43 @@ public class SOAPSenderProperties extends QueuedSenderProperties
     public static final String SOAP_GENERATE_ENVELOPE = "soapGenerateEnvelope";
     public static final String SOAP_ACTION_URI = "soapActionURI";
     public static final String CHANNEL_ID = "replyChannelId";
+    public static final String SOAP_ATTACHMENT_NAMES = "attachmentNames";
+    public static final String SOAP_ATTACHMENT_CONTENTS = "attachmentContents";
+    public static final String SOAP_ATTACHMENT_TYPES = "attachmentTypes";
 
-    public Properties getDefaults()
-    {
+    public Properties getDefaults() {
         Properties properties = super.getDefaults();
         properties.put(DATATYPE, name);
         properties.put(SOAP_URL, "");
         properties.put(SOAP_SERVICE_ENDPOINT, "");
         properties.put(SOAP_METHOD, SOAP_DEFAULT_DROPDOWN);
+        
         try {
-			properties.put(SOAP_DEFINITION, zipAndEncodeDefinition(new WSDefinition()));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+            properties.put(SOAP_DEFINITION, zipAndEncodeDefinition(new WSDefinition()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
         properties.put(SOAP_HOST, "axis:?method=Press Get Methods");
         properties.put(SOAP_ENVELOPE, "");
         properties.put(SOAP_GENERATE_ENVELOPE, "1");
         properties.put(SOAP_ACTION_URI, "");
         properties.put(CHANNEL_ID, "sink");
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        properties.put(SOAP_ATTACHMENT_NAMES, serializer.toXML(new ArrayList()));
+        properties.put(SOAP_ATTACHMENT_CONTENTS, serializer.toXML(new ArrayList()));
+        properties.put(SOAP_ATTACHMENT_TYPES, serializer.toXML(new ArrayList()));
         return properties;
     }
-	public static String zipAndEncodeDefinition(WSDefinition definition) throws IOException {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		GZIPOutputStream gz = new GZIPOutputStream(baos);
-		ObjectOutputStream oos = new ObjectOutputStream(gz);
-		oos.writeObject(definition);
-		oos.flush();
-		oos.close();
-		byte[] compressedDefinition = baos.toByteArray();
-		String encodedDefintion = new String(new Base64().encode(compressedDefinition));
-		baos.close();
-		return encodedDefintion;
-	}
+
+    public static String zipAndEncodeDefinition(WSDefinition definition) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(new GZIPOutputStream(baos));
+        oos.writeObject(definition);
+        oos.flush();
+        oos.close();
+        String encodedDefintion = new String(new Base64().encode(baos.toByteArray()));
+        baos.close();
+        return encodedDefintion;
+    }
 }
