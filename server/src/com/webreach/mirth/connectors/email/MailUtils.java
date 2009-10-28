@@ -49,7 +49,10 @@ public class MailUtils
         if (url == null) {
             throw new IllegalArgumentException(new org.mule.config.i18n.Message(Messages.X_IS_NULL, "URL").toString());
         }
-        String secureType = connector.getEmailSecure();
+        
+        // NOTE: This should be the actual protocol, but we are overriding it.
+        String secureType = url.getProtocol();
+        // NOTE: Instead of getting this from the URLName, we're getting it from the connector again
         String protocol = connector.getProtocol().toLowerCase();
         boolean secure = false;
         

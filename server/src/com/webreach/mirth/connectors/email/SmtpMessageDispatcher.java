@@ -10,6 +10,7 @@
 package com.webreach.mirth.connectors.email;
 
 import java.util.Calendar;
+import java.util.Properties;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -32,11 +33,13 @@ import com.webreach.mirth.connectors.email.transformers.MessageObjectToEmailMess
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
+import com.webreach.mirth.util.PropertyLoader;
 
 /**
  * @author Ross Mason
@@ -56,15 +59,53 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
 		super(connector);
 		this.connector = connector;
 		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
-		String username = new String();
-		String password = new String();
-		if (connector.getUsername() != null){
-			username = replacer.replaceValues(connector.getUsername());
-		}
-		if (connector.getPassword() != null){
-			password = replacer.replaceValues(connector.getPassword());
-		}
-		URLName url = new URLName(connector.getProtocol(), replacer.replaceValues(connector.getHostname()), Integer.parseInt(replacer.replaceValues(connector.getSmtpPort())), null, username, password);
+		
+		String host = null;
+		int port = -1;
+        String username = null;
+        String password = null;
+        boolean auth = false;
+        String secureType = null;
+        
+        if (connector.isUseServerSettings()) {
+            try {
+                Properties properties = ControllerFactory.getFactory().createConfigurationController().getServerProperties();
+                host = PropertyLoader.getProperty(properties, "smtp.host");
+                port = Integer.parseInt(PropertyLoader.getProperty(properties, "smtp.port"));
+                username = PropertyLoader.getProperty(properties, "smtp.username");
+                password = PropertyLoader.getProperty(properties, "smtp.password");
+                auth = PropertyLoader.getProperty(properties, "smtp.auth").equals("1");
+                secureType = PropertyLoader.getProperty(properties, "smtp.secure").toLowerCase();
+            } catch (ControllerException e) {
+                logger.error("Unable to load server properties.", e);
+            }
+        } else {
+            if (connector.getUsername() != null) {
+                username = replacer.replaceValues(connector.getUsername());
+            }
+            
+            if (connector.getPassword() != null) {
+                password = replacer.replaceValues(connector.getPassword());
+            }
+            
+            if (connector.getHostname() != null) {
+                host = replacer.replaceValues(connector.getHostname());    
+            }
+            
+            if (connector.getSmtpPort() != null) {
+                port = Integer.parseInt(replacer.replaceValues(connector.getSmtpPort()));    
+            }
+            
+            if (connector.getEmailSecure() != null) {
+                secureType = connector.getEmailSecure(); 
+            }
+        }
+		
+        // NOTE: This is a hack. The first parameter should be the protocol (SMTP, POP, etc.),
+        // but since we need a way to pass in the secure type (SSL or TLS) we will overload
+        // the parameter since in the actual method it just gets the actual protocol from the
+        // connector again.
+		URLName url = new URLName(secureType, host, port, null, username, password);
 		session = MailUtils.createMailSession(url, connector);
 		session.setDebug(logger.isDebugEnabled());
 	}

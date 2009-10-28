@@ -40,6 +40,7 @@ public class EmailSenderProperties implements ComponentProperties
     public static final String EMAIL_PORT = "smtpPort";
     public static final String EMAIL_SECURE = "emailSecure";
     public static final String EMAIL_USE_AUTHENTICATION = "useAuthentication";
+    public static final String EMAIL_USE_SERVER_SETTINGS = "useServerSettings";
     public static final String EMAIL_USERNAME = "username";
     public static final String EMAIL_PASSWORD = "password";
     public static final String EMAIL_TO = "toAddresses";
@@ -60,6 +61,7 @@ public class EmailSenderProperties implements ComponentProperties
         properties.put(EMAIL_PORT, "");
         properties.put(EMAIL_SECURE, "none");
         properties.put(EMAIL_USE_AUTHENTICATION, "1");
+        properties.put(EMAIL_USE_SERVER_SETTINGS, "0");
         properties.put(EMAIL_USERNAME, "");
         properties.put(EMAIL_PASSWORD, "");
         properties.put(EMAIL_TO, "");

@@ -121,6 +121,7 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
     private List attachmentContents = null;
     private List attachmentTypes = null;
     private boolean useAuthentication;
+    private boolean useServerSettings;
 
     public SmtpConnector() throws InitialisationException
     {
@@ -466,6 +467,10 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
     public void setUseAuthentication(boolean useAuthentication) {
         this.useAuthentication = useAuthentication;
     }
-	
-	
+    public boolean isUseServerSettings() {
+        return useServerSettings;
+    }
+    public void setUseServerSettings(boolean useServerSettings) {
+        this.useServerSettings = useServerSettings;
+    }
 }
