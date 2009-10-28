@@ -76,6 +76,13 @@ public class EmailSender extends ConnectorClass
     {
         Properties properties = new Properties();
         properties.put(EmailSenderProperties.DATATYPE, name);
+
+        if (useServerSettingsYesRadio.isSelected()) {
+            properties.put(EmailSenderProperties.EMAIL_USE_SERVER_SETTINGS, UIConstants.YES_OPTION);
+        } else {
+            properties.put(EmailSenderProperties.EMAIL_USE_SERVER_SETTINGS, UIConstants.NO_OPTION);
+        }
+
         properties.put(EmailSenderProperties.EMAIL_ADDRESS, SMTPServerHostField.getText());
         properties.put(EmailSenderProperties.EMAIL_PORT, SMTPServerPortField.getText());
         
@@ -88,12 +95,12 @@ public class EmailSender extends ConnectorClass
 
         if (useAuthenticationYes.isSelected()) {
             properties.put(EmailSenderProperties.EMAIL_USE_AUTHENTICATION, UIConstants.YES_OPTION);
-        }
-        else
+        } else {
             properties.put(EmailSenderProperties.EMAIL_USE_AUTHENTICATION, UIConstants.NO_OPTION);
-        
-        properties.put(EmailSenderProperties.EMAIL_USERNAME, emailUsernameField.getText());
-        properties.put(EmailSenderProperties.EMAIL_PASSWORD, new String(emailPasswordField.getPassword()));
+        }
+
+        properties.put(EmailSenderProperties.EMAIL_USERNAME, usernameField.getText());
+        properties.put(EmailSenderProperties.EMAIL_PASSWORD, new String(passwordField.getPassword()));
         properties.put(EmailSenderProperties.EMAIL_TO, emailToField.getText());
         properties.put(EmailSenderProperties.EMAIL_FROM, emailFromField.getText());
         properties.put(EmailSenderProperties.EMAIL_SUBJECT, emailSubjectField.getText());
@@ -101,7 +108,7 @@ public class EmailSender extends ConnectorClass
         if (contentTypeHTMLButton.isSelected())
             properties.put(EmailSenderProperties.EMAIL_CONTENT_TYPE, "text/html");
         else
-        	properties.put(EmailSenderProperties.EMAIL_CONTENT_TYPE, "text/plain");
+            properties.put(EmailSenderProperties.EMAIL_CONTENT_TYPE, "text/plain");
         
         properties.put(EmailSenderProperties.EMAIL_BODY, emailBodyTextPane.getText());
         
@@ -117,7 +124,18 @@ public class EmailSender extends ConnectorClass
     public void setProperties(Properties props)
     {
         resetInvalidProperties();
-        
+
+        if (((String) props.get(EmailSenderProperties.EMAIL_USE_SERVER_SETTINGS)).equalsIgnoreCase(UIConstants.YES_OPTION))
+        {
+            useServerSettingsYesRadioActionPerformed(null);
+            useServerSettingsYesRadio.setSelected(true);
+        }
+        else
+        {
+            useServerSettingsNoRadioActionPerformed(null);
+            useServerSettingsNoRadio.setSelected(true);
+        }
+
         SMTPServerHostField.setText((String) props.get(EmailSenderProperties.EMAIL_ADDRESS));
         SMTPServerPortField.setText((String) props.get(EmailSenderProperties.EMAIL_PORT));
         
@@ -139,8 +157,8 @@ public class EmailSender extends ConnectorClass
             useAuthenticationNo.setSelected(true);
         }
         
-        emailUsernameField.setText((String) props.get(EmailSenderProperties.EMAIL_USERNAME));
-        emailPasswordField.setText((String) props.get(EmailSenderProperties.EMAIL_PASSWORD));
+        usernameField.setText((String) props.get(EmailSenderProperties.EMAIL_USERNAME));
+        passwordField.setText((String) props.get(EmailSenderProperties.EMAIL_PASSWORD));
         emailToField.setText((String) props.get(EmailSenderProperties.EMAIL_TO));
         emailFromField.setText((String) props.get(EmailSenderProperties.EMAIL_FROM));
         emailSubjectField.setText((String) props.get(EmailSenderProperties.EMAIL_SUBJECT));
@@ -436,19 +454,20 @@ public class EmailSender extends ConnectorClass
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
         useAuthenticationButtonGroup = new javax.swing.ButtonGroup();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        emailUsernameLabel = new javax.swing.JLabel();
-        emailPasswordLabel = new javax.swing.JLabel();
+        useServerSettingsButtonGroup = new javax.swing.ButtonGroup();
+        SMTPServerHostLabel = new javax.swing.JLabel();
+        SMTPServerPortLabel = new javax.swing.JLabel();
+        usernameLabel = new javax.swing.JLabel();
+        passwordLabel = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
-        emailUsernameField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        usernameField = new com.webreach.mirth.client.ui.components.MirthTextField();
         SMTPServerPortField = new com.webreach.mirth.client.ui.components.MirthTextField();
         SMTPServerHostField = new com.webreach.mirth.client.ui.components.MirthTextField();
         emailToField = new com.webreach.mirth.client.ui.components.MirthTextField();
         emailSubjectField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        emailPasswordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
+        passwordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
         jLabel8 = new javax.swing.JLabel();
         emailFromField = new com.webreach.mirth.client.ui.components.MirthTextField();
         emailBodyTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
@@ -460,24 +479,27 @@ public class EmailSender extends ConnectorClass
         attachmentsTable = new com.webreach.mirth.client.ui.components.MirthTable();
         newButton = new javax.swing.JButton();
         deleteButton = new javax.swing.JButton();
-        jLabel10 = new javax.swing.JLabel();
+        secureConnectionLabel = new javax.swing.JLabel();
         secureConnectionNone = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         secureConnectionTLS = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         secureConnectionSSL = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         useAuthenticationYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         useAuthenticationLabel = new javax.swing.JLabel();
         useAuthenticationNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        useServerSettingsLabel = new javax.swing.JLabel();
+        useServerSettingsYesRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        useServerSettingsNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
-        jLabel1.setText("SMTP Server Host:");
+        SMTPServerHostLabel.setText("SMTP Server Host:");
 
-        jLabel2.setText("SMTP Server Port:");
+        SMTPServerPortLabel.setText("SMTP Server Port:");
 
-        emailUsernameLabel.setText("Username:");
+        usernameLabel.setText("Username:");
 
-        emailPasswordLabel.setText("Password:");
+        passwordLabel.setText("Password:");
 
         jLabel5.setText("To:");
 
@@ -485,7 +507,7 @@ public class EmailSender extends ConnectorClass
 
         jLabel7.setText("Body:");
 
-        emailUsernameField.setToolTipText("If the SMTP server requires authentication to send a message, enter the username here.");
+        usernameField.setToolTipText("If the SMTP server requires authentication to send a message, enter the username here.");
 
         SMTPServerPortField.setToolTipText("<html>The port number of the SMTP server to send the email message to.<br>Generally, the default port of 25 is used.</html>");
         SMTPServerPortField.addActionListener(new java.awt.event.ActionListener() {
@@ -500,7 +522,7 @@ public class EmailSender extends ConnectorClass
 
         emailSubjectField.setToolTipText("The text that should appear as the subject of the email, as seen by the receiver's email client.");
 
-        emailPasswordField.setToolTipText("If the SMTP server requires authentication to send a message, enter the password here.");
+        passwordField.setToolTipText("If the SMTP server requires authentication to send a message, enter the password here.");
 
         jLabel8.setText("From:");
 
@@ -564,7 +586,7 @@ public class EmailSender extends ConnectorClass
             }
         });
 
-        jLabel10.setText("Secure Connection:");
+        secureConnectionLabel.setText("Secure Connection:");
 
         secureConnectionNone.setBackground(new java.awt.Color(255, 255, 255));
         secureConnectionNone.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -591,7 +613,7 @@ public class EmailSender extends ConnectorClass
         useAuthenticationYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         useAuthenticationButtonGroup.add(useAuthenticationYes);
         useAuthenticationYes.setText("Yes");
-        useAuthenticationYes.setToolTipText("");
+        useAuthenticationYes.setToolTipText("Use SMTP authentication.");
         useAuthenticationYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
         useAuthenticationYes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -604,13 +626,39 @@ public class EmailSender extends ConnectorClass
         useAuthenticationNo.setBackground(new java.awt.Color(255, 255, 255));
         useAuthenticationNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         useAuthenticationButtonGroup.add(useAuthenticationNo);
-        useAuthenticationNo.setSelected(true);
         useAuthenticationNo.setText("No");
-        useAuthenticationNo.setToolTipText("");
+        useAuthenticationNo.setToolTipText("Do not use SMTP authentication.");
         useAuthenticationNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
         useAuthenticationNo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 useAuthenticationNoActionPerformed(evt);
+            }
+        });
+
+        useServerSettingsLabel.setText("Use Server Settings:");
+
+        useServerSettingsYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        useServerSettingsYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        useServerSettingsButtonGroup.add(useServerSettingsYesRadio);
+        useServerSettingsYesRadio.setText("Yes");
+        useServerSettingsYesRadio.setToolTipText("Use the SMTP server settings from Settings page.");
+        useServerSettingsYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        useServerSettingsYesRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                useServerSettingsYesRadioActionPerformed(evt);
+            }
+        });
+
+        useServerSettingsNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        useServerSettingsNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        useServerSettingsButtonGroup.add(useServerSettingsNoRadio);
+        useServerSettingsNoRadio.setSelected(true);
+        useServerSettingsNoRadio.setText("No");
+        useServerSettingsNoRadio.setToolTipText("Use the SMTP server settings below.");
+        useServerSettingsNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        useServerSettingsNoRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                useServerSettingsNoRadioActionPerformed(evt);
             }
         });
 
@@ -620,19 +668,20 @@ public class EmailSender extends ConnectorClass
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, useAuthenticationLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, emailUsernameLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, emailPasswordLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel5)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel8)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, contentTypeLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel9)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel10)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(useServerSettingsLabel)
+                    .add(useAuthenticationLabel)
+                    .add(usernameLabel)
+                    .add(passwordLabel)
+                    .add(jLabel5)
+                    .add(jLabel8)
+                    .add(jLabel6)
+                    .add(contentTypeLabel)
+                    .add(jLabel7)
+                    .add(jLabel9)
+                    .add(secureConnectionLabel)
+                    .add(SMTPServerPortLabel)
+                    .add(SMTPServerHostLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
@@ -646,38 +695,47 @@ public class EmailSender extends ConnectorClass
                     .add(emailSubjectField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(emailFromField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(emailToField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(emailPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(emailUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(passwordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(usernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(SMTPServerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(SMTPServerHostField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
-                        .add(attachmentsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 237, Short.MAX_VALUE)
+                        .add(attachmentsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 233, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
                             .add(newButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .add(deleteButton)))
-                    .add(emailBodyTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
+                    .add(emailBodyTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 302, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
                         .add(secureConnectionNone, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(secureConnectionTLS, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(secureConnectionSSL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                        .add(secureConnectionSSL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(layout.createSequentialGroup()
+                        .add(useServerSettingsYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(useServerSettingsNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
+                    .add(useServerSettingsLabel)
+                    .add(useServerSettingsYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(useServerSettingsNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(SMTPServerHostLabel)
                     .add(SMTPServerHostField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel2)
+                    .add(SMTPServerPortLabel)
                     .add(SMTPServerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel10)
+                    .add(secureConnectionLabel)
                     .add(secureConnectionNone, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(secureConnectionTLS, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(secureConnectionSSL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -688,12 +746,12 @@ public class EmailSender extends ConnectorClass
                     .add(useAuthenticationLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(emailUsernameLabel)
-                    .add(emailUsernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(usernameLabel)
+                    .add(usernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(emailPasswordLabel)
-                    .add(emailPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(passwordLabel)
+                    .add(passwordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel5)
@@ -714,11 +772,11 @@ public class EmailSender extends ConnectorClass
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel7)
-                    .add(emailBodyTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 82, Short.MAX_VALUE))
+                    .add(emailBodyTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 71, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel9)
-                    .add(attachmentsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)
+                    .add(attachmentsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
                         .add(newButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -761,24 +819,72 @@ private void emailFromFieldActionPerformed(java.awt.event.ActionEvent evt) {//GE
 }//GEN-LAST:event_emailFromFieldActionPerformed
 
 private void useAuthenticationYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useAuthenticationYesActionPerformed
-    emailUsernameLabel.setEnabled(true);
-    emailUsernameField.setEnabled(true);
+    usernameLabel.setEnabled(true);
+    usernameField.setEnabled(true);
 
-    emailPasswordLabel.setEnabled(true);
-    emailPasswordField.setEnabled(true);
+    passwordLabel.setEnabled(true);
+    passwordField.setEnabled(true);
 }//GEN-LAST:event_useAuthenticationYesActionPerformed
 
 private void useAuthenticationNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useAuthenticationNoActionPerformed
-    emailUsernameLabel.setEnabled(false);
-    emailUsernameField.setEnabled(false);
+    usernameLabel.setEnabled(false);
+    usernameField.setEnabled(false);
 
-    emailPasswordLabel.setEnabled(false);
-    emailPasswordField.setEnabled(false);
+    passwordLabel.setEnabled(false);
+    passwordField.setEnabled(false);
 }//GEN-LAST:event_useAuthenticationNoActionPerformed
+
+private void useServerSettingsYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useServerSettingsYesRadioActionPerformed
+    SMTPServerHostLabel.setEnabled(false);
+    SMTPServerHostField.setEnabled(false);
+
+    SMTPServerPortLabel.setEnabled(false);
+    SMTPServerPortField.setEnabled(false);
+
+    secureConnectionLabel.setEnabled(false);
+    secureConnectionNone.setEnabled(false);
+    secureConnectionSSL.setEnabled(false);
+    secureConnectionTLS.setEnabled(false);
+
+    useAuthenticationLabel.setEnabled(false);
+    useAuthenticationYes.setEnabled(false);
+    useAuthenticationNo.setEnabled(false);
+
+    usernameLabel.setEnabled(false);
+    usernameField.setEnabled(false);
+
+    passwordLabel.setEnabled(false);
+    passwordField.setEnabled(false);
+}//GEN-LAST:event_useServerSettingsYesRadioActionPerformed
+
+private void useServerSettingsNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useServerSettingsNoRadioActionPerformed
+    SMTPServerHostLabel.setEnabled(true);
+    SMTPServerHostField.setEnabled(true);
+
+    SMTPServerPortLabel.setEnabled(true);
+    SMTPServerPortField.setEnabled(true);
+
+    secureConnectionLabel.setEnabled(true);
+    secureConnectionNone.setEnabled(true);
+    secureConnectionSSL.setEnabled(true);
+    secureConnectionTLS.setEnabled(true);
+
+    useAuthenticationLabel.setEnabled(true);
+    useAuthenticationYes.setEnabled(true);
+    useAuthenticationNo.setEnabled(true);
+
+    if (useAuthenticationYes.isSelected()) {
+        useAuthenticationYesActionPerformed(null);
+    } else {
+        useAuthenticationNoActionPerformed(null);
+    }
+}//GEN-LAST:event_useServerSettingsNoRadioActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.webreach.mirth.client.ui.components.MirthTextField SMTPServerHostField;
+    private javax.swing.JLabel SMTPServerHostLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField SMTPServerPortField;
+    private javax.swing.JLabel SMTPServerPortLabel;
     private javax.swing.JScrollPane attachmentsPane;
     private com.webreach.mirth.client.ui.components.MirthTable attachmentsTable;
     private javax.swing.ButtonGroup buttonGroup1;
@@ -789,21 +895,17 @@ private void useAuthenticationNoActionPerformed(java.awt.event.ActionEvent evt) 
     private javax.swing.JButton deleteButton;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea emailBodyTextPane;
     private com.webreach.mirth.client.ui.components.MirthTextField emailFromField;
-    private com.webreach.mirth.client.ui.components.MirthPasswordField emailPasswordField;
-    private javax.swing.JLabel emailPasswordLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField emailSubjectField;
     private com.webreach.mirth.client.ui.components.MirthTextField emailToField;
-    private com.webreach.mirth.client.ui.components.MirthTextField emailUsernameField;
-    private javax.swing.JLabel emailUsernameLabel;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JButton newButton;
+    private com.webreach.mirth.client.ui.components.MirthPasswordField passwordField;
+    private javax.swing.JLabel passwordLabel;
+    private javax.swing.JLabel secureConnectionLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton secureConnectionNone;
     private com.webreach.mirth.client.ui.components.MirthRadioButton secureConnectionSSL;
     private com.webreach.mirth.client.ui.components.MirthRadioButton secureConnectionTLS;
@@ -811,6 +913,12 @@ private void useAuthenticationNoActionPerformed(java.awt.event.ActionEvent evt) 
     private javax.swing.JLabel useAuthenticationLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton useAuthenticationNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton useAuthenticationYes;
+    private javax.swing.ButtonGroup useServerSettingsButtonGroup;
+    private javax.swing.JLabel useServerSettingsLabel;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton useServerSettingsNoRadio;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton useServerSettingsYesRadio;
+    private com.webreach.mirth.client.ui.components.MirthTextField usernameField;
+    private javax.swing.JLabel usernameLabel;
     // End of variables declaration//GEN-END:variables
 
 }
