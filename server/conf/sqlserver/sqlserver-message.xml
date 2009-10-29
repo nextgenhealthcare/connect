@@ -124,10 +124,10 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 				CONNECTOR_NAME LIKE '%$connectorName$%'
 			</isNotNull>
 			<isNotNull prepend="AND" property="startDate">
-				DATE_CREATED <![CDATA[ >= ]]> '$startDate$'
+				DATE_CREATED <![CDATA[ >= ]]> CONVERT(DATETIME,'$startDate$',120)
 			</isNotNull>
 			<isNotNull prepend="AND" property="endDate">
-				DATE_CREATED <![CDATA[ <= ]]> '$endDate$'
+				DATE_CREATED <![CDATA[ <= ]]> CONVERT(DATETIME,'$endDate$',120)
 			</isNotNull>
 			<isNotNull  prepend="AND" property="quickSearch">
 				(UPPER(SUBSTRING(RAW_DATA,1,DATALENGTH(RAW_DATA))) LIKE UPPER('%$quickSearch$%') OR UPPER(SUBSTRING(ENCODED_DATA,1,DATALENGTH(ENCODED_DATA))) LIKE UPPER('%$quickSearch$%') OR UPPER(SUBSTRING(TRANSFORMED_DATA,1,DATALENGTH(TRANSFORMED_DATA))) LIKE UPPER('%$quickSearch$%'))
