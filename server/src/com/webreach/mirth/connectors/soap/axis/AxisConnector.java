@@ -142,6 +142,11 @@ public class AxisConnector extends QueueEnabledConnector implements ModelEventLi
 
     private List supportedSchemes;
 
+    // attachment lists
+    private List attachmentNames = null;
+    private List attachmentContents = null;
+    private List attachmentTypes = null;
+
     public AxisConnector() {
         super();
         //Default supported schemes, these can be restricted
@@ -702,4 +707,27 @@ public class AxisConnector extends QueueEnabledConnector implements ModelEventLi
 		this.keepAliveTimeout = keepAliveTimeout;
 	}
 
+    public List getAttachmentNames() {
+        return attachmentNames;
+    }
+
+    public void setAttachmentNames(List attachmentNames) {
+        this.attachmentNames = attachmentNames;
+    }
+
+    public List getAttachmentContents() {
+        return attachmentContents;
+    }
+
+    public void setAttachmentContents(List attachmentContents) {
+        this.attachmentContents = attachmentContents;
+    }
+
+    public List getAttachmentTypes() {
+        return attachmentTypes;
+    }
+
+    public void setAttachmentTypes(List attachmentTypes) {
+        this.attachmentTypes = attachmentTypes;
+    }
 }

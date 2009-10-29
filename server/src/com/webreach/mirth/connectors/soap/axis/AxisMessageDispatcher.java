@@ -36,6 +36,7 @@ import org.apache.axis.Message;
 import org.apache.axis.MessageContext;
 import org.apache.axis.SimpleChain;
 import org.apache.axis.SimpleTargetedChain;
+import org.apache.axis.attachments.AttachmentPart;
 import org.apache.axis.client.AxisClient;
 import org.apache.axis.client.Call;
 import org.apache.axis.client.Service;
@@ -71,6 +72,7 @@ import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
+import com.webreach.mirth.server.util.FileUtil;
 import com.webreach.mirth.server.util.VMRouter;
 
 /**
@@ -245,10 +247,33 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher implements 
 
 		Call call = new Call(serviceEndpoint);
 		String requestMessage = ((AxisConnector) connector).getSoapEnvelope();
-		// Run the template replacer on the xml
-
 		requestMessage = replacer.replaceValues(requestMessage, messageObject);
 		Message reqMessage = new Message(requestMessage);
+
+		// START ATTACHMENTS
+        List<String> attachmentNames = connector.getAttachmentNames();
+        List<String> attachmentContents = connector.getAttachmentContents();
+        List<String> attachmentTypes = connector.getAttachmentTypes();
+
+        for (int i = 0; i < attachmentNames.size(); i++) {
+            String attachmentName = replacer.replaceValues(attachmentNames.get(i), messageObject);
+            String attachmentType = attachmentTypes.get(i);
+            String attachmentContent = replacer.replaceValues(attachmentContents.get(i), messageObject);
+            byte[] content;
+
+            if (attachmentType.split("/")[0].equalsIgnoreCase("text")) {
+                content = attachmentContent.getBytes();
+            } else {
+                content = FileUtil.decode(attachmentContent);
+            }
+
+            AttachmentPart attachment = new AttachmentPart();
+            attachment.setContent(content, attachmentType);
+            attachment.setContentId(attachmentName);
+            reqMessage.addAttachmentPart(attachment);
+        }
+		// END ATTACHMENTS
+		
 		// Only set the actionURI if we have one explicitly defined
 		if (((AxisConnector) connector).getSoapActionURI() != null && ((AxisConnector) connector).getSoapActionURI().length() > 0) {
 			call.setSOAPActionURI(replacer.replaceURLValues(((AxisConnector) connector).getSoapActionURI(), messageObject));
