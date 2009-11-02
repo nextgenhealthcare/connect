@@ -26,7 +26,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
 
+import javax.activation.DataHandler;
 import javax.xml.namespace.QName;
+import javax.xml.soap.AttachmentPart;
 import javax.xml.soap.SOAPEnvelope;
 
 import org.apache.axis.AxisFault;
@@ -36,7 +38,6 @@ import org.apache.axis.Message;
 import org.apache.axis.MessageContext;
 import org.apache.axis.SimpleChain;
 import org.apache.axis.SimpleTargetedChain;
-import org.apache.axis.attachments.AttachmentPart;
 import org.apache.axis.client.AxisClient;
 import org.apache.axis.client.Call;
 import org.apache.axis.client.Service;
@@ -63,6 +64,7 @@ import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.util.TemplateParser;
 
+import com.webreach.mirth.connectors.email.transformers.ByteArrayDataSource;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.QueuedMessage;
 import com.webreach.mirth.server.Constants;
@@ -72,7 +74,6 @@ import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
-import com.webreach.mirth.server.util.FileUtil;
 import com.webreach.mirth.server.util.VMRouter;
 
 /**
@@ -230,54 +231,45 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher implements 
 
 	private Object[] invokeWebService(UMOEndpointURI endpointUri, MessageObject messageObject) throws Exception {
 		monitoringController.updateStatus(connector, connectorType, Event.BUSY);
+		
 		// set the uri for the event
-		String uri = "axis:" + replacer.replaceURLValues(endpointUri.toString(), messageObject);
-		MuleEndpointURI updatedUri = new MuleEndpointURI(uri);
+		MuleEndpointURI axisUri = new MuleEndpointURI("axis:" + replacer.replaceURLValues(endpointUri.toString(), messageObject));
 		String serviceEndpoint = "";
-		if (((AxisConnector) connector).getServiceEndpoint() != null && ((AxisConnector) connector).getServiceEndpoint().length() > 0) {
+		
+		if ((connector.getServiceEndpoint() != null) && (connector.getServiceEndpoint().length() > 0)) {
 			try {
-				serviceEndpoint = replacer.replaceURLValues(URLEncoder.encode(((AxisConnector) connector).getServiceEndpoint(), "UTF-8"), messageObject);
+				serviceEndpoint = replacer.replaceURLValues(URLEncoder.encode(connector.getServiceEndpoint(), "UTF-8"), messageObject);
 			} catch (UnsupportedEncodingException e) {
-				serviceEndpoint = replacer.replaceURLValues(URLEncoder.encode(((AxisConnector) connector).getServiceEndpoint()), messageObject);
+				serviceEndpoint = replacer.replaceURLValues(URLEncoder.encode(connector.getServiceEndpoint()), messageObject);
 			}
 		}
 
 		AxisProperties.setProperty("axis.doAutoTypes", "true");
-		Object[] args = new Object[0];// getArgs(event);
-
 		Call call = new Call(serviceEndpoint);
-		String requestMessage = ((AxisConnector) connector).getSoapEnvelope();
-		requestMessage = replacer.replaceValues(requestMessage, messageObject);
-		Message reqMessage = new Message(requestMessage);
+		Message requestMessage = new Message(replacer.replaceValues(connector.getSoapEnvelope(), messageObject));
 
 		// START ATTACHMENTS
-        List<String> attachmentNames = connector.getAttachmentNames();
+        List<String> attachmentIds = connector.getAttachmentNames();
         List<String> attachmentContents = connector.getAttachmentContents();
         List<String> attachmentTypes = connector.getAttachmentTypes();
 
-        for (int i = 0; i < attachmentNames.size(); i++) {
-            String attachmentName = replacer.replaceValues(attachmentNames.get(i), messageObject);
-            String attachmentType = attachmentTypes.get(i);
-            String attachmentContent = replacer.replaceValues(attachmentContents.get(i), messageObject);
-            byte[] content;
+        for (int i = 0; i < attachmentIds.size(); i++) {
+            String contentId = replacer.replaceValues(attachmentIds.get(i), messageObject);
+            String contentType = attachmentTypes.get(i);
+            String content = replacer.replaceValues(attachmentContents.get(i), messageObject);
 
-            if (attachmentType.split("/")[0].equalsIgnoreCase("text")) {
-                content = attachmentContent.getBytes();
-            } else {
-                content = FileUtil.decode(attachmentContent);
-            }
-
-            AttachmentPart attachment = new AttachmentPart();
-            attachment.setContent(content, attachmentType);
-            attachment.setContentId(attachmentName);
-            reqMessage.addAttachmentPart(attachment);
+            AttachmentPart attachment = requestMessage.createAttachmentPart(new DataHandler(new ByteArrayDataSource(content, contentType)));
+            attachment.setContentType(contentType);
+            attachment.setContentId(contentId);
+            requestMessage.addAttachmentPart(attachment);
         }
 		// END ATTACHMENTS
 		
 		// Only set the actionURI if we have one explicitly defined
-		if (((AxisConnector) connector).getSoapActionURI() != null && ((AxisConnector) connector).getSoapActionURI().length() > 0) {
-			call.setSOAPActionURI(replacer.replaceURLValues(((AxisConnector) connector).getSoapActionURI(), messageObject));
+		if (connector.getSoapActionURI() != null && connector.getSoapActionURI().length() > 0) {
+			call.setSOAPActionURI(replacer.replaceURLValues(connector.getSoapActionURI(), messageObject));
 		}
+		
 		if (serviceEndpoint.length() > 0) {
 			call.setTargetEndpointAddress(serviceEndpoint);
 		}
@@ -291,32 +283,30 @@ public class AxisMessageDispatcher extends AbstractMessageDispatcher implements 
 		call.setProperty("axis.one.way", Boolean.TRUE);
 
 		// get basic authentication info
-		if (updatedUri.getUserInfo() != null) {
-			call.setProperty(Call.USERNAME_PROPERTY, updatedUri.getUsername());
-			call.setProperty(Call.PASSWORD_PROPERTY, updatedUri.getPassword());
-			logger.trace("HTTP auth sec detected: [" + updatedUri.getUsername() + "] Clave: [" + updatedUri.getPassword() + "]");
+		if (axisUri.getUserInfo() != null) {
+			call.setProperty(Call.USERNAME_PROPERTY, axisUri.getUsername());
+			call.setProperty(Call.PASSWORD_PROPERTY, axisUri.getPassword());
+			logger.trace("HTTP auth sec detected: [" + axisUri.getUsername() + "] Clave: [" + axisUri.getPassword() + "]");
 		} else {
 			logger.trace("No HTTP auth sec detected");
 		}
 
 		// call.invoke(args);
-		Object result = call.invoke(reqMessage);
-		AxisConnector axisConnector = (AxisConnector) connector;
-		if (axisConnector.getReplyChannelId() != null && !axisConnector.getReplyChannelId().equals("") && !axisConnector.getReplyChannelId().equals("sink")) {
+		Object result = call.invoke(requestMessage);
+		
+		if ((connector.getReplyChannelId() != null) && !connector.getReplyChannelId().equals("") && !connector.getReplyChannelId().equals("sink")) {
 			// reply back to channel
-			VMRouter router = new VMRouter();
-			router.routeMessageByChannelId(axisConnector.getReplyChannelId(), result.toString(), true, true);
+			new VMRouter().routeMessageByChannelId(connector.getReplyChannelId(), result.toString(), true, true);
 		}
+		
 		// update the message status to sent
 		if (result == null) {
 			result = "";
 		}
+		
 		messageObjectController.setSuccess(messageObject, result.toString(), null);
-		Object[] retVal = new Object[2];
-		retVal[0] = result;
-		retVal[1] = call.getMessageContext();
 		logger.debug("WS (" + endpointUri.toString() + " returned \r\n[" + result + "]");
-		return retVal;
+		return new Object[] { result, call.getMessageContext() };
 	}
 
 	public UMOMessage doSend(UMOEvent event) throws Exception {
