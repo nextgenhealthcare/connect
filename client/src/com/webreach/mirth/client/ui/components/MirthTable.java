@@ -50,6 +50,11 @@ public class MirthTable extends JXTable
             }
 
         });
+        
+        // Swingx 1.0 has this set to true by default, which doesn't allow dragging
+        // and dropping into tables.  Swingx 0.8 had this set to false.  
+        // Tables that want it set to true can override it.
+        this.putClientProperty("terminateEditOnFocusLost", Boolean.FALSE);
     
     }
 
