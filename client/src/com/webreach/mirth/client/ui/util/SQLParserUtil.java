@@ -146,10 +146,8 @@ public class SQLParserUtil
                 string = string.substring(0,string.substring(0,currentIndex).lastIndexOf('(')) + string.substring(currentIndex+1, string.length());
                 return string;
             }
-            else if (currentIndex < string.length())
-            {
-                currentIndex++;
-            }
+
+            currentIndex++;
         }
 
         return string;
