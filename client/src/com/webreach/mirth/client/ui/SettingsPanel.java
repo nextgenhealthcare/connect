@@ -628,6 +628,7 @@ public class SettingsPanel extends javax.swing.JPanel
                     try
                     {
                         parent.mirthClient.setServerConfiguration(configuration);
+                        parent.clearChannelCache();
                         loadSettings();
                         parent.alertInformation(this, "Your configuration was successfully restored.");
                     }

@@ -2253,6 +2253,10 @@ public class Frame extends JXFrame
         return channelHeaders;
     }
     
+    public void clearChannelCache() {
+        channels = new HashMap<String, Channel>();
+    }
+    
     public void setRefreshingStatuses(boolean refreshingStatuses) {
     	synchronized(this)
     	{
