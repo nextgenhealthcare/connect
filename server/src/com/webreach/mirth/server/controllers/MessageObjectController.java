@@ -103,4 +103,6 @@ public abstract class MessageObjectController extends Controller {
     public abstract Attachment createAttachment(Object data, String type) throws UnsupportedDataTypeException;
 
     public abstract Attachment createAttachment(Object data, String type, MessageObject messageObject) throws UnsupportedDataTypeException;
+
+    public abstract void setAttachmentMessageId(MessageObject messageObject, Attachment attachment);
 }

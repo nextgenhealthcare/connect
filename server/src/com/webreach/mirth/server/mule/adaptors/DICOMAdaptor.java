@@ -9,6 +9,7 @@ import com.webreach.mirth.model.converters.DICOMSerializer;
 import com.webreach.mirth.model.converters.IXMLSerializer;
 import com.webreach.mirth.model.converters.SerializerFactory;
 import com.webreach.mirth.server.controllers.ControllerFactory;
+import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.util.UUIDGenerator;
 
 public class DICOMAdaptor extends Adaptor {
@@ -33,13 +34,14 @@ public class DICOMAdaptor extends Adaptor {
                 Iterator<String> i = dSerializer.getPixelData().iterator();
                 Attachment attachment = new Attachment();
                 attachment.setType("DICOM");
-                attachment.setMessageId(messageObject.getId());
+                MessageObjectController moc = ControllerFactory.getFactory().createMessageObjectController();
+                moc.setAttachmentMessageId(messageObject, attachment);
                 while(i.hasNext()){
                     String image = i.next();
                     attachment.setAttachmentId(UUIDGenerator.getUUID());
                     attachment.setData(image.getBytes());
                     attachment.setSize(image.length());
-                    ControllerFactory.getFactory().createMessageObjectController().insertAttachment(attachment);
+                    moc.insertAttachment(attachment);
                 }
                 messageObject.setAttachment(true);
             }

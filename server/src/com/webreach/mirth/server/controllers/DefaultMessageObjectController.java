@@ -899,6 +899,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
         }
     }
 
+
     public void deleteUnusedAttachments() {
         try {
             SqlConfig.getSqlMapClient().delete("Message.deleteUnusedAttachments");
@@ -928,7 +929,29 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
     public Attachment createAttachment(Object data, String type, MessageObject messageObject) throws UnsupportedDataTypeException {
         Attachment attachment = createAttachment(data, type);
-        attachment.setMessageId(messageObject.getId());
+        setAttachmentMessageId(messageObject, attachment);
         return attachment;
+    }
+
+    public void setAttachmentMessageId(MessageObject messageObject, Attachment attachment) {
+        attachment.setMessageId(messageObject.getId());
+        // MIRTH-602 --- The following block of code sets the attachment message ID to be the source message id
+        // in case we are not storing messages. This will cause all message attachments to be removed in JavaScriptPostProcessor.
+        // Otherwise we will have dangling attachments in the DB .
+        if(messageObject.getCorrelationId() != null && !messageObject.getCorrelationId().equals("")){
+            // Check the cache for the channel
+            String channelId = messageObject.getChannelId();
+            HashMap<String, Channel> channelCache = ControllerFactory.getFactory().createChannelController().getChannelCache();
+            if (channelCache != null && channelCache.containsKey(channelId)) {
+                Channel channel = channelCache.get(channelId);
+                if (channel.getProperties().containsKey("store_messages")) {
+                    if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
+                        attachment.setMessageId(messageObject.getCorrelationId());
+                    }
+                }
+            }
+        }
+
+
     }
 }

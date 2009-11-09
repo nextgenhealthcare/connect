@@ -322,8 +322,8 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 				if (attachments != null) {
 					for (Iterator iter = attachments.iterator(); iter.hasNext();) {
 						Attachment attachment = (Attachment) iter.next();
-						attachment.setMessageId(messageObject.getId());
 						messageObject.setAttachment(true);
+						messageObjectController.setAttachmentMessageId(messageObject, attachment);
 						messageObjectController.insertAttachment(attachment);
 					}
 				}
