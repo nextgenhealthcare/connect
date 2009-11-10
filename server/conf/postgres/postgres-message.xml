@@ -27,7 +27,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<parameter property="connectorMap" jdbcType="CLOB" />
 		<parameter property="channelMap" jdbcType="CLOB" />
 		<parameter property="responseMap" jdbcType="CLOB" />
-        <parameter property="attachment" jdbcType="SMALLINT" />        
+		<parameter property="attachment" jdbcType="SMALLINT" />        
     </parameterMap>
     
     <parameterMap class="com.webreach.mirth.model.Attachment" id="insert-attachment-param">
@@ -48,7 +48,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<parameter property="connectorMap" jdbcType="CLOB" />
 		<parameter property="channelMap" jdbcType="CLOB" />
 		<parameter property="responseMap" jdbcType="CLOB" />		
-        <parameter property="attachment" jdbcType="SMALLINT" />        
+		<parameter property="attachment" jdbcType="SMALLINT" />
 		<parameter property="id" jdbcType="VARCHAR" />
 	</parameterMap>
 
@@ -283,7 +283,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
     </delete>
     
     <delete id="deleteUnusedAttachments">
-        DELETE FROM ATTACHMENT WHERE MESSAGE_ID NOT IN (SELECT ID FROM MESSAGE UNION SELECT CORRELATION_ID FROM MESSAGE WHERE CORRELATION_ID IS NOT NULL)
+        DELETE FROM ATTACHMENT WHERE MESSAGE_ID NOT IN (SELECT ID FROM MESSAGE WHERE ATTACHMENT=TRUE UNION SELECT CORRELATION_ID FROM MESSAGE WHERE CORRELATION_ID IS NOT NULL AND ATTACHMENT=TRUE)
     </delete>
     
 	<select id="lookupMessageId" parameterClass="java.util.Map" resultClass="java.lang.String">
