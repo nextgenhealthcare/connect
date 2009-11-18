@@ -325,6 +325,10 @@ public class DashboardPanel extends javax.swing.JPanel
             
             public void mouseClicked(java.awt.event.MouseEvent evt)
             {
+                if (statusTable.rowAtPoint(new Point(evt.getX(), evt.getY())) == -1) {
+                    return;
+                }
+
                 if (evt.getClickCount() >= 2)
                     parent.doShowMessages();
             }

@@ -806,6 +806,10 @@ public class MessageBrowser extends javax.swing.JPanel {
                 }
 
                 public void mouseClicked(java.awt.event.MouseEvent evt) {
+                    if (attachmentTable.rowAtPoint(new Point(evt.getX(), evt.getY())) == -1) {
+                        return;
+                    }
+                    
                     if (evt.getClickCount() >= 2) {
                         viewAttachment();// do view
 
@@ -834,6 +838,10 @@ public class MessageBrowser extends javax.swing.JPanel {
         mappingsTable.addMouseListener(new java.awt.event.MouseAdapter() {
 
             public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (mappingsTable.rowAtPoint(new Point(evt.getX(), evt.getY())) == -1) {
+                    return;
+                }
+                
                 if (evt.getClickCount() >= 2) {
                     new ViewContentDialog((String) mappingsTable.getModel().getValueAt(mappingsTable.convertRowIndexToModel(mappingsTable.getSelectedRow()), 2));
                 }

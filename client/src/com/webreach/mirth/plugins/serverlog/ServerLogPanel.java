@@ -6,6 +6,7 @@
 
 package com.webreach.mirth.plugins.serverlog;
 
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -133,6 +134,10 @@ public class ServerLogPanel extends javax.swing.JPanel {
         {
             public void mouseClicked(java.awt.event.MouseEvent evt)
             {
+                if (logTable.rowAtPoint(new Point(evt.getX(), evt.getY())) == -1) {
+                    return;
+                }
+                
                 if (evt.getClickCount() >= 2)
                 {
                     // synchronizing this to prevent ArrayIndexOutOfBoundsException since the server log table is constantly being redrawn.

@@ -115,6 +115,10 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
 
             public void mouseClicked(java.awt.event.MouseEvent evt)
             {
+                if (channelTable.rowAtPoint(new Point(evt.getX(), evt.getY())) == -1) {
+                    return;
+                }
+                
                 if (evt.getClickCount() >= 2)
                     parent.doEditChannel();
             }
