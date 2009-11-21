@@ -174,6 +174,11 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
 		Queue queue = qs.getQueue(endpoint.getEndpointURI().getAddress());
 		UMOEvent event = (UMOEvent) queue.take();
 		
+		// Don't attempt to process if it was a broken queue message
+		if (event == null) {
+			return null;
+		}
+		
 		// Allows a message set as queued in a different channel, since it could be set to SENT
 		if ((event.getProperty(VMConnector.SOURCE_CHANNEL_ID) != null) || (event.getProperty(VMConnector.SOURCE_MESSAGE_ID) != null)) {
 		    String channelId = event.getProperty(VMConnector.SOURCE_CHANNEL_ID).toString();

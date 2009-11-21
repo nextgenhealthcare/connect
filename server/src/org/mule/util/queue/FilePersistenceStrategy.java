@@ -133,9 +133,10 @@ public class FilePersistenceStrategy implements QueuePersistenceStrategy
             ois = new ObjectInputStream(new FileInputStream(file));
             Object obj = ois.readObject();
             return obj;
-        } catch (ClassNotFoundException e) {
-            throw (IOException) new IOException("Error loading persistent object").initCause(e);
-        } finally {
+         } catch (Exception e) {
+         	logger.error("Error reading broken queue file, it should be manually removed: " + file.getAbsolutePath(), e);
+         	throw (IOException) new IOException("Error loading persistent object").initCause(e);
+         } finally {
             if (ois != null) {
                 ois.close();
             }
