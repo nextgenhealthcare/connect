@@ -50,6 +50,7 @@ public class JavaScriptUtil {
     private Logger logger = Logger.getLogger(this.getClass());
     private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
     private static ScriptableObject sealedSharedScope;
+    private static final int SOURCE_CODE_LINE_WRAPPER = 5;
 
     // singleton pattern
     private static JavaScriptUtil instance = null;
@@ -148,7 +149,7 @@ public class JavaScriptUtil {
                 }
                 ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
                 String script = scriptController.getScript(scriptId);
-                String sourceCode = JavaScriptUtil.getSourceCode(script, ((RhinoException) e).lineNumber(),1);
+                String sourceCode = JavaScriptUtil.getSourceCode(script, ((RhinoException) e).lineNumber(), 0);
                 e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 1, scriptType, sourceCode);
             }
             throw e;
@@ -261,12 +262,12 @@ public class JavaScriptUtil {
         String lineSep = System.getProperty("line.separator");
         String[] lines = script.split("\n");
         int linenumber = lineNumber - offset;
-        if(linenumber < 5){
-            linenumber = 5;
+        if (linenumber < SOURCE_CODE_LINE_WRAPPER){
+            linenumber = SOURCE_CODE_LINE_WRAPPER;
         }
-        int currentLineNumber = linenumber-5;
+        int currentLineNumber = linenumber - SOURCE_CODE_LINE_WRAPPER;
         String sourceCode = "";
-        while((currentLineNumber < (linenumber+5)) && (currentLineNumber < lines.length)  ){
+        while ((currentLineNumber < (linenumber + SOURCE_CODE_LINE_WRAPPER)) && (currentLineNumber < lines.length)){
         	sourceCode = sourceCode + lineSep + (currentLineNumber) + ": " + lines[currentLineNumber-1];
             currentLineNumber++;
         }

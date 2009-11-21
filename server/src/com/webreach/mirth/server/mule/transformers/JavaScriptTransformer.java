@@ -235,7 +235,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 			}
 		} catch (Exception e) {
 			if (e instanceof RhinoException) {
-				e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 5, "Filter/Transformer",null);
+				e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 0, "Filter/Transformer",null);
 			}
 
 			logger.error(errorBuilder.buildErrorMessage(Constants.ERROR_300, null, e));
@@ -454,10 +454,10 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
                 try {
                     String script = CompiledScriptCache.getInstance().getSourceScript(scriptId);
                     int linenumber = ((RhinoException) e).lineNumber();
-                    String errorReport = JavaScriptUtil.getSourceCode(script, linenumber, 5);
-                    e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 5, phase.toUpperCase(), errorReport);
+                    String errorReport = JavaScriptUtil.getSourceCode(script, linenumber, 0);
+                    e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 0, phase.toUpperCase(), errorReport);
                 } catch(Exception ee) {
-                    e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 5, phase.toUpperCase(), null);
+                    e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 0, phase.toUpperCase(), null);
                 }
 			}
 
