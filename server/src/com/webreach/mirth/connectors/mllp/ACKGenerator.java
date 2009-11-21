@@ -38,6 +38,7 @@ public class ACKGenerator {
 		String sendingFacility = ""; // MSH.4.1
 		String receivingApplication = ""; // MSH.5.1
 		String receivingFacility = ""; // MSH.6.1
+		String originalEvent = ""; // MSH.9.2 (MSH.9/MSGH.2)
 		String originalid = ""; // MSH.10.1
 		String procid = ""; // MSH.11.1
 		String procidmode = ""; // // MSH.11.2
@@ -85,20 +86,28 @@ public class ACKGenerator {
 					receivingApplication = componentPattern.split(mshFields[4])[0]; // MSH.5.1
 					if (mshFieldsLength > 5) {
 						receivingFacility = componentPattern.split(mshFields[5])[0]; // MSH.6.1
-						if (mshFieldsLength > 9) {
-							originalid = componentPattern.split(mshFields[9])[0]; // MSH.10.1
-							if (mshFieldsLength > 10) {
-								String[] msh11 = componentPattern.split(mshFields[10]); // MSH.11
-								procid = msh11[0]; // MSH.11.1
-								
-								if (msh11.length > 1) {
-									procidmode = msh11[1]; // MSH.11.2
-								}
-								
-								if (mshFieldsLength > 11) {
-									version = componentPattern.split(mshFields[11])[0]; // MSH.12.1
+						if (mshFieldsLength > 8) { // MSH.9.2
+							String[] msgDT = componentPattern.split(mshFields[8]);
+							
+							if (msgDT.length > 1) {
+								originalEvent = msgDT[1];
+							}
+							
+							if (mshFieldsLength > 9) {
+								originalid = componentPattern.split(mshFields[9])[0]; // MSH.10.1
+								if (mshFieldsLength > 10) {
+									String[] msh11 = componentPattern.split(mshFields[10]); // MSH.11
+									procid = msh11[0]; // MSH.11.1
+									
+									if (msh11.length > 1) {
+										procidmode = msh11[1]; // MSH.11.2
+									}
+									
+									if (mshFieldsLength > 11) {
+										version = componentPattern.split(mshFields[11])[0]; // MSH.12.1
+									} 
 								} 
-							} 
+							}
 						}
 					} 
 				}
@@ -148,6 +157,10 @@ public class ACKGenerator {
 		ackBuilder.append(timestamp);
 		ackBuilder.append(fieldDelim);
 		ackBuilder.append(fieldDelim);
+		ackBuilder.append("ACK");
+		ackBuilder.append(componentDelim);
+		ackBuilder.append(originalEvent);
+		ackBuilder.append(componentDelim);
 		ackBuilder.append("ACK");
 		ackBuilder.append(fieldDelim);
 		ackBuilder.append(timestamp);
