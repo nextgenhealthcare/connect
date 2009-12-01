@@ -45,10 +45,9 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="processBatchFilesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="anonymousLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="filenameFilterLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="directoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -62,66 +61,36 @@
                   <Component id="moveToFileLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="moveToDirectoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="errorMoveToDirectoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="pollingTimeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="passiveModeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="deleteAfterReadLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="processBatchFilesLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="checkFileAgeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="fileAgeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="sortFilesByLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="fileTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="encodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="pollingTimeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="passiveModeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="processBatchFilesYes" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="processBatchFilesNo" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="charsetEncodingCombobox" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="fileTypeBinary" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="fileTypeASCII" min="-2" max="-2" attributes="0"/>
-                  </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="checkFileAgeYes" min="-2" max="-2" attributes="1"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="checkFileAgeNo" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="pollingFrequency" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
+                  <Component id="fileAge" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
+                  <Component id="sortBy" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="pollingIntervalButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="fileTypeBinary" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="pollingTimeButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="fileTypeASCII" min="-2" max="-2" attributes="0"/>
                   </Group>
+                  <Component id="charsetEncodingCombobox" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="validateConnectionYes" min="-2" max="-2" attributes="0"/>
+                      <Component id="processBatchFilesYes" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="validateConnectionNo" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="secureModeYes" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="secureModeNo" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="usernameField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="anonymousYes" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="anonymousNo" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="fileNameFilter" min="-2" pref="200" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="filenameFilterRegexCheckBox" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="directoryField" alignment="0" min="-2" pref="200" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="schemeComboBox" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="testConnection" min="-2" max="-2" attributes="0"/>
+                      <Component id="processBatchFilesNo" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="hostField" min="-2" pref="200" max="-2" attributes="0"/>
@@ -130,28 +99,59 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="pathField" min="-2" pref="185" max="-2" attributes="1"/>
                   </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="schemeComboBox" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="testConnection" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="directoryField" alignment="0" min="-2" pref="200" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="fileNameFilter" min="-2" pref="200" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="filenameFilterRegexCheckBox" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="anonymousYes" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="anonymousNo" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Component id="usernameField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
+                  <Component id="pollingFrequency" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="passiveModeYes" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="passiveModeNo" min="-2" max="-2" attributes="0"/>
+                  </Group>
                   <Component id="passwordField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
+                      <Component id="secureModeYes" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="secureModeNo" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="validateConnectionYes" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="validateConnectionNo" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="pollingIntervalButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="pollingTimeButton" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="errorMoveToDirectory" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
                           <Component id="moveToPattern" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
-                          <Component id="pollingTime" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="moveToDirectory" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="deleteAfterReadYes" min="-2" max="-2" attributes="1"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="deleteAfterReadNo" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="sortBy" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
-                          <Component id="fileAge" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
-                          <Component id="errorMoveToDirectory" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
+                          <Component id="pollingTime" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="mirthVariableList1" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" attributes="0">
-                      <Component id="passiveModeYes" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="passiveModeNo" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace pref="20" max="32767" attributes="0"/>
@@ -178,14 +178,14 @@
                   <Component id="hostField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="pathField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="filenameFilterLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileNameFilter" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="filenameFilterRegexCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="filenameFilterLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="fileNameFilter" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="filenameFilterRegexCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
+                  <Group type="102" attributes="0">
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="anonymousLabel" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -236,7 +236,13 @@
                           <Component id="pollingTime" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="pollingTimeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="deleteAfterReadLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="deleteAfterReadYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="deleteAfterReadNo" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="moveToDirectoryLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="moveToDirectory" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -252,12 +258,6 @@
                           <Component id="errorMoveToDirectory" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="deleteAfterReadLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="deleteAfterReadYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="deleteAfterReadNo" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="checkFileAgeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="checkFileAgeYes" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -292,7 +292,7 @@
                       </Group>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="206" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="226" max="-2" attributes="0"/>
                       <Component id="mirthVariableList1" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
