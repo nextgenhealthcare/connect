@@ -6,8 +6,5 @@ public abstract class AcceptMessage {
     
     public AcceptMessage(WebServiceMessageReceiver webServiceMessageReceiver) {
         this.webServiceMessageReceiver = webServiceMessageReceiver;
-    }
-    
-    public abstract String acceptMessage(String message);
-    
+    }    
 }

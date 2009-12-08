@@ -112,17 +112,7 @@ public class WebServiceMessageReceiver extends AbstractMessageReceiver {
         }
         
         webServiceEndpoint.publish(context);        
-        
-//        SOAPBinding binding = (SOAPBinding)endpoint.getBinding();
-//        binding.setMTOMEnabled((true);
-        
-//        webServiceEndpoint = Endpoint.create(new AcceptMessage(this));
-//        Binding binding = webServiceEndpoint.getBinding();
-//        List<Handler> handlerChain = new LinkedList<Handler>();
-//        handlerChain.add(new LoggingSOAPHandler());
-//        binding.setHandlerChain(handlerChain);
-//        webServiceEndpoint.publish("http://" + endpoint.getEndpointURI().getUri().getHost() + ":" + endpoint.getEndpointURI().getUri().getPort() + "/services/" + connector.getServiceName());
-        
+
         monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
     }
 
