@@ -34,7 +34,7 @@ public class LoggingSOAPHandler implements SOAPHandler<SOAPMessageContext> {
     }
 
     public void close(MessageContext mc) {
-        System.out.println("******CLOSE");
+        logger.debug("Web Service connection closed.");
         monitoringController.updateStatus(webServiceMessageReceiver.connector, connectorType, Event.DONE);
     }
 
@@ -46,12 +46,10 @@ public class LoggingSOAPHandler implements SOAPHandler<SOAPMessageContext> {
         try {
             Boolean outbound = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
             if (!outbound) {
-                logger.debug("received message");
+                logger.debug("Web Service message received.");
                 monitoringController.updateStatus(webServiceMessageReceiver.connector, connectorType, Event.CONNECTED);
-                System.out.println("******CONNECTED");
             } else {
-                System.out.println("******RESPONSE");
-                logger.debug("returning response");
+                logger.debug("Web Service returning response.");
             }
             smc.getMessage();
         } catch (Exception e) {
