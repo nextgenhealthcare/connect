@@ -20,9 +20,9 @@ import com.webreach.mirth.connectors.http.HTTPSenderProperties;
 import com.webreach.mirth.connectors.jdbc.DatabaseWriterProperties;
 import com.webreach.mirth.connectors.jms.JMSWriterProperties;
 import com.webreach.mirth.connectors.mllp.LLPSenderProperties;
-import com.webreach.mirth.connectors.soap.SOAPSenderProperties;
 import com.webreach.mirth.connectors.tcp.TCPSenderProperties;
 import com.webreach.mirth.connectors.vm.ChannelWriterProperties;
+import com.webreach.mirth.connectors.ws.WebServiceSenderProperties;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.converters.ObjectCloner;
@@ -296,8 +296,8 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
                         } else if (connector.getTransportName().equals(LLPSenderProperties.name)) {
                             // Destination - LLP Sender.
                             // The useful info for LLP Sender - host:port will be taken care of by the socket below.
-                        } else if (connector.getTransportName().equals(SOAPSenderProperties.name)) {
-                            // Destination - SOAP Sender.
+                        } else if (connector.getTransportName().equals(WebServiceSenderProperties.name)) {
+                            // Destination - Web Service Sender.
                             // information = "";
                         }
                         break;

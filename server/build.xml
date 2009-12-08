@@ -20,7 +20,7 @@
 		<property name="connectors.jms" value="${extensions}/jms" />
 		<property name="connectors.js" value="${extensions}/js" />
 		<property name="connectors.mllp" value="${extensions}/mllp" />
-		<property name="connectors.soap" value="${extensions}/soap" />
+		<property name="connectors.ws" value="${extensions}/ws" />
 		<property name="connectors.tcp" value="${extensions}/tcp" />
 		<property name="connectors.dicom" value="${extensions}/dicom" />
 		<property name="connectors.vm" value="${extensions}/vm" />
@@ -267,25 +267,25 @@
 			</fileset>
 		</jar>
 
-		<!-- connectors.soap -->
-		<mkdir dir="${connectors.soap}" />
-		<copy todir="${connectors.soap}">
-			<fileset dir="${src}/com/webreach/mirth/connectors/soap">
+		<!-- connectors.ws -->
+		<mkdir dir="${connectors.ws}" />
+		<copy todir="${connectors.ws}">
+			<fileset dir="${src}/com/webreach/mirth/connectors/ws">
 				<include name="*.xml" />
 			</fileset>
 		</copy>
-		<copy todir="${connectors.soap}/lib" failonerror="false">
-			<fileset dir="${lib.extensions}/soap" />
+		<copy todir="${connectors.ws}/lib" failonerror="false">
+			<fileset dir="${lib.extensions}/ws" />
 		</copy>
-		<jar destfile="${connectors.soap}/soap-shared.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/connectors/soap/SOAPListenerProperties.class" />
-			<include name="com/webreach/mirth/connectors/soap/SOAPSenderProperties.class" />
+		<jar destfile="${connectors.ws}/ws-shared.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/connectors/ws/WebServiceListenerProperties.class" />
+			<include name="com/webreach/mirth/connectors/ws/WebServiceSenderProperties.class" />
 		</jar>
-		<jar destfile="${connectors.soap}/soap-server.jar">
+		<jar destfile="${connectors.ws}/ws-server.jar">
 			<fileset dir="${classes}">
-				<include name="com/webreach/mirth/connectors/soap/**" />
-				<exclude name="com/webreach/mirth/connectors/soap/SOAPListenerProperties.class" />
-				<exclude name="com/webreach/mirth/connectors/soap/SOAPSenderProperties.class" />
+				<include name="com/webreach/mirth/connectors/ws/**" />
+				<exclude name="com/webreach/mirth/connectors/ws/WebServiceListenerProperties.class" />
+				<exclude name="com/webreach/mirth/connectors/ws/WebServiceSenderProperties.class" />
 			</fileset>
 		</jar>
 
@@ -763,7 +763,7 @@
 		<zip destfile="${dist.extensions}/jms-${version}.zip" basedir="${extensions}" includes="jms/**/*" />
 		<zip destfile="${dist.extensions}/js-${version}.zip" basedir="${extensions}" includes="js/**/*" />
 		<zip destfile="${dist.extensions}/mllp-${version}.zip" basedir="${extensions}" includes="mllp/**/*" />
-		<zip destfile="${dist.extensions}/soap-${version}.zip" basedir="${extensions}" includes="soap/**/*" />
+		<zip destfile="${dist.extensions}/ws-${version}.zip" basedir="${extensions}" includes="ws/**/*" />
 		<zip destfile="${dist.extensions}/tcp-${version}.zip" basedir="${extensions}" includes="tcp/**/*" />
 		<zip destfile="${dist.extensions}/dicom-${version}.zip" basedir="${extensions}" includes="dicom/**/*" />
 		<zip destfile="${dist.extensions}/vm-${version}.zip" basedir="${extensions}" includes="vm/**/*" />

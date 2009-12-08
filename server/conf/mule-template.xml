@@ -25,7 +25,6 @@
 		<transformer name="ByteArrayToString" className="org.mule.transformers.simple.ByteArrayToString" />
 		<transformer name="JMSMessageToObject" className="com.webreach.mirth.connectors.jms.transformers.JMSMessageToObject" returnClass="java.lang.String" />
 		<transformer name="StringToByteArray" className="org.mule.transformers.simple.StringToByteArray" />
-		<transformer name="SOAPRequestToString" className="com.webreach.mirth.connectors.soap.transformers.SOAPRequestToString" />
 		<transformer name="ResultMapToXML" className="com.webreach.mirth.server.mule.transformers.ResultMapToXML" />
 		<transformer name="ObjectToString" className="org.mule.transformers.simple.ObjectToString"/>
 		<transformer name="NoActionTransformer" className="org.mule.transformers.NoActionTransformer"/>
