@@ -25,7 +25,7 @@
 		<property name="connectors.jms" value="${extensions}/jms" />
 		<property name="connectors.js" value="${extensions}/js" />
 		<property name="connectors.mllp" value="${extensions}/mllp" />
-		<property name="connectors.soap" value="${extensions}/soap" />
+		<property name="connectors.ws" value="${extensions}/ws" />
 		<property name="connectors.tcp" value="${extensions}/tcp" />
 		<property name="connectors.vm" value="${extensions}/vm" />
 
@@ -126,9 +126,9 @@
 			<include name="com/webreach/mirth/connectors/mllp/**" />
 		</jar>
 
-		<mkdir dir="${connectors.soap}" />
-		<jar destfile="${connectors.soap}/soap-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/connectors/soap/**" />
+		<mkdir dir="${connectors.ws}" />
+		<jar destfile="${connectors.ws}/ws-client.jar" basedir="${classes}">
+			<include name="com/webreach/mirth/connectors/ws/**" />
 		</jar>
 
 		<mkdir dir="${connectors.tcp}" />

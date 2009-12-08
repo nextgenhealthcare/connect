@@ -2,9 +2,9 @@
 
 <Form version="1.3" maxVersion="1.3" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <NonVisualComponents>
-    <Component class="javax.swing.ButtonGroup" name="generateEnvelopeButtonGroup">
-    </Component>
     <Component class="javax.swing.ButtonGroup" name="userPersistentQueuesButtonGroup">
+    </Component>
+    <Component class="javax.swing.ButtonGroup" name="authenticationButtonGroup">
     </Component>
   </NonVisualComponents>
   <Properties>
@@ -34,56 +34,60 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
+              <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jLabel9" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="reconnectIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel36" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="generateEnvelopeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="URL1" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel2" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="authenticationLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="portLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="serviceLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="URL" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="soapEnvelope" pref="399" max="32767" attributes="2"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="authenticationYesRadio" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="authenticationNoRadio" min="-2" max="-2" attributes="0"/>
+                  </Group>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="wsdlUrl" pref="215" max="32767" attributes="2"/>
+                      <Component id="wsdlUrl" pref="206" max="32767" attributes="2"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="browseWSDLfileButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="getMethodsButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="getOperationsButton" min="-2" max="-2" attributes="0"/>
                   </Group>
+                  <Component id="serviceField" alignment="0" pref="402" max="32767" attributes="2"/>
+                  <Component id="portField" alignment="0" pref="402" max="32767" attributes="2"/>
+                  <Component id="usernameField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
+                  <Component id="passwordField" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="jScrollPane1" pref="187" max="32767" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="propertySheetPanel1" pref="206" max="32767" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="operationComboBox" min="-2" pref="186" max="-2" attributes="1"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="generateEnvelope" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="reconnectInterval" min="-2" pref="75" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="usePersistentQueuesYesRadio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="usePersistentQueuesNoRadio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="rotateMessages" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="channelNames" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
+                      </Group>
+                      <EmptySpace min="-2" pref="64" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="method" min="-2" pref="150" max="-2" attributes="1"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="rebuildEnvelope" min="-2" pref="115" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" attributes="0">
-                      <Component id="generateEnvelopeYesButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="generateEnvelopeNoButton" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="channelNames" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
-                  <Group type="102" attributes="0">
-                      <Component id="usePersistentQueuesYesRadio" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="usePersistentQueuesNoRadio" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="rotateMessages" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="reconnectInterval" min="-2" pref="75" max="-2" attributes="0"/>
-                  <Component id="serviceEndpoint" alignment="0" pref="399" max="32767" attributes="2"/>
-                  <Component id="soapActionURI" alignment="0" pref="399" max="32767" attributes="2"/>
+                  <Component id="soapEnvelope" pref="402" max="32767" attributes="2"/>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="attachmentsPane" pref="330" max="32767" attributes="0"/>
+                      <Component id="attachmentsPane" pref="333" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" max="-2" attributes="0">
                           <Component id="newButton" alignment="1" max="32767" attributes="1"/>
@@ -98,29 +102,44 @@
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="URL" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="getMethodsButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="getOperationsButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="browseWSDLfileButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="wsdlUrl" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="serviceEndpoint" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="serviceLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="serviceField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="soapActionURI" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="portLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="portField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="URL1" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="channelNames" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="authenticationLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="authenticationYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="authenticationNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="usernameField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="usernameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="passwordField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="passwordLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="channelNames" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="URL1" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel36" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="usePersistentQueuesYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -135,34 +154,23 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="method" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="rebuildEnvelope" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="operationComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="generateEnvelope" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                  <Component id="propertySheetPanel1" min="0" pref="112" max="32767" attributes="1"/>
-                  <Component id="jScrollPane1" alignment="0" pref="112" max="32767" attributes="1"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="generateEnvelopeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="generateEnvelopeYesButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="generateEnvelopeNoButton" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
-                  <Component id="soapEnvelope" pref="115" max="32767" attributes="0"/>
+                  <Component id="soapEnvelope" pref="124" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
-                  <Group type="102" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
                       <Component id="newButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="deleteButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="attachmentsPane" min="-2" pref="89" max="-2" attributes="0"/>
+                  <Component id="attachmentsPane" alignment="0" min="-2" pref="90" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
@@ -180,16 +188,16 @@
         <Property name="toolTipText" type="java.lang.String" value="Enter the full URL to the WSDL file describing the web service method to be called, and then click the Get Methods button."/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JButton" name="getMethodsButton">
+    <Component class="javax.swing.JButton" name="getOperationsButton">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Get Methods"/>
+        <Property name="text" type="java.lang.String" value="Get Operations"/>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Clicking this button fetches the WSDL file from the specified URL&lt;br&gt; and parses it to obtain a description of the data types and methods used by the web service to be called.&lt;br&gt;It replaces the values of all of the controls below by values taken from the WSDL file.&lt;/html&gt;"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="getMethodsButtonActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="getOperationsButtonActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="method">
+    <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="operationComboBox">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="0"/>
@@ -197,21 +205,25 @@
         <Property name="toolTipText" type="java.lang.String" value="Select the web service method to be called from this list."/>
       </Properties>
       <Events>
-        <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="methodItemStateChanged"/>
+        <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="operationComboBoxItemStateChanged"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Method:"/>
+        <Property name="text" type="java.lang.String" value="Operation:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel2">
+    <Component class="javax.swing.JLabel" name="serviceLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Service Endpoint URI:"/>
+        <Property name="text" type="java.lang.String" value="Service:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="soapActionURI">
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="portField">
       <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="de" green="de" red="de" type="rgb"/>
+        </Property>
+        <Property name="editable" type="boolean" value="false"/>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the SOAP Action URI for the method to be called here.&lt;br&gt;This field is normally filled in automatically when the Get Methods button is clicked and does not need to be changed.&lt;/html&gt;"/>
       </Properties>
     </Component>
@@ -227,42 +239,17 @@
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,false);"/>
       </AuxValues>
     </Component>
-    <Container class="javax.swing.JScrollPane" name="jScrollPane1">
-      <AuxValues>
-        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-      </AuxValues>
-
-      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-      <SubComponents>
-        <Component class="javax.swing.JTree" name="jTree1">
-          <Properties>
-            <Property name="model" type="javax.swing.tree.TreeModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-              <Connection code="new DefaultTreeModel(new DefaultMutableTreeNode(&quot;&quot;))" type="code"/>
-            </Property>
-          </Properties>
-          <Events>
-            <EventHandler event="valueChanged" listener="javax.swing.event.TreeSelectionListener" parameters="javax.swing.event.TreeSelectionEvent" handler="jTree1ValueChanged"/>
-          </Events>
-        </Component>
-      </SubComponents>
-    </Container>
-    <Component class="com.l2fprod.common.propertysheet.PropertySheetPanel" name="propertySheetPanel1">
+    <Component class="javax.swing.JLabel" name="portLabel">
       <Properties>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
-            <EtchetBorder/>
-          </Border>
+        <Property name="text" type="java.lang.String" value="Port:"/>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="serviceField">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="de" green="de" red="de" type="rgb"/>
         </Property>
-        <Property name="autoscrolls" type="boolean" value="true"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel3">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="SOAP Action URI:"/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="serviceEndpoint">
-      <Properties>
+        <Property name="editable" type="boolean" value="false"/>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the Service Endpoint URI for the method to be called here.&lt;br&gt;This field is normally filled in automatically when the Get Methods button is clicked and does not need to be changed.&lt;/html&gt;"/>
       </Properties>
     </Component>
@@ -271,13 +258,13 @@
         <Property name="text" type="java.lang.String" value="SOAP Envelope:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JButton" name="rebuildEnvelope">
+    <Component class="javax.swing.JButton" name="generateEnvelope">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Rebuild Envelope"/>
+        <Property name="text" type="java.lang.String" value="Generate Envelope"/>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Clicking this button regenerates the contents of the SOAP Envelope control based on the other controls,&lt;br&gt; discarding any changes that may have been made.&lt;/html&gt;"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="rebuildEnvelopeActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateEnvelopeActionPerformed"/>
       </Events>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="channelNames">
@@ -297,57 +284,6 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Send Response to:"/>
       </Properties>
-    </Component>
-    <Component class="javax.swing.JLabel" name="generateEnvelopeLabel">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Generate Envelope:"/>
-      </Properties>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="generateEnvelopeYesButton">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="generateEnvelopeButtonGroup"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;When &quot;Yes&quot; is selected, any change to the controls above replaces the contents of the SOAP Envelope control below,&lt;br&gt; which is the actual SOAP envelope that will be sent to the web service to send the outbound message.&lt;br&gt;When &quot;No&quot; is selected, changes to the controls above are not reflected in the SOAP Envelope control.&lt;/html&gt;"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateEnvelopeYesButtonActionPerformed"/>
-      </Events>
-    </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="generateEnvelopeNoButton">
-      <Properties>
-        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-        </Property>
-        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-          </Border>
-        </Property>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="generateEnvelopeButtonGroup"/>
-        </Property>
-        <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;When &quot;Yes&quot; is selected, any change to the controls above replaces the contents of the SOAP Envelope control below,&lt;br&gt; which is the actual SOAP envelope that will be sent to the web service to send the outbound message.&lt;br&gt;When &quot;No&quot; is selected, changes to the controls above are not reflected in the SOAP Envelope control.&lt;/html&gt;"/>
-        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-          <Insets value="[0, 0, 0, 0]"/>
-        </Property>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateEnvelopeNoButtonActionPerformed"/>
-      </Events>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthCheckBox" name="rotateMessages">
       <Properties>
@@ -465,6 +401,78 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deleteButtonActionPerformed"/>
       </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="authenticationLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Authentication:"/>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="authenticationYesRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="authenticationButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="Connects to the file anonymously instead of using a username and password."/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="authenticationYesRadioActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="authenticationNoRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="authenticationButtonGroup"/>
+        </Property>
+        <Property name="selected" type="boolean" value="true"/>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="Connects to the file using a username and password instead of anonymously."/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="authenticationNoRadioActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="usernameLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Username:"/>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="usernameField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The user name used to gain access to the server."/>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthPasswordField" name="passwordField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The password used to gain access to the server."/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="passwordLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Password:"/>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>
