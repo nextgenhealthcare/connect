@@ -763,11 +763,13 @@ public class WebServiceListener extends ConnectorClass
 
     private void classNameDefaultRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_classNameDefaultRadioActionPerformed
         classNameField.setText(getDefaults().getProperty(WebServiceListenerProperties.WEBSERVICE_CLASS_NAME));
+        methodField.setText("String acceptMessage(String message)");
         classNameLabel.setEnabled(false);
         classNameField.setEnabled(false);
     }//GEN-LAST:event_classNameDefaultRadioActionPerformed
 
     private void classNameCustomRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_classNameCustomRadioActionPerformed
+        methodField.setText("<Custom Web Service Methods");
         classNameLabel.setEnabled(true);
         classNameField.setEnabled(true);
     }//GEN-LAST:event_classNameCustomRadioActionPerformed
