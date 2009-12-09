@@ -17,7 +17,7 @@ public class Constants {
 	public static final String ERROR_407 = "ERROR-407: JMS Connector error";
 	public static final String ERROR_408 = "ERROR-408: MLLP Connector error";
 	public static final String ERROR_409 = "ERROR-409: SFTP Connector error";
-	public static final String ERROR_410 = "ERROR-410: SOAP Connector error";
+	public static final String ERROR_410 = "ERROR-410: Web Service Connector error";
 	public static final String ERROR_411 = "ERROR-411: TCP Connector error";
 	public static final String ERROR_412 = "ERROR-412: VM Connector error";
 	public static final String ERROR_413 = "ERROR-413: Email Connector error";

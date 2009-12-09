@@ -3,6 +3,7 @@ package com.webreach.mirth.connectors.ws;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.ConnectException;
 import java.net.URL;
 
 import javax.xml.namespace.QName;
@@ -20,6 +21,7 @@ import javax.xml.ws.Service;
 
 import org.apache.log4j.Logger;
 import org.mule.providers.AbstractMessageDispatcher;
+import org.mule.providers.QueueEnabledMessageDispatcher;
 import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
@@ -27,8 +29,10 @@ import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpointURI;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.QueuedMessage;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
+import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MonitoringController;
@@ -36,12 +40,13 @@ import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
 import com.webreach.mirth.server.util.VMRouter;
 
-public class WebServiceMessageDispatcher extends AbstractMessageDispatcher {
+public class WebServiceMessageDispatcher extends AbstractMessageDispatcher implements QueueEnabledMessageDispatcher {
     private Logger logger = Logger.getLogger(this.getClass());
     protected WebServiceConnector connector;
     private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+    private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private ConnectorType connectorType = ConnectorType.WRITER;
     
@@ -59,45 +64,54 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher {
         }
 
         try {
-            URL endpointUrl = new URL(connector.getDispatcherWsdlUrl());
-            QName serviceName = QName.valueOf(connector.getDispatcherService());
-            QName portName = QName.valueOf(connector.getDispatcherPort());
-
-            // create the service and dispatch
-            logger.debug("Creating web service: url=" + endpointUrl.toString() + ", service=" + serviceName + ", port=" + portName);
-            Service service = Service.create(endpointUrl, serviceName);
-            Dispatch<Source> dispatch = service.createDispatch(portName, Source.class, Service.Mode.MESSAGE);
-            
-            if (connector.isDispatcherUseAuthentication()) {
-                dispatch.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, connector.getDispatcherUsername());
-                dispatch.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, connector.getDispatcherPassword());
-                logger.debug("Using authentication: username=" + connector.getDispatcherUsername() + ", password length=" + connector.getDispatcherPassword().length());
+            if (connector.isUsePersistentQueues()) {
+                connector.putMessageInQueue(event.getEndpoint().getEndpointURI(), mo);
+                return;
+            } else {
+                processMessage(mo);
             }
-
-            // build the message
-            logger.debug("Creating SOAP envelope.");
-            String content = replacer.replaceValues(connector.getDispatcherEnvelope(), mo);
-            Source message = new StreamSource(new StringReader(content));
-            
-            // make the call
-            logger.debug("Invoking web service...");
-            Source result = dispatch.invoke(message);
-            logger.debug("Finished invoking web service, got result.");
-            
-            // process the result
-            String response = sourceToXmlString(result);
-            messageObjectController.setSuccess(mo, response, null);
-            
-            // send to reply channel
-            if (connector.getDispatcherReplyChannelId() != null && !connector.getDispatcherReplyChannelId().equals("sink")) {
-                new VMRouter().routeMessageByChannelId(connector.getDispatcherReplyChannelId(), response, true, false);
-            }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             alertController.sendAlerts(connector.getChannelId(), Constants.ERROR_410, "Error connecting to web service.", e);
             messageObjectController.setError(mo, Constants.ERROR_410, "Error connecting to web service.", e, null);
             connector.handleException(new Exception(e));
         } finally {
             monitoringController.updateStatus(connector, connectorType, Event.DONE);
+        }
+    }
+    
+    private void processMessage(MessageObject mo) throws Exception {
+        URL endpointUrl = new URL(connector.getDispatcherWsdlUrl());
+        QName serviceName = QName.valueOf(connector.getDispatcherService());
+        QName portName = QName.valueOf(connector.getDispatcherPort());
+
+        // create the service and dispatch
+        logger.debug("Creating web service: url=" + endpointUrl.toString() + ", service=" + serviceName + ", port=" + portName);
+        Service service = Service.create(endpointUrl, serviceName);
+        Dispatch<Source> dispatch = service.createDispatch(portName, Source.class, Service.Mode.MESSAGE);
+        
+        if (connector.isDispatcherUseAuthentication()) {
+            dispatch.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, connector.getDispatcherUsername());
+            dispatch.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, connector.getDispatcherPassword());
+            logger.debug("Using authentication: username=" + connector.getDispatcherUsername() + ", password length=" + connector.getDispatcherPassword().length());
+        }
+
+        // build the message
+        logger.debug("Creating SOAP envelope.");
+        String content = replacer.replaceValues(connector.getDispatcherEnvelope(), mo);
+        Source message = new StreamSource(new StringReader(content));
+        
+        // make the call
+        logger.debug("Invoking web service...");
+        Source result = dispatch.invoke(message);
+        logger.debug("Finished invoking web service, got result.");
+        
+        // process the result
+        String response = sourceToXmlString(result);
+        messageObjectController.setSuccess(mo, response, null);
+        
+        // send to reply channel
+        if (connector.getDispatcherReplyChannelId() != null && !connector.getDispatcherReplyChannelId().equals("sink")) {
+            new VMRouter().routeMessageByChannelId(connector.getDispatcherReplyChannelId(), response, true, false);
         }
     }
     
@@ -127,4 +141,24 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher {
         return null;
     }
 
+    public boolean sendPayload(QueuedMessage thePayload) throws Exception {
+        monitoringController.updateStatus(connector, connectorType, Event.BUSY);
+        try {
+            processMessage(thePayload.getMessageObject());
+        } catch (Exception e) {
+            if (e.getCause().getClass() == ConnectException.class) {
+                logger.warn("Can't connect to the queued endpoint: " + channelController.getChannelName(connector.getChannelId()) + " - " + channelController.getDestinationName(connector.getName()) + " \r\n'" + e.getMessage());
+                messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_410, "Connection refused", e, null);
+                throw e;
+            }
+            messageObjectController.setError(thePayload.getMessageObject(), Constants.ERROR_410, "Error connecting to web service.", e, null);
+            alertController.sendAlerts(connector.getChannelId(), Constants.ERROR_410, "Error connecting to web service.", e);
+            connector.handleException(new Exception(e));
+        } finally {
+            monitoringController.updateStatus(connector, connectorType, Event.DONE);
+        }
+        
+        return true;
+    }
+    
 }

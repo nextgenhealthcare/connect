@@ -134,7 +134,6 @@ public class WebServiceMessageReceiver extends AbstractMessageReceiver {
     
     protected String processData(String message) {
         try {
-            System.out.println("******BUSY");
             monitoringController.updateStatus(connector, connectorType, Event.BUSY);
             UMOMessageAdapter adapter = connector.getMessageAdapter(message);
             UMOMessage response = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
@@ -155,9 +154,6 @@ public class WebServiceMessageReceiver extends AbstractMessageReceiver {
             }
         } catch (Exception e) {
             logger.error("Error processing message in web service.  Channel: " + connector.getChannelId(), e);
-//        } finally {
-//            System.out.println("******DONE");
-//            monitoringController.updateStatus(connector, connectorType, Event.DONE);
         }
         return null;
     }

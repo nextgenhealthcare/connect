@@ -2,9 +2,12 @@ package com.webreach.mirth.connectors.ws;
 
 import java.util.List;
 
-import org.mule.providers.AbstractServiceEnabledConnector;
+import org.mule.providers.QueueEnabledConnector;
+import org.mule.umo.lifecycle.InitialisationException;
 
-public class WebServiceConnector extends AbstractServiceEnabledConnector {
+import com.webreach.mirth.server.Constants;
+
+public class WebServiceConnector extends QueueEnabledConnector {
     private String channelId;
     
     private String receiverClassName;
@@ -25,6 +28,16 @@ public class WebServiceConnector extends AbstractServiceEnabledConnector {
     private List<String> dispatcherAttachmentNames;
     private List<String> dispatcherAttachmentContents;
     private List<String> dispatcherAttachmentTypes;
+    
+    @Override
+    public void doInitialise() throws InitialisationException {
+        super.doInitialise();
+        
+        if(isUsePersistentQueues()) { 
+            setConnectorErrorCode(Constants.ERROR_410);
+            setDispatcher(new WebServiceMessageDispatcher(this));
+        }
+    }
 
     public String getChannelId() {
         return channelId;
