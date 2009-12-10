@@ -15,10 +15,6 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 
-import org.apache.wsif.schema.Parser;
-import org.apache.wsif.schema.SchemaType;
-import org.apache.wsif.wsdl.WSIFWSDLLocatorImpl;
-
 import com.webreach.mirth.connectors.ConnectorService;
 import com.webreach.mirth.server.util.FileUtil;
 
@@ -105,10 +101,10 @@ public class WebServiceConnectorService implements ConnectorService {
                 }
             }*/
             
-            List<SchemaType> schemaTypes = new ArrayList<SchemaType>();
-            Parser.getAllSchemaTypes(definition, schemaTypes, new WSIFWSDLLocatorImpl(null, definition.getDocumentBaseURI(), ClassLoader.getSystemClassLoader()));
+//            List<SchemaType> schemaTypes = new ArrayList<SchemaType>();
+//            Parser.getAllSchemaTypes(definition, schemaTypes, new WSIFWSDLLocatorImpl(null, definition.getDocumentBaseURI(), ClassLoader.getSystemClassLoader()));
             
-            return schemaTypes.toString();
+//            return schemaTypes.toString();
         }
         return null;
     }
