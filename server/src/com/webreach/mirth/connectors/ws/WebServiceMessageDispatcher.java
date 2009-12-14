@@ -1,12 +1,16 @@
 package com.webreach.mirth.connectors.ws;
 
+import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.ConnectException;
 import java.net.URL;
+import java.util.List;
 
 import javax.xml.namespace.QName;
+import javax.xml.soap.AttachmentPart;
+import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -18,6 +22,7 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.Service;
+import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.log4j.Logger;
 import org.mule.providers.AbstractMessageDispatcher;
@@ -80,14 +85,21 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher imple
     }
     
     private void processMessage(MessageObject mo) throws Exception {
-        URL endpointUrl = new URL(connector.getDispatcherWsdlUrl());
+        URL endpointUrl = WebServiceUtil.getWsdlUrl(connector.getDispatcherWsdlUrl(), connector.getDispatcherUsername(), connector.getDispatcherPassword());
         QName serviceName = QName.valueOf(connector.getDispatcherService());
-        QName portName = QName.valueOf(connector.getDispatcherPort());
+        QName portName = QName.valueOf(connector.getDispatcherPort()); 
 
         // create the service and dispatch
         logger.debug("Creating web service: url=" + endpointUrl.toString() + ", service=" + serviceName + ", port=" + portName);
         Service service = Service.create(endpointUrl, serviceName);
-        Dispatch<Source> dispatch = service.createDispatch(portName, Source.class, Service.Mode.MESSAGE);
+        
+//        List<WebServiceFeature> wsFeatures = new ArrayList<WebServiceFeature>();
+//        wsFeatures.add(new MTOMFeature(0));
+//        WebServiceFeature[] wsFeatureArray = wsFeatures.toArray(new WebServiceFeature[0]);
+        
+        Dispatch<SOAPMessage> dispatch = service.createDispatch(portName, SOAPMessage.class, Service.Mode.MESSAGE);
+        
+        SOAPBinding soapBinding = (SOAPBinding) dispatch.getBinding();
         
         if (connector.isDispatcherUseAuthentication()) {
             dispatch.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, connector.getDispatcherUsername());
@@ -98,15 +110,38 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher imple
         // build the message
         logger.debug("Creating SOAP envelope.");
         String content = replacer.replaceValues(connector.getDispatcherEnvelope(), mo);
-        Source message = new StreamSource(new StringReader(content));
+        Source source = new StreamSource(new StringReader(content));
+        SOAPMessage message = soapBinding.getMessageFactory().createMessage();
+        message.getSOAPPart().setContent(source);
+        
+        List<String> attachmentIds = connector.getDispatcherAttachmentNames();
+        List<String> attachmentContents = connector.getDispatcherAttachmentContents();
+        List<String> attachmentTypes = connector.getDispatcherAttachmentTypes();
+        
+        if (attachmentIds.size() > 0) {
+            soapBinding.setMTOMEnabled(true);
+        }
+        
+        for (int i = 0; i < attachmentIds.size(); i++) {
+            String attachmentContentId = replacer.replaceValues(attachmentIds.get(i), mo);
+            String attachmentContentType = attachmentTypes.get(i);
+            String attachmentContent = replacer.replaceValues(attachmentContents.get(i), mo);
+            
+            AttachmentPart attachment = message.createAttachmentPart();
+            attachment.setBase64Content(new ByteArrayInputStream(attachmentContent.getBytes("UTF-8")), attachmentContentType);
+            attachment.setContentId(attachmentContentId);
+            message.addAttachmentPart(attachment);
+        }
+        
+        message.saveChanges();
         
         // make the call
         logger.debug("Invoking web service...");
-        Source result = dispatch.invoke(message);
+        SOAPMessage result = dispatch.invoke(message);
         logger.debug("Finished invoking web service, got result.");
         
         // process the result
-        String response = sourceToXmlString(result);
+        String response = sourceToXmlString(result.getSOAPPart().getContent());
         messageObjectController.setSuccess(mo, response, null);
         
         // send to reply channel

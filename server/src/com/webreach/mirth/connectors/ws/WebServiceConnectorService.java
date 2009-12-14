@@ -15,8 +15,9 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 
+import org.apache.commons.io.FileUtils;
+
 import com.webreach.mirth.connectors.ConnectorService;
-import com.webreach.mirth.server.util.FileUtil;
 
 public class WebServiceConnectorService implements ConnectorService {
     private static Map<String, Definition> definitionCache = new HashMap<String, Definition>();
@@ -26,17 +27,21 @@ public class WebServiceConnectorService implements ConnectorService {
             Map<String, String> params = (Map<String, String>) object;
             String id = params.get("id");
             String wsdlUrl = params.get("wsdlUrl");
+            String username = params.get("username");
+            String password = params.get("password");
 
-            definitionCache.put(id, getDefinition(wsdlUrl));
+            definitionCache.put(id, getDefinition(wsdlUrl, username, password));
         } else if (method.equals("cacheWsdlFromFile")) {
             Map<String, String> params = (Map<String, String>) object;
             String id = params.get("id");
             String wsdlContents = params.get("wsdlContents");
 
-            File temp = File.createTempFile(id, ".xml");
-            FileUtil.write(temp.getAbsolutePath(), false, wsdlContents);
+            File tempFile = File.createTempFile(id, ".wsdl");
+            tempFile.deleteOnExit();
+            
+            FileUtils.writeStringToFile(tempFile, wsdlContents);
 
-            definitionCache.put(id, getDefinition(temp.getAbsolutePath()));
+            definitionCache.put(id, getDefinition(tempFile.getAbsolutePath(), null, null));
         } else if (method.equals("isWsdlCached")) {
             String id = (String) object;
             return (definitionCache.get(id) != null);
@@ -109,11 +114,11 @@ public class WebServiceConnectorService implements ConnectorService {
         return null;
     }
 
-    private Definition getDefinition(String wsdlUrl) throws Exception {
+    private Definition getDefinition(String wsdlUrl, String username, String password) throws Exception {
         WSDLReader wsdlReader = WSDLFactory.newInstance().newWSDLReader();
         wsdlReader.setFeature("javax.wsdl.verbose", false);
         wsdlReader.setFeature("javax.wsdl.importDocuments", true);
-        return wsdlReader.readWSDL(wsdlUrl);
+        return wsdlReader.readWSDL(new AuthWsdlLocator(wsdlUrl, username, password));
     }
 
     private List<String> getOperations(Definition definition) {
