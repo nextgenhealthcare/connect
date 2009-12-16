@@ -38,7 +38,7 @@ public class WebServiceConnectorService implements ConnectorService {
 
             File tempFile = File.createTempFile(id, ".wsdl");
             tempFile.deleteOnExit();
-            
+
             FileUtils.writeStringToFile(tempFile, wsdlContents);
 
             definitionCache.put(id, getDefinition(tempFile.getAbsolutePath(), null, null));
@@ -81,36 +81,10 @@ public class WebServiceConnectorService implements ConnectorService {
             Map<String, String> params = (Map<String, String>) object;
             String id = params.get("id");
             String operation = params.get("operation");
-            Definition definition = definitionCache.get(id);
-            
-            /*
-            List<String> imports = new ArrayList<String>();
-            Types types = definition.getTypes();
-            if (types != null) {
-                Iterator extensibilityElementsIterator = types.getExtensibilityElements().iterator();
-                while (extensibilityElementsIterator.hasNext()) {
-                    Object typesElement = extensibilityElementsIterator.next();
-                    if (typesElement instanceof Schema) {
-                        Schema schema = (Schema) typesElement;
-                        
-                        Map schemaImportsMap = schema.getImports();
-                        Set<String> namespaces = schemaImportsMap.keySet();
-                        
-                        for (String namespace : namespaces) {
-                            List<SchemaImport> importsForNS = (List<SchemaImport>) schemaImportsMap.get(namespace);
-                            for (SchemaImport importForNS : importsForNS) {
-                                imports.add(importForNS.getSchemaLocationURI());
-                            }
-                        }
-                    }
-                }
-            }*/
-            
-//            List<SchemaType> schemaTypes = new ArrayList<SchemaType>();
-//            Parser.getAllSchemaTypes(definition, schemaTypes, new WSIFWSDLLocatorImpl(null, definition.getDocumentBaseURI(), ClassLoader.getSystemClassLoader()));
-            
-//            return schemaTypes.toString();
+            SoapEnvelopeGenerator envelopeGenerator = new SoapEnvelopeGenerator(definitionCache.get(id));
+            return envelopeGenerator.generateEnvelopeForOperation(operation);
         }
+
         return null;
     }
 
