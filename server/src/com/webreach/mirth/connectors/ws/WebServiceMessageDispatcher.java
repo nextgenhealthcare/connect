@@ -119,7 +119,7 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher imple
         List<String> attachmentTypes = connector.getDispatcherAttachmentTypes();
         
         if (connector.isDispatcherUseMtom()) {
-            soapBinding.setMTOMEnabled(false);
+            soapBinding.setMTOMEnabled(true);
 
             for (int i = 0; i < attachmentIds.size(); i++) {
                 String attachmentContentId = replacer.replaceValues(attachmentIds.get(i), mo);
