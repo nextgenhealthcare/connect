@@ -553,7 +553,7 @@ public class WebServiceListener extends ConnectorClass
         jLabel3.setText("Listener Address:");
 
         methodField.setText("String acceptMessage(String message)");
-        methodField.setToolTipText("Displays the generated web service method signature the client will call.");
+        methodField.setToolTipText("Displays the generated web service operation signature the client will call.");
 
         wsdlURLField.setToolTipText("<html>Displays the generated WSDL URL for the web service.<br>The client that sends messages to the service can download this file to determine how to call the web service.</html>");
 
@@ -592,7 +592,7 @@ public class WebServiceListener extends ConnectorClass
         classNameDefaultRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         classNameButtonGroup.add(classNameDefaultRadio);
         classNameDefaultRadio.setText("Default service");
-        classNameDefaultRadio.setToolTipText("<html>If checked, the connector will listen on all interfaces, using address 0.0.0.0.</html>");
+        classNameDefaultRadio.setToolTipText("<html>If checked, the connector will use the DefaultAcceptMessage web service.</html>");
         classNameDefaultRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         classNameDefaultRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -605,7 +605,7 @@ public class WebServiceListener extends ConnectorClass
         classNameButtonGroup.add(classNameCustomRadio);
         classNameCustomRadio.setSelected(true);
         classNameCustomRadio.setText("Custom service");
-        classNameCustomRadio.setToolTipText("<html>If checked, the connector will listen on the specific interface address defined.</html>");
+        classNameCustomRadio.setToolTipText("<html>If checked, the connector will use a custom web service defined below.</html>");
         classNameCustomRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         classNameCustomRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -613,7 +613,7 @@ public class WebServiceListener extends ConnectorClass
             }
         });
 
-        classNameField.setToolTipText("The DNS domain name or IP address on which the web service should listen for connections.");
+        classNameField.setToolTipText("<html>The fully qualified class name of the web service that should be hosted.<br>If this is a custom class, it should be added in a custom jar so it is loaded with Mirth Connect.</html>");
 
         credentialsTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -631,7 +631,7 @@ public class WebServiceListener extends ConnectorClass
                 return types [columnIndex];
             }
         });
-        credentialsTable.setToolTipText("Request variables are encoded as x=y pairs as part of the request URL, separated from it by a '?' and from each other by an '&'.");
+        credentialsTable.setToolTipText("");
         credentialsPane.setViewportView(credentialsTable);
 
         newButton.setText("New");
@@ -769,7 +769,7 @@ public class WebServiceListener extends ConnectorClass
     }//GEN-LAST:event_classNameDefaultRadioActionPerformed
 
     private void classNameCustomRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_classNameCustomRadioActionPerformed
-        methodField.setText("<Custom Web Service Methods");
+        methodField.setText("<Custom Web Service Methods>");
         classNameLabel.setEnabled(true);
         classNameField.setEnabled(true);
     }//GEN-LAST:event_classNameCustomRadioActionPerformed

@@ -190,7 +190,7 @@
     <Component class="javax.swing.JTextField" name="methodField">
       <Properties>
         <Property name="text" type="java.lang.String" value="String acceptMessage(String message)"/>
-        <Property name="toolTipText" type="java.lang.String" value="Displays the generated web service method signature the client will call."/>
+        <Property name="toolTipText" type="java.lang.String" value="Displays the generated web service operation signature the client will call."/>
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="wsdlURLField">
@@ -281,7 +281,7 @@
           <ComponentRef name="classNameButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Default service"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, the connector will listen on all interfaces, using address 0.0.0.0.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, the connector will use the DefaultAcceptMessage web service.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -305,7 +305,7 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="Custom service"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, the connector will listen on the specific interface address defined.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, the connector will use a custom web service defined below.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -316,7 +316,7 @@
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="classNameField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="The DNS domain name or IP address on which the web service should listen for connections."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The fully qualified class name of the web service that should be hosted.&lt;br&gt;If this is a custom class, it should be added in a custom jar so it is loaded with Mirth Connect.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Container class="javax.swing.JScrollPane" name="credentialsPane">
@@ -334,7 +334,7 @@
                 <Column editable="true" title="Password" type="java.lang.String"/>
               </Table>
             </Property>
-            <Property name="toolTipText" type="java.lang.String" value="Request variables are encoded as x=y pairs as part of the request URL, separated from it by a &apos;?&apos; and from each other by an &apos;&amp;&apos;."/>
+            <Property name="toolTipText" type="java.lang.String" value=""/>
           </Properties>
         </Component>
       </SubComponents>
