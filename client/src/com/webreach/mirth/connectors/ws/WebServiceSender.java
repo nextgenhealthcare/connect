@@ -408,7 +408,11 @@ public class WebServiceSender extends ConnectorClass
 
     public String buildHost()
     {
-        return "ws:" + serviceField.getText() + "?method=" + (String) operationComboBox.getSelectedItem();
+        if (wsdlUrl.getText().startsWith("http://")) {
+            return wsdlUrl.getText().substring(7);
+        } else {
+            return wsdlUrl.getText();
+        }
     }
 
     public void setAttachments(ArrayList<ArrayList<String>> attachments)
