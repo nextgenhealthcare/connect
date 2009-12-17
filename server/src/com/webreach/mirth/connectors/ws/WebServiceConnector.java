@@ -24,7 +24,8 @@ public class WebServiceConnector extends QueueEnabledConnector {
     private String dispatcherUsername;
     private String dispatcherPassword;
     private String dispatcherEnvelope;
-    private boolean dispatcherGenerateEnvelope;
+    private boolean dispatcherOneWay;
+    private boolean dispatcherUseMtom;
     private List<String> dispatcherAttachmentNames;
     private List<String> dispatcherAttachmentContents;
     private List<String> dispatcherAttachmentTypes;
@@ -150,13 +151,21 @@ public class WebServiceConnector extends QueueEnabledConnector {
     public void setDispatcherEnvelope(String dispatcherEnvelope) {
         this.dispatcherEnvelope = dispatcherEnvelope;
     }
-    
-    public boolean isDispatcherGenerateEnvelope() {
-        return dispatcherGenerateEnvelope;
+
+    public boolean isDispatcherOneWay() {
+        return dispatcherOneWay;
     }
 
-    public void setDispatcherGenerateEnvelope(boolean dispatcherGenerateEnvelope) {
-        this.dispatcherGenerateEnvelope = dispatcherGenerateEnvelope;
+    public void setDispatcherOneWay(boolean dispatcherOneWay) {
+        this.dispatcherOneWay = dispatcherOneWay;
+    }
+
+    public boolean isDispatcherUseMtom() {
+        return dispatcherUseMtom;
+    }
+
+    public void setDispatcherUseMtom(boolean dispatcherUseMtom) {
+        this.dispatcherUseMtom = dispatcherUseMtom;
     }
 
     public List<String> getDispatcherAttachmentNames() {

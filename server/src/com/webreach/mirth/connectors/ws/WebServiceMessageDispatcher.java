@@ -118,30 +118,37 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher imple
         List<String> attachmentContents = connector.getDispatcherAttachmentContents();
         List<String> attachmentTypes = connector.getDispatcherAttachmentTypes();
         
-        if (attachmentIds.size() > 0) {
-            soapBinding.setMTOMEnabled(true);
-        }
-        
-        for (int i = 0; i < attachmentIds.size(); i++) {
-            String attachmentContentId = replacer.replaceValues(attachmentIds.get(i), mo);
-            String attachmentContentType = attachmentTypes.get(i);
-            String attachmentContent = replacer.replaceValues(attachmentContents.get(i), mo);
-            
-            AttachmentPart attachment = message.createAttachmentPart();
-            attachment.setBase64Content(new ByteArrayInputStream(attachmentContent.getBytes("UTF-8")), attachmentContentType);
-            attachment.setContentId(attachmentContentId);
-            message.addAttachmentPart(attachment);
+        if (connector.isDispatcherUseMtom()) {
+            soapBinding.setMTOMEnabled(false);
+
+            for (int i = 0; i < attachmentIds.size(); i++) {
+                String attachmentContentId = replacer.replaceValues(attachmentIds.get(i), mo);
+                String attachmentContentType = attachmentTypes.get(i);
+                String attachmentContent = replacer.replaceValues(attachmentContents.get(i), mo);
+                
+                AttachmentPart attachment = message.createAttachmentPart();
+                attachment.setBase64Content(new ByteArrayInputStream(attachmentContent.getBytes("UTF-8")), attachmentContentType);
+                attachment.setContentId(attachmentContentId);
+                message.addAttachmentPart(attachment);
+            }
         }
         
         message.saveChanges();
         
         // make the call
-        logger.debug("Invoking web service...");
-        SOAPMessage result = dispatch.invoke(message);
+        String response = null;
+        if (connector.isDispatcherOneWay()) {
+            logger.debug("Invoking one way service...");
+            dispatch.invokeOneWay(message);
+            response = "Invoked one way operation successfully.";
+        } else {
+            logger.debug("Invoking web service...");
+            SOAPMessage result = dispatch.invoke(message);
+            response = sourceToXmlString(result.getSOAPPart().getContent());
+        }
         logger.debug("Finished invoking web service, got result.");
         
         // process the result
-        String response = sourceToXmlString(result.getSOAPPart().getContent());
         messageObjectController.setSuccess(mo, response, null);
         
         // send to reply channel
