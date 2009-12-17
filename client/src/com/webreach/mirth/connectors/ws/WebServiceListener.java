@@ -296,7 +296,7 @@ public class WebServiceListener extends ConnectorClass
                 boolean exists = false;
 
                 for (int i = 0; i < credentialsTable.getModel().getRowCount(); i++) {
-                    if (((String) credentialsTable.getValueAt(i, USERNAME_COLUMN_NUMBER)).equalsIgnoreCase(value)) {
+                    if (((String) credentialsTable.getModel().getValueAt(i, USERNAME_COLUMN_NUMBER)).equalsIgnoreCase(value)) {
                         exists = true;
                     }
                 }

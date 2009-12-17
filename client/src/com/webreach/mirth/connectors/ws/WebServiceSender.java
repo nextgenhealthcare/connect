@@ -26,6 +26,7 @@
 package com.webreach.mirth.connectors.ws;
 
 import java.awt.Component;
+import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +40,6 @@ import java.util.UUID;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractCellEditor;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -70,24 +70,15 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
  */
 public class WebServiceSender extends ConnectorClass
 {
-    public final int PARAMETER_COLUMN = 0;
-    public final int TYPE_COLUMN = 1;
-    public final int VALUE_COLUMN = 2;
-
     private final int ID_COLUMN_NUMBER = 0;
     private final int CONTENT_COLUMN_NUMBER = 1;
     private final int MIME_TYPE_COLUMN_NUMBER = 2;
     private final String ID_COLUMN_NAME = "ID";
     private final String CONTENT_COLUMN_NAME = "Content";
-    private final String MIME_TYPE_COLUMN_NAME = "MIME type";
-
-    public final String PARAMETER_COLUMN_NAME = "Parameter";
-    public final String TYPE_COLUMN_NAME = "Type";
-    public final String VALUE_COLUMN_NAME = "Value";
+    private final String MIME_TYPE_COLUMN_NAME = "MIME Type";
     
     ObjectXMLSerializer serializer = new ObjectXMLSerializer();
     private HashMap<String, String> channelList;
-    private int attachmentsLastIndex = -1;
 
     private String wsdlCacheId = "";
     
@@ -414,26 +405,25 @@ public class WebServiceSender extends ConnectorClass
             return wsdlUrl.getText();
         }
     }
+    
+    public void setAttachments(ArrayList<ArrayList<String>> attachments) {
 
-    public void setAttachments(ArrayList<ArrayList<String>> attachments)
-    {
-    	ArrayList<String> attachmentNames = attachments.get(0);
-    	ArrayList<String> attachmentContents = attachments.get(1);
-    	ArrayList<String> attachmentTypes = attachments.get(2);
-
-        Object[][] tableData = new Object[attachmentNames.size()][3];
+        ArrayList<String> attachmentIds = attachments.get(0);
+        ArrayList<String> attachmentContents = attachments.get(1);
+        ArrayList<String> attachmentTypes = attachments.get(2);
+        
+        Object[][] tableData = new Object[attachmentIds.size()][3];
 
         attachmentsTable = new MirthTable();
 
-        for (int i = 0; i < attachmentNames.size(); i++)
+        for (int i = 0; i < attachmentIds.size(); i++)
         {
-        	tableData[i][ID_COLUMN_NUMBER] = attachmentNames.get(i);
+            tableData[i][ID_COLUMN_NUMBER] = attachmentIds.get(i);
             tableData[i][CONTENT_COLUMN_NUMBER] = attachmentContents.get(i);
             tableData[i][MIME_TYPE_COLUMN_NUMBER] = attachmentTypes.get(i);
         }
-
-        attachmentsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { ID_COLUMN_NAME, CONTENT_COLUMN_NAME, MIME_TYPE_COLUMN_NAME })
-        {
+        
+        attachmentsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { ID_COLUMN_NAME, CONTENT_COLUMN_NAME, MIME_TYPE_COLUMN_NAME }) {
             boolean[] canEdit = new boolean[] { true, true, true };
 
             public boolean isCellEditable(int rowIndex, int columnIndex)
@@ -442,42 +432,33 @@ public class WebServiceSender extends ConnectorClass
             }
         });
 
-        attachmentsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
-        {
-            public void valueChanged(ListSelectionEvent evt)
-            {
-                if (getSelectedRow(attachmentsTable) != -1)
-                {
-                    attachmentsLastIndex = getSelectedRow(attachmentsTable);
+        attachmentsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent evt) {
+                if (attachmentsTable.getSelectedModelIndex() != -1) {
                     deleteButton.setEnabled(true);
-                }
-                else
+                } else {
                     deleteButton.setEnabled(false);
+                }
             }
         });
 
-        class AttachmentsTableCellEditor extends AbstractCellEditor implements TableCellEditor
-        {
+        class AttachmentsTableCellEditor extends AbstractCellEditor implements TableCellEditor {
             JComponent component = new JTextField();
 
             Object originalValue;
 
-            boolean checkAttachments;
+            boolean checkUnique;
 
-            public AttachmentsTableCellEditor(boolean checkAttachments)
-            {
+            public AttachmentsTableCellEditor(boolean checkUnique) {
                 super();
-                this.checkAttachments = checkAttachments;
+                this.checkUnique = checkUnique;
             }
 
-            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
-            {
-                // 'value' is value contained in the cell located at (rowIndex,
-                // vColIndex)
+            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+                // 'value' is value contained in the cell located at (rowIndex, vColIndex)
                 originalValue = value;
 
-                if (isSelected)
-                {
+                if (isSelected) {
                     // cell (and perhaps other cells) are selected
                 }
 
@@ -488,33 +469,31 @@ public class WebServiceSender extends ConnectorClass
                 return component;
             }
 
-            public Object getCellEditorValue()
-            {
+            public Object getCellEditorValue() {
                 return ((JTextField) component).getText();
             }
 
-            public boolean stopCellEditing()
-            {
+            public boolean stopCellEditing() {
                 String s = (String) getCellEditorValue();
 
-                if (checkAttachments && (s.length() == 0 || checkUniqueAttachment(s)))
+                if (checkUnique && (s.length() == 0 || checkUnique(s))) {
                     super.cancelCellEditing();
-                else
+                } else {
                     parent.enableSave();
-
+                }
+                    
                 deleteButton.setEnabled(true);
 
                 return super.stopCellEditing();
             }
 
-            public boolean checkUniqueAttachment(String attachmentName)
-            {
+            public boolean checkUnique(String value) {
                 boolean exists = false;
 
-                for (int i = 0; i < attachmentsTable.getRowCount(); i++)
-                {
-                    if (attachmentsTable.getValueAt(i, ID_COLUMN_NUMBER) != null && ((String) attachmentsTable.getValueAt(i, ID_COLUMN_NUMBER)).equalsIgnoreCase(attachmentName))
+                for (int i = 0; i < attachmentsTable.getModel().getRowCount(); i++) {
+                    if (((String) attachmentsTable.getModel().getValueAt(i, ID_COLUMN_NUMBER)).equalsIgnoreCase(value)) {
                         exists = true;
+                    }
                 }
 
                 return exists;
@@ -534,86 +513,72 @@ public class WebServiceSender extends ConnectorClass
             }
         };
 
-        attachmentsTable.getColumnModel().getColumn(attachmentsTable.getColumnModel().getColumnIndex(ID_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(true));
-        attachmentsTable.getColumnModel().getColumn(attachmentsTable.getColumnModel().getColumnIndex(CONTENT_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(false));
-        attachmentsTable.getColumnModel().getColumn(attachmentsTable.getColumnModel().getColumnIndex(MIME_TYPE_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(false));
+        attachmentsTable.getColumnModel().getColumn(attachmentsTable.getColumnModelIndex(ID_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(true));
+        attachmentsTable.getColumnModel().getColumn(attachmentsTable.getColumnModelIndex(CONTENT_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(false));
+        attachmentsTable.getColumnModel().getColumn(attachmentsTable.getColumnModelIndex(MIME_TYPE_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(false));
 
         attachmentsTable.setSelectionMode(0);
         attachmentsTable.setRowSelectionAllowed(true);
         attachmentsTable.setRowHeight(UIConstants.ROW_HEIGHT);
         attachmentsTable.setDragEnabled(false);
         attachmentsTable.setOpaque(true);
-        attachmentsTable.setSortable(false);
-        attachmentsTable.getTableHeader().setReorderingAllowed(false);
+        attachmentsTable.setSortable(true);
 
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
         {
-        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
-        	attachmentsTable.setHighlighters(highlighter);
+            Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+            attachmentsTable.setHighlighters(highlighter);
         }
 
         attachmentsPane.setViewportView(attachmentsTable);
+        deleteButton.setEnabled(false);
     }
-
+    
     public ArrayList<ArrayList<String>> getAttachments() {
         ArrayList<ArrayList<String>> attachments = new ArrayList<ArrayList<String>>();
 
-        ArrayList<String> attachmentNames = new ArrayList<String>();
+        ArrayList<String> attachmentIds = new ArrayList<String>();
         ArrayList<String> attachmentContents = new ArrayList<String>();
         ArrayList<String> attachmentTypes = new ArrayList<String>();
 
-        for (int i = 0; i < attachmentsTable.getRowCount(); i++)
-        {
-            if (((String) attachmentsTable.getValueAt(i, ID_COLUMN_NUMBER)).length() > 0)
-            {
-                attachmentNames.add((String)attachmentsTable.getValueAt(i, ID_COLUMN_NUMBER));
-                attachmentContents.add((String)attachmentsTable.getValueAt(i, CONTENT_COLUMN_NUMBER));
-                attachmentTypes.add((String)attachmentsTable.getValueAt(i, MIME_TYPE_COLUMN_NUMBER));
+        for (int i = 0; i < attachmentsTable.getModel().getRowCount(); i++) {
+            if (((String) attachmentsTable.getModel().getValueAt(i, ID_COLUMN_NUMBER)).length() > 0) {
+                attachmentIds.add((String)attachmentsTable.getModel().getValueAt(i, ID_COLUMN_NUMBER));
+                attachmentContents.add((String)attachmentsTable.getModel().getValueAt(i, CONTENT_COLUMN_NUMBER));
+                attachmentTypes.add((String)attachmentsTable.getModel().getValueAt(i, MIME_TYPE_COLUMN_NUMBER));
             }
         }
-
-        attachments.add(attachmentNames);
+        
+        attachments.add(attachmentIds);
         attachments.add(attachmentContents);
         attachments.add(attachmentTypes);
 
         return attachments;
     }
-
-    /** Clears the selection in the table and sets the tasks appropriately */
-    public void deselectRows(MirthTable table, JButton button)
-    {
-        table.clearSelection();
-        button.setEnabled(false);
+    
+    public void stopCellEditing() {
+        if (attachmentsTable.isEditing()) {
+            attachmentsTable.getColumnModel().getColumn(attachmentsTable.convertColumnIndexToModel(attachmentsTable.getEditingColumn())).getCellEditor().stopCellEditing();
+        }
     }
-
-    /** Get the currently selected table index */
-    public int getSelectedRow(MirthTable table)
-    {
-        if (table.isEditing())
-            return table.getEditingRow();
-        else
-            return table.getSelectedRow();
-    }
-
+    
     /**
-     * Get the name that should be used for a new property so that it is unique.
+     * Get the name that should be used for a new user so that it is unique.
      */
-    private String getNewAttachmentName(MirthTable table)
-    {
-        String temp = "Attachment ";
+    private String getNewAttachmentId(int size) {
+        String temp = "Attachment";
 
-        for (int i = 1; i <= table.getRowCount() + 1; i++)
-        {
+        for (int i = 1; i <= size; i++) {
             boolean exists = false;
-            for (int j = 0; j < table.getRowCount(); j++)
-            {
-                if (((String) table.getValueAt(j, ID_COLUMN_NUMBER)).equalsIgnoreCase(temp + i))
-                {
+            
+            for (int j = 0; j < size - 1; j++) {
+                if (((String) attachmentsTable.getModel().getValueAt(j, attachmentsTable.getColumnModelIndex(ID_COLUMN_NAME))).equalsIgnoreCase(temp + i))
                     exists = true;
-                }
             }
-            if (!exists)
+            
+            if (!exists) {
                 return temp + i;
+            }
         }
         return "";
     }
@@ -765,7 +730,7 @@ public class WebServiceSender extends ConnectorClass
 
             },
             new String [] {
-                "ID", "Content", "MIME type"
+                "ID", "Content", "MIME Type"
             }
         ) {
             Class[] types = new Class [] {
@@ -1034,26 +999,36 @@ private void browseWSDLfileButtonActionPerformed(java.awt.event.ActionEvent evt)
 }//GEN-LAST:event_browseWSDLfileButtonActionPerformed
 
 private void newButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newButtonActionPerformed
-    ((DefaultTableModel) attachmentsTable.getModel()).addRow(new Object[] { getNewAttachmentName(attachmentsTable), "" });
-    attachmentsTable.setRowSelectionInterval(attachmentsTable.getRowCount() - 1, attachmentsTable.getRowCount() - 1);
+    stopCellEditing();
+    ((DefaultTableModel) attachmentsTable.getModel()).addRow(new Object[] { getNewAttachmentId(attachmentsTable.getModel().getRowCount() + 1), "" });
+    int newViewIndex = attachmentsTable.convertRowIndexToView(attachmentsTable.getModel().getRowCount() - 1);
+    attachmentsTable.setRowSelectionInterval(newViewIndex, newViewIndex);
+    
+    attachmentsPane.getViewport().setViewPosition(new Point(0, attachmentsTable.getRowHeight() * attachmentsTable.getModel().getRowCount()));
     parent.enableSave();
 }//GEN-LAST:event_newButtonActionPerformed
 
 private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
-    if (getSelectedRow(attachmentsTable) != -1 && !attachmentsTable.isEditing()) {
-        ((DefaultTableModel) attachmentsTable.getModel()).removeRow(getSelectedRow(attachmentsTable));
-
-        if (attachmentsTable.getRowCount() != 0) {
-            if (attachmentsLastIndex == 0)
-                attachmentsTable.setRowSelectionInterval(0, 0);
-            else if (attachmentsLastIndex == attachmentsTable.getRowCount())
-                attachmentsTable.setRowSelectionInterval(attachmentsLastIndex - 1, attachmentsLastIndex - 1);
-            else
-                attachmentsTable.setRowSelectionInterval(attachmentsLastIndex, attachmentsLastIndex);
-        }
-
-        parent.enableSave();
+    stopCellEditing();
+    
+    int selectedModelIndex = attachmentsTable.getSelectedModelIndex();
+    int newViewIndex = attachmentsTable.convertRowIndexToView(selectedModelIndex);
+    if (newViewIndex == (attachmentsTable.getModel().getRowCount() - 1)) {
+        newViewIndex--;
     }
+
+    ((DefaultTableModel)attachmentsTable.getModel()).removeRow(selectedModelIndex);
+    
+    parent.enableSave();
+   
+    if (attachmentsTable.getModel().getRowCount() == 0) {
+        attachmentsTable.deselectRows();
+        deleteButton.setEnabled(false);
+    } else {
+        attachmentsTable.setRowSelectionInterval(newViewIndex, newViewIndex);
+    }
+    
+    parent.enableSave(); 
 }//GEN-LAST:event_deleteButtonActionPerformed
 
 private void getOperationsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getOperationsButtonActionPerformed
