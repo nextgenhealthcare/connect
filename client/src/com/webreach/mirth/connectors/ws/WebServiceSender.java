@@ -27,6 +27,9 @@ package com.webreach.mirth.connectors.ws;
 
 import java.awt.Component;
 import java.awt.Point;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
@@ -43,6 +46,7 @@ import javax.swing.AbstractCellEditor;
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.TransferHandler;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -240,14 +244,6 @@ public class WebServiceSender extends ConnectorClass
         operationComboBox.setSelectedItem(props.getProperty(WebServiceSenderProperties.WEBSERVICE_OPERATION));
 
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
-        
-        if (((String) props.get(WebServiceSenderProperties.WEBSERVICE_USE_MTOM)).equals(UIConstants.YES_OPTION)) {
-            useMtomYesRadio.setSelected(true);
-            useMtomYesRadioActionPerformed(null);
-        } else {
-            useMtomNoRadio.setSelected(true);
-            useMtomNoRadioActionPerformed(null);
-        }
 
         ArrayList<ArrayList<String>> attachments = new ArrayList<ArrayList<String>>();
         ArrayList<String> attachmentNames = new ArrayList<String>();
@@ -265,6 +261,14 @@ public class WebServiceSender extends ConnectorClass
     	attachments.add(attachmentTypes);
 
     	setAttachments(attachments);
+    	
+        if (((String) props.get(WebServiceSenderProperties.WEBSERVICE_USE_MTOM)).equals(UIConstants.YES_OPTION)) {
+            useMtomYesRadio.setSelected(true);
+            useMtomYesRadioActionPerformed(null);
+        } else {
+            useMtomNoRadio.setSelected(true);
+            useMtomNoRadioActionPerformed(null);
+        }
     }
     
     public Properties getDefaults()
@@ -520,7 +524,42 @@ public class WebServiceSender extends ConnectorClass
         attachmentsTable.setSelectionMode(0);
         attachmentsTable.setRowSelectionAllowed(true);
         attachmentsTable.setRowHeight(UIConstants.ROW_HEIGHT);
-        attachmentsTable.setDragEnabled(false);
+        attachmentsTable.setDragEnabled(true);
+        
+        attachmentsTable.setTransferHandler(new TransferHandler() {
+            protected Transferable createTransferable(JComponent c) {
+                try {
+                    MirthTable table = ((MirthTable) (c));
+
+                    if (table == null)
+                        return null;
+
+                    int currRow = table.convertRowIndexToModel(table.getSelectedRow());
+
+                    String text = "";
+                    if (currRow >= 0 && currRow < table.getModel().getRowCount()) {
+                        text = (String) table.getModel().getValueAt(currRow, ID_COLUMN_NUMBER);
+                    }
+                    
+                    text = "<inc:Include href=\"cid:" + text + "\" xmlns:inc=\"http://www.w3.org/2004/08/xop/include\"/>";
+
+                    return new StringSelection(text);
+                }
+                catch (ClassCastException cce)
+                {
+                    return null;
+                }
+            }
+
+            public int getSourceActions(JComponent c) {
+                return COPY;
+            }
+
+            public boolean canImport(JComponent c, DataFlavor[] df) {
+                return false;
+            }
+        });
+        
         attachmentsTable.setOpaque(true);
         attachmentsTable.setSortable(true);
 
@@ -651,7 +690,7 @@ public class WebServiceSender extends ConnectorClass
             }
         });
 
-        operationComboBox.setToolTipText("Select the web service method to be called from this list.");
+        operationComboBox.setToolTipText("<html>Select the web service operation to be called from this list.<br>This is only used for generating the envelope</html>");
 
         jLabel1.setText("Operation:");
 
@@ -659,7 +698,7 @@ public class WebServiceSender extends ConnectorClass
 
         portField.setBackground(new java.awt.Color(222, 222, 222));
         portField.setEditable(false);
-        portField.setToolTipText("<html>Enter the SOAP Action URI for the method to be called here.<br>This field is normally filled in automatically when the Get Methods button is clicked and does not need to be changed.</html>");
+        portField.setToolTipText("<html>The port name for the WSDL defined above.<br>This field is  filled in automatically when the Get Operations button is clicked and does not need to be changed.</html>");
 
         soapEnvelope.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
@@ -667,12 +706,12 @@ public class WebServiceSender extends ConnectorClass
 
         serviceField.setBackground(new java.awt.Color(222, 222, 222));
         serviceField.setEditable(false);
-        serviceField.setToolTipText("<html>Enter the Service Endpoint URI for the method to be called here.<br>This field is normally filled in automatically when the Get Methods button is clicked and does not need to be changed.</html>");
+        serviceField.setToolTipText("<html>The service name for the WSDL defined above.<br>This field is filled in automatically when the Get Operations button is clicked and does not need to be changed.</html>");
 
         jLabel4.setText("SOAP Envelope:");
 
         generateEnvelope.setText("Generate Envelope");
-        generateEnvelope.setToolTipText("<html>Clicking this button regenerates the contents of the SOAP Envelope control based on the other controls,<br> discarding any changes that may have been made.</html>");
+        generateEnvelope.setToolTipText("<html>Clicking this button regenerates the contents of the SOAP Envelope control based on the<br>schema defined in the WSDL, discarding any changes that may have been made.</html>");
         generateEnvelope.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 generateEnvelopeActionPerformed(evt);
@@ -693,6 +732,7 @@ public class WebServiceSender extends ConnectorClass
         userPersistentQueuesButtonGroup.add(usePersistentQueuesNoRadio);
         usePersistentQueuesNoRadio.setSelected(true);
         usePersistentQueuesNoRadio.setText("No");
+        usePersistentQueuesNoRadio.setToolTipText("If checked, no queues will be used.");
         usePersistentQueuesNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         usePersistentQueuesNoRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -711,6 +751,8 @@ public class WebServiceSender extends ConnectorClass
                 usePersistentQueuesYesRadioActionPerformed(evt);
             }
         });
+
+        reconnectInterval.setToolTipText("<html>The amount of time that should elapse between attempts to send messages in the queue.</html>");
 
         reconnectIntervalLabel.setText("Reconnect Interval (ms):");
 
@@ -741,7 +783,7 @@ public class WebServiceSender extends ConnectorClass
                 return types [columnIndex];
             }
         });
-        attachmentsTable.setToolTipText("Request variables are encoded as x=y pairs as part of the request URL, separated from it by a '?' and from each other by an '&'.");
+        attachmentsTable.setToolTipText("<html>Attachments should be added with an ID, Base64 encoded content,<br>and a valid MIME type. Once an attachment is added<br>the row can be dropped into an argument in the envelope.</html>");
         attachmentsPane.setViewportView(attachmentsTable);
 
         newButton.setText("New");
@@ -764,7 +806,7 @@ public class WebServiceSender extends ConnectorClass
         authenticationYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         authenticationButtonGroup.add(authenticationYesRadio);
         authenticationYesRadio.setText("Yes");
-        authenticationYesRadio.setToolTipText("Connects to the file anonymously instead of using a username and password.");
+        authenticationYesRadio.setToolTipText("<html>Turning on authentication uses a username and password with to get the WSDL, if necessary,<br>and uses the username and password binding provider properties when calling the web service.</html>");
         authenticationYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         authenticationYesRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -776,7 +818,7 @@ public class WebServiceSender extends ConnectorClass
         authenticationNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         authenticationButtonGroup.add(authenticationNoRadio);
         authenticationNoRadio.setText("No");
-        authenticationNoRadio.setToolTipText("Connects to the file using a username and password instead of anonymously.");
+        authenticationNoRadio.setToolTipText("<html>Turning on authentication uses a username and password with to get the WSDL, if necessary,<br>and uses the username and password binding provider properties when calling the web service.</html>");
         authenticationNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         authenticationNoRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -786,9 +828,9 @@ public class WebServiceSender extends ConnectorClass
 
         usernameLabel.setText("Username:");
 
-        usernameField.setToolTipText("The user name used to gain access to the server.");
+        usernameField.setToolTipText("The username used to get the WSDL and call the web service.");
 
-        passwordField.setToolTipText("The password used to gain access to the server.");
+        passwordField.setToolTipText("The password used to get the WSDL and call the web service.");
 
         passwordLabel.setText("Password:");
 
@@ -798,14 +840,14 @@ public class WebServiceSender extends ConnectorClass
         invocationTwoWayRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         invocationButtonGroup.add(invocationTwoWayRadio);
         invocationTwoWayRadio.setText("Two-Way");
-        invocationTwoWayRadio.setToolTipText("Connects to the file anonymously instead of using a username and password.");
+        invocationTwoWayRadio.setToolTipText("<html>Invoke the operation using the standard two-way invocation function.<br>This will wait for some response or acknowledgement to be returned.</html>");
         invocationTwoWayRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         invocationOneWayRadio.setBackground(new java.awt.Color(255, 255, 255));
         invocationOneWayRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         invocationButtonGroup.add(invocationOneWayRadio);
         invocationOneWayRadio.setText("One-Way");
-        invocationOneWayRadio.setToolTipText("Connects to the file using a username and password instead of anonymously.");
+        invocationOneWayRadio.setToolTipText("<html>Invoke the operation using the one-way invocation function.<br>This will not wait for any response, and should only be used if the<br>operation is defined as a one-way operation.</html>");
         invocationOneWayRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         useMtomLabel.setText("Use MTOM:");
@@ -814,7 +856,7 @@ public class WebServiceSender extends ConnectorClass
         useMtomYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         useMtomButtonGroup.add(useMtomYesRadio);
         useMtomYesRadio.setText("Yes");
-        useMtomYesRadio.setToolTipText("Connects to the file anonymously instead of using a username and password.");
+        useMtomYesRadio.setToolTipText("<html>Enables MTOM on the SOAP Binding. If MTOM is enabled,<br>attachments can be added to the table below and dropped into the envelope.</html>");
         useMtomYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         useMtomYesRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -827,7 +869,7 @@ public class WebServiceSender extends ConnectorClass
         useMtomButtonGroup.add(useMtomNoRadio);
         useMtomNoRadio.setSelected(true);
         useMtomNoRadio.setText("No");
-        useMtomNoRadio.setToolTipText("Connects to the file using a username and password instead of anonymously.");
+        useMtomNoRadio.setToolTipText("<html>Does not enable MTOM on the SOAP Binding. If MTOM is enabled,<br>attachments can be added to the table below and dropped into the envelope.</html>");
         useMtomNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         useMtomNoRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1141,7 +1183,13 @@ private void useMtomYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//G
     attachmentsPane.setEnabled(true);
     attachmentsTable.setEnabled(true);
     newButton.setEnabled(true);
-    deleteButton.setEnabled(true);
+    
+    attachmentsTable.setRowSelectionAllowed(true);
+    if (attachmentsTable.getModel().getRowCount() > 0) {
+        attachmentsTable.setRowSelectionInterval(0, 0);
+        deleteButton.setEnabled(true);
+    }
+    
 }//GEN-LAST:event_useMtomYesRadioActionPerformed
 
 private void useMtomNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useMtomNoRadioActionPerformed
@@ -1150,6 +1198,10 @@ private void useMtomNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GE
     attachmentsTable.setEnabled(false);
     newButton.setEnabled(false);
     deleteButton.setEnabled(false);
+    
+    stopCellEditing();
+    attachmentsTable.setRowSelectionAllowed(false);
+    attachmentsTable.deselectRows();
 }//GEN-LAST:event_useMtomNoRadioActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

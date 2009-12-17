@@ -230,7 +230,7 @@
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="0"/>
         </Property>
-        <Property name="toolTipText" type="java.lang.String" value="Select the web service method to be called from this list."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select the web service operation to be called from this list.&lt;br&gt;This is only used for generating the envelope&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel1">
@@ -249,7 +249,7 @@
           <Color blue="de" green="de" red="de" type="rgb"/>
         </Property>
         <Property name="editable" type="boolean" value="false"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the SOAP Action URI for the method to be called here.&lt;br&gt;This field is normally filled in automatically when the Get Methods button is clicked and does not need to be changed.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The port name for the WSDL defined above.&lt;br&gt;This field is  filled in automatically when the Get Operations button is clicked and does not need to be changed.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="soapEnvelope">
@@ -275,7 +275,7 @@
           <Color blue="de" green="de" red="de" type="rgb"/>
         </Property>
         <Property name="editable" type="boolean" value="false"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the Service Endpoint URI for the method to be called here.&lt;br&gt;This field is normally filled in automatically when the Get Methods button is clicked and does not need to be changed.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The service name for the WSDL defined above.&lt;br&gt;This field is filled in automatically when the Get Operations button is clicked and does not need to be changed.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel4">
@@ -286,7 +286,7 @@
     <Component class="javax.swing.JButton" name="generateEnvelope">
       <Properties>
         <Property name="text" type="java.lang.String" value="Generate Envelope"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Clicking this button regenerates the contents of the SOAP Envelope control based on the other controls,&lt;br&gt; discarding any changes that may have been made.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Clicking this button regenerates the contents of the SOAP Envelope control based on the&lt;br&gt;schema defined in the WSDL, discarding any changes that may have been made.&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateEnvelopeActionPerformed"/>
@@ -334,6 +334,7 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="If checked, no queues will be used."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -366,6 +367,9 @@
       </Events>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="reconnectInterval">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The amount of time that should elapse between attempts to send messages in the queue.&lt;/html&gt;"/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="reconnectIntervalLabel">
       <Properties>
@@ -406,7 +410,7 @@
                 <Column editable="true" title="MIME Type" type="java.lang.String"/>
               </Table>
             </Property>
-            <Property name="toolTipText" type="java.lang.String" value="Request variables are encoded as x=y pairs as part of the request URL, separated from it by a &apos;?&apos; and from each other by an &apos;&amp;&apos;."/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Attachments should be added with an ID, Base64 encoded content,&lt;br&gt;and a valid MIME type. Once an attachment is added&lt;br&gt;the row can be dropped into an argument in the envelope.&lt;/html&gt;"/>
           </Properties>
         </Component>
       </SubComponents>
@@ -446,7 +450,7 @@
           <ComponentRef name="authenticationButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="Connects to the file anonymously instead of using a username and password."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Turning on authentication uses a username and password with to get the WSDL, if necessary,&lt;br&gt;and uses the username and password binding provider properties when calling the web service.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -469,7 +473,7 @@
           <ComponentRef name="authenticationButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="Connects to the file using a username and password instead of anonymously."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Turning on authentication uses a username and password with to get the WSDL, if necessary,&lt;br&gt;and uses the username and password binding provider properties when calling the web service.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -485,12 +489,12 @@
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="usernameField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="The user name used to gain access to the server."/>
+        <Property name="toolTipText" type="java.lang.String" value="The username used to get the WSDL and call the web service."/>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthPasswordField" name="passwordField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="The password used to gain access to the server."/>
+        <Property name="toolTipText" type="java.lang.String" value="The password used to get the WSDL and call the web service."/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="passwordLabel">
@@ -517,7 +521,7 @@
           <ComponentRef name="invocationButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Two-Way"/>
-        <Property name="toolTipText" type="java.lang.String" value="Connects to the file anonymously instead of using a username and password."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Invoke the operation using the standard two-way invocation function.&lt;br&gt;This will wait for some response or acknowledgement to be returned.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -537,7 +541,7 @@
           <ComponentRef name="invocationButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="One-Way"/>
-        <Property name="toolTipText" type="java.lang.String" value="Connects to the file using a username and password instead of anonymously."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Invoke the operation using the one-way invocation function.&lt;br&gt;This will not wait for any response, and should only be used if the&lt;br&gt;operation is defined as a one-way operation.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -562,7 +566,7 @@
           <ComponentRef name="useMtomButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="Connects to the file anonymously instead of using a username and password."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enables MTOM on the SOAP Binding. If MTOM is enabled,&lt;br&gt;attachments can be added to the table below and dropped into the envelope.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -586,7 +590,7 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="Connects to the file using a username and password instead of anonymously."/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Does not enable MTOM on the SOAP Binding. If MTOM is enabled,&lt;br&gt;attachments can be added to the table below and dropped into the envelope.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
