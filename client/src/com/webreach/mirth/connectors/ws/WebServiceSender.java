@@ -32,7 +32,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractCellEditor;
@@ -60,9 +63,6 @@ import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.QueuedSenderProperties;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -125,7 +125,12 @@ public class WebServiceSender extends ConnectorClass
         properties.put(WebServiceSenderProperties.WEBSERVICE_WSDL_URL, wsdlUrl.getText());
         properties.put(WebServiceSenderProperties.WEBSERVICE_SERVICE, serviceField.getText());
         properties.put(WebServiceSenderProperties.WEBSERVICE_PORT, portField.getText());
-        
+
+        if (invocationOneWayRadio.isSelected())
+            properties.put(WebServiceSenderProperties.WEBSERVICE_ONE_WAY, UIConstants.YES_OPTION);
+        else
+            properties.put(WebServiceSenderProperties.WEBSERVICE_ONE_WAY, UIConstants.NO_OPTION);
+
         if (operationComboBox.getSelectedIndex() != -1)
             properties.put(WebServiceSenderProperties.WEBSERVICE_OPERATION, (String) operationComboBox.getSelectedItem());
 
@@ -149,6 +154,11 @@ public class WebServiceSender extends ConnectorClass
         }
 
         properties.put(WebServiceSenderProperties.WEBSERVICE_WSDL_OPERATIONS, serializer.toXML(operations));
+
+        if (useMtomYesRadio.isSelected())
+            properties.put(WebServiceSenderProperties.WEBSERVICE_USE_MTOM, UIConstants.YES_OPTION);
+        else
+            properties.put(WebServiceSenderProperties.WEBSERVICE_USE_MTOM, UIConstants.NO_OPTION);
 
         ArrayList<ArrayList<String>> attachments = getAttachments();
         properties.put(WebServiceSenderProperties.WEBSERVICE_ATTACHMENT_NAMES, serializer.toXML(attachments.get(0)));
@@ -221,6 +231,12 @@ public class WebServiceSender extends ConnectorClass
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
 
         channelNames.setSelectedItem(selectedChannelName);
+        
+        if (((String) props.get(WebServiceSenderProperties.WEBSERVICE_ONE_WAY)).equals(UIConstants.YES_OPTION)) {
+            invocationOneWayRadio.setSelected(true);
+        } else {
+            invocationTwoWayRadio.setSelected(true);
+        }
 
         ArrayList<String> operations = new ArrayList<String>();
         if (((String) props.get(WebServiceSenderProperties.WEBSERVICE_WSDL_OPERATIONS)).length() > 0) {
@@ -228,10 +244,19 @@ public class WebServiceSender extends ConnectorClass
         }
 
         operationComboBox.setModel(new javax.swing.DefaultComboBoxModel(operations.toArray()));
+        enableOrDisableGenerateEnvelope(operations);
 
         operationComboBox.setSelectedItem(props.getProperty(WebServiceSenderProperties.WEBSERVICE_OPERATION));
 
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
+        
+        if (((String) props.get(WebServiceSenderProperties.WEBSERVICE_USE_MTOM)).equals(UIConstants.YES_OPTION)) {
+            useMtomYesRadio.setSelected(true);
+            useMtomYesRadioActionPerformed(null);
+        } else {
+            useMtomNoRadio.setSelected(true);
+            useMtomNoRadioActionPerformed(null);
+        }
 
         ArrayList<ArrayList<String>> attachments = new ArrayList<ArrayList<String>>();
         ArrayList<String> attachmentNames = new ArrayList<String>();
@@ -293,6 +318,14 @@ public class WebServiceSender extends ConnectorClass
     	
     	return error;
     }
+    
+    private void enableOrDisableGenerateEnvelope(List<String> operations) {
+        if ((operations.size() == 1) && operations.get(0).equals(WebServiceSenderProperties.WEBSERVICE_DEFAULT_DROPDOWN)) {
+            generateEnvelope.setEnabled(false);
+        } else {
+            generateEnvelope.setEnabled(true);
+        }
+    }
 
     private boolean isWsdlCached() {
         if (wsdlCacheId.equals("")) {
@@ -341,7 +374,7 @@ public class WebServiceSender extends ConnectorClass
 
             return true;
         } catch (ClientException e) {
-            parent.alertError(parent, "Error caching wsdl.  Please check the wsdl url, file, and authentication settings.");
+            parent.alertError(parent, "Error caching WSDL. Please check the WSDL file or URL and authentication settings.");
             return false;
         }
     }
@@ -592,6 +625,8 @@ public class WebServiceSender extends ConnectorClass
 
         userPersistentQueuesButtonGroup = new javax.swing.ButtonGroup();
         authenticationButtonGroup = new javax.swing.ButtonGroup();
+        invocationButtonGroup = new javax.swing.ButtonGroup();
+        useMtomButtonGroup = new javax.swing.ButtonGroup();
         URL = new javax.swing.JLabel();
         wsdlUrl = new com.webreach.mirth.client.ui.components.MirthTextField();
         getOperationsButton = new javax.swing.JButton();
@@ -613,7 +648,7 @@ public class WebServiceSender extends ConnectorClass
         reconnectIntervalLabel = new javax.swing.JLabel();
         jLabel36 = new javax.swing.JLabel();
         browseWSDLfileButton = new javax.swing.JButton();
-        jLabel9 = new javax.swing.JLabel();
+        attachmentsLabel = new javax.swing.JLabel();
         attachmentsPane = new javax.swing.JScrollPane();
         attachmentsTable = new com.webreach.mirth.client.ui.components.MirthTable();
         newButton = new javax.swing.JButton();
@@ -625,6 +660,12 @@ public class WebServiceSender extends ConnectorClass
         usernameField = new com.webreach.mirth.client.ui.components.MirthTextField();
         passwordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
         passwordLabel = new javax.swing.JLabel();
+        invocationTypeLabel = new javax.swing.JLabel();
+        invocationTwoWayRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        invocationOneWayRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        useMtomLabel = new javax.swing.JLabel();
+        useMtomYesRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        useMtomNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -642,11 +683,6 @@ public class WebServiceSender extends ConnectorClass
         });
 
         operationComboBox.setToolTipText("Select the web service method to be called from this list.");
-        operationComboBox.addItemListener(new java.awt.event.ItemListener() {
-            public void itemStateChanged(java.awt.event.ItemEvent evt) {
-                operationComboBoxItemStateChanged(evt);
-            }
-        });
 
         jLabel1.setText("Operation:");
 
@@ -718,7 +754,7 @@ public class WebServiceSender extends ConnectorClass
             }
         });
 
-        jLabel9.setText("Attachments:");
+        attachmentsLabel.setText("Attachments:");
 
         attachmentsTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -770,7 +806,6 @@ public class WebServiceSender extends ConnectorClass
         authenticationNoRadio.setBackground(new java.awt.Color(255, 255, 255));
         authenticationNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         authenticationButtonGroup.add(authenticationNoRadio);
-        authenticationNoRadio.setSelected(true);
         authenticationNoRadio.setText("No");
         authenticationNoRadio.setToolTipText("Connects to the file using a username and password instead of anonymously.");
         authenticationNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
@@ -788,6 +823,49 @@ public class WebServiceSender extends ConnectorClass
 
         passwordLabel.setText("Password:");
 
+        invocationTypeLabel.setText("Invocation Type:");
+
+        invocationTwoWayRadio.setBackground(new java.awt.Color(255, 255, 255));
+        invocationTwoWayRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        invocationButtonGroup.add(invocationTwoWayRadio);
+        invocationTwoWayRadio.setText("Two-Way");
+        invocationTwoWayRadio.setToolTipText("Connects to the file anonymously instead of using a username and password.");
+        invocationTwoWayRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        invocationOneWayRadio.setBackground(new java.awt.Color(255, 255, 255));
+        invocationOneWayRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        invocationButtonGroup.add(invocationOneWayRadio);
+        invocationOneWayRadio.setText("One-Way");
+        invocationOneWayRadio.setToolTipText("Connects to the file using a username and password instead of anonymously.");
+        invocationOneWayRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        useMtomLabel.setText("Use MTOM:");
+
+        useMtomYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        useMtomYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        useMtomButtonGroup.add(useMtomYesRadio);
+        useMtomYesRadio.setText("Yes");
+        useMtomYesRadio.setToolTipText("Connects to the file anonymously instead of using a username and password.");
+        useMtomYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        useMtomYesRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                useMtomYesRadioActionPerformed(evt);
+            }
+        });
+
+        useMtomNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        useMtomNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        useMtomButtonGroup.add(useMtomNoRadio);
+        useMtomNoRadio.setSelected(true);
+        useMtomNoRadio.setText("No");
+        useMtomNoRadio.setToolTipText("Connects to the file using a username and password instead of anonymously.");
+        useMtomNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        useMtomNoRadio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                useMtomNoRadioActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -795,14 +873,16 @@ public class WebServiceSender extends ConnectorClass
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel9)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, useMtomLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, attachmentsLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, invocationTypeLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, reconnectIntervalLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel36)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, URL1)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, usernameLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, passwordLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, usernameLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, authenticationLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, portLabel)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, serviceLabel)
@@ -839,12 +919,20 @@ public class WebServiceSender extends ConnectorClass
                             .add(channelNames, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .add(64, 64, 64))
                     .add(soapEnvelope, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 402, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(invocationTwoWayRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(invocationOneWayRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(attachmentsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 333, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
                             .add(newButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(deleteButton))))
+                            .add(deleteButton)))
+                    .add(layout.createSequentialGroup()
+                        .add(useMtomYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(useMtomNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -892,16 +980,26 @@ public class WebServiceSender extends ConnectorClass
                     .add(reconnectInterval, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(invocationTypeLabel)
+                    .add(invocationTwoWayRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(invocationOneWayRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel1)
                     .add(operationComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(generateEnvelope))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel4)
-                    .add(soapEnvelope, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 124, Short.MAX_VALUE))
+                    .add(soapEnvelope, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 124, Short.MAX_VALUE)
+                    .add(jLabel4))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(useMtomLabel)
+                    .add(useMtomYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(useMtomNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel9)
+                    .add(attachmentsLabel)
                     .add(layout.createSequentialGroup()
                         .add(newButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -981,6 +1079,7 @@ private void getOperationsButtonActionPerformed(java.awt.event.ActionEvent evt) 
                 loadedMethods.toArray(methodNames);
 
                 operationComboBox.setModel(new javax.swing.DefaultComboBoxModel(methodNames));
+                enableOrDisableGenerateEnvelope(loadedMethods);
 
                 if (methodNames.length > 0) {
                     operationComboBox.setSelectedIndex(0);
@@ -1003,13 +1102,9 @@ private void getOperationsButtonActionPerformed(java.awt.event.ActionEvent evt) 
     worker.execute();
 }//GEN-LAST:event_getOperationsButtonActionPerformed
 
-private void operationComboBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_operationComboBoxItemStateChanged
-    // TODO add your handling code here:
-}//GEN-LAST:event_operationComboBoxItemStateChanged
-
 private void generateEnvelopeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateEnvelopeActionPerformed
     if (soapEnvelope.getText().length() > 0) {
-        if (!parent.alertOkCancel(parent, "This will replace your current soap envelope with a generated envelope.  Press OK to continue.")) {
+        if (!parent.alertOkCancel(parent, "This will replace your current SOAP envelope with a generated envelope. Press OK to continue.")) {
             return;
         }
     }
@@ -1023,7 +1118,7 @@ private void generateEnvelopeActionPerformed(java.awt.event.ActionEvent evt) {//
         public Void doInBackground()
         {
             if (!isWsdlCached()) {
-                parent.alertInformation(parent, "The WSDL is no longer cached on the server.  Press \"Get Operations\" to fetch the latest WSDL.");
+                parent.alertInformation(parent, "The WSDL is no longer cached on the server. Press \"Get Operations\" to fetch the latest WSDL.");
             } else {
                 generatedEnvelope = (String) invokeConnectorService("generateEnvelope", "operation", (String)operationComboBox.getSelectedItem());
             }
@@ -1062,9 +1157,26 @@ private void authenticationNoRadioActionPerformed(java.awt.event.ActionEvent evt
     passwordField.setText("");
 }//GEN-LAST:event_authenticationNoRadioActionPerformed
 
+private void useMtomYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useMtomYesRadioActionPerformed
+    attachmentsLabel.setEnabled(true);
+    attachmentsPane.setEnabled(true);
+    attachmentsTable.setEnabled(true);
+    newButton.setEnabled(true);
+    deleteButton.setEnabled(true);
+}//GEN-LAST:event_useMtomYesRadioActionPerformed
+
+private void useMtomNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_useMtomNoRadioActionPerformed
+    attachmentsLabel.setEnabled(false);
+    attachmentsPane.setEnabled(false);
+    attachmentsTable.setEnabled(false);
+    newButton.setEnabled(false);
+    deleteButton.setEnabled(false);
+}//GEN-LAST:event_useMtomNoRadioActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel URL;
     private javax.swing.JLabel URL1;
+    private javax.swing.JLabel attachmentsLabel;
     private javax.swing.JScrollPane attachmentsPane;
     private com.webreach.mirth.client.ui.components.MirthTable attachmentsTable;
     private javax.swing.ButtonGroup authenticationButtonGroup;
@@ -1076,10 +1188,13 @@ private void authenticationNoRadioActionPerformed(java.awt.event.ActionEvent evt
     private javax.swing.JButton deleteButton;
     private javax.swing.JButton generateEnvelope;
     private javax.swing.JButton getOperationsButton;
+    private javax.swing.ButtonGroup invocationButtonGroup;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton invocationOneWayRadio;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton invocationTwoWayRadio;
+    private javax.swing.JLabel invocationTypeLabel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel36;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JButton newButton;
     private com.webreach.mirth.client.ui.components.MirthComboBox operationComboBox;
     private com.webreach.mirth.client.ui.components.MirthPasswordField passwordField;
@@ -1092,6 +1207,10 @@ private void authenticationNoRadioActionPerformed(java.awt.event.ActionEvent evt
     private com.webreach.mirth.client.ui.components.MirthTextField serviceField;
     private javax.swing.JLabel serviceLabel;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea soapEnvelope;
+    private javax.swing.ButtonGroup useMtomButtonGroup;
+    private javax.swing.JLabel useMtomLabel;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton useMtomNoRadio;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton useMtomYesRadio;
     private com.webreach.mirth.client.ui.components.MirthRadioButton usePersistentQueuesNoRadio;
     private com.webreach.mirth.client.ui.components.MirthRadioButton usePersistentQueuesYesRadio;
     private javax.swing.ButtonGroup userPersistentQueuesButtonGroup;

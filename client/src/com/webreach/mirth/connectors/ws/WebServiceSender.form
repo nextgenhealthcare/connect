@@ -6,6 +6,10 @@
     </Component>
     <Component class="javax.swing.ButtonGroup" name="authenticationButtonGroup">
     </Component>
+    <Component class="javax.swing.ButtonGroup" name="invocationButtonGroup">
+    </Component>
+    <Component class="javax.swing.ButtonGroup" name="useMtomButtonGroup">
+    </Component>
   </NonVisualComponents>
   <Properties>
     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
@@ -32,17 +36,19 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
+          <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jLabel9" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="useMtomLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="attachmentsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="invocationTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="reconnectIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel36" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="URL1" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="usernameLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="authenticationLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="portLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="serviceLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -86,6 +92,11 @@
                       <EmptySpace min="-2" pref="64" max="-2" attributes="0"/>
                   </Group>
                   <Component id="soapEnvelope" pref="402" max="32767" attributes="2"/>
+                  <Group type="102" attributes="0">
+                      <Component id="invocationTwoWayRadio" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="invocationOneWayRadio" min="-2" max="-2" attributes="0"/>
+                  </Group>
                   <Group type="102" alignment="1" attributes="0">
                       <Component id="attachmentsPane" pref="333" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -93,6 +104,11 @@
                           <Component id="newButton" alignment="1" max="32767" attributes="1"/>
                           <Component id="deleteButton" alignment="1" min="-2" max="-2" attributes="1"/>
                       </Group>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="useMtomYesRadio" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="useMtomNoRadio" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -124,22 +140,22 @@
                   <Component id="authenticationYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="authenticationNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="usernameField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="usernameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="passwordField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="passwordLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="channelNames" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="URL1" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel36" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="usePersistentQueuesYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -153,18 +169,30 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="invocationTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="invocationTwoWayRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="invocationOneWayRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="operationComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="generateEnvelope" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
-                  <Component id="soapEnvelope" pref="124" max="32767" attributes="0"/>
+                  <Component id="soapEnvelope" alignment="0" pref="124" max="32767" attributes="0"/>
+                  <Component id="jLabel4" alignment="0" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="useMtomLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="useMtomYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="useMtomNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jLabel9" min="-2" max="-2" attributes="0"/>
+                  <Component id="attachmentsLabel" min="-2" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="newButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -204,9 +232,6 @@
         </Property>
         <Property name="toolTipText" type="java.lang.String" value="Select the web service method to be called from this list."/>
       </Properties>
-      <Events>
-        <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="operationComboBoxItemStateChanged"/>
-      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
@@ -360,7 +385,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="browseWSDLfileButtonActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel9">
+    <Component class="javax.swing.JLabel" name="attachmentsLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Attachments:"/>
       </Properties>
@@ -443,7 +468,6 @@
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
           <ComponentRef name="authenticationButtonGroup"/>
         </Property>
-        <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="No"/>
         <Property name="toolTipText" type="java.lang.String" value="Connects to the file using a username and password instead of anonymously."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
@@ -473,6 +497,103 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Password:"/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="invocationTypeLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Invocation Type:"/>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="invocationTwoWayRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="invocationButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Two-Way"/>
+        <Property name="toolTipText" type="java.lang.String" value="Connects to the file anonymously instead of using a username and password."/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="invocationOneWayRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="invocationButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="One-Way"/>
+        <Property name="toolTipText" type="java.lang.String" value="Connects to the file using a username and password instead of anonymously."/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="useMtomLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Use MTOM:"/>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="useMtomYesRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="useMtomButtonGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="Connects to the file anonymously instead of using a username and password."/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useMtomYesRadioActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="useMtomNoRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="useMtomButtonGroup"/>
+        </Property>
+        <Property name="selected" type="boolean" value="true"/>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="Connects to the file using a username and password instead of anonymously."/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useMtomNoRadioActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>
