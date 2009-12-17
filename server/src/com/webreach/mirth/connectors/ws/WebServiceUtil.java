@@ -53,10 +53,10 @@ public class WebServiceUtil {
         if ((status == HttpStatus.SC_UNAUTHORIZED) && (username != null) && (password != null)) {
             client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
             status = client.executeMethod(method);
-
-            if (status == HttpStatus.SC_OK) {
-                return method.getResponseBodyAsStream();
-            }
+        }
+        
+        if (status == HttpStatus.SC_OK) {
+            return method.getResponseBodyAsStream();
         }
 
         throw new Exception("Could not load url contents for url: " + baseUri.toString());
