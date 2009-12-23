@@ -83,6 +83,7 @@ public class TemplateValueReplacer {
             Velocity.evaluate(context, writer, "LOG", template);
         } catch (Exception e) {
             logger.warn("Could not replace template values", e);
+            return template;
         }
 
         return writer.toString();
