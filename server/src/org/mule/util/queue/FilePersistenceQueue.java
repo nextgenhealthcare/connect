@@ -1,7 +1,7 @@
 package org.mule.util.queue;
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -10,8 +10,10 @@ public class FilePersistenceQueue {
 
     private static final Log logger = LogFactory.getLog(FilePersistenceQueue.class);
     private long persistenceID = 1000;
-    private HashMap<String, HashMap<String, File>> queueMap = new HashMap<String, HashMap<String, File>>();
-
+    
+    // Must use ConcurrentHashMap in this class to avoid infinite loops: http://lightbody.net/blog/2005/07/hashmapget_can_cause_an_infini.html
+    private ConcurrentHashMap<String, ConcurrentHashMap<String, File>> queueMap = new ConcurrentHashMap<String, ConcurrentHashMap<String, File>>();
+    
     private FilePersistenceQueue() {
 
     }
@@ -44,7 +46,7 @@ public class FilePersistenceQueue {
     }
 
     public void clearQueueMap() {
-        queueMap = new HashMap<String, HashMap<String, File>>();
+        queueMap = new ConcurrentHashMap<String, ConcurrentHashMap<String, File>>();
     }
 
     public void clearQueueMessageMap(String queue) {
@@ -55,7 +57,7 @@ public class FilePersistenceQueue {
 
     public void putInMessageMap(String queue, String id, File f) {
         if (!queueMap.containsKey(queue)) {
-            queueMap.put(queue, new HashMap<String, File>());
+            queueMap.put(queue, new ConcurrentHashMap<String, File>());
         }
         queueMap.get(queue).put(id, f);
     }
@@ -68,7 +70,7 @@ public class FilePersistenceQueue {
     }
 
     public File peekFromMessageMap(String queue, String id) {
-        HashMap<String, File> messageMap = queueMap.get(queue);
+        ConcurrentHashMap<String, File> messageMap = queueMap.get(queue);
         if (messageMap == null) {
             return null;
         }
