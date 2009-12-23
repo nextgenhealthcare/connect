@@ -63,6 +63,10 @@ public class GlobalVariableStore {
 		globalVariableMap.put(key, value);
 	}
 	
+	public synchronized void putAll(Map<String, Object> map) {
+	    globalVariableMap.putAll(map);
+	}
+	
 	public Map<String, Object> getVariables() {
 		return Collections.unmodifiableMap(globalVariableMap);
 	}
