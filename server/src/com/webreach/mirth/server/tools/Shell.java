@@ -37,7 +37,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -90,6 +89,7 @@ public class Shell {
         new Shell(args);
     }
 
+    @SuppressWarnings("static-access")
     private void run(String[] args) {
         Option serverOption = OptionBuilder.withArgName("address").hasArg().withDescription("server address").create("a");
         Option userOption = OptionBuilder.withArgName("user").hasArg().withDescription("user login").create("u");
@@ -143,7 +143,7 @@ public class Shell {
                 error("Could not login to server.", null);
                 return;
             }
-            out.println("Connected to Mirth server @ " + server + " (" + client.getVersion() + ")");
+            out.println("Connected to Mirth Connect server @ " + server + " (" + client.getVersion() + ")");
             currentUser = user;
 
             if (script != null) {
@@ -252,10 +252,10 @@ public class Shell {
                     commandImportAlerts(arguments);
                 } else if (arg1 == Token.EXPORTALERTS) {
                     commandExportAlerts(arguments);
-                } else if (arg1 == Token.IMPORTSCRIPT) {
-                    commandImportScript(arguments);
-                } else if (arg1 == Token.EXPORTSCRIPT) {
-                    commandExportScript(arguments);
+                } else if (arg1 == Token.IMPORTSCRIPTS) {
+                    commandImportScripts(arguments);
+                } else if (arg1 == Token.EXPORTSCRIPTS) {
+                    commandExportScripts(arguments);
                 } else if (arg1 == Token.IMPORTCODETEMPLATES) {
                     commandImportCodeTemplates(arguments);
                 } else if (arg1 == Token.EXPORTCODETEMPLATES) {
@@ -415,8 +415,8 @@ public class Shell {
         out.println("exportcfg \"path\"\n\tExports the configuration to <path>\n");
         out.println("importalerts \"path\"\n\tImports alerts specified by <path>\n");
         out.println("exportalerts \"path\"\n\tExports alerts to <path>\n");
-        out.println("importscript Deploy|Preprocessor|Postprocessor|Shutdown \"path\"\n\tImports global script specified by <path>\n");
-        out.println("exportscript Deploy|Preprocessor|Postprocessor|Shutdown \"path\"\n\tExports global script to <path>\n");
+        out.println("importscripts \"path\"\n\tImports global script specified by <path>\n");
+        out.println("exportscripts \"path\"\n\tExports global script to <path>\n");
         out.println("importcodetemplates \"path\"\n\tImports code templates specified by <path>\n");
         out.println("exportcodetemplates \"path\"\n\tExports code templates to <path>\n");
         out.println("channel start|stop|pause|resume|stats id|\"name\"|*\n\tPerforms specified channel action\n");
@@ -430,7 +430,7 @@ public class Shell {
         out.println("user remove id|username\n\tRemoves the specified user\n");
         out.println("user changepw id|username \"newpassword\"\n\tChanges the specified user's password\n");
         out.println("shutdown\n\tShuts down the server\n");
-        out.println("quit\n\tQuits Mirth Shell");
+        out.println("quit\n\tQuits Mirth Connect Shell");
     }
 
     private void commandUserList(Token[] arguments) throws ClientException {
@@ -571,8 +571,7 @@ public class Shell {
         List<Channel> channels = client.getChannel(null);
 
         boolean hasChannels = false;
-        for (Iterator iter = channels.iterator(); iter.hasNext();) {
-            Channel channel = (Channel) iter.next();
+        for (Channel channel : channels) {
             if (channel.isEnabled()) {
                 hasChannels = true;
                 break;
@@ -665,8 +664,8 @@ public class Shell {
     private void commandImportAlerts(Token[] arguments) throws ClientException {
         String path = arguments[1].getText();
         File fXml = new File(path);
-
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        
         try {
             client.updateAlerts((List<Alert>) serializer.fromXML(readFile(fXml)));
         } catch (IOException e) {
@@ -694,27 +693,15 @@ public class Shell {
         out.println("Alerts Export Complete.");
     }
 
-    private void commandExportScript(Token[] arguments) throws ClientException {
-        String name = arguments[1].getText();
-
-        if (name.equals("deploy")) {
-            name = "Deploy";
-        } else if (name.equals("preprocessor")) {
-            name = "Proprocessor";
-        } else if (name.equals("postprocessor")) {
-            name = "Postprocessor";
-        } else if (name.equals("shutdown")) {
-            name = "Shutdown";
-        }
-
-        String path = arguments[2].getText();
-
+    private void commandExportScripts(Token[] arguments) throws ClientException {
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        String path = arguments[1].getText();
+        File fXml = new File(path);
+        
         try {
-            Map<String, String> scripts = client.getGlobalScripts();
-            String script = scripts.get(name);
-            File fXml = new File(path);
-            out.println("Exporting " + name + " script");
-            writeFile(fXml, script, false);
+            String scriptsXml = serializer.toXML(client.getGlobalScripts());
+            out.println("Exporting scripts");
+            writeFile(fXml, scriptsXml, false);
         } catch (IOException e) {
             error("unable to write file " + path + ": " + e, e);
         }
@@ -722,25 +709,11 @@ public class Shell {
         out.println("Script Export Complete.");
     }
 
-    private void commandImportScript(Token[] arguments) throws ClientException {
-        String name = arguments[1].getText();
-
-        if (name.equals("deploy")) {
-            name = "Deploy";
-        } else if (name.equals("preprocessor")) {
-            name = "Proprocessor";
-        } else if (name.equals("postprocessor")) {
-            name = "Postprocessor";
-        } else if (name.equals("shutdown")) {
-            name = "Shutdown";
-        }
-
-        String path = arguments[2].getText();
-
+    private void commandImportScripts(Token[] arguments) throws ClientException {
+        String path = arguments[1].getText();
         File fXml = new File(path);
-
-        doImportScript(name, fXml);
-        out.println(name + " script import complete");
+        doImportScript(fXml);
+        out.println("Scripts Import Complete");
     }
 
     private void commandExportCodeTemplates(Token[] arguments) throws ClientException {
@@ -751,8 +724,8 @@ public class Shell {
             List<CodeTemplate> codeTemplates = client.getCodeTemplate(null);
             File fXml = new File(path);
             out.println("Exporting code templates");
-            String codeTemplatesXML = serializer.toXML(codeTemplates);
-            writeFile(fXml, codeTemplatesXML, false);
+            String codeTemplatesXml = serializer.toXML(codeTemplates);
+            writeFile(fXml, codeTemplatesXml, false);
         } catch (IOException e) {
             error("unable to write file " + path + ": " + e, e);
         }
@@ -796,9 +769,8 @@ public class Shell {
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         List<Channel> channels = client.getChannel(null);
         if (key == Token.WILDCARD) {
-            for (Iterator iter = channels.iterator(); iter.hasNext();) {
+            for (Channel channel : channels) {
                 try {
-                    Channel channel = (Channel) iter.next();
                     File fXml = new File(path + channel.getName() + ".xml");
                     out.println("Exporting " + channel.getName());
                     String channelXML = serializer.toXML(channel);
@@ -812,8 +784,7 @@ public class Shell {
         } else {
             File fXml = new File(path);
 
-            for (Iterator iter = channels.iterator(); iter.hasNext();) {
-                Channel channel = (Channel) iter.next();
+            for (Channel channel : channels) {
                 if (key.equalsIgnoreCase(channel.getName()) != key.equalsIgnoreCase(channel.getId())) {
                     out.println("Exporting " + channel.getName());
                     String channelXML = serializer.toXML(channel);
@@ -836,8 +807,7 @@ public class Shell {
 
         List<Channel> channels = client.getChannel(null);
 
-        for (Iterator iter = channels.iterator(); iter.hasNext();) {
-            Channel channel = (Channel) iter.next();
+        for (Channel channel : channels) {
             ChannelStatistics stats = client.getStatistics(channel.getId());
             out.println(stats.getReceived() + "\t\t" + stats.getFiltered() + "\t\t" + stats.getQueued() + "\t\t" + stats.getSent() + "\t\t" + stats.getError() + "\t\t" + stats.getAlerted() + "\t\t" + channel.getName());
         }
@@ -1003,7 +973,8 @@ public class Shell {
     }
 
     private List<Channel> getMatchingChannels(Token key) throws ClientException {
-        List<Channel> result = new ArrayList();
+        List<Channel> result = new ArrayList<Channel>();
+        
         for (Channel channel : client.getChannel(null)) {
             if (matchesChannel(key, channel.getName(), channel.getId())) {
                 result.add(channel);
@@ -1025,7 +996,8 @@ public class Shell {
     // ChannelStatus
     // object), and we would only need one getMatching...() method.
     private List<ChannelStatus> getMatchingChannelStatuses(Token key) throws ClientException {
-        List<ChannelStatus> result = new ArrayList();
+        List<ChannelStatus> result = new ArrayList<ChannelStatus>();
+        
         for (ChannelStatus status : client.getChannelStatusList()) {
             if (matchesChannel(key, status.getName(), status.getChannelId())) {
                 result.add(status);
@@ -1049,8 +1021,7 @@ public class Shell {
     private void commandClear(Token[] arguments) throws ClientException {
         List<Channel> channels = client.getChannel(null);
 
-        for (Iterator iter = channels.iterator(); iter.hasNext();) {
-            Channel channel = (Channel) iter.next();
+        for (Channel channel : channels) {
             client.clearMessages(channel.getId());
         }
     }
@@ -1058,8 +1029,7 @@ public class Shell {
     private void commandResetstats(Token[] arguments) throws ClientException {
         List<Channel> channels = client.getChannel(null);
 
-        for (Iterator iter = channels.iterator(); iter.hasNext();) {
-            Channel channel = (Channel) iter.next();
+        for (Channel channel : channels) {
             client.clearStatistics(channel.getId(), true, true, true, true, true, true);
         }
     }
@@ -1081,8 +1051,7 @@ public class Shell {
             writeFile(dumpFile, "", false);
 
             while (events.size() != 0) {
-                for (Iterator iter = events.iterator(); iter.hasNext();) {
-                    SystemEvent event = (SystemEvent) iter.next();
+                for (SystemEvent event : events) {
                     builder.append(event.getId() + ", " + event.getEvent() + ", " + formatDate(event.getDate()) + ", " + event.getDescription() + ", " + event.getLevel() + "\n");
                 }
 
@@ -1111,8 +1080,7 @@ public class Shell {
 
         List<Channel> channels = client.getChannel(null);
 
-        for (Iterator iter = channels.iterator(); iter.hasNext();) {
-            Channel channel = (Channel) iter.next();
+        for (Channel channel : channels) {
             ChannelStatistics stats = client.getStatistics(channel.getId());
             builder.append(channel.getName() + ", " + stats.getReceived() + ", " + stats.getFiltered() + ", " + stats.getQueued() + ", " + stats.getSent() + ", " + stats.getError() + ", " + stats.getAlerted() + "\n");
         }
@@ -1143,19 +1111,19 @@ public class Shell {
         return contents.toString();
     }
 
-    private void doImportScript(String name, File scriptFile) throws ClientException {
-        String script = "";
+    private void doImportScript(File scriptFile) throws ClientException {
+        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+        String scriptsXml = new String();
 
         try {
-            script = readFile(scriptFile);
+            scriptsXml = readFile(scriptFile);
         } catch (Exception e) {
             error("invalid script file.", e);
             return;
         }
-
-        Map<String, String> scriptMap = new HashMap<String, String>();
-        scriptMap.put(name, script);
-        client.setGlobalScripts(scriptMap);
+        
+        Map<String, String> scriptsMap = (Map<String, String>) serializer.fromXML(scriptsXml);
+        client.setGlobalScripts(scriptsMap);
     }
 
     private void doImportChannel(File importFile, boolean force) throws ClientException {
