@@ -182,7 +182,10 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 									
 									if(thePayload instanceof MessageObject) { 
 										MessageObject messageObject = (MessageObject)thePayload;
-										messageObjectController.setError(messageObject, getConnectorErrorCode(), "Unsupported message format in queue.", new Exception("Unsupported message format in queue.  Removing message from the queue.  Reprocessing this message will fix this problem."), null);
+										Exception auxEx = new Exception("Unsupported message format in queue.  Removing message from the queue.  Reprocessing this message will fix this problem.");
+										String auxErrStr = "Unsupported message format in queue.";
+										alertController.sendAlerts(theMessage.getMessageObject().getChannelId(), getConnectorErrorCode(), auxErrStr, auxEx);
+										messageObjectController.setError(messageObject, getConnectorErrorCode(), auxErrStr, auxEx, null);
 										queue.poll(getPollMaxTime());
 										continue;
 									} else {
@@ -221,7 +224,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 										if (isRotateQueue()) {
 											rotateCurrentMessage();
 										}
-										logger.debug("Conection error [" + t + "] " + " at " + theMessage.getEndpointUri().toString() + " queue size " + new Integer(queue.size()).toString());
+										logger.debug("Connection error [" + t + "] " + " at " + theMessage.getEndpointUri().toString() + " queue size " + new Integer(queue.size()).toString());
 										messageObjectController.resetQueuedStatus(theMessage.getMessageObject());
 									} else {
 										if (!interrupted) {		
@@ -239,7 +242,8 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 													List<MessageObject> messages = messageObjectController.getMessagesByPageLimit(0, 1, 1, tempTableId, filter);
 													if(messages.size() > 0) { 
 														MessageObject message = messages.get(0);
-														messageObjectController.setError(message, Constants.ERROR_400, "Invalid queued message.", t, null);
+														alertController.sendAlerts(theMessage.getMessageObject().getChannelId(), Constants.ERROR_400, "Encountered invalid queued message.  Message removed from queue: queueId=" + getQueueName(), t);
+														messageObjectController.setError(message, Constants.ERROR_400, "Encountered invalid queued message.  Message removed from queue: queueId=" + getQueueName(), t, null);
 													}
 												}
 											} catch(Exception e) {
