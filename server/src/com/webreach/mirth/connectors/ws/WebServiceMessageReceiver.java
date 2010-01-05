@@ -54,6 +54,8 @@ public class WebServiceMessageReceiver extends AbstractMessageReceiver {
     public void doConnect() throws Exception {
         logger.debug("starting Web Service HTTP server on port: " + endpoint.getEndpointURI().getUri().getPort());
         
+        java.util.logging.Logger.getLogger("javax.enterprise.resource.webservices.jaxws.server").setLevel(java.util.logging.Level.OFF);
+        
         server = HttpServer.create(new InetSocketAddress(endpoint.getEndpointURI().getUri().getHost(), endpoint.getEndpointURI().getUri().getPort()), 5);
         
         threads = Executors.newFixedThreadPool(5);
