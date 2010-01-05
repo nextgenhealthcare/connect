@@ -32,10 +32,6 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.model.Channel;
 
-/**
- * 
- * @author brendanh
- */
 public class ChannelPanel extends javax.swing.JPanel implements DropTargetListener
 {
     private final String STATUS_COLUMN_NAME = "Status";
@@ -229,13 +225,14 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
 
         if (row >= 0 && row < channelTable.getRowCount())
         {
-            parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 7, -1, true);
+        	parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 2, 2, true);
+            parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 8, -1, true);
 
             int columnNumber = channelTable.getColumnNumber(STATUS_COLUMN_NAME);
             if (((CellData) channelTable.getValueAt(row, columnNumber)).getText().equals(ENABLED_STATUS))
-                parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 11, 11, false);
-            else
                 parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 12, 12, false);
+            else
+                parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 13, 13, false);
         }
     }
 
@@ -275,7 +272,8 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
     public void deselectRows()
     {
         channelTable.deselectRows();
-        parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 7, -1, false);
+        parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 2, 2, false);
+        parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 8, -1, false);
     }
     
     public void dragEnter(DropTargetDragEvent dtde)

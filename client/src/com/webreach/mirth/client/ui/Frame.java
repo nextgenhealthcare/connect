@@ -691,6 +691,7 @@ public class Frame extends JXFrame
 
         addTask("doRefreshChannels", "Refresh", "Refresh the list of channels.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), channelTasks, channelPopupMenu);
         addTask("doDeployAll", "Deploy All", "Deploy all currently enabled channels.", "A", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png")), channelTasks, channelPopupMenu);
+        addTask("doDeployChannel", "Deploy Channel", "Deploys the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/hotdeploy.png")), channelTasks, channelPopupMenu);
         addTask("doEditGlobalScripts", "Edit Global Scripts", "Edit scripts that are not channel specific.", "G", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_edit.png")), channelTasks, channelPopupMenu);
         addTask("doEditCodeTemplates", "Edit Code Templates", "Create and manage templates to be used in JavaScript throughout Mirth.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_edit.png")), channelTasks, channelPopupMenu);
         addTask("doNewChannel", "New Channel", "Create a new channel.", "N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_add.png")), channelTasks, channelPopupMenu);
@@ -704,7 +705,7 @@ public class Frame extends JXFrame
         addTask("doDisableChannel", "Disable Channel", "Disable the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")), channelTasks, channelPopupMenu);
 
         setNonFocusable(channelTasks);
-        setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, false);
+        setVisibleTasks(channelTasks, channelPopupMenu, 1, 2, false);
         setVisibleTasks(channelTasks, channelPopupMenu, 7, -1, false);
         taskPaneContainer.add(channelTasks);
     }
@@ -772,6 +773,8 @@ public class Frame extends JXFrame
         addTask("doPause", "Pause Channel", "Pause the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/pause.png")), statusTasks, statusPopupMenu);
         addTask("doStop", "Stop Channel", "Stop the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")), statusTasks, statusPopupMenu);
 
+        addTask("doUndeployChannel", "Undeploy Channel", "Undeploys the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/undeploy.png")), statusTasks, statusPopupMenu);
+        
         setNonFocusable(statusTasks);
         setVisibleTasks(statusTasks, statusPopupMenu, 4, -1, false);
         taskPaneContainer.add(statusTasks);
@@ -1161,8 +1164,8 @@ public class Frame extends JXFrame
     }
 
     /**
-     * Sets the visibible tasks in the given 'pane' and 'menu'. The method takes
-     * an interval of indicies (end index should be -1 to go to the end), as
+     * Sets the visible tasks in the given 'pane' and 'menu'. The method takes
+     * an interval of indices (end index should be -1 to go to the end), as
      * well as a whether they should be set to visible or not-visible.
      */
     public void setVisibleTasks(JXTaskPane pane, JPopupMenu menu, int startIndex, int endIndex, boolean visible)
@@ -2178,12 +2181,12 @@ public class Frame extends JXFrame
                 if (channels.size() > 0)
                 {
                     setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, true);
-                    setVisibleTasks(channelTasks, channelPopupMenu, 6, 6, true);
+                    setVisibleTasks(channelTasks, channelPopupMenu, 7, 7, true);
                 }
                 else
                 {
                     setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, false);
-                    setVisibleTasks(channelTasks, channelPopupMenu, 6, 6, false);
+                    setVisibleTasks(channelTasks, channelPopupMenu, 7, 7, false);
                 }
 
                 // as long as the channel was not deleted
@@ -2815,6 +2818,125 @@ public class Frame extends JXFrame
             {
                 setWorking("", false);
                 doShowDashboard();
+            }
+        };
+
+        worker.execute();
+    }
+    
+    public void doDeployEnabled()
+    {
+        setWorking("Deploying enabled channels...", true);
+        dashboardPanel.deselectRows();
+
+        SwingWorker worker = new SwingWorker<Void, Void>()
+        {
+            public Void doInBackground()
+            {
+                try
+                {
+                	List<Channel> enabledChannels = new ArrayList<Channel>();
+                	for (Channel channel : channels.values())
+                	{
+                		if (channel.isEnabled())
+                		{
+                			enabledChannels.add(channel);
+                		}
+                	}
+                    mirthClient.hotDeployChannels(enabledChannels);
+                }
+                catch (ClientException e)
+                {
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                }
+                return null;
+            }
+
+            public void done()
+            {
+                setWorking("", false);
+                doShowDashboard();
+            }
+        };
+
+        worker.execute();
+    }
+    
+    public void doDeployChannel()
+    {        
+        final Channel channel = channelPanel.getSelectedChannel();
+        if (channel == null)
+        {
+            alertWarning(this, "Channel no longer exists.");
+            return;
+        }
+        
+        if (!channel.isEnabled())
+        {
+        	alertWarning(this, "Channel must be enabled before it is deployed.");
+            return;
+        }
+        
+        setWorking("Deploying channel...", true);
+        
+        dashboardPanel.deselectRows();
+
+        SwingWorker worker = new SwingWorker<Void, Void>()
+        {
+            public Void doInBackground()
+            {
+                try
+                {
+                	List<Channel> channels = new ArrayList<Channel>();
+                	channels.add(channel);
+                    mirthClient.hotDeployChannels(channels);
+                }
+                catch (ClientException e)
+                {
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                }
+                return null;
+            }
+
+            public void done()
+            {
+                setWorking("", false);
+                doShowDashboard();
+            }
+        };
+
+        worker.execute();
+    }
+    
+    public void doUndeployChannel()
+    {        
+        final String channelId = status.get(dashboardPanel.getSelectedStatus()).getChannelId();
+        
+        setWorking("Undeploying channel...", true);
+        
+        dashboardPanel.deselectRows();
+
+        SwingWorker worker = new SwingWorker<Void, Void>()
+        {
+            public Void doInBackground()
+            {
+                try
+                {
+                	List<String> channelIds = new ArrayList<String>();
+                	channelIds.add(channelId);
+                    mirthClient.undeployChannels(channelIds);
+                }
+                catch (ClientException e)
+                {
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                }
+                return null;
+            }
+
+            public void done()
+            {
+                setWorking("", false);
+                doRefreshStatuses();
             }
         };
 

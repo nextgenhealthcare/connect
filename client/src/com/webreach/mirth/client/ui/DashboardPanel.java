@@ -34,10 +34,6 @@ import com.webreach.mirth.model.PluginMetaData;
 import com.webreach.mirth.plugins.DashboardColumnPlugin;
 import com.webreach.mirth.plugins.DashboardPanelPlugin;
 
-/**
- *
- * @author brendanh
- */
 public class DashboardPanel extends javax.swing.JPanel
 {
     private final String STATUS_COLUMN_NAME = "Status";
@@ -432,25 +428,22 @@ public class DashboardPanel extends javax.swing.JPanel
         {
             int columnNumber = statusTable.getColumnNumber(STATUS_COLUMN_NAME);
             parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 4, 7, true);
+            parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 11, 11, true);
             
             if (((CellData) statusTable.getValueAt(row, columnNumber)).getText().equals("Started"))
             {
-                
-            	// parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 7, 7, true);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 8, 8, false);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 9, 9, true);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 10, 10, true);
             }
             else if (((CellData) statusTable.getValueAt(row, columnNumber)).getText().equals("Paused"))
             {
-            	 //parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 7, 7, true);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 8, 8, true);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 9, 9, false);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 10, 10, true);
             }
             else
             {
-               // parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 7, 7, true);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 8, 8, true);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 9, 9, false);
                 parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 10, 10, false);
@@ -477,7 +470,6 @@ public class DashboardPanel extends javax.swing.JPanel
     {
         statusTable.deselectRows();
         parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 4, -1, false);
-       // parent.setVisibleTasks(parent.statusTasks, parent.statusPopupMenu, 7, 7, true);
         updateCurrentPluginPanel();
     }
     
