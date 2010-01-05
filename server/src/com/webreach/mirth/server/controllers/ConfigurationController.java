@@ -63,6 +63,10 @@ public abstract class ConfigurationController extends Controller {
 
     public abstract void deployChannels() throws ControllerException;
     
+    public abstract void hotDeployChannels(List<Channel> channels) throws ControllerException;
+    
+    public abstract void undeployChannels(List<String> channelIds) throws ControllerException;
+    
     public abstract void loadEncryptionKey();
     
     // scripts
@@ -87,6 +91,8 @@ public abstract class ConfigurationController extends Controller {
 
     public abstract File getLatestConfiguration() throws ControllerException;
 
+    public abstract File getStartupConfiguration() throws ControllerException;
+    
     public abstract String getDefaultConfiguration() throws Exception;
 
     public abstract void deleteLatestConfiguration();

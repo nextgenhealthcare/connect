@@ -46,10 +46,13 @@ import org.mortbay.http.SslListener;
 import org.mortbay.http.handler.ResourceHandler;
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.mule.MuleManager;
-import org.mule.config.builders.MuleXmlConfigurationBuilder;
+import org.mule.impl.MuleDescriptor;
+import org.mule.umo.manager.UMOManager;
+import org.mule.umo.routing.UMOOutboundRouter;
 
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.SystemEvent;
+import com.webreach.mirth.server.builders.MuleManagerBuilder;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ChannelStatisticsController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
@@ -75,7 +78,7 @@ public class Mirth extends Thread {
     private boolean running = false;
     private Properties mirthProperties = null;
     private Properties versionProperties = null;
-    private MuleManager muleManager = null;
+    private UMOManager umoManager = null;
     private HttpServer httpServer = null;
     private HttpServer servletContainer = null;
     private CommandQueue commandQueue = CommandQueue.getInstance();
@@ -136,6 +139,10 @@ public class Mirth extends Thread {
                     stopMule();
                 } else if (command.getOperation().equals(Command.Operation.RESTART_ENGINE)) {
                     restartMule();
+                } else if (command.getOperation().equals(Command.Operation.DEPLOY_CHANNELS)) {
+                    deployChannels((List<Channel>) command.getParameter());
+                } else if (command.getOperation().equals(Command.Operation.UNDEPLOY_CHANNELS)) {
+                    undeployChannels((List<String>) command.getParameter());
                 }
             }
         } else {
@@ -208,25 +215,57 @@ public class Mirth extends Thread {
         startMule();
     }
 
+    private void deployChannels(List<Channel> channels) {
+        try {
+            // unregister existing channels
+            for (Channel channel : channels) {
+                MuleDescriptor oldDescriptor = (MuleDescriptor) umoManager.getModel().getDescriptor(channel.getId());
+
+                if (oldDescriptor != null) {
+                    channelController.getChannelCache().remove(channel);
+                    umoManager.getModel().unregisterComponent(oldDescriptor);
+                    MuleManagerBuilder.unregisterTransformers(umoManager, oldDescriptor.getInboundRouter().getEndpoints());
+                    UMOOutboundRouter outboundRouter = (UMOOutboundRouter) oldDescriptor.getOutboundRouter().getRouters().iterator().next();
+                    MuleManagerBuilder.unregisterTransformers(umoManager, outboundRouter.getEndpoints());
+                }
+            }
+
+            // TODO: delete old scripts from script table
+
+            // update the manager with the new classes
+            MuleManagerBuilder managerBuilder = new MuleManagerBuilder();
+            managerBuilder.getConfiguration(umoManager, channels, extensionController.getConnectorMetaData());
+            configurationController.executeChannelDeployScripts(channelController.getChannel(null));
+        } catch (Exception e) {
+            logger.error("Error deploying channels.", e);
+        }
+    }
+
+    private void undeployChannels(List<String> channelIds) {
+        try {
+            for (String channelId : channelIds) {
+                MuleDescriptor oldDescriptor = (MuleDescriptor) umoManager.getModel().getDescriptor(channelId);
+                channelController.getChannelCache().remove(channelController.getChannelCache().get(channelId));
+                umoManager.getModel().unregisterComponent(oldDescriptor);
+            }
+
+            // TODO: delete old scripts from script table
+        } catch (Exception e) {
+            logger.error("Error un-deploying channels.", e);
+        }
+    }
+
     /**
      * Starts the Mule server.
      * 
      */
     private void startMule() {
-        String configurationFilePath = null;
-
-        try {
-            configurationFilePath = configurationController.getLatestConfiguration().getAbsolutePath();
-        } catch (Exception e) {
-            logger.error("Could not retrieve latest configuration.", e);
-            return;
-        }
-
         try {
             // clear global map and do channel deploy scripts if the user
             // specified to
-            if (configurationController.getServerProperties().getProperty("server.resetglobalvariables") == null || configurationController.getServerProperties().getProperty("server.resetglobalvariables").equals("1"))
+            if (configurationController.getServerProperties().getProperty("server.resetglobalvariables") == null || configurationController.getServerProperties().getProperty("server.resetglobalvariables").equals("1")) {
                 GlobalVariableStore.getInstance().globalVariableMap.clear();
+            }
         } catch (Exception e) {
             logger.warn("Could not clear the global map.", e);
         }
@@ -234,32 +273,24 @@ public class Mirth extends Thread {
         configurationController.setEngineStarting(true);
 
         try {
-            logger.debug("starting mule with configuration file: " + configurationFilePath);
-
             // disables validation of Mule configuration files
             System.setProperty("org.mule.xml.validate", "false");
             VMRegistry.getInstance().rebuild();
-            MuleXmlConfigurationBuilder builder = new MuleXmlConfigurationBuilder();
-
             List<Channel> channels = channelController.getChannel(null);
             configurationController.compileScripts(channels);
-
             configurationController.executeGlobalDeployScript();
-            configurationController.executeChannelDeployScripts(channelController.getChannel(null));
-
-            muleManager = (MuleManager) builder.configure(configurationFilePath);
-
+            umoManager = MuleManager.getInstance();
+            MuleManagerBuilder managerBuilder = new MuleManagerBuilder();
+            managerBuilder.loadDefaultConfiguration(umoManager);
+            deployChannels(channelController.getChannel(null));
+            umoManager.start();
         } catch (Exception e) {
             logger.warn("Error deploying channels.", e);
-
             // if deploy fails, log to system events
             SystemEvent event = new SystemEvent("Error deploying channels.");
             event.setLevel(SystemEvent.Level.HIGH);
             event.setDescription(StackTracePrinter.stackTraceToString(e));
             eventController.logSystemEvent(event);
-
-            // remove the errant configuration
-            configurationController.deleteLatestConfiguration();
         }
 
         configurationController.setEngineStarting(false);
@@ -272,19 +303,19 @@ public class Mirth extends Thread {
     private void stopMule() {
         logger.debug("stopping mule");
 
-        if (muleManager != null) {
+        if (umoManager != null) {
             try {
-                if (muleManager.isStarted()) {
+                if (umoManager.isStarted()) {
                     configurationController.executeChannelShutdownScripts(channelController.getChannel(null));
                     configurationController.executeGlobalShutdownScript();
 
-                    muleManager.stop();
+                    umoManager.stop();
                 }
             } catch (Exception e) {
                 logger.error(e);
             } finally {
                 logger.debug("disposing mule instance");
-                muleManager.dispose();
+                umoManager.dispose();
             }
         }
     }
@@ -432,7 +463,7 @@ public class Mirth extends Thread {
             try {
                 DriverManager.getConnection("jdbc:derby:;shutdown=true");
             } catch (SQLException sqle) {
-                if (sqle != null && sqle.getSQLState() != null && sqle.getSQLState().equals("XJ015")) {
+                if ((sqle.getSQLState() != null) && sqle.getSQLState().equals("XJ015")) {
                     gotException = true;
                 }
             }

@@ -222,14 +222,14 @@ public class DefaultConfigurationController extends ConfigurationController{
         // smtp.useAuthentication
         String useAuthentication = serverProperties.getProperty("smtp.requireAuthentication");
         String smtpAuth = serverProperties.getProperty("smtp.auth");
-        
+
         if ((useAuthentication != null) && (useAuthentication.length() > 0)) {
             serverProperties.setProperty("smtp.auth", useAuthentication);
             serverProperties.remove("smtp.requireAuthentication");
         } else if ((smtpAuth == null) || (smtpAuth.length() == 0)) {
             serverProperties.setProperty("smtp.auth", "0");
         }
-        
+
         // smtp.secure
         String secure = serverProperties.getProperty("smtp.secure");
 
@@ -341,6 +341,39 @@ public class DefaultConfigurationController extends ConfigurationController{
     }
 
     /**
+     * Updates the existing Mule configuration with new channels.
+     * 
+     * @throws ControllerException
+     */
+    public void hotDeployChannels(List<Channel> channels) throws ControllerException {
+        logger.debug("hot deploying " + channels.size() + " channels");
+
+        try {
+            CommandQueue.getInstance().addCommand(new Command(Command.Operation.DEPLOY_CHANNELS, channels));
+            ControllerFactory.getFactory().createChannelController().loadChannelCache();
+        } catch (Exception e) {
+            throw new ControllerException(e);
+        }
+
+        systemLogger.logSystemEvent(new SystemEvent("Channels hot deployed."));
+    }
+    
+    public void undeployChannels(List<String> channelIds) throws ControllerException {
+        logger.debug("un-deploying " + channelIds.size() + " channels");
+
+        try {
+            Command command = new Command(Command.Operation.UNDEPLOY_CHANNELS);
+            command.setParameter(channelIds);
+            CommandQueue.getInstance().addCommand(command);
+            ControllerFactory.getFactory().createChannelController().loadChannelCache();
+        } catch (Exception e) {
+            throw new ControllerException(e);
+        }
+
+        systemLogger.logSystemEvent(new SystemEvent("Channels un-deployed."));
+    }
+
+    /**
      * Creates a new configuration and restarts the Mule engine.
      * 
      * @throws ControllerException
@@ -348,29 +381,18 @@ public class DefaultConfigurationController extends ConfigurationController{
     public void deployChannels() throws ControllerException {
         logger.debug("deploying channels");
 
-        stopAllChannels();
         scriptController.clearScripts();
         ControllerFactory.getFactory().createTemplateController().clearTemplates();
 
         try {
             ChannelController channelController = ControllerFactory.getFactory().createChannelController();
             channelController.loadChannelCache();
-
-            // instantiate a new configuration builder given the current channel
-            // and transport list
             List<Channel> channels = channelController.getChannel(null);
-            MuleConfigurationBuilder builder = new MuleConfigurationBuilder(channels, extensionController.getConnectorMetaData());
-            // add the newly generated configuration to the database
-            addConfiguration(builder.getConfiguration());
 
             // update the storeMessages reference
             channelController.refreshChannelCache(channels);
-
             ControllerFactory.getFactory().createExtensionController().deployTriggered();
-            // restart the mule engine which will grab the latest configuration
-            // from the database
-
-            CommandQueue.getInstance().addCommand(new Command(Command.Operation.RESTART_ENGINE));
+            hotDeployChannels(channels);
         } catch (Exception e) {
             throw new ControllerException(e);
         }
@@ -526,8 +548,6 @@ public class DefaultConfigurationController extends ConfigurationController{
     public File getLatestConfiguration() throws ControllerException {
         logger.debug("retrieving latest configuration");
 
-        Properties properties = PropertyLoader.loadProperties("mirth");
-
         try {
             Configuration latestConfiguration = (Configuration) SqlConfig.getSqlMapClient().queryForObject("Configuration.getLatestConfiguration");
 
@@ -551,6 +571,15 @@ public class DefaultConfigurationController extends ConfigurationController{
             }
         } catch (Exception e) {
             logger.error("Could not retrieve latest configuration.", e);
+            return null;
+        }
+    }
+    
+    public File getStartupConfiguration() throws ControllerException {
+        try {
+            return new File(ClassPathResource.getResourceURI(PropertyLoader.getProperty(PropertyLoader.loadProperties("mirth"), "mule.template")));
+        } catch (Exception e) {
+            logger.error("Could not retrieve startup configuration file.", e);
             return null;
         }
     }
