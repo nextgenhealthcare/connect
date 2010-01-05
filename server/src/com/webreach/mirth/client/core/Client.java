@@ -515,6 +515,28 @@ public class Client {
     }
 
     /**
+     * Hot deploys specific channels.
+     * 
+     * @throws ClientException
+     */
+    public synchronized void hotDeployChannels(List<Channel> channels) throws ClientException {
+        logger.debug("deploying channels");
+        NameValuePair[] params = { new NameValuePair("op", "hotDeployChannels"), new NameValuePair("channels", serializer.toXML(channels)) };
+        serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
+    }
+    
+    /**
+     * Undeploys specific channels.
+     * 
+     * @throws ClientException
+     */
+    public synchronized void undeployChannels(List<String> channelIds) throws ClientException {
+        logger.debug("undeploying channels");
+        NameValuePair[] params = { new NameValuePair("op", "uneployChannels"), new NameValuePair("channelIds", serializer.toXML(channelIds)) };
+        serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
+    }
+    
+    /**
      * Starts the channel with the specified id.
      * 
      * @param channelId
