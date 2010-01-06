@@ -86,7 +86,6 @@ public class MuleManagerBuilder {
         defaultTransformers.put("ByteArrayToString", "org.mule.transformers.simple.ByteArrayToString");
         defaultTransformers.put("JMSMessageToObject", "com.webreach.mirth.connectors.jms.transformers.JMSMessageToObject");
         defaultTransformers.put("StringToByteArray", "org.mule.transformers.simple.StringToByteArray");
-        defaultTransformers.put("SOAPRequestToString", "com.webreach.mirth.connectors.soap.transformers.SOAPRequestToString");
         defaultTransformers.put("ResultMapToXML", "com.webreach.mirth.server.mule.transformers.ResultMapToXML");
         defaultTransformers.put("ObjectToString", "org.mule.transformers.simple.ObjectToString");
         defaultTransformers.put("NoActionTransformer", "org.mule.transformers.NoActionTransformer");
@@ -207,7 +206,7 @@ public class MuleManagerBuilder {
 
     private void configureInboundRouter(UMOManager manager, UMODescriptor descriptor, Channel channel) throws BuilderException {
         try {
-            logger.debug("Building inbound router for channel: " + channel.getId());
+            logger.debug("Building inbound router for channel: " + channel.getId() + " (" + channel.getName() + ")");
             InboundMessageRouter inboundRouter = new InboundMessageRouter();
 
             // add source endpoints
@@ -277,7 +276,7 @@ public class MuleManagerBuilder {
 
     private void configureOutboundRouter(UMOManager manager, UMODescriptor descriptor, Channel channel) throws BuilderException {
         try {
-            logger.debug("Building outbound router for channel: " + channel.getId());
+            logger.debug("Building outbound router for channel: " + channel.getId() + " (" + channel.getName() + ")");
             FilteringMulticastingRouter fmr = new FilteringMulticastingRouter();
             boolean enableTransactions = false;
 
@@ -442,7 +441,6 @@ public class MuleManagerBuilder {
             beanProperties.put("channelId", channelId);
 
             for (Entry<Object, Object> property : connector.getProperties().entrySet()) {
-
                 if ((property.getValue() != null) && !property.getValue().equals("") && !nonConnectorProperties.contains(property.getKey())) {
                     if (keysOfValuesThatAreBeans.contains(property.getKey())) {
                         beanProperties.put(property.getKey(), objectSerializer.fromXML(property.getValue().toString()));
