@@ -29,6 +29,11 @@ public class DICOMAdaptor extends Adaptor {
                 messageObject.setRawData(dSerializer.rawData);
             else
                 messageObject.setRawData("");
+            
+            // Set source data to the new raw data which does not include the attachments
+            // If the source is used after this point it will no longer have any attachment data.
+            source = messageObject.getRawData();
+            
             // Create attachment
             if(dSerializer.getPixelData() != null && !dSerializer.getPixelData().isEmpty()) {
                 Iterator<String> i = dSerializer.getPixelData().iterator();
