@@ -47,6 +47,9 @@
 
 	<target name="dist-model" depends="compile-model">
 		<mkdir dir="${model.dist}" />
-		<jar destfile="${model.dist}/${model.jar}" basedir="${model.classes}" />
+		<jar destfile="${model.dist}/${model.jar}">
+			<fileset dir="${model.classes}" />
+			<fileset dir="${generator.classes}" includes="**/hl7v2/**/*.class" />
+		</jar>
 	</target>
 </project>
