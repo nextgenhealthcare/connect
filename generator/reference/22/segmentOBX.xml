@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>OBX</name>
+    <description>Observation/Result</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.1</name>
+            <description>Set ID</description>
+            <datatype>SI</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>OBX.2</name>
+            <description>Value Type</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>OBX.3</name>
+            <description>Observation Identifier</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.4</name>
+            <description>Observation Sub-ID</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.5</name>
+            <description>Observation Value</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.6</name>
+            <description>Units</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.7</name>
+            <description>Reference Range</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="5">
+            <name>OBX.8</name>
+            <description>Abnormal Flag</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.9</name>
+            <description>Probability</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.10</name>
+            <description>0</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>OBX.11</name>
+            <description>1</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.12</name>
+            <description>2</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.13</name>
+            <description>3</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.14</name>
+            <description>4</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.15</name>
+            <description>5</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBX.16</name>
+            <description>6</description>
+            <datatype>CN</datatype>
+        </field>
+    </elements>
+</segment>

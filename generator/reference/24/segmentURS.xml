@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>URS</name>
+    <description>Unsolicited Selection</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>URS.1</name>
+            <description>R/U Where Subject Definition</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>URS.2</name>
+            <description>R/U When Data Start Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>URS.3</name>
+            <description>R/U When Data End Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>URS.4</name>
+            <description>R/U What User Qualifier</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>URS.5</name>
+            <description>R/U Other Results Subject Definition</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>URS.6</name>
+            <description>R/U Which Date/Time Qualifier</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>URS.7</name>
+            <description>R/U Which Date/Time Status Qualifier</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>URS.8</name>
+            <description>R/U Date/Time Selection Qualifier</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>URS.9</name>
+            <description>R/U Quantity/Timing Qualifier</description>
+            <datatype>TQ</datatype>
+        </field>
+    </elements>
+</segment>

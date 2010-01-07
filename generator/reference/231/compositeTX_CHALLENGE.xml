@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>TX_CHALLENGE</name>
+    <description>Challenge Information</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TX_CHALLENGE.1</name>
+            <description>Challenge Information</description>
+            <datatype>TX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TX_CHALLENGE.2</name>
+            <description>Challenge Information</description>
+            <datatype>TX</datatype>
+        </field>
+    </elements>
+</segment>

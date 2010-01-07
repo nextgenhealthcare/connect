@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>CM_MSH</name>
+    <description>MSH Event-Type Composite</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CM_MSH.1</name>
+            <description>Type</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CM_MSH.2</name>
+            <description>Event</description>
+            <datatype>ID</datatype>
+        </field>
+    </elements>
+</segment>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>RFR</name>
+    <description>Reference Range</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RFR.1</name>
+            <description>Reference Range</description>
+            <datatype>NR</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RFR.2</name>
+            <description>Administrative Sex</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RFR.3</name>
+            <description>Age Range</description>
+            <datatype>NR</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RFR.4</name>
+            <description>Gestational Range</description>
+            <datatype>NR</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RFR.5</name>
+            <description>Species</description>
+            <datatype>TX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RFR.6</name>
+            <description>Race/Subspecies</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RFR.7</name>
+            <description>Conditions</description>
+            <datatype>TX</datatype>
+        </field>
+    </elements>
+</segment>

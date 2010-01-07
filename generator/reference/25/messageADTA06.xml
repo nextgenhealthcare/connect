@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>ADTA06</name>
+    <description>Change An Outpatient to An Inpatient</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment>EVN</segment>
+        <segment>PID</segment>
+        <segment minOccurs="0">PD1</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">ROL</segment>
+        <segment minOccurs="0">MRG</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">NK1</segment>
+        <segment>PV1</segment>
+        <segment minOccurs="0">PV2</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">ROL</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">DB1</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">OBX</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">AL1</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">DG1</segment>
+        <segment minOccurs="0">DRG</segment>
+        <group maxOccurs="unbounded" minOccurs="0">
+            <segment>PR1</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">ROL</segment>
+        </group>
+        <segment minOccurs="0" maxOccurs="unbounded">GT1</segment>
+        <group maxOccurs="unbounded" minOccurs="0">
+            <segment>IN1</segment>
+            <segment minOccurs="0">IN2</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">IN3</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">ROL</segment>
+        </group>
+        <segment minOccurs="0">ACC</segment>
+        <segment minOccurs="0">UB1</segment>
+        <segment minOccurs="0">UB2</segment>
+    </segments>
+</message>

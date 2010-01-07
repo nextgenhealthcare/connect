@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>CM</name>
+    <description>Composite</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CM.1</name>
+            <description>Field1</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CM.2</name>
+            <description>Field2</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CM.3</name>
+            <description>Field3</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CM.4</name>
+            <description>Field4</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CM.5</name>
+            <description>Field5</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>CM.6</name>
+            <description>Field6</description>
+            <datatype>ST</datatype>
+        </field>
+    </elements>
+</segment>

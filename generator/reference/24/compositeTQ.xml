@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>TQ</name>
+    <description>Timing Quantity</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TQ.1</name>
+            <description>Quantity</description>
+            <datatype>CQ</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TQ.2</name>
+            <description>Interval</description>
+            <datatype>RI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TQ.3</name>
+            <description>Duration</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TQ.4</name>
+            <description>Start Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TQ.5</name>
+            <description>End Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TQ.6</name>
+            <description>Priority</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TQ.7</name>
+            <description>Condition</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TQ.8</name>
+            <description>Text (TX)</description>
+            <datatype>TX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TQ.9</name>
+            <description>Conjunction Component</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TQ.10</name>
+            <description>Order Sequencing</description>
+            <datatype>OSD</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TQ.11</name>
+            <description>Occurrence Duration</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>TQ.12</name>
+            <description>Total Occurences</description>
+            <datatype>NM</datatype>
+        </field>
+    </elements>
+</segment>

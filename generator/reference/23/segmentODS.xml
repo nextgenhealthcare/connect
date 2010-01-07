@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>ODS</name>
+    <description>Dietary Orders, Supplements, and Preferences</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>ODS.1</name>
+            <description>Type</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="10">
+            <name>ODS.2</name>
+            <description>Service Period</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="20">
+            <name>ODS.3</name>
+            <description>Diet, Supplement, or Preference Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="2">
+            <name>ODS.4</name>
+            <description>Text Instruction</description>
+            <datatype>ST</datatype>
+        </field>
+    </elements>
+</segment>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>BARP10</name>
+    <description>Transmit Ambulatory Payment Classification (APC)</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment>EVN</segment>
+        <segment>PID</segment>
+        <segment>PV1</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">DG1</segment>
+        <segment>GP1</segment>
+        <group maxOccurs="unbounded" minOccurs="0">
+            <segment>PR1</segment>
+            <segment minOccurs="0">GP2</segment>
+        </group>
+    </segments>
+</message>

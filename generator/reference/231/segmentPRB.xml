@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>PRB</name>
+    <description>Problem Detail</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PRB.1</name>
+            <description>Action Code</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PRB.2</name>
+            <description>Action Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PRB.3</name>
+            <description>Problem ID</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>PRB.4</name>
+            <description>Problem Instance ID</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRB.5</name>
+            <description>Episode of Care ID</description>
+            <datatype>EI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRB.6</name>
+            <description>Problem List Priority</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRB.7</name>
+            <description>Problem Established Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRB.8</name>
+            <description>Anticipated Problem Resolution Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRB.9</name>
+            <description>Actual Problem Resolution Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRB.10</name>
+            <description>Problem Classification</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRB.11</name>
+            <description>Problem Management Discipline</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRB.12</name>
+            <description>Problem Persistence</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRB.13</name>
+            <description>Problem Confirmation Status</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRB.14</name>
+            <description>Problem Life Cycle Status</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRB.15</name>
+            <description>Problem Life Cycle Status Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRB.16</name>
+            <description>Problem Date of Onset</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRB.17</name>
+            <description>Problem Onset Text</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRB.18</name>
+            <description>Problem Ranking</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRB.19</name>
+            <description>Certainty of Problem</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRB.20</name>
+            <description>Probability of Problem (0-1)</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRB.21</name>
+            <description>Individual Awareness of Problem</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRB.22</name>
+            <description>Problem Prognosis</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRB.23</name>
+            <description>Individual Awareness of Prognosis</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRB.24</name>
+            <description>Family/Significant Other Awareness of Problem/Prognosis</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>PRB.25</name>
+            <description>Security/Sensitivity</description>
+            <datatype>CE</datatype>
+        </field>
+    </elements>
+</segment>

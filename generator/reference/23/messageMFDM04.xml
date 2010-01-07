@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>MFDM04</name>
+    <description>Master Files Delayed Application Acknowlegement</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MFI</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">MFA</segment>
+    </segments>
+</message>

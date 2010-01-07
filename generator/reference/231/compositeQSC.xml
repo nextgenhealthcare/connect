@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>QSC</name>
+    <description>Query Selection Criteria</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QSC.1</name>
+            <description>Segment Field Name</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QSC.2</name>
+            <description>Relational Operator</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QSC.3</name>
+            <description>Value</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QSC.4</name>
+            <description>Relational Conjunction</description>
+            <datatype>ID</datatype>
+        </field>
+    </elements>
+</segment>

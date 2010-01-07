@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>ORFR04</name>
+    <description>Observational Report (Response to Query For Results of Observation)</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MSA</segment>
+        <segment>QRD</segment>
+        <segment minOccurs="0">QRF</segment>
+        <group maxOccurs="unbounded">
+            <group minOccurs="0">
+                <segment>PID</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+            </group>
+            <group maxOccurs="unbounded">
+                <segment minOccurs="0">ORC</segment>
+                <segment>OBR</segment>
+                <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+                <group maxOccurs="unbounded">
+                    <segment minOccurs="0">OBX</segment>
+                    <segment minOccurs="0" maxOccurs="unbounded">NTE</segment>
+                </group>
+                <segment minOccurs="0" maxOccurs="unbounded">CTI</segment>
+            </group>
+        </group>
+        <segment minOccurs="0">DSC</segment>
+    </segments>
+</message>

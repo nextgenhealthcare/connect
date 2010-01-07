@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>RTBZ74</name>
+    <description>Information About Phone Calls (response)</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MSA</segment>
+        <segment minOccurs="0">ERR</segment>
+        <segment>QAK</segment>
+        <segment>QPD</segment>
+        <group minOccurs="0">
+            <segment>RDF</segment>
+            <segment minOccurs="0">RDT</segment>
+        </group>
+        <segment minOccurs="0">DSC</segment>
+    </segments>
+</message>
