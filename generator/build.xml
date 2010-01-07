@@ -1,0 +1,48 @@
+<project name="mirth-generator" basedir="." default="dist-model">
+	<target name="init">
+		<property file="build.properties" />
+
+		<path id="generator.classpath">
+			<fileset dir="${generator.lib}" includes="*.jar" />
+		</path>
+	</target>
+
+	<target name="clean" depends="init">
+		<delete dir="${generator.classes}" />
+		<delete dir="${generator.dist}" />
+		<delete dir="${model}" />
+	</target>
+
+	<target name="compile-generator" depends="clean">
+		<mkdir dir="${generator.classes}" />
+		<javac srcdir="${generator.src}" destdir="${generator.classes}" classpathref="generator.classpath" />
+	</target>
+
+	<target name="dist-generator" depends="compile-generator">
+		<mkdir dir="${generator.dist}" />
+		<jar destfile="${generator.dist}/${generator.jar}" basedir="${generator.classes}">
+			<manifest>
+				<attribute name="Main-Class" value="com.webreach.mirth.model.generator.HL7ModelGenerator" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="generate-model-source" depends="dist-generator">
+		<mkdir dir="${model.src}" />
+		<java jar="${generator.dist}/${generator.jar}" dir="${basedir}" classpathref="generator.classpath" fork="true" failonerror="true">
+			<arg value="reference" />
+			<arg value="${model.src}" />
+			<arg value="templates" />
+		</java>
+	</target>
+
+	<target name="compile-model" depends="generate-model-source">
+		<mkdir dir="${model.classes}" />
+		<javac srcdir="${model.src}" destdir="${model.classes}" />
+	</target>
+
+	<target name="dist-model" depends="compile-model">
+		<mkdir dir="${model.dist}" />
+		<jar destfile="${model.dist}/${model.jar}" basedir="${model.classes}" />
+	</target>
+</project>
