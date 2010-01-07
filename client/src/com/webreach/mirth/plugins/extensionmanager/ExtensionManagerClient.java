@@ -34,8 +34,8 @@ public class ExtensionManagerClient extends ClientPanelPlugin
         
         addTask("doCheckForUpdates", "Check for Updates", "Checks all extensions for updates.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/world_link.png")));
         
-        addTask("doEnable","Enable Extension","Enable the currently selected extension.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")));
-        addTask("doDisable","Disable Extension","Disable the currently selected extension.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")));
+        addTask("doEnable","Enable Extension","Enable the currently selected extension.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/control_play_blue.png")));
+        addTask("doDisable","Disable Extension","Disable the currently selected extension.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/control_stop_blue.png")));
         addTask("doShowProperties","Show Properties","Display the currently selected extension properties.","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_view_list.png")));
         addTask("doUninstall","Uninstall Extension","Uninstall the currently selected extension","", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/plugin_delete.png")));
         setVisibleTasks(getRefreshIndex(), getRefreshIndex(), true);

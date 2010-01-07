@@ -142,8 +142,8 @@ public class UIConstants
     public static final ImageIcon FILE_PICKER_ICON = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/folder_explore.png"));
 
     // for dashboard connector monitoring and Mirth server logs
-    public static final ImageIcon PAUSE_LOG_ICON = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/pause.png"));
-    public static final ImageIcon RESUME_LOG_ICON = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png"));
+    public static final ImageIcon PAUSE_LOG_ICON = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/control_pause_blue.png"));
+    public static final ImageIcon RESUME_LOG_ICON = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/control_play_blue.png"));
     public static final ImageIcon CLEAR_LOG_ICON = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/cross.png"));
     public static final ImageIcon CHANGE_LOGSIZE_ICON = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/tick.png"));
 

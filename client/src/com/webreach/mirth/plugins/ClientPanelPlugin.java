@@ -41,13 +41,13 @@ public abstract class ClientPanelPlugin extends ClientPlugin
         this.name = name;
         
         if (refresh) {
-        	addTask("doRefresh", "Refresh", "Refresh loaded plugins.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")));
+        	addTask("doRefresh", "Refresh", "Refresh loaded plugins.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_refresh.png")));
         	refreshIndex = reservedTasksCount;
         	reservedTasksCount++;
         }
         
         if (save) {
-        	addTask("doSave", "Save", "Save plugin settings.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")));
+        	addTask("doSave", "Save", "Save plugin settings.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/disk.png")));
         	saveIndex = reservedTasksCount;
         	reservedTasksCount++;
         }

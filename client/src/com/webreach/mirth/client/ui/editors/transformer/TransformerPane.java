@@ -401,9 +401,9 @@ public class TransformerPane extends MirthEditorPane implements
         transformerPopupMenu.add(deleteStep);
 
         transformerTasks.add(initActionCallback("doImport", ActionFactory.createBoundAction("doImport", "Import Transformer", "I"),
-                new ImageIcon(Frame.class.getResource("images/import.png"))));
+                new ImageIcon(Frame.class.getResource("images/report_go.png"))));
         JMenuItem importTransformer = new JMenuItem("Import Transformer");
-        importTransformer.setIcon(new ImageIcon(Frame.class.getResource("images/import.png")));
+        importTransformer.setIcon(new ImageIcon(Frame.class.getResource("images/report_go.png")));
         importTransformer.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
@@ -413,9 +413,9 @@ public class TransformerPane extends MirthEditorPane implements
         transformerPopupMenu.add(importTransformer);
 
         transformerTasks.add(initActionCallback("doExport", ActionFactory.createBoundAction("doExport", "Export Transformer", "E"),
-                new ImageIcon(Frame.class.getResource("images/export.png"))));
+                new ImageIcon(Frame.class.getResource("images/report_disk.png"))));
         JMenuItem exportTransformer = new JMenuItem("Export Transformer");
-        exportTransformer.setIcon(new ImageIcon(Frame.class.getResource("images/export.png")));
+        exportTransformer.setIcon(new ImageIcon(Frame.class.getResource("images/report_disk.png")));
         exportTransformer.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {

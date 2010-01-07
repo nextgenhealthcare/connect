@@ -425,9 +425,9 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         });
         filterPopupMenu.add(deleteRule);
 
-        filterTasks.add(initActionCallback("doImport", ActionFactory.createBoundAction("doImport", "Import Filter", "I"), new ImageIcon(Frame.class.getResource("images/import.png"))));
+        filterTasks.add(initActionCallback("doImport", ActionFactory.createBoundAction("doImport", "Import Filter", "I"), new ImageIcon(Frame.class.getResource("images/report_go.png"))));
         JMenuItem importFilter = new JMenuItem("Import Filter");
-        importFilter.setIcon(new ImageIcon(Frame.class.getResource("images/import.png")));
+        importFilter.setIcon(new ImageIcon(Frame.class.getResource("images/report_go.png")));
         importFilter.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -437,9 +437,9 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener
         });
         filterPopupMenu.add(importFilter);
 
-        filterTasks.add(initActionCallback("doExport", ActionFactory.createBoundAction("doExport", "Export Filter", "E"), new ImageIcon(Frame.class.getResource("images/export.png"))));
+        filterTasks.add(initActionCallback("doExport", ActionFactory.createBoundAction("doExport", "Export Filter", "E"), new ImageIcon(Frame.class.getResource("images/report_disk.png"))));
         JMenuItem exportFilter = new JMenuItem("Export Filter");
-        exportFilter.setIcon(new ImageIcon(Frame.class.getResource("images/export.png")));
+        exportFilter.setIcon(new ImageIcon(Frame.class.getResource("images/report_disk.png")));
         exportFilter.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)

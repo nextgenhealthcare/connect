@@ -617,12 +617,12 @@ public class Frame extends JXFrame
         viewPane.setTitle("Mirth Connect");
         viewPane.setFocusable(false);
 
-        addTask("doShowDashboard", "Dashboard", "Contains information about your currently deployed channels.", "D", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/status.png")), viewPane, null);
-        addTask("doShowChannel", "Channels", "Contains various operations to perform on your channels.", "C", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel.png")), viewPane, null);
-        addTask("doShowUsers", "Users", "Contains information on users.", "U", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/admin.png")), viewPane, null);
-        addTask("doShowSettings", "Settings", "Contains local and system settings.", "S", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/settings.png")), viewPane, null);
-        addTask("doShowAlerts", "Alerts", "Contains alert settings.", "A", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alerts.png")), viewPane, null);
-        addTask("doShowEvents", "Events", "Show the event logs for the system.", "E", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/logs.png")), viewPane, null);
+        addTask("doShowDashboard", "Dashboard", "Contains information about your currently deployed channels.", "D", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_view_detail.png")), viewPane, null);
+        addTask("doShowChannel", "Channels", "Contains various operations to perform on your channels.", "C", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_form.png")), viewPane, null);
+        addTask("doShowUsers", "Users", "Contains information on users.", "U", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/group.png")), viewPane, null);
+        addTask("doShowSettings", "Settings", "Contains local and system settings.", "S", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/wrench.png")), viewPane, null);
+        addTask("doShowAlerts", "Alerts", "Contains alert settings.", "A", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/error.png")), viewPane, null);
+        addTask("doShowEvents", "Events", "Show the event logs for the system.", "E", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/table.png")), viewPane, null);
         addTask("doShowPlugins", "Plugins", "Show the plugins loaded for the system.", "P", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/plugin.png")), viewPane, null);
 
         setNonFocusable(viewPane);
@@ -641,8 +641,8 @@ public class Frame extends JXFrame
         settingsTasks.setTitle("Settings Tasks");
         settingsTasks.setFocusable(false);
 
-        addTask("doRefreshSettings", "Refresh", "Refresh settings.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), settingsTasks, settingsPopupMenu);
-        addTask("doSaveSettings", "Save Settings", "Save settings.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")), settingsTasks, settingsPopupMenu);
+        addTask("doRefreshSettings", "Refresh", "Refresh settings.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_refresh.png")), settingsTasks, settingsPopupMenu);
+        addTask("doSaveSettings", "Save Settings", "Save settings.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/disk.png")), settingsTasks, settingsPopupMenu);
 
         setNonFocusable(settingsTasks);
         setVisibleTasks(settingsTasks, settingsPopupMenu, 0, 0, true);
@@ -661,14 +661,14 @@ public class Frame extends JXFrame
         alertTasks.setTitle("Alert Tasks");
         alertTasks.setFocusable(false);
 
-        addTask("doRefreshAlerts", "Refresh", "Refresh the list of alerts.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), alertTasks, alertPopupMenu);
-        addTask("doSaveAlerts", "Save Alerts", "Save all changes made to all alerts.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")), alertTasks, alertPopupMenu);
-        addTask("doNewAlert", "New Alert", "Create a new alert.", "N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alert_add.png")), alertTasks, alertPopupMenu);
-        addTask("doImportAlerts", "Import Alerts", "Import list of alerts from an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")), alertTasks, alertPopupMenu);
-        addTask("doExportAlerts", "Export Alerts", "Export the list of alerts to an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), alertTasks, alertPopupMenu);
-        addTask("doDeleteAlert", "Delete Alert", "Delete the currently selected alert.", "L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/alert_delete.png")), alertTasks, alertPopupMenu);
-        addTask("doEnableAlert", "Enable Alert", "Enable the currently selected alert.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")), alertTasks, alertPopupMenu);
-        addTask("doDisableAlert", "Disable Alert", "Disable the currently selected alert.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")), alertTasks, alertPopupMenu);
+        addTask("doRefreshAlerts", "Refresh", "Refresh the list of alerts.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_refresh.png")), alertTasks, alertPopupMenu);
+        addTask("doSaveAlerts", "Save Alerts", "Save all changes made to all alerts.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/disk.png")), alertTasks, alertPopupMenu);
+        addTask("doNewAlert", "New Alert", "Create a new alert.", "N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/error_add.png")), alertTasks, alertPopupMenu);
+        addTask("doImportAlerts", "Import Alerts", "Import list of alerts from an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/report_go.png")), alertTasks, alertPopupMenu);
+        addTask("doExportAlerts", "Export Alerts", "Export the list of alerts to an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/report_disk.png")), alertTasks, alertPopupMenu);
+        addTask("doDeleteAlert", "Delete Alert", "Delete the currently selected alert.", "L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/error_delete.png")), alertTasks, alertPopupMenu);
+        addTask("doEnableAlert", "Enable Alert", "Enable the currently selected alert.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/control_play_blue.png")), alertTasks, alertPopupMenu);
+        addTask("doDisableAlert", "Disable Alert", "Disable the currently selected alert.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/control_stop_blue.png")), alertTasks, alertPopupMenu);
 
         setVisibleTasks(alertTasks, alertPopupMenu, 0, 0, false);
         setVisibleTasks(alertTasks, alertPopupMenu, 1, 1, false);
@@ -689,20 +689,20 @@ public class Frame extends JXFrame
         channelTasks.setTitle("Channel Tasks");
         channelTasks.setFocusable(false);
 
-        addTask("doRefreshChannels", "Refresh", "Refresh the list of channels.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), channelTasks, channelPopupMenu);
-        addTask("doDeployAll", "Deploy All", "Deploy all currently enabled channels.", "A", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png")), channelTasks, channelPopupMenu);
-        addTask("doDeployChannel", "Deploy Channel", "Deploys the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/hotdeploy.png")), channelTasks, channelPopupMenu);
-        addTask("doEditGlobalScripts", "Edit Global Scripts", "Edit scripts that are not channel specific.", "G", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_edit.png")), channelTasks, channelPopupMenu);
-        addTask("doEditCodeTemplates", "Edit Code Templates", "Create and manage templates to be used in JavaScript throughout Mirth.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_edit.png")), channelTasks, channelPopupMenu);
-        addTask("doNewChannel", "New Channel", "Create a new channel.", "N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_add.png")), channelTasks, channelPopupMenu);
-        addTask("doImport", "Import Channel", "Import a channel from an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")), channelTasks, channelPopupMenu);
-        addTask("doExportAll", "Export All Channels", "Export all of the channels to XML files.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), channelTasks, channelPopupMenu);
-        addTask("doExport", "Export Channel", "Export the currently selected channel to an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), channelTasks, channelPopupMenu);
-        addTask("doCloneChannel", "Clone Channel", "Clone the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/clone.png")), channelTasks, channelPopupMenu);
-        addTask("doEditChannel", "Edit Channel", "Edit the currently selected channel.", "I", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_edit.png")), channelTasks, channelPopupMenu);
-        addTask("doDeleteChannel", "Delete Channel", "Delete the currently selected channel.", "L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/channel_delete.png")), channelTasks, channelPopupMenu);
-        addTask("doEnableChannel", "Enable Channel", "Enable the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")), channelTasks, channelPopupMenu);
-        addTask("doDisableChannel", "Disable Channel", "Disable the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")), channelTasks, channelPopupMenu);
+        addTask("doRefreshChannels", "Refresh", "Refresh the list of channels.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_refresh.png")), channelTasks, channelPopupMenu);
+        addTask("doDeployAll", "Deploy All", "Deploy all currently enabled channels.", "A", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_rotate_clockwise.png")), channelTasks, channelPopupMenu);
+        addTask("doDeployChannel", "Deploy Channel", "Deploys the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/sport_8ball.png")), channelTasks, channelPopupMenu);
+        addTask("doEditGlobalScripts", "Edit Global Scripts", "Edit scripts that are not channel specific.", "G", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_form_edit.png")), channelTasks, channelPopupMenu);
+        addTask("doEditCodeTemplates", "Edit Code Templates", "Create and manage templates to be used in JavaScript throughout Mirth.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_form_edit.png")), channelTasks, channelPopupMenu);
+        addTask("doNewChannel", "New Channel", "Create a new channel.", "N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_form_add.png")), channelTasks, channelPopupMenu);
+        addTask("doImport", "Import Channel", "Import a channel from an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/report_go.png")), channelTasks, channelPopupMenu);
+        addTask("doExportAll", "Export All Channels", "Export all of the channels to XML files.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/report_disk.png")), channelTasks, channelPopupMenu);
+        addTask("doExport", "Export Channel", "Export the currently selected channel to an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/report_disk.png")), channelTasks, channelPopupMenu);
+        addTask("doCloneChannel", "Clone Channel", "Clone the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/page_copy.png")), channelTasks, channelPopupMenu);
+        addTask("doEditChannel", "Edit Channel", "Edit the currently selected channel.", "I", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_form_edit.png")), channelTasks, channelPopupMenu);
+        addTask("doDeleteChannel", "Delete Channel", "Delete the currently selected channel.", "L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_form_delete.png")), channelTasks, channelPopupMenu);
+        addTask("doEnableChannel", "Enable Channel", "Enable the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/control_play_blue.png")), channelTasks, channelPopupMenu);
+        addTask("doDisableChannel", "Disable Channel", "Disable the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/control_stop_blue.png")), channelTasks, channelPopupMenu);
 
         setNonFocusable(channelTasks);
         setVisibleTasks(channelTasks, channelPopupMenu, 1, 2, false);
@@ -721,20 +721,20 @@ public class Frame extends JXFrame
         channelEditTasks.setTitle("Channel Tasks");
         channelEditTasks.setFocusable(false);
 
-        addTask("doSaveChannel", "Save Changes", "Save all changes made to this channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doSaveChannel", "Save Changes", "Save all changes made to this channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/disk.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doValidate", "Validate Connector", "Validate the currently visible connector.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doNewDestination", "New Destination", "Create a new destination.", "N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/add.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doDeleteDestination", "Delete Destination", "Delete the currently selected destination.", "L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doCloneDestination", "Clone Destination", "Clones the currently selected destination.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/clone.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doEnableDestination", "Enable Destination", "Enable the currently selected destination.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doDisableDestination", "Disable Destination", "Disable the currently selected destination.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doCloneDestination", "Clone Destination", "Clones the currently selected destination.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/page_copy.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doEnableDestination", "Enable Destination", "Enable the currently selected destination.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/control_play_blue.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doDisableDestination", "Disable Destination", "Disable the currently selected destination.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/control_stop_blue.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doMoveDestinationUp", "Move Dest. Up", "Move the currently selected destination up.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_up.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doMoveDestinationDown", "Move Dest. Down", "Move the currently selected destination down.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_down.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doEditFilter", UIConstants.EDIT_FILTER, "Edit the filter for the currently selected destination.", "F", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/edit.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doEditTransformer", UIConstants.EDIT_TRANSFORMER, "Edit the transformer for the currently selected destination.", "T", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/edit.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doImportConnector", "Import Connector", "Import the currently displayed connector from an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doExportConnector", "Export Connector", "Export the currently displayed connector to an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doExport", "Export Channel", "Export the currently selected channel to an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doEditFilter", UIConstants.EDIT_FILTER, "Edit the filter for the currently selected destination.", "F", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_edit.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doEditTransformer", UIConstants.EDIT_TRANSFORMER, "Edit the transformer for the currently selected destination.", "T", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_edit.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doImportConnector", "Import Connector", "Import the currently displayed connector from an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/report_go.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doExportConnector", "Export Connector", "Export the currently displayed connector to an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/report_disk.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doExport", "Export Channel", "Export the currently selected channel to an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/report_disk.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doValidateChannelScripts", "Validate Script", "Validate the currently viewed script.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), channelEditTasks, channelEditPopupMenu);
 
         setNonFocusable(channelEditTasks);
@@ -754,26 +754,26 @@ public class Frame extends JXFrame
         statusTasks.setTitle("Status Tasks");
         statusTasks.setFocusable(false);
 
-        addTask("doRefreshStatuses", "Refresh", "Refresh the list of statuses.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), statusTasks, statusPopupMenu);
-        addTask("doStartAll", "Start All Channels", "Start all channels that are currently deployed.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start1.png")), statusTasks, statusPopupMenu);
-        addTask("doStopAll", "Stop All Channels", "Stop all channels that are currently deployed.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop1.png")), statusTasks, statusPopupMenu);
+        addTask("doRefreshStatuses", "Refresh", "Refresh the list of statuses.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_refresh.png")), statusTasks, statusPopupMenu);
+        addTask("doStartAll", "Start All Channels", "Start all channels that are currently deployed.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), statusTasks, statusPopupMenu);
+        addTask("doStopAll", "Stop All Channels", "Stop all channels that are currently deployed.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")), statusTasks, statusPopupMenu);
         addTask("doRemoveAllMessagesAllChannels", "Reset All Channels", "Remove all messages and statistics in all channels.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), statusTasks, statusPopupMenu);
 
         addTask("doSendMessage", "Send Message", "Send messages to the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_go.png")), statusTasks, statusPopupMenu);
-        addTask("doShowMessages", "View Messages", "Show the messages for the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/messages2.png")), statusTasks, statusPopupMenu);
+        addTask("doShowMessages", "View Messages", "Show the messages for the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/page_white_stack.png")), statusTasks, statusPopupMenu);
         addTask("doRemoveAllMessages", "Remove All Messages", "Remove all Messages in this channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_delete.png")), statusTasks, statusPopupMenu);
         //
-        addTask("doClearStats", "Clear Statistics", "Reset the statistics for this channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/chart_curve_delete.png")), statusTasks, statusPopupMenu);
+        addTask("doClearStats", "Clear Statistics", "Reset the statistics for this channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/chart_bar_delete.png")), statusTasks, statusPopupMenu);
         // addTask("doClearStatsAllChannels","Clear Stats in All
         // Channels","Reset the statistics for all channels.","", new
-        // ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/chart_curve_delete.png")),
+        // ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/chart_bar_delete.png")),
         // statusTasks, statusPopupMenu);
 
-        addTask("doStart", "Start Channel", "Start the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/start.png")), statusTasks, statusPopupMenu);
-        addTask("doPause", "Pause Channel", "Pause the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/pause.png")), statusTasks, statusPopupMenu);
-        addTask("doStop", "Stop Channel", "Stop the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/stop.png")), statusTasks, statusPopupMenu);
+        addTask("doStart", "Start Channel", "Start the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/control_play_blue.png")), statusTasks, statusPopupMenu);
+        addTask("doPause", "Pause Channel", "Pause the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/control_pause_blue.png")), statusTasks, statusPopupMenu);
+        addTask("doStop", "Stop Channel", "Stop the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/control_stop_blue.png")), statusTasks, statusPopupMenu);
 
-        addTask("doUndeployChannel", "Undeploy Channel", "Undeploys the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/undeploy.png")), statusTasks, statusPopupMenu);
+        addTask("doUndeployChannel", "Undeploy Channel", "Undeploys the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_undo.png")), statusTasks, statusPopupMenu);
         
         setNonFocusable(statusTasks);
         setVisibleTasks(statusTasks, statusPopupMenu, 4, -1, false);
@@ -791,7 +791,7 @@ public class Frame extends JXFrame
         eventTasks.setTitle("Event Tasks");
         eventTasks.setFocusable(false);
 
-        addTask("doRefreshEvents", "Refresh", "Refresh the list of events with the given filter.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), eventTasks, eventPopupMenu);
+        addTask("doRefreshEvents", "Refresh", "Refresh the list of events with the given filter.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_refresh.png")), eventTasks, eventPopupMenu);
         addTask("doRemoveAllEvents", "Remove All Events", "Remove all the System Events.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/table_delete.png")), eventTasks, eventPopupMenu);
         addTask("doRemoveFilteredEvents", "Remove Results", "Remove all System Events in the current search.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/table_delete.png")), eventTasks, eventPopupMenu);
         addTask("doRemoveEvent", "Remove Event", "Remove the selected Event.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), eventTasks, eventPopupMenu);
@@ -812,15 +812,15 @@ public class Frame extends JXFrame
         messageTasks.setTitle("Message Tasks");
         messageTasks.setFocusable(false);
 
-        addTask("doRefreshMessages", "Refresh", "Refresh the list of messages with the given filter.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), messageTasks, messagePopupMenu);
+        addTask("doRefreshMessages", "Refresh", "Refresh the list of messages with the given filter.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_refresh.png")), messageTasks, messagePopupMenu);
         addTask("doSendMessage", "Send Message", "Send a message to the channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_go.png")), messageTasks, messagePopupMenu);
-        addTask("doImportMessages", "Import Messages", "Import messages from a file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")), messageTasks, messagePopupMenu);
-        addTask("doExportMessages", "Export Results", "Export all messages in the current search.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), messageTasks, messagePopupMenu);
+        addTask("doImportMessages", "Import Messages", "Import messages from a file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/report_go.png")), messageTasks, messagePopupMenu);
+        addTask("doExportMessages", "Export Results", "Export all messages in the current search.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/report_disk.png")), messageTasks, messagePopupMenu);
         addTask("doRemoveAllMessages", "Remove All Messages", "Remove all messages in this channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_delete.png")), messageTasks, messagePopupMenu);
         addTask("doRemoveFilteredMessages", "Remove Results", "Remove all messages in the current search.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/email_delete.png")), messageTasks, messagePopupMenu);
         addTask("doRemoveMessage", "Remove Message", "Remove the selected Message.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), messageTasks, messagePopupMenu);
-        addTask("doReprocessFilteredMessages", "Reprocess Results", "Reprocess all messages in the current search.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deployall.png")), messageTasks, messagePopupMenu);
-        addTask("doReprocessMessage", "Reprocess Message", "Reprocess the selected message.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/deploy.png")), messageTasks, messagePopupMenu);
+        addTask("doReprocessFilteredMessages", "Reprocess Results", "Reprocess all messages in the current search.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_rotate_clockwise.png")), messageTasks, messagePopupMenu);
+        addTask("doReprocessMessage", "Reprocess Message", "Reprocess the selected message.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_redo.png")), messageTasks, messagePopupMenu);
         addTask("viewImage", "View Attachment", "View Attachment", "View the attachment for the selected message.", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/attach.png")), messageTasks, messagePopupMenu);
 
         setNonFocusable(messageTasks);
@@ -840,7 +840,7 @@ public class Frame extends JXFrame
         userTasks.setTitle("User Tasks");
         userTasks.setFocusable(false);
 
-        addTask("doRefreshUser", "Refresh", "Refresh the list of users.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), userTasks, userPopupMenu);
+        addTask("doRefreshUser", "Refresh", "Refresh the list of users.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_refresh.png")), userTasks, userPopupMenu);
         addTask("doNewUser", "New User", "Create a new user.", "N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user_add.png")), userTasks, userPopupMenu);
         addTask("doEditUser", "Edit User", "Edit the currently selected user.", "I", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user_edit.png")), userTasks, userPopupMenu);
         addTask("doDeleteUser", "Delete User", "Delete the currently selected user.", "L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user_delete.png")), userTasks, userPopupMenu);
@@ -861,11 +861,11 @@ public class Frame extends JXFrame
         codeTemplateTasks.setTitle("CodeTemplate Tasks");
         codeTemplateTasks.setFocusable(false);
 
-        addTask("doRefreshCodeTemplates", "Refresh", "Refresh the list of codeTemplates.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/refresh.png")), codeTemplateTasks, codeTemplatePopupMenu);
-        addTask("doSaveCodeTemplates", "Save CodeTemplates", "Save all changes made to all codeTemplates.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")), codeTemplateTasks, codeTemplatePopupMenu);
+        addTask("doRefreshCodeTemplates", "Refresh", "Refresh the list of codeTemplates.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_refresh.png")), codeTemplateTasks, codeTemplatePopupMenu);
+        addTask("doSaveCodeTemplates", "Save CodeTemplates", "Save all changes made to all codeTemplates.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/disk.png")), codeTemplateTasks, codeTemplatePopupMenu);
         addTask("doNewCodeTemplate", "New CodeTemplate", "Create a new codeTemplate.", "N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/add.png")), codeTemplateTasks, codeTemplatePopupMenu);
-        addTask("doImportCodeTemplates", "Import Code Templates", "Import list of code templates from an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")), codeTemplateTasks, codeTemplatePopupMenu);
-        addTask("doExportCodeTemplates", "Export Code Templates", "Export the list of code templates to an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), codeTemplateTasks, codeTemplatePopupMenu);
+        addTask("doImportCodeTemplates", "Import Code Templates", "Import list of code templates from an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/report_go.png")), codeTemplateTasks, codeTemplatePopupMenu);
+        addTask("doExportCodeTemplates", "Export Code Templates", "Export the list of code templates to an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/report_disk.png")), codeTemplateTasks, codeTemplatePopupMenu);
         addTask("doDeleteCodeTemplate", "Delete CodeTemplate", "Delete the currently selected codeTemplate.", "L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/delete.png")), codeTemplateTasks, codeTemplatePopupMenu);
         addTask("doValidateCodeTemplate", "Validate Script", "Validate the currently viewed script.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), codeTemplateTasks, codeTemplatePopupMenu);
 
@@ -887,10 +887,10 @@ public class Frame extends JXFrame
         globalScriptsTasks.setTitle("Script Tasks");
         globalScriptsTasks.setFocusable(false);
 
-        addTask("doSaveGlobalScripts", "Save Scripts", "Save all changes made to all scripts.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/save.png")), globalScriptsTasks, globalScriptsPopupMenu);
+        addTask("doSaveGlobalScripts", "Save Scripts", "Save all changes made to all scripts.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/disk.png")), globalScriptsTasks, globalScriptsPopupMenu);
         addTask("doValidateCurrentGlobalScript", "Validate Script", "Validate the currently viewed script.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/accept.png")), globalScriptsTasks, globalScriptsPopupMenu);
-        addTask("doImportGlobalScripts", "Import Scripts", "Import all global scripts from an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/import.png")), globalScriptsTasks, globalScriptsPopupMenu);
-        addTask("doExportGlobalScripts", "Export Scripts", "Export all global scripts to an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/export.png")), globalScriptsTasks, globalScriptsPopupMenu);
+        addTask("doImportGlobalScripts", "Import Scripts", "Import all global scripts from an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/report_go.png")), globalScriptsTasks, globalScriptsPopupMenu);
+        addTask("doExportGlobalScripts", "Export Scripts", "Export all global scripts to an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/report_disk.png")), globalScriptsTasks, globalScriptsPopupMenu);
 
         setVisibleTasks(globalScriptsTasks, globalScriptsPopupMenu, 0, 0, false);
         setNonFocusable(globalScriptsTasks);
@@ -907,8 +907,8 @@ public class Frame extends JXFrame
         otherPane.setTitle("Other");
         otherPane.setFocusable(false);
         addTask("doHelp", "Help on this topic", "Open browser for help on this topic.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/help.png")), otherPane, null);
-        addTask("goToAbout", "About Mirth Connect", "View the about page for Mirth Connect.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/about.png")), otherPane, null);
-        addTask("goToMirth", "Visit mirthcorp.com", "View Mirth's homepage.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/home.png")), otherPane, null);
+        addTask("goToAbout", "About Mirth Connect", "View the about page for Mirth Connect.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/information.png")), otherPane, null);
+        addTask("goToMirth", "Visit mirthcorp.com", "View Mirth's homepage.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/house.png")), otherPane, null);
         addTask("doReportIssue", "Report Issue", "Visit Mirth's issue tracker.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bug.png")), otherPane, null);
         addTask("doLogout", "Logout", "Logout and return to the login screen.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/disconnect.png")), otherPane, null);
         setNonFocusable(otherPane);
