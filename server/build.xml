@@ -557,7 +557,6 @@
 		<!-- sign jars for webstart -->
 		<signjar alias="mirth" keystore="${basedir}/keystore" storepass="abc12345" keypass="abc12345">
 			<fileset dir="${client.lib}">
-				<exclude name="activation.jar" />
 				<include name="*.jar" />
 			</fileset>
 			<fileset dir="${extensions}" includes="**/*.jar" />
@@ -630,7 +629,6 @@
 			<fileset file="${basedir}/mirth-launcher.xml" />
 			<fileset file="${basedir}/shell-launcher.xml" />
 			<fileset file="${basedir}/mirth-client.jnlp" />
-			<fileset file="${basedir}/activation.jnlp" />
 			<fileset file="${basedir}/keystore" />
 
 			<!-- windows service files -->
