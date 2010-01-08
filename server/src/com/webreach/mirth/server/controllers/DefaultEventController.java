@@ -37,7 +37,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.ibatis.sqlmap.client.SqlMapException;
-import com.ibatis.sqlmap.engine.impl.ExtendedSqlMapClient;
+import com.ibatis.sqlmap.engine.impl.SqlMapClientImpl;
 import com.ibatis.sqlmap.engine.impl.SqlMapExecutorDelegate;
 import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.model.filters.SystemEventFilter;
@@ -269,7 +269,7 @@ public class DefaultEventController extends EventController {
 	
 	private boolean statementExists(String statement) {
 		try {
-			SqlMapExecutorDelegate delegate = ((ExtendedSqlMapClient) SqlConfig.getSqlMapClient()).getDelegate();
+			SqlMapExecutorDelegate delegate = ((SqlMapClientImpl) SqlConfig.getSqlMapClient()).getDelegate();
 			delegate.getMappedStatement(statement);
 		} catch (SqlMapException sme) {
 			// The statement does not exist
