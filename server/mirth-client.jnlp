@@ -29,7 +29,7 @@
 		<jar download="eager" href="client-lib/commons-logging-1.1.jar" />
 		<jar download="eager" href="client-lib/databinding-0.8.0.jar" />
 		<jar download="eager" href="client-lib/hapi-0.6.jar" />
-		<jar download="eager" href="client-lib/hl7model.jar" />
+		<jar download="eager" href="client-lib/mirth-vocab-1.0.jar" />
 		<jar download="eager" href="client-lib/l2fprod-common-sheet.jar" />
 		<jar download="eager" href="client-lib/log4j-1.2.15.jar" />
 		<jar download="eager" href="client-lib/looks-2.2.2.jar" />
