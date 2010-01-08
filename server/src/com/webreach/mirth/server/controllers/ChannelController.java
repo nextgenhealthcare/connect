@@ -47,9 +47,9 @@ public abstract class ChannelController extends Controller {
 
     public abstract void removeChannel(Channel channel) throws ControllerException;
     
-    public abstract void loadChannelCache();
-
     // channel cache
+    public abstract void loadChannelCache();
+    
     public abstract HashMap<String, Channel> getChannelCache();
 
     public abstract void setChannelCache(HashMap<String, Channel> channelCache);

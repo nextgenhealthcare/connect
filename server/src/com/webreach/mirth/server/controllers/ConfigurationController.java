@@ -134,6 +134,7 @@ public abstract class ConfigurationController extends Controller {
     public abstract void setServerConfiguration(ServerConfiguration serverConfiguration) throws ControllerException;
     
     public abstract PasswordRequirements getPasswordRequirements();
+    
     // status
     
     public abstract int getStatus();

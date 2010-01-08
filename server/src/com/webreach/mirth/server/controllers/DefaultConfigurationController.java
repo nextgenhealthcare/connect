@@ -38,7 +38,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -401,10 +400,8 @@ public class DefaultConfigurationController extends ConfigurationController{
     }
 
     public void compileScripts(List<Channel> channels) throws Exception {
-        Iterator<Entry<String, String>> iter = getGlobalScripts().entrySet().iterator();
 
-        while (iter.hasNext()) {
-            Entry<String, String> entry = (Entry<String, String>) iter.next();
+        for (Entry<String, String> entry : getGlobalScripts().entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
 
@@ -506,8 +503,7 @@ public class DefaultConfigurationController extends ConfigurationController{
     }
 
     public void setGlobalScripts(Map<String, String> scripts) throws ControllerException {
-        for (Iterator iterator = scripts.entrySet().iterator(); iterator.hasNext();) {
-            Entry entry = (Entry) iterator.next();
+        for (Entry<String, String> entry : scripts.entrySet()) {
             scriptController.putScript(entry.getKey().toString(), scripts.get(entry.getKey()));
         }
     }

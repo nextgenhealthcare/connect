@@ -110,6 +110,8 @@ public abstract class ExtensionController extends Controller {
     public abstract void startPlugins();
 
     public abstract void stopPlugins();
+    
+    public abstract Map<String, ServerPlugin> getLoadedPlugins();
 
     public abstract void updatePlugin(String name, Properties properties);
 
@@ -118,14 +120,6 @@ public abstract class ExtensionController extends Controller {
     public abstract Object invoke(String name, String method, Object object, String sessionId) throws Exception;
 
     public abstract Object invokeConnectorService(String name, String method, Object object, String sessionsId) throws Exception;
-
-    public abstract void installExtension(FileItem fileItem) throws ControllerException;
-
-    public abstract void uninstallExtension(String packageName) throws ControllerException;
-    
-    public abstract void setPluginProperties(String pluginName, Properties properties) throws ControllerException;
-
-    public abstract Properties getPluginProperties(String pluginName) throws ControllerException;
 
     public abstract Map<String, ConnectorMetaData> getConnectorMetaData() throws ControllerException;
 
@@ -140,12 +134,12 @@ public abstract class ExtensionController extends Controller {
     public abstract Map<String, ConnectorMetaData> getProtocols();
 
     public abstract ConnectorMetaData getConnectorMetaDataByProtocol(String protocol);
+    
+    // installation and uinstallation
+    
+    public abstract void installExtension(FileItem fileItem) throws ControllerException;
 
-    public abstract Map<String, ServerPlugin> getLoadedPlugins();
-    
-    public abstract void setExtensionsProperties(Properties properties) throws ControllerException;
-    
-    public abstract Properties getExtensionsProperties() throws ControllerException;
+    public abstract void uninstallExtension(String packageName) throws ControllerException;
     
     public abstract void uninstallExtensions();
     
@@ -154,4 +148,14 @@ public abstract class ExtensionController extends Controller {
     public abstract List<String> getUninstallScripts() throws ControllerException;
     
     public abstract void deleteUninstallScripts();
+    
+    // properties
+    
+    public abstract void setPluginProperties(String pluginName, Properties properties) throws ControllerException;
+
+    public abstract Properties getPluginProperties(String pluginName) throws ControllerException;
+    
+    public abstract void setExtensionsProperties(Properties properties) throws ControllerException;
+    
+    public abstract Properties getExtensionsProperties() throws ControllerException;
 }

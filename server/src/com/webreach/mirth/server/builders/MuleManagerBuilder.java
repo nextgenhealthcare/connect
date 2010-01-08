@@ -132,11 +132,11 @@ public class MuleManagerBuilder {
             UMODescriptor messageSinkDescriptor = new MuleDescriptor();
             messageSinkDescriptor.setName("MessageSink");
             messageSinkDescriptor.setImplementation(new PassThroughComponent());
-            InboundMessageRouter messageSinkinboundRouter = new InboundMessageRouter();
+            InboundMessageRouter messageSinkInboundRouter = new InboundMessageRouter();
             MuleEndpoint vmSinkEndpoint = new MuleEndpoint();
             vmSinkEndpoint.setEndpointURI(new MuleEndpointURI(new URI("vm://sink").toString()));
-            messageSinkinboundRouter.addEndpoint(vmSinkEndpoint);
-            messageSinkDescriptor.setInboundRouter(messageSinkinboundRouter);
+            messageSinkInboundRouter.addEndpoint(vmSinkEndpoint);
+            messageSinkDescriptor.setInboundRouter(messageSinkInboundRouter);
             model.registerComponent(messageSinkDescriptor);
 
             // set the model (which also initializes and starts the model)

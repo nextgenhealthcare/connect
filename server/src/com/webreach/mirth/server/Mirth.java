@@ -285,7 +285,7 @@ public class Mirth extends Thread {
             deployChannels(channelController.getChannel(null));
             umoManager.start();
         } catch (Exception e) {
-            logger.warn("Error deploying channels.", e);
+            logger.error("Error starting engine.", e);
             // if deploy fails, log to system events
             SystemEvent event = new SystemEvent("Error deploying channels.");
             event.setLevel(SystemEvent.Level.HIGH);
@@ -308,7 +308,6 @@ public class Mirth extends Thread {
                 if (umoManager.isStarted()) {
                     configurationController.executeChannelShutdownScripts(channelController.getChannel(null));
                     configurationController.executeGlobalShutdownScript();
-
                     umoManager.stop();
                 }
             } catch (Exception e) {
@@ -364,7 +363,7 @@ public class Mirth extends Thread {
             // Load the context path property and remove the last char if it is
             // a '/'.
             String contextPath = PropertyLoader.getProperty(mirthProperties, "context.path");
-            if (contextPath.lastIndexOf('/') == (contextPath.length() - 1)) {
+            if (contextPath.endsWith("/")) {
                 contextPath = contextPath.substring(0, contextPath.length() - 1);
             }
 
@@ -415,6 +414,7 @@ public class Mirth extends Thread {
             secureServletContext.setContextPath(contextPath + "/");
             secureServletContext.addHandler(secureServlets);
             servletContainer.addContext(secureServletContext);
+            
             // Map a servlet onto the container
             secureServlets.addServlet("Alerts", "/alerts", "com.webreach.mirth.server.servlets.AlertServlet");
             secureServlets.addServlet("Channels", "/channels", "com.webreach.mirth.server.servlets.ChannelServlet");
@@ -502,6 +502,7 @@ public class Mirth extends Thread {
      */
     private boolean testPort(String port, String name) {
         ServerSocket socket = null;
+        
         try {
             socket = new ServerSocket(Integer.parseInt(port));
         } catch (NumberFormatException ex) {
@@ -520,6 +521,7 @@ public class Mirth extends Thread {
                 }
             }
         }
+        
         return true;
     }
 
