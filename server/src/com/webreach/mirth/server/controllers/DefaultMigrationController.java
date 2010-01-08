@@ -31,7 +31,6 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -160,11 +159,6 @@ public class DefaultMigrationController extends MigrationController {
                     if (DatabaseUtil.statementExists("Configuration.vacuumConfigurationTable")) {
                         SqlConfig.getSqlMapClient().update("Configuration.vacuumConfigurationTable");
                     }
-                    
-                    File configurationFile = new File(configurationController.getMuleConfigurationPath());
-                    configurationFile.delete();
-                    File bootFile = new File(configurationController.getMuleBootPath());
-                    bootFile.delete();
                 } catch (Exception e) {
                     logger.error("Could not remove previous configuration.", e);
                 }
@@ -238,16 +232,13 @@ public class DefaultMigrationController extends MigrationController {
                     // if there were no scripts, don't update the schema version
                     if (!scriptList.isEmpty()) {
                         DatabaseUtil.executeScript(scriptList, false);
-                        Iterator scriptIter = scripts.entrySet().iterator();
                         int maxSchemaVersion = -1;
 
-                        while (scriptIter.hasNext()) {
-                            Entry entry = (Entry) scriptIter.next();
-                            Integer keyValue = (Integer) entry.getKey();
-                            int keyIntValue = keyValue.intValue();
+                        for (Entry<Integer, String> entry : scripts.entrySet()) {
+                            int key = entry.getKey().intValue();
 
-                            if (keyIntValue > maxSchemaVersion) {
-                                maxSchemaVersion = keyIntValue;
+                            if (key > maxSchemaVersion) {
+                                maxSchemaVersion = key;
                             }
                         }
 

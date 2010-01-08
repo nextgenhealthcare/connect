@@ -341,7 +341,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
         logger.debug("retrieving messages by page: page=" + page);
 
         try {
-            Map parameterMap = new HashMap();
+            Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("uid", uid);
             int offset = page * pageSize;
 
@@ -353,8 +353,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
             List<MessageObject> messages = SqlConfig.getSqlMapClient().queryForList("Message.getMessageByPageLimit", parameterMap);
 
-            for (Iterator iter = messages.iterator(); iter.hasNext();) {
-                MessageObject messageObject = (MessageObject) iter.next();
+            for (MessageObject messageObject : messages) {
                 decryptMessageData(messageObject);
             }
 
@@ -372,7 +371,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
         int first =1;
         
         try {
-            Map parameterMap = new HashMap();
+            Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("uid", uid);
 
             // Use descending for most queries, use ascending for
@@ -394,8 +393,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
             List<MessageObject> messages = SqlConfig.getSqlMapClient().queryForList("Message.getMessageByPage", parameterMap);
 
-            for (Iterator iter = messages.iterator(); iter.hasNext();) {
-                MessageObject messageObject = (MessageObject) iter.next();
+            for (MessageObject messageObject : messages) {
                 decryptMessageData(messageObject);
             }
 
@@ -434,7 +432,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
         	int totalRowCount = 0;
         	int rowCount = 0;
         	do { 
-        		Map parameterMap = getFilterMap(filter, null);
+        		Map<String, Object> parameterMap = getFilterMap(filter, null);
         		parameterMap.put("limit", limit);
         		
         		// Retry blocks of pruning if they fail in case of deadlocks
@@ -551,7 +549,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
         logger.debug("clearing messages: channelId=" + channelId);
 
         try {
-            Map parameterMap = new HashMap();
+            Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("channelId", channelId);
             SqlConfig.getSqlMapClient().delete("Message.deleteMessage", parameterMap);
             SqlConfig.getSqlMapClient().delete("Message.deleteUnusedAttachments");
@@ -653,8 +651,8 @@ public class DefaultMessageObjectController extends MessageObjectController {
         }
     }
 
-    private Map getFilterMap(MessageObjectFilter filter, String uid) {
-        Map parameterMap = new HashMap();
+    private Map<String, Object> getFilterMap(MessageObjectFilter filter, String uid) {
+        Map<String, Object> parameterMap = new HashMap<String, Object>();
 
         if (uid != null) {
             parameterMap.put("uid", uid);
@@ -723,7 +721,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
     }
 
     private String lookupMessageId(String correlationId, String destinationId) throws SQLException {
-        Map params = new HashMap();
+        Map<String, Object> params = new HashMap<String, Object>();
         params.put("correlationId", correlationId);
         params.put("connectorName", destinationId);
         return (String) SqlConfig.getSqlMapClient().queryForObject("Message.lookupMessageId", params);
@@ -849,8 +847,9 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
         if (messageObject != null) {
             Map<String, Response> responseMap = messageObject.getResponseMap();
+            
             if (responseMap != null && responseMap.get(messageObject.getConnectorName()) != null) {
-                Response response = (Response) responseMap.get(messageObject.getConnectorName());
+                Response response = responseMap.get(messageObject.getConnectorName());
             }
 
             messageObject.setStatus(Status.QUEUED);

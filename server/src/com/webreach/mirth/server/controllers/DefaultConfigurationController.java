@@ -25,15 +25,12 @@
 
 package com.webreach.mirth.server.controllers;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,8 +52,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.ChannelStatus;
-import com.webreach.mirth.model.Configuration;
 import com.webreach.mirth.model.DriverInfo;
 import com.webreach.mirth.model.PasswordRequirements;
 import com.webreach.mirth.model.ServerConfiguration;
@@ -65,7 +60,6 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 import com.webreach.mirth.model.util.PasswordRequirementsChecker;
 import com.webreach.mirth.server.Command;
 import com.webreach.mirth.server.CommandQueue;
-import com.webreach.mirth.server.builders.MuleConfigurationBuilder;
 import com.webreach.mirth.server.tools.ClassPathResource;
 import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.server.util.JMXConnection;
@@ -508,118 +502,9 @@ public class DefaultConfigurationController extends ConfigurationController{
         }
     }
 
-    private void stopAllChannels() throws ControllerException {
-        for (ChannelStatus status : ControllerFactory.getFactory().createChannelStatusController().getChannelStatusList()) {
-            ControllerFactory.getFactory().createChannelStatusController().stopChannel(status.getChannelId());
-        }
-    }
-
     public String getDatabaseType() {
         Properties properties = PropertyLoader.loadProperties("mirth");
         return PropertyLoader.getProperty(properties, "database");
-    }
-
-    public String getMuleConfigurationPath() {
-        Properties properties = PropertyLoader.loadProperties("mirth");
-
-        String fileSeparator = System.getProperty("file.separator");
-        File muleBootFile = new File(ClassPathResource.getResourceURI(PropertyLoader.getProperty(properties, "mule.template")));
-        return muleBootFile.getParent() + fileSeparator + PropertyLoader.getProperty(properties, "mule.config");
-    }
-
-    public String getMuleBootPath() {
-        Properties properties = PropertyLoader.loadProperties("mirth");
-
-        String fileSeparator = System.getProperty("file.separator");
-        File muleBootFile = new File(ClassPathResource.getResourceURI(PropertyLoader.getProperty(properties, "mule.template")));
-        return muleBootFile.getParent() + fileSeparator + PropertyLoader.getProperty(properties, "mule.boot");
-    }
-
-    /**
-     * Returns a File with the latest Mule configuration.
-     * 
-     * @return
-     * @throws ControllerException
-     */
-    public File getLatestConfiguration() throws ControllerException {
-        logger.debug("retrieving latest configuration");
-
-        try {
-            Configuration latestConfiguration = (Configuration) SqlConfig.getSqlMapClient().queryForObject("Configuration.getLatestConfiguration");
-
-            if (latestConfiguration != null) {
-                logger.debug("using configuration " + latestConfiguration.getId() + " created on " + latestConfiguration.getDateCreated());
-                // Find the path of mule.boot because mule.config may not exist.
-                // Then generate the path of mule.config in the same directory
-                // as mule.boot.
-                String muleConfigPath = getMuleConfigurationPath();
-                BufferedWriter out = new BufferedWriter(new FileWriter(new File(muleConfigPath)));
-                out.write(latestConfiguration.getData());
-                out.close();
-                return new File(muleConfigPath);
-            } else {
-                logger.debug("no configuration found, using default boot file");
-                String muleBootPath = getMuleBootPath();
-                BufferedWriter out = new BufferedWriter(new FileWriter(new File(muleBootPath)));
-                out.write(getDefaultConfiguration());
-                out.close();
-                return new File(muleBootPath);
-            }
-        } catch (Exception e) {
-            logger.error("Could not retrieve latest configuration.", e);
-            return null;
-        }
-    }
-    
-    public File getStartupConfiguration() throws ControllerException {
-        try {
-            return new File(ClassPathResource.getResourceURI(PropertyLoader.getProperty(PropertyLoader.loadProperties("mirth"), "mule.template")));
-        } catch (Exception e) {
-            logger.error("Could not retrieve startup configuration file.", e);
-            return null;
-        }
-    }
-
-    public String getDefaultConfiguration() throws Exception {
-        MuleConfigurationBuilder builder = new MuleConfigurationBuilder(new ArrayList<Channel>(), extensionController.getConnectorMetaData());
-        return builder.getConfiguration();
-    }
-
-    /**
-     * Removes the most recent configuration from the database. This is used to
-     * revert to the last good configuration.
-     * 
-     * @throws ControllerException
-     */
-    public void deleteLatestConfiguration() {
-        logger.debug("deleting most recent configuration");
-
-        try {
-            SqlConfig.getSqlMapClient().delete("Configuration.deleteLatestConfiguration");
-            
-            if (DatabaseUtil.statementExists("Configuration.vacuumConfigurationTable")) {
-                SqlConfig.getSqlMapClient().update("Configuration.vacuumConfigurationTable");
-            }
-            
-        } catch (SQLException e) {
-            logger.warn("Could not delete latest configuration.", e);
-        }
-    }
-
-    /**
-     * Adds a new configuraiton to the database.
-     * 
-     * @param data
-     * @throws ControllerException
-     */
-    private void addConfiguration(String data) throws ControllerException {
-        logger.debug("adding configuration");
-
-        try {
-            SqlConfig.getSqlMapClient().insert("Configuration.insertConfiguration", data);
-        } catch (Exception e) {
-            throw new ControllerException(e);
-        }
     }
 
     public SecretKey getEncryptionKey() {

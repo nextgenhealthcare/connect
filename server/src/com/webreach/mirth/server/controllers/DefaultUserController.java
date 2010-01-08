@@ -160,8 +160,8 @@ public class DefaultUserController extends UserController {
         }
     }
 
-    private Map getUserMap(User user, String plainTextPassword) {
-        Map parameterMap = new HashMap();
+    private Map<String, Object> getUserMap(User user, String plainTextPassword) {
+        Map<String, Object> parameterMap = new HashMap<String, Object>();
 
         if (user.getId() != null) {
             parameterMap.put("id", user.getId());
@@ -189,7 +189,7 @@ public class DefaultUserController extends UserController {
 
     public Preferences getUserPreferences(User user) throws ControllerException {
         try {
-            List<Preference> pList = (List<Preference>) SqlConfig.getSqlMapClient().queryForList("User.getUserPreferences", user.getId());
+            List<Preference> pList = SqlConfig.getSqlMapClient().queryForList("User.getUserPreferences", user.getId());
             Preferences pMap = new Preferences();
 
             for (Preference p : pList) {
@@ -204,7 +204,7 @@ public class DefaultUserController extends UserController {
 
     public void setUserPreference(User user, String name, String value) throws ControllerException {
         try {
-            Map parameterMap = new HashMap();
+            Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("id", user.getId());
             parameterMap.put("name", name);
             parameterMap.put("value", value);

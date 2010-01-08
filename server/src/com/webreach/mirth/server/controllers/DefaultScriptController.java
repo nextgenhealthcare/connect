@@ -64,7 +64,7 @@ public class DefaultScriptController extends ScriptController {
         logger.debug("adding script: id=" + id);
 
         try {
-            Map parameterMap = new HashMap();
+            Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("id", id);
             parameterMap.put("script", script);
 

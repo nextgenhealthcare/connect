@@ -128,7 +128,7 @@ public class DefaultAlertController extends AlertController {
                 logger.debug("adding channel alerts");
 
                 for (String channelId : alert.getChannels()) {
-                    Map params = new HashMap();
+                    Map<String, Object> params = new HashMap<String, Object>();
                     params.put("alertId", alert.getId());
                     params.put("channelId", channelId);
                     SqlConfig.getSqlMapClient().insert("Alert.insertChannelAlert", params);
@@ -137,7 +137,7 @@ public class DefaultAlertController extends AlertController {
                 logger.debug("adding alert emails");
 
                 for (String email : alert.getEmails()) {
-                    Map params = new HashMap();
+                    Map<String, Object> params = new HashMap<String, Object>();
                     params.put("alertId", alert.getId());
                     params.put("email", email);
                     SqlConfig.getSqlMapClient().insert("Alert.insertAlertEmail", params);

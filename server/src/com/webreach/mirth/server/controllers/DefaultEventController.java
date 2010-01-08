@@ -124,8 +124,7 @@ public class DefaultEventController extends EventController {
 		logger.debug("clearing system event list");
 
 		try {
-			Map parameterMap = new HashMap();
-			SqlConfig.getSqlMapClient().delete("Event.deleteEvent", parameterMap);
+			SqlConfig.getSqlMapClient().delete("Event.deleteEvent");
 			
             if (DatabaseUtil.statementExists("Event.vacuumEventTable")) {
                 SqlConfig.getSqlMapClient().update("Event.vacuumEventTable");
@@ -136,8 +135,8 @@ public class DefaultEventController extends EventController {
 		}
 	}
 	
-	private Map getFilterMap(SystemEventFilter filter, String uid) {
-		Map parameterMap = new HashMap();
+	private Map<String, Object> getFilterMap(SystemEventFilter filter, String uid) {
+		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		
 		if (uid != null) {
 			parameterMap.put("uid", uid);
@@ -213,7 +212,7 @@ public class DefaultEventController extends EventController {
 		logger.debug("retrieving system events by page: page=" + page);
 
 		try {
-			Map parameterMap = new HashMap();
+			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put("uid", uid);
 
 			if ((page != -1) && (pageSize != -1)) {
@@ -251,7 +250,7 @@ public class DefaultEventController extends EventController {
 		logger.debug("retrieving system events by page: page=" + page);
 
 		try {
-			Map parameterMap = new HashMap();
+			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put("uid", uid);
 			int offset = page * pageSize;
 

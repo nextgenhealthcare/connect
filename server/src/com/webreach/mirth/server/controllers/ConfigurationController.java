@@ -25,7 +25,6 @@
 
 package com.webreach.mirth.server.controllers;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -87,23 +86,9 @@ public abstract class ConfigurationController extends Controller {
 
     public abstract void executeGlobalScript(String scriptType);
 
-    // mule configs
-
-    public abstract File getLatestConfiguration() throws ControllerException;
-
-    public abstract File getStartupConfiguration() throws ControllerException;
-    
-    public abstract String getDefaultConfiguration() throws Exception;
-
-    public abstract void deleteLatestConfiguration();
-
     // config parameters
     
     public abstract String getDatabaseType();
-
-    public abstract String getMuleConfigurationPath();
-
-    public abstract String getMuleBootPath();
 
     public abstract String getServerId();
 
