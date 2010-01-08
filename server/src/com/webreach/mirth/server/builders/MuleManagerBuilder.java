@@ -136,6 +136,7 @@ public class MuleManagerBuilder {
             MuleEndpoint vmSinkEndpoint = new MuleEndpoint();
             vmSinkEndpoint.setEndpointURI(new MuleEndpointURI(new URI("vm://sink").toString()));
             messageSinkinboundRouter.addEndpoint(vmSinkEndpoint);
+            messageSinkDescriptor.setInboundRouter(messageSinkinboundRouter);
             model.registerComponent(messageSinkDescriptor);
 
             // set the model (which also initializes and starts the model)
