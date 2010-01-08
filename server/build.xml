@@ -682,7 +682,7 @@
 			<exclude name="com/webreach/mirth/server/launcher/ShellLauncher.class" />
 			<manifest>
 				<attribute name="Main-Class" value="com.webreach.mirth.server.launcher.MirthLauncher" />
-				<attribute name="Class-Path" value="lib/log4j-1.2.13.jar conf/" />
+				<attribute name="Class-Path" value="lib/log4j-1.2.15.jar conf/" />
 			</manifest>
 		</jar>
 
@@ -703,7 +703,7 @@
 			<exclude name="com/webreach/mirth/server/launcher/MirthLauncher.class" />
 			<manifest>
 				<attribute name="Main-Class" value="com.webreach.mirth.server.launcher.ShellLauncher" />
-				<attribute name="Class-Path" value="lib/log4j-1.2.13.jar conf/ extensions/connectors/" />
+				<attribute name="Class-Path" value="lib/log4j-1.2.15.jar conf/ extensions/connectors/" />
 			</manifest>
 		</jar>
 
@@ -724,7 +724,7 @@
 				<pathelement location="${setup}/mirth-server.jar" />
 				<pathelement location="${setup.conf}" />
 				<fileset dir="${lib}">
-					<include name="log4j-1.2.13.jar" />
+					<include name="log4j-1.2.15.jar" />
 					<include name="derby.jar" />
 					<include name="derbytools.jar" />
 				</fileset>
