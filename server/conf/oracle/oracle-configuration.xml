@@ -5,11 +5,9 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 "conf/sql-map-2.dtd">
 
 <sqlMap namespace="Configuration">
-
-	<resultMap class="com.webreach.mirth.model.Configuration" id="get-configuration-result">
-		<result property="id" column="ID" />
-		<result property="dateCreated" column="DATE_CREATED" />
-		<result property="data" column="DATA" />
+	<resultMap id="get-properties-for-category-result" class="java.util.HashMap" >
+		<result property="name" column="NAME" javaType="java.lang.String" />
+		<result property="value" column="VALUE" javaType="java.lang.String" />
 	</resultMap>
 
 	<select id="getKey" resultClass="java.lang.String">
@@ -23,14 +21,6 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		VALUES (#data#)
 	</insert>
 
-	<select id="getLatestConfiguration" resultClass="com.webreach.mirth.model.Configuration">
-		SELECT *
-		FROM CONFIGURATION
-		WHERE ID IN
-			(SELECT MAX(ID)
-			FROM CONFIGURATION)
-	</select>
-	
 	<select id="getSchemaVersion" resultClass="java.lang.Integer">
 		SELECT VERSION FROM SCHEMA_INFO
 	</select>
@@ -42,21 +32,33 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<update id="updateSchemaVersion" parameterClass="int">
 		UPDATE SCHEMA_INFO SET VERSION = #value#
 	</update>
-	
-	<delete id="deleteLatestConfiguration">
-		DELETE FROM CONFIGURATION
-		WHERE ID IN
-			(SELECT MAX(ID)
-			FROM CONFIGURATION)
-	</delete>
 
-	<delete id="clearConfiguration">
-		DELETE FROM CONFIGURATION
-	</delete>
+	<select id="selectPropertiesForCategory" parameterClass="java.lang.String" resultMap="get-properties-for-category-result">
+		SELECT NAME, VALUE
+		FROM CONFIGURATION
+		WHERE CATEGORY = #category#
+	</select>
+
+	<select id="selectProperty" parameterClass="java.util.Map" resultClass="java.lang.String">
+		SELECT VALUE
+		FROM CONFIGURATION
+		WHERE CATEGORY = #category# AND NAME = #name#
+	</select>
 	
-	<insert id="insertConfiguration" parameterClass="java.lang.String">
+	<insert id="insertProperty" parameterClass="java.util.Map">
 		INSERT INTO
-		CONFIGURATION (ID, DATA)
-		VALUES (CONFIGURATION_SEQUENCE.NEXTVAL, #data#)
+		CONFIGURATION (CATEGORY, NAME, VALUE)
+		VALUES (#category#, #name#, #value#)
 	</insert>
+
+	<update id="updateProperty" parameterClass="java.util.Map">
+		UPDATE CONFIGURATION
+		SET VALUE = #value#
+		WHERE CATEGORY = #category# AND NAME = #name#
+	</update>
+
+	<delete id="deleteProperty" parameterClass="java.util.Map">
+		DELETE FROM CONFIGURATION
+		WHERE CATEGORY = #category# AND NAME = #name#
+	</delete>	
 </sqlMap>

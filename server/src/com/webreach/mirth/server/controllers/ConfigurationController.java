@@ -60,9 +60,9 @@ public abstract class ConfigurationController extends Controller {
 
     public abstract void shutdown();
 
-    public abstract void deployChannels() throws ControllerException;
+    public abstract void deployAllChannels() throws ControllerException;
     
-    public abstract void hotDeployChannels(List<Channel> channels) throws ControllerException;
+    public abstract void deployChannels(List<Channel> channels) throws ControllerException;
     
     public abstract void undeployChannels(List<String> channelIds) throws ControllerException;
     
@@ -127,4 +127,14 @@ public abstract class ConfigurationController extends Controller {
     public abstract boolean isEngineStarting();
 
     public abstract void setEngineStarting(boolean isEngineStarting);
+    
+    // properties
+    
+    public abstract Properties getPropertiesForGroup(String group);
+    
+    public abstract String getProperty(String group, String name);
+    
+    public abstract void saveProperty(String group, String name, String property);
+    
+    public abstract void removeProperty(String group, String name);
 }

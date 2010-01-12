@@ -170,25 +170,18 @@ public class DefaultMigrationController extends MigrationController {
 
     public void migrateExtensions() {
         ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
-        Properties pluginProperties = null;
-
-        try {
-            pluginProperties = extensionController.getExtensionsProperties();
-        } catch (ControllerException e) {
-            logger.error("Could not get extension properties.", e);
-            return;
-        }
 
         try {
             Map<String, PluginMetaData> plugins = extensionController.getPluginMetaData();
 
             for (PluginMetaData plugin : plugins.values()) {
                 int baseSchemaVersion = -1;
-                String schemaString = pluginProperties.getProperty("schema." + plugin.getPath());
+                Properties pluginProperties = extensionController.getPluginProperties(plugin.getName());
+                String schema = pluginProperties.getProperty("schema");
 
-                if (schemaString != null) {
+                if (schema != null) {
                     try {
-                        baseSchemaVersion = Integer.parseInt(schemaString);
+                        baseSchemaVersion = Integer.parseInt(schema);
                     } catch (NumberFormatException nfe) {
                         logger.info("could not determine schema version for plugin: " + plugin.getPath(), nfe);
                     }
@@ -242,19 +235,13 @@ public class DefaultMigrationController extends MigrationController {
                             }
                         }
 
-                        pluginProperties.setProperty("schema." + plugin.getPath(), String.valueOf(maxSchemaVersion));
+                        pluginProperties.setProperty("schema", String.valueOf(maxSchemaVersion));
+                        extensionController.setPluginProperties(plugin.getName(), pluginProperties);
                     }
                 }
             }
-
         } catch (Exception e) {
             logger.error("Could not initialize migration controller.", e);
-        }
-
-        try {
-            extensionController.setExtensionsProperties(pluginProperties);
-        } catch (ControllerException e) {
-            logger.error("Could not save extension properties.", e);
         }
     }
 

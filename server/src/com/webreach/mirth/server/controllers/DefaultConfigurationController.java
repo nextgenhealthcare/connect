@@ -76,7 +76,9 @@ import com.webreach.mirth.util.PropertyVerifier;
  * @author geraldb
  * 
  */
-public class DefaultConfigurationController extends ConfigurationController{
+public class DefaultConfigurationController extends ConfigurationController {
+    private static final String PROPERTIES_CORE = "core";
+
     private static final String CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT = "// This script executes once after a message has been processed\nreturn;";
     private static final String GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT = "// Modify the message variable below to pre process data\n// This script applies across all channels\nreturn message;";
     private static final String GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT = "// This script executes once after a message has been processed\n// This script applies across all channels\nreturn;";
@@ -86,7 +88,6 @@ public class DefaultConfigurationController extends ConfigurationController{
     private Logger logger = Logger.getLogger(this.getClass());
     private EventController systemLogger = ControllerFactory.getFactory().createEventController();
     private String baseDir = new File(ClassPathResource.getResourceURI("mirth.properties")).getParentFile().getParent();
-    private File serverPropertiesFile = new File(baseDir + System.getProperty("file.separator") + "server.properties");
     private File serverIdPropertiesFile = new File(baseDir + System.getProperty("file.separator") + "server.id");
     private static SecretKey encryptionKey = null;
     private static String serverId = null;
@@ -100,9 +101,9 @@ public class DefaultConfigurationController extends ConfigurationController{
     private JavaScriptUtil javaScriptUtil = JavaScriptUtil.getInstance();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
-    
+
     private PasswordRequirements passwordRequirements;
-    
+
     // singleton pattern
     private static DefaultConfigurationController instance = null;
 
@@ -126,16 +127,16 @@ public class DefaultConfigurationController extends ConfigurationController{
             if (mirthProperties.getProperty(TEMP_DIR) != null) {
                 String tempDirPath = StringUtils.replace(mirthProperties.getProperty(TEMP_DIR), "${mirthHomeDir}", baseDir);
                 File tempDir = new File(tempDirPath);
-                
+
                 if (!tempDir.exists()) {
                     tempDir.mkdirs();
                     logger.debug("Created tmpdir: " + tempDir.getAbsolutePath());
                 }
-                
+
                 System.setProperty("java.io.tmpdir", tempDirPath);
                 logger.debug("Set tmpdir to: " + tempDirPath);
             }
-            
+
             if (mirthProperties.getProperty(CHARSET) != null) {
                 System.setProperty(CHARSET, mirthProperties.getProperty(CHARSET));
             }
@@ -153,7 +154,7 @@ public class DefaultConfigurationController extends ConfigurationController{
             }
 
             loadDefaultProperties();
-            
+
             this.passwordRequirements = PasswordRequirementsChecker.getInstance().loadPasswordRequirements();
         } catch (Exception e) {
             logger.warn(e);
@@ -165,12 +166,12 @@ public class DefaultConfigurationController extends ConfigurationController{
 
         // update.url
         String updateUrl = serverProperties.getProperty("update.url");
-        
+
         // migrate old update url
         if ((updateUrl != null) && (updateUrl.equalsIgnoreCase("http://updates.mirthproject.org"))) {
             serverProperties.setProperty("update.url", "http://updates.mirthcorp.com");
         }
-        
+
         // set new update url
         if ((updateUrl == null) || (updateUrl.length() == 0)) {
             serverProperties.setProperty("update.url", "http://updates.mirthcorp.com");
@@ -178,36 +179,36 @@ public class DefaultConfigurationController extends ConfigurationController{
 
         // update.enabled
         String updateEnabled = serverProperties.getProperty("update.enabled");
-        
+
         if ((updateEnabled == null) || (updateEnabled.length() == 0)) {
             serverProperties.setProperty("update.enabled", "1");
         }
 
         // stats.enabled
         String updateIdent = serverProperties.getProperty("stats.enabled");
-        
+
         if ((updateIdent == null) || (updateIdent.length() == 0)) {
             serverProperties.setProperty("stats.enabled", "1");
         }
 
         // firstlogin
         String firstLogin = serverProperties.getProperty("firstlogin");
-        
+
         if ((firstLogin == null) || (firstLogin.length() == 0)) {
             serverProperties.setProperty("firstlogin", "1");
         }
 
         // Check for the old "clearGlobal" property and migrate it.
         String clearGlobal = serverProperties.getProperty("clearGlobal");
-                
+
         if ((clearGlobal != null) && (clearGlobal.length() > 0)) {
             serverProperties.setProperty("server.resetglobalvariables", clearGlobal);
             serverProperties.remove("clearGlobal");
         }
-        
+
         // server.resetglobalvariables
         String resetGlobalVariables = serverProperties.getProperty("server.resetglobalvariables");
-        
+
         if ((resetGlobalVariables == null) || (resetGlobalVariables.length() == 0)) {
             serverProperties.setProperty("server.resetglobalvariables", "1");
         }
@@ -270,19 +271,12 @@ public class DefaultConfigurationController extends ConfigurationController{
     }
 
     public Properties getServerProperties() throws ControllerException {
-        try {
-            return loadPropertiesFromFile(serverPropertiesFile);
-        } catch (IOException e) {
-            throw new ControllerException("Could not load server proeprties file.", e);
-        }
-
+        return getPropertiesForGroup(PROPERTIES_CORE);
     }
 
     public void setServerProperties(Properties properties) throws ControllerException {
-        try {
-            savePropertiesToFile(serverPropertiesFile, properties);
-        } catch (IOException e) {
-            throw new ControllerException("Could not save server properties file.", e);
+        for (Object name : properties.keySet()) {
+            saveProperty(PROPERTIES_CORE, (String) name, (String) properties.get(name));    
         }
     }
 
@@ -338,8 +332,8 @@ public class DefaultConfigurationController extends ConfigurationController{
      * 
      * @throws ControllerException
      */
-    public void hotDeployChannels(List<Channel> channels) throws ControllerException {
-        logger.debug("hot deploying " + channels.size() + " channels");
+    public void deployChannels(List<Channel> channels) throws ControllerException {
+        logger.debug("deploying " + channels.size() + " channels");
 
         try {
             CommandQueue.getInstance().addCommand(new Command(Command.Operation.DEPLOY_CHANNELS, channels));
@@ -348,11 +342,11 @@ public class DefaultConfigurationController extends ConfigurationController{
             throw new ControllerException(e);
         }
 
-        systemLogger.logSystemEvent(new SystemEvent("Channels hot deployed."));
+        systemLogger.logSystemEvent(new SystemEvent("Channels deployed."));
     }
-    
+
     public void undeployChannels(List<String> channelIds) throws ControllerException {
-        logger.debug("un-deploying " + channelIds.size() + " channels");
+        logger.debug("undeploying " + channelIds.size() + " channels");
 
         try {
             Command command = new Command(Command.Operation.UNDEPLOY_CHANNELS);
@@ -371,7 +365,7 @@ public class DefaultConfigurationController extends ConfigurationController{
      * 
      * @throws ControllerException
      */
-    public void deployChannels() throws ControllerException {
+    public void deployAllChannels() throws ControllerException {
         logger.debug("deploying channels");
 
         scriptController.clearScripts();
@@ -385,7 +379,7 @@ public class DefaultConfigurationController extends ConfigurationController{
             // update the storeMessages reference
             channelController.refreshChannelCache(channels);
             ControllerFactory.getFactory().createExtensionController().deployTriggered();
-            hotDeployChannels(channels);
+            deployChannels(channels);
         } catch (Exception e) {
             throw new ControllerException(e);
         }
@@ -503,15 +497,14 @@ public class DefaultConfigurationController extends ConfigurationController{
     }
 
     public String getDatabaseType() {
-        Properties properties = PropertyLoader.loadProperties("mirth");
-        return PropertyLoader.getProperty(properties, "database");
+        return getPropertiesForGroup(PROPERTIES_CORE).getProperty("database");
     }
 
     public SecretKey getEncryptionKey() {
         return encryptionKey;
     }
 
-    public void loadEncryptionKey()  {
+    public void loadEncryptionKey() {
         logger.debug("loading encryption key");
 
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
@@ -588,6 +581,7 @@ public class DefaultConfigurationController extends ConfigurationController{
         // This double-check is not foolproof, but works in most cases.
         boolean isEngineRunning = false;
         boolean localIsEngineStarting = false;
+
         if (isEngineStarting()) {
             localIsEngineStarting = true;
         } else {
@@ -718,18 +712,79 @@ public class DefaultConfigurationController extends ConfigurationController{
     }
 
     public String getQueuestorePath() {
-        Properties properties = PropertyLoader.loadProperties("mirth");
-        String muleQueue = PropertyLoader.getProperty(properties, "mule.queue");
+        String muleQueue = getPropertiesForGroup(PROPERTIES_CORE).getProperty("mule.queue");
         String queuestorePath = StringUtils.replace(muleQueue, "${mirthHomeDir}", baseDir);
         queuestorePath += File.separator + "queuestore";
         return queuestorePath;
     }
-    
+
     public String getBaseDir() {
         return baseDir;
     }
 
-	public PasswordRequirements getPasswordRequirements() {
-		return passwordRequirements;
-	}
+    public PasswordRequirements getPasswordRequirements() {
+        return passwordRequirements;
+    }
+
+    public Properties getPropertiesForGroup(String category) {
+        logger.debug("retrieving properties: category=" + category);
+
+        try {
+            Map<String, String> result = SqlConfig.getSqlMapClient().queryForMap("Configuration.selectPropertiesForCategory", category, "name", "value");
+            Properties properties = new Properties();
+            properties.putAll(result);
+            return properties;
+        } catch (Exception e) {
+            logger.error("Could not retrieve properties: category=" + category, e);
+        }
+
+        return null;
+    }
+
+    public String getProperty(String category, String name) {
+        logger.debug("retrieving property: category=" + category + ", name=" + name);
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<String, Object>();
+            parameterMap.put("category", category);
+            parameterMap.put("name", name);
+            return (String) SqlConfig.getSqlMapClient().queryForObject("Configuration.selectProperty", parameterMap);
+        } catch (Exception e) {
+            logger.error("Could not retrieve property: category=" + category + ", name=" + name, e);
+        }
+
+        return null;
+    }
+
+    public void saveProperty(String category, String name, String value) {
+        logger.debug("storing property: category=" + category + ", name=" + name);
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<String, Object>();
+            parameterMap.put("category", category);
+            parameterMap.put("name", name);
+            parameterMap.put("value", value);
+
+            if (getProperty(category, name) == null) {
+                SqlConfig.getSqlMapClient().insert("Configuration.insertProperty", parameterMap);
+            } else {
+                SqlConfig.getSqlMapClient().insert("Configuration.updateProperty", parameterMap);
+            }
+        } catch (Exception e) {
+            logger.error("Could not store property: category=" + category + ", name=" + name, e);
+        }
+    }
+
+    public void removeProperty(String category, String name) {
+        logger.debug("deleting property: category=" + category + ", name=" + name);
+
+        try {
+            Map<String, Object> parameterMap = new HashMap<String, Object>();
+            parameterMap.put("category", category);
+            parameterMap.put("name", name);
+            SqlConfig.getSqlMapClient().delete("Configuration.deleteProperty", parameterMap);
+        } catch (Exception e) {
+            logger.error("Could not delete property: category=" + category + ", name=" + name, e);
+        }
+    }
 }

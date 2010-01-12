@@ -149,13 +149,7 @@ public abstract class ExtensionController extends Controller {
     
     public abstract void deleteUninstallScripts();
     
-    // properties
-    
     public abstract void setPluginProperties(String pluginName, Properties properties) throws ControllerException;
 
     public abstract Properties getPluginProperties(String pluginName) throws ControllerException;
-    
-    public abstract void setExtensionsProperties(Properties properties) throws ControllerException;
-    
-    public abstract Properties getExtensionsProperties() throws ControllerException;
 }

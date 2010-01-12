@@ -190,7 +190,7 @@ public class MirthManager {
 	 */
 	public void deployChannels() throws MirthException {
 		try {
-			configurationController.deployChannels();
+			configurationController.deployAllChannels();
 		} catch (ControllerException e) {
 			throw new MirthException(e);
 		}

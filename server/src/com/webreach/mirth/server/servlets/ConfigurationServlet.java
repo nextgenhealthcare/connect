@@ -44,10 +44,10 @@ public class ConfigurationServlet extends MirthServlet {
                     response.setContentType("text/plain");
                     out.print(configurationController.getGuid());
                 } else if (operation.equals("deployChannels")) {
-                    configurationController.deployChannels();
+                    configurationController.deployAllChannels();
                 } else if (operation.equals("hotDeployChannels")) {
                     List<Channel> channels = (List<Channel>) serializer.fromXML(request.getParameter("channels"));
-                    configurationController.hotDeployChannels(channels);
+                    configurationController.deployChannels(channels);
                 } else if (operation.equals("uneployChannels")) {
                     List<String> channelIds = (List<String>) serializer.fromXML(request.getParameter("channelIds"));
                     configurationController.undeployChannels(channelIds);
