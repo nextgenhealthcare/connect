@@ -32,7 +32,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -846,12 +845,6 @@ public class DefaultMessageObjectController extends MessageObjectController {
     public void resetQueuedStatus(MessageObject messageObject) {
 
         if (messageObject != null) {
-            Map<String, Response> responseMap = messageObject.getResponseMap();
-            
-            if (responseMap != null && responseMap.get(messageObject.getConnectorName()) != null) {
-                Response response = responseMap.get(messageObject.getConnectorName());
-            }
-
             messageObject.setStatus(Status.QUEUED);
             updateMessage(messageObject, true);
             statisticsController.decrementErrorCount(messageObject.getChannelId());
