@@ -1,28 +1,13 @@
-/*
- * ManagerDialog.java
- *
- * Created on April 13, 2007, 2:51 PM
- */
 package com.webreach.mirth.manager;
 
 import java.awt.Cursor;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
 import javax.swing.DefaultComboBoxModel;
 
-import org.jdesktop.swingworker.SwingWorker;
-
-import com.webreach.mirth.manager.util.ObjectCloner;
-import com.webreach.mirth.manager.util.ObjectClonerException;
-
-/**
- * 
- * @author brendanh
- */
 public class ManagerDialog extends javax.swing.JDialog {
 
     private Properties serverProperties;
@@ -30,41 +15,11 @@ public class ManagerDialog extends javax.swing.JDialog {
     private Properties log4jProperties;
     private Properties versionProperties;
     private Properties serverIdProperties;
-    private static final String SERVER_WEBSTART_PORT = "http.port";
-    private static final String SERVER_ADMINISTRATOR_PORT = "https.port";
-    private static final String SERVER_JMX_PORT = "jmx.port";
-    private static final String LOG4J_MIRTH_LOG_LEVEL = "log4j.rootCategory";
-    private static final String LOG4J_DATABASE_LOG_LEVEL = "log4j.logger.java.sql";
-    private static final String DATABASE_TYPE = "database";
-    private static final String DATABASE_DRIVER = "driver";
-    private static final String DATABASE_URL = "url";
-    private static final String DATABASE_USERNAME = "username";
-    private static final String DATABASE_PASSWORD = "password";
-    private static final String DATABASE_DERBY = "derby";
-    private static final String DATABASE_POSTGRES = "postgres";
-    private static final String DATABASE_MYSQL = "mysql";
-    private static final String DATABASE_SQLSERVER = "sqlserver";
-    private static final String DATABASE_SQLSERVER2005 = "sqlserver2005";
-    private static final String DATABASE_ORACLE = "oracle";
-    public static final String serverPropertiesPath = "conf\\mirth.properties";
-    private static final String log4jPropertiesPath = "conf\\log4j.properties";
-    private static final String serverLogsPath = "logs\\";
-    private static final String derbyPropertiesPath = "conf\\derby-SqlMapConfig.properties";
-    private static final String postgresPropertiesPath = "conf\\postgres-SqlMapConfig.properties";
-    private static final String mysqlPropertiesPath = "conf\\mysql-SqlMapConfig.properties";
-    private static final String sqlserverPropertiesPath = "conf\\sqlserver-SqlMapConfig.properties";
-    private static final String sqlserver2005PropertiesPath = "conf\\sqlserver2005-SqlMapConfig.properties";
-    private static final String oraclePropertiesPath = "conf\\oracle-SqlMapConfig.properties";
-    private static final String versionFilePath = "conf\\version.properties";
-    private static final String serverIdFilePath = "server.id";
-    private static final String REGISTRY_KEY = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
-    private static final String REGISTRY_VALUE_NAME = "Mirth";
-    private static final String[] log4jErrorCodes = new String[]{"ERROR", "WARN", "DEBUG", "INFO"};
 
-    /**
-     * Creates new form ManagerDialog
-     */
     public ManagerDialog() {
+    }
+
+    public void setupDialog() {
         initComponents();
         pack();
         setLocationRelativeTo(null);
@@ -103,7 +58,7 @@ public class ManagerDialog extends javax.swing.JDialog {
     public void open() {
         ManagerController.getInstance().updateMirthServiceStatus();
         loadServerProperties();
-        if (ManagerController.getInstance().getRegistryValue(REGISTRY_KEY, REGISTRY_VALUE_NAME) != null) {
+        if (ManagerController.getInstance().isStartup()) {
             startup.setSelected(true);
         } else {
             startup.setSelected(false);
@@ -115,8 +70,12 @@ public class ManagerDialog extends javax.swing.JDialog {
         setVisible(false);
     }
 
-    public void launchAdministrator() {
-        ManagerController.getInstance().launchAdministrator(serverProperties.getProperty(SERVER_WEBSTART_PORT));
+    public void setApplyEnabled(boolean enabled) {
+        applyButton.setEnabled(enabled);
+    }
+
+    public boolean isApplyEnabled() {
+        return applyButton.isEnabled();
     }
 
     /**
@@ -144,8 +103,8 @@ public class ManagerDialog extends javax.swing.JDialog {
         refreshServiceButton = new javax.swing.JButton();
         jLabel20 = new javax.swing.JLabel();
         serverPanel = new javax.swing.JPanel();
-        serverWebstartPort = new javax.swing.JTextField();
-        serverAdministratorPort = new javax.swing.JTextField();
+        serverWebstartPort = new com.webreach.mirth.manager.components.MirthTextField();
+        serverAdministratorPort = new com.webreach.mirth.manager.components.MirthTextField();
         jLabel3 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -155,21 +114,21 @@ public class ManagerDialog extends javax.swing.JDialog {
         refreshButton = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        mirthLogLevel = new javax.swing.JComboBox();
-        databaseLogLevel = new javax.swing.JComboBox();
+        mirthLogLevel = new com.webreach.mirth.manager.components.MirthComboBox();
+        databaseLogLevel = new com.webreach.mirth.manager.components.MirthComboBox();
         jLabel18 = new javax.swing.JLabel();
-        serverJmxPort = new javax.swing.JTextField();
+        serverJmxPort = new com.webreach.mirth.manager.components.MirthTextField();
         databasePanel = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
-        databaseUrl = new javax.swing.JTextField();
-        databaseType = new javax.swing.JComboBox();
+        databaseUrl = new com.webreach.mirth.manager.components.MirthTextField();
+        databaseType = new com.webreach.mirth.manager.components.MirthComboBox();
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
-        databaseUsername = new javax.swing.JTextField();
-        databasePassword = new javax.swing.JPasswordField();
+        databaseUsername = new com.webreach.mirth.manager.components.MirthTextField();
+        databasePassword = new com.webreach.mirth.manager.components.MirthPasswordField();
         jLabel19 = new javax.swing.JLabel();
-        databaseDriver = new javax.swing.JTextField();
+        databaseDriver = new com.webreach.mirth.manager.components.MirthTextField();
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         version = new javax.swing.JLabel();
@@ -180,8 +139,9 @@ public class ManagerDialog extends javax.swing.JDialog {
         jLabel14 = new javax.swing.JLabel();
         mirthSupportLink = new javax.swing.JLabel();
         jLabel17 = new javax.swing.JLabel();
-        closeButton = new javax.swing.JButton();
+        applyButton = new javax.swing.JButton();
         launchButton = new javax.swing.JButton();
+        cancelButton = new javax.swing.JButton();
         okButton = new javax.swing.JButton();
 
         setTitle("Mirth Connect Server Manager");
@@ -311,7 +271,7 @@ public class ManagerDialog extends javax.swing.JDialog {
                 .add(serviceButtonContainerLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(refreshServiceButton)
                     .add(jLabel20))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 6, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 8, Short.MAX_VALUE)
                 .add(startup)
                 .addContainerGap())
         );
@@ -390,7 +350,7 @@ public class ManagerDialog extends javax.swing.JDialog {
                         .add(serverPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(serverPanelLayout.createSequentialGroup()
                                 .add(serverPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                                    .add(serverWebstartPort)
+                                    .add(serverWebstartPort, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .add(serverAdministratorPort, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE))
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 12, Short.MAX_VALUE)
                                 .add(serverPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -400,8 +360,8 @@ public class ManagerDialog extends javax.swing.JDialog {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(serverPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(viewFileButton)
-                            .add(databaseLogLevel, 0, 73, Short.MAX_VALUE)
-                            .add(mirthLogLevel, 0, 73, Short.MAX_VALUE)
+                            .add(databaseLogLevel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE)
+                            .add(mirthLogLevel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE)
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, refreshButton)))
                     .add(serverJmxPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 60, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
@@ -436,7 +396,7 @@ public class ManagerDialog extends javax.swing.JDialog {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(viewFileButton))
                     .add(jScrollPane1, 0, 0, Short.MAX_VALUE))
-                .addContainerGap(14, Short.MAX_VALUE))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
 
         tabPanel.addTab("Server", serverPanel);
@@ -459,8 +419,6 @@ public class ManagerDialog extends javax.swing.JDialog {
         jLabel9.setText("Username:");
 
         jLabel10.setText("Password:");
-
-        databasePassword.setFont(new java.awt.Font("Tahoma", 0, 11));
 
         jLabel19.setText("Driver:");
 
@@ -548,7 +506,7 @@ public class ManagerDialog extends javax.swing.JDialog {
                     .add(jPanel1Layout.createSequentialGroup()
                         .add(jLabel14)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(mirthSupportLink)
+                        .add(mirthSupportLink, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jLabel17))
                     .add(jPanel1Layout.createSequentialGroup()
@@ -578,20 +536,20 @@ public class ManagerDialog extends javax.swing.JDialog {
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel16)
                     .add(javaVersion))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 68, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 70, Short.MAX_VALUE)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel14)
-                    .add(mirthSupportLink)
+                    .add(mirthSupportLink, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel17))
                 .addContainerGap())
         );
 
         tabPanel.addTab("Info", jPanel1);
 
-        closeButton.setText("Cancel");
-        closeButton.addActionListener(new java.awt.event.ActionListener() {
+        applyButton.setText("Apply");
+        applyButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                closeButtonActionPerformed(evt);
+                applyButtonActionPerformed(evt);
             }
         });
 
@@ -599,6 +557,13 @@ public class ManagerDialog extends javax.swing.JDialog {
         launchButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 launchButtonActionPerformed(evt);
+            }
+        });
+
+        cancelButton.setText("Cancel");
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelButtonActionPerformed(evt);
             }
         });
 
@@ -621,14 +586,16 @@ public class ManagerDialog extends javax.swing.JDialog {
             .add(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(launchButton)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 122, Short.MAX_VALUE)
-                .add(okButton)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 44, Short.MAX_VALUE)
+                .add(okButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 72, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(closeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 72, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(cancelButton)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(applyButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 72, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
-        jPanel3Layout.linkSize(new java.awt.Component[] {closeButton, okButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+        jPanel3Layout.linkSize(new java.awt.Component[] {applyButton, cancelButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
 
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -639,7 +606,8 @@ public class ManagerDialog extends javax.swing.JDialog {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(launchButton)
-                    .add(closeButton)
+                    .add(applyButton)
+                    .add(cancelButton)
                     .add(okButton))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -657,15 +625,14 @@ public class ManagerDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void mirthSupportLinkMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_mirthSupportLinkMouseClicked
-    BareBonesBrowserLaunch.openURL("http://www.mirthcorp.com/services/support");
+        BareBonesBrowserLaunch.openURL("http://www.mirthcorp.com/services/support");
 }//GEN-LAST:event_mirthSupportLinkMouseClicked
 
 private void startupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startupActionPerformed
     if (startup.isSelected()) {
-        String absolutePath = new File(PlatformUI.MIRTH_PATH).getAbsolutePath();
-        ManagerController.getInstance().setRegistryValue(REGISTRY_KEY, REGISTRY_VALUE_NAME, "\"" + absolutePath + System.getProperty("file.separator") + "MirthServerManager.exe\"");
+        ManagerController.getInstance().setStartup(true);
     } else {
-        ManagerController.getInstance().deleteRegistryValue(REGISTRY_KEY, REGISTRY_VALUE_NAME);
+        ManagerController.getInstance().setStartup(false);
     }
 }//GEN-LAST:event_startupActionPerformed
 
@@ -673,343 +640,251 @@ private void refreshServiceButtonActionPerformed(java.awt.event.ActionEvent evt)
     ManagerController.getInstance().updateMirthServiceStatus();
 }//GEN-LAST:event_refreshServiceButtonActionPerformed
 
-    private void okButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_okButtonActionPerformed
-    {// GEN-HEADEREND:event_okButtonActionPerformed
-        saveProperties();
-        close();
-    }// GEN-LAST:event_okButtonActionPerformed
+private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
+    saveProperties();
+    close();
+}//GEN-LAST:event_okButtonActionPerformed
 
-    private void serverLogFilesValueChanged(javax.swing.event.ListSelectionEvent evt)// GEN-FIRST:event_serverLogFilesValueChanged
-    {// GEN-HEADEREND:event_serverLogFilesValueChanged
-        if (serverLogFiles.getSelectedIndex() != -1)
-            viewFileButton.setEnabled(true);
-        else
-            viewFileButton.setEnabled(false);
-    }// GEN-LAST:event_serverLogFilesValueChanged
+private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+    close();
+}//GEN-LAST:event_cancelButtonActionPerformed
 
-    private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_refreshButtonActionPerformed
-    {// GEN-HEADEREND:event_refreshButtonActionPerformed
-        refreshLogs();
-    }// GEN-LAST:event_refreshButtonActionPerformed
+private void applyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_applyButtonActionPerformed
+    saveProperties();
+}//GEN-LAST:event_applyButtonActionPerformed
 
-    private void databaseTypeActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_databaseTypeActionPerformed
-    {// GEN-HEADEREND:event_databaseTypeActionPerformed
-        loadDatabaseProperties();
-    }// GEN-LAST:event_databaseTypeActionPerformed
+private void serverLogFilesValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_serverLogFilesValueChanged
+    if (serverLogFiles.getSelectedIndex() != -1) {
+        viewFileButton.setEnabled(true);
+    } else {
+        viewFileButton.setEnabled(false);
+    }
+}//GEN-LAST:event_serverLogFilesValueChanged
 
-    private void launchButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_launchButtonActionPerformed
-    {// GEN-HEADEREND:event_launchButtonActionPerformed
-        launchAdministrator();
-    }// GEN-LAST:event_launchButtonActionPerformed
+private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshButtonActionPerformed
+    refreshLogs();
+}//GEN-LAST:event_refreshButtonActionPerformed
 
-    private void viewFileButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_viewFileButtonActionPerformed
-    {// GEN-HEADEREND:event_viewFileButtonActionPerformed
-        ManagerController.getInstance().openLogFile(PlatformUI.MIRTH_PATH + serverLogsPath + (String) serverLogFiles.getSelectedValue());
-    }// GEN-LAST:event_viewFileButtonActionPerformed
+private void databaseTypeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_databaseTypeActionPerformed
+    loadDatabaseProperties();
+}//GEN-LAST:event_databaseTypeActionPerformed
 
-    private void restartButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_restartButtonActionPerformed
-    {// GEN-HEADEREND:event_restartButtonActionPerformed
-        SwingWorker worker = new SwingWorker<Void, Void>()
-        {
-            public Void doInBackground()
-            {
-                setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                disableButtons();
-                if (checkPropertiesForChanges())
-                    saveProperties();
-                ManagerController.getInstance().restartMirth(serverProperties.getProperty(SERVER_WEBSTART_PORT), serverProperties.getProperty(SERVER_ADMINISTRATOR_PORT), serverProperties.getProperty(SERVER_JMX_PORT));
+private void launchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_launchButtonActionPerformed
+    ManagerController.getInstance().launchAdministrator();
+}//GEN-LAST:event_launchButtonActionPerformed
 
-                return null;
-            }
+private void viewFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewFileButtonActionPerformed
+    ManagerController.getInstance().openLogFile(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SERVER_LOGS + (String) serverLogFiles.getSelectedValue());
+}//GEN-LAST:event_viewFileButtonActionPerformed
 
-            public void done()
-            {
-                ManagerController.getInstance().updateMirthServiceStatus();
-                setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            }
-        };
+private void restartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_restartButtonActionPerformed
+    ManagerController.getInstance().restartMirthWorker();
+}//GEN-LAST:event_restartButtonActionPerformed
 
-        worker.execute();
-    }// GEN-LAST:event_restartButtonActionPerformed
+private void stopButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopButtonActionPerformed
+    ManagerController.getInstance().stopMirthWorker();
+}//GEN-LAST:event_stopButtonActionPerformed
 
-    private void stopButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_stopButtonActionPerformed
-    {// GEN-HEADEREND:event_stopButtonActionPerformed
-        SwingWorker worker = new SwingWorker<Void, Void>()
-        {
-            public Void doInBackground()
-            {
-                setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                disableButtons();
-                ManagerController.getInstance().stopMirth(true);
-                return null;
-            }
+private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startButtonActionPerformed
+    ManagerController.getInstance().startMirthWorker();
+}//GEN-LAST:event_startButtonActionPerformed
 
-            public void done()
-            {
-                ManagerController.getInstance().updateMirthServiceStatus();
-                setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            }
-        };
+    private void loadServerProperties() {
+        serverProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SERVER_PROPERTIES, true);
+        log4jProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_LOG4J_PROPERTIES, true);
+        versionProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_VERSION_FILE, true);
+        serverIdProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SERVER_ID_FILE, false);
 
-        worker.execute();
-
-    }// GEN-LAST:event_stopButtonActionPerformed
-
-    private void startButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_startButtonActionPerformed
-    {// GEN-HEADEREND:event_startButtonActionPerformed
-
-        SwingWorker worker = new SwingWorker<Void, Void>()
-        {
-            public Void doInBackground()
-            {
-                setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                disableButtons();
-                if (checkPropertiesForChanges())
-                    saveProperties();
-                ManagerController.getInstance().startMirth(true, serverProperties.getProperty(SERVER_WEBSTART_PORT), serverProperties.getProperty(SERVER_ADMINISTRATOR_PORT), serverProperties.getProperty(SERVER_JMX_PORT));
-
-                return null;
-            }
-
-            public void done()
-            {
-                ManagerController.getInstance().updateMirthServiceStatus();
-                setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            }
-        };
-
-        worker.execute();
-
-    }// GEN-LAST:event_startButtonActionPerformed
-
-    private void closeButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_closeButtonActionPerformed
-    {// GEN-HEADEREND:event_closeButtonActionPerformed
-        close();
-    }// GEN-LAST:event_closeButtonActionPerformed
-
-    private void loadServerProperties()
-    {
-        serverProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + serverPropertiesPath, true);
-        log4jProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + log4jPropertiesPath, true);
-        versionProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + versionFilePath, true);
-        serverIdProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + serverIdFilePath, false);
-        
         if (serverIdProperties != null && (serverIdProperties.getProperty("server.id") != null) && (serverIdProperties.getProperty("server.id").length() > 0)) {
             serverId.setText(serverIdProperties.getProperty("server.id"));
-        } else { 
+        } else {
             serverId.setText("");
         }
-        
+
         if (versionProperties != null && (versionProperties.getProperty("mirth.version") != null) && (versionProperties.getProperty("mirth.version").length() > 0)) {
             version.setText(versionProperties.getProperty("mirth.version"));
-        } else { 
+        } else {
             version.setText("");
         }
-        
-        if(System.getProperty("java.version") != null) { 
+
+        if (System.getProperty("java.version") != null) {
             javaVersion.setText(System.getProperty("java.version"));
         } else {
             javaVersion.setText("");
-        }            
-        
-        if (serverProperties.getProperty(SERVER_WEBSTART_PORT) != null)
-            serverWebstartPort.setText(serverProperties.getProperty(SERVER_WEBSTART_PORT));
-        else
+        }
+
+        if (serverProperties.getProperty(ManagerConstants.SERVER_WEBSTART_PORT) != null) {
+            serverWebstartPort.setText(serverProperties.getProperty(ManagerConstants.SERVER_WEBSTART_PORT));
+        } else {
             serverWebstartPort.setText("");
+        }
 
-        if (serverProperties.getProperty(SERVER_ADMINISTRATOR_PORT) != null)
-            serverAdministratorPort.setText(serverProperties.getProperty(SERVER_ADMINISTRATOR_PORT));
-        else
+        if (serverProperties.getProperty(ManagerConstants.SERVER_ADMINISTRATOR_PORT) != null) {
+            serverAdministratorPort.setText(serverProperties.getProperty(ManagerConstants.SERVER_ADMINISTRATOR_PORT));
+        } else {
             serverAdministratorPort.setText("");
-        
-        if (serverProperties.getProperty(SERVER_JMX_PORT) != null)
-            serverJmxPort.setText(serverProperties.getProperty(SERVER_JMX_PORT));
-        else
+        }
+
+        if (serverProperties.getProperty(ManagerConstants.SERVER_JMX_PORT) != null) {
+            serverJmxPort.setText(serverProperties.getProperty(ManagerConstants.SERVER_JMX_PORT));
+        } else {
             serverJmxPort.setText("");
-
-        if (serverProperties.getProperty(DATABASE_TYPE) != null)
-        {
-            databaseType.setSelectedItem(serverProperties.getProperty(DATABASE_TYPE));
         }
-        else
+
+        boolean applyEnabled = isApplyEnabled();
+
+        if (serverProperties.getProperty(ManagerConstants.DATABASE_TYPE) != null) {
+            databaseType.setSelectedItem(serverProperties.getProperty(ManagerConstants.DATABASE_TYPE));
+        } else {
             databaseType.setSelectedIndex(0);
-
-        mirthLogLevel.setModel(new DefaultComboBoxModel(log4jErrorCodes));
-        databaseLogLevel.setModel(new DefaultComboBoxModel(log4jErrorCodes));
-
-        if (log4jProperties.getProperty(LOG4J_MIRTH_LOG_LEVEL) != null)
-        {
-            for (int i = 0; i < log4jErrorCodes.length; i++)
-                if (log4jProperties.getProperty(LOG4J_MIRTH_LOG_LEVEL).indexOf(log4jErrorCodes[i]) != -1)
-                    mirthLogLevel.setSelectedItem(log4jErrorCodes[i]);
         }
 
-        if (log4jProperties.getProperty(LOG4J_DATABASE_LOG_LEVEL) != null)
-            databaseLogLevel.setSelectedItem(log4jProperties.getProperty(LOG4J_DATABASE_LOG_LEVEL));
+        mirthLogLevel.setModel(new DefaultComboBoxModel(ManagerConstants.LOG4J_ERROR_CODES));
+        databaseLogLevel.setModel(new DefaultComboBoxModel(ManagerConstants.LOG4J_ERROR_CODES));
+
+        if (log4jProperties.getProperty(ManagerConstants.LOG4J_MIRTH_LOG_LEVEL) != null) {
+            for (int i = 0; i < ManagerConstants.LOG4J_ERROR_CODES.length; i++) {
+                if (log4jProperties.getProperty(ManagerConstants.LOG4J_MIRTH_LOG_LEVEL).indexOf(ManagerConstants.LOG4J_ERROR_CODES[i]) != -1) {
+                    mirthLogLevel.setSelectedItem(ManagerConstants.LOG4J_ERROR_CODES[i]);
+                }
+            }
+        }
+
+        if (log4jProperties.getProperty(ManagerConstants.LOG4J_DATABASE_LOG_LEVEL) != null) {
+            databaseLogLevel.setSelectedItem(log4jProperties.getProperty(ManagerConstants.LOG4J_DATABASE_LOG_LEVEL));
+        }
+
+        setApplyEnabled(applyEnabled);
 
         refreshLogs();
         serverLogFilesValueChanged(null);
     }
 
-    private void loadDatabaseProperties()
-    {
-        if (((String) databaseType.getSelectedItem()).equals(DATABASE_DERBY))
-            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + derbyPropertiesPath, true);
-        else if (((String) databaseType.getSelectedItem()).equals(DATABASE_POSTGRES))
-            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + postgresPropertiesPath, true);
-        else if (((String) databaseType.getSelectedItem()).equals(DATABASE_MYSQL))
-            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + mysqlPropertiesPath, true);
-        else if (((String) databaseType.getSelectedItem()).equals(DATABASE_SQLSERVER))
-            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + sqlserverPropertiesPath, true);
-        else if (((String) databaseType.getSelectedItem()).equals(DATABASE_SQLSERVER2005))
-            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + sqlserver2005PropertiesPath, true);
-        else if (((String) databaseType.getSelectedItem()).equals(DATABASE_ORACLE))
-            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + oraclePropertiesPath, true);
-        
-        if (databaseProperties.getProperty(DATABASE_DRIVER) != null)
-            databaseDriver.setText(databaseProperties.getProperty(DATABASE_DRIVER));
-        else
+    private void loadDatabaseProperties() {
+        if (((String) databaseType.getSelectedItem()).equals(ManagerConstants.DATABASE_DERBY)) {
+            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_DERBY_PROPERTIES, true);
+        } else if (((String) databaseType.getSelectedItem()).equals(ManagerConstants.DATABASE_POSTGRES)) {
+            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_POSTGRES_PROPERTIES, true);
+        } else if (((String) databaseType.getSelectedItem()).equals(ManagerConstants.DATABASE_MYSQL)) {
+            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_MYSQL_PROPERTIES, true);
+        } else if (((String) databaseType.getSelectedItem()).equals(ManagerConstants.DATABASE_SQLSERVER)) {
+            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SQLSERVER_PROPERTIES, true);
+        } else if (((String) databaseType.getSelectedItem()).equals(ManagerConstants.DATABASE_SQLSERVER2005)) {
+            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SQLSERVER2005_PROPERTIES, true);
+        } else if (((String) databaseType.getSelectedItem()).equals(ManagerConstants.DATABASE_ORACLE)) {
+            databaseProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_ORACLE_PROPERTIES, true);
+        }
+
+        if (databaseProperties.getProperty(ManagerConstants.DATABASE_DRIVER) != null) {
+            databaseDriver.setText(databaseProperties.getProperty(ManagerConstants.DATABASE_DRIVER));
+        } else {
             databaseDriver.setText("");
-        
-        if (databaseProperties.getProperty(DATABASE_URL) != null)
-            databaseUrl.setText(databaseProperties.getProperty(DATABASE_URL));
-        else
+        }
+
+        if (databaseProperties.getProperty(ManagerConstants.DATABASE_URL) != null) {
+            databaseUrl.setText(databaseProperties.getProperty(ManagerConstants.DATABASE_URL));
+        } else {
             databaseUrl.setText("");
+        }
 
-        if (databaseProperties.getProperty(DATABASE_USERNAME) != null)
-            databaseUsername.setText(databaseProperties.getProperty(DATABASE_USERNAME));
-        else
+        if (databaseProperties.getProperty(ManagerConstants.DATABASE_USERNAME) != null) {
+            databaseUsername.setText(databaseProperties.getProperty(ManagerConstants.DATABASE_USERNAME));
+        } else {
             databaseUsername.setText("");
+        }
 
-        if (databaseProperties.getProperty(DATABASE_PASSWORD) != null)
-            databasePassword.setText(databaseProperties.getProperty(DATABASE_PASSWORD));
-        else
+        if (databaseProperties.getProperty(ManagerConstants.DATABASE_PASSWORD) != null) {
+            databasePassword.setText(databaseProperties.getProperty(ManagerConstants.DATABASE_PASSWORD));
+        } else {
             databasePassword.setText("");
+        }
     }
 
-    private void saveProperties()
-    {
+    public void saveProperties() {
         updateAllProperties(serverProperties, log4jProperties, databaseProperties);
 
-        ManagerController.getInstance().setProperties(serverProperties, PlatformUI.MIRTH_PATH + serverPropertiesPath);
-        ManagerController.getInstance().setProperties(log4jProperties, PlatformUI.MIRTH_PATH + log4jPropertiesPath);
+        ManagerController.getInstance().setProperties(serverProperties, PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SERVER_PROPERTIES);
+        ManagerController.getInstance().setProperties(log4jProperties, PlatformUI.MIRTH_PATH + ManagerConstants.PATH_LOG4J_PROPERTIES);
 
-        if (((String) databaseType.getSelectedItem()).equals(DATABASE_DERBY))
-            ManagerController.getInstance().setProperties(databaseProperties, PlatformUI.MIRTH_PATH + derbyPropertiesPath);
-        else if (((String) databaseType.getSelectedItem()).equals(DATABASE_POSTGRES))
-            ManagerController.getInstance().setProperties(databaseProperties, PlatformUI.MIRTH_PATH + postgresPropertiesPath);
-        else if (((String) databaseType.getSelectedItem()).equals(DATABASE_MYSQL))
-            ManagerController.getInstance().setProperties(databaseProperties, PlatformUI.MIRTH_PATH + mysqlPropertiesPath);
-        else if (((String) databaseType.getSelectedItem()).equals(DATABASE_SQLSERVER))
-            ManagerController.getInstance().setProperties(databaseProperties, PlatformUI.MIRTH_PATH + sqlserverPropertiesPath);
-        else if (((String) databaseType.getSelectedItem()).equals(DATABASE_SQLSERVER2005))
-            ManagerController.getInstance().setProperties(databaseProperties, PlatformUI.MIRTH_PATH + sqlserver2005PropertiesPath);
-        else if (((String) databaseType.getSelectedItem()).equals(DATABASE_ORACLE))
-            ManagerController.getInstance().setProperties(databaseProperties, PlatformUI.MIRTH_PATH + oraclePropertiesPath);
+        if (((String) databaseType.getSelectedItem()).equals(ManagerConstants.DATABASE_DERBY)) {
+            ManagerController.getInstance().setProperties(databaseProperties, PlatformUI.MIRTH_PATH + ManagerConstants.PATH_DERBY_PROPERTIES);
+        } else if (((String) databaseType.getSelectedItem()).equals(ManagerConstants.DATABASE_POSTGRES)) {
+            ManagerController.getInstance().setProperties(databaseProperties, PlatformUI.MIRTH_PATH + ManagerConstants.PATH_POSTGRES_PROPERTIES);
+        } else if (((String) databaseType.getSelectedItem()).equals(ManagerConstants.DATABASE_MYSQL)) {
+            ManagerController.getInstance().setProperties(databaseProperties, PlatformUI.MIRTH_PATH + ManagerConstants.PATH_MYSQL_PROPERTIES);
+        } else if (((String) databaseType.getSelectedItem()).equals(ManagerConstants.DATABASE_SQLSERVER)) {
+            ManagerController.getInstance().setProperties(databaseProperties, PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SQLSERVER_PROPERTIES);
+        } else if (((String) databaseType.getSelectedItem()).equals(ManagerConstants.DATABASE_SQLSERVER2005)) {
+            ManagerController.getInstance().setProperties(databaseProperties, PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SQLSERVER2005_PROPERTIES);
+        } else if (((String) databaseType.getSelectedItem()).equals(ManagerConstants.DATABASE_ORACLE)) {
+            ManagerController.getInstance().setProperties(databaseProperties, PlatformUI.MIRTH_PATH + ManagerConstants.PATH_ORACLE_PROPERTIES);
+        }
+
+        setApplyEnabled(false);
     }
 
-    private void updateAllProperties(Properties serverProperties, Properties log4jProperties, Properties databaseProperties)
-    {
+    private void updateAllProperties(Properties serverProperties, Properties log4jProperties, Properties databaseProperties) {
         updateServerProperties(serverProperties, log4jProperties);
         updateDatabaseProperties(databaseProperties);
     }
 
-    private void updateServerProperties(Properties serverProperties, Properties log4jProperties)
-    {
-        serverProperties.setProperty(SERVER_WEBSTART_PORT, serverWebstartPort.getText());
-        serverProperties.setProperty(SERVER_ADMINISTRATOR_PORT, serverAdministratorPort.getText());
-        serverProperties.setProperty(SERVER_JMX_PORT, serverJmxPort.getText());
-        serverProperties.setProperty(DATABASE_TYPE, ((String) databaseType.getSelectedItem()));
+    private void updateServerProperties(Properties serverProperties, Properties log4jProperties) {
+        serverProperties.setProperty(ManagerConstants.SERVER_WEBSTART_PORT, serverWebstartPort.getText());
+        serverProperties.setProperty(ManagerConstants.SERVER_ADMINISTRATOR_PORT, serverAdministratorPort.getText());
+        serverProperties.setProperty(ManagerConstants.SERVER_JMX_PORT, serverJmxPort.getText());
+        serverProperties.setProperty(ManagerConstants.DATABASE_TYPE, ((String) databaseType.getSelectedItem()));
 
-        StringTokenizer st = new StringTokenizer((String) log4jProperties.getProperty(LOG4J_MIRTH_LOG_LEVEL), ",");
+        StringTokenizer st = new StringTokenizer((String) log4jProperties.getProperty(ManagerConstants.LOG4J_MIRTH_LOG_LEVEL), ",");
         String mirthLogLevelString = (String) mirthLogLevel.getSelectedItem();
 
-        if (st.hasMoreTokens())
+        if (st.hasMoreTokens()) {
             st.nextToken();
+        }
 
-        while (st.hasMoreTokens())
-        {
+        while (st.hasMoreTokens()) {
             mirthLogLevelString += "," + st.nextToken();
         }
 
-        log4jProperties.setProperty(LOG4J_MIRTH_LOG_LEVEL, mirthLogLevelString);
-        log4jProperties.setProperty(LOG4J_DATABASE_LOG_LEVEL, (String) databaseLogLevel.getSelectedItem());
+        log4jProperties.setProperty(ManagerConstants.LOG4J_MIRTH_LOG_LEVEL, mirthLogLevelString);
+        log4jProperties.setProperty(ManagerConstants.LOG4J_DATABASE_LOG_LEVEL, (String) databaseLogLevel.getSelectedItem());
     }
 
-    private void updateDatabaseProperties(Properties databaseProperties)
-    {
-        databaseProperties.setProperty(DATABASE_DRIVER, databaseDriver.getText());
-        databaseProperties.setProperty(DATABASE_URL, databaseUrl.getText());
-        databaseProperties.setProperty(DATABASE_USERNAME, databaseUsername.getText());
-        databaseProperties.setProperty(DATABASE_PASSWORD, new String(databasePassword.getPassword()));
+    private void updateDatabaseProperties(Properties databaseProperties) {
+        databaseProperties.setProperty(ManagerConstants.DATABASE_DRIVER, databaseDriver.getText());
+        databaseProperties.setProperty(ManagerConstants.DATABASE_URL, databaseUrl.getText());
+        databaseProperties.setProperty(ManagerConstants.DATABASE_USERNAME, databaseUsername.getText());
+        databaseProperties.setProperty(ManagerConstants.DATABASE_PASSWORD, new String(databasePassword.getPassword()));
     }
 
-    private boolean checkPropertiesForChanges()
-    {
-        try
-        {        	
-            Properties tempServerProperties = (Properties) ObjectCloner.deepCopy(serverProperties);
-            Properties tempLog4jProperties = (Properties) ObjectCloner.deepCopy(log4jProperties);
-            Properties tempDatabaseProperties = (Properties) ObjectCloner.deepCopy(databaseProperties);
-
-            updateAllProperties(tempServerProperties, tempLog4jProperties, tempDatabaseProperties);
-
-            boolean identical = ManagerController.getInstance().compareProps(serverProperties, tempServerProperties) && ManagerController.getInstance().compareProps(log4jProperties, tempLog4jProperties) && ManagerController.getInstance().compareProps(databaseProperties, tempDatabaseProperties);
-
-            if (!identical)
-                if (!ManagerController.getInstance().alertOption("Would you like to save the changes before you continue?"))
-                    return false;
-        }
-        catch (ObjectClonerException e)
-        {
-            e.printStackTrace();
-        }
-
-        return true;
+    private void refreshLogs() {
+        serverLogFiles.setListData(ManagerController.getInstance().getLogFiles(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SERVER_LOGS).toArray());
     }
 
-    private void refreshLogs()
-    {
-        serverLogFiles.setListData(ManagerController.getInstance().getLogFiles(PlatformUI.MIRTH_PATH + serverLogsPath).toArray());
-    }
-    
-    public void disableButtons()
-    {
-        setStartButtonActive(false);
-        setStopButtonActive(false);
-        setRestartButtonActive(false);
-        setLaunchButtonActive(false);
-    }
-
-    public void setStartButtonActive(boolean active)
-    {
+    public void setStartButtonActive(boolean active) {
         startButton.setEnabled(active);
     }
 
-    public void setStopButtonActive(boolean active)
-    {
+    public void setStopButtonActive(boolean active) {
         stopButton.setEnabled(active);
     }
 
-    public void setRestartButtonActive(boolean active)
-    {
+    public void setRestartButtonActive(boolean active) {
         restartButton.setEnabled(active);
     }
-    
-    public void setLaunchButtonActive(boolean active)
-    {
+
+    public void setLaunchButtonActive(boolean active) {
         launchButton.setEnabled(active);
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton closeButton;
-    private javax.swing.JTextField databaseDriver;
-    private javax.swing.JComboBox databaseLogLevel;
+    private javax.swing.JButton applyButton;
+    private javax.swing.JButton cancelButton;
+    private com.webreach.mirth.manager.components.MirthTextField databaseDriver;
+    private com.webreach.mirth.manager.components.MirthComboBox databaseLogLevel;
     private javax.swing.JPanel databasePanel;
-    private javax.swing.JPasswordField databasePassword;
-    private javax.swing.JComboBox databaseType;
-    private javax.swing.JTextField databaseUrl;
-    private javax.swing.JTextField databaseUsername;
+    private com.webreach.mirth.manager.components.MirthPasswordField databasePassword;
+    private com.webreach.mirth.manager.components.MirthComboBox databaseType;
+    private com.webreach.mirth.manager.components.MirthTextField databaseUrl;
+    private com.webreach.mirth.manager.components.MirthTextField databaseUsername;
     private com.webreach.mirth.manager.MirthHeadingPanel heading;
     private javax.swing.JLabel headingLabel;
     private javax.swing.JLabel jLabel1;
@@ -1037,18 +912,18 @@ private void refreshServiceButtonActionPerformed(java.awt.event.ActionEvent evt)
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel javaVersion;
     private javax.swing.JButton launchButton;
-    private javax.swing.JComboBox mirthLogLevel;
+    private com.webreach.mirth.manager.components.MirthComboBox mirthLogLevel;
     private javax.swing.JLabel mirthSupportLink;
     private javax.swing.JButton okButton;
     private javax.swing.JButton refreshButton;
     private javax.swing.JButton refreshServiceButton;
     private javax.swing.JButton restartButton;
-    private javax.swing.JTextField serverAdministratorPort;
+    private com.webreach.mirth.manager.components.MirthTextField serverAdministratorPort;
     private javax.swing.JLabel serverId;
-    private javax.swing.JTextField serverJmxPort;
+    private com.webreach.mirth.manager.components.MirthTextField serverJmxPort;
     private javax.swing.JList serverLogFiles;
     private javax.swing.JPanel serverPanel;
-    private javax.swing.JTextField serverWebstartPort;
+    private com.webreach.mirth.manager.components.MirthTextField serverWebstartPort;
     private javax.swing.JPanel serviceButtonContainer;
     private javax.swing.JPanel servicePanel;
     private javax.swing.JButton startButton;
@@ -1058,5 +933,4 @@ private void refreshServiceButtonActionPerformed(java.awt.event.ActionEvent evt)
     private javax.swing.JLabel version;
     private javax.swing.JButton viewFileButton;
     // End of variables declaration//GEN-END:variables
-
 }

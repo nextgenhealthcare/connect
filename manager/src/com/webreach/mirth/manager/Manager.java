@@ -26,6 +26,8 @@ public class Manager {
 
         manager.setupDialog();
         manager.setupTray();
+
+        ManagerController.getInstance().updateMirthServiceStatus();
     }
 
     public Manager() {
@@ -52,10 +54,13 @@ public class Manager {
     private void setupDialog() {
         dialog = new ManagerDialog();
         PlatformUI.MANAGER_DIALOG = dialog;
+        dialog.setupDialog();
     }
 
     private void setupTray() {
         tray = new ManagerTray();
         PlatformUI.MANAGER_TRAY = tray;
+        tray.setupTray();
+        
     }
 }
