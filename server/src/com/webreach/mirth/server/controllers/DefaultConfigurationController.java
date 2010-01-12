@@ -26,9 +26,6 @@
 package com.webreach.mirth.server.controllers;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.Statement;
@@ -46,6 +43,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -67,7 +65,6 @@ import com.webreach.mirth.server.util.JMXConnectionFactory;
 import com.webreach.mirth.server.util.JavaScriptUtil;
 import com.webreach.mirth.server.util.SqlConfig;
 import com.webreach.mirth.util.Encrypter;
-import com.webreach.mirth.util.PropertyLoader;
 import com.webreach.mirth.util.PropertyVerifier;
 
 /**
@@ -88,21 +85,17 @@ public class DefaultConfigurationController extends ConfigurationController {
     private Logger logger = Logger.getLogger(this.getClass());
     private EventController systemLogger = ControllerFactory.getFactory().createEventController();
     private String baseDir = new File(ClassPathResource.getResourceURI("mirth.properties")).getParentFile().getParent();
-    private File serverIdPropertiesFile = new File(baseDir + System.getProperty("file.separator") + "server.id");
     private static SecretKey encryptionKey = null;
     private static String serverId = null;
     private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
     private static final String TEMP_DIR = "mirthTempDir";
     private boolean isEngineStarting = true;
-
-    private static Properties versionProperties = PropertyLoader.loadProperties("version");
-    private static Properties mirthProperties = PropertyLoader.loadProperties("mirth");
-
     private JavaScriptUtil javaScriptUtil = JavaScriptUtil.getInstance();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
-
     private PasswordRequirements passwordRequirements;
+    private static PropertiesConfiguration versionConfig;
+    private static PropertiesConfiguration mirthConfig;
 
     // singleton pattern
     private static DefaultConfigurationController instance = null;
@@ -124,33 +117,38 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     private void initialize() {
         try {
-            if (mirthProperties.getProperty(TEMP_DIR) != null) {
-                String tempDirPath = StringUtils.replace(mirthProperties.getProperty(TEMP_DIR), "${mirthHomeDir}", baseDir);
-                File tempDir = new File(tempDirPath);
+            mirthConfig = new PropertiesConfiguration("mirth.properties");
+            versionConfig = new PropertiesConfiguration("version.properties");
+            
+            if (mirthConfig.getString(TEMP_DIR) != null) {
+                File tempDir = new File(StringUtils.replace(mirthConfig.getString(TEMP_DIR), "${mirthHomeDir}", baseDir));
 
                 if (!tempDir.exists()) {
-                    tempDir.mkdirs();
-                    logger.debug("Created tmpdir: " + tempDir.getAbsolutePath());
+                    if (tempDir.mkdirs()) {
+                        logger.debug("Created temp dir: " + tempDir.getAbsolutePath());    
+                    } else {
+                        logger.debug("Could not creat temp dir: " + tempDir.getAbsolutePath());
+                    }
                 }
 
-                System.setProperty("java.io.tmpdir", tempDirPath);
-                logger.debug("Set tmpdir to: " + tempDirPath);
+                System.setProperty("java.io.tmpdir", tempDir.getAbsolutePath());
+                logger.debug("Set tmpdir to: " + tempDir.getAbsolutePath());
             }
 
-            if (mirthProperties.getProperty(CHARSET) != null) {
-                System.setProperty(CHARSET, mirthProperties.getProperty(CHARSET));
+            if (mirthConfig.getString(CHARSET) != null) {
+                System.setProperty(CHARSET, mirthConfig.getString(CHARSET));
             }
 
             // Check for server GUID and generate a new one if it doesn't exist
-            Properties serverIdProperties = loadPropertiesFromFile(serverIdPropertiesFile);
+            PropertiesConfiguration serverIdConfig = new PropertiesConfiguration(new File(baseDir + System.getProperty("file.separator") + "server.id"));
 
-            if ((serverIdProperties.getProperty("server.id") != null) && (serverIdProperties.getProperty("server.id").length() > 0)) {
-                serverId = serverIdProperties.getProperty("server.id");
+            if ((serverIdConfig.getString("server.id") != null) && (serverIdConfig.getString("server.id").length() > 0)) {
+                serverId = serverIdConfig.getString("server.id");
             } else {
                 logger.debug("generating unique server id");
                 serverId = getGuid();
-                serverIdProperties.setProperty("server.id", serverId);
-                savePropertiesToFile(serverIdPropertiesFile, serverIdProperties);
+                serverIdConfig.setProperty("server.id", serverId);
+                serverIdConfig.save();
             }
 
             loadDefaultProperties();
@@ -277,49 +275,6 @@ public class DefaultConfigurationController extends ConfigurationController {
     public void setServerProperties(Properties properties) throws ControllerException {
         for (Object name : properties.keySet()) {
             saveProperty(PROPERTIES_CORE, (String) name, (String) properties.get(name));    
-        }
-    }
-
-    private Properties loadPropertiesFromFile(File inputFile) throws IOException {
-        logger.debug("loading " + inputFile.getName() + " properties");
-
-        FileInputStream fileInputStream = null;
-
-        try {
-            inputFile.createNewFile();
-            fileInputStream = new FileInputStream(inputFile);
-            Properties properties = new Properties();
-            properties.load(fileInputStream);
-            return properties;
-        } catch (IOException e) {
-            throw e;
-        } finally {
-            try {
-                fileInputStream.close();
-            } catch (IOException e) {
-                logger.warn(e);
-            }
-        }
-    }
-
-    private void savePropertiesToFile(File inputFile, Properties properties) throws IOException {
-        logger.debug("saving " + inputFile.getName() + " properties");
-
-        FileOutputStream fileOutputStream = null;
-
-        try {
-            inputFile.createNewFile();
-            fileOutputStream = new FileOutputStream(inputFile);
-            properties.store(fileOutputStream, "Updated server properties");
-        } catch (IOException e) {
-            throw e;
-        } finally {
-            try {
-                fileOutputStream.flush();
-                fileOutputStream.close();
-            } catch (IOException e) {
-                logger.warn(e);
-            }
         }
     }
 
@@ -556,20 +511,15 @@ public class DefaultConfigurationController extends ConfigurationController {
     }
 
     public String getServerVersion() {
-        return PropertyLoader.getProperty(versionProperties, "mirth.version");
+        return versionConfig.getString("mirth.version");
     }
 
     public int getSchemaVersion() {
-        try {
-            return Integer.parseInt(versionProperties.getProperty("schema.version"));
-        } catch (Exception e) {
-            logger.error("Missing schema.version property.");
-            return -1;
-        }
+        return versionConfig.getInt("schema.version", -1);
     }
 
     public String getBuildDate() {
-        return PropertyLoader.getProperty(versionProperties, "mirth.date");
+        return mirthConfig.getString("mirth.date");
     }
 
     public int getStatus() {
@@ -731,9 +681,12 @@ public class DefaultConfigurationController extends ConfigurationController {
 
         try {
             Map<String, String> result = SqlConfig.getSqlMapClient().queryForMap("Configuration.selectPropertiesForCategory", category, "name", "value");
-            Properties properties = new Properties();
-            properties.putAll(result);
-            return properties;
+            
+            if (!result.isEmpty()) {
+                Properties properties = new Properties();
+                properties.putAll(result);
+                return properties;
+            }
         } catch (Exception e) {
             logger.error("Could not retrieve properties: category=" + category, e);
         }

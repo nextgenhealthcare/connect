@@ -33,13 +33,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
@@ -62,8 +60,8 @@ import com.webreach.mirth.server.util.SqlConfig;
 public class DefaultMigrationController extends MigrationController {
     private static final String DELTA_FOLDER = "deltas";
     private Logger logger = Logger.getLogger(this.getClass());
-    ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-    ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+    private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
 
     // singleton pattern
     private static DefaultMigrationController instance = null;
@@ -155,7 +153,7 @@ public class DefaultMigrationController extends MigrationController {
 
                 try {
                     SqlConfig.getSqlMapClient().update("Configuration.clearConfiguration");
-                    
+
                     if (DatabaseUtil.statementExists("Configuration.vacuumConfigurationTable")) {
                         SqlConfig.getSqlMapClient().update("Configuration.vacuumConfigurationTable");
                     }
@@ -169,74 +167,58 @@ public class DefaultMigrationController extends MigrationController {
     }
 
     public void migrateExtensions() {
-        ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
-
         try {
-            Map<String, PluginMetaData> plugins = extensionController.getPluginMetaData();
-
-            for (PluginMetaData plugin : plugins.values()) {
-                int baseSchemaVersion = -1;
+            for (PluginMetaData plugin : extensionController.getPluginMetaData().values()) {
                 Properties pluginProperties = extensionController.getPluginProperties(plugin.getName());
-                String schema = pluginProperties.getProperty("schema");
 
-                if (schema != null) {
-                    try {
-                        baseSchemaVersion = Integer.parseInt(schema);
-                    } catch (NumberFormatException nfe) {
-                        logger.info("could not determine schema version for plugin: " + plugin.getPath(), nfe);
-                    }
-                }
+                if (pluginProperties != null) {
+                    int baseSchemaVersion = Integer.parseInt(pluginProperties.getProperty("schema", "-1"));
 
-                if (plugin.getSqlScript() != null) {
-                    String contents = FileUtil.read(ExtensionController.getExtensionsPath() + plugin.getPath() + System.getProperty("file.separator") + plugin.getSqlScript());
-                    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-                    Document document;
-                    DocumentBuilder builder;
+                    if (plugin.getSqlScript() != null) {
+                        String contents = FileUtil.read(ExtensionController.getExtensionsPath() + plugin.getPath() + System.getProperty("file.separator") + plugin.getSqlScript());
+                        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(contents)));
+                        TreeMap<Integer, String> scripts = getDiffsForVersion(baseSchemaVersion, document);
+                        List<String> scriptList = new LinkedList<String>();
 
-                    builder = factory.newDocumentBuilder();
-                    document = builder.parse(new InputSource(new StringReader(contents)));
+                        for (String script : scripts.values()) {
+                            script = script.trim();
+                            StringBuilder sb = new StringBuilder();
+                            boolean blankLine = false;
+                            Scanner scanner = new Scanner(script);
 
-                    TreeMap<Integer, String> scripts = getDiffsForVersion(baseSchemaVersion, document);
+                            while (scanner.hasNextLine()) {
+                                String temp = scanner.nextLine();
 
-                    List<String> scriptList = new LinkedList<String>();
+                                if (temp.trim().length() > 0)
+                                    sb.append(temp + " ");
+                                else
+                                    blankLine = true;
 
-                    for (String script : scripts.values()) {
-                        script = script.trim();
-                        StringBuilder sb = new StringBuilder();
-                        boolean blankLine = false;
-                        Scanner s = new Scanner(script);
-
-                        while (s.hasNextLine()) {
-                            String temp = s.nextLine();
-
-                            if (temp.trim().length() > 0)
-                                sb.append(temp + " ");
-                            else
-                                blankLine = true;
-
-                            if (blankLine || !s.hasNextLine()) {
-                                scriptList.add(sb.toString().trim());
-                                blankLine = false;
-                                sb.delete(0, sb.length());
-                            }
-                        }
-                    }
-
-                    // if there were no scripts, don't update the schema version
-                    if (!scriptList.isEmpty()) {
-                        DatabaseUtil.executeScript(scriptList, false);
-                        int maxSchemaVersion = -1;
-
-                        for (Entry<Integer, String> entry : scripts.entrySet()) {
-                            int key = entry.getKey().intValue();
-
-                            if (key > maxSchemaVersion) {
-                                maxSchemaVersion = key;
+                                if (blankLine || !scanner.hasNextLine()) {
+                                    scriptList.add(sb.toString().trim());
+                                    blankLine = false;
+                                    sb.delete(0, sb.length());
+                                }
                             }
                         }
 
-                        pluginProperties.setProperty("schema", String.valueOf(maxSchemaVersion));
-                        extensionController.setPluginProperties(plugin.getName(), pluginProperties);
+                        // if there were no scripts, don't update the schema
+                        // version
+                        if (!scriptList.isEmpty()) {
+                            DatabaseUtil.executeScript(scriptList, false);
+                            int maxSchemaVersion = -1;
+
+                            for (Entry<Integer, String> entry : scripts.entrySet()) {
+                                int key = entry.getKey().intValue();
+
+                                if (key > maxSchemaVersion) {
+                                    maxSchemaVersion = key;
+                                }
+                            }
+
+                            pluginProperties.setProperty("schema", String.valueOf(maxSchemaVersion));
+                            extensionController.setPluginProperties(plugin.getName(), pluginProperties);
+                        }
                     }
                 }
             }
