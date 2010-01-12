@@ -152,8 +152,6 @@ public class DefaultMigrationController extends MigrationController {
                     SqlConfig.getSqlMapClient().update("Configuration.updateSchemaVersion", newSchemaVersion);
 
                 try {
-                    SqlConfig.getSqlMapClient().update("Configuration.clearConfiguration");
-
                     if (DatabaseUtil.statementExists("Configuration.vacuumConfigurationTable")) {
                         SqlConfig.getSqlMapClient().update("Configuration.vacuumConfigurationTable");
                     }
