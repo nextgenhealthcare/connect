@@ -723,6 +723,10 @@ public class DefaultConfigurationController extends ConfigurationController {
             } else {
                 SqlConfig.getSqlMapClient().insert("Configuration.updateProperty", parameterMap);
             }
+            
+            if (DatabaseUtil.statementExists("Configuration.vacuumConfigurationTable")) {
+                SqlConfig.getSqlMapClient().update("Configuration.vacuumConfigurationTable");
+            }
         } catch (Exception e) {
             logger.error("Could not store property: category=" + category + ", name=" + name, e);
         }

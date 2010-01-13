@@ -47,7 +47,6 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.MetaData;
 import com.webreach.mirth.model.PasswordRequirements;
 import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.model.Preferences;
 import com.webreach.mirth.model.ServerConfiguration;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
@@ -802,10 +801,10 @@ public class Client {
      * @return
      * @throws ClientException
      */
-    public Preferences getUserPreferences(User user) throws ClientException {
+    public Properties getUserPreferences(User user) throws ClientException {
         logger.debug("retrieving user preferences");
         NameValuePair[] params = { new NameValuePair("op", "getUserPreferences"), new NameValuePair("user", serializer.toXML(user)) };
-        return (Preferences) serializer.fromXML(serverConnection.executePostMethod(USER_SERVLET, params));
+        return (Properties) serializer.fromXML(serverConnection.executePostMethod(USER_SERVLET, params));
     }
 
     /**

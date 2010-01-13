@@ -26,8 +26,8 @@
 package com.webreach.mirth.server.controllers;
 
 import java.util.List;
+import java.util.Properties;
 
-import com.webreach.mirth.model.Preferences;
 import com.webreach.mirth.model.User;
 
 public abstract class UserController extends Controller {
@@ -51,7 +51,7 @@ public abstract class UserController extends Controller {
 
     public abstract boolean isUserLoggedIn(User user) throws ControllerException;
 
-    public abstract Preferences getUserPreferences(User user) throws ControllerException;
+    public abstract Properties getUserPreferences(User user) throws ControllerException;
 
     public abstract void setUserPreference(User user, String name, String value) throws ControllerException;
 }

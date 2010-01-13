@@ -23,7 +23,6 @@ import com.webreach.mirth.model.ChannelStatistics;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.ConnectorMetaData;
 import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.model.Preferences;
 import com.webreach.mirth.model.ServerInfo;
 import com.webreach.mirth.model.UpdateInfo;
 import com.webreach.mirth.model.UsageData;
@@ -219,12 +218,12 @@ public class UpdateClient {
     }
 
     public List<IgnoredComponent> getIgnoredComponents() throws ClientException {
-        Preferences userPreferences = client.getUserPreferences(requestUser);
+        Properties userPreferences = client.getUserPreferences(requestUser);
 
         if (userPreferences == null) {
             return new ArrayList<IgnoredComponent>();
         } else {
-            String ignoredComponentsPreference = userPreferences.get(USER_PREF_IGNORED_IDS);
+            String ignoredComponentsPreference = (String) userPreferences.get(USER_PREF_IGNORED_IDS);
 
             if (ignoredComponentsPreference == null) {
                 return new ArrayList<IgnoredComponent>();
@@ -269,8 +268,8 @@ public class UpdateClient {
             StringBuilder outboundTransports = new StringBuilder();
             StringBuilder outboundProtocols = new StringBuilder();
 
-            for (Iterator iterator = channel.getDestinationConnectors().iterator(); iterator.hasNext();) {
-                Connector connector = (Connector) iterator.next();
+            for (Iterator<Connector> iterator = channel.getDestinationConnectors().iterator(); iterator.hasNext();) {
+                Connector connector = iterator.next();
                 outboundTransports.append(connector.getTransportName());
                 outboundProtocols.append(connector.getTransformer().getOutboundProtocol().name());
 

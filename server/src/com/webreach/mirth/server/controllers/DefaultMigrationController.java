@@ -150,14 +150,6 @@ public class DefaultMigrationController extends MigrationController {
                     SqlConfig.getSqlMapClient().update("Configuration.setInitialSchemaVersion", newSchemaVersion);
                 else
                     SqlConfig.getSqlMapClient().update("Configuration.updateSchemaVersion", newSchemaVersion);
-
-                try {
-                    if (DatabaseUtil.statementExists("Configuration.vacuumConfigurationTable")) {
-                        SqlConfig.getSqlMapClient().update("Configuration.vacuumConfigurationTable");
-                    }
-                } catch (Exception e) {
-                    logger.error("Could not remove previous configuration.", e);
-                }
             }
         } catch (Exception e) {
             logger.error("Could not initialize migration controller.", e);

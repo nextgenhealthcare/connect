@@ -29,14 +29,13 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
 import com.webreach.mirth.model.Credentials;
 import com.webreach.mirth.model.PasswordRequirements;
-import com.webreach.mirth.model.Preference;
-import com.webreach.mirth.model.Preferences;
 import com.webreach.mirth.model.User;
 import com.webreach.mirth.model.util.PasswordRequirementsChecker;
 import com.webreach.mirth.server.util.DatabaseUtil;
@@ -187,16 +186,9 @@ public class DefaultUserController extends UserController {
         return parameterMap;
     }
 
-    public Preferences getUserPreferences(User user) throws ControllerException {
+    public Properties getUserPreferences(User user) throws ControllerException {
         try {
-            List<Preference> pList = SqlConfig.getSqlMapClient().queryForList("User.getUserPreferences", user.getId());
-            Preferences pMap = new Preferences();
-
-            for (Preference p : pList) {
-                pMap.put(p.getName(), p.getValue());
-            }
-
-            return pMap;
+            return ConfigurationController.getInstance().getPropertiesForGroup("user." + user.getId());
         } catch (Exception e) {
             throw new ControllerException(e);
         }
@@ -204,18 +196,7 @@ public class DefaultUserController extends UserController {
 
     public void setUserPreference(User user, String name, String value) throws ControllerException {
         try {
-            Map<String, Object> parameterMap = new HashMap<String, Object>();
-            parameterMap.put("id", user.getId());
-            parameterMap.put("name", name);
-            parameterMap.put("value", value);
-
-            SqlConfig.getSqlMapClient().delete("User.deleteUserPreference", parameterMap);
-            SqlConfig.getSqlMapClient().update("User.insertUserPreference", parameterMap);
-
-            if (DatabaseUtil.statementExists("User.vacuumPreferencesTable")) {
-                SqlConfig.getSqlMapClient().update("User.vacuumPreferencesTable");
-            }
-
+            ConfigurationController.getInstance().saveProperty("user." + user.getId(), name, value);
         } catch (Exception e) {
             throw new ControllerException(e);
         }
