@@ -45,8 +45,6 @@
 	<classpathentry kind="lib" path="lib/velocity-tools-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/hapi-0.6.jar"/>
 	<classpathentry kind="lib" path="lib/mule/axis14-commons-discovery-0.2.jar"/>
-	<classpathentry kind="lib" path="lib/wsdl4j-1.6.2/qname.jar"/>
-	<classpathentry kind="lib" path="lib/wsdl4j-1.6.2/wsdl4j.jar"/>
 	<classpathentry kind="lib" path="lib/rhino-1.7r3pre.jar"/>
 	<classpathentry kind="lib" path="lib/xsom.jar"/>
 	<classpathentry kind="lib" path="lib/jetty/jasper-compiler.jar"/>
@@ -87,5 +85,7 @@
 	<classpathentry kind="lib" path="lib/mirth-vocab-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/xstream-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-configuration-1.6.jar"/>
+	<classpathentry kind="lib" path="lib/wsdl4j-1.6.2.jar"/>
+	<classpathentry kind="lib" path="lib/qname-1.6.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
