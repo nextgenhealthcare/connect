@@ -50,7 +50,7 @@
 	<target name="create-dist" depends="create-manager">
 		<copy file="${manager}/dist/mirth-manager.jar" todir="${server}/" />
 
-		<copy todir="${server}/lib">
+		<copy todir="${server}/manager-lib">
 			<fileset dir="${manager}/lib">
 				<exclude name="mirth-client.jar" />
 			</fileset>
