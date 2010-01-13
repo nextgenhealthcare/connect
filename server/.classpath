@@ -47,12 +47,6 @@
 	<classpathentry kind="lib" path="lib/mule/axis14-commons-discovery-0.2.jar"/>
 	<classpathentry kind="lib" path="lib/rhino-1.7r3pre.jar"/>
 	<classpathentry kind="lib" path="lib/xsom.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jasper-compiler.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/jasper-runtime.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/javax.servlet.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/org.mortbay.jetty.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/org.mortbay.jmx.jar"/>
-	<classpathentry kind="lib" path="lib/jetty/xmlParserAPIs.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-beanutils-1.8.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-cli-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-codec-1.4.jar"/>
@@ -87,5 +81,6 @@
 	<classpathentry kind="lib" path="lib/commons/commons-configuration-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/wsdl4j-1.6.2.jar"/>
 	<classpathentry kind="lib" path="lib/qname-1.6.2.jar"/>
+	<classpathentry kind="lib" path="lib/org.mortbay.jetty-5.1.15.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
