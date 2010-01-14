@@ -45,7 +45,6 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
 
 import org.mozilla.javascript.*;
 
