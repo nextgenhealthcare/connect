@@ -57,11 +57,11 @@ public class BoundPropertiesSheetDialog extends javax.swing.JDialog
         initComponents();
         BeanBinder beanBinder = new BeanBinder(bean, propertySheetPanel, null);
         beanBinder.setWriteEnabled(true);
-        
+
         if (width > 0 && height > 0) {
         	this.setSize(width, height);
         }
-        
+
         this.setLocationRelativeTo(PlatformUI.MIRTH_FRAME);
         setVisible(true);
     }
@@ -162,13 +162,13 @@ public class BoundPropertiesSheetDialog extends javax.swing.JDialog
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+
         propertySheetPanel = new com.l2fprod.common.propertysheet.PropertySheetPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Properties");
-        setAlwaysOnTop(true);
         setBackground(java.awt.Color.white);
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setModal(true);
@@ -193,6 +193,7 @@ public class BoundPropertiesSheetDialog extends javax.swing.JDialog
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(propertySheetPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 283, Short.MAX_VALUE)
         );
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 

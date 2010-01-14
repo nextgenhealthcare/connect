@@ -201,7 +201,6 @@ public class FindRplDialog extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Find Replace");
-        setAlwaysOnTop(true);
         setResizable(false);
 
         jLabel1.setText("Find text:");
