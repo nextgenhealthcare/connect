@@ -553,7 +553,8 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 		// Format the transformed XML so that line breaks are removed when those
 		// nodes are removed and indenting is cleaned up with two spaces.
 		newScript.append("XML.ignoreWhitespace=true;");
-		newScript.append("XML.prettyPrinting=true;");
+        // Setting prettyPrinting to true causes HL7 to break when converting back from HL7.
+        newScript.append("XML.prettyPrinting=false;");
 
 		// Check to see if the property to strip namespaces off of incoming messages has been set to false.
 		// For XML, HL7v2, and HL7v3 stripNamespaces can be turned off.
