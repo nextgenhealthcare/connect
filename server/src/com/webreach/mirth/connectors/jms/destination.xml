@@ -1,0 +1,36 @@
+<connectorMetaData path="jms">
+	<name>JMS Writer</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>1.8.2</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This connector allows Mirth to write messages to a JMS queue.</description>
+	<clientClassName>com.webreach.mirth.connectors.jms.JMSWriter</clientClassName>
+	<serverClassName>com.webreach.mirth.connectors.jms.JmsConnector</serverClassName>
+	<sharedClassName>com.webreach.mirth.connectors.jms.JMSWriterProperties</sharedClassName>
+	<library path="jms-client.jar">
+		<type>CLIENT</type>
+	</library>
+	<library path="jms-shared.jar">
+		<type>SHARED</type>
+	</library>
+	<library path="jms-server.jar">
+		<type>SERVER</type>
+	</library>
+	<transformers></transformers>
+	<protocol>jms</protocol>
+	<type>DESTINATION</type>
+	<enabled>true</enabled>
+	<mule-properties>
+		<property name="connector">com.webreach.mirth.connectors.jms.JmsConnector</property>
+		<property name="dispatcher.factory">com.webreach.mirth.connectors.jms.JmsMessageDispatcherFactory</property>
+		<property name="message.receiver">com.webreach.mirth.connectors.jms.JmsMessageReceiver</property>
+		<property name="transacted.message.receiver">com.webreach.mirth.connectors.jms.TransactedJmsMessageReceiver</property>
+		<property name="message.adapter">com.webreach.mirth.connectors.jms.JmsMessageAdapter</property>
+		<property name="inbound.transformer">com.webreach.mirth.connectors.jms.transformers.JMSMessageToObject</property>
+		<property name="response.transformer">com.webreach.mirth.connectors.jms.transformers.JMSMessageToObject</property>
+		<property name="outbound.transformer">com.webreach.mirth.connectors.jms.transformers.ObjectToJMSMessage</property>
+		<property name="service.error">Cannot create Jms connector using current service descriptor</property>
+		<property name="endpoint.builder">org.mule.impl.endpoint.ResourceNameEndpointBuilder</property>
+	</mule-properties>
+</connectorMetaData>

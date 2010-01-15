@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>RXD</name>
+    <description>Pharmacy/Treatment Dispense</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>RXD.1</name>
+            <description>Dispense Sub-Id Counter</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>RXD.2</name>
+            <description>Dispense/Give Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>RXD.3</name>
+            <description>Date/Time Dispensed</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>RXD.4</name>
+            <description>Actual Dispense Amount</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXD.5</name>
+            <description>Actual Dispense Units</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXD.6</name>
+            <description>Actual Dosage Form</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>RXD.7</name>
+            <description>Prescription Number</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXD.8</name>
+            <description>Number of Refills Remaining</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXD.9</name>
+            <description>Dispense Notes</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXD.10</name>
+            <description>Dispensing Provider</description>
+            <datatype>XCN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXD.11</name>
+            <description>Substitution Status</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXD.12</name>
+            <description>Total Daily Dose</description>
+            <datatype>CQ</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXD.13</name>
+            <description>Dispense-to Location</description>
+            <datatype>LA2</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXD.14</name>
+            <description>Needs Human Review</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXD.15</name>
+            <description>Pharmacy/Treatment Supplier’s Special Dispensing Instructions</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXD.16</name>
+            <description>Actual Strength</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXD.17</name>
+            <description>Actual Strength Unit</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXD.18</name>
+            <description>Substance Lot Number</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXD.19</name>
+            <description>Substance Expiration Date</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXD.20</name>
+            <description>Substance Manufacturer Name</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXD.21</name>
+            <description>Indication</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXD.22</name>
+            <description>Dispense Package Size</description>
+            <datatype>NM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXD.23</name>
+            <description>Dispense Package Size Unit</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>RXD.24</name>
+            <description>Dispense Package Method</description>
+            <datatype>ID</datatype>
+        </field>
+    </elements>
+</segment>

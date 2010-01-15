@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>RTBZ78</name>
+    <description>Tabular Patient List (response)</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment>MSA</segment>
+        <segment minOccurs="0">ERR</segment>
+        <segment>QAK</segment>
+        <segment>QPD</segment>
+        <group minOccurs="0">
+            <segment>RDF</segment>
+            <segment minOccurs="0" maxOccurs="unbounded">RDT</segment>
+        </group>
+        <segment minOccurs="0">DSC</segment>
+    </segments>
+</message>

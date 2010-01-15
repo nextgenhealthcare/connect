@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<antlib>
+    <typedef name="status"          classname="com.webreach.mirth.ant.StatusTask"/>
+    <typedef name="start"           classname="com.webreach.mirth.ant.StartTask"/>
+    <typedef name="stop"            classname="com.webreach.mirth.ant.StopTask"/>
+    <typedef name="pause"           classname="com.webreach.mirth.ant.PauseTask"/>
+    <typedef name="resume"          classname="com.webreach.mirth.ant.ResumeTask"/>
+    <typedef name="list"            classname="com.webreach.mirth.ant.ListTask"/>
+    <typedef name="deploy"          classname="com.webreach.mirth.ant.DeployTask"/>
+    <typedef name="clear"           classname="com.webreach.mirth.ant.ClearTask"/>
+    <typedef name="reset"           classname="com.webreach.mirth.ant.ResetStatsTask"/>
+    <typedef name="dump"            classname="com.webreach.mirth.ant.DumpTask"/>
+    <typedef name="import"          classname="com.webreach.mirth.ant.ImportTask"/>
+    <typedef name="export"          classname="com.webreach.mirth.ant.ExportTask"/>
+    <typedef name="channel-action"  classname="com.webreach.mirth.ant.ChannelActionTask"/>
+    <typedef name="user-list"       classname="com.webreach.mirth.ant.UserListTask"/>
+    <typedef name="user-add"        classname="com.webreach.mirth.ant.UserAddTask"/>
+    <typedef name="user-remove"     classname="com.webreach.mirth.ant.UserRemoveTask"/>
+    <typedef name="user-changepw"   classname="com.webreach.mirth.ant.UserChangePasswordTask"/>
+</antlib>
+

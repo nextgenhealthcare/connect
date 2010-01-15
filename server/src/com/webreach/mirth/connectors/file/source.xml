@@ -1,0 +1,36 @@
+<connectorMetaData path="file">
+	<name>File Reader</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>1.8.2</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This connector allows Mirth to poll for files from a local or network file system.</description>
+	<clientClassName>com.webreach.mirth.connectors.file.FileReader</clientClassName>
+	<serverClassName>com.webreach.mirth.connectors.file.FileConnector</serverClassName>
+	<sharedClassName>com.webreach.mirth.connectors.file.FileReaderProperties</sharedClassName>
+	<serviceClassName>com.webreach.mirth.connectors.file.FileReaderService</serviceClassName>
+	<library path="file-client.jar">
+		<type>CLIENT</type>
+	</library>
+	<library path="file-shared.jar">
+		<type>SHARED</type>
+	</library>
+	<library path="file-server.jar">
+		<type>SERVER</type>
+	</library>
+	<library path="lib/jcifs-1.2.22.jar">
+		<type>SERVER</type>
+	</library>
+	<transformers>ByteArrayToString</transformers>
+	<protocol>file</protocol>
+	<type>SOURCE</type>
+	<enabled>true</enabled>
+	<mule-properties>
+		<property name="connector">com.webreach.mirth.connectors.file.FileConnector</property>
+		<property name="dispatcher.factory">com.webreach.mirth.connectors.file.FileMessageDispatcherFactory</property>
+		<property name="message.receiver">com.webreach.mirth.connectors.file.FileMessageReceiver</property>
+		<property name="message.adapter">com.webreach.mirth.connectors.file.FileContentsMessageAdapter</property>
+		<property name="endpoint.builder">com.webreach.mirth.connectors.file.FileEndpointBuilder</property>
+		<property name="inbound.transformer">com.webreach.mirth.connectors.file.transformers.FileToString</property>
+	</mule-properties>
+</connectorMetaData>

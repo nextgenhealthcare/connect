@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>OBR</name>
+    <description>Observation Request</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.1</name>
+            <description>Set ID</description>
+            <datatype>SI</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.2</name>
+            <description>Placer Orders #</description>
+            <datatype>CM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.3</name>
+            <description>Fillers Order #</description>
+            <datatype>CM</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>OBR.4</name>
+            <description>Universal Service ID</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.5</name>
+            <description>Priority</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.6</name>
+            <description>Requested Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>OBR.7</name>
+            <description>Observation Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>OBR.8</name>
+            <description>Observation End Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>OBR.9</name>
+            <description>Collection Volume</description>
+            <datatype>CQ</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>OBR.10</name>
+            <description>Collector Identifier</description>
+            <datatype>CN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.11</name>
+            <description>Specimen Action Code</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.12</name>
+            <description>Danger Code</description>
+            <datatype>CM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.13</name>
+            <description>Relevant Clinical Info.</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>OBR.14</name>
+            <description>Specimen Rcvd Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.15</name>
+            <description>Specimen Source</description>
+            <datatype>CM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>OBR.16</name>
+            <description>Ordering Provider</description>
+            <datatype>CN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="2">
+            <name>OBR.17</name>
+            <description>Order Call Back Phone Num</description>
+            <datatype>TN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.18</name>
+            <description>Placers Field #1</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.19</name>
+            <description>Placers Field #2</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.20</name>
+            <description>Fillers Field #1</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.21</name>
+            <description>Fillers Field #2</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>OBR.22</name>
+            <description>Results Rpt/Status Chg-Dt</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.23</name>
+            <description>Charge to Practice</description>
+            <datatype>CM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.24</name>
+            <description>Diagnostic Serv Sect ID</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.25</name>
+            <description>Result Status</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.26</name>
+            <description>Linked Results</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>OBR.27</name>
+            <description>Quantity/Timing</description>
+            <datatype>CM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="5">
+            <name>OBR.28</name>
+            <description>Result Copies To</description>
+            <datatype>CN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.29</name>
+            <description>Parent Accession #</description>
+            <datatype>CM</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.30</name>
+            <description>Transportation Mode</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="unbounded">
+            <name>OBR.31</name>
+            <description>Reason For Study</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.32</name>
+            <description>Prin Result Interpreter</description>
+            <datatype>CN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.33</name>
+            <description>Asst Result Interpreter</description>
+            <datatype>CN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.34</name>
+            <description>Technician</description>
+            <datatype>CN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.35</name>
+            <description>Transcriptionist</description>
+            <datatype>CN</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>OBR.36</name>
+            <description>Scheduled Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+    </elements>
+</segment>

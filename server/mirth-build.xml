@@ -1,0 +1,62 @@
+<project name="mirth" basedir="." default="create-setup">
+	<target name="init">
+		<property file="mirth-build.properties" />
+	</target>
+
+	<target name="create-extensions" depends="init">
+		<ant antfile="${server}/build.xml" dir="${server}" target="create-plugins">
+			<property name="version" value="${version}" />
+		</ant>
+
+		<copy todir="${client}/lib" flatten="true">
+			<fileset dir="${server}/build/extensions/">
+				<include name="**/*-shared.jar" />
+			</fileset>
+		</copy>
+
+		<copy file="${server}/mirth-client-core.jar" todir="${client}/lib" />
+		<copy file="${server}/lib/hl7model.jar" todir="${client}/lib" />
+		<copy file="${server}/mirth-client-core.jar" todir="${manager}/lib" />
+	</target>
+
+	<target name="create-client" depends="create-extensions">
+		<ant antfile="${client}/ant-build.xml" dir="${client}" target="create-client" />
+
+		<copy file="${client}/dist/mirth-client.jar" todir="${server}/client-lib/" />
+		<copy file="${server}/mirth-client-core.jar" todir="${server}/client-lib/" />
+
+		<copy todir="${server}/build/extensions/">
+			<fileset dir="${client}/dist/extensions/" />
+		</copy>
+
+		<copy todir="${server}/client-lib">
+			<fileset dir="${client}/lib">
+				<exclude name="*-shared.jar" />
+				<exclude name="extensions" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="create-manager" depends="create-client">
+		<ant antfile="${manager}/ant-build.xml" dir="${manager}" target="create-manager" />
+	</target>
+
+	<target name="create-setup" depends="create-manager">
+		<ant antfile="${server}/build.xml" dir="${server}" target="create-setup">
+			<property name="version" value="${version}" />
+		</ant>
+	</target>
+
+	<target name="create-dist" depends="create-manager">
+		<copy file="${manager}/dist/mirth-manager.jar" todir="${server}/" />
+		<copy todir="${server}/lib">
+			<fileset dir="${manager}/lib">
+				<exclude name="mirth-client.jar" />
+			</fileset>
+		</copy>
+
+		<ant antfile="${server}/build.xml" dir="${server}" target="create-dist">
+			<property name="version" value="${version}" />
+		</ant>
+	</target>
+</project>

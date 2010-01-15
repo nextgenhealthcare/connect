@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>LA1</name>
+    <description>Location with Address Information (variant 1)</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LA1.1</name>
+            <description>Point of Care (IS)</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LA1.2</name>
+            <description>Room</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LA1.3</name>
+            <description>Bed</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LA1.4</name>
+            <description>Facility (HD)</description>
+            <datatype>HD</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LA1.5</name>
+            <description>Location Status</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LA1.6</name>
+            <description>Person Location Type</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LA1.7</name>
+            <description>Building</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LA1.8</name>
+            <description>Floor</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>LA1.9</name>
+            <description>Address</description>
+            <datatype>AD</datatype>
+        </field>
+    </elements>
+</segment>

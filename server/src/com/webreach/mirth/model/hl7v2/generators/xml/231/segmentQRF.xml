@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>QRF</name>
+    <description>Original Style Query Filter</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>QRF.1</name>
+            <description>Where Subject Filter</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QRF.2</name>
+            <description>When Data Start Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QRF.3</name>
+            <description>When Data End Date/Time</description>
+            <datatype>TS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QRF.4</name>
+            <description>What User Qualifier</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QRF.5</name>
+            <description>Other Qry Subject Filter</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QRF.6</name>
+            <description>Which Date/Time Qualifier</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QRF.7</name>
+            <description>Which Date/Time Status Qualifier</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QRF.8</name>
+            <description>Date/Time Selection Qualifier</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>QRF.9</name>
+            <description>When Quantity/Timing Qualifier</description>
+            <datatype>TQ</datatype>
+        </field>
+    </elements>
+</segment>

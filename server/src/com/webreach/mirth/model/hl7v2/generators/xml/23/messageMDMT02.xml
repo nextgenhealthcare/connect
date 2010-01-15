@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>MDMT02</name>
+    <description>Original Document Notification and Content</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>EVN</segment>
+        <segment>PID</segment>
+        <segment>PV1</segment>
+        <segment>TXA</segment>
+        <segment maxOccurs="unbounded">OBX</segment>
+    </segments>
+</message>

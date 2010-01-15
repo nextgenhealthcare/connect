@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>XAD</name>
+    <description>Extended Address</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>XAD.1</name>
+            <description>Street Address (SAD)</description>
+            <datatype>SAD</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>XAD.2</name>
+            <description>Other Designation</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>XAD.3</name>
+            <description>City</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>XAD.4</name>
+            <description>State or Province</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>XAD.5</name>
+            <description>Zip or Postal Code</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>XAD.6</name>
+            <description>Country</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>XAD.7</name>
+            <description>Address Type</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>XAD.8</name>
+            <description>Other Geographic Designation</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>XAD.9</name>
+            <description>County/Parish Code</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>XAD.10</name>
+            <description>Census Tract</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>XAD.11</name>
+            <description>Address Representation Code</description>
+            <datatype>ID</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>XAD.12</name>
+            <description>Address Validity Range</description>
+            <datatype>DR</datatype>
+        </field>
+    </elements>
+</segment>

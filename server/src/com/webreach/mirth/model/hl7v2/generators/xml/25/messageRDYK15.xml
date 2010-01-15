@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>RDYK15</name>
+    <description>Display Response In Response to QBP^Q15</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">SFT</segment>
+        <segment>MSA</segment>
+        <segment minOccurs="0">ERR</segment>
+        <segment>QAK</segment>
+        <segment>QPD</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">DSP</segment>
+        <segment minOccurs="0">DSC</segment>
+    </segments>
+</message>

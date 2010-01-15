@@ -1,0 +1,34 @@
+<connectorMetaData path="mllp">
+	<name>LLP Sender</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>1.8.2</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This connector allows Mirth to send messages to MLLP compatabile servers. The connector can automatically retry failed messages and handle ACK responses.</description>
+	<clientClassName>com.webreach.mirth.connectors.mllp.LLPSender</clientClassName>
+	<serverClassName>com.webreach.mirth.connectors.mllp.MllpConnector</serverClassName>
+	<sharedClassName>com.webreach.mirth.connectors.mllp.LLPSenderProperties</sharedClassName>
+	<serviceClassName>com.webreach.mirth.connectors.mllp.LLPSenderConnectorService</serviceClassName>
+	<library path="mllp-client.jar">
+		<type>CLIENT</type>
+	</library>
+	<library path="mllp-shared.jar">
+		<type>SHARED</type>
+	</library>
+	<library path="mllp-server.jar">
+		<type>SERVER</type>
+	</library>
+	<transformers></transformers>
+	<protocol>mllp</protocol>
+	<type>DESTINATION</type>
+	<enabled>true</enabled>
+	<mule-properties>
+		<property name="connector">com.webreach.mirth.connectors.mllp.MllpConnector</property>
+		<property name="dispatcher.factory">com.webreach.mirth.connectors.mllp.MllpMessageDispatcherFactory</property>
+		<property name="message.receiver">com.webreach.mirth.connectors.mllp.MllpMessageReceiver</property>
+		<property name="message.adapter">com.webreach.mirth.connectors.mllp.MllpMessageAdapter</property>
+		<property name="inbound.transformer">org.mule.transformers.simple.ByteArrayToString</property>
+		<property name="outbound.transformer">org.mule.transformers.simple.StringToByteArray</property>
+		<property name="endpoint.builder">org.mule.impl.endpoint.SocketEndpointBuilder</property>
+	</mule-properties>
+</connectorMetaData>

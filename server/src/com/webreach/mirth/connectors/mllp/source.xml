@@ -1,0 +1,34 @@
+<connectorMetaData path="mllp">
+	<name>LLP Listener</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>1.8.2</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This connector allows Mirth to listen for incoming messages in using the MLLP protocol (HL7 only). Automatic acknowledgement generation is supported.</description>
+	<clientClassName>com.webreach.mirth.connectors.mllp.LLPListener</clientClassName>
+	<serverClassName>com.webreach.mirth.connectors.mllp.MllpConnector</serverClassName>
+	<sharedClassName>com.webreach.mirth.connectors.mllp.LLPListenerProperties</sharedClassName>
+	<serviceClassName>com.webreach.mirth.connectors.mllp.LLPListenerConnectorService</serviceClassName>
+	<library path="mllp-client.jar">
+		<type>CLIENT</type>
+	</library>
+	<library path="mllp-shared.jar">
+		<type>SHARED</type>
+	</library>
+	<library path="mllp-server.jar">
+		<type>SERVER</type>
+	</library>
+	<transformers>ByteArrayToString</transformers>
+	<protocol>mllp</protocol>
+	<type>SOURCE</type>
+	<enabled>true</enabled>
+	<mule-properties>
+		<property name="connector">com.webreach.mirth.connectors.mllp.MllpConnector</property>
+		<property name="dispatcher.factory">com.webreach.mirth.connectors.mllp.MllpMessageDispatcherFactory</property>
+		<property name="message.receiver">com.webreach.mirth.connectors.mllp.MllpMessageReceiver</property>
+		<property name="message.adapter">com.webreach.mirth.connectors.mllp.MllpMessageAdapter</property>
+		<property name="inbound.transformer">org.mule.transformers.simple.ByteArrayToString</property>
+		<property name="outbound.transformer">org.mule.transformers.simple.StringToByteArray</property>
+		<property name="endpoint.builder">org.mule.impl.endpoint.SocketEndpointBuilder</property>
+	</mule-properties>
+</connectorMetaData>

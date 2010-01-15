@@ -1,0 +1,18 @@
+<pluginMetaData path="javascriptrule">
+	<name>Javascript Filter Rule</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>1.8.2</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This plugin provides a JavaScript rule-type for Mirth filters</description>
+	<enabled>true</enabled>
+	<extensionPoint>
+		<name>Javascript</name>
+		<type>CLIENT_FILTER_RULE</type>
+		<className>com.webreach.mirth.plugins.javascriptrule.JavascriptRulePlugin</className>
+		<mode>CLIENT</mode>
+	</extensionPoint>
+	<library path="javascriptrule-client.jar">
+		<type>CLIENT</type>	
+	</library>
+</pluginMetaData>

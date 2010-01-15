@@ -1,0 +1,36 @@
+<connectorMetaData path="doc">
+	<name>Document Writer</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>1.8.2</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This connector allows Mirth to create RTF or PDF documents based on an HTML template. PDF files can be password protected.</description>
+	<clientClassName>com.webreach.mirth.connectors.doc.DocumentWriter</clientClassName>
+	<serverClassName>com.webreach.mirth.connectors.doc.DocumentConnector</serverClassName>
+	<sharedClassName>com.webreach.mirth.connectors.doc.DocumentWriterProperties</sharedClassName>
+	<serviceClassName>com.webreach.mirth.connectors.doc.DocumentWriterService</serviceClassName>
+	<library path="doc-client.jar">
+		<type>CLIENT</type>
+	</library>
+	<library path="doc-shared.jar">
+		<type>SHARED</type>
+	</library>
+	<library path="doc-server.jar">
+		<type>SERVER</type>
+	</library>
+	<library path="lib/iText-2.0.8.jar">
+		<type>SERVER</type>
+	</library>
+	<library path="lib/core-renderer.jar">
+		<type>SERVER</type>
+	</library>
+	<transformers></transformers>
+	<protocol>doc</protocol>
+	<type>DESTINATION</type>
+	<enabled>true</enabled>
+	<mule-properties>
+		<property name="connector">com.webreach.mirth.connectors.doc.DocumentConnector</property>
+		<property name="dispatcher.factory">com.webreach.mirth.connectors.doc.DocumentMessageDispatcherFactory</property>
+		<property name="endpoint.builder">org.mule.providers.file.FileEndpointBuilder</property>
+	</mule-properties>
+</connectorMetaData>

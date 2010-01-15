@@ -1,0 +1,18 @@
+<pluginMetaData path="extensionmanager">
+	<name>Extension Manager</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>1.8.2</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This plugin provides a GUI to manager, install and update Mirth extensions</description>
+	<enabled>true</enabled>
+	<extensionPoint>
+		<name>Extension Manager</name>
+		<type>CLIENT_PANEL</type>
+		<className>com.webreach.mirth.plugins.extensionmanager.ExtensionManagerClient</className>
+		<mode>CLIENT</mode>
+	</extensionPoint>
+	<library path="extensionmanager-client.jar">
+		<type>CLIENT</type>	
+	</library>
+</pluginMetaData>

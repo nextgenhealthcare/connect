@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message>
+    <name>MFKM09</name>
+    <description>Test/Observation (categorical) Master File - Response</description>
+    <segments>
+        <segment>MSH</segment>
+        <segment>MSA</segment>
+        <segment minOccurs="0">ERR</segment>
+        <segment>MFI</segment>
+        <segment minOccurs="0" maxOccurs="unbounded">MFA</segment>
+    </segments>
+</message>

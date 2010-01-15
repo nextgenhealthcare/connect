@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>SPS</name>
+    <description>Specimen Source</description>
+    <elements>
+        <field minOccurs="0" maxOccurs="0">
+            <name>SPS.1</name>
+            <description>Specimen Source Name or Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>SPS.2</name>
+            <description>Additives</description>
+            <datatype>TX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>SPS.3</name>
+            <description>Freetext</description>
+            <datatype>TX</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>SPS.4</name>
+            <description>Body Site</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>SPS.5</name>
+            <description>Site Modifier</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>SPS.6</name>
+            <description>Collection Modifier Method Code</description>
+            <datatype>CE</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>SPS.7</name>
+            <description>Specimen Role</description>
+            <datatype>CE</datatype>
+        </field>
+    </elements>
+</segment>

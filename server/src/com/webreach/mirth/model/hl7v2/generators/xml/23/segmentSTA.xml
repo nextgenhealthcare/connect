@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<segment>
+    <name>STA</name>
+    <description>Study Responses Segment</description>
+    <elements>
+        <field minOccurs="1" maxOccurs="0">
+            <name>STA.1</name>
+            <description>Question ID</description>
+            <datatype>CX</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>STA.2</name>
+            <description>Response</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STA.3</name>
+            <description>Have Documentation</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STA.4</name>
+            <description>Comment</description>
+            <datatype>ST</datatype>
+        </field>
+        <field minOccurs="1" maxOccurs="0">
+            <name>STA.5</name>
+            <description>Standing</description>
+            <datatype>IS</datatype>
+        </field>
+        <field minOccurs="0" maxOccurs="0">
+            <name>STA.6</name>
+            <description>Revised By</description>
+            <datatype>PPN</datatype>
+        </field>
+    </elements>
+</segment>

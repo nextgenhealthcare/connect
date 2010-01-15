@@ -1,0 +1,33 @@
+<connectorMetaData path="tcp">
+	<name>TCP Listener</name>
+	<author>Mirth Corporation</author>
+	<pluginVersion>@mirthversion</pluginVersion>
+	<mirthVersion>1.8.2</mirthVersion>
+	<url>http://www.mirthcorp.com</url>
+	<description>This connector allows Mirth to listen for incoming messages over a standard TCP connection.</description>
+	<clientClassName>com.webreach.mirth.connectors.tcp.TCPListener</clientClassName>
+	<serverClassName>com.webreach.mirth.connectors.tcp.TcpConnector</serverClassName>
+	<sharedClassName>com.webreach.mirth.connectors.tcp.TCPListenerProperties</sharedClassName>
+	<library path="tcp-client.jar">
+		<type>CLIENT</type>
+	</library>
+	<library path="tcp-shared.jar">
+		<type>SHARED</type>
+	</library>
+	<library path="tcp-server.jar">
+		<type>SERVER</type>
+	</library>
+	<transformers>ByteArrayToString</transformers>
+	<protocol>tcp</protocol>
+	<type>SOURCE</type>
+	<enabled>true</enabled>
+	<mule-properties>
+		<property name="connector">com.webreach.mirth.connectors.tcp.TcpConnector</property>
+		<property name="dispatcher.factory">com.webreach.mirth.connectors.tcp.TcpMessageDispatcherFactory</property>
+		<property name="message.receiver">com.webreach.mirth.connectors.tcp.TcpMessageReceiver</property>
+		<property name="message.adapter">com.webreach.mirth.connectors.tcp.TcpMessageAdapter</property>
+		<property name="inbound.transformer">org.mule.transformers.simple.ByteArrayToString</property>
+		<property name="outbound.transformer">org.mule.transformers.simple.StringToByteArray</property>
+		<property name="endpoint.builder">org.mule.impl.endpoint.SocketEndpointBuilder</property>
+	</mule-properties>
+</connectorMetaData>
