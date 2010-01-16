@@ -81,6 +81,6 @@
 	<classpathentry kind="lib" path="lib/commons/commons-configuration-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/wsdl4j-1.6.2.jar"/>
 	<classpathentry kind="lib" path="lib/qname-1.6.2.jar"/>
-	<classpathentry kind="lib" path="lib/org.mortbay.jetty-5.1.15.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-5.1.15.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
