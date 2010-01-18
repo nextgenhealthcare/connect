@@ -507,9 +507,9 @@ public class Client {
      * 
      * @throws ClientException
      */
-    public synchronized void deployChannels() throws ClientException {
+    public synchronized void deployAllChannels() throws ClientException {
         logger.debug("deploying channels");
-        NameValuePair[] params = { new NameValuePair("op", "deployChannels") };
+        NameValuePair[] params = { new NameValuePair("op", "deployAllChannels") };
         serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
     }
 
@@ -518,9 +518,9 @@ public class Client {
      * 
      * @throws ClientException
      */
-    public synchronized void hotDeployChannels(List<Channel> channels) throws ClientException {
+    public synchronized void deployChannels(List<Channel> channels) throws ClientException {
         logger.debug("deploying channels");
-        NameValuePair[] params = { new NameValuePair("op", "hotDeployChannels"), new NameValuePair("channels", serializer.toXML(channels)) };
+        NameValuePair[] params = { new NameValuePair("op", "deployChannels"), new NameValuePair("channels", serializer.toXML(channels)) };
         serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
     }
     
