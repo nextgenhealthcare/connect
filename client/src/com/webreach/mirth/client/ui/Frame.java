@@ -2805,7 +2805,7 @@ public class Frame extends JXFrame
             {
                 try
                 {
-                    mirthClient.deployChannels();
+                    mirthClient.deployAllChannels();
                 }
                 catch (ClientException e)
                 {
@@ -2843,7 +2843,7 @@ public class Frame extends JXFrame
                 			enabledChannels.add(channel);
                 		}
                 	}
-                    mirthClient.hotDeployChannels(enabledChannels);
+                    mirthClient.deployChannels(enabledChannels);
                 }
                 catch (ClientException e)
                 {
@@ -2889,7 +2889,7 @@ public class Frame extends JXFrame
                 {
                 	List<Channel> channels = new ArrayList<Channel>();
                 	channels.add(channel);
-                    mirthClient.hotDeployChannels(channels);
+                    mirthClient.deployChannels(channels);
                 }
                 catch (ClientException e)
                 {
