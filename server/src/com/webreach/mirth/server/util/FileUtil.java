@@ -47,11 +47,11 @@ public class FileUtil {
 		write(fileName, append, data.getBytes());
 	}
 
-	public static byte[] decode(String data) throws IOException {
+	public static byte[] decode(String data) {
 		return new Base64().decode(data.getBytes());
 	}
 
-	public static String encode(byte[] data) throws IOException {
+	public static String encode(byte[] data) {
 		return new String(new Base64().encode(data));
 	}
 
