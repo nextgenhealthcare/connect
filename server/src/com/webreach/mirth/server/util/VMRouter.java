@@ -1,6 +1,5 @@
 package com.webreach.mirth.server.util;
 
-import java.util.Iterator;
 import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
@@ -47,8 +46,7 @@ public class VMRouter {
             umoMessage = new MuleMessage(messageObject.getRawData());
 
             // set the properties from the context
-            for (Iterator iterator = messageObject.getContext().entrySet().iterator(); iterator.hasNext();) {
-                Entry entry = (Entry) iterator.next();
+            for (Entry<String, Object> entry : messageObject.getContext().entrySet()) {
                 umoMessage.setProperty(entry.getKey(), entry.getValue());
             }
         } else {
