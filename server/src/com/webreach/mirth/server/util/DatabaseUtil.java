@@ -37,7 +37,7 @@ import org.apache.log4j.Logger;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.ibatis.sqlmap.client.SqlMapException;
-import com.ibatis.sqlmap.engine.impl.ExtendedSqlMapClient;
+import com.ibatis.sqlmap.engine.impl.SqlMapClientImpl;
 import com.ibatis.sqlmap.engine.impl.SqlMapExecutorDelegate;
 
 public class DatabaseUtil {
@@ -187,7 +187,7 @@ public class DatabaseUtil {
 	
     public static boolean statementExists(String statement) {
         try {
-            SqlMapExecutorDelegate delegate = ((ExtendedSqlMapClient) SqlConfig.getSqlMapClient()).getDelegate();
+            SqlMapExecutorDelegate delegate = ((SqlMapClientImpl) SqlConfig.getSqlMapClient()).getDelegate();
             delegate.getMappedStatement(statement);
         } catch (SqlMapException sme) {
             // The statement does not exist
