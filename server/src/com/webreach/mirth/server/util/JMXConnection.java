@@ -49,7 +49,7 @@ public class JMXConnection {
 	private MBeanServerConnection jmxConnection;
 	private String domain;
 
-	public JMXConnection(String address, String domain, Map environment) throws Exception {
+	public JMXConnection(String address, String domain, Map<String, String> environment) throws Exception {
 		this.domain = domain;
 		JMXServiceURL url = new JMXServiceURL(address);
 		jmxConnector = JMXConnectorFactory.connect(url, environment);
@@ -65,7 +65,7 @@ public class JMXConnection {
 	 *            the name of the operation.
 	 * @return the result of the operation.
 	 */
-	public Object invokeOperation(Hashtable properties, String operation, Object[] params, String[] signature) throws Exception {
+	public Object invokeOperation(Hashtable<String, String> properties, String operation, Object[] params, String[] signature) throws Exception {
 		logger.debug("invoking mbean operation: " + operation);
 		return jmxConnection.invoke(getObjectName(properties), operation, params, signature);
 	}
@@ -77,12 +77,12 @@ public class JMXConnection {
 	 * @param attribute
 	 * @return
 	 */
-	public Object getAttribute(Hashtable properties, String attribute) throws Exception {
+	public Object getAttribute(Hashtable<String, String> properties, String attribute) throws Exception {
 		logger.debug("getting mbean attribute: " + attribute);
 		return jmxConnection.getAttribute(getObjectName(properties), attribute);
 	}
 
-	public Set getMBeanNames() throws Exception {
+	public Set<ObjectName> getMBeanNames() throws Exception {
 		logger.debug("getting mbean names");
 		return jmxConnection.queryNames(null, null);
 	}
@@ -99,7 +99,7 @@ public class JMXConnection {
 		}
 	}
 
-	private ObjectName getObjectName(Hashtable properties) throws Exception {
+	private ObjectName getObjectName(Hashtable<String, String> properties) throws Exception {
 		ObjectName objectName = null;
 		if (properties == null) {
 			objectName = (ObjectName) jmxConnection.queryNames(new ObjectName(domain), null).toArray()[0];
