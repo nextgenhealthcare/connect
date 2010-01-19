@@ -55,21 +55,22 @@ public class DefaultMonitoringController extends MonitoringController {
     @ExtensionPointDefinition(mode = ExtensionPoint.Mode.SERVER, type = ExtensionPoint.Type.SERVER_CONNECTOR_STATUS)
     public void initPlugins() {
         loadedPlugins = new HashMap<String, ConnectorStatusPlugin>();
+        
         try {
             Map<String, PluginMetaData> plugins = ControllerFactory.getFactory().createExtensionController().getPluginMetaData();
+            
             for (PluginMetaData metaData : plugins.values()) {
                 if (metaData.isEnabled()) {
                     for (ExtensionPoint extensionPoint : metaData.getExtensionPoints()) {
                         try {
                             if (extensionPoint.getMode().equals(ExtensionPoint.Mode.SERVER) && extensionPoint.getType().equals(ExtensionPoint.Type.SERVER_CONNECTOR_STATUS) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0) {
                                 String pluginName = extensionPoint.getName();
-                                Class clazz = Class.forName(extensionPoint.getClassName());
-                                Constructor[] constructors = clazz.getDeclaredConstructors();
+                                Constructor<?>[] constructors = Class.forName(extensionPoint.getClassName()).getDeclaredConstructors();
+                                
                                 for (int i = 0; i < constructors.length; i++) {
-                                    Class parameters[];
-                                    parameters = constructors[i].getParameterTypes();
-                                    // load plugin if the number of parameters
-                                    // is 0.
+                                    Class<?> parameters[] = constructors[i].getParameterTypes();
+                                    
+                                    // load plugin if the number of parameters is 0
                                     if (parameters.length == 0) {
                                         ConnectorStatusPlugin statusPlugin = (ConnectorStatusPlugin) constructors[i].newInstance(new Object[] {});
                                         loadedPlugins.put(pluginName, statusPlugin);
@@ -82,7 +83,6 @@ public class DefaultMonitoringController extends MonitoringController {
                         }
                     }
                 }
-
             }
         } catch (Exception e) {
             logger.error(e);

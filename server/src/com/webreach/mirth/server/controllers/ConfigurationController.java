@@ -59,9 +59,9 @@ public abstract class ConfigurationController extends Controller {
     }
 
     public abstract void shutdown();
-
-    public abstract void deployAllChannels() throws ControllerException;
     
+    public abstract void deployAllChannels() throws ControllerException;
+
     public abstract void deployChannels(List<Channel> channels) throws ControllerException;
     
     public abstract void undeployChannels(List<String> channelIds) throws ControllerException;

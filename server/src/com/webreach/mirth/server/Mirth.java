@@ -31,8 +31,10 @@ import java.net.ServerSocket;
 import java.nio.charset.Charset;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -82,7 +84,6 @@ public class Mirth extends Thread {
     private HttpServer httpServer = null;
     private HttpServer servletContainer = null;
     private CommandQueue commandQueue = CommandQueue.getInstance();
-    private MirthManager manager = new MirthManager();
 
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
@@ -98,10 +99,6 @@ public class Mirth extends Thread {
         Mirth mirth = new Mirth();
         mirth.run();
         System.exit(0);
-    }
-
-    public MirthManager getManager() {
-        return this.manager;
     }
 
     public void run() {
@@ -143,6 +140,8 @@ public class Mirth extends Thread {
                     deployChannels((List<Channel>) command.getParameter());
                 } else if (command.getOperation().equals(Command.Operation.UNDEPLOY_CHANNELS)) {
                     undeployChannels((List<String>) command.getParameter());
+                } else if (command.getOperation().equals(Command.Operation.UNDEPLOY_ALL)) {
+                    undeployAllChannels();
                 }
             }
         } else {
@@ -170,11 +169,13 @@ public class Mirth extends Thread {
      */
     public void startup() {
         startWebServer();
+        extensionController.loadExtensions();
+        migrationController.migrate();
         messageObjectController.removeAllFilterTables();
         eventController.removeAllFilterTables();
         extensionController.uninstallExtensions();
-        migrationController.migrate();
         migrationController.migrateExtensions();
+        extensionController.initPlugins();
         channelStatisticsController.start();
         channelController.loadChannelCache();
         configurationController.loadEncryptionKey();
@@ -253,6 +254,17 @@ public class Mirth extends Thread {
         } catch (Exception e) {
             logger.error("Error un-deploying channels.", e);
         }
+    }
+    
+    private void undeployAllChannels() {
+        List<String> channelIds = new ArrayList<String>();
+        
+        for (Iterator<String> iterator = umoManager.getModel().getComponentNames(); iterator.hasNext();) {
+            String channelId = iterator.next();
+            channelIds.add(channelId);
+        }
+        
+        undeployChannels(channelIds);
     }
 
     /**

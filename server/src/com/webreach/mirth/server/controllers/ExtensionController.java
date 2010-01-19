@@ -106,6 +106,8 @@ public abstract class ExtensionController extends Controller {
     public abstract void initPlugins();
 
     public abstract boolean isExtensionEnabled(String name);
+    
+    public abstract void loadExtensions();
 
     public abstract void startPlugins();
 

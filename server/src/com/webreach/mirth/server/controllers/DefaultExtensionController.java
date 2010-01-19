@@ -74,7 +74,6 @@ public class DefaultExtensionController extends ExtensionController {
         synchronized (DefaultExtensionController.class) {
             if (instance == null) {
                 instance = new DefaultExtensionController();
-                instance.loadExtensions();
             }
 
             return instance;
@@ -85,7 +84,7 @@ public class DefaultExtensionController extends ExtensionController {
 
     }
 
-    private void loadExtensions() {
+    public void loadExtensions() {
         try {
             loadConnectorMetaData();
             loadPluginMetaData();
@@ -94,8 +93,6 @@ public class DefaultExtensionController extends ExtensionController {
             logger.error("could not initialize extension settings", e);
             return;
         }
-
-        initPlugins();
     }
     
     // Extension point for ExtensionPoint.Type.SERVER_PLUGIN
@@ -114,19 +111,24 @@ public class DefaultExtensionController extends ExtensionController {
 
                             try {
                                 properties = getPluginProperties(pluginId);
+                                
                                 if (properties == null) {
                                     properties = serverPlugin.getDefaultProperties();
+                                    
                                     if (properties != null) {
                                         setPluginProperties(pluginId, properties);
                                     }
                                 }
                             } catch (Exception e) {
                                 properties = serverPlugin.getDefaultProperties();
+                                
                                 if (properties == null) {
                                     properties = new Properties();
                                 }
+                                
                                 setPluginProperties(pluginId, properties);
                             }
+                            
                             serverPlugin.init(properties);
                             loadedPlugins.put(pluginId, serverPlugin);
                         }
@@ -233,7 +235,7 @@ public class DefaultExtensionController extends ExtensionController {
 		                    List<String> uninstallScripts = getUninstallScripts();
 		                    uninstallScripts.addAll(scriptList);
 		                    setUninstallScripts(uninstallScripts);
-		                    ConfigurationController.getInstance().removeProperty(plugin.getName(), "schema");
+		                    ControllerFactory.getFactory().createConfigurationController().removeProperty(plugin.getName(), "schema");
 	                    }
                     }
 				}
@@ -266,12 +268,12 @@ public class DefaultExtensionController extends ExtensionController {
 
     public void setPluginProperties(String pluginName, Properties properties) throws ControllerException {
         for (Object name : properties.keySet()) {
-            ConfigurationController.getInstance().saveProperty(pluginName, (String) name, (String) properties.get(name));
+            ControllerFactory.getFactory().createConfigurationController().saveProperty(pluginName, (String) name, (String) properties.get(name));
         }
     }
 
     public Properties getPluginProperties(String pluginName) throws ControllerException {
-        return ConfigurationController.getInstance().getPropertiesForGroup(pluginName);
+        return ControllerFactory.getFactory().createConfigurationController().getPropertiesForGroup(pluginName);
     }
     
     public Map<String, ConnectorMetaData> getConnectorMetaData() throws ControllerException {
@@ -286,8 +288,10 @@ public class DefaultExtensionController extends ExtensionController {
 
         for (ConnectorMetaData connectorMetaData : this.connectors.values()) {
             String protocol = connectorMetaData.getProtocol();
+            
             if (protocol.indexOf(':') > -1) {
                 String[] protocolStrings = protocol.split(":");
+                
                 for (int i = 0; i < protocolStrings.length; i++) {
                     protocols.put(protocolStrings[i], connectorMetaData);
                 }
@@ -308,7 +312,7 @@ public class DefaultExtensionController extends ExtensionController {
         return this.clientLibraries;
     }
 
-    private void loadClientLibraries() throws ControllerException {
+    private void loadClientLibraries() {
         logger.debug("loading client libraries");
         List<MetaData> extensionMetaData = new ArrayList<MetaData>();
 

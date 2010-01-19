@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -58,12 +57,10 @@ public class ExtensionUtil {
 		ObjectXMLSerializer serializer = new ObjectXMLSerializer(new Class[] { MetaData.class, PluginMetaData.class, ConnectorMetaData.class, ExtensionLibrary.class });
 
 		try {
-			Iterator i = metaData.entrySet().iterator();
-			while (i.hasNext()) {
-				Entry entry = (Entry) i.next();
-				MetaData extensionMetaData = (MetaData)entry.getValue();
-				String extensionPath = extensionMetaData.getPath();
+			for (Entry<String, ? extends MetaData> entry : metaData.entrySet()) {
+				MetaData extensionMetaData = entry.getValue();
 				String fileName = ExtensionType.PLUGIN.getFileNames()[0];
+				
 				if (extensionMetaData instanceof ConnectorMetaData) {
 					if (((ConnectorMetaData)extensionMetaData).getType().equals(ConnectorMetaData.Type.SOURCE)) {
 						fileName = ExtensionType.SOURCE.getFileNames()[0];
@@ -72,16 +69,14 @@ public class ExtensionUtil {
 					}
 				}
 				
-				FileUtil.write(ExtensionController.getExtensionsPath() + extensionPath + System.getProperty("file.separator") + fileName, false, serializer.toXML(metaData.get(entry.getKey())));
-
+				FileUtil.write(ExtensionController.getExtensionsPath() + extensionMetaData.getPath() + System.getProperty("file.separator") + fileName, false, serializer.toXML(metaData.get(entry.getKey())));
 			}
 		} catch (IOException ioe) {
 			throw new ControllerException(ioe);
 		}
-
 	}
 
-	public static List<String> loadClientLibraries(List<MetaData> extensionMetaData) throws ControllerException {
+	public static List<String> loadClientLibraries(List<MetaData> extensionMetaData) {
 		List<String> extensionLibraries = new ArrayList<String>();
 		
 		for (MetaData metaData : extensionMetaData) {
@@ -158,7 +153,7 @@ public class ExtensionUtil {
 			fileItem.write(file);
 			
 			zipFile = new ZipFile(zipFileLocation);
-			Enumeration entries = zipFile.entries();
+			Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
 			// First check to see if Mirth is compatible with this extension.
 			String mirthVersion = ControllerFactory.getFactory().createConfigurationController().getServerVersion();
@@ -169,7 +164,7 @@ public class ExtensionUtil {
 			}
 			
 			while (entries.hasMoreElements()) {
-				ZipEntry entry = (ZipEntry) entries.nextElement();
+				ZipEntry entry = entries.nextElement();
 				String entryName = entry.getName();
 				String plugin = ExtensionController.ExtensionType.PLUGIN.getFileNames()[0];
 				String destination = ExtensionController.ExtensionType.DESTINATION.getFileNames()[0];
@@ -203,8 +198,9 @@ public class ExtensionUtil {
 			
 			// Reset the entries and extract
 			entries = zipFile.entries();
+			
 			while (entries.hasMoreElements()) {
-				ZipEntry entry = (ZipEntry) entries.nextElement();
+				ZipEntry entry = entries.nextElement();
 				
 				if (entry.isDirectory()) {
 					// Assume directories are stored parents first then

@@ -91,7 +91,6 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static final String TEMP_DIR = "mirthTempDir";
     private boolean isEngineStarting = true;
     private JavaScriptUtil javaScriptUtil = JavaScriptUtil.getInstance();
-    private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private PasswordRequirements passwordRequirements;
     private static PropertiesConfiguration versionConfig;
@@ -151,85 +150,10 @@ public class DefaultConfigurationController extends ConfigurationController {
                 serverIdConfig.save();
             }
 
-            loadDefaultProperties();
-
-            this.passwordRequirements = PasswordRequirementsChecker.getInstance().loadPasswordRequirements();
+            this.passwordRequirements = PasswordRequirementsChecker.getInstance().loadPasswordRequirements(mirthConfig);
         } catch (Exception e) {
             logger.warn(e);
         }
-    }
-
-    private void loadDefaultProperties() throws Exception {
-        Properties serverProperties = getServerProperties();
-
-        // update.url
-        String updateUrl = serverProperties.getProperty("update.url");
-
-        // migrate old update url
-        if ((updateUrl != null) && (updateUrl.equalsIgnoreCase("http://updates.mirthproject.org"))) {
-            serverProperties.setProperty("update.url", "http://updates.mirthcorp.com");
-        }
-
-        // set new update url
-        if ((updateUrl == null) || (updateUrl.length() == 0)) {
-            serverProperties.setProperty("update.url", "http://updates.mirthcorp.com");
-        }
-
-        // update.enabled
-        String updateEnabled = serverProperties.getProperty("update.enabled");
-
-        if ((updateEnabled == null) || (updateEnabled.length() == 0)) {
-            serverProperties.setProperty("update.enabled", "1");
-        }
-
-        // stats.enabled
-        String updateIdent = serverProperties.getProperty("stats.enabled");
-
-        if ((updateIdent == null) || (updateIdent.length() == 0)) {
-            serverProperties.setProperty("stats.enabled", "1");
-        }
-
-        // firstlogin
-        String firstLogin = serverProperties.getProperty("firstlogin");
-
-        if ((firstLogin == null) || (firstLogin.length() == 0)) {
-            serverProperties.setProperty("firstlogin", "1");
-        }
-
-        // Check for the old "clearGlobal" property and migrate it.
-        String clearGlobal = serverProperties.getProperty("clearGlobal");
-
-        if ((clearGlobal != null) && (clearGlobal.length() > 0)) {
-            serverProperties.setProperty("server.resetglobalvariables", clearGlobal);
-            serverProperties.remove("clearGlobal");
-        }
-
-        // server.resetglobalvariables
-        String resetGlobalVariables = serverProperties.getProperty("server.resetglobalvariables");
-
-        if ((resetGlobalVariables == null) || (resetGlobalVariables.length() == 0)) {
-            serverProperties.setProperty("server.resetglobalvariables", "1");
-        }
-
-        // smtp.useAuthentication
-        String useAuthentication = serverProperties.getProperty("smtp.requireAuthentication");
-        String smtpAuth = serverProperties.getProperty("smtp.auth");
-
-        if ((useAuthentication != null) && (useAuthentication.length() > 0)) {
-            serverProperties.setProperty("smtp.auth", useAuthentication);
-            serverProperties.remove("smtp.requireAuthentication");
-        } else if ((smtpAuth == null) || (smtpAuth.length() == 0)) {
-            serverProperties.setProperty("smtp.auth", "0");
-        }
-
-        // smtp.secure
-        String secure = serverProperties.getProperty("smtp.secure");
-
-        if ((secure == null) || (secure.length() == 0)) {
-            serverProperties.setProperty("smtp.secure", "none");
-        }
-
-        setServerProperties(serverProperties);
     }
 
     /*
@@ -281,16 +205,25 @@ public class DefaultConfigurationController extends ConfigurationController {
     public String getGuid() throws ControllerException {
         return UUID.randomUUID().toString();
     }
+    
+    public void deployAllChannels() throws ControllerException {
+        logger.debug("deploying all channels");
+        
+        // undeploy all running channels
+        CommandQueue.getInstance().addCommand(new Command(Command.Operation.UNDEPLOY_ALL));
+        // deploy all enabled channels
+        deployChannels(ControllerFactory.getFactory().createChannelController().getChannel(null));
+    }
 
-    /**
-     * Updates the existing Mule configuration with new channels.
-     * 
-     * @throws ControllerException
-     */
     public void deployChannels(List<Channel> channels) throws ControllerException {
-        logger.debug("deploying " + channels.size() + " channels");
+        logger.debug("deploying channels");
 
         try {
+            scriptController.clearScripts();
+            ControllerFactory.getFactory().createTemplateController().clearTemplates();
+            ControllerFactory.getFactory().createChannelController().loadChannelCache();
+            ControllerFactory.getFactory().createChannelController().refreshChannelCache(channels);
+            ControllerFactory.getFactory().createExtensionController().deployTriggered();
             CommandQueue.getInstance().addCommand(new Command(Command.Operation.DEPLOY_CHANNELS, channels));
             ControllerFactory.getFactory().createChannelController().loadChannelCache();
         } catch (Exception e) {
@@ -315,35 +248,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         systemLogger.logSystemEvent(new SystemEvent("Channels un-deployed."));
     }
 
-    /**
-     * Creates a new configuration and restarts the Mule engine.
-     * 
-     * @throws ControllerException
-     */
-    public void deployAllChannels() throws ControllerException {
-        logger.debug("deploying channels");
-
-        scriptController.clearScripts();
-        ControllerFactory.getFactory().createTemplateController().clearTemplates();
-
-        try {
-            ChannelController channelController = ControllerFactory.getFactory().createChannelController();
-            channelController.loadChannelCache();
-            List<Channel> channels = channelController.getChannel(null);
-
-            // update the storeMessages reference
-            channelController.refreshChannelCache(channels);
-            ControllerFactory.getFactory().createExtensionController().deployTriggered();
-            deployChannels(channels);
-        } catch (Exception e) {
-            throw new ControllerException(e);
-        }
-
-        systemLogger.logSystemEvent(new SystemEvent("Channels deployed."));
-    }
-
     public void compileScripts(List<Channel> channels) throws Exception {
-
         for (Entry<String, String> entry : getGlobalScripts().entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
@@ -452,7 +357,7 @@ public class DefaultConfigurationController extends ConfigurationController {
     }
 
     public String getDatabaseType() {
-        return getPropertiesForGroup(PROPERTIES_CORE).getProperty("database");
+        return mirthConfig.getString("database");
     }
 
     public SecretKey getEncryptionKey() {
@@ -629,7 +534,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
             for (Channel channel : serverConfiguration.getChannels()) {
                 PropertyVerifier.checkChannelProperties(channel);
-                PropertyVerifier.checkConnectorProperties(channel, extensionController.getConnectorMetaData());
+                PropertyVerifier.checkConnectorProperties(channel, ControllerFactory.getFactory().createExtensionController().getConnectorMetaData());
                 channelController.updateChannel(channel, true);
             }
         }
