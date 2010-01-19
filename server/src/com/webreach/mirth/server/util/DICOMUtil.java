@@ -10,7 +10,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.imageio.IIOImage;
@@ -64,8 +63,8 @@ public class DICOMUtil {
         return new Base64().decode(getDICOMRawData(message).getBytes());
     }
 
-    public static String mergeHeaderAttachments(MessageObject message, List<Attachment> attachments) throws IOException, SerializerException {
-        ArrayList<byte[]> images = new ArrayList();
+    public static String mergeHeaderAttachments(MessageObject message, List<Attachment> attachments) throws SerializerException {
+        ArrayList<byte[]> images = new ArrayList<byte[]>();
         Base64 base64 = new Base64();
         for (Attachment attach : attachments) {
             images.add(base64.decode(attach.getData()));
@@ -142,17 +141,16 @@ public class DICOMUtil {
         if (imp.getProcessor().isDefaultLut())
             biType = BufferedImage.TYPE_BYTE_GRAY;
         BufferedImage bi = new BufferedImage(width, height, biType);
-        String error = null;
+        
         try {
             Graphics g = bi.createGraphics();
             g.drawImage(imp.getImage(), 0, 0, null);
             g.dispose();
-            Iterator iter = ImageIO.getImageWritersByFormatName("jpg");
-            ImageWriter writer = (ImageWriter) iter.next();
+            ImageWriter writer = ImageIO.getImageWritersByFormatName("jpg").next();
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             writer.setOutput(ImageIO.createImageOutputStream(baos));
             ImageWriteParam param = writer.getDefaultWriteParam();
-            param.setCompressionMode(param.MODE_EXPLICIT);
+            param.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
             param.setCompressionQuality(quality / 100f);
             if (quality == 100)
                 param.setSourceSubsampling(1, 1, 0, 0);
