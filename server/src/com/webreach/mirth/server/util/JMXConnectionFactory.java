@@ -45,7 +45,7 @@ public class JMXConnectionFactory {
 		String jmxUrl = "service:jmx:rmi:///jndi/rmi://localhost:" + port + "/server";
 
 		String password = PropertyLoader.getProperty(properties, "jmx.password");
-		Map environment = new HashMap<String, String>();
+		Map<String, String[]> environment = new HashMap<String, String[]>();
 		String[] credentials = { "admin", password };
 		environment.put(JMXConnector.CREDENTIALS, credentials);
 		return new JMXConnection(jmxUrl, domain, environment);

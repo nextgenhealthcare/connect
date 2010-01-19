@@ -49,7 +49,7 @@ public class JMXConnection {
 	private MBeanServerConnection jmxConnection;
 	private String domain;
 
-	public JMXConnection(String address, String domain, Map<String, String> environment) throws Exception {
+	public JMXConnection(String address, String domain, Map<String, ?> environment) throws Exception {
 		this.domain = domain;
 		JMXServiceURL url = new JMXServiceURL(address);
 		jmxConnector = JMXConnectorFactory.connect(url, environment);
