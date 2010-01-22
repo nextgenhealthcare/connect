@@ -51,7 +51,8 @@ import org.mule.umo.manager.UMOManager;
 
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.server.builders.MuleManagerBuilder;
+import com.webreach.mirth.server.builders.EngineController;
+import com.webreach.mirth.server.builders.MuleEngineController;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ChannelStatisticsController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
@@ -82,7 +83,7 @@ public class Mirth extends Thread {
     private CommandQueue commandQueue = CommandQueue.getInstance();
     
     private UMOManager umoManager = null;
-    private MuleManagerBuilder managerBuilder = new MuleManagerBuilder();
+    private EngineController managerBuilder = new MuleEngineController();
 
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
@@ -228,7 +229,7 @@ public class Mirth extends Thread {
             // TODO: delete old scripts from script table
 
             // update the manager with the new classes
-            managerBuilder.getConfiguration(channels, extensionController.getConnectorMetaData());
+            managerBuilder.deployChannels(channels, extensionController.getConnectorMetaData());
             configurationController.executeChannelDeployScripts(channelController.getChannel(null));
         } catch (Exception e) {
             logger.error("Error deploying channels.", e);
@@ -283,7 +284,7 @@ public class Mirth extends Thread {
             List<Channel> channels = channelController.getChannel(null);
             configurationController.compileScripts(channels);
             configurationController.executeGlobalDeployScript();
-            managerBuilder.loadDefaultConfiguration();
+            managerBuilder.resetConfiguration();
             deployChannels(channelController.getChannel(null));
             managerBuilder.start();
         } catch (Exception e) {

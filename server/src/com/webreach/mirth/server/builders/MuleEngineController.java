@@ -65,7 +65,7 @@ import edu.emory.mathcs.backport.java.util.Arrays;
  * @author geraldb
  * 
  */
-public class MuleManagerBuilder {
+public class MuleEngineController implements EngineController {
     private Logger logger = Logger.getLogger(this.getClass());
     private Map<String, ConnectorMetaData> transports = null;
     private JavaScriptBuilder scriptBuilder = new JavaScriptBuilder();
@@ -94,7 +94,7 @@ public class MuleManagerBuilder {
         defaultTransformers.put("HttpRequestToString", "com.webreach.mirth.server.mule.transformers.HttpRequestToString");
     }
 
-    public void loadDefaultConfiguration() throws BuilderException {
+    public void resetConfiguration() throws BuilderException {
         logger.debug("loading manager with default components");
 
         try {
@@ -163,7 +163,7 @@ public class MuleManagerBuilder {
         }
     }
 
-    public void getConfiguration(List<Channel> channels, Map<String, ConnectorMetaData> transports) throws BuilderException {
+    public void deployChannels(List<Channel> channels, Map<String, ConnectorMetaData> transports) throws BuilderException {
         this.transports = transports;
 
         if ((channels == null) || (transports == null)) {
