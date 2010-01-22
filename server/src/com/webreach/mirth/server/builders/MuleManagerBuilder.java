@@ -36,6 +36,7 @@ import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.manager.UMOManager;
 import org.mule.umo.model.UMOModel;
 import org.mule.umo.provider.UMOConnector;
+import org.mule.umo.routing.UMOOutboundRouter;
 import org.mule.umo.transformer.UMOTransformer;
 
 import com.webreach.mirth.connectors.jdbc.JdbcTransactionFactory;
@@ -70,7 +71,7 @@ public class MuleManagerBuilder {
     private JavaScriptBuilder scriptBuilder = new JavaScriptBuilder();
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private ObjectXMLSerializer objectSerializer = new ObjectXMLSerializer();
-
+    private UMOManager muleManager = MuleManager.getInstance();
     private static List<String> nonConnectorProperties = null;
     private static List<String> keysOfValuesThatAreBeans = null;
     private static Map<String, String> defaultTransformers = null;
@@ -93,16 +94,12 @@ public class MuleManagerBuilder {
         defaultTransformers.put("HttpRequestToString", "com.webreach.mirth.server.mule.transformers.HttpRequestToString");
     }
 
-    public MuleManagerBuilder() {
+    public void loadDefaultConfiguration() throws BuilderException {
+        logger.debug("loading manager with default components");
 
-    }
-
-    public void loadDefaultConfiguration(UMOManager manager) throws BuilderException {
         try {
-            logger.debug("Populating manager with default properties");
             Properties properties = PropertyLoader.loadProperties("mirth");
-
-            manager.setId("MirthConfiguration");
+            muleManager.setId("MirthConfiguration");
             MuleManager.getConfiguration().setEmbedded(true);
             MuleManager.getConfiguration().setRecoverableMode(true);
             // set the Mule working directory
@@ -113,7 +110,7 @@ public class MuleManagerBuilder {
             for (String transformerName : defaultTransformers.keySet()) {
                 UMOTransformer umoTransformer = (UMOTransformer) Class.forName(defaultTransformers.get(transformerName)).newInstance();
                 umoTransformer.setName(transformerName);
-                manager.registerTransformer(umoTransformer);
+                muleManager.registerTransformer(umoTransformer);
             }
 
             // add interceptor stack
@@ -122,7 +119,7 @@ public class MuleManagerBuilder {
             interceptors.add(new LoggingInterceptor());
             interceptors.add(new TimerInterceptor());
             stack.setInterceptors(interceptors);
-            manager.registerInterceptorStack("default", stack);
+            muleManager.registerInterceptorStack("default", stack);
 
             // add model
             UMOModel model = new SedaModel();
@@ -140,14 +137,14 @@ public class MuleManagerBuilder {
             model.registerComponent(messageSinkDescriptor);
 
             // set the model (which also initializes and starts the model)
-            manager.setModel(model);
+            muleManager.setModel(model);
 
             // add agents
             String port = PropertyLoader.getProperty(properties, "jmx.port");
             RmiRegistryAgent rmiRegistryAgent = new RmiRegistryAgent();
             rmiRegistryAgent.setName("RMI");
             rmiRegistryAgent.setServerUri("rmi://localhost:" + port);
-            manager.registerAgent(rmiRegistryAgent);
+            muleManager.registerAgent(rmiRegistryAgent);
 
             JmxAgent jmxAgent = new JmxAgent();
             jmxAgent.setName("JMX");
@@ -155,33 +152,32 @@ public class MuleManagerBuilder {
             connectorServerProperties.put("jmx.remote.jndi.rebind", "true");
             jmxAgent.setConnectorServerProperties(connectorServerProperties);
             jmxAgent.setConnectorServerUrl("service:jmx:rmi:///jndi/rmi://localhost:" + port + "/server");
-            logger.debug("JMX server URL: " +  "service:jmx:rmi:///jndi/rmi://localhost:" + port + "/server");
+            logger.debug("JMX server URL: " + "service:jmx:rmi:///jndi/rmi://localhost:" + port + "/server");
             Map<String, String> credentialsMap = new HashMap<String, String>();
             credentialsMap.put("admin", PropertyLoader.getProperty(properties, "jmx.password"));
             jmxAgent.setCredentials(credentialsMap);
-            jmxAgent.setDomain(manager.getId());
-            manager.registerAgent(jmxAgent);
+            jmxAgent.setDomain(muleManager.getId());
+            muleManager.registerAgent(jmxAgent);
         } catch (Exception e) {
             throw new BuilderException(e);
         }
     }
 
-    public void getConfiguration(UMOManager manager, List<Channel> channels, Map<String, ConnectorMetaData> transports) throws BuilderException {
+    public void getConfiguration(List<Channel> channels, Map<String, ConnectorMetaData> transports) throws BuilderException {
         this.transports = transports;
 
         if ((channels == null) || (transports == null)) {
             throw new BuilderException("Invalid channel or transport list.");
         }
 
-        // add channels
         for (Channel channel : channels) {
             if (channel.isEnabled()) {
-                registerDescriptor(manager, channel);
+                registerDescriptor(channel);
             }
         }
     }
 
-    private void registerDescriptor(UMOManager manager, Channel channel) throws BuilderException {
+    private void registerDescriptor(Channel channel) throws BuilderException {
         try {
             logger.debug("Building descriptor for channel: " + channel.getId());
             UMODescriptor descriptor = new MuleDescriptor();
@@ -197,15 +193,15 @@ public class MuleManagerBuilder {
 
             descriptor.setInitialState(initialState);
             descriptor.setExceptionListener(new ExceptionStrategy());
-            configureInboundRouter(manager, descriptor, channel);
-            configureOutboundRouter(manager, descriptor, channel);
-            manager.getModel().registerComponent(descriptor);
+            configureInboundRouter(descriptor, channel);
+            configureOutboundRouter(descriptor, channel);
+            muleManager.getModel().registerComponent(descriptor);
         } catch (Exception e) {
             throw new BuilderException(e);
         }
     }
 
-    private void configureInboundRouter(UMOManager manager, UMODescriptor descriptor, Channel channel) throws BuilderException {
+    private void configureInboundRouter(UMODescriptor descriptor, Channel channel) throws BuilderException {
         try {
             logger.debug("Building inbound router for channel: " + channel.getId() + " (" + channel.getName() + ")");
             InboundMessageRouter inboundRouter = new InboundMessageRouter();
@@ -218,7 +214,7 @@ public class MuleManagerBuilder {
             String connectorReference = channel.getId() + "_source";
 
             // add the source connector
-            UMOConnector connector = addConnector(manager, channel.getSourceConnector(), connectorReference + "_connector", channel.getId());
+            UMOConnector connector = addConnector(channel.getSourceConnector(), connectorReference + "_connector", channel.getId());
             endpoint.setConnector(connector);
 
             // if the channel is snychronous
@@ -232,11 +228,11 @@ public class MuleManagerBuilder {
             LinkedList<UMOTransformer> transformerList = null;
 
             if (transport.getTransformers() != null) {
-                transformerList = chainTransformers(manager, transport.getTransformers());
+                transformerList = chainTransformers(transport.getTransformers());
             }
 
             // 2. append the preprocessing transformer
-            UMOTransformer preprocessorTransformer = addPreprocessor(manager, channel, connectorReference + "_preprocessor");
+            UMOTransformer preprocessorTransformer = addPreprocessor(channel, connectorReference + "_preprocessor");
 
             if (!transformerList.isEmpty()) {
                 transformerList.getLast().setTransformer(preprocessorTransformer);
@@ -248,7 +244,7 @@ public class MuleManagerBuilder {
 
             // 3. finally, append the JavaScriptTransformer that does the
             // mappings
-            UMOTransformer javascriptTransformer = addTransformer(manager, channel, channel.getSourceConnector(), connectorReference + "_transformer");
+            UMOTransformer javascriptTransformer = addTransformer(channel, channel.getSourceConnector(), connectorReference + "_transformer");
             preprocessorTransformer.setTransformer(javascriptTransformer);
 
             // 4. add the transformer sequence as an attribute to the endpoint
@@ -275,7 +271,7 @@ public class MuleManagerBuilder {
         }
     }
 
-    private void configureOutboundRouter(UMOManager manager, UMODescriptor descriptor, Channel channel) throws BuilderException {
+    private void configureOutboundRouter(UMODescriptor descriptor, Channel channel) throws BuilderException {
         try {
             logger.debug("Building outbound router for channel: " + channel.getId() + " (" + channel.getName() + ")");
             FilteringMulticastingRouter fmr = new FilteringMulticastingRouter();
@@ -306,11 +302,11 @@ public class MuleManagerBuilder {
                     // add the destination connector
                     // ast: changes to get the same name for the connector and
                     String connectorName = getConnectorNameForOutputRouter(connectorReference);
-                    endpoint.setConnector(addConnector(manager, connector, connectorName, channel.getId()));
+                    endpoint.setConnector(addConnector(connector, connectorName, channel.getId()));
 
                     // 1. append the JavaScriptTransformer that does the
                     // mappings
-                    UMOTransformer javascriptTransformer = addTransformer(manager, channel, connector, connectorReference + "_transformer");
+                    UMOTransformer javascriptTransformer = addTransformer(channel, connector, connectorReference + "_transformer");
 
                     // 2. finally, append any transformers needed by the
                     // transport (ie. StringToByteArray)
@@ -318,7 +314,7 @@ public class MuleManagerBuilder {
                     LinkedList<UMOTransformer> defaultTransformerList = null;
 
                     if (transport.getTransformers() != null) {
-                        defaultTransformerList = chainTransformers(manager, transport.getTransformers());
+                        defaultTransformerList = chainTransformers(transport.getTransformers());
 
                         if (!defaultTransformerList.isEmpty()) {
                             javascriptTransformer.setTransformer(defaultTransformerList.getFirst());
@@ -364,7 +360,7 @@ public class MuleManagerBuilder {
         return channel.getId() + "_destination_" + value;
     }
 
-    private UMOTransformer addTransformer(UMOManager manager, Channel channel, Connector connector, String name) throws BuilderException {
+    private UMOTransformer addTransformer(Channel channel, Connector connector, String name) throws BuilderException {
         try {
             Transformer transformer = connector.getTransformer();
             logger.debug("Adding transformer: " + name);
@@ -417,14 +413,14 @@ public class MuleManagerBuilder {
             }
 
             BeanUtils.populate(umoTransformer, beanProperties);
-            manager.registerTransformer(umoTransformer);
+            muleManager.registerTransformer(umoTransformer);
             return umoTransformer;
         } catch (Exception e) {
             throw new BuilderException(e);
         }
     }
 
-    private UMOConnector addConnector(UMOManager manager, Connector connector, String name, String channelId) throws BuilderException {
+    private UMOConnector addConnector(Connector connector, String name, String channelId) throws BuilderException {
         try {
             logger.debug("Adding connector: " + name);
             // get the transport associated with this class from the transport
@@ -459,14 +455,14 @@ public class MuleManagerBuilder {
             BeanUtils.populate(umoConnector, beanProperties);
 
             // add the connector to the manager
-            manager.registerConnector(umoConnector);
+            muleManager.registerConnector(umoConnector);
             return umoConnector;
         } catch (Exception e) {
             throw new BuilderException(e);
         }
     }
 
-    private UMOTransformer addPreprocessor(UMOManager manager, Channel channel, String name) throws BuilderException {
+    private UMOTransformer addPreprocessor(Channel channel, String name) throws BuilderException {
         try {
             logger.debug("Adding transformer (preprocessor): " + name);
             UMOTransformer umoTransformer = (UMOTransformer) Class.forName("com.webreach.mirth.server.mule.transformers.JavaScriptPreprocessor").newInstance();
@@ -476,7 +472,7 @@ public class MuleManagerBuilder {
             PropertyUtils.setSimpleProperty(umoTransformer, "preprocessingScriptId", preprocessingScriptId);
 
             // add the transformer to the manager
-            manager.registerTransformer(umoTransformer);
+            muleManager.registerTransformer(umoTransformer);
             return umoTransformer;
         } catch (Exception e) {
             throw new BuilderException(e);
@@ -509,7 +505,7 @@ public class MuleManagerBuilder {
         return builder.toString();
     }
 
-    private LinkedList<UMOTransformer> chainTransformers(UMOManager manager, String transformers) throws Exception {
+    private LinkedList<UMOTransformer> chainTransformers(String transformers) throws Exception {
         LinkedList<UMOTransformer> transformerList = new LinkedList<UMOTransformer>();
 
         if (transformers.length() != 0) {
@@ -518,7 +514,7 @@ public class MuleManagerBuilder {
 
             // turn the array of class names into an array of actual Objects
             for (int i = 0; i < transformerClassArray.length; i++) {
-                transformerArray[i] = (UMOTransformer) manager.getTransformers().get(transformerClassArray[i]);
+                transformerArray[i] = (UMOTransformer) muleManager.getTransformers().get(transformerClassArray[i]);
             }
 
             // chain the transformers (except for the last one)
@@ -536,17 +532,48 @@ public class MuleManagerBuilder {
 
         return transformerList;
     }
+    
+    public void unregisterChannel(String channelId) throws Exception {
+        UMODescriptor descriptor = muleManager.getModel().getDescriptor(channelId); 
+        muleManager.getModel().unregisterComponent(descriptor);
+        unregisterTransformers(descriptor.getInboundRouter().getEndpoints());
+        UMOOutboundRouter outboundRouter = (UMOOutboundRouter) descriptor.getOutboundRouter().getRouters().iterator().next();
+        unregisterTransformers(outboundRouter.getEndpoints());
+    }
 
-    public static void unregisterTransformers(UMOManager manager, List<UMOEndpoint> endpoints) throws Exception {
+    private void unregisterTransformers(List<UMOEndpoint> endpoints) throws Exception {
         for (UMOEndpoint endpoint : endpoints) {
-            System.out.println("Unregistering connector: " + endpoint.getConnector().getName());
-            manager.unregisterConnector(endpoint.getConnector().getName());
+            logger.debug("unregistering connector: " + endpoint.getConnector().getName());
+            muleManager.unregisterConnector(endpoint.getConnector().getName());
             UMOTransformer transformer = endpoint.getTransformer();
 
             while ((transformer != null) && !defaultTransformers.keySet().contains(transformer.getName())) {
-                System.out.println("Unregistering transformer: " + transformer.getName());
-                manager.unregisterTransformer(transformer.getName());
+                logger.debug("Unregistering transformer: " + transformer.getName());
+                muleManager.unregisterTransformer(transformer.getName());
                 transformer = transformer.getTransformer();
+            }
+        }
+    }
+
+    public boolean isChannelRegistered(String channelId) throws Exception {
+        return muleManager.getModel().isComponentRegistered(channelId);
+    }
+    
+    public void start() throws Exception {
+        muleManager.start();
+    }
+    
+    public void stop() throws Exception {
+        if (muleManager != null) {
+            try {
+                if (muleManager.isStarted()) {
+                    muleManager.stop();
+                }
+            } catch (Exception e) {
+                throw e;
+            } finally {
+                logger.debug("disposing mule instance");
+                muleManager.dispose();
             }
         }
     }

@@ -47,10 +47,7 @@ import org.mortbay.http.SocketListener;
 import org.mortbay.http.SslListener;
 import org.mortbay.http.handler.ResourceHandler;
 import org.mortbay.jetty.servlet.ServletHandler;
-import org.mule.MuleManager;
-import org.mule.impl.MuleDescriptor;
 import org.mule.umo.manager.UMOManager;
-import org.mule.umo.routing.UMOOutboundRouter;
 
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.SystemEvent;
@@ -80,10 +77,12 @@ public class Mirth extends Thread {
     private boolean running = false;
     private Properties mirthProperties = null;
     private Properties versionProperties = null;
-    private UMOManager umoManager = null;
     private HttpServer httpServer = null;
     private HttpServer servletContainer = null;
     private CommandQueue commandQueue = CommandQueue.getInstance();
+    
+    private UMOManager umoManager = null;
+    private MuleManagerBuilder managerBuilder = new MuleManagerBuilder();
 
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
@@ -220,22 +219,16 @@ public class Mirth extends Thread {
         try {
             // unregister existing channels
             for (Channel channel : channels) {
-                MuleDescriptor oldDescriptor = (MuleDescriptor) umoManager.getModel().getDescriptor(channel.getId());
-
-                if (oldDescriptor != null) {
+                if (managerBuilder.isChannelRegistered(channel.getId())) {
                     channelController.getChannelCache().remove(channel);
-                    umoManager.getModel().unregisterComponent(oldDescriptor);
-                    MuleManagerBuilder.unregisterTransformers(umoManager, oldDescriptor.getInboundRouter().getEndpoints());
-                    UMOOutboundRouter outboundRouter = (UMOOutboundRouter) oldDescriptor.getOutboundRouter().getRouters().iterator().next();
-                    MuleManagerBuilder.unregisterTransformers(umoManager, outboundRouter.getEndpoints());
+                    managerBuilder.unregisterChannel(channel.getId());
                 }
             }
 
             // TODO: delete old scripts from script table
 
             // update the manager with the new classes
-            MuleManagerBuilder managerBuilder = new MuleManagerBuilder();
-            managerBuilder.getConfiguration(umoManager, channels, extensionController.getConnectorMetaData());
+            managerBuilder.getConfiguration(channels, extensionController.getConnectorMetaData());
             configurationController.executeChannelDeployScripts(channelController.getChannel(null));
         } catch (Exception e) {
             logger.error("Error deploying channels.", e);
@@ -245,9 +238,8 @@ public class Mirth extends Thread {
     private void undeployChannels(List<String> channelIds) {
         try {
             for (String channelId : channelIds) {
-                MuleDescriptor oldDescriptor = (MuleDescriptor) umoManager.getModel().getDescriptor(channelId);
                 channelController.getChannelCache().remove(channelController.getChannelCache().get(channelId));
-                umoManager.getModel().unregisterComponent(oldDescriptor);
+                managerBuilder.unregisterChannel(channelId);
             }
 
             // TODO: delete old scripts from script table
@@ -291,11 +283,9 @@ public class Mirth extends Thread {
             List<Channel> channels = channelController.getChannel(null);
             configurationController.compileScripts(channels);
             configurationController.executeGlobalDeployScript();
-            umoManager = MuleManager.getInstance();
-            MuleManagerBuilder managerBuilder = new MuleManagerBuilder();
-            managerBuilder.loadDefaultConfiguration(umoManager);
+            managerBuilder.loadDefaultConfiguration();
             deployChannels(channelController.getChannel(null));
-            umoManager.start();
+            managerBuilder.start();
         } catch (Exception e) {
             logger.error("Error starting engine.", e);
             // if deploy fails, log to system events
@@ -315,19 +305,12 @@ public class Mirth extends Thread {
     private void stopMule() {
         logger.debug("stopping mule");
 
-        if (umoManager != null) {
-            try {
-                if (umoManager.isStarted()) {
-                    configurationController.executeChannelShutdownScripts(channelController.getChannel(null));
-                    configurationController.executeGlobalShutdownScript();
-                    umoManager.stop();
-                }
-            } catch (Exception e) {
-                logger.error(e);
-            } finally {
-                logger.debug("disposing mule instance");
-                umoManager.dispose();
-            }
+        try {
+            managerBuilder.stop();
+            configurationController.executeChannelShutdownScripts(channelController.getChannel(null));
+            configurationController.executeGlobalShutdownScript();
+        } catch (Exception e) {
+            logger.error(e);
         }
     }
 
