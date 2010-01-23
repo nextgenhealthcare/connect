@@ -334,11 +334,11 @@ public class MuleEngineController implements EngineController {
 
     // ast: to sincronize the name of the connector for the output router and
     // the response router
-    public String getConnectorNameForOutputRouter(String connectorReference) {
+    private String getConnectorNameForOutputRouter(String connectorReference) {
         return connectorReference + "_connector";
     }
 
-    public String getConnectorReferenceForOutputRouter(Channel channel, String value) {
+    private String getConnectorReferenceForOutputRouter(Channel channel, String value) {
         return channel.getId() + "_destination_" + value;
     }
 
@@ -347,7 +347,7 @@ public class MuleEngineController implements EngineController {
         logger.debug("Adding transformer: " + name);
         UMOTransformer umoTransformer = (UMOTransformer) Class.forName("com.webreach.mirth.server.mule.transformers.JavaScriptTransformer").newInstance();
         umoTransformer.setName(name);
-        Map<Object, Object> beanProperties = new HashMap<Object, Object>();
+        Map<String, Object> beanProperties = new HashMap<String, Object>();
         beanProperties.put("channelId", channel.getId());
         beanProperties.put("inboundProtocol", transformer.getInboundProtocol().toString());
         beanProperties.put("outboundProtocol", transformer.getOutboundProtocol().toString());
