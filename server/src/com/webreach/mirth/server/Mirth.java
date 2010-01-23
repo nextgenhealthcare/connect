@@ -51,17 +51,17 @@ import org.mule.umo.manager.UMOManager;
 
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.server.builders.EngineController;
-import com.webreach.mirth.server.builders.MuleEngineController;
 import com.webreach.mirth.server.controllers.ChannelController;
 import com.webreach.mirth.server.controllers.ChannelStatisticsController;
 import com.webreach.mirth.server.controllers.ConfigurationController;
 import com.webreach.mirth.server.controllers.ControllerFactory;
+import com.webreach.mirth.server.controllers.EngineController;
 import com.webreach.mirth.server.controllers.EventController;
 import com.webreach.mirth.server.controllers.ExtensionController;
 import com.webreach.mirth.server.controllers.MessageObjectController;
 import com.webreach.mirth.server.controllers.MigrationController;
 import com.webreach.mirth.server.controllers.MonitoringController;
+import com.webreach.mirth.server.controllers.MuleEngineController;
 import com.webreach.mirth.server.controllers.UserController;
 import com.webreach.mirth.server.util.GlobalVariableStore;
 import com.webreach.mirth.server.util.StackTracePrinter;
@@ -285,7 +285,7 @@ public class Mirth extends Thread {
             configurationController.compileScripts(channels);
             configurationController.executeGlobalDeployScript();
             managerBuilder.resetConfiguration();
-            deployChannels(channelController.getChannel(null));
+            deployChannels(channels);
             managerBuilder.start();
         } catch (Exception e) {
             logger.error("Error starting engine.", e);
