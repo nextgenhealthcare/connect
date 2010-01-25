@@ -39,8 +39,6 @@ import com.webreach.mirth.model.ServerConfiguration;
 /**
  * The ConfigurationController provides access to the Mirth configuration.
  * 
- * @author geraldb
- * 
  */
 public abstract class ConfigurationController extends Controller {
     public static final String GLOBAL_POSTPROCESSOR_KEY = "Postprocessor";
@@ -60,7 +58,7 @@ public abstract class ConfigurationController extends Controller {
 
     public abstract void shutdown();
     
-    public abstract void deployAllChannels() throws ControllerException;
+    public abstract void redeployAllChannels() throws ControllerException;
 
     public abstract void deployChannels(List<Channel> channels) throws ControllerException;
     

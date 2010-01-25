@@ -43,8 +43,8 @@ public class ConfigurationServlet extends MirthServlet {
                 } else if (operation.equals("getGuid")) {
                     response.setContentType("text/plain");
                     out.print(configurationController.getGuid());
-                } else if (operation.equals("deployAllChannels")) {
-                    configurationController.deployAllChannels();
+                } else if (operation.equals("redeployAllChannels")) {
+                    configurationController.redeployAllChannels();
                 } else if (operation.equals("deployChannels")) {
                     List<Channel> channels = (List<Channel>) serializer.fromXML(request.getParameter("channels"));
                     configurationController.deployChannels(channels);

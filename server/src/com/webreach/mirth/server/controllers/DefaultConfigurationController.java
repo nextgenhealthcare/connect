@@ -70,8 +70,6 @@ import com.webreach.mirth.util.PropertyVerifier;
 /**
  * The ConfigurationController provides access to the Mirth configuration.
  * 
- * @author geraldb
- * 
  */
 public class DefaultConfigurationController extends ConfigurationController {
     private static final String PROPERTIES_CORE = "core";
@@ -206,7 +204,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         return UUID.randomUUID().toString();
     }
     
-    public void deployAllChannels() throws ControllerException {
+    public void redeployAllChannels() throws ControllerException {
         logger.debug("deploying all channels");
         
         // undeploy all running channels

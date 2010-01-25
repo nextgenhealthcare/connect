@@ -88,7 +88,7 @@ public class DeployTask extends AbstractMirthTask {
 			}
 		}
 
-		client.deployAllChannels();
+		client.redeployAllChannels();
 
 		if (hasChannels) {
 			try {

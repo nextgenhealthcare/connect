@@ -507,9 +507,9 @@ public class Client {
      * 
      * @throws ClientException
      */
-    public synchronized void deployAllChannels() throws ClientException {
+    public synchronized void redeployAllChannels() throws ClientException {
         logger.debug("deploying channels");
-        NameValuePair[] params = { new NameValuePair("op", "deployAllChannels") };
+        NameValuePair[] params = { new NameValuePair("op", "redeployAllChannels") };
         serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
     }
 

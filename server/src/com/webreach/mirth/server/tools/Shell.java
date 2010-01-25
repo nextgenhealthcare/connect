@@ -577,7 +577,7 @@ public class Shell {
                 break;
             }
         }
-        client.deployAllChannels();
+        client.redeployAllChannels();
         if (hasChannels) {
             try {
                 Thread.sleep(500);
