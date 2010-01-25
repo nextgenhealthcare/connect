@@ -798,7 +798,7 @@ public class WebServiceListener extends ConnectorClass
         parent.enableSave();
        
         if (credentialsTable.getModel().getRowCount() == 0) {
-            credentialsTable.deselectRows();
+            credentialsTable.clearSelection();
             deleteButton.setEnabled(false);
         } else {
             credentialsTable.setRowSelectionInterval(newViewIndex, newViewIndex);

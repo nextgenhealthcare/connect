@@ -1,6 +1,7 @@
 package com.webreach.mirth.plugins.serverlog;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.PlatformUI;
@@ -86,7 +87,7 @@ public class ServerLogClient extends DashboardPanelPlugin
     }
 
     // used for setting actions to be called for updating when there is a status selected
-    public void update(ChannelStatus status) {
+    public void update(List<ChannelStatus> statuses) {
 
         // Mirth Server Log is irrelevant with Channel Status.  so just call the default update() method.
         update();

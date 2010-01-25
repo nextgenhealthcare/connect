@@ -238,7 +238,7 @@ public class UserPanel extends javax.swing.JPanel
      */
     public boolean setSelectedUser(String userName)
     {
-        int columnNumber = usersTable.getColumnNumber(USERNAME_COLUMN_NAME);
+        int columnNumber = usersTable.getColumnViewIndex(USERNAME_COLUMN_NAME);
         for (int i = 0; i < parent.users.size(); i++)
         {
             if (userName.equals((String) (((CellData) usersTable.getValueAt(i, columnNumber)).getText())))
@@ -256,7 +256,7 @@ public class UserPanel extends javax.swing.JPanel
      */
     public int getUserIndex()
     {
-        int columnNumber = usersTable.getColumnNumber(USERNAME_COLUMN_NAME);
+        int columnNumber = usersTable.getColumnViewIndex(USERNAME_COLUMN_NAME);
 
         if (usersTable.getSelectedRow() != -1)
         {
@@ -275,7 +275,7 @@ public class UserPanel extends javax.swing.JPanel
 
     public void deselectRows()
     {
-        usersTable.deselectRows();
+        usersTable.clearSelection();
         parent.setVisibleTasks(parent.userTasks, parent.userPopupMenu, 2, -1, false);
     }
 

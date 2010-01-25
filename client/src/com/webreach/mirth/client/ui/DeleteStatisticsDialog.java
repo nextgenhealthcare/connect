@@ -27,22 +27,23 @@ package com.webreach.mirth.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.List;
+
+import com.webreach.mirth.model.ChannelStatus;
 
 /** Creates the About Mirth dialog. The content is loaded from about.txt. */
 public class DeleteStatisticsDialog extends javax.swing.JDialog
 {
     private Frame parent;
-    private int statusToClear;
-    private boolean clearAll;
+    private List<ChannelStatus> statusToClear;
     /**
      * Creates new form ViewContentDialog
      */
-    public DeleteStatisticsDialog(int statusToClear, boolean clearAll)
+    public DeleteStatisticsDialog(List<ChannelStatus> statusToClear)
     {
         super(PlatformUI.MIRTH_FRAME);
         this.parent = PlatformUI.MIRTH_FRAME;
         this.statusToClear = statusToClear;
-        this.clearAll = clearAll;
         initComponents();
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setModal(true);
@@ -220,11 +221,8 @@ public class DeleteStatisticsDialog extends javax.swing.JDialog
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_okButtonActionPerformed
     {//GEN-HEADEREND:event_okButtonActionPerformed
-        if(!clearAll && (deleteReceived.isSelected() || deleteFiltered.isSelected() || deleteQueued.isSelected() || deleteSent.isSelected() || deleteErrored.isSelected() || deleteAlerted.isSelected()))
+        if(deleteReceived.isSelected() || deleteFiltered.isSelected() || deleteQueued.isSelected() || deleteSent.isSelected() || deleteErrored.isSelected() || deleteAlerted.isSelected())
             parent.clearStats(statusToClear, deleteReceived.isSelected(), deleteFiltered.isSelected(), deleteQueued.isSelected(), deleteSent.isSelected(), deleteErrored.isSelected(), deleteAlerted.isSelected());
-        else if(clearAll && (deleteReceived.isSelected() || deleteFiltered.isSelected() || deleteQueued.isSelected() || deleteSent.isSelected() || deleteErrored.isSelected() || deleteAlerted.isSelected()))
-            parent.clearStatsAllChannels(deleteReceived.isSelected(), deleteFiltered.isSelected(), deleteQueued.isSelected(), deleteSent.isSelected(), deleteErrored.isSelected(), deleteAlerted.isSelected());
-        
         this.dispose();
     }//GEN-LAST:event_okButtonActionPerformed
 

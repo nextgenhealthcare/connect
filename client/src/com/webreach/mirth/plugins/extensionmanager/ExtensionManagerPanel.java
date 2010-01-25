@@ -330,11 +330,11 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
         
         if (row >= 0 && row < loadedConnectorsTable.getRowCount())
         {
-            loadedPluginsTable.deselectRows();
+            loadedPluginsTable.clearSelection();
             
             parent.setVisibleTasks(3, -1, true);
             
-            int columnNumber = loadedConnectorsTable.getColumnNumber(PLUGIN_STATUS_COLUMN_NAME);
+            int columnNumber = loadedConnectorsTable.getColumnViewIndex(PLUGIN_STATUS_COLUMN_NAME);
             if (((CellData) loadedConnectorsTable.getValueAt(row, columnNumber)).getText().equals(ENABLED_STATUS))
                 parent.setVisibleTasks(3, 3, false);
             else
@@ -363,7 +363,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
     
     public void deselectConnectorRows()
     {
-        loadedConnectorsTable.deselectRows();
+        loadedConnectorsTable.clearSelection();
         parent.setVisibleTasks(3, -1, false);
     }
     
@@ -517,11 +517,11 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
         
         if (row >= 0 && row < loadedPluginsTable.getRowCount())
         {
-            loadedConnectorsTable.deselectRows();
+            loadedConnectorsTable.clearSelection();
             
             parent.setVisibleTasks(3, -1, true);
             
-            int columnNumber = loadedPluginsTable.getColumnNumber(PLUGIN_STATUS_COLUMN_NAME);
+            int columnNumber = loadedPluginsTable.getColumnViewIndex(PLUGIN_STATUS_COLUMN_NAME);
             if (((CellData) loadedPluginsTable.getValueAt(row, columnNumber)).getText().equals(ENABLED_STATUS))
                 parent.setVisibleTasks(3, 3, false);
             else
@@ -550,7 +550,7 @@ public class ExtensionManagerPanel extends javax.swing.JPanel
     
     public void deselectPluginRows()
     {
-        loadedPluginsTable.deselectRows();
+        loadedPluginsTable.clearSelection();
         parent.setVisibleTasks(3, -1, false);
     }
     

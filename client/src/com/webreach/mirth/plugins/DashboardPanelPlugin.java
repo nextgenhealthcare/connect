@@ -10,6 +10,7 @@
 package com.webreach.mirth.plugins;
 
 import java.awt.Component;
+import java.util.List;
 import java.util.Properties;
 
 import javax.swing.JComponent;
@@ -18,10 +19,6 @@ import javax.swing.JPanel;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.model.ChannelStatus;
 
-/**
- *
- * @author brendanh
- */
 public abstract class DashboardPanelPlugin extends ClientPlugin
 {
     private JComponent component = new JPanel();
@@ -90,7 +87,7 @@ public abstract class DashboardPanelPlugin extends ClientPlugin
     public abstract void update();
     
     // used for setting actions to be called for updating when there is a status selected
-    public abstract void update(ChannelStatus status);
+    public abstract void update(List<ChannelStatus> statuses);
     
     public Object invoke (String method, Object object) throws ClientException
     {

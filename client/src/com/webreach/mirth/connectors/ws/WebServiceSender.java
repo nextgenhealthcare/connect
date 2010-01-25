@@ -1064,7 +1064,7 @@ private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     parent.enableSave();
    
     if (attachmentsTable.getModel().getRowCount() == 0) {
-        attachmentsTable.deselectRows();
+        attachmentsTable.clearSelection();
         deleteButton.setEnabled(false);
     } else {
         attachmentsTable.setRowSelectionInterval(newViewIndex, newViewIndex);
@@ -1201,7 +1201,7 @@ private void useMtomNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GE
     
     stopCellEditing();
     attachmentsTable.setRowSelectionAllowed(false);
-    attachmentsTable.deselectRows();
+    attachmentsTable.clearSelection();
 }//GEN-LAST:event_useMtomNoRadioActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

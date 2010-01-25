@@ -10,6 +10,7 @@
 package com.webreach.mirth.plugins.dashboardstatus;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.webreach.mirth.client.core.ClientException;
@@ -17,10 +18,6 @@ import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.plugins.DashboardPanelPlugin;
 
-/**
- *
- * @author chrisr
- */
 public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
 
     private DashboardConnectorStatusPanel dcsp;
@@ -97,8 +94,14 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
 
        
     // used for setting actions to be called for updating when there is a status selected    
-    public void update(ChannelStatus status) {
+    public void update(List<ChannelStatus> statuses) {
 
+        // TODO: Temporary hack until the dashboard connector status client can monitor multiple statuses
+        ChannelStatus status = null;
+        if (statuses.size() > 0) {
+            status = statuses.get(0);
+        }
+        
         boolean channelsDeployed = false;
         try {
             channelsDeployed = (Boolean) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, CHANNELS_DEPLOYED, null);
