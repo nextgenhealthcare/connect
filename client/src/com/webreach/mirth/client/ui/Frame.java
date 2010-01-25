@@ -1889,7 +1889,7 @@ public class Frame extends JXFrame
             isEditingChannel = true;
         
         List<Channel> selectedChannels = channelPanel.getSelectedChannels();
-        if (channels.size() > 1) {
+        if (selectedChannels.size() > 1) {
             JOptionPane.showMessageDialog(Frame.this, "This operation can only be performed on a single Channel.");
         } else if (selectedChannels.size() == 0) {
             JOptionPane.showMessageDialog(Frame.this, "Channel no longer exists.");
