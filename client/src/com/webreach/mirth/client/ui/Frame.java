@@ -690,10 +690,10 @@ public class Frame extends JXFrame
         channelTasks.setFocusable(false);
 
         addTask("doRefreshChannels", "Refresh", "Refresh the list of channels.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_refresh.png")), channelTasks, channelPopupMenu);
-        addTask("doDeployAll", "Deploy All", "Deploy all currently enabled channels.", "A", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_rotate_clockwise.png")), channelTasks, channelPopupMenu);
-        addTask("doDeployChannel", "Deploy Channel", "Deploys the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/sport_8ball.png")), channelTasks, channelPopupMenu);
-        addTask("doEditGlobalScripts", "Edit Global Scripts", "Edit scripts that are not channel specific.", "G", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_form_edit.png")), channelTasks, channelPopupMenu);
-        addTask("doEditCodeTemplates", "Edit Code Templates", "Create and manage templates to be used in JavaScript throughout Mirth.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_form_edit.png")), channelTasks, channelPopupMenu);
+        addTask("doRedeployAll", "Redeploy All", "Undeploy all channels and deploy all currently enabled channels.", "A", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_rotate_clockwise.png")), channelTasks, channelPopupMenu);
+        addTask("doDeployChannel", "Deploy Channel", "Deploys the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_redo.png")), channelTasks, channelPopupMenu);
+        addTask("doEditGlobalScripts", "Edit Global Scripts", "Edit scripts that are not channel specific.", "G", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/script_edit.png")), channelTasks, channelPopupMenu);
+        addTask("doEditCodeTemplates", "Edit Code Templates", "Create and manage templates to be used in JavaScript throughout Mirth.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/page_edit.png")), channelTasks, channelPopupMenu);
         addTask("doNewChannel", "New Channel", "Create a new channel.", "N", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_form_add.png")), channelTasks, channelPopupMenu);
         addTask("doImport", "Import Channel", "Import a channel from an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/report_go.png")), channelTasks, channelPopupMenu);
         addTask("doExportAll", "Export All Channels", "Export all of the channels to XML files.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/report_disk.png")), channelTasks, channelPopupMenu);
@@ -730,8 +730,8 @@ public class Frame extends JXFrame
         addTask("doDisableDestination", "Disable Destination", "Disable the currently selected destination.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/control_stop_blue.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doMoveDestinationUp", "Move Dest. Up", "Move the currently selected destination up.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_up.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doMoveDestinationDown", "Move Dest. Down", "Move the currently selected destination down.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_down.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doEditFilter", UIConstants.EDIT_FILTER, "Edit the filter for the currently selected destination.", "F", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_edit.png")), channelEditTasks, channelEditPopupMenu);
-        addTask("doEditTransformer", UIConstants.EDIT_TRANSFORMER, "Edit the transformer for the currently selected destination.", "T", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_edit.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doEditFilter", UIConstants.EDIT_FILTER, "Edit the filter for the currently selected destination.", "F", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/table_edit.png")), channelEditTasks, channelEditPopupMenu);
+        addTask("doEditTransformer", UIConstants.EDIT_TRANSFORMER, "Edit the transformer for the currently selected destination.", "T", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/table_edit.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doImportConnector", "Import Connector", "Import the currently displayed connector from an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/report_go.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doExportConnector", "Export Connector", "Export the currently displayed connector to an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/report_disk.png")), channelEditTasks, channelEditPopupMenu);
         addTask("doExport", "Export Channel", "Export the currently selected channel to an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/report_disk.png")), channelEditTasks, channelEditPopupMenu);
@@ -2801,7 +2801,7 @@ public class Frame extends JXFrame
             userPanel.setSelectedUser(userName);
     }
 
-    public void doDeployAll()
+    public void doRedeployAll()
     {
         setWorking("Deploying channels...", true);
         dashboardPanel.deselectRows();
