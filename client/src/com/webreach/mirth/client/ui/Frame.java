@@ -2812,7 +2812,7 @@ public class Frame extends JXFrame
             {
                 try
                 {
-                    mirthClient.deployAllChannels();
+                    mirthClient.redeployAllChannels();
                 }
                 catch (ClientException e)
                 {
