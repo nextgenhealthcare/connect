@@ -640,17 +640,7 @@
 			<fileset file="${basedir}/mirth-client.jnlp" />
 			<fileset file="${basedir}/keystore" />
 
-			<!-- windows service files -->
-			<fileset file="${basedir}/InstallMirthWrapper-NT.bat" />
-			<fileset file="${basedir}/UninstallMirthWrapper-NT.bat" />
-			<fileset file="${basedir}/StartMirthWrapper-NT.bat" />
-			<fileset file="${basedir}/StopMirthWrapper-NT.bat" />
-
 			<!-- executables -->
-			<fileset file="${basedir}/wrapper-windows-x86-32.exe" />
-			<fileset file="${basedir}/mirth-daemon" />
-			<fileset file="${basedir}/wrapper-linux-x86-32" />
-			<fileset file="${basedir}/wrapper-linux-x86-64" />
 			<fileset file="${basedir}/mirth-client-core.jar" />
 			<fileset file="${basedir}/mirth-manager.jar" />
 
@@ -821,11 +811,7 @@
 				<exclude name="uninstall.ico" />
 				<exclude name="UninstallMirth-NT.bat" />
 				<exclude name="upgrade.xml" />
-				<exclude name="wrapper-windows-x86-32.exe" />
-				<exclude name="wrapper-linux-x86-32" />
-				<exclude name="wrapper-linux-x86-64" />
 				<exclude name="source/**" />
-				<exclude name="conf/wrapper.conf" />
 			</fileset>
 		</copy>
 		<mkdir dir="${dist}/mirth.sar/META-INF" />
