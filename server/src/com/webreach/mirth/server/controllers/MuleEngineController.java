@@ -520,7 +520,6 @@ public class MuleEngineController implements EngineController {
         if (!defaultTransformers.keySet().contains(transformer.getName())) {
             logger.debug("unregistering transformer: " + transformer.getName());
             muleManager.unregisterTransformer(transformer.getName());
-            transformer = transformer.getTransformer();
         }
     }
 
