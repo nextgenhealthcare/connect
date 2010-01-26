@@ -159,15 +159,11 @@ public class MuleEngineController implements EngineController {
             throw new Exception("Invalid channel or transport list.");
         }
 
-        jmxAgent.unregisterAll();
-        
         for (Channel channel : channels) {
             if (channel.isEnabled()) {
                 registerDescriptor(channel);
             }
         }
-        
-        jmxAgent.registerAll();
     }
 
     private void registerDescriptor(Channel channel) throws Exception {
