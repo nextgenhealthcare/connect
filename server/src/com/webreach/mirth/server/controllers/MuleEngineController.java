@@ -63,6 +63,7 @@ public class MuleEngineController implements EngineController {
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private ObjectXMLSerializer objectSerializer = new ObjectXMLSerializer();
     private UMOManager muleManager = MuleManager.getInstance();
+    private JmxAgent jmxAgent = null; 
     private static List<String> nonConnectorProperties = null;
     private static List<String> keysOfValuesThatAreBeans = null;
     private static Map<String, String> defaultTransformers = null;
@@ -71,8 +72,8 @@ public class MuleEngineController implements EngineController {
         // list of all properties which should not be appended to the
         // connector
         nonConnectorProperties = Arrays.asList(new String[] { "host", "port", "DataType" });
-        keysOfValuesThatAreBeans = Arrays.asList(new String[] { "connectionFactoryProperties", "requestVariables", "headerVariables", "envelopeProperties", "attachmentNames", "attachmentContents", "attachmentTypes", "traits" });
-
+        keysOfValuesThatAreBeans = Arrays.asList(new String[] { "connectionFactoryProperties", "requestVariables", "headerVariables", "envelopeProperties", "attachmentNames", "attachmentContents", "attachmentTypes", "traits", "dispatcherAttachmentNames", "dispatcherAttachmentContents", "dispatcherAttachmentTypes", "requestParamsName", "requestParamsKey", "requestParamsValue", "assertionParamsKey", "assertionParamsValue", "receiverUsernames", "receiverPasswords" });
+        
         // add default transformers
         defaultTransformers = new HashMap<String, String>();
         defaultTransformers.put("ByteArrayToString", "org.mule.transformers.simple.ByteArrayToString");
@@ -92,6 +93,7 @@ public class MuleEngineController implements EngineController {
         muleManager.setId("MirthConfiguration");
         MuleManager.getConfiguration().setEmbedded(true);
         MuleManager.getConfiguration().setRecoverableMode(true);
+        MuleManager.getConfiguration().setClientMode(false);
         // set the Mule working directory
         String muleQueue = PropertyLoader.getProperty(properties, "mule.queue");
         muleQueue = StringUtils.replace(muleQueue, "${mirthHomeDir}", ControllerFactory.getFactory().createConfigurationController().getBaseDir());
@@ -136,7 +138,7 @@ public class MuleEngineController implements EngineController {
         rmiRegistryAgent.setServerUri("rmi://localhost:" + port);
         muleManager.registerAgent(rmiRegistryAgent);
 
-        JmxAgent jmxAgent = new JmxAgent();
+        jmxAgent = new JmxAgent();
         jmxAgent.setName("JMX");
         Map<String, String> connectorServerProperties = new HashMap<String, String>();
         connectorServerProperties.put("jmx.remote.jndi.rebind", "true");
@@ -157,11 +159,15 @@ public class MuleEngineController implements EngineController {
             throw new Exception("Invalid channel or transport list.");
         }
 
+        jmxAgent.unregisterAll();
+        
         for (Channel channel : channels) {
             if (channel.isEnabled()) {
                 registerDescriptor(channel);
             }
         }
+        
+        jmxAgent.registerAll();
     }
 
     private void registerDescriptor(Channel channel) throws Exception {
@@ -430,7 +436,6 @@ public class MuleEngineController implements EngineController {
     }
 
     private UMOTransformer registerPreprocessor(Channel channel, String name) throws Exception {
-        logger.debug("registering transformer (preprocessor): " + name);
         UMOTransformer umoTransformer = (UMOTransformer) Class.forName("com.webreach.mirth.server.mule.transformers.JavaScriptPreprocessor").newInstance();
         umoTransformer.setName(name);
         String preprocessingScriptId = UUIDGenerator.getUUID();
@@ -511,11 +516,11 @@ public class MuleEngineController implements EngineController {
                 logger.debug("unregistering connector: " + endpoint.getEndpointURI());
                 muleManager.unregisterConnector(endpoint.getConnector().getName());
             }
-            
+
             unregisterTransformer(endpoint.getTransformer());
         }
     }
-    
+
     private void unregisterTransformer(UMOTransformer transformer) throws Exception {
         if (!defaultTransformers.keySet().contains(transformer.getName())) {
             logger.debug("unregistering transformer: " + transformer.getName());
@@ -528,7 +533,7 @@ public class MuleEngineController implements EngineController {
     }
 
     public void start() throws Exception {
-        logger.error("starting mule engine");
+        logger.debug("starting mule engine");
         muleManager.start();
     }
 
