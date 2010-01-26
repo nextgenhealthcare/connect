@@ -6,6 +6,7 @@
 	<classpathentry kind="lib" path="lib/custom/jtds-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/custom/ojdbc14.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="lib/wrapper.jar"/>
 	<classpathentry kind="lib" path="lib/mule/activeio-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/mule/antlr-runtime.jar"/>
 	<classpathentry kind="lib" path="lib/mule/dom4j-1.4.jar"/>
