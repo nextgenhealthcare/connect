@@ -56,13 +56,6 @@ import com.webreach.mirth.util.PropertyLoader;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 
-/**
- * A MuleManagerBuilder is used to generate a MuleManager based on the current
- * internal Channel configuration.
- * 
- * @author geraldb
- * 
- */
 public class MuleEngineController implements EngineController {
     private Logger logger = Logger.getLogger(this.getClass());
     private Map<String, ConnectorMetaData> transports = null;
@@ -172,7 +165,7 @@ public class MuleEngineController implements EngineController {
     }
 
     private void registerDescriptor(Channel channel) throws Exception {
-        logger.debug("Building descriptor for channel: " + channel.getId());
+        logger.debug("registering descriptor for channel: " + channel.getId());
         UMODescriptor descriptor = new MuleDescriptor();
         descriptor.setImplementation(Class.forName("com.webreach.mirth.server.mule.components.Channel").newInstance());
         descriptor.setName(channel.getId());
@@ -192,7 +185,7 @@ public class MuleEngineController implements EngineController {
     }
 
     private void configureInboundRouter(UMODescriptor descriptor, Channel channel) throws Exception {
-        logger.debug("Building inbound router for channel: " + channel.getId() + " (" + channel.getName() + ")");
+        logger.debug("configuring inbound router for channel: " + channel.getId() + " (" + channel.getName() + ")");
         InboundMessageRouter inboundRouter = new InboundMessageRouter();
 
         // add source endpoints
@@ -203,7 +196,7 @@ public class MuleEngineController implements EngineController {
         String connectorReference = channel.getId() + "_source";
 
         // add the source connector
-        UMOConnector connector = addConnector(channel.getSourceConnector(), connectorReference + "_connector", channel.getId());
+        UMOConnector connector = registerConnector(channel.getSourceConnector(), connectorReference + "_connector", channel.getId());
         endpoint.setConnector(connector);
 
         // if the channel is snychronous
@@ -221,7 +214,7 @@ public class MuleEngineController implements EngineController {
         }
 
         // 2. append the preprocessing transformer
-        UMOTransformer preprocessorTransformer = addPreprocessor(channel, connectorReference + "_preprocessor");
+        UMOTransformer preprocessorTransformer = registerPreprocessor(channel, connectorReference + "_preprocessor");
 
         if (!transformerList.isEmpty()) {
             transformerList.getLast().setTransformer(preprocessorTransformer);
@@ -233,7 +226,7 @@ public class MuleEngineController implements EngineController {
 
         // 3. finally, append the JavaScriptTransformer that does the
         // mappings
-        UMOTransformer javascriptTransformer = addTransformer(channel, channel.getSourceConnector(), connectorReference + "_transformer");
+        UMOTransformer javascriptTransformer = registerTransformer(channel, channel.getSourceConnector(), connectorReference + "_transformer");
         preprocessorTransformer.setTransformer(javascriptTransformer);
 
         // 4. add the transformer sequence as an attribute to the endpoint
@@ -258,7 +251,7 @@ public class MuleEngineController implements EngineController {
     }
 
     private void configureOutboundRouter(UMODescriptor descriptor, Channel channel) throws Exception {
-        logger.debug("Building outbound router for channel: " + channel.getId() + " (" + channel.getName() + ")");
+        logger.debug("configuring outbound router for channel: " + channel.getId() + " (" + channel.getName() + ")");
         FilteringMulticastingRouter fmr = new FilteringMulticastingRouter();
         boolean enableTransactions = false;
 
@@ -287,11 +280,11 @@ public class MuleEngineController implements EngineController {
                 // add the destination connector
                 // ast: changes to get the same name for the connector and
                 String connectorName = getConnectorNameForOutputRouter(connectorReference);
-                endpoint.setConnector(addConnector(connector, connectorName, channel.getId()));
+                endpoint.setConnector(registerConnector(connector, connectorName, channel.getId()));
 
                 // 1. append the JavaScriptTransformer that does the
                 // mappings
-                UMOTransformer javascriptTransformer = addTransformer(channel, connector, connectorReference + "_transformer");
+                UMOTransformer javascriptTransformer = registerTransformer(channel, connector, connectorReference + "_transformer");
 
                 // 2. finally, append any transformers needed by the
                 // transport (ie. StringToByteArray)
@@ -342,9 +335,9 @@ public class MuleEngineController implements EngineController {
         return channel.getId() + "_destination_" + value;
     }
 
-    private UMOTransformer addTransformer(Channel channel, Connector connector, String name) throws Exception {
+    private UMOTransformer registerTransformer(Channel channel, Connector connector, String name) throws Exception {
         Transformer transformer = connector.getTransformer();
-        logger.debug("Adding transformer: " + name);
+        logger.debug("registering transformer: " + name);
         UMOTransformer umoTransformer = (UMOTransformer) Class.forName("com.webreach.mirth.server.mule.transformers.JavaScriptTransformer").newInstance();
         umoTransformer.setName(name);
         Map<String, Object> beanProperties = new HashMap<String, Object>();
@@ -398,8 +391,8 @@ public class MuleEngineController implements EngineController {
         return umoTransformer;
     }
 
-    private UMOConnector addConnector(Connector connector, String name, String channelId) throws Exception {
-        logger.debug("Adding connector: " + name);
+    private UMOConnector registerConnector(Connector connector, String name, String channelId) throws Exception {
+        logger.debug("registering connector: " + name);
         // get the transport associated with this class from the transport
         // map
         ConnectorMetaData transport = transports.get(connector.getTransportName());
@@ -436,8 +429,8 @@ public class MuleEngineController implements EngineController {
         return umoConnector;
     }
 
-    private UMOTransformer addPreprocessor(Channel channel, String name) throws Exception {
-        logger.debug("Adding transformer (preprocessor): " + name);
+    private UMOTransformer registerPreprocessor(Channel channel, String name) throws Exception {
+        logger.debug("registering transformer (preprocessor): " + name);
         UMOTransformer umoTransformer = (UMOTransformer) Class.forName("com.webreach.mirth.server.mule.transformers.JavaScriptPreprocessor").newInstance();
         umoTransformer.setName(name);
         String preprocessingScriptId = UUIDGenerator.getUUID();
@@ -504,24 +497,30 @@ public class MuleEngineController implements EngineController {
     }
 
     public void unregisterChannel(String channelId) throws Exception {
+        logger.debug("unregistering descriptor: " + channelId);
         UMODescriptor descriptor = muleManager.getModel().getDescriptor(channelId);
         muleManager.getModel().unregisterComponent(descriptor);
-        unregisterTransformers(descriptor.getInboundRouter().getEndpoints());
+        unregisterConnectors(descriptor.getInboundRouter().getEndpoints());
         UMOOutboundRouter outboundRouter = (UMOOutboundRouter) descriptor.getOutboundRouter().getRouters().iterator().next();
-        unregisterTransformers(outboundRouter.getEndpoints());
+        unregisterConnectors(outboundRouter.getEndpoints());
     }
 
-    private void unregisterTransformers(List<UMOEndpoint> endpoints) throws Exception {
+    private void unregisterConnectors(List<UMOEndpoint> endpoints) throws Exception {
         for (UMOEndpoint endpoint : endpoints) {
-            logger.debug("unregistering connector: " + endpoint.getConnector().getName());
-            muleManager.unregisterConnector(endpoint.getConnector().getName());
-            UMOTransformer transformer = endpoint.getTransformer();
-
-            while ((transformer != null) && !defaultTransformers.keySet().contains(transformer.getName())) {
-                logger.debug("Unregistering transformer: " + transformer.getName());
-                muleManager.unregisterTransformer(transformer.getName());
-                transformer = transformer.getTransformer();
+            if (!endpoint.getEndpointURI().getScheme().equals("vm")) {
+                logger.debug("unregistering connector: " + endpoint.getEndpointURI());
+                muleManager.unregisterConnector(endpoint.getConnector().getName());
             }
+            
+            unregisterTransformer(endpoint.getTransformer());
+        }
+    }
+    
+    private void unregisterTransformer(UMOTransformer transformer) throws Exception {
+        if (!defaultTransformers.keySet().contains(transformer.getName())) {
+            logger.debug("unregistering transformer: " + transformer.getName());
+            muleManager.unregisterTransformer(transformer.getName());
+            transformer = transformer.getTransformer();
         }
     }
 
@@ -530,6 +529,7 @@ public class MuleEngineController implements EngineController {
     }
 
     public void start() throws Exception {
+        logger.error("starting mule engine");
         muleManager.start();
     }
 
@@ -537,6 +537,7 @@ public class MuleEngineController implements EngineController {
         if (muleManager != null) {
             try {
                 if (muleManager.isStarted()) {
+                    logger.error("stopping mule engine");
                     muleManager.stop();
                 }
             } catch (Exception e) {
