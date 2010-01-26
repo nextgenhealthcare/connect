@@ -98,7 +98,7 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
 
         // TODO: Temporary hack until the dashboard connector status client can monitor multiple statuses
         ChannelStatus status = null;
-        if (statuses.size() > 0) {
+        if ((statuses != null) && (statuses.size() > 0)) {
             status = statuses.get(0);
         }
         
