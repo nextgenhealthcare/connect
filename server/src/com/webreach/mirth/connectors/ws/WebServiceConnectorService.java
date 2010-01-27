@@ -41,7 +41,7 @@ public class WebServiceConnectorService implements ConnectorService {
 
             FileUtils.writeStringToFile(tempFile, wsdlContents);
 
-            definitionCache.put(id, getDefinition(tempFile.getAbsolutePath(), null, null));
+            definitionCache.put(id, getDefinition(tempFile.toURI().toString(), null, null));
         } else if (method.equals("isWsdlCached")) {
             String id = (String) object;
             return (definitionCache.get(id) != null);

@@ -27,21 +27,22 @@ public class AuthWsdlLocator implements WSDLLocator {
     public void close() {
     }
 
-    public InputSource getBaseInputSource() {
+    public InputSource getBaseInputSource() throws RuntimeException {
         InputSource inputSource = new InputSource();
         try {
             URI baseUri = null;
             
             try {
                 baseUri = new URI(wsdlUrl);
-            } catch (URISyntaxException ex) {
-                ex.printStackTrace();
+            } catch (URISyntaxException e) {
+                logger.error(e);
             }
             
             InputStream inputStream = WebServiceUtil.getUrlContents(baseUri, null, username, password);
             inputSource.setByteStream(inputStream);
         } catch (Exception e) {
             logger.error(e);
+            throw new RuntimeException(e);
         }
         
         return inputSource;
@@ -51,7 +52,7 @@ public class AuthWsdlLocator implements WSDLLocator {
         return wsdlUrl;
     }
 
-    public InputSource getImportInputSource(String parentLocation, String importLocation) {
+    public InputSource getImportInputSource(String parentLocation, String importLocation) throws RuntimeException {
         InputSource inputSource = new InputSource();
         try {
             URI importUri = null;
@@ -60,8 +61,8 @@ public class AuthWsdlLocator implements WSDLLocator {
             try {
                 importUri = new URI(importLocation);
                 parentUri = new URI(parentLocation);
-            } catch (URISyntaxException ex) {
-                ex.printStackTrace();
+            } catch (URISyntaxException e) {
+                logger.error(e);
             }
             
             InputStream inputStream = WebServiceUtil.getUrlContents(importUri, parentUri, username, password);
@@ -69,6 +70,7 @@ public class AuthWsdlLocator implements WSDLLocator {
             inputSource.setByteStream(inputStream);
         } catch (Exception e) {
             logger.error(e);
+            throw new RuntimeException(e);
         }
         
         return inputSource;

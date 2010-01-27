@@ -1,6 +1,7 @@
 package com.webreach.mirth.connectors.ws;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
@@ -44,6 +45,10 @@ public class WebServiceUtil {
             baseUri = parentUri.resolve(uri);
         } else {
             baseUri = uri;
+        }
+        
+        if (baseUri.getScheme().equalsIgnoreCase("file")) {
+            return new FileInputStream(new File(baseUri));
         }
 
         HttpClient client = new HttpClient();
