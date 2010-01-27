@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
-import org.apache.xerces.parsers.SAXParser;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ImporterTopLevel;
 import org.mozilla.javascript.Script;
@@ -36,11 +35,12 @@ import org.mozilla.javascript.Scriptable;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.ParserAdapter;
 
 import com.webreach.mirth.server.util.CompiledScriptCache;
 import com.webreach.mirth.server.util.JavaScriptScopeUtil;
 
-public class DelimitedReader extends SAXParser {
+public class DelimitedReader extends ParserAdapter {
 	private Logger logger = Logger.getLogger(this.getClass());
 
 	private DelimitedProperties props;
@@ -49,7 +49,7 @@ public class DelimitedReader extends SAXParser {
 	private ArrayList<String> ungottenRecord;
 	private String ungottenRawText;
 	
-	public DelimitedReader (DelimitedProperties delimitedProperties) {
+	public DelimitedReader (DelimitedProperties delimitedProperties) throws SAXException {
 		props = delimitedProperties;
 
 		// Initially, there is no ungotten (pushed back) record

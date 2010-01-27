@@ -33,13 +33,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.apache.xerces.parsers.SAXParser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-public class DelimitedSerializer extends SAXParser implements IXMLSerializer<String> {
+public class DelimitedSerializer implements IXMLSerializer<String> {
 	private Logger logger = Logger.getLogger(this.getClass());
 	
 	private DelimitedProperties props;
@@ -132,7 +132,11 @@ public class DelimitedSerializer extends SAXParser implements IXMLSerializer<Str
 		
 		// Allocate a batch reader if not already allocated
 		if (delimitedBatchReader == null) {
-			delimitedBatchReader = new DelimitedReader(props); 
+			try {
+                delimitedBatchReader = new DelimitedReader(props);
+            } catch (SAXException e) {
+                logger.error("Error creating Delimited Reader", e);
+            } 
 		}
 		return delimitedBatchReader.getMessage(in, skipHeader);
 	}

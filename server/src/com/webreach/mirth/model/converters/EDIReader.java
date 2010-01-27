@@ -30,13 +30,13 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
-import org.apache.xerces.parsers.SAXParser;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.ParserAdapter;
 
 
-public class EDIReader extends SAXParser {
+public class EDIReader extends ParserAdapter {
 	private Logger logger = Logger.getLogger(this.getClass());
 
 	private String segmentDelim;
@@ -45,7 +45,7 @@ public class EDIReader extends SAXParser {
 
 	private String subelementDelim;
 
-	public EDIReader(String segmentDelim, String elementDelim, String subelementDelim) {
+	public EDIReader(String segmentDelim, String elementDelim, String subelementDelim) throws SAXException {
 		this.segmentDelim = segmentDelim;
 		this.elementDelim = elementDelim;
 		this.subelementDelim = subelementDelim;

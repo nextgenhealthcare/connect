@@ -30,20 +30,20 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
-import org.apache.xerces.parsers.SAXParser;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.helpers.ParserAdapter;
 
 
 /*
  * Converts EDI message to XML
  */
-public class ER7Reader extends SAXParser {
+public class ER7Reader extends ParserAdapter {
 	private Logger logger = Logger.getLogger(this.getClass());
 	private boolean handleRepetitions = false;
 	private boolean convertLFtoCR = false;
-	public ER7Reader(boolean handleRepetitions, boolean convertLFtoCR) {
+	public ER7Reader(boolean handleRepetitions, boolean convertLFtoCR) throws SAXException {
 		this.handleRepetitions = handleRepetitions;
 		this.convertLFtoCR = convertLFtoCR;
 	}

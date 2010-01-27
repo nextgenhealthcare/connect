@@ -5,23 +5,23 @@ import java.io.IOException;
 import java.util.Stack;
 
 import org.apache.log4j.Logger;
-import org.apache.xerces.parsers.SAXParser;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
+import org.xml.sax.helpers.ParserAdapter;
 
 import com.webreach.mirth.model.ncpdp.NCPDPReference;
 
 
-public class NCPDPReader extends SAXParser {
+public class NCPDPReader extends ParserAdapter {
 	private Logger logger = Logger.getLogger(this.getClass());
 
 	private String segmentDelim;
 	private String groupDelim;
 	private String fieldDelim;
 
-	public NCPDPReader(String segmentDelim, String groupDelim, String fieldDelim) {
+	public NCPDPReader(String segmentDelim, String groupDelim, String fieldDelim) throws SAXException {
 		this.segmentDelim = segmentDelim;
 		this.groupDelim = groupDelim;
 		this.fieldDelim = fieldDelim;
