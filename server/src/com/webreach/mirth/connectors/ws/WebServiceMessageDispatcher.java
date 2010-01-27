@@ -5,10 +5,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.ConnectException;
-import java.net.URL;
 import java.util.List;
 
-import javax.xml.namespace.QName;
 import javax.xml.soap.AttachmentPart;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.OutputKeys;
@@ -21,7 +19,6 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Dispatch;
-import javax.xml.ws.Service;
 import javax.xml.ws.soap.SOAPBinding;
 
 import org.apache.log4j.Logger;
@@ -54,7 +51,7 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher imple
     private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     private ConnectorType connectorType = ConnectorType.WRITER;
-    
+
     public WebServiceMessageDispatcher(WebServiceConnector connector) {
         super(connector);
         this.connector = connector;
@@ -83,24 +80,13 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher imple
             monitoringController.updateStatus(connector, connectorType, Event.DONE);
         }
     }
-    
-    private void processMessage(MessageObject mo) throws Exception {
-        URL endpointUrl = WebServiceUtil.getWsdlUrl(connector.getDispatcherWsdlUrl(), connector.getDispatcherUsername(), connector.getDispatcherPassword());
-        QName serviceName = QName.valueOf(connector.getDispatcherService());
-        QName portName = QName.valueOf(connector.getDispatcherPort()); 
 
-        // create the service and dispatch
-        logger.debug("Creating web service: url=" + endpointUrl.toString() + ", service=" + serviceName + ", port=" + portName);
-        Service service = Service.create(endpointUrl, serviceName);
-        
-//        List<WebServiceFeature> wsFeatures = new ArrayList<WebServiceFeature>();
-//        wsFeatures.add(new MTOMFeature(0));
-//        WebServiceFeature[] wsFeatureArray = wsFeatures.toArray(new WebServiceFeature[0]);
-        
-        Dispatch<SOAPMessage> dispatch = service.createDispatch(portName, SOAPMessage.class, Service.Mode.MESSAGE);
-        
+    private void processMessage(MessageObject mo) throws Exception {
+        // Get the dispatch from the pool;
+        Dispatch<SOAPMessage> dispatch = connector.getDispatch();
+
         SOAPBinding soapBinding = (SOAPBinding) dispatch.getBinding();
-        
+
         if (connector.isDispatcherUseAuthentication()) {
             dispatch.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, connector.getDispatcherUsername());
             dispatch.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, connector.getDispatcherPassword());
@@ -113,28 +99,28 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher imple
         Source source = new StreamSource(new StringReader(content));
         SOAPMessage message = soapBinding.getMessageFactory().createMessage();
         message.getSOAPPart().setContent(source);
-        
-        List<String> attachmentIds = connector.getDispatcherAttachmentNames();
-        List<String> attachmentContents = connector.getDispatcherAttachmentContents();
-        List<String> attachmentTypes = connector.getDispatcherAttachmentTypes();
-        
+
         if (connector.isDispatcherUseMtom()) {
             soapBinding.setMTOMEnabled(true);
+
+            List<String> attachmentIds = connector.getDispatcherAttachmentNames();
+            List<String> attachmentContents = connector.getDispatcherAttachmentContents();
+            List<String> attachmentTypes = connector.getDispatcherAttachmentTypes();
 
             for (int i = 0; i < attachmentIds.size(); i++) {
                 String attachmentContentId = replacer.replaceValues(attachmentIds.get(i), mo);
                 String attachmentContentType = attachmentTypes.get(i);
                 String attachmentContent = replacer.replaceValues(attachmentContents.get(i), mo);
-                
+
                 AttachmentPart attachment = message.createAttachmentPart();
                 attachment.setBase64Content(new ByteArrayInputStream(attachmentContent.getBytes("UTF-8")), attachmentContentType);
                 attachment.setContentId(attachmentContentId);
                 message.addAttachmentPart(attachment);
             }
         }
-        
+
         message.saveChanges();
-        
+
         // make the call
         String response = null;
         if (connector.isDispatcherOneWay()) {
@@ -147,16 +133,16 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher imple
             response = sourceToXmlString(result.getSOAPPart().getContent());
         }
         logger.debug("Finished invoking web service, got result.");
-        
+
         // process the result
         messageObjectController.setSuccess(mo, response, null);
-        
+
         // send to reply channel
         if (connector.getDispatcherReplyChannelId() != null && !connector.getDispatcherReplyChannelId().equals("sink")) {
             new VMRouter().routeMessageByChannelId(connector.getDispatcherReplyChannelId(), response, true, false);
         }
     }
-    
+
     private String sourceToXmlString(Source source) throws TransformerConfigurationException, TransformerException {
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
         transformer.setOutputProperty(OutputKeys.METHOD, "xml");
@@ -199,8 +185,8 @@ public class WebServiceMessageDispatcher extends AbstractMessageDispatcher imple
         } finally {
             monitoringController.updateStatus(connector, connectorType, Event.DONE);
         }
-        
+
         return true;
     }
-    
+
 }

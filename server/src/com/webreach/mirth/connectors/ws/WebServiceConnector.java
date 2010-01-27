@@ -1,6 +1,12 @@
 package com.webreach.mirth.connectors.ws;
 
+import java.net.URL;
 import java.util.List;
+
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPMessage;
+import javax.xml.ws.Dispatch;
+import javax.xml.ws.Service;
 
 import org.mule.providers.QueueEnabledConnector;
 import org.mule.umo.lifecycle.InitialisationException;
@@ -9,13 +15,13 @@ import com.webreach.mirth.server.Constants;
 
 public class WebServiceConnector extends QueueEnabledConnector {
     private String channelId;
-    
+
     private String receiverClassName;
     private String receiverServiceName;
     private String receiverResponseValue;
     private List<String> receiverUsernames;
     private List<String> receiverPasswords;
-    
+
     private String dispatcherReplyChannelId;
     private String dispatcherWsdlUrl;
     private String dispatcherService;
@@ -29,12 +35,15 @@ public class WebServiceConnector extends QueueEnabledConnector {
     private List<String> dispatcherAttachmentNames;
     private List<String> dispatcherAttachmentContents;
     private List<String> dispatcherAttachmentTypes;
-    
+
+    // Dispatch object used for pooling the soap connection
+    private Dispatch<SOAPMessage> dispatch = null;
+
     @Override
     public void doInitialise() throws InitialisationException {
         super.doInitialise();
-        
-        if(isUsePersistentQueues()) { 
+
+        if (isUsePersistentQueues()) {
             setConnectorErrorCode(Constants.ERROR_410);
             setDispatcher(new WebServiceMessageDispatcher(this));
         }
@@ -194,5 +203,21 @@ public class WebServiceConnector extends QueueEnabledConnector {
 
     public String getProtocol() {
         return "WS";
+    }
+
+    public Dispatch<SOAPMessage> getDispatch() throws Exception {
+        if (dispatch == null) {
+            URL endpointUrl = WebServiceUtil.getWsdlUrl(this.getDispatcherWsdlUrl(), this.getDispatcherUsername(), this.getDispatcherPassword());
+            QName serviceName = QName.valueOf(this.getDispatcherService());
+            QName portName = QName.valueOf(this.getDispatcherPort());
+
+            // create the service and dispatch
+            logger.debug("Creating web service: url=" + endpointUrl.toString() + ", service=" + serviceName + ", port=" + portName);
+            Service service = Service.create(endpointUrl, serviceName);
+
+            dispatch = service.createDispatch(portName, SOAPMessage.class, Service.Mode.MESSAGE);
+        }
+
+        return dispatch;
     }
 }
