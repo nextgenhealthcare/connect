@@ -21,6 +21,7 @@ import java.util.ListIterator;
 import java.util.Map;
 
 import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
@@ -148,7 +149,7 @@ public class JmxAgent implements UMOAgent {
 				JMXServiceURL url = new JMXServiceURL(connectorServerUrl);
 
 				if (!credentials.isEmpty()) {
-					JMXAuthenticator jmxAuthenticator = (JMXAuthenticator) new SimplePasswordJmxAuthenticator();
+					JMXAuthenticator jmxAuthenticator = new SimplePasswordJmxAuthenticator();
 					((SimplePasswordJmxAuthenticator) jmxAuthenticator).setCredentials(credentials);
 					connectorServerProperties.put(JMXConnectorServer.AUTHENTICATOR, jmxAuthenticator);
 				}
@@ -166,8 +167,9 @@ public class JmxAgent implements UMOAgent {
 					try {
 						registerStatisticsService();
 						registerMuleService();
-						// registerConfigurationService();
+						registerConfigurationService();
 						registerModelService();
+						
 						registerComponentServices();
 						registerEndpointServices();
 						registerConnectorServices();
@@ -291,6 +293,10 @@ public class JmxAgent implements UMOAgent {
 		registeredMBeans.add(on);
 	}
 
+    //***********************************
+    // COMPONENT SERVICES    
+    //***********************************
+	
 	protected void registerComponentServices() throws NotCompliantMBeanException, MBeanRegistrationException, InstanceAlreadyExistsException, MalformedObjectNameException {
 		Iterator iter = MuleManager.getInstance().getModel().getComponentNames();
 		String name;
@@ -303,7 +309,28 @@ public class JmxAgent implements UMOAgent {
 			registeredMBeans.add(on);
 		}
 	}
+	
+	// added so that we can register individual components
+	public void registerComponentService(String name) throws NotCompliantMBeanException, MBeanRegistrationException, InstanceAlreadyExistsException, MalformedObjectNameException {
+        ObjectName on = ObjectName.getInstance(getDomainName() + ":type=control,name=" + name + "ComponentService");
+        ComponentServiceMBean serviceMBean = new ComponentService(name);
+        logger.debug("Registering component with name: " + on);
+        mBeanServer.registerMBean(serviceMBean, on);
+        registeredMBeans.add(on);
+	}
 
+	// added so that we can unregister individual components
+	public void unregsiterComponentService(String name) throws MalformedObjectNameException, InstanceNotFoundException, MBeanRegistrationException {
+        ObjectName on = ObjectName.getInstance(getDomainName() + ":type=control,name=" + name + "ComponentService");
+        logger.debug("Unregistering component with name: " + on);
+        mBeanServer.unregisterMBean(on);
+        registeredMBeans.remove(on);
+	}
+
+    //***********************************
+    // ENDPOINT SERVICES	
+    //***********************************
+	
 	protected void registerEndpointServices() throws NotCompliantMBeanException, MBeanRegistrationException, InstanceAlreadyExistsException, MalformedObjectNameException {
 		Iterator iter = MuleManager.getInstance().getConnectors().values().iterator();
 		UMOConnector connector;

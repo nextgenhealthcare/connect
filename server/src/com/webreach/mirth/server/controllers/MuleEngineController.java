@@ -184,6 +184,11 @@ public class MuleEngineController implements EngineController {
         configureInboundRouter(descriptor, channel);
         configureOutboundRouter(descriptor, channel);
         muleManager.getModel().registerComponent(descriptor);
+        
+        // register its mbean
+        if (muleManager.isStarted()) {
+            jmxAgent.registerComponentService(descriptor.getName());    
+        }
     }
 
     private void configureInboundRouter(UMODescriptor descriptor, Channel channel) throws Exception {
@@ -504,6 +509,9 @@ public class MuleEngineController implements EngineController {
         unregisterConnectors(descriptor.getInboundRouter().getEndpoints());
         UMOOutboundRouter outboundRouter = (UMOOutboundRouter) descriptor.getOutboundRouter().getRouters().iterator().next();
         unregisterConnectors(outboundRouter.getEndpoints());
+        
+        // unregister its mbean
+        jmxAgent.unregsiterComponentService(channelId);
     }
 
     private void unregisterConnectors(List<UMOEndpoint> endpoints) throws Exception {
@@ -516,7 +524,7 @@ public class MuleEngineController implements EngineController {
             unregisterTransformer(endpoint.getTransformer());
         }
     }
-
+    
     private void unregisterTransformer(UMOTransformer transformer) throws Exception {
         if (!defaultTransformers.keySet().contains(transformer.getName())) {
             logger.debug("unregistering transformer: " + transformer.getName());
