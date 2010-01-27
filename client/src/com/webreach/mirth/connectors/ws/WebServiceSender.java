@@ -369,7 +369,7 @@ public class WebServiceSender extends ConnectorClass
 
             return true;
         } catch (ClientException e) {
-            parent.alertError(parent, "Error caching WSDL. Please check the WSDL file or URL and authentication settings.");
+            parent.alertError(parent, "Error caching WSDL. Please check the WSDL file or URL and authentication settings.\nIf the WSDL is a file, schemas referenced inside the WSDL must still be reachable.");
             return false;
         }
     }
