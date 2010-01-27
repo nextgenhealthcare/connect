@@ -79,7 +79,7 @@ public class SoapEnvelopeGenerator {
         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         Element envelopeElement = document.createElement(SOAPENV_NS + ":Envelope");
         envelopeElement.setAttribute("xmlns:" + SOAPENV_NS, "http://schemas.xmlsoap.org/soap/envelope/");
-        envelopeElement.setAttribute("ns", schema.getTargetNamespace());
+        envelopeElement.setAttribute("xmlns:ns", schema.getTargetNamespace());
         Element headerElement = document.createElement(SOAPENV_NS + ":Header");
         envelopeElement.appendChild(headerElement);
         Element bodyElement = document.createElement(SOAPENV_NS + ":Body");
