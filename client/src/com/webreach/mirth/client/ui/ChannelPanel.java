@@ -200,6 +200,14 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
             parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 2, 2, true);
             parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 8, -1, true);
 
+            if (rows.length == 1) {
+                if (((CellData) channelTable.getModel().getValueAt(rows[0], column)).getText().equals(ENABLED_STATUS)) {
+                    parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 2, 2, true);
+                } else {
+                    parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 2, 2, false);
+                }
+            }
+            
             if (rows.length > 1) {
                 parent.setVisibleTasks(parent.channelTasks, parent.channelPopupMenu, 10, 13, false); // hide edit, clone, enable, and disable
             } else {

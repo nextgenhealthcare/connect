@@ -698,9 +698,9 @@ public class Frame extends JXFrame
         addTask("doImport", "Import Channel", "Import a channel from an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/report_go.png")), channelTasks, channelPopupMenu);
         addTask("doExportAll", "Export All Channels", "Export all of the channels to XML files.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/report_disk.png")), channelTasks, channelPopupMenu);
         addTask("doExport", "Export Channel", "Export the currently selected channel to an XML file.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/report_disk.png")), channelTasks, channelPopupMenu);
+        addTask("doDeleteChannel", "Delete Channel", "Delete the currently selected channel.", "L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_form_delete.png")), channelTasks, channelPopupMenu);
         addTask("doCloneChannel", "Clone Channel", "Clone the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/page_copy.png")), channelTasks, channelPopupMenu);
         addTask("doEditChannel", "Edit Channel", "Edit the currently selected channel.", "I", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_form_edit.png")), channelTasks, channelPopupMenu);
-        addTask("doDeleteChannel", "Delete Channel", "Delete the currently selected channel.", "L", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_form_delete.png")), channelTasks, channelPopupMenu);
         addTask("doEnableChannel", "Enable Channel", "Enable the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/control_play_blue.png")), channelTasks, channelPopupMenu);
         addTask("doDisableChannel", "Disable Channel", "Disable the currently selected channel.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/control_stop_blue.png")), channelTasks, channelPopupMenu);
 
@@ -2094,7 +2094,7 @@ public class Frame extends JXFrame
 
     public void doDeleteChannel()
     {
-        if (!alertOption(this, "Are you sure you want to delete this channel?"))
+        if (!alertOption(this, "Are you sure you want to delete this channel?\nIf this channel is deployed it will first be undeployed."))
             return;
 
         setWorking("Deleting channel...", true);
@@ -2118,17 +2118,34 @@ public class Frame extends JXFrame
                     return null;
                 }
                 
+                List<String> undeployChannelIds = new ArrayList<String>();
+                
                 for (Channel channel : selectedChannels) {
+                    
                     String channelId = channel.getId();
                     for (int i = 0; i < status.size(); i++)
                     {
                         if (status.get(i).getChannelId().equals(channelId))
                         {
-                            alertWarning(PlatformUI.MIRTH_FRAME, "You may not delete a deployed channel.\nPlease re-deploy without it enabled first.");
-                            return null;
+                            undeployChannelIds.add(channelId);
                         }
                     }
-
+                }
+                
+                if (undeployChannelIds.size() > 0) {
+                    try
+                    {
+                        mirthClient.undeployChannels(undeployChannelIds);
+                    }
+                    catch (ClientException e)
+                    {
+                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                        return null;
+                    }
+                }
+                
+                for (Channel channel : selectedChannels)
+                {
                     try
                     {
                         mirthClient.removeChannel(channel);
@@ -2175,15 +2192,13 @@ public class Frame extends JXFrame
             {
                 channelPanel.updateChannelTable();
 
+                setVisibleTasks(channelTasks, channelPopupMenu, 1, 2, false);
+                setVisibleTasks(channelTasks, channelPopupMenu, 7, -1, false);
+                
                 if (channels.size() > 0)
                 {
                     setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, true);
                     setVisibleTasks(channelTasks, channelPopupMenu, 7, 7, true);
-                }
-                else
-                {
-                    setVisibleTasks(channelTasks, channelPopupMenu, 1, 1, false);
-                    setVisibleTasks(channelTasks, channelPopupMenu, 7, 7, false);
                 }
 
                 channelPanel.setSelectedChannels(selectedChannelIds);
