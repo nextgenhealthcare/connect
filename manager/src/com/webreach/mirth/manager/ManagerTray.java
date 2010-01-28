@@ -19,6 +19,10 @@ public class ManagerTray {
     private MenuItem restartItem;
     private MenuItem administratorItem;
     private MenuItem quitItem;
+    
+    public static final int STARTED = 1;
+    public static final int STOPPED = 0;
+    public static final int BUSY = -1;
 
     /** Creates a new instance of ManagerTray */
     public ManagerTray() {
@@ -90,9 +94,7 @@ public class ManagerTray {
         });
         menu.add(quitItem);
 
-        // Resource file "duke.gif" must exist at the same directory
-        // as this class file.
-        ImageIcon icon = new ImageIcon(this.getClass().getResource("images/mirth_32_ico.png"));
+        ImageIcon icon = new ImageIcon(this.getClass().getResource("images/mirth_32_ico_gray.png"));
         mirthTrayIcon = new TrayIcon(icon.getImage(), "Mirth Server Manager", menu);
         mirthTrayIcon.setImageAutoSize(true);
 
@@ -142,5 +144,19 @@ public class ManagerTray {
 
     public void alertWarning(String caption, String text) {
         mirthTrayIcon.displayMessage("Warning", text, TrayIcon.MessageType.WARNING);
+    }
+    
+    public void setTrayIcon(int icon) {
+        ImageIcon imageIcon = null;
+        if (icon == STARTED) {
+            imageIcon = new ImageIcon(this.getClass().getResource("images/mirth_32_ico.png"));
+        } else if (icon == STOPPED) {
+            imageIcon = new ImageIcon(this.getClass().getResource("images/mirth_32_ico_gray.png"));
+        } else {
+            imageIcon = new ImageIcon(this.getClass().getResource("images/mirth_32_ico_gray.png"));
+        }
+        
+        mirthTrayIcon.setImage(imageIcon.getImage());
+        
     }
 }
