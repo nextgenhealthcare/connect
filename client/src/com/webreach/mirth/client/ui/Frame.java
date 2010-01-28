@@ -413,6 +413,9 @@ public class Frame extends JXFrame
         {
             PlatformUI.SERVER_ID = mirthClient.getServerId();
             PlatformUI.SERVER_VERSION = mirthClient.getVersion();
+            
+            setTitle(getTitle() + " - (" + PlatformUI.SERVER_VERSION + ")");
+            
             String version = PlatformUI.SERVER_VERSION;
     		int majorVersion = Integer.parseInt(version.split("\\.")[0]);
     		int minorVersion = Integer.parseInt(version.split("\\.")[1]);
