@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="com/webreach/mirth/model/hl7v2/generators/xml/" kind="src" path="src"/>
+	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="conf"/>
 	<classpathentry kind="src" path="build"/>
 	<classpathentry kind="lib" path="lib/custom/jtds-1.2.jar"/>
