@@ -16,7 +16,6 @@
 	<classpathentry kind="lib" path="lib/mule/geronimo-spec-jms-1.1-rc4.jar"/>
 	<classpathentry kind="lib" path="lib/mule/geronimo-spec-jta-1.0.1B-rc4.jar"/>
 	<classpathentry kind="lib" path="lib/mule/geronimo-spec-servlet-2.4-rc4.jar"/>
-	<classpathentry kind="lib" path="lib/mule/jsr223-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/mule/jug-1.0.3.jar"/>
 	<classpathentry kind="lib" path="lib/mule/mule-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/mule/ognl-2.6.7.jar"/>
@@ -38,7 +37,6 @@
 	<classpathentry kind="lib" path="lib/extensions/pdfviewer/MRJToolkitStubs.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/pdfviewer/acrobat.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/doc/iText-2.0.8.jar"/>
-	<classpathentry kind="lib" path="lib/mule/jsch-0.1.41.jar"/>
 	<classpathentry kind="lib" path="lib/webdavclient4j-core-0.92.jar"/>
 	<classpathentry kind="lib" path="lib/custom/mysql-connector-java-5.0.8-bin.jar"/>
 	<classpathentry kind="lib" path="lib/velocity-tools-1.4.jar"/>
@@ -81,6 +79,7 @@
 	<classpathentry kind="lib" path="lib/jetty-5.1.15.jar"/>
 	<classpathentry kind="lib" path="lib/xsom.jar"/>
 	<classpathentry kind="lib" path="lib/relaxngDatatype.jar"/>
+	<classpathentry kind="lib" path="lib/jsch-0.1.42.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre6"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
