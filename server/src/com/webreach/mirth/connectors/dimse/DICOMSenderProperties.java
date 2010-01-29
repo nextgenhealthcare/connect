@@ -4,12 +4,6 @@ import java.util.Properties;
 
 import com.webreach.mirth.model.ComponentProperties;
 
-/**
- * Created by IntelliJ IDEA.
- * Date: Jun 11, 2008
- * Time: 4:01:37 PM
- * To change this template use File | Settings | File Templates.
- */
 public class DICOMSenderProperties implements ComponentProperties {
 	public static final String name = "DICOM Sender";
 	
@@ -59,7 +53,7 @@ public class DICOMSenderProperties implements ComponentProperties {
         properties.put(DICOM_ADDRESS, "127.0.0.1");
         properties.put(DICOM_PORT, "104");
         properties.put(DICOM_TEMPLATE, "${DICOMMESSAGE}");
-        properties.put(DICOM_ACCECPTTO, "5");
+        properties.put(DICOM_ACCECPTTO, "5000");
         properties.put(DICOM_ASYNC, "0");
         properties.put(DICOM_BUFSIZE, "1");
         properties.put(DICOM_CONNECTTO, "0");
