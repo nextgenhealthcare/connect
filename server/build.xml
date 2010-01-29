@@ -612,6 +612,10 @@
 				<exclude name="Thumbs.db" />
 			</fileset>
 		</copy>
+		
+		<replace dir="${setup.public_html}" token="@mirthversion" value="${version}">
+			<include name="*.html" />
+		</replace>
 
 		<!-- copy extensions files -->
 		<copy todir="${setup.extensions}">
