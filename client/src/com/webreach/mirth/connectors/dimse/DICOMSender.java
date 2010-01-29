@@ -424,7 +424,7 @@ public class DICOMSender extends ConnectorClass
 
         jLabel3.setText("Template:");
 
-        accepttoField.setToolTipText("Timeout in ms for receiving A-ASSOCIATE-AC, 5s by default.");
+        accepttoField.setToolTipText("Timeout in ms for receiving A-ASSOCIATE-AC, 5000ms by default.");
 
         jLabel4.setText("Timeout A-ASSOCIATE-AC (ms):");
 
@@ -866,11 +866,10 @@ public class DICOMSender extends ConnectorClass
                                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                         .add(rcvpdulenField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                         .add(org.jdesktop.layout.GroupLayout.TRAILING, sndpdulenField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .add(org.jdesktop.layout.GroupLayout.TRAILING, bufsizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
+                                        .add(org.jdesktop.layout.GroupLayout.TRAILING, bufsizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))))
                     .add(layout.createSequentialGroup()
                         .add(206, 206, 206)
-                        .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)))
+                        .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(

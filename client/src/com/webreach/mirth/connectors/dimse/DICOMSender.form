@@ -209,11 +209,10 @@
                               </Group>
                           </Group>
                       </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="206" max="-2" attributes="0"/>
-                      <Component id="fileContentsTextPane" pref="380" max="32767" attributes="0"/>
+                      <Component id="fileContentsTextPane" pref="370" max="32767" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -471,7 +470,7 @@
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="accepttoField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="Timeout in ms for receiving A-ASSOCIATE-AC, 5s by default."/>
+        <Property name="toolTipText" type="java.lang.String" value="Timeout in ms for receiving A-ASSOCIATE-AC, 5000ms by default."/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel4">
