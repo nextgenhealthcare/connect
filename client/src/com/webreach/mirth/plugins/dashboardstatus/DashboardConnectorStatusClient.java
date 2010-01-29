@@ -9,6 +9,7 @@
 
 package com.webreach.mirth.plugins.dashboardstatus;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,10 +48,10 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
 
         if (selectedChannel.equals(NO_CHANNEL_SELECTED)) {
             // Add Channel Name column in the UI so that which logs correspond to which channel.
-            dcsp.updateTable(null, false);
+            dcsp.updateTable(null);
         } else {
             // No Channel Name column needed.
-            dcsp.updateTable(null, true);
+            dcsp.updateTable(null);
         }
     }
 
@@ -72,10 +73,10 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
             }
             if (selectedChannel.equals(NO_CHANNEL_SELECTED)) {
                 // Add Channel Name column in the UI so that which logs correspond to which channel.
-                dcsp.updateTable(newChannelLog, false);
+                dcsp.updateTable(newChannelLog);
             } else {
                 // No Channel Name column needed.
-                dcsp.updateTable(newChannelLog, true);
+                dcsp.updateTable(newChannelLog);
             }
         }
         
@@ -95,10 +96,9 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
        
     // used for setting actions to be called for updating when there is a status selected    
     public void update(List<ChannelStatus> statuses) {
-
-        // TODO: Temporary hack until the dashboard connector status client can monitor multiple statuses
+        // Keep status as null if there are more than one channels selected
         ChannelStatus status = null;
-        if ((statuses != null) && (statuses.size() > 0)) {
+        if ((statuses != null) && (statuses.size() == 1)) {
             status = statuses.get(0);
         }
         
@@ -115,6 +115,7 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
             dcsp.resetAllChannelStates();
         }
 
+        // If there are more than one channels selected, use state: NO_CHANNEL_SELECTED
         String selectedChannel;
         if (status == null) {
             // no channel is selected.
@@ -123,9 +124,19 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
             // channel is selected.
             selectedChannel = status.getName();
         }
+        
+        // If there are more than one channels selected, create an array of those names
+        List<String> selectedChannels = null;
+        if (statuses != null && statuses.size() > 1) {
+            selectedChannels = new ArrayList<String>();
+            for (int i = 0; i < statuses.size(); i++) {
+                selectedChannels.add(statuses.get(i).getName());
+            }
+        }
 
-        // set selectedChannel.
+        // set selectedChannel.  selectedChannels will be null unless multiple rows are selected
         dcsp.setSelectedChannel(selectedChannel);
+        dcsp.setSelectedChannels(selectedChannels);
 
         // store this log on the client side for later use.
         // grab the channel's log from the HashMap, if not exist, create one.
@@ -163,10 +174,10 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
         // call updateLogTextArea.
         if (selectedChannel.equals(NO_CHANNEL_SELECTED)) {
             // Add Channel Name column in the UI so that which logs correspond to which channel.
-            dcsp.updateTable(channelLog, false);
+            dcsp.updateTable(channelLog);
         } else {
             // No Channel Name column needed.
-            dcsp.updateTable(channelLog, true);
+            dcsp.updateTable(channelLog);
         }
         dcsp.adjustPauseResumeButton(selectedChannel);
 

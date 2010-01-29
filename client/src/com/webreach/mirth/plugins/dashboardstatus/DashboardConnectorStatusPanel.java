@@ -13,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.prefs.Preferences;
 
 import javax.swing.ImageIcon;
@@ -31,11 +32,6 @@ import com.webreach.mirth.client.ui.RefreshTableModel;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.components.MirthTable;
-
-/**
- *
- * @author  chrisr
- */
 
 public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
 
@@ -59,6 +55,7 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
     private ImageIcon blackBullet;	    //  DONE
     private static final String NO_CHANNEL_SELECTED = "No Channel Selected";
     private String selectedChannel;
+    private List<String> selectedChannels;
     private DashboardConnectorStatusClient dcsc;
     private Preferences userPreferences;
     private Frame parent;
@@ -144,7 +141,7 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
      */
     public void makeLogTable()
     {
-        updateTable(null, false);
+        updateTable(null);
         logTable.setDoubleBuffered(true);
         logTable.setSelectionMode(0);
         logTable.getColumnExt(ID_COLUMN_HEADER).setVisible(false);
@@ -246,6 +243,10 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
     public void setSelectedChannel(String channelName) {
         selectedChannel = channelName;
     }
+    
+    public void setSelectedChannels(List<String> channelNames) {
+        selectedChannels = channelNames;
+    }
 
     public boolean isPaused(String channelName) {
         if (channelStates.containsKey(channelName)) {
@@ -279,34 +280,60 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
      * This method won't be called when it's in the PAUSED state.
      * @param channelLogs
      */
-    public synchronized void updateTable(LinkedList<String[]> channelLogs, boolean channelSelected)
+    public synchronized void updateTable(LinkedList<String[]> channelLogs)
     {
         Object[][] tableData;
         if (channelLogs != null)
         {
             tableData = new Object[channelLogs.size()][6];
+            int tableSize = 0;
             for (int i=0; i < channelLogs.size(); i++) {
-
-                tableData[i][0] = channelLogs.get(i)[0];       // Id (hidden)
-                tableData[i][1] = channelLogs.get(i)[2];       // Timestamp
-                tableData[i][2] = channelLogs.get(i)[1];       // Channel Name (hidden when viewing a specific channel)
-                tableData[i][3] = channelLogs.get(i)[3];       // Connector Info
-
-                // Event State - INITIALIZED (blue), CONNECTED (green), BUSY (yellow), DONE (black), DISCONNECTED (red)
-                if (channelLogs.get(i)[4].equalsIgnoreCase("INITIALIZED"))
-                    tableData[i][4] = new CellData(blueBullet, "Initialized");
-                else if (channelLogs.get(i)[4].equalsIgnoreCase("ATTEMPTING_TO_CONNECT"))
-                    tableData[i][4] = new CellData(yellowBullet, "Attempting to Connect");
-                else if (channelLogs.get(i)[4].equalsIgnoreCase("CONNECTED"))
-                    tableData[i][4] = new CellData(greenBullet, "Connected");
-                else if (channelLogs.get(i)[4].equalsIgnoreCase("BUSY"))
-                    tableData[i][4] = new CellData(yellowBullet, "Busy");
-                else if (channelLogs.get(i)[4].equalsIgnoreCase("DONE"))
-                    tableData[i][4] = new CellData(blackBullet, "Done");
-                else if (channelLogs.get(i)[4].equalsIgnoreCase("DISCONNECTED"))
-                    tableData[i][4] = new CellData(redBullet, "Disconnected");
-
-                tableData[i][5] = channelLogs.get(i)[5];       // Infomation
+                // If there are multiple selected channels defined (not null), then 
+                // check to make sure this channel log row is one of those channels.
+                //
+                // With multi-select, the log list/state for ALL channels is used.
+                // This means pausing the list for multi-select would also pause the 
+                // list for no selection.  The log size will also not be correct for
+                // multi-select because it is enforcing the size on the larger list.
+                if (selectedChannels == null || (selectedChannels != null && selectedChannels.contains(channelLogs.get(i)[1]))) {
+                    tableSize++;
+                
+                    tableData[i][0] = channelLogs.get(i)[0];       // Id (hidden)
+                    tableData[i][1] = channelLogs.get(i)[2];       // Timestamp
+                    tableData[i][2] = channelLogs.get(i)[1];       // Channel Name (hidden when viewing a specific channel)
+                    tableData[i][3] = channelLogs.get(i)[3];       // Connector Info
+    
+                    // Event State - INITIALIZED (blue), CONNECTED (green), BUSY (yellow), DONE (black), DISCONNECTED (red)
+                    if (channelLogs.get(i)[4].equalsIgnoreCase("INITIALIZED"))
+                        tableData[i][4] = new CellData(blueBullet, "Initialized");
+                    else if (channelLogs.get(i)[4].equalsIgnoreCase("ATTEMPTING_TO_CONNECT"))
+                        tableData[i][4] = new CellData(yellowBullet, "Attempting to Connect");
+                    else if (channelLogs.get(i)[4].equalsIgnoreCase("CONNECTED"))
+                        tableData[i][4] = new CellData(greenBullet, "Connected");
+                    else if (channelLogs.get(i)[4].equalsIgnoreCase("BUSY"))
+                        tableData[i][4] = new CellData(yellowBullet, "Busy");
+                    else if (channelLogs.get(i)[4].equalsIgnoreCase("DONE"))
+                        tableData[i][4] = new CellData(blackBullet, "Done");
+                    else if (channelLogs.get(i)[4].equalsIgnoreCase("DISCONNECTED"))
+                        tableData[i][4] = new CellData(redBullet, "Disconnected");
+    
+                    tableData[i][5] = channelLogs.get(i)[5];       // Infomation
+                }
+            }
+            
+            // If there were multiple rows selected, the number of rows
+            // added might be smaller than the array.  Rebuild the array
+            // with only the rows added.
+            if (tableData.length > tableSize) {
+                Object[][] newTableData = new Object[tableSize][6];
+                int j = 0;
+                for (int i = 0; i < tableData.length; i++) {
+                    if (tableData[i][0] != null) {
+                        newTableData[j] = tableData[i];
+                        j++;
+                    }
+                }
+                tableData = newTableData;
             }
         } else {
             tableData = new Object[0][6];
@@ -339,12 +366,6 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
         	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
         	logTable.setHighlighters(highlighter);
         }
-
-        if (channelSelected) {
-            logTable.getColumnExt(CHANNEL_COLUMN_HEADER).setVisible(false);
-        } else {
-            logTable.getColumnExt(CHANNEL_COLUMN_HEADER).setVisible(true);
-        }        
     }
 
 
