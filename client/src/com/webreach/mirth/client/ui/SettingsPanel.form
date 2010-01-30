@@ -28,6 +28,7 @@
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
@@ -104,7 +105,7 @@
                           <Component id="lastBackup" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace pref="189" max="32767" attributes="0"/>
+                  <EmptySpace pref="346" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -204,7 +205,7 @@
                                   <Component id="smtpHost" linkSize="1" alignment="0" min="-2" pref="117" max="-2" attributes="1"/>
                               </Group>
                           </Group>
-                          <EmptySpace min="-2" pref="122" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="279" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" attributes="0">
                           <Component id="secureConnectionNone" min="-2" max="-2" attributes="0"/>
@@ -212,7 +213,7 @@
                           <Component id="secureConnectionTLS" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="secureConnectionSSL" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace min="-2" pref="130" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="271" max="-2" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
@@ -265,6 +266,9 @@
       </Layout>
       <SubComponents>
         <Component class="com.webreach.mirth.client.ui.components.MirthPasswordField" name="smtpPassword">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" value="Password for global SMTP settings."/>
+          </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="passwordLabel">
           <Properties>
@@ -277,6 +281,9 @@
           </Properties>
         </Component>
         <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="smtpUsername">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" value="Username for global SMTP settings."/>
+          </Properties>
         </Component>
         <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="requireAuthenticationYes">
           <Properties>
@@ -293,6 +300,7 @@
             </Property>
             <Property name="selected" type="boolean" value="true"/>
             <Property name="text" type="java.lang.String" value="Yes"/>
+            <Property name="toolTipText" type="java.lang.String" value="Toggles authentication for global SMTP settings."/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -315,6 +323,7 @@
               <ComponentRef name="buttonGroup2"/>
             </Property>
             <Property name="text" type="java.lang.String" value="No"/>
+            <Property name="toolTipText" type="java.lang.String" value="Toggles authentication for global SMTP settings."/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -334,6 +343,9 @@
           </Properties>
         </Component>
         <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="defaultFrom">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" value="Default &quot;from&quot; email address used for global SMTP settings."/>
+          </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel11">
           <Properties>
@@ -341,8 +353,14 @@
           </Properties>
         </Component>
         <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="smtpPort">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" value="SMTP port used for global SMTP settings."/>
+          </Properties>
         </Component>
         <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="smtpHost">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" value="SMTP host used for global SMTP settings."/>
+          </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel10">
           <Properties>
@@ -369,6 +387,7 @@
             </Property>
             <Property name="selected" type="boolean" value="true"/>
             <Property name="text" type="java.lang.String" value="None"/>
+            <Property name="toolTipText" type="java.lang.String" value="Toggles TLS and SSL connections for global SMTP settings."/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -391,6 +410,7 @@
               <ComponentRef name="buttonGroup6"/>
             </Property>
             <Property name="text" type="java.lang.String" value="TLS"/>
+            <Property name="toolTipText" type="java.lang.String" value="Toggles TLS and SSL connections for global SMTP settings."/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -413,6 +433,7 @@
               <ComponentRef name="buttonGroup6"/>
             </Property>
             <Property name="text" type="java.lang.String" value="SSL"/>
+            <Property name="toolTipText" type="java.lang.String" value="Toggles TLS and SSL connections for global SMTP settings."/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -474,7 +495,7 @@
                       </Group>
                       <Component id="updateUrl" alignment="0" min="-2" pref="200" max="-2" attributes="1"/>
                   </Group>
-                  <EmptySpace pref="20" max="32767" attributes="0"/>
+                  <EmptySpace pref="167" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -512,7 +533,7 @@
       <SubComponents>
         <Component class="javax.swing.JLabel" name="jLabel2">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Clear global map on deploy:"/>
+            <Property name="text" type="java.lang.String" value="Clear global map on redeploy:"/>
           </Properties>
         </Component>
         <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="clearGlobalMapYes">
@@ -530,6 +551,7 @@
             </Property>
             <Property name="selected" type="boolean" value="true"/>
             <Property name="text" type="java.lang.String" value="Yes"/>
+            <Property name="toolTipText" type="java.lang.String" value="Toggles clearing the global map when redeploying all channels."/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -552,6 +574,7 @@
               <ComponentRef name="buttonGroup3"/>
             </Property>
             <Property name="text" type="java.lang.String" value="No"/>
+            <Property name="toolTipText" type="java.lang.String" value="Toggles clearing the global map when redeploying all channels."/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -580,6 +603,7 @@
             </Property>
             <Property name="selected" type="boolean" value="true"/>
             <Property name="text" type="java.lang.String" value="Yes"/>
+            <Property name="toolTipText" type="java.lang.String" value="Toggles checking for software updates."/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -602,6 +626,7 @@
               <ComponentRef name="buttonGroup4"/>
             </Property>
             <Property name="text" type="java.lang.String" value="No"/>
+            <Property name="toolTipText" type="java.lang.String" value="Toggles checking for software updates."/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -630,6 +655,7 @@
             </Property>
             <Property name="selected" type="boolean" value="true"/>
             <Property name="text" type="java.lang.String" value="Yes"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Toggles sending usage statistics to Mirth.  These statistics &lt;br&gt;do not contain any PHI, and help Mirth determine which connectors &lt;br&gt;or areas of Mirth Connect are most widely used.&lt;/html&gt;"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -652,6 +678,7 @@
               <ComponentRef name="buttonGroup5"/>
             </Property>
             <Property name="text" type="java.lang.String" value="No"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Toggles sending usage statistics to Mirth.  These statistics &lt;br&gt;do not contain any PHI, and help Mirth determine which connectors &lt;br&gt;or areas of Mirth Connect are most widely used.&lt;/html&gt;"/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -661,6 +688,9 @@
           </Events>
         </Component>
         <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="updateUrl">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" value="The URL to use when checking for software updates."/>
+          </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="updateUrlLabel">
           <Properties>
@@ -724,7 +754,7 @@
                           <Component id="asteriskLabel" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace pref="82" max="32767" attributes="0"/>
+                  <EmptySpace pref="239" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -765,6 +795,9 @@
           </Properties>
         </Component>
         <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="intervalTime">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Interval in seconds at which to refresh the Dashboard. Decrement this for &lt;br&gt;faster updates, and increment it for slower servers with more channels.&lt;/html&gt;"/>
+          </Properties>
         </Component>
         <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="rowHighlightYes">
           <Properties>
@@ -781,6 +814,7 @@
             </Property>
             <Property name="selected" type="boolean" value="true"/>
             <Property name="text" type="java.lang.String" value="Yes"/>
+            <Property name="toolTipText" type="java.lang.String" value="Toggles alternate row highlighting on table rows."/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
@@ -800,12 +834,16 @@
               <ComponentRef name="buttonGroup1"/>
             </Property>
             <Property name="text" type="java.lang.String" value="No"/>
+            <Property name="toolTipText" type="java.lang.String" value="Toggles alternate row highlighting on table rows."/>
             <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
               <Insets value="[0, 0, 0, 0]"/>
             </Property>
           </Properties>
         </Component>
         <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="messageBrowserPageSizeField">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" value="Sets the default page size for browsers (message, event, etc.)"/>
+          </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel3">
           <Properties>

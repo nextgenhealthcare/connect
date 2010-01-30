@@ -9,6 +9,7 @@
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
@@ -139,6 +140,9 @@
               </Properties>
             </Component>
             <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="pageSizeField">
+              <Properties>
+                <Property name="toolTipText" type="java.lang.String" value="After changing the page size, a new search must be performed for the changes to take effect.  The default page size can also be configured on the Settings panel."/>
+              </Properties>
             </Component>
             <Component class="javax.swing.JButton" name="previousPageButton">
               <Properties>
@@ -359,7 +363,7 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="RawMessageTextPane" pref="144" max="32767" attributes="0"/>
+                          <Component id="RawMessageTextPane" pref="152" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -407,7 +411,7 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="TransformedMessageTextPane" pref="144" max="32767" attributes="0"/>
+                          <Component id="TransformedMessageTextPane" pref="152" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -455,7 +459,7 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="EncodedMessageTextPane" pref="144" max="32767" attributes="0"/>
+                          <Component id="EncodedMessageTextPane" pref="152" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -524,7 +528,7 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="ErrorsTextPane" pref="144" max="32767" attributes="0"/>
+                          <Component id="ErrorsTextPane" pref="152" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>

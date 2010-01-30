@@ -1123,6 +1123,8 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         jLabel6.setText("Page Size:");
 
+        pageSizeField.setToolTipText("After changing the page size, a new search must be performed for the changes to take effect.  The default page size can also be configured on the Settings panel.");
+
         previousPageButton.setText("<");
         previousPageButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1297,7 +1299,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             RawMessagePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(RawMessagePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(RawMessageTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE)
+                .add(RawMessageTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -1322,7 +1324,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             TransformedMessagePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(TransformedMessagePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(TransformedMessageTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE)
+                .add(TransformedMessageTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -1347,7 +1349,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             EncodedMessagePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(EncodedMessagePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(EncodedMessageTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE)
+                .add(EncodedMessageTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -1376,7 +1378,7 @@ public class MessageBrowser extends javax.swing.JPanel {
             ErrorsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(ErrorsPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(ErrorsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE)
+                .add(ErrorsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
                 .addContainerGap())
         );
 

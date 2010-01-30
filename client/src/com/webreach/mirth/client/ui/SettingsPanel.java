@@ -186,7 +186,7 @@ public class SettingsPanel extends javax.swing.JPanel
                         .add(jLabel4)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(lastBackup)))
-                .addContainerGap(189, Short.MAX_VALUE))
+                .addContainerGap(346, Short.MAX_VALUE))
         );
         backupPanelLayout.setVerticalGroup(
             backupPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -204,15 +204,20 @@ public class SettingsPanel extends javax.swing.JPanel
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Email", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
 
+        smtpPassword.setToolTipText("Password for global SMTP settings.");
+
         passwordLabel.setText("Password:");
 
         usernameLabel.setText("Username:");
+
+        smtpUsername.setToolTipText("Username for global SMTP settings.");
 
         requireAuthenticationYes.setBackground(new java.awt.Color(255, 255, 255));
         requireAuthenticationYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup2.add(requireAuthenticationYes);
         requireAuthenticationYes.setSelected(true);
         requireAuthenticationYes.setText("Yes");
+        requireAuthenticationYes.setToolTipText("Toggles authentication for global SMTP settings.");
         requireAuthenticationYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
         requireAuthenticationYes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -224,6 +229,7 @@ public class SettingsPanel extends javax.swing.JPanel
         requireAuthenticationNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup2.add(requireAuthenticationNo);
         requireAuthenticationNo.setText("No");
+        requireAuthenticationNo.setToolTipText("Toggles authentication for global SMTP settings.");
         requireAuthenticationNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
         requireAuthenticationNo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -235,7 +241,13 @@ public class SettingsPanel extends javax.swing.JPanel
 
         jLabel1.setText("Default from Address:");
 
+        defaultFrom.setToolTipText("Default \"from\" email address used for global SMTP settings.");
+
         jLabel11.setText("SMTP Port:");
+
+        smtpPort.setToolTipText("SMTP port used for global SMTP settings.");
+
+        smtpHost.setToolTipText("SMTP host used for global SMTP settings.");
 
         jLabel10.setText("SMTP Host:");
 
@@ -246,6 +258,7 @@ public class SettingsPanel extends javax.swing.JPanel
         buttonGroup6.add(secureConnectionNone);
         secureConnectionNone.setSelected(true);
         secureConnectionNone.setText("None");
+        secureConnectionNone.setToolTipText("Toggles TLS and SSL connections for global SMTP settings.");
         secureConnectionNone.setMargin(new java.awt.Insets(0, 0, 0, 0));
         secureConnectionNone.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -257,6 +270,7 @@ public class SettingsPanel extends javax.swing.JPanel
         secureConnectionTLS.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup6.add(secureConnectionTLS);
         secureConnectionTLS.setText("TLS");
+        secureConnectionTLS.setToolTipText("Toggles TLS and SSL connections for global SMTP settings.");
         secureConnectionTLS.setMargin(new java.awt.Insets(0, 0, 0, 0));
         secureConnectionTLS.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -268,6 +282,7 @@ public class SettingsPanel extends javax.swing.JPanel
         secureConnectionSSL.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup6.add(secureConnectionSSL);
         secureConnectionSSL.setText("SSL");
+        secureConnectionSSL.setToolTipText("Toggles TLS and SSL connections for global SMTP settings.");
         secureConnectionSSL.setMargin(new java.awt.Insets(0, 0, 0, 0));
         secureConnectionSSL.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -303,14 +318,14 @@ public class SettingsPanel extends javax.swing.JPanel
                                     .add(requireAuthenticationNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                                 .add(smtpPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 44, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .add(smtpHost, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 117, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                        .add(122, 122, 122))
+                        .add(279, 279, 279))
                     .add(jPanel1Layout.createSequentialGroup()
                         .add(secureConnectionNone, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(secureConnectionTLS, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(secureConnectionSSL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(130, 130, 130))))
+                        .add(271, 271, 271))))
         );
 
         jPanel1Layout.linkSize(new java.awt.Component[] {defaultFrom, smtpHost, smtpPassword, smtpUsername}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
@@ -354,13 +369,14 @@ public class SettingsPanel extends javax.swing.JPanel
         serverSettings.setBackground(new java.awt.Color(255, 255, 255));
         serverSettings.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createMatteBorder(1, 0, 0, 0, new java.awt.Color(204, 204, 204)), "Server", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
 
-        jLabel2.setText("Clear global map on deploy:");
+        jLabel2.setText("Clear global map on redeploy:");
 
         clearGlobalMapYes.setBackground(new java.awt.Color(255, 255, 255));
         clearGlobalMapYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup3.add(clearGlobalMapYes);
         clearGlobalMapYes.setSelected(true);
         clearGlobalMapYes.setText("Yes");
+        clearGlobalMapYes.setToolTipText("Toggles clearing the global map when redeploying all channels.");
         clearGlobalMapYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
         clearGlobalMapYes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -372,6 +388,7 @@ public class SettingsPanel extends javax.swing.JPanel
         clearGlobalMapNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup3.add(clearGlobalMapNo);
         clearGlobalMapNo.setText("No");
+        clearGlobalMapNo.setToolTipText("Toggles clearing the global map when redeploying all channels.");
         clearGlobalMapNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
         clearGlobalMapNo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -386,6 +403,7 @@ public class SettingsPanel extends javax.swing.JPanel
         buttonGroup4.add(checkForUpdatesYes);
         checkForUpdatesYes.setSelected(true);
         checkForUpdatesYes.setText("Yes");
+        checkForUpdatesYes.setToolTipText("Toggles checking for software updates.");
         checkForUpdatesYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
         checkForUpdatesYes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -397,6 +415,7 @@ public class SettingsPanel extends javax.swing.JPanel
         checkForUpdatesNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup4.add(checkForUpdatesNo);
         checkForUpdatesNo.setText("No");
+        checkForUpdatesNo.setToolTipText("Toggles checking for software updates.");
         checkForUpdatesNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
         checkForUpdatesNo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -411,6 +430,7 @@ public class SettingsPanel extends javax.swing.JPanel
         buttonGroup5.add(sendUsageStatsYes);
         sendUsageStatsYes.setSelected(true);
         sendUsageStatsYes.setText("Yes");
+        sendUsageStatsYes.setToolTipText("<html>Toggles sending usage statistics to Mirth.  These statistics <br>do not contain any PHI, and help Mirth determine which connectors <br>or areas of Mirth Connect are most widely used.</html>");
         sendUsageStatsYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
         sendUsageStatsYes.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -422,12 +442,15 @@ public class SettingsPanel extends javax.swing.JPanel
         sendUsageStatsNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup5.add(sendUsageStatsNo);
         sendUsageStatsNo.setText("No");
+        sendUsageStatsNo.setToolTipText("<html>Toggles sending usage statistics to Mirth.  These statistics <br>do not contain any PHI, and help Mirth determine which connectors <br>or areas of Mirth Connect are most widely used.</html>");
         sendUsageStatsNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
         sendUsageStatsNo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 sendUsageStatsNoActionPerformed(evt);
             }
         });
+
+        updateUrl.setToolTipText("The URL to use when checking for software updates.");
 
         updateUrlLabel.setText("Update URL:");
 
@@ -464,9 +487,9 @@ public class SettingsPanel extends javax.swing.JPanel
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(sendUsageStatsNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(usageStatsMoreInfoLabel))
+                        .add(usageStatsMoreInfoLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(updateUrl, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addContainerGap(167, Short.MAX_VALUE))
         );
         serverSettingsLayout.setVerticalGroup(
             serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -485,7 +508,7 @@ public class SettingsPanel extends javax.swing.JPanel
                     .add(sendUsageStatsLabel)
                     .add(sendUsageStatsYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(sendUsageStatsNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(usageStatsMoreInfoLabel))
+                    .add(usageStatsMoreInfoLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(updateUrl, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -500,18 +523,24 @@ public class SettingsPanel extends javax.swing.JPanel
 
         jLabel7.setText("Alternate row highlighting in tables:");
 
+        intervalTime.setToolTipText("<html>Interval in seconds at which to refresh the Dashboard. Decrement this for <br>faster updates, and increment it for slower servers with more channels.</html>");
+
         rowHighlightYes.setBackground(new java.awt.Color(255, 255, 255));
         rowHighlightYes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup1.add(rowHighlightYes);
         rowHighlightYes.setSelected(true);
         rowHighlightYes.setText("Yes");
+        rowHighlightYes.setToolTipText("Toggles alternate row highlighting on table rows.");
         rowHighlightYes.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         rowHighlightNo.setBackground(new java.awt.Color(255, 255, 255));
         rowHighlightNo.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         buttonGroup1.add(rowHighlightNo);
         rowHighlightNo.setText("No");
+        rowHighlightNo.setToolTipText("Toggles alternate row highlighting on table rows.");
         rowHighlightNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        messageBrowserPageSizeField.setToolTipText("Sets the default page size for browsers (message, event, etc.)");
 
         jLabel3.setText("Browser page size:");
 
@@ -545,7 +574,7 @@ public class SettingsPanel extends javax.swing.JPanel
                         .add(intervalTime, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 78, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(asteriskLabel)))
-                .addContainerGap(82, Short.MAX_VALUE))
+                .addContainerGap(239, Short.MAX_VALUE))
         );
         clientSettingsLayout.setVerticalGroup(
             clientSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)

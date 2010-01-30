@@ -453,9 +453,9 @@ public class EventBrowser extends javax.swing.JPanel
     }
     
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents()
-    {
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
         filterPanel = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         resultsLabel = new javax.swing.JLabel();
@@ -481,28 +481,29 @@ public class EventBrowser extends javax.swing.JPanel
         eventTable = null;
 
         setBackground(new java.awt.Color(255, 255, 255));
+
         filterPanel.setBackground(new java.awt.Color(255, 255, 255));
         filterPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1)));
+
         resultsLabel.setForeground(new java.awt.Color(204, 0, 0));
         resultsLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         resultsLabel.setText("Results");
 
+        pageSizeField.setToolTipText("After changing the page size, a new search must be performed for the changes to take effect.  The default page size can also be configured on the Settings panel.");
+
         nextPageButton.setText(">");
-        nextPageButton.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        nextPageButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 nextPageButtonActionPerformed(evt);
             }
         });
 
         previousPageButton.setText("<");
-        previousPageButton.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        previousPageButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 previousPageButtonActionPerformed(evt);
             }
         });
@@ -546,7 +547,8 @@ public class EventBrowser extends javax.swing.JPanel
         );
 
         jPanel1.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1), "Search", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 0, 0)));
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1), "Search", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
+
         eventLabel.setText("Event:");
 
         jLabel3.setText("Start Date:");
@@ -556,10 +558,8 @@ public class EventBrowser extends javax.swing.JPanel
         levelLabel.setText("Level:");
 
         filterButton.setText("Search");
-        filterButton.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        filterButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 filterButtonActionPerformed(evt);
             }
         });
@@ -629,10 +629,13 @@ public class EventBrowser extends javax.swing.JPanel
         jSplitPane1.setDividerLocation(200);
         jSplitPane1.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         jSplitPane1.setResizeWeight(0.5);
+
         descriptionTabbedPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         descriptionTabbedPane.setFocusable(false);
+
         descriptionPanel.setBackground(new java.awt.Color(255, 255, 255));
         descriptionPanel.setFocusable(false);
+
         descriptionTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         descriptionTextPane.setEditable(false);
 
@@ -652,6 +655,7 @@ public class EventBrowser extends javax.swing.JPanel
                 .add(descriptionTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 177, Short.MAX_VALUE)
                 .addContainerGap())
         );
+
         descriptionTabbedPane.addTab("Description", descriptionPanel);
 
         jSplitPane1.setRightComponent(descriptionTabbedPane);
