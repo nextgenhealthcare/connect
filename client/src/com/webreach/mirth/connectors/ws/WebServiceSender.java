@@ -281,6 +281,27 @@ public class WebServiceSender extends ConnectorClass
         resetInvalidProperties();
         boolean valid = true;
         
+        if (((String) props.getProperty(WebServiceSenderProperties.WEBSERVICE_WSDL_URL)).length() == 0)
+        {
+            valid = false;
+            if (highlight)
+                wsdlUrl.setBackground(UIConstants.INVALID_COLOR);
+        }
+        
+        if (((String) props.getProperty(WebServiceSenderProperties.WEBSERVICE_SERVICE)).length() == 0)
+        {
+            valid = false;
+            if (highlight)
+                serviceField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        
+        if (((String) props.getProperty(WebServiceSenderProperties.WEBSERVICE_PORT)).length() == 0)
+        {
+            valid = false;
+            if (highlight)
+                portField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        
         if (((String) props.getProperty(WebServiceSenderProperties.WEBSERVICE_ENVELOPE)).length() == 0)
         {
             valid = false;
@@ -300,6 +321,9 @@ public class WebServiceSender extends ConnectorClass
 
     private void resetInvalidProperties()
     {
+        wsdlUrl.setBackground(null);
+        serviceField.setBackground(new java.awt.Color(222, 222, 222));
+        portField.setBackground(new java.awt.Color(222, 222, 222));
         soapEnvelope.setBackground(null);
         reconnectInterval.setBackground(null);
     }

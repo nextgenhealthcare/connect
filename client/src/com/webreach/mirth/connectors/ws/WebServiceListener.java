@@ -184,6 +184,14 @@ public class WebServiceListener extends ConnectorClass
             if (highlight)
             	portField.setBackground(UIConstants.INVALID_COLOR);
         }
+        
+        if (((String) props.get(WebServiceListenerProperties.WEBSERVICE_CLASS_NAME)).length() == 0)
+        {
+            valid = false;
+            if (highlight)
+                classNameField.setBackground(UIConstants.INVALID_COLOR);
+        }
+        
         if (((String) props.get(WebServiceListenerProperties.WEBSERVICE_SERVICE_NAME)).length() == 0)
         {
             valid = false;
@@ -198,6 +206,7 @@ public class WebServiceListener extends ConnectorClass
     {
         listenerAddressField.setBackground(null);
         portField.setBackground(null);
+        classNameField.setBackground(null);
         serviceNameField.setBackground(null);
     }
 
