@@ -41,13 +41,13 @@ public class WebServiceUtil {
     public static InputStream getUrlContents(URI uri, URI parentUri, String username, String password) throws Exception {
         URI baseUri = null;
 
-        if (!uri.isAbsolute()) {
+        if (!uri.isAbsolute() && parentUri != null) {
             baseUri = parentUri.resolve(uri);
         } else {
             baseUri = uri;
         }
         
-        if (baseUri.getScheme().equalsIgnoreCase("file")) {
+        if (baseUri.getScheme() != null && baseUri.getScheme().equalsIgnoreCase("file")) {
             return new FileInputStream(new File(baseUri));
         }
 
