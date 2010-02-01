@@ -22,6 +22,18 @@
 	<library path="ws-shared.jar">
 		<type>SHARED</type>
 	</library>
+	<library path="lib/qname-1.6.2.jar">
+		<type>SERVER</type>
+	</library>
+	<library path="lib/relaxngDatatype.jar">
+		<type>SERVER</type>
+	</library>
+	<library path="lib/wsdl4j-1.6.2.jar">
+		<type>SERVER</type>
+	</library>
+	<library path="lib/xsom.jar">
+		<type>SERVER</type>
+	</library>
 	<mule-properties>
 		<property name="connector">com.webreach.mirth.connectors.ws.WebServiceConnector</property>
 		<property name="dispatcher.factory">com.webreach.mirth.connectors.ws.WebServiceMessageDispatcherFactory</property>

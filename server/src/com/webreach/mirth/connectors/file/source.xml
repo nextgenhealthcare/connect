@@ -21,6 +21,9 @@
 	<library path="lib/jcifs-1.2.22.jar">
 		<type>SERVER</type>
 	</library>
+	<library path="lib/webdavclient4j-core-0.92.jar">
+		<type>SERVER</type>
+	</library>
 	<transformers>ByteArrayToString</transformers>
 	<protocol>file</protocol>
 	<type>SOURCE</type>

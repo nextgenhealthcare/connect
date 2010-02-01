@@ -37,7 +37,6 @@
 	<classpathentry kind="lib" path="lib/extensions/pdfviewer/MRJToolkitStubs.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/pdfviewer/acrobat.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/doc/iText-2.0.8.jar"/>
-	<classpathentry kind="lib" path="lib/webdavclient4j-core-0.92.jar"/>
 	<classpathentry kind="lib" path="lib/custom/mysql-connector-java-5.0.8-bin.jar"/>
 	<classpathentry kind="lib" path="lib/velocity-tools-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/hapi-0.6.jar"/>
@@ -69,17 +68,18 @@
 	<classpathentry kind="lib" path="lib/quartz-all-1.6.6.jar"/>
 	<classpathentry kind="lib" path="lib/mail-1.4.3.jar"/>
 	<classpathentry kind="lib" path="lib/backport-util-concurrent-Java60-3.1.jar"/>
-	<classpathentry kind="lib" path="lib/bcprov-jdk16-144.jar"/>
 	<classpathentry kind="lib" path="lib/xpp3_min-1.1.4c.jar"/>
 	<classpathentry kind="lib" path="lib/mirth-vocab-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/xstream-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/commons/commons-configuration-1.6.jar"/>
-	<classpathentry kind="lib" path="lib/wsdl4j-1.6.2.jar"/>
-	<classpathentry kind="lib" path="lib/qname-1.6.2.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-5.1.15.jar"/>
-	<classpathentry kind="lib" path="lib/xsom.jar"/>
-	<classpathentry kind="lib" path="lib/relaxngDatatype.jar"/>
 	<classpathentry kind="lib" path="lib/jsch-0.1.42.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/doc/bcprov-jdk16-144.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/ws/qname-1.6.2.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/ws/relaxngDatatype.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/ws/wsdl4j-1.6.2.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/ws/xsom.jar"/>
+	<classpathentry kind="lib" path="lib/extensions/file/webdavclient4j-core-0.92.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre6"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

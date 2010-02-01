@@ -24,6 +24,9 @@
 	<library path="lib/core-renderer.jar">
 		<type>SERVER</type>
 	</library>
+	<library path="lib/bcprov-jdk16-144.jar">
+		<type>SERVER</type>
+	</library>
 	<transformers></transformers>
 	<protocol>doc</protocol>
 	<type>DESTINATION</type>
