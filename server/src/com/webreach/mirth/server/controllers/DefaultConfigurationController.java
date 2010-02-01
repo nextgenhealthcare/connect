@@ -205,10 +205,10 @@ public class DefaultConfigurationController extends ConfigurationController {
     }
     
     public void redeployAllChannels() throws ControllerException {
-        logger.debug("deploying all channels");
+        logger.debug("redeploying all channels");
         
         // undeploy all running channels
-        CommandQueue.getInstance().addCommand(new Command(Command.Operation.UNDEPLOY_ALL));
+        CommandQueue.getInstance().addCommand(new Command(Command.Operation.REDEPLOY));
         // deploy all enabled channels
         deployChannels(ControllerFactory.getFactory().createChannelController().getChannel(null));
     }

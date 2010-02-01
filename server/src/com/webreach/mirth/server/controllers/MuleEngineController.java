@@ -3,6 +3,7 @@ package com.webreach.mirth.server.controllers;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -63,7 +64,7 @@ public class MuleEngineController implements EngineController {
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private ObjectXMLSerializer objectSerializer = new ObjectXMLSerializer();
     private UMOManager muleManager = MuleManager.getInstance();
-    private JmxAgent jmxAgent = null; 
+    private JmxAgent jmxAgent = null;
     private static List<String> nonConnectorProperties = null;
     private static List<String> keysOfValuesThatAreBeans = null;
     private static Map<String, String> defaultTransformers = null;
@@ -73,7 +74,7 @@ public class MuleEngineController implements EngineController {
         // connector
         nonConnectorProperties = Arrays.asList(new String[] { "host", "port", "DataType" });
         keysOfValuesThatAreBeans = Arrays.asList(new String[] { "connectionFactoryProperties", "requestVariables", "headerVariables", "envelopeProperties", "attachmentNames", "attachmentContents", "attachmentTypes", "traits", "dispatcherAttachmentNames", "dispatcherAttachmentContents", "dispatcherAttachmentTypes", "requestParamsName", "requestParamsKey", "requestParamsValue", "assertionParamsKey", "assertionParamsValue", "receiverUsernames", "receiverPasswords" });
-        
+
         // add default transformers
         defaultTransformers = new HashMap<String, String>();
         defaultTransformers.put("ByteArrayToString", "org.mule.transformers.simple.ByteArrayToString");
@@ -161,12 +162,12 @@ public class MuleEngineController implements EngineController {
 
         for (Channel channel : channels) {
             if (channel.isEnabled()) {
-                registerDescriptor(channel);
+                registerChannel(channel);
             }
         }
     }
 
-    private void registerDescriptor(Channel channel) throws Exception {
+    private void registerChannel(Channel channel) throws Exception {
         logger.debug("registering descriptor for channel: " + channel.getId());
         UMODescriptor descriptor = new MuleDescriptor();
         descriptor.setImplementation(Class.forName("com.webreach.mirth.server.mule.components.Channel").newInstance());
@@ -184,10 +185,10 @@ public class MuleEngineController implements EngineController {
         configureInboundRouter(descriptor, channel);
         configureOutboundRouter(descriptor, channel);
         muleManager.getModel().registerComponent(descriptor);
-        
+
         // register its mbean
         if (muleManager.isStarted()) {
-            jmxAgent.registerComponentService(descriptor.getName());    
+            jmxAgent.registerComponentService(descriptor.getName());
         }
     }
 
@@ -509,22 +510,23 @@ public class MuleEngineController implements EngineController {
         unregisterConnectors(descriptor.getInboundRouter().getEndpoints());
         UMOOutboundRouter outboundRouter = (UMOOutboundRouter) descriptor.getOutboundRouter().getRouters().iterator().next();
         unregisterConnectors(outboundRouter.getEndpoints());
-        
+
         // unregister its mbean
         jmxAgent.unregsiterComponentService(channelId);
     }
 
     private void unregisterConnectors(List<UMOEndpoint> endpoints) throws Exception {
         for (UMOEndpoint endpoint : endpoints) {
-            if (!endpoint.getEndpointURI().getScheme().equals("vm")) {
-                logger.debug("unregistering connector: " + endpoint.getEndpointURI());
-                muleManager.unregisterConnector(endpoint.getConnector().getName());
+            if (!endpoint.getEndpointURI().getUri().toString().equals("vm://sink")) {
+                logger.debug("unregistering endpoint: " + endpoint.getName());
+                muleManager.unregisterEndpoint(endpoint.getName());
+                // muleManager.unregisterConnector(endpoint.getConnector().getName());
             }
 
             unregisterTransformer(endpoint.getTransformer());
         }
     }
-    
+
     private void unregisterTransformer(UMOTransformer transformer) throws Exception {
         if (!defaultTransformers.keySet().contains(transformer.getName())) {
             logger.debug("unregistering transformer: " + transformer.getName());
@@ -534,6 +536,17 @@ public class MuleEngineController implements EngineController {
 
     public boolean isChannelRegistered(String channelId) throws Exception {
         return muleManager.getModel().isComponentRegistered(channelId);
+    }
+
+    public List<String> getDeployedChannelIds() throws Exception {
+        List<String> channelIds = new ArrayList<String>();
+
+        for (Iterator<String> iterator = muleManager.getModel().getComponentNames(); iterator.hasNext();) {
+            String channelId = iterator.next();
+            channelIds.add(channelId);
+        }
+
+        return channelIds;
     }
 
     public void start() throws Exception {

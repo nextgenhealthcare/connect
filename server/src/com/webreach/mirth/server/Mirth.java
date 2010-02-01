@@ -34,7 +34,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -47,7 +46,6 @@ import org.mortbay.http.SocketListener;
 import org.mortbay.http.SslListener;
 import org.mortbay.http.handler.ResourceHandler;
 import org.mortbay.jetty.servlet.ServletHandler;
-import org.mule.umo.manager.UMOManager;
 
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.SystemEvent;
@@ -82,7 +80,6 @@ public class Mirth extends Thread {
     private HttpServer servletContainer = null;
     private CommandQueue commandQueue = CommandQueue.getInstance();
     
-    private UMOManager umoManager = null;
     private EngineController managerBuilder = new MuleEngineController();
 
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
@@ -140,8 +137,8 @@ public class Mirth extends Thread {
                     deployChannels((List<Channel>) command.getParameter());
                 } else if (command.getOperation().equals(Command.Operation.UNDEPLOY_CHANNELS)) {
                     undeployChannels((List<String>) command.getParameter());
-                } else if (command.getOperation().equals(Command.Operation.UNDEPLOY_ALL)) {
-                    undeployAllChannels();
+                } else if (command.getOperation().equals(Command.Operation.REDEPLOY)) {
+                    redeployChannels();
                 }
             }
         } else {
@@ -249,15 +246,20 @@ public class Mirth extends Thread {
         }
     }
     
-    private void undeployAllChannels() {
-        List<String> channelIds = new ArrayList<String>();
-        
-        for (Iterator<String> iterator = umoManager.getModel().getComponentNames(); iterator.hasNext();) {
-            String channelId = iterator.next();
-            channelIds.add(channelId);
+    private void redeployChannels() {
+        try {
+            List<String> channelIds = new ArrayList<String>();
+            
+            for (String channelId : managerBuilder.getDeployedChannelIds()) {
+                System.out.println(">>> " + channelId);
+                channelIds.add(channelId);
+            }
+            
+            undeployChannels(channelIds);
+            deployChannels(channelController.getChannel(null));
+        } catch (Exception e) {
+            logger.error("Error re-deploying channels.", e);
         }
-        
-        undeployChannels(channelIds);
     }
 
     /**
