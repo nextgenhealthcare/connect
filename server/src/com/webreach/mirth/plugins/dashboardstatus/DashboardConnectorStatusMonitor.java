@@ -32,157 +32,158 @@ import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
 
-public class DashboardConnectorStatusMonitor implements ServerPlugin
-{
+public class DashboardConnectorStatusMonitor implements ServerPlugin {
     private Logger logger = Logger.getLogger(this.getClass());
     private static final String UNKNOWN = "Unknown";
-	private static final String BLACK = "black";
-	private static final String IDLE = "Idle";
-	private static final String RECEIVING = "Receiving";
-	private static final String READING = "Reading";
-	private static final String POLLING = "Polling";
-	private static final String NOT_POLLING = "Not Polling";
+    private static final String BLACK = "black";
+    private static final String IDLE = "Idle";
+    private static final String RECEIVING = "Receiving";
+    private static final String READING = "Reading";
+    private static final String POLLING = "Polling";
+    private static final String NOT_POLLING = "Not Polling";
     private static final String WRITING = "Writing";
     private static final String SENDING = "Sending";
     private static final String YELLOW = "yellow";
-	private static final String GREEN = "green";
-	private static final String RED = "red";
-	private static final String WAITING = "Waiting";
-	private static final String CONNECTED = "Connected";
-	private static final String DISCONNECTED = "Disconnected";
+    private static final String GREEN = "green";
+    private static final String RED = "red";
+    private static final String WAITING = "Waiting";
+    private static final String CONNECTED = "Connected";
+    private static final String DISCONNECTED = "Disconnected";
     private static final String ATTEMPTING_TO_CONNECT = "Attempting to Connect";
-	private static final String GET_STATES = "getStates";
+    private static final String GET_STATES = "getStates";
     private static final String GET_CONNECTION_INFO_LOGS = "getConnectionInfoLogs";
     private static final String REMOVE_SESSIONID = "removeSessionId";
     private static final String CHANNELS_DEPLOYED = "channelsDeployed";
     private static final String NO_CHANNEL_SELECTED = "No Channel Selected";
     private HashMap<String, String[]> currentStates;
-	private HashMap<String, Set<Socket>> socketSets;
+    private HashMap<String, Set<Socket>> socketSets;
     private ConcurrentHashMap<String, LinkedList<String[]>> connectorInfoLogs;
     private LinkedList<String[]> entireConnectorInfoLogs;
     private ConcurrentHashMap<String, HashMap<String, Long>> lastDisplayedLogIndexBySessionId = new ConcurrentHashMap<String, HashMap<String, Long>>();
-    private static final int LOG_SIZE = 1000;        // maximum log size for each channel. and for entire logs.
+    // maximum log size for each channel. and for entire logs.
+    private static final int LOG_SIZE = 1000;
     private static long logId = 1;
-    private ConcurrentHashMap<String, Boolean> channelsDeployedFlagForEachClient = new ConcurrentHashMap<String, Boolean>();  // stores channelsJustBeenDeployed Flag for each session (client). this flag is used to signal clients to clear out all the Dashboard Monitoring Logs.
-
-
+    // stores channelsJustBeenDeployedFlag for each session (client). this flag
+    // is used to signal clients to clear out all the Dashboard Monitoring Logs.
+    private ConcurrentHashMap<String, Boolean> channelsDeployedFlagForEachClient = new ConcurrentHashMap<String, Boolean>();
+    
     public void updateStatus(String connectorId, ConnectorType type, Event event, Socket socket) {
 
-		String stateImage = BLACK;
-		String statusText = UNKNOWN;
+        String stateImage = BLACK;
+        String statusText = UNKNOWN;
         boolean updateStatus = false;
 
         switch (event) {
-			case INITIALIZED:
-				switch (type) {
-					case LISTENER:
-						stateImage = YELLOW;
-						statusText = WAITING;
+            case INITIALIZED:
+                switch (type) {
+                    case LISTENER:
+                        stateImage = YELLOW;
+                        statusText = WAITING;
                         updateStatus = true;
                         break;
-					case READER:
-						stateImage = YELLOW;
-						statusText = IDLE;
-                        updateStatus = true;
-                        break;
-				}
-                break;
-			case CONNECTED:
-				switch (type) {
-					case LISTENER:
-						if (socket != null){
-							addConnectionToSocketSet(socket, connectorId);
-							stateImage = GREEN;
-							statusText = CONNECTED + " (" + getSocketSetCount(connectorId) + ")";
-						} else {
-							stateImage = GREEN;
-							statusText = CONNECTED;
-						}
-                        updateStatus = true;
-                        break;
-					case READER:
-						stateImage = GREEN;
-						statusText = POLLING;
-                        updateStatus = true;
-                        break;
-				}
-                break;
-			case DISCONNECTED:
-				switch (type) {
-					case LISTENER:
-						if (socket != null){
-							removeConnectionInSocketSet(socket, connectorId);
-							int connectedSockets = getSocketSetCount(connectorId);
-							if (connectedSockets == 0){
-								stateImage = YELLOW;
-								statusText = WAITING;
-							}else{
-								stateImage = GREEN;
-								statusText = CONNECTED + " (" + connectedSockets + ")";
-							}
-						}else{
-							clearSocketSet(connectorId);
-							stateImage = RED;
-							statusText = DISCONNECTED;
-						}
-                        updateStatus = true;
-                        break;
-					case READER:
-						stateImage = RED;
-						statusText = NOT_POLLING;
-                        updateStatus = true;
-                        break;
-					case WRITER:
-						stateImage = RED;
-						statusText = DISCONNECTED;
-                        updateStatus = true;
-                        break;
-					case SENDER:
-                        stateImage = RED;
-						statusText = DISCONNECTED;
+                    case READER:
+                        stateImage = YELLOW;
+                        statusText = IDLE;
                         updateStatus = true;
                         break;
                 }
                 break;
-			case BUSY:
-				switch (type) {
-					case READER:
-						stateImage = GREEN;
-						statusText = READING;
+            case CONNECTED:
+                switch (type) {
+                    case LISTENER:
+                        if (socket != null) {
+                            addConnectionToSocketSet(socket, connectorId);
+                            stateImage = GREEN;
+                            statusText = CONNECTED + " (" + getSocketSetCount(connectorId) + ")";
+                        } else {
+                            stateImage = GREEN;
+                            statusText = CONNECTED;
+                        }
                         updateStatus = true;
                         break;
-					case LISTENER:
-						stateImage = GREEN;
-						statusText = RECEIVING;
+                    case READER:
+                        stateImage = GREEN;
+                        statusText = POLLING;
+                        updateStatus = true;
+                        break;
+                }
+                break;
+            case DISCONNECTED:
+                switch (type) {
+                    case LISTENER:
+                        if (socket != null) {
+                            removeConnectionInSocketSet(socket, connectorId);
+                            int connectedSockets = getSocketSetCount(connectorId);
+                            if (connectedSockets == 0) {
+                                stateImage = YELLOW;
+                                statusText = WAITING;
+                            } else {
+                                stateImage = GREEN;
+                                statusText = CONNECTED + " (" + connectedSockets + ")";
+                            }
+                        } else {
+                            clearSocketSet(connectorId);
+                            stateImage = RED;
+                            statusText = DISCONNECTED;
+                        }
+                        updateStatus = true;
+                        break;
+                    case READER:
+                        stateImage = RED;
+                        statusText = NOT_POLLING;
                         updateStatus = true;
                         break;
                     case WRITER:
-						stateImage = YELLOW;
-						statusText = WRITING;
+                        stateImage = RED;
+                        statusText = DISCONNECTED;
                         updateStatus = true;
                         break;
-					case SENDER:
-                        stateImage = YELLOW;
-						statusText = SENDING;
+                    case SENDER:
+                        stateImage = RED;
+                        statusText = DISCONNECTED;
                         updateStatus = true;
                         break;
                 }
                 break;
-			case DONE:
-				switch (type) {
-					case READER:
-						stateImage = YELLOW;
-						statusText = IDLE;
+            case BUSY:
+                switch (type) {
+                    case READER:
+                        stateImage = GREEN;
+                        statusText = READING;
                         updateStatus = true;
                         break;
-					case LISTENER:
-						if (socket != null) {
-							stateImage = GREEN;
-							statusText = CONNECTED + " (" + getSocketSetCount(connectorId) + ")";
-						} else {
-							stateImage = YELLOW;
-							statusText = WAITING;
-						}
+                    case LISTENER:
+                        stateImage = GREEN;
+                        statusText = RECEIVING;
+                        updateStatus = true;
+                        break;
+                    case WRITER:
+                        stateImage = YELLOW;
+                        statusText = WRITING;
+                        updateStatus = true;
+                        break;
+                    case SENDER:
+                        stateImage = YELLOW;
+                        statusText = SENDING;
+                        updateStatus = true;
+                        break;
+                }
+                break;
+            case DONE:
+                switch (type) {
+                    case READER:
+                        stateImage = YELLOW;
+                        statusText = IDLE;
+                        updateStatus = true;
+                        break;
+                    case LISTENER:
+                        if (socket != null) {
+                            stateImage = GREEN;
+                            statusText = CONNECTED + " (" + getSocketSetCount(connectorId) + ")";
+                        } else {
+                            stateImage = YELLOW;
+                            statusText = WAITING;
+                        }
                         updateStatus = true;
                         break;
                 }
@@ -190,20 +191,20 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
             case ATTEMPTING_TO_CONNECT:
                 switch (type) {
                     case WRITER:
-						stateImage = YELLOW;
-						statusText = ATTEMPTING_TO_CONNECT;
+                        stateImage = YELLOW;
+                        statusText = ATTEMPTING_TO_CONNECT;
                         updateStatus = true;
                         break;
-					case SENDER:
+                    case SENDER:
                         stateImage = YELLOW;
-						statusText = ATTEMPTING_TO_CONNECT;
+                        statusText = ATTEMPTING_TO_CONNECT;
                         updateStatus = true;
                         break;
                 }
                 break;
             default:
-				break;
-		}
+                break;
+        }
 
         if (updateStatus) {
 
@@ -211,28 +212,35 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
             SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
 
             String channelName = "";
-            String connectorType = type.toString();     // this will be overwritten down below. If not, something's wrong.
+            // this will be overwritten down below. If not, something's wrong.
+            String connectorType = type.toString();
             String information = "";
 
             // check 'connectorId' - contains destination_1_connector, etc.
-            // connectorId consists of id_source_connector for sources, and id_destination_x_connector for destinations.
+            // connectorId consists of id_source_connector for sources, and
+            // id_destination_x_connector for destinations.
             // i.e. tokenCount will be 3 for sources and 4 for destinations.
-            // Note that READER and LISTENER are sources, and WRITER and SENDER are destinations.
+            // Note that READER and LISTENER are sources, and WRITER and SENDER
+            // are destinations.
             StringTokenizer st = new StringTokenizer(connectorId, "_");
             String channelId = st.nextToken();
             int destinationIndex;
 
             LinkedList<String[]> channelLog = null;
 
-            HashMap<String, Channel> channelsFromCache = ControllerFactory.getFactory().createChannelController().getChannelCache();    // HashMap(ChannelID, Channel)
+            HashMap<String, Channel> channelsFromCache = ControllerFactory.getFactory().createChannelController().getChannelCache(); // HashMap(ChannelID,
+            // Channel)
 
-            if (channelsFromCache.containsKey(channelId)) { //  redundant check as the channelId MUST exist in the channelCache. but just for a safety measure...
+            // redundant check as the channelId MUST exist in the channelCache.
+            // but just for a safety measure...
+            if (channelsFromCache.containsKey(channelId)) {
 
                 Channel channel = channelsFromCache.get(channelId);
 
                 channelName = channel.getName();
 
-                // grab the channel's log from the HashMap, if not exist, create one.
+                // grab the channel's log from the HashMap, if not exist, create
+                // one.
                 if (connectorInfoLogs.containsKey(channelName)) {
                     channelLog = connectorInfoLogs.get(channelName);
                 } else {
@@ -250,7 +258,9 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
                         break;
                     case WRITER:
                         st.nextToken();
-                        destinationIndex = Integer.valueOf(st.nextToken()) - 1;     // destinationId begins from 1, so subtract by 1 for the arrayIndex.
+                        // destinationId begins from 1, so subtract by 1 for the
+                        // arrayIndex.
+                        destinationIndex = Integer.valueOf(st.nextToken()) - 1;
                         connector = channel.getDestinationConnectors().get(destinationIndex);
                         connectorType = "Destination: " + connector.getTransportName() + " - " + connector.getName();
                         if (connector.getTransportName().equals(FileWriterProperties.name)) {
@@ -273,7 +283,9 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
                         break;
                     case SENDER:
                         st.nextToken();
-                        destinationIndex = Integer.valueOf(st.nextToken()) - 1;     // destinationId begins from 1, so subtract by 1 for the arrayIndex.
+                        // destinationId begins from 1, so subtract by 1 for the
+                        // arrayIndex.
+                        destinationIndex = Integer.valueOf(st.nextToken()) - 1;
                         connector = channel.getDestinationConnectors().get(destinationIndex);
                         connectorType = "Destination: " + connector.getTransportName() + " - " + connector.getName();
                         if (connector.getTransportName().equals(HTTPSenderProperties.name)) {
@@ -281,21 +293,23 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
                             information = HTTPSenderProperties.getInformation(connector.getProperties());
                         } else if (connector.getTransportName().equals(ChannelWriterProperties.name)) {
                             // Destination - Channel Writer.
-                        	String targetChannelName = ControllerFactory.getFactory().createChannelController().getChannelName(ChannelWriterProperties.getInformation(connector.getProperties()));
-                        	if (targetChannelName == null) {
-                        		information = "Target Channel: None";
-                        	} else {
-                        		information = "Target Channel: " + targetChannelName;
-                        	}
+                            String targetChannelName = ControllerFactory.getFactory().createChannelController().getChannelName(ChannelWriterProperties.getInformation(connector.getProperties()));
+                            if (targetChannelName == null) {
+                                information = "Target Channel: None";
+                            } else {
+                                information = "Target Channel: " + targetChannelName;
+                            }
                         } else if (connector.getTransportName().equals(EmailSenderProperties.name)) {
                             // Destination - Email Sender.
                             information = EmailSenderProperties.getInformation(connector.getProperties());
                         } else if (connector.getTransportName().equals(TCPSenderProperties.name)) {
                             // Destination - TCP Sender.
-                            // The useful info for TCP Sender - host:port will be taken care of by the socket below.
+                            // The useful info for TCP Sender - host:port will
+                            // be taken care of by the socket below.
                         } else if (connector.getTransportName().equals(LLPSenderProperties.name)) {
                             // Destination - LLP Sender.
-                            // The useful info for LLP Sender - host:port will be taken care of by the socket below.
+                            // The useful info for LLP Sender - host:port will
+                            // be taken care of by the socket below.
                         } else if (connector.getTransportName().equals(WebServiceSenderProperties.name)) {
                             // Destination - Web Service Sender.
                             // information = "";
@@ -321,7 +335,7 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
             }
 
             if (channelLog != null) {
-                synchronized(this) {
+                synchronized (this) {
                     if (channelLog.size() == LOG_SIZE) {
                         channelLog.removeLast();
                     }
@@ -339,80 +353,86 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
                 }
             }
 
-            this.currentStates.put(connectorId, new String[]{stateImage, statusText});
+            this.currentStates.put(connectorId, new String[] { stateImage, statusText });
         }
     }
 
-	private synchronized void addConnectionToSocketSet(Socket socket, String connectorId) {
-		if (socket != null){
-			Set<Socket> socketSet = socketSets.get(connectorId);
-			if (socketSet == null){
-				socketSet = new HashSet<Socket>();
-				socketSets.put(connectorId, socketSet);
-			}
-			socketSet.add(socket);
-		}
-	}
-	
-	private synchronized void removeConnectionInSocketSet(Socket socket, String connectorId) {
-		if (socket != null){
-			Set socketSet = socketSets.get(connectorId);
-			if (socketSet != null){
-				socketSet.remove(socket);
-			}
-		}
-	}
-	
-	private synchronized void clearSocketSet(String connectorId) {
-		socketSets.remove(connectorId);
-	}
-	
-	private int getSocketSetCount(String connectorId){
-		Set socketSet = socketSets.get(connectorId);
-		if (socketSet == null){
-			return 0;
-		}else{
-			return socketSet.size();
-		}
-	}
+    private synchronized void addConnectionToSocketSet(Socket socket, String connectorId) {
+        if (socket != null) {
+            Set<Socket> socketSet = socketSets.get(connectorId);
+            if (socketSet == null) {
+                socketSet = new HashSet<Socket>();
+                socketSets.put(connectorId, socketSet);
+            }
+            socketSet.add(socket);
+        }
+    }
 
-	public Properties getDefaultProperties() {
-		return null;
-	}
+    private synchronized void removeConnectionInSocketSet(Socket socket, String connectorId) {
+        if (socket != null) {
+            Set<Socket> socketSet = socketSets.get(connectorId);
 
-	public void init(Properties properties) {
-		initialize();
-	}
+            if (socketSet != null) {
+                socketSet.remove(socket);
+            }
+        }
+    }
 
-	private void initialize() {
-		this.socketSets = new HashMap<String, Set<Socket>>();
-		this.currentStates = new HashMap<String, String[]>();
+    private synchronized void clearSocketSet(String connectorId) {
+        socketSets.remove(connectorId);
+    }
+
+    private int getSocketSetCount(String connectorId) {
+        Set<Socket> socketSet = socketSets.get(connectorId);
+
+        if (socketSet == null) {
+            return 0;
+        } else {
+            return socketSet.size();
+        }
+    }
+
+    public Properties getDefaultProperties() {
+        return null;
+    }
+
+    public void init(Properties properties) {
+        initialize();
+    }
+
+    private void initialize() {
+        this.socketSets = new HashMap<String, Set<Socket>>();
+        this.currentStates = new HashMap<String, String[]>();
         this.connectorInfoLogs = new ConcurrentHashMap<String, LinkedList<String[]>>();
         this.entireConnectorInfoLogs = new LinkedList<String[]>();
         this.channelsDeployedFlagForEachClient.clear();
     }
 
-	public synchronized Object invoke(String method, Object object, String sessionId) {
-		if (method.equals(GET_STATES)) {
-			return this.currentStates;
-		} else if (method.equals(GET_CONNECTION_INFO_LOGS)) {
+    public synchronized Object invoke(String method, Object object, String sessionId) {
+        if (method.equals(GET_STATES)) {
+            return this.currentStates;
+        } else if (method.equals(GET_CONNECTION_INFO_LOGS)) {
 
             String channelName;
             LinkedList<String[]> channelLog;
 
             if (object == null) {
-                // object is null - no channel is selected.  return the latest entire log entries of all channels combined.  ONLY new entries.
+                // object is null - no channel is selected. return the latest
+                // entire log entries of all channels combined. ONLY new
+                // entries.
                 channelName = NO_CHANNEL_SELECTED;
                 channelLog = entireConnectorInfoLogs;
             } else {
-                // object is not null - a channel is selected.  return the latest (LOG_SIZE) of that particular channel.
+                // object is not null - a channel is selected. return the latest
+                // (LOG_SIZE) of that particular channel.
                 channelName = object.toString();
-                // return only the newly added log entries for the client with matching sessionId.
+                // return only the newly added log entries for the client with
+                // matching sessionId.
                 channelLog = connectorInfoLogs.get(channelName);
                 if (channelLog == null) {
                     channelLog = new LinkedList<String[]>();
                     connectorInfoLogs.put(channelName, channelLog);
-                }                
+                }
             }
 
             HashMap<String, Long> lastDisplayedLogIdByChannel;
@@ -428,7 +448,8 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
                     long lastDisplayedLogId = lastDisplayedLogIdByChannel.get(channelName);
                     LinkedList<String[]> newChannelLogEntries = new LinkedList<String[]>();
 
-                    // FYI, channelLog.size() will never be larger than LOG_SIZE = 1000.
+                    // FYI, channelLog.size() will never be larger than LOG_SIZE
+                    // = 1000.
                     for (String[] aChannelLog : channelLog) {
                         if (lastDisplayedLogId < Long.parseLong(aChannelLog[0])) {
                             newChannelLogEntries.addLast(aChannelLog);
@@ -436,7 +457,9 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
                     }
 
                     if (newChannelLogEntries.size() > 0) {
-                        // put the lastDisplayedLogId into the HashMap. index 0 is the most recent entry, and index0 of that entry contains the logId.
+                        // put the lastDisplayedLogId into the HashMap. index 0
+                        // is the most recent entry, and index0 of that entry
+                        // contains the logId.
                         lastDisplayedLogIdByChannel.put(channelName, Long.parseLong(newChannelLogEntries.get(0)[0]));
                         lastDisplayedLogIndexBySessionId.put(sessionId, lastDisplayedLogIdByChannel);
                     }
@@ -450,7 +473,9 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
                 } else {
                     // new channel viewing on an already open client.
                     // -> all log entries are new. display them all.
-                    // put the lastDisplayedLogId into the HashMap.  index0 is the most recent entry, and index0 of that entry object contains the logId.
+                    // put the lastDisplayedLogId into the HashMap. index0 is
+                    // the most recent entry, and index0 of that entry object
+                    // contains the logId.
                     if (channelLog.size() > 0) {
                         lastDisplayedLogIdByChannel.put(channelName, Long.parseLong(channelLog.get(0)[0]));
                         lastDisplayedLogIndexBySessionId.put(sessionId, lastDisplayedLogIdByChannel);
@@ -471,8 +496,9 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
                 if (channelLog.size() > 0) {
                     lastDisplayedLogIdByChannel.put(channelName, Long.parseLong(channelLog.get(0)[0]));
                 } else {
-                    // no log exist at all. put the currentLogId-1, which is the very latest logId.
-                    lastDisplayedLogIdByChannel.put(channelName, logId-1);
+                    // no log exist at all. put the currentLogId-1, which is the
+                    // very latest logId.
+                    lastDisplayedLogIdByChannel.put(channelName, logId - 1);
                 }
 
                 lastDisplayedLogIndexBySessionId.put(sessionId, lastDisplayedLogIdByChannel);
@@ -484,18 +510,21 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
             }
 
         } else if (method.equals(CHANNELS_DEPLOYED)) {
-            
+
             if (channelsDeployedFlagForEachClient.containsKey(sessionId)) {
                 // sessionId found. no (re)deploy occurred.
                 return false;
             } else {
-                // no sessionId found, which means channels have just been (re)deployed - clear out all clients' Dashboard Connector Logs.
+                // no sessionId found, which means channels have just been
+                // (re)deployed - clear out all clients' Dashboard Connector
+                // Logs.
                 channelsDeployedFlagForEachClient.put(sessionId, true);
                 return true;
             }
 
         } else if (method.equals(REMOVE_SESSIONID)) {
-            // client shut down, or user logged out -> remove everything involving this sessionId.
+            // client shut down, or user logged out -> remove everything
+            // involving this sessionId.
             if (lastDisplayedLogIndexBySessionId.containsKey(sessionId)) {
                 lastDisplayedLogIndexBySessionId.remove(sessionId);
             }
@@ -506,22 +535,22 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin
         }
 
         return null;
-	}
+    }
 
     public void onDeploy() {
-		initialize();        
+        initialize();
     }
 
-	public void start() {
-
-	}
-
-	public void stop() {
+    public void start() {
 
     }
 
-	public void update(Properties properties) {
+    public void stop() {
 
-	}
+    }
+
+    public void update(Properties properties) {
+
+    }
 
 }
