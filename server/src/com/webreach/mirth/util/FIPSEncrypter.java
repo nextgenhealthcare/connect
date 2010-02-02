@@ -27,7 +27,7 @@ public class FIPSEncrypter {
 		}
 	}
 
-	public synchronized String getSalt() throws EncryptionException {
+	public synchronized String getSalt() {
 		byte[] salt = new byte[8];
 		SecureRandom random = new SecureRandom();
 		random.engineNextBytes(salt);

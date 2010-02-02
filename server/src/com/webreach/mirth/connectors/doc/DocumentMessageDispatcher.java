@@ -30,7 +30,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.StringBufferInputStream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -107,7 +106,7 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 			// update the message status to sent
 			messageObjectController.setSuccess(messageObject, "Document successfully written: " + filename, null);
 		} catch (Exception e) {
-			alertController.sendAlerts(((DocumentConnector) connector).getChannelId(), Constants.ERROR_401, "Error writing document", e);
+			alertController.sendAlerts(connector.getChannelId(), Constants.ERROR_401, "Error writing document", e);
 			messageObjectController.setError(messageObject, Constants.ERROR_401, "Error writing document", e, null);
 			connector.handleException(e);
 		} finally {
@@ -137,7 +136,7 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 
 			try {
 				DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-				org.w3c.dom.Document document = builder.parse(new StringBufferInputStream(contents.toString()));
+				org.w3c.dom.Document document = builder.parse(new ByteArrayInputStream(contents.toString().getBytes()));
 
 				ITextRenderer renderer = new ITextRenderer();
 				renderer.setDocument(document, null);
@@ -160,7 +159,7 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 					encryptFis = new FileInputStream(file);
 					PdfReader reader = new PdfReader(encryptFis);
 					encryptFos = new FileOutputStream(file);
-					PdfEncryptor.encrypt(reader, encryptFos, true, connector.getPassword(), null, PdfWriter.AllowPrinting | PdfWriter.AllowCopy);
+					PdfEncryptor.encrypt(reader, encryptFos, true, connector.getPassword(), null, PdfWriter.ALLOW_PRINTING | PdfWriter.ALLOW_COPY);
 				} catch (Exception e) {
 					throw e;
 				} finally {

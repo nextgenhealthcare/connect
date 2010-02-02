@@ -37,8 +37,8 @@ public class QueueUtil {
 
 	public void removeAllQueuesForChannel(Channel channel) {
 		// iterate through all destinations, create queue name, remove queue
-		for (ListIterator iterator = channel.getDestinationConnectors().listIterator(); iterator.hasNext();) {
-			Connector connector = (Connector) iterator.next();
+		for (ListIterator<Connector> iterator = channel.getDestinationConnectors().listIterator(); iterator.hasNext();) {
+			Connector connector = iterator.next();
 
 			if ((connector.getProperties().getProperty(QueuedSenderProperties.USE_PERSISTENT_QUEUES) != null) && connector.getProperties().getProperty(QueuedSenderProperties.USE_PERSISTENT_QUEUES).equals("1")) {
 				removeQueue(getQueueName(channel.getId(), String.valueOf(iterator.nextIndex())));
