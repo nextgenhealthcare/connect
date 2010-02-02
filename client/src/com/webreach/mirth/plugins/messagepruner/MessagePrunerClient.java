@@ -13,7 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
-import org.jdesktop.swingworker.SwingWorker;
+import javax.swing.SwingWorker;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.plugins.ClientPanelPlugin;

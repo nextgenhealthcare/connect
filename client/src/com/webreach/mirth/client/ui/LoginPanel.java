@@ -29,8 +29,7 @@ import java.awt.Cursor;
 import java.util.Properties;
 
 import javax.swing.ImageIcon;
-
-import org.jdesktop.swingworker.SwingWorker;
+import javax.swing.SwingWorker;
 
 import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.client.core.ClientException;

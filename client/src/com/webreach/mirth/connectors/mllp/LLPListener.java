@@ -25,7 +25,6 @@
 
 package com.webreach.mirth.connectors.mllp;
 
-import com.webreach.mirth.client.core.ClientException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -37,7 +36,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.SwingWorker;
 
+import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
@@ -46,9 +47,6 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.Step;
 import com.webreach.mirth.util.ConnectionTestResponse;
-
-import java.util.HashMap;
-import org.jdesktop.swingworker.SwingWorker;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are

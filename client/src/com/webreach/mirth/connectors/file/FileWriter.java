@@ -25,14 +25,16 @@
 
 package com.webreach.mirth.connectors.file;
 
+import java.util.Properties;
+
+import javax.swing.SwingWorker;
+
+import org.apache.log4j.Logger;
+
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.util.ConnectionTestResponse;
-import org.apache.log4j.Logger;
-import org.jdesktop.swingworker.SwingWorker;
-
-import java.util.Properties;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are

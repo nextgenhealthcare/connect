@@ -40,7 +40,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
-import org.jdesktop.swingworker.SwingWorker;
+import javax.swing.SwingWorker;
+
 import org.jdesktop.swingx.decorator.Filter;
 import org.jdesktop.swingx.decorator.FilterPipeline;
 import org.jdesktop.swingx.decorator.Highlighter;

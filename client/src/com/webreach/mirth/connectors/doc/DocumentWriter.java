@@ -27,7 +27,7 @@ package com.webreach.mirth.connectors.doc;
 
 import java.util.Properties;
 
-import org.jdesktop.swingworker.SwingWorker;
+import javax.swing.SwingWorker;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.UIConstants;

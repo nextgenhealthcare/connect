@@ -25,20 +25,19 @@
 
 package com.webreach.mirth.connectors.tcp;
 
-import com.webreach.mirth.client.core.ClientException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 
+import javax.swing.SwingWorker;
+
+import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.QueuedSenderProperties;
 import com.webreach.mirth.util.ConnectionTestResponse;
-
-import java.util.Map;
-import org.jdesktop.swingworker.SwingWorker;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are

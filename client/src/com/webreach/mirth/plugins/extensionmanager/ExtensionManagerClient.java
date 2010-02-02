@@ -16,8 +16,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 
 import javax.swing.ImageIcon;
-
-import org.jdesktop.swingworker.SwingWorker;
+import javax.swing.SwingWorker;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.PlatformUI;
