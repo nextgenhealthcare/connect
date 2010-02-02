@@ -35,7 +35,6 @@
 		<jar download="eager" href="client-lib/looks-2.2.2.jar" />
 		<jar download="eager" href="client-lib/rhino-1.7r3pre.jar" />
 		<jar download="eager" href="client-lib/swing-layout.jar" />
-		<jar download="eager" href="client-lib/swing-worker.jar" />
 		<jar download="eager" href="client-lib/swingx-1.0.jar" />
 		<jar download="eager" href="client-lib/wizard.jar" />
 		<jar download="eager" href="client-lib/xpp3_min-1.1.4c.jar" />
