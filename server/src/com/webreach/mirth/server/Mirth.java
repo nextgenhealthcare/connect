@@ -128,11 +128,11 @@ public class Mirth extends Thread {
                 } else if (command.getOperation().equals(Command.Operation.SHUTDOWN_SERVER)) {
                     shutdown();
                 } else if (command.getOperation().equals(Command.Operation.START_ENGINE)) {
-                    startMule();
+                    startEngine();
                 } else if (command.getOperation().equals(Command.Operation.STOP_ENGINE)) {
-                    stopMule();
+                    stopEngine();
                 } else if (command.getOperation().equals(Command.Operation.RESTART_ENGINE)) {
-                    restartMule();
+                    restartEngine();
                 } else if (command.getOperation().equals(Command.Operation.DEPLOY_CHANNELS)) {
                     deployChannels((List<Channel>) command.getParameter());
                 } else if (command.getOperation().equals(Command.Operation.UNDEPLOY_CHANNELS)) {
@@ -182,7 +182,7 @@ public class Mirth extends Thread {
 
         // disable the velocity logging
         Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogSystem");
-        startMule();
+        startEngine();
         printSplashScreen();
     }
 
@@ -192,7 +192,7 @@ public class Mirth extends Thread {
      */
     public void shutdown() {
         logger.info("shutting down mirth due to normal request");
-        stopMule();
+        stopEngine();
         channelStatisticsController.updateAllStatistics();
         // do one last update to the stats table
         stopWebServer();
@@ -207,10 +207,10 @@ public class Mirth extends Thread {
      * the server.
      * 
      */
-    private void restartMule() {
+    private void restartEngine() {
         logger.debug("retarting mule");
-        stopMule();
-        startMule();
+        stopEngine();
+        startEngine();
     }
 
     private void deployChannels(List<Channel> channels) {
@@ -247,11 +247,12 @@ public class Mirth extends Thread {
     }
     
     private void redeployChannels() {
+        resetGlobalVariableStore();
+        
         try {
             List<String> channelIds = new ArrayList<String>();
             
             for (String channelId : managerBuilder.getDeployedChannelIds()) {
-                System.out.println(">>> " + channelId);
                 channelIds.add(channelId);
             }
             
@@ -266,17 +267,8 @@ public class Mirth extends Thread {
      * Starts the Mule server.
      * 
      */
-    private void startMule() {
-        try {
-            // clear global map and do channel deploy scripts if the user
-            // specified to
-            if (configurationController.getServerProperties().getProperty("server.resetglobalvariables") == null || configurationController.getServerProperties().getProperty("server.resetglobalvariables").equals("1")) {
-                GlobalVariableStore.getInstance().globalVariableMap.clear();
-            }
-        } catch (Exception e) {
-            logger.warn("Could not clear the global map.", e);
-        }
-
+    private void startEngine() {
+        resetGlobalVariableStore();
         configurationController.setEngineStarting(true);
 
         try {
@@ -301,11 +293,23 @@ public class Mirth extends Thread {
         configurationController.setEngineStarting(false);
     }
 
+    private void resetGlobalVariableStore() {
+        try {
+            // clear global map and do channel deploy scripts if the user
+            // specified to
+            if (configurationController.getServerProperties().getProperty("server.resetglobalvariables") == null || configurationController.getServerProperties().getProperty("server.resetglobalvariables").equals("1")) {
+                GlobalVariableStore.getInstance().globalVariableMap.clear();
+            }
+        } catch (Exception e) {
+            logger.error("Could not clear the global map.", e);
+        }
+    }
+    
     /**
      * Stops the Mule server.
      * 
      */
-    private void stopMule() {
+    private void stopEngine() {
         logger.debug("stopping mule");
 
         try {
