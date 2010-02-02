@@ -12,31 +12,29 @@ import org.syntax.jedit.JEditTextArea;
 
 import com.webreach.mirth.client.ui.FindRplDialog;
 
-public class FindAndReplaceAction extends AbstractAction
-{
+public class FindAndReplaceAction extends AbstractAction {
+
     JEditTextArea comp;
     FindRplDialog find;
 
-    public FindAndReplaceAction(JEditTextArea comp)
-    {
+    public FindAndReplaceAction(JEditTextArea comp) {
         super("Find/Replace");
         this.comp = comp;
     }
 
-    public void actionPerformed(ActionEvent e)
-    {
-    	Window owner = SwingUtilities.windowForComponent(comp);
-    	
-    	if (owner instanceof Frame) {
-    		find = new FindRplDialog((Frame)owner,true,comp);
-    	} else { // window instanceof Dialog
-    		find = new FindRplDialog((Dialog)owner,true,comp);
-    	}
-    	
+    public void actionPerformed(ActionEvent e) {
+        Window owner = SwingUtilities.windowForComponent(comp);
+
+        if (owner instanceof Frame) {
+            find = new FindRplDialog((Frame) owner, true, comp);
+        } else { // window instanceof Dialog
+            find = new FindRplDialog((Dialog) owner, true, comp);
+        }
+
         find.setVisible(true);
     }
-    public boolean isEnabled()
-    {
+
+    public boolean isEnabled() {
         return comp.isEnabled();
     }
 }

@@ -3,16 +3,13 @@ package com.webreach.mirth.client.ui.beans;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 
-public class DelimitedProperties implements Serializable
-{
-    
+public class DelimitedProperties implements Serializable {
+
     private PropertyChangeSupport propertySupport;
-    
-    public DelimitedProperties()
-    {
+
+    public DelimitedProperties() {
         propertySupport = new PropertyChangeSupport(this);
     }
-
     /**
      * Holds value of property columnDelimiter.
      */
@@ -33,7 +30,6 @@ public class DelimitedProperties implements Serializable
     public void setColumnDelimiter(String columnDelimiter) {
         this.columnDelimiter = columnDelimiter;
     }
-
     /**
      * Holds value of property recordDelimiter.
      */
@@ -54,7 +50,6 @@ public class DelimitedProperties implements Serializable
     public void setRecordDelimiter(java.lang.String recordDelimiter) {
         this.recordDelimiter = recordDelimiter;
     }
-
     /**
      * Holds value of property columnWidths.
      */
@@ -75,7 +70,6 @@ public class DelimitedProperties implements Serializable
     public void setColumnWidths(String columnWidths) {
         this.columnWidths = columnWidths;
     }
-
     /**
      * Holds value of property quoteChar.
      */
@@ -96,7 +90,6 @@ public class DelimitedProperties implements Serializable
     public void setQuoteChar(String quoteChar) {
         this.quoteChar = quoteChar;
     }
-
     /**
      * Holds value of property escapeWithDoubleQuote.
      */
@@ -117,7 +110,6 @@ public class DelimitedProperties implements Serializable
     public void setEscapeWithDoubleQuote(boolean escapeWithDoubleQuote) {
         this.escapeWithDoubleQuote = escapeWithDoubleQuote;
     }
-
     /**
      * Holds value of property quoteEscapeChar.
      */
@@ -138,7 +130,6 @@ public class DelimitedProperties implements Serializable
     public void setQuoteEscapeChar(String quoteEscapeChar) {
         this.quoteEscapeChar = quoteEscapeChar;
     }
-
     /**
      * Holds value of property columnNames.
      */
@@ -159,7 +150,6 @@ public class DelimitedProperties implements Serializable
     public void setColumnNames(String columnNames) {
         this.columnNames = columnNames;
     }
-
     /**
      * Holds value of property batchSkipRecords.
      */
@@ -180,7 +170,6 @@ public class DelimitedProperties implements Serializable
     public void setBatchSkipRecords(String batchSkipRecords) {
         this.batchSkipRecords = batchSkipRecords;
     }
-
     /**
      * Holds value of property batchMessageDelimiter.
      */
@@ -201,7 +190,6 @@ public class DelimitedProperties implements Serializable
     public void setBatchMessageDelimiter(String batchMessageDelimiter) {
         this.batchMessageDelimiter = batchMessageDelimiter;
     }
-
     /**
      * Holds value of property batchMessageDelimiterIncluded.
      */
@@ -222,7 +210,6 @@ public class DelimitedProperties implements Serializable
     public void setBatchMessageDelimiterIncluded(boolean batchMessageDelimiterIncluded) {
         this.batchMessageDelimiterIncluded = batchMessageDelimiterIncluded;
     }
-
     /**
      * Holds value of property batchGroupingColumn.
      */
@@ -243,7 +230,6 @@ public class DelimitedProperties implements Serializable
     public void setBatchGroupingColumn(String batchGroupingColumn) {
         this.batchGroupingColumn = batchGroupingColumn;
     }
-
     /**
      * Holds value of property batchScript.
      */
@@ -264,7 +250,6 @@ public class DelimitedProperties implements Serializable
     public void setBatchScript(String batchScript) {
         this.batchScript = batchScript;
     }
-
     /**
      * Holds value of property ignoreCR.
      */
@@ -285,7 +270,6 @@ public class DelimitedProperties implements Serializable
     public void setIgnoreCR(boolean ignoreCR) {
         this.ignoreCR = ignoreCR;
     }
-
     /**
      * Holds value of property batchSplitByRecord.
      */
@@ -306,7 +290,6 @@ public class DelimitedProperties implements Serializable
     public void setBatchSplitByRecord(boolean batchSplitByRecord) {
         this.batchSplitByRecord = batchSplitByRecord;
     }
-
     /**
      * Holds value of property numberedRows.
      */

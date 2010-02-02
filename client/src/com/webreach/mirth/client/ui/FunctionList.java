@@ -1,9 +1,3 @@
-/*
- * FunctionList.java
- *
- * Created on July 9, 2007, 6:06 PM
- */
-
 package com.webreach.mirth.client.ui;
 
 import java.util.ArrayList;
@@ -19,172 +13,154 @@ import com.webreach.mirth.client.ui.panels.reference.ReferenceListPanel;
 import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ListType;
 import com.webreach.mirth.model.CodeTemplate;
 
-/**
- *
- * @author  brendanh
- */
-public class FunctionList extends javax.swing.JPanel
-{
+public class FunctionList extends javax.swing.JPanel {
+
     private LinkedHashMap<String, JPanel> panels;
     private int context;
-    
-    public FunctionList()
-    {
+
+    public FunctionList() {
         initComponents();
     }
-    
+
     /** Creates new form FunctionList */
-    public FunctionList(int context)
-    {
+    public FunctionList(int context) {
         this.context = context;
         initComponents();
         panels = new LinkedHashMap<String, JPanel>();
         setup();
     }
-    
-    public void setup()
-    {
+
+    public void setup() {
         ReferenceListFactory builder = ReferenceListFactory.getInstance();
 
         LinkedHashMap<String, ArrayList<CodeTemplate>> references = builder.getReferences();
         Iterator i = references.entrySet().iterator();
         addPanel(new ReferenceListPanel(ListType.ALL.getValue(), builder.getVariableListItems(ListType.ALL.getValue(), context)), "All");
-        
-        while (i.hasNext())
-        {
+
+        while (i.hasNext()) {
             Entry entry = (Entry) i.next();
             String key = (String) entry.getKey();
             references.get(entry.getKey());
             ArrayList<CodeTemplate> items = builder.getVariableListItems(key, context);
-            
-            if(items != null && items.size() > 0)
+
+            if (items != null && items.size() > 0) {
                 addPanel(new ReferenceListPanel(key, items), key);
+            }
         }
-        
+
         updateUserTemplates();
-                
+
         setDefaultDropDownValue();
     }
-    
-    public void updateUserTemplates()
-    {
+
+    public void updateUserTemplates() {
         ReferenceListFactory builder = ReferenceListFactory.getInstance();
-        
+
         addPanel(new ReferenceListPanel(ListType.ALL.getValue(), builder.getVariableListItems(ListType.ALL.getValue(), context)), "All");
-                
+
         ArrayList<CodeTemplate> variableListItems = builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_VARIABLES, context);
-        if(variableListItems.size() > 0)
+        if (variableListItems.size() > 0) {
             addPanel(new ReferenceListPanel(ReferenceListFactory.USER_TEMPLATE_VARIABLES, variableListItems), ReferenceListFactory.USER_TEMPLATE_VARIABLES);
-        else if(panels.get(ReferenceListFactory.USER_TEMPLATE_VARIABLES) != null)
-        {
+        } else if (panels.get(ReferenceListFactory.USER_TEMPLATE_VARIABLES) != null) {
             panels.remove(ReferenceListFactory.USER_TEMPLATE_VARIABLES);
         }
-        
-        ArrayList<CodeTemplate> codeListItems = builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_CODE, context);        
-        if(codeListItems.size() > 0)
+
+        ArrayList<CodeTemplate> codeListItems = builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_CODE, context);
+        if (codeListItems.size() > 0) {
             addPanel(new ReferenceListPanel(ReferenceListFactory.USER_TEMPLATE_CODE, codeListItems), ReferenceListFactory.USER_TEMPLATE_CODE);
-        else if(panels.get(ReferenceListFactory.USER_TEMPLATE_CODE) != null)
-        {
+        } else if (panels.get(ReferenceListFactory.USER_TEMPLATE_CODE) != null) {
             panels.remove(ReferenceListFactory.USER_TEMPLATE_CODE);
         }
-        
-        ArrayList<CodeTemplate> functionListItems = builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS, context);        
-        if(functionListItems.size() > 0)
+
+        ArrayList<CodeTemplate> functionListItems = builder.getVariableListItems(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS, context);
+        if (functionListItems.size() > 0) {
             addPanel(new ReferenceListPanel(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS, functionListItems), ReferenceListFactory.USER_TEMPLATE_FUNCTIONS);
-        else if(panels.get(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS) != null)
-        {
+        } else if (panels.get(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS) != null) {
             panels.remove(ReferenceListFactory.USER_TEMPLATE_FUNCTIONS);
         }
-        
+
         updateDropDown();
     }
-    
-    public void setDefaultDropDownValue()
-    {
+
+    public void setDefaultDropDownValue() {
         variableReferenceDropDownActionPerformed(null);
         variableReferenceDropDown.setSelectedItem(ListType.ALL.getValue());
     }
-    
-    public void addPanel(JPanel panel, String name)
-    {
+
+    public void addPanel(JPanel panel, String name) {
         panels.put(name, panel);
     }
-    
-    public void updateDropDown()
-    {
+
+    public void updateDropDown() {
         String[] items = new String[panels.keySet().size()];
         int i = 0;
-        for (String s : panels.keySet())
-        {
+        for (String s : panels.keySet()) {
             items[i] = s;
             i++;
         }
-        
+
         Object selectedItem = variableReferenceDropDown.getSelectedItem();
-        
+
         variableReferenceDropDown.setModel(new DefaultComboBoxModel(items));
-        
-        if(selectedItem != null)
+
+        if (selectedItem != null) {
             variableReferenceDropDown.setSelectedItem(selectedItem);
+        }
     }
-    
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
      * always regenerated by the Form Editor.
      */
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents()
-    {
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
         variableReferenceDropDown = new javax.swing.JComboBox();
         jLabel1 = new javax.swing.JLabel();
         variableScrollPane = new javax.swing.JScrollPane();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        variableReferenceDropDown.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+
+        variableReferenceDropDown.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 variableReferenceDropDownActionPerformed(evt);
             }
         });
 
         jLabel1.setText("Filter:");
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jLabel1)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(variableReferenceDropDown, 0, 91, Short.MAX_VALUE)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(variableReferenceDropDown, 0, 91, Short.MAX_VALUE)
                 .addContainerGap())
-            .add(variableScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE)
+            .addComponent(variableScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(variableReferenceDropDown, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 22, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel1))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(variableScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 139, Short.MAX_VALUE))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(variableReferenceDropDown, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(variableScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 139, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void variableReferenceDropDownActionPerformed(java.awt.event.ActionEvent evt)                                                          
-    {                                                                   
-        updateUserTemplates();   
+    private void variableReferenceDropDownActionPerformed(java.awt.event.ActionEvent evt) {
+        updateUserTemplates();
         variableScrollPane.setViewportView((panels.get((String) variableReferenceDropDown.getSelectedItem())));
-    }                                                         
-    
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JComboBox variableReferenceDropDown;
     private javax.swing.JScrollPane variableScrollPane;
     // End of variables declaration//GEN-END:variables
-    
 }

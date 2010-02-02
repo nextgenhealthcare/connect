@@ -1,28 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.connectors.tcp;
 
 import java.util.ArrayList;
@@ -50,12 +25,10 @@ import com.webreach.mirth.model.Step;
  * A form that extends from ConnectorClass. All methods implemented are
  * described in ConnectorClass.
  */
-public class TCPListener extends ConnectorClass
-{
-    /** Creates new form TCPListener */
+public class TCPListener extends ConnectorClass {
 
-    public TCPListener()
-    {
+    /** Creates new form TCPListener */
+    public TCPListener() {
         this.parent = PlatformUI.MIRTH_FRAME;
         name = TCPListenerProperties.name;
         initComponents();
@@ -65,8 +38,7 @@ public class TCPListener extends ConnectorClass
         parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
 
-    public Properties getProperties()
-    {
+    public Properties getProperties() {
         Properties properties = new Properties();
         properties.put(TCPListenerProperties.DATATYPE, name);
         properties.put(TCPListenerProperties.TCP_ADDRESS, listenerAddressField.getText());
@@ -74,62 +46,58 @@ public class TCPListener extends ConnectorClass
         properties.put(TCPListenerProperties.TCP_RECEIVE_TIMEOUT, receiveTimeoutField.getText());
         properties.put(TCPListenerProperties.TCP_BUFFER_SIZE, bufferSizeField.getText());
 
-        properties.put(TCPListenerProperties.TCP_RESPONSE_VALUE, (String)responseFromTransformer.getSelectedItem());
+        properties.put(TCPListenerProperties.TCP_RESPONSE_VALUE, (String) responseFromTransformer.getSelectedItem());
 
         // ast:encoding
         properties.put(TCPListenerProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
-        
-        if (dataTypeBinary.isSelected())
-            properties.put(TCPListenerProperties.TCP_TYPE, UIConstants.YES_OPTION);
-        else
-            properties.put(TCPListenerProperties.TCP_TYPE, UIConstants.NO_OPTION);
 
-        if (ackOnNewConnectionYes.isSelected())
+        if (dataTypeBinary.isSelected()) {
+            properties.put(TCPListenerProperties.TCP_TYPE, UIConstants.YES_OPTION);
+        } else {
+            properties.put(TCPListenerProperties.TCP_TYPE, UIConstants.NO_OPTION);
+        }
+
+        if (ackOnNewConnectionYes.isSelected()) {
             properties.put(TCPListenerProperties.TCP_ACK_NEW_CONNECTION, UIConstants.YES_OPTION);
-        else
+        } else {
             properties.put(TCPListenerProperties.TCP_ACK_NEW_CONNECTION, UIConstants.NO_OPTION);
+        }
 
         properties.put(TCPListenerProperties.TCP_ACK_NEW_CONNECTION_IP, ackAddressField.getText());
         properties.put(TCPListenerProperties.TCP_ACK_NEW_CONNECTION_PORT, ackPortField.getText());
         return properties;
     }
 
-    public void setProperties(Properties props)
-    {
+    public void setProperties(Properties props) {
         resetInvalidProperties();
-        
+
         listenerAddressField.setText((String) props.get(TCPListenerProperties.TCP_ADDRESS));
         listenerPortField.setText((String) props.get(TCPListenerProperties.TCP_PORT));
         receiveTimeoutField.setText((String) props.get(TCPListenerProperties.TCP_RECEIVE_TIMEOUT));
         bufferSizeField.setText((String) props.get(TCPListenerProperties.TCP_BUFFER_SIZE));
 
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
-        
+
         updateResponseDropDown();
-        
-        if (parent.channelEditPanel.synchronousCheckBox.isSelected())
+
+        if (parent.channelEditPanel.synchronousCheckBox.isSelected()) {
             responseFromTransformer.setSelectedItem((String) props.getProperty(TCPListenerProperties.TCP_RESPONSE_VALUE));
+        }
 
         parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(TCPListenerProperties.CONNECTOR_CHARSET_ENCODING));
-        
-        if (((String) props.get(TCPListenerProperties.TCP_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION))
-        {
+
+        if (((String) props.get(TCPListenerProperties.TCP_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             dataTypeBinary.setSelected(true);
             dataTypeBinaryActionPerformed(null);
-        }
-        else
-        {
+        } else {
             dataTypeASCII.setSelected(true);
             dataTypeASCIIActionPerformed(null);
         }
 
-        if (((String) props.get(TCPListenerProperties.TCP_ACK_NEW_CONNECTION)).equalsIgnoreCase(UIConstants.YES_OPTION))
-        {
+        if (((String) props.get(TCPListenerProperties.TCP_ACK_NEW_CONNECTION)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             ackOnNewConnectionYesActionPerformed(null);
             ackOnNewConnectionYes.setSelected(true);
-        }
-        else
-        {
+        } else {
             ackOnNewConnectionNoActionPerformed(null);
             ackOnNewConnectionNo.setSelected(true);
         }
@@ -140,61 +108,57 @@ public class TCPListener extends ConnectorClass
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
 
-    public Properties getDefaults()
-    {
+    public Properties getDefaults() {
         return new TCPListenerProperties().getDefaults();
     }
 
-    public boolean checkProperties(Properties props, boolean highlight)
-    {
+    public boolean checkProperties(Properties props, boolean highlight) {
         resetInvalidProperties();
         boolean valid = true;
-        
-        if (((String) props.get(TCPListenerProperties.TCP_ADDRESS)).length() <= 3)
-        {
+
+        if (((String) props.get(TCPListenerProperties.TCP_ADDRESS)).length() <= 3) {
             valid = false;
-            if (highlight)
-            	listenerAddressField.setBackground(UIConstants.INVALID_COLOR); 
-        }
-        if (((String) props.get(TCPListenerProperties.TCP_PORT)).length() == 0)
-        {
-            valid = false;
-            if (highlight)
-            	listenerPortField.setBackground(UIConstants.INVALID_COLOR);
-        }
-        if (((String) props.get(TCPListenerProperties.TCP_RECEIVE_TIMEOUT)).length() == 0)
-        {
-            valid = false;
-            if (highlight)
-            	receiveTimeoutField.setBackground(UIConstants.INVALID_COLOR);
-        }
-        if (((String) props.get(TCPListenerProperties.TCP_BUFFER_SIZE)).length() == 0)
-        {
-            valid = false;
-            if (highlight)
-            	bufferSizeField.setBackground(UIConstants.INVALID_COLOR);
-        }
-        if (((String) props.get(TCPListenerProperties.TCP_ACK_NEW_CONNECTION)).equals(UIConstants.YES_OPTION))
-        {
-            if (((String) props.get(TCPListenerProperties.TCP_ACK_NEW_CONNECTION_IP)).length() <= 3)
-            {
-                valid = false;
-                if (highlight)
-                	ackAddressField.setBackground(UIConstants.INVALID_COLOR);
-            }
-            if (((String) props.get(TCPListenerProperties.TCP_ACK_NEW_CONNECTION_PORT)).length() == 0)
-            {
-                valid = false;
-                if (highlight)
-                	ackPortField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                listenerAddressField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
-        
+        if (((String) props.get(TCPListenerProperties.TCP_PORT)).length() == 0) {
+            valid = false;
+            if (highlight) {
+                listenerPortField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+        if (((String) props.get(TCPListenerProperties.TCP_RECEIVE_TIMEOUT)).length() == 0) {
+            valid = false;
+            if (highlight) {
+                receiveTimeoutField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+        if (((String) props.get(TCPListenerProperties.TCP_BUFFER_SIZE)).length() == 0) {
+            valid = false;
+            if (highlight) {
+                bufferSizeField.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+        if (((String) props.get(TCPListenerProperties.TCP_ACK_NEW_CONNECTION)).equals(UIConstants.YES_OPTION)) {
+            if (((String) props.get(TCPListenerProperties.TCP_ACK_NEW_CONNECTION_IP)).length() <= 3) {
+                valid = false;
+                if (highlight) {
+                    ackAddressField.setBackground(UIConstants.INVALID_COLOR);
+                }
+            }
+            if (((String) props.get(TCPListenerProperties.TCP_ACK_NEW_CONNECTION_PORT)).length() == 0) {
+                valid = false;
+                if (highlight) {
+                    ackPortField.setBackground(UIConstants.INVALID_COLOR);
+                }
+            }
+        }
+
         return valid;
     }
-    
-    private void resetInvalidProperties()
-    {
+
+    private void resetInvalidProperties() {
         listenerAddressField.setBackground(null);
         listenerPortField.setBackground(null);
         receiveTimeoutField.setBackground(null);
@@ -202,15 +166,15 @@ public class TCPListener extends ConnectorClass
         ackAddressField.setBackground(null);
         ackPortField.setBackground(null);
     }
-    
-    public String doValidate(Properties props, boolean highlight)
-    {
-    	String error = null;
-    	
-    	if (!checkProperties(props, highlight))
-    		error = "Error in the form for connector \"" + getName() + "\".\n\n";
-    	
-    	return error;
+
+    public String doValidate(Properties props, boolean highlight) {
+        String error = null;
+
+        if (!checkProperties(props, highlight)) {
+            error = "Error in the form for connector \"" + getName() + "\".\n\n";
+        }
+
+        return error;
     }
 
     /**
@@ -342,87 +306,87 @@ public class TCPListener extends ConnectorClass
 
         dataTypeLabel.setText("Data Type:");
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(10, 10, 10)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(dataTypeLabel)
-                    .add(jLabel1)
-                    .add(jLabel2)
-                    .add(jLabel3)
-                    .add(jLabel4)
-                    .add(encodingLabel)
-                    .add(responseFromLabel)
-                    .add(ackOnNewConnectionLabel)
-                    .add(ackIPLabel)
-                    .add(ackPortLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(listenerAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(receiveTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 160, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 160, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(responseFromTransformer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(ackAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(ackPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(ackOnNewConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(ackOnNewConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(dataTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(dataTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(dataTypeLabel)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel4)
+                    .addComponent(encodingLabel)
+                    .addComponent(responseFromLabel)
+                    .addComponent(ackOnNewConnectionLabel)
+                    .addComponent(ackIPLabel)
+                    .addComponent(ackPortLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(listenerAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(listenerPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(receiveTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(bufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(responseFromTransformer, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ackAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ackPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(ackOnNewConnectionYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ackOnNewConnectionNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(dataTypeBinary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(dataTypeASCII, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(88, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(listenerAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel1))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel2))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel3)
-                    .add(receiveTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel4)
-                    .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(encodingLabel)
-                    .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(dataTypeLabel)
-                    .add(dataTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(dataTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(responseFromLabel)
-                    .add(responseFromTransformer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(ackOnNewConnectionLabel)
-                    .add(ackOnNewConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(ackOnNewConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(ackIPLabel)
-                    .add(ackAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(ackPortLabel)
-                    .add(ackPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(listenerAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(listenerPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(receiveTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(bufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(encodingLabel)
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(dataTypeLabel)
+                    .addComponent(dataTypeBinary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(dataTypeASCII, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(responseFromLabel)
+                    .addComponent(responseFromTransformer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(ackOnNewConnectionLabel)
+                    .addComponent(ackOnNewConnectionYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ackOnNewConnectionNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(ackIPLabel)
+                    .addComponent(ackAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(ackPortLabel)
+                    .addComponent(ackPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(108, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -439,15 +403,14 @@ public class TCPListener extends ConnectorClass
         encodingLabel.setEnabled(true);
         charsetEncodingCombobox.setEnabled(true);
     }//GEN-LAST:event_dataTypeASCIIActionPerformed
-    
-    public void updateResponseDropDown()
-    {
+
+    public void updateResponseDropDown() {
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
-        
+
         String selectedItem = (String) responseFromTransformer.getSelectedItem();
-        
+
         Channel channel = parent.channelEditPanel.currentChannel;
-        
+
         Set<String> variables = new LinkedHashSet<String>();
 
         variables.add("None");
@@ -457,18 +420,13 @@ public class TCPListener extends ConnectorClass
 
         List<String> scripts = new ArrayList<String>();
 
-        for (Connector connector : channel.getDestinationConnectors())
-        {
-            if (connector.getTransportName().equals("Database Writer"))
-            {
-                if (connector.getProperties().getProperty("useScript").equals(UIConstants.YES_OPTION))
-                {
+        for (Connector connector : channel.getDestinationConnectors()) {
+            if (connector.getTransportName().equals("Database Writer")) {
+                if (connector.getProperties().getProperty("useScript").equals(UIConstants.YES_OPTION)) {
                     scripts.add(connector.getProperties().getProperty("script"));
                 }
 
-            }
-            else if (connector.getTransportName().equals("JavaScript Writer"))
-            {
+            } else if (connector.getTransportName().equals("JavaScript Writer")) {
                 scripts.add(connector.getProperties().getProperty("script"));
             }
 
@@ -479,27 +437,22 @@ public class TCPListener extends ConnectorClass
         Pattern pattern = Pattern.compile(RESULT_PATTERN);
 
         int i = 0;
-        for (Iterator it = stepsToCheck.iterator(); it.hasNext();)
-        {
+        for (Iterator it = stepsToCheck.iterator(); it.hasNext();) {
             Step step = (Step) it.next();
             Map data;
             data = (Map) step.getData();
 
-            if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE))
-            {
+            if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE)) {
                 Matcher matcher = pattern.matcher(step.getScript());
-                while (matcher.find())
-                {
+                while (matcher.find()) {
                     String key = matcher.group(1);
                     variables.add(key);
                 }
-            }
-            else if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE))
-            {
-                if (data.containsKey(UIConstants.IS_GLOBAL))
-                {
-                    if (((String) data.get(UIConstants.IS_GLOBAL)).equalsIgnoreCase(UIConstants.IS_GLOBAL_RESPONSE))
+            } else if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE)) {
+                if (data.containsKey(UIConstants.IS_GLOBAL)) {
+                    if (((String) data.get(UIConstants.IS_GLOBAL)).equalsIgnoreCase(UIConstants.IS_GLOBAL_RESPONSE)) {
                         variables.add((String) data.get("Variable"));
+                    }
                 }
             }
         }
@@ -507,41 +460,36 @@ public class TCPListener extends ConnectorClass
         scripts.add(channel.getPreprocessingScript());
         scripts.add(channel.getPostprocessingScript());
 
-        for (String script : scripts)
-        {
-            if (script != null && script.length() > 0)
-            {
+        for (String script : scripts) {
+            if (script != null && script.length() > 0) {
                 Matcher matcher = pattern.matcher(script);
-                while (matcher.find())
-                {
+                while (matcher.find()) {
                     String key = matcher.group(1);
                     variables.add(key);
                 }
             }
         }
-        
+
         responseFromTransformer.setModel(new DefaultComboBoxModel(variables.toArray()));
-        
-        if(variables.contains(selectedItem))
+
+        if (variables.contains(selectedItem)) {
             responseFromTransformer.setSelectedItem(selectedItem);
-        else
+        } else {
             responseFromTransformer.setSelectedIndex(0);
-        
-        if (!parent.channelEditPanel.synchronousCheckBox.isSelected())
-        {
+        }
+
+        if (!parent.channelEditPanel.synchronousCheckBox.isSelected()) {
             responseFromTransformer.setEnabled(false);
             responseFromLabel.setEnabled(false);
             responseFromTransformer.setSelectedIndex(0);
-        }
-        else
-        {
+        } else {
             responseFromTransformer.setEnabled(true);
             responseFromLabel.setEnabled(true);
         }
-                
+
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
-        
+
     private void ackOnNewConnectionNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_ackOnNewConnectionNoActionPerformed
     {// GEN-HEADEREND:event_ackOnNewConnectionNoActionPerformed
         ackAddressField.setEnabled(false);
@@ -557,7 +505,6 @@ public class TCPListener extends ConnectorClass
         ackIPLabel.setEnabled(true);
         ackPortLabel.setEnabled(true);
     }// GEN-LAST:event_ackOnNewConnectionYesActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.webreach.mirth.client.ui.components.MirthTextField ackAddressField;
     private javax.swing.JLabel ackIPLabel;
@@ -589,5 +536,4 @@ public class TCPListener extends ConnectorClass
     private javax.swing.JLabel responseFromLabel;
     private com.webreach.mirth.client.ui.components.MirthComboBox responseFromTransformer;
     // End of variables declaration//GEN-END:variables
-
 }

@@ -1,28 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.connectors.dimse;
 
 import java.util.ArrayList;
@@ -47,246 +22,227 @@ import com.webreach.mirth.model.Step;
  * A form that extends from ConnectorClass. All methods implemented are
  * described in ConnectorClass.
  */
-public class DICOMListener extends ConnectorClass
-{
+public class DICOMListener extends ConnectorClass {
+
     /**
      * Creates new form DICOMListener
      */
-
-    public DICOMListener()
-    {
+    public DICOMListener() {
         this.parent = PlatformUI.MIRTH_FRAME;
         name = DICOMListenerProperties.name;
         initComponents();
     }
 
     @Override
-    public Properties getProperties()
-    {
+    public Properties getProperties() {
         Properties properties = new Properties();
         properties.put(DICOMListenerProperties.DICOM_ADDRESS, listenerAddressField.getText());
         properties.put(DICOMListenerProperties.DICOM_PORT, listenerPortField.getText());
         properties.put(DICOMListenerProperties.DICOM_ASYNC, asyncField.getText());
         properties.put(DICOMListenerProperties.DICOM_BUFSIZE, bufsizeField.getText());
 
-        if(pdv1Yes.isSelected()){
-            properties.put(DICOMListenerProperties.DICOM_PDV1,UIConstants.YES_OPTION);
+        if (pdv1Yes.isSelected()) {
+            properties.put(DICOMListenerProperties.DICOM_PDV1, UIConstants.YES_OPTION);
+        } else {
+            properties.put(DICOMListenerProperties.DICOM_PDV1, UIConstants.NO_OPTION);
         }
-        else {
-            properties.put(DICOMListenerProperties.DICOM_PDV1,UIConstants.NO_OPTION);
+        if (bigendianYes.isSelected()) {
+            properties.put(DICOMListenerProperties.DICOM_BIGENDIAN, UIConstants.YES_OPTION);
+        } else {
+            properties.put(DICOMListenerProperties.DICOM_BIGENDIAN, UIConstants.NO_OPTION);
         }
-        if(bigendianYes.isSelected()){
-            properties.put(DICOMListenerProperties.DICOM_BIGENDIAN,UIConstants.YES_OPTION);
+        if (deftsYes.isSelected()) {
+            properties.put(DICOMListenerProperties.DICOM_DEFTS, UIConstants.YES_OPTION);
+        } else {
+            properties.put(DICOMListenerProperties.DICOM_DEFTS, UIConstants.NO_OPTION);
         }
-        else {
-            properties.put(DICOMListenerProperties.DICOM_BIGENDIAN,UIConstants.NO_OPTION);
+        if (nativeYes.isSelected()) {
+            properties.put(DICOMListenerProperties.DICOM_NATIVE, UIConstants.YES_OPTION);
+        } else {
+            properties.put(DICOMListenerProperties.DICOM_NATIVE, UIConstants.NO_OPTION);
         }
-        if(deftsYes.isSelected()){
-            properties.put(DICOMListenerProperties.DICOM_DEFTS,UIConstants.YES_OPTION);
-        }
-        else {
-            properties.put(DICOMListenerProperties.DICOM_DEFTS,UIConstants.NO_OPTION);
-        }      
-        if(nativeYes.isSelected()){
-            properties.put(DICOMListenerProperties.DICOM_NATIVE,UIConstants.YES_OPTION);
-        }
-        else {
-            properties.put(DICOMListenerProperties.DICOM_NATIVE,UIConstants.NO_OPTION);
-        }             
-        properties.put(DICOMListenerProperties.DICOM_DEST,destField.getText());
-        properties.put(DICOMListenerProperties.DICOM_RCVPDULEN,rcvpdulenField.getText());
-        properties.put(DICOMListenerProperties.DICOM_SNDPDULEN,sndpdulenField.getText());        
-        properties.put(DICOMListenerProperties.DICOM_REAPER,reaperField.getText());
+        properties.put(DICOMListenerProperties.DICOM_DEST, destField.getText());
+        properties.put(DICOMListenerProperties.DICOM_RCVPDULEN, rcvpdulenField.getText());
+        properties.put(DICOMListenerProperties.DICOM_SNDPDULEN, sndpdulenField.getText());
+        properties.put(DICOMListenerProperties.DICOM_REAPER, reaperField.getText());
         properties.put(DICOMListenerProperties.DICOM_RELEASETO, releasetoField.getText());
         properties.put(DICOMListenerProperties.DICOM_REQUESTTO, requesttoField.getText());
         properties.put(DICOMListenerProperties.DICOM_RSPDELAY, rspdelayField.getText());
-        
+
         properties.put(DICOMListenerProperties.DICOM_IDLETO, idletoField.getText());
-        properties.put(DICOMListenerProperties.DICOM_SOCLOSEDELAY,soclosedelayField.getText());
-        properties.put(DICOMListenerProperties.DICOM_SORCVBUF,sorcvbufField.getText());
-        properties.put(DICOMListenerProperties.DICOM_SOSNDBUF,sosndbufField.getText());
-        if(tcpdelayYes.isSelected()){
-            properties.put(DICOMListenerProperties.DICOM_TCPDELAY,UIConstants.YES_OPTION);
-        }
-        else {
-            properties.put(DICOMListenerProperties.DICOM_TCPDELAY,UIConstants.NO_OPTION);
+        properties.put(DICOMListenerProperties.DICOM_SOCLOSEDELAY, soclosedelayField.getText());
+        properties.put(DICOMListenerProperties.DICOM_SORCVBUF, sorcvbufField.getText());
+        properties.put(DICOMListenerProperties.DICOM_SOSNDBUF, sosndbufField.getText());
+        if (tcpdelayYes.isSelected()) {
+            properties.put(DICOMListenerProperties.DICOM_TCPDELAY, UIConstants.YES_OPTION);
+        } else {
+            properties.put(DICOMListenerProperties.DICOM_TCPDELAY, UIConstants.NO_OPTION);
         }
 
-        
+
         properties.put(DICOMListenerProperties.DICOM_KEYPW, keyPasswordField.getText());
-        properties.put(DICOMListenerProperties.DICOM_KEYSTORE,keyStoreField.getText());
+        properties.put(DICOMListenerProperties.DICOM_KEYSTORE, keyStoreField.getText());
         properties.put(DICOMListenerProperties.DICOM_KEYSTOREPW, keyStorePasswordField.getText());
 
-        if(noclientauthYes.isSelected()){
-            properties.put(DICOMListenerProperties.DICOM_NOCLIENTAUTH,UIConstants.YES_OPTION);
+        if (noclientauthYes.isSelected()) {
+            properties.put(DICOMListenerProperties.DICOM_NOCLIENTAUTH, UIConstants.YES_OPTION);
+        } else {
+            properties.put(DICOMListenerProperties.DICOM_NOCLIENTAUTH, UIConstants.NO_OPTION);
         }
-        else {
-            properties.put(DICOMListenerProperties.DICOM_NOCLIENTAUTH,UIConstants.NO_OPTION);
+        if (nossl2Yes.isSelected()) {
+            properties.put(DICOMListenerProperties.DICOM_NOSSL2, UIConstants.YES_OPTION);
+        } else {
+            properties.put(DICOMListenerProperties.DICOM_NOSSL2, UIConstants.NO_OPTION);
         }
-        if(nossl2Yes.isSelected()){
-            properties.put(DICOMListenerProperties.DICOM_NOSSL2,UIConstants.YES_OPTION);
+        if (tlsaes.isSelected()) {
+            properties.put(DICOMListenerProperties.DICOM_TLS, "aes");
+        } else if (tls3des.isSelected()) {
+            properties.put(DICOMListenerProperties.DICOM_TLS, "3des");
+        } else if (tlswithout.isSelected()) {
+            properties.put(DICOMListenerProperties.DICOM_TLS, "without");
+        } else {
+            properties.put(DICOMListenerProperties.DICOM_TLS, "notls");
         }
-        else {
-            properties.put(DICOMListenerProperties.DICOM_NOSSL2,UIConstants.NO_OPTION);
-        }
-        if(tlsaes.isSelected()){
-            properties.put(DICOMListenerProperties.DICOM_TLS,"aes");
-        }
-        else if(tls3des.isSelected()){
-            properties.put(DICOMListenerProperties.DICOM_TLS,"3des");
-        }
-        else if(tlswithout.isSelected()){
-            properties.put(DICOMListenerProperties.DICOM_TLS,"without");
-        }
-        else {
-            properties.put(DICOMListenerProperties.DICOM_TLS,"notls");
-        }
-        properties.put(DICOMListenerProperties.DICOM_TRUSTSTORE,truststoreField.getText());
-        properties.put(DICOMListenerProperties.DICOM_TRUSTSTOREPW,truststorepwField.getText());
+        properties.put(DICOMListenerProperties.DICOM_TRUSTSTORE, truststoreField.getText());
+        properties.put(DICOMListenerProperties.DICOM_TRUSTSTOREPW, truststorepwField.getText());
         properties.put(DICOMListenerProperties.DICOM_APPENTITY, applicationEntityField.getText());
-        
-        
+
+
         return properties;
     }
 
     @Override
-    public void setProperties(Properties props)
-    {
+    public void setProperties(Properties props) {
         resetInvalidProperties();
-        
+
         listenerAddressField.setText((String) props.get(DICOMListenerProperties.DICOM_ADDRESS));
         listenerPortField.setText((String) props.get(DICOMListenerProperties.DICOM_PORT));
-        
+
         listenerAddressField.setText((String) props.get(DICOMListenerProperties.DICOM_ADDRESS));
         listenerPortField.setText((String) props.get(DICOMListenerProperties.DICOM_PORT));
         asyncField.setText((String) props.get(DICOMListenerProperties.DICOM_ASYNC));
-        bufsizeField.setText((String) props.get(DICOMListenerProperties.DICOM_BUFSIZE));        
-        rcvpdulenField.setText((String) props.get(DICOMListenerProperties.DICOM_RCVPDULEN));        
-        reaperField.setText((String) props.get(DICOMListenerProperties.DICOM_REAPER));        
-        releasetoField.setText((String) props.get(DICOMListenerProperties.DICOM_RELEASETO));   
-        requesttoField.setText((String) props.get(DICOMListenerProperties.DICOM_REQUESTTO));   
-        idletoField.setText((String) props.get(DICOMListenerProperties.DICOM_IDLETO));   
-        rspdelayField.setText((String) props.get(DICOMListenerProperties.DICOM_RSPDELAY));   
-        sndpdulenField.setText((String) props.get(DICOMListenerProperties.DICOM_SNDPDULEN));        
-        soclosedelayField.setText((String) props.get(DICOMListenerProperties.DICOM_SOCLOSEDELAY));        
-        sorcvbufField.setText((String) props.get(DICOMListenerProperties.DICOM_SORCVBUF));        
-        sosndbufField.setText((String) props.get(DICOMListenerProperties.DICOM_SOSNDBUF));        
-        destField.setText((String) props.get(DICOMListenerProperties.DICOM_DEST));  
-     
-        if (((String) props.get(DICOMListenerProperties.DICOM_PDV1)).equals(UIConstants.YES_OPTION))
+        bufsizeField.setText((String) props.get(DICOMListenerProperties.DICOM_BUFSIZE));
+        rcvpdulenField.setText((String) props.get(DICOMListenerProperties.DICOM_RCVPDULEN));
+        reaperField.setText((String) props.get(DICOMListenerProperties.DICOM_REAPER));
+        releasetoField.setText((String) props.get(DICOMListenerProperties.DICOM_RELEASETO));
+        requesttoField.setText((String) props.get(DICOMListenerProperties.DICOM_REQUESTTO));
+        idletoField.setText((String) props.get(DICOMListenerProperties.DICOM_IDLETO));
+        rspdelayField.setText((String) props.get(DICOMListenerProperties.DICOM_RSPDELAY));
+        sndpdulenField.setText((String) props.get(DICOMListenerProperties.DICOM_SNDPDULEN));
+        soclosedelayField.setText((String) props.get(DICOMListenerProperties.DICOM_SOCLOSEDELAY));
+        sorcvbufField.setText((String) props.get(DICOMListenerProperties.DICOM_SORCVBUF));
+        sosndbufField.setText((String) props.get(DICOMListenerProperties.DICOM_SOSNDBUF));
+        destField.setText((String) props.get(DICOMListenerProperties.DICOM_DEST));
+
+        if (((String) props.get(DICOMListenerProperties.DICOM_PDV1)).equals(UIConstants.YES_OPTION)) {
             pdv1Yes.setSelected(true);
-        else
+        } else {
             pdv1No.setSelected(true);
-        if (((String) props.get(DICOMListenerProperties.DICOM_BIGENDIAN)).equals(UIConstants.YES_OPTION)){
+        }
+        if (((String) props.get(DICOMListenerProperties.DICOM_BIGENDIAN)).equals(UIConstants.YES_OPTION)) {
             bigendianYes.setSelected(true);
             bigendianYesActionPerformed(null);
-        }
-        else {
-            bigendianNo.setSelected(true); 
+        } else {
+            bigendianNo.setSelected(true);
             bigendianNoActionPerformed(null);
         }
         if (((String) props.get(DICOMListenerProperties.DICOM_DEFTS)).equals(UIConstants.YES_OPTION)) {
             deftsYes.setSelected(true);
             deftsYesActionPerformed(null);
-        }
-        else {
-            deftsNo.setSelected(true);    
+        } else {
+            deftsNo.setSelected(true);
             deftsNoActionPerformed(null);
         }
         if (((String) props.get(DICOMListenerProperties.DICOM_NATIVE)).equals(UIConstants.YES_OPTION)) {
             nativeYes.setSelected(true);
             nativeYesActionPerformed(null);
-        }
-        else {
+        } else {
             nativeNo.setSelected(true);
             nativeNoActionPerformed(null);
         }
-        if (((String) props.get(DICOMListenerProperties.DICOM_TCPDELAY)).equals(UIConstants.YES_OPTION))
+        if (((String) props.get(DICOMListenerProperties.DICOM_TCPDELAY)).equals(UIConstants.YES_OPTION)) {
             tcpdelayYes.setSelected(true);
-        else
+        } else {
             tcpdelayNo.setSelected(true);
+        }
 
         keyPasswordField.setText((String) props.get(DICOMListenerProperties.DICOM_KEYPW));
         keyStoreField.setText((String) props.get(DICOMListenerProperties.DICOM_KEYSTORE));
-        keyStorePasswordField.setText((String) props.get(DICOMListenerProperties.DICOM_KEYSTOREPW));        
-        truststoreField.setText((String) props.get(DICOMListenerProperties.DICOM_TRUSTSTORE));        
-        truststorepwField.setText((String) props.get(DICOMListenerProperties.DICOM_TRUSTSTOREPW));        
-        if (((String) props.get(DICOMListenerProperties.DICOM_NOCLIENTAUTH)).equals(UIConstants.YES_OPTION))
+        keyStorePasswordField.setText((String) props.get(DICOMListenerProperties.DICOM_KEYSTOREPW));
+        truststoreField.setText((String) props.get(DICOMListenerProperties.DICOM_TRUSTSTORE));
+        truststorepwField.setText((String) props.get(DICOMListenerProperties.DICOM_TRUSTSTOREPW));
+        if (((String) props.get(DICOMListenerProperties.DICOM_NOCLIENTAUTH)).equals(UIConstants.YES_OPTION)) {
             noclientauthYes.setSelected(true);
-        else
+        } else {
             noclientauthNo.setSelected(true);
-        if (((String) props.get(DICOMListenerProperties.DICOM_NOSSL2)).equals(UIConstants.YES_OPTION))
+        }
+        if (((String) props.get(DICOMListenerProperties.DICOM_NOSSL2)).equals(UIConstants.YES_OPTION)) {
             nossl2Yes.setSelected(true);
-        else
+        } else {
             nossl2No.setSelected(true);
+        }
         if (((String) props.get(DICOMListenerProperties.DICOM_TLS)).equals("aes")) {
             tlsaes.setSelected(true);
             tlsaesActionPerformed(null);
-        }
-        else if(((String) props.get(DICOMListenerProperties.DICOM_TLS)).equals("3des")){
+        } else if (((String) props.get(DICOMListenerProperties.DICOM_TLS)).equals("3des")) {
             tls3des.setSelected(true);
             tls3desActionPerformed(null);
-        }
-        else if(((String) props.get(DICOMListenerProperties.DICOM_TLS)).equals("without")){
+        } else if (((String) props.get(DICOMListenerProperties.DICOM_TLS)).equals("without")) {
             tlswithout.setSelected(true);
             tlswithoutActionPerformed(null);
-        }
-        else { 
+        } else {
             tlsno.setSelected(true);
             tlsnoActionPerformed(null);
         }
         applicationEntityField.setText((String) props.get(DICOMListenerProperties.DICOM_APPENTITY));
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
-        
+
         updateResponseDropDown();
-        
+
 
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
 
     @Override
-    public Properties getDefaults()
-    {
+    public Properties getDefaults() {
         return new DICOMListenerProperties().getDefaults();
     }
 
     @Override
-    public boolean checkProperties(Properties props, boolean highlight)
-    {
+    public boolean checkProperties(Properties props, boolean highlight) {
         resetInvalidProperties();
         boolean valid = true;
-        
-        if (((String) props.get(DICOMListenerProperties.DICOM_ADDRESS)).length() <= 3)
-        {
+
+        if (((String) props.get(DICOMListenerProperties.DICOM_ADDRESS)).length() <= 3) {
             valid = false;
-            if (highlight)
-            	listenerAddressField.setBackground(UIConstants.INVALID_COLOR); 
+            if (highlight) {
+                listenerAddressField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(DICOMListenerProperties.DICOM_PORT)).length() == 0)
-        {
+        if (((String) props.get(DICOMListenerProperties.DICOM_PORT)).length() == 0) {
             valid = false;
-            if (highlight)
-            	listenerPortField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                listenerPortField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        
+
         return valid;
     }
-    
-    private void resetInvalidProperties()
-    {
+
+    private void resetInvalidProperties() {
         listenerAddressField.setBackground(null);
         listenerPortField.setBackground(null);
     }
-    
+
     @Override
-    public String doValidate(Properties props, boolean highlight)
-    {
-    	String error = null;
-    	
-    	if (!checkProperties(props, highlight))
-    		error = "Error in the form for connector \"" + getName() + "\".\n\n";
-    	
-    	return error;
+    public String doValidate(Properties props, boolean highlight) {
+        String error = null;
+
+        if (!checkProperties(props, highlight)) {
+            error = "Error in the form for connector \"" + getName() + "\".\n\n";
+        }
+
+        return error;
     }
 
     /**
@@ -663,248 +619,248 @@ public class DICOMListener extends ConnectorClass
 
         jLabel3.setText("Application Entity:");
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel1)
-                    .add(jLabel2)
-                    .add(jLabel3)
-                    .add(jLabel11)
-                    .add(jLabel13)
-                    .add(jLabel28)
-                    .add(jLabel29)
-                    .add(jLabel31)
-                    .add(jLabel27)
-                    .add(jLabel30)
-                    .add(jLabel5)
-                    .add(jLabel17)
-                    .add(jLabel32)
-                    .add(jLabel12)
-                    .add(jLabel10)
-                    .add(jLabel33)
-                    .add(jLabel18)
-                    .add(jLabel19)
-                    .add(jLabel23)
-                    .add(jLabel20)
-                    .add(jLabel21)
-                    .add(jLabel26))
-                .add(4, 4, 4)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(nativeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(nativeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(rspdelayField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(asyncField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(pdv1Yes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(pdv1No, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(noclientauthYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(noclientauthNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(nossl2Yes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(nossl2No, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(tcpdelayYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(tcpdelayNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(bigendianYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(bigendianNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(deftsYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(deftsNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(destField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 103, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(applicationEntityField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(listenerAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 189, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(keyPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(tls3des, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(tlsaes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(tlswithout, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(tlsno, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(reaperField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(soclosedelayField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(requesttoField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(idletoField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(releasetoField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .add(18, 18, 18)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(jLabel22)
-                            .add(jLabel6)
-                            .add(jLabel25)
-                            .add(jLabel24)
-                            .add(jLabel16))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(bufsizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(sorcvbufField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(sosndbufField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(rcvpdulenField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(sndpdulenField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(truststoreField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(keyStoreField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .add(18, 18, 18)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(jLabel9)
-                            .add(jLabel34))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(truststorepwField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(keyStorePasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel11)
+                    .addComponent(jLabel13)
+                    .addComponent(jLabel28)
+                    .addComponent(jLabel29)
+                    .addComponent(jLabel31)
+                    .addComponent(jLabel27)
+                    .addComponent(jLabel30)
+                    .addComponent(jLabel5)
+                    .addComponent(jLabel17)
+                    .addComponent(jLabel32)
+                    .addComponent(jLabel12)
+                    .addComponent(jLabel10)
+                    .addComponent(jLabel33)
+                    .addComponent(jLabel18)
+                    .addComponent(jLabel19)
+                    .addComponent(jLabel23)
+                    .addComponent(jLabel20)
+                    .addComponent(jLabel21)
+                    .addComponent(jLabel26))
+                .addGap(4, 4, 4)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(nativeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(nativeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(rspdelayField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(asyncField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(pdv1Yes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(pdv1No, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(noclientauthYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(noclientauthNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(nossl2Yes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(nossl2No, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(tcpdelayYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tcpdelayNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(bigendianYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(bigendianNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(deftsYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(deftsNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(destField, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(applicationEntityField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(listenerAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 189, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(listenerPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(keyPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(tls3des, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tlsaes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tlswithout, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tlsno, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(reaperField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(soclosedelayField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(requesttoField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(idletoField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(releasetoField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel22)
+                            .addComponent(jLabel6)
+                            .addComponent(jLabel25)
+                            .addComponent(jLabel24)
+                            .addComponent(jLabel16))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(bufsizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(sorcvbufField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(sosndbufField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(rcvpdulenField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(sndpdulenField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(truststoreField, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(keyStoreField, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel9)
+                            .addComponent(jLabel34))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(truststorepwField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(keyStorePasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(36, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
-                    .add(listenerAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel2))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 16, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(applicationEntityField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel5)
-                    .add(asyncField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(pdv1Yes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel17)
-                    .add(pdv1No, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(reaperField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel18))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(releasetoField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel19))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(soclosedelayField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 17, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel23))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(requesttoField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel20))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(idletoField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel21))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(rspdelayField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel26)))
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(sndpdulenField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel16))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(rcvpdulenField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel24))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(sosndbufField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel25))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(sorcvbufField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel22))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel6)
-                            .add(bufsizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel28)
-                    .add(bigendianYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 15, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(bigendianNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(deftsYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 15, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel29)
-                    .add(deftsNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(nativeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(nativeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 15, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel31))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(tcpdelayYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 15, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel27)
-                    .add(tcpdelayNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel30)
-                    .add(destField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel32)
-                    .add(tls3des, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(tlsaes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(tlswithout, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(tlsno, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel12)
-                            .add(noclientauthYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(noclientauthNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel13)
-                            .add(nossl2Yes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(nossl2No, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel10)
-                            .add(keyStoreField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel33)
-                            .add(truststoreField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel11)
-                            .add(keyPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(layout.createSequentialGroup()
-                        .add(48, 48, 48)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel9)
-                            .add(keyStorePasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel34)
-                            .add(truststorepwField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(listenerAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(listenerPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(applicationEntityField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(asyncField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(pdv1Yes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel17)
+                    .addComponent(pdv1No, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(reaperField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel18))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(releasetoField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel19))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(soclosedelayField, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel23))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(requesttoField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel20))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(idletoField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel21))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(rspdelayField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel26)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(sndpdulenField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel16))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(rcvpdulenField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel24))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(sosndbufField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel25))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(sorcvbufField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel22))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel6)
+                            .addComponent(bufsizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel28)
+                    .addComponent(bigendianYes, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(bigendianNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(deftsYes, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel29)
+                    .addComponent(deftsNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(nativeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(nativeYes, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel31))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(tcpdelayYes, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel27)
+                    .addComponent(tcpdelayNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel30)
+                    .addComponent(destField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel32)
+                    .addComponent(tls3des, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(tlsaes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(tlswithout, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(tlsno, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel12)
+                            .addComponent(noclientauthYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(noclientauthNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel13)
+                            .addComponent(nossl2Yes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(nossl2No, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel10)
+                            .addComponent(keyStoreField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel33)
+                            .addComponent(truststoreField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel11)
+                            .addComponent(keyPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(48, 48, 48)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel9)
+                            .addComponent(keyStorePasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel34)
+                            .addComponent(truststorepwField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(50, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -973,7 +929,7 @@ public class DICOMListener extends ConnectorClass
         jLabel29.setEnabled(true);
         jLabel11.setEnabled(true);
         jLabel33.setEnabled(true);
-        jLabel34.setEnabled(true);        
+        jLabel34.setEnabled(true);
     }//GEN-LAST:event_tlsaesActionPerformed
 
     private void tls3desActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tls3desActionPerformed
@@ -995,15 +951,15 @@ public class DICOMListener extends ConnectorClass
         jLabel29.setEnabled(true);
         jLabel11.setEnabled(true);
         jLabel33.setEnabled(true);
-        jLabel34.setEnabled(true);        
+        jLabel34.setEnabled(true);
     }//GEN-LAST:event_tls3desActionPerformed
 
     private void nativeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nativeNoActionPerformed
 // TODO add your handling code here:
-        if(bigendianNo.isSelected()){
+        if (bigendianNo.isSelected()) {
             jLabel29.setEnabled(true);
             deftsYes.setEnabled(true);
-            deftsNo.setEnabled(true);    
+            deftsNo.setEnabled(true);
         }
     }//GEN-LAST:event_nativeNoActionPerformed
 
@@ -1015,16 +971,16 @@ public class DICOMListener extends ConnectorClass
         jLabel28.setEnabled(true);
         bigendianYes.setEnabled(true);
         bigendianNo.setEnabled(true);
-        
+
     }//GEN-LAST:event_deftsNoActionPerformed
 
     private void bigendianNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bigendianNoActionPerformed
 // TODO add your handling code here:
-        if(nativeNo.isSelected()){
+        if (nativeNo.isSelected()) {
             jLabel29.setEnabled(true);
             deftsYes.setEnabled(true);
-            deftsNo.setEnabled(true); 
-        }       
+            deftsNo.setEnabled(true);
+        }
     }//GEN-LAST:event_bigendianNoActionPerformed
 
     private void bigendianYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bigendianYesActionPerformed
@@ -1032,7 +988,7 @@ public class DICOMListener extends ConnectorClass
         jLabel29.setEnabled(false);
         deftsYes.setEnabled(false);
         deftsNo.setEnabled(false);
-        deftsNo.setSelected(true);             
+        deftsNo.setSelected(true);
     }//GEN-LAST:event_bigendianYesActionPerformed
 
     private void deftsYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deftsYesActionPerformed
@@ -1040,12 +996,12 @@ public class DICOMListener extends ConnectorClass
         jLabel31.setEnabled(false);
         nativeYes.setEnabled(false);
         nativeNo.setEnabled(false);
-        nativeNo.setSelected(true);        
+        nativeNo.setSelected(true);
         jLabel28.setEnabled(false);
         bigendianYes.setEnabled(false);
         bigendianNo.setEnabled(false);
-        bigendianNo.setSelected(true);                
-        
+        bigendianNo.setSelected(true);
+
     }//GEN-LAST:event_deftsYesActionPerformed
 
     private void nativeYesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nativeYesActionPerformed
@@ -1053,18 +1009,17 @@ public class DICOMListener extends ConnectorClass
         jLabel29.setEnabled(false);
         deftsYes.setEnabled(false);
         deftsNo.setEnabled(false);
-        deftsNo.setSelected(true);           
-        
+        deftsNo.setSelected(true);
+
     }//GEN-LAST:event_nativeYesActionPerformed
-    
+
     @Override
-    public void updateResponseDropDown()
-    {
+    public void updateResponseDropDown() {
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
-        
-        
+
+
         Channel channel = parent.channelEditPanel.currentChannel;
-        
+
         Set<String> variables = new LinkedHashSet<String>();
 
         variables.add("None");
@@ -1075,12 +1030,11 @@ public class DICOMListener extends ConnectorClass
         List<String> scripts = new ArrayList<String>();
 
         for (Connector connector : channel.getDestinationConnectors()) {
-            if (connector.getTransportName().equals("Database Writer"))  {
+            if (connector.getTransportName().equals("Database Writer")) {
                 if (connector.getProperties().getProperty("useScript").equals(UIConstants.YES_OPTION)) {
                     scripts.add(connector.getProperties().getProperty("script"));
                 }
-            }
-            else if (connector.getTransportName().equals("JavaScript Writer")) {
+            } else if (connector.getTransportName().equals("JavaScript Writer")) {
                 scripts.add(connector.getProperties().getProperty("script"));
             }
             variables.add(connector.getName());
@@ -1090,22 +1044,22 @@ public class DICOMListener extends ConnectorClass
         Pattern pattern = Pattern.compile(RESULT_PATTERN);
 
         int i = 0;
-        for (Iterator it = stepsToCheck.iterator(); it.hasNext();)  {
+        for (Iterator it = stepsToCheck.iterator(); it.hasNext();) {
             Step step = (Step) it.next();
             Map data;
             data = (Map) step.getData();
 
-            if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE))  {
+            if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE)) {
                 Matcher matcher = pattern.matcher(step.getScript());
                 while (matcher.find()) {
                     String key = matcher.group(1);
                     variables.add(key);
                 }
-            }
-            else if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE)) {
+            } else if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE)) {
                 if (data.containsKey(UIConstants.IS_GLOBAL)) {
-                    if (((String) data.get(UIConstants.IS_GLOBAL)).equalsIgnoreCase(UIConstants.IS_GLOBAL_RESPONSE))
+                    if (((String) data.get(UIConstants.IS_GLOBAL)).equalsIgnoreCase(UIConstants.IS_GLOBAL_RESPONSE)) {
                         variables.add((String) data.get("Variable"));
+                    }
                 }
             }
         }
@@ -1123,17 +1077,14 @@ public class DICOMListener extends ConnectorClass
         }
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
-        
+
     private void ackOnNewConnectionNoActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_ackOnNewConnectionNoActionPerformed
     {// GEN-HEADEREND:event_ackOnNewConnectionNoActionPerformed
-
     }// GEN-LAST:event_ackOnNewConnectionNoActionPerformed
 
     private void ackOnNewConnectionYesActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_ackOnNewConnectionYesActionPerformed
     {// GEN-HEADEREND:event_ackOnNewConnectionYesActionPerformed
-     
     }// GEN-LAST:event_ackOnNewConnection   YesActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.webreach.mirth.client.ui.components.MirthTextField applicationEntityField;
     private com.webreach.mirth.client.ui.components.MirthTextField asyncField;
@@ -1212,5 +1163,4 @@ public class DICOMListener extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthTextField truststoreField;
     private com.webreach.mirth.client.ui.components.MirthTextField truststorepwField;
     // End of variables declaration//GEN-END:variables
-
 }

@@ -7,19 +7,16 @@ import java.beans.MethodDescriptor;
 import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
 
-public class DelimitedPropertiesBeanInfo extends SimpleBeanInfo
-{
-    
+public class DelimitedPropertiesBeanInfo extends SimpleBeanInfo {
+
     // Bean descriptor//GEN-FIRST:BeanDescriptor
     /*lazy BeanDescriptor*/
     private static BeanDescriptor getBdescriptor(){
         BeanDescriptor beanDescriptor = new BeanDescriptor  ( com.webreach.mirth.client.ui.beans.DelimitedProperties.class , null ); // NOI18N//GEN-HEADEREND:BeanDescriptor
-        
-        // Here you can add code for customizing the BeanDescriptor.
-        
-        return beanDescriptor;     }//GEN-LAST:BeanDescriptor
-    
 
+        // Here you can add code for customizing the BeanDescriptor.
+
+        return beanDescriptor;     }//GEN-LAST:BeanDescriptor
     // The BeanInfo editor resets the property display order to alphabetical based on variable name
     // each time changes are made.  Here is a copy of the desired display order to put it back to 
     // the desired, default display order (not alphabetic).
@@ -39,8 +36,7 @@ public class DelimitedPropertiesBeanInfo extends SimpleBeanInfo
     private static final int PROPERTY_batchMessageDelimiterIncluded = 12;
     private static final int PROPERTY_batchGroupingColumn = 13;
     private static final int PROPERTY_batchScript = 14;
-    */
-    
+     */
     // Property identifiers//GEN-FIRST:Properties
     private static final int PROPERTY_columnWidths = 0;
     private static final int PROPERTY_columnDelimiter = 1;
@@ -129,44 +125,38 @@ public class DelimitedPropertiesBeanInfo extends SimpleBeanInfo
         catch(IntrospectionException e) {
             e.printStackTrace();
         }//GEN-HEADEREND:Properties
-        
+
         // Here you can add code for customizing the properties array.
-        
+
         return properties;     }//GEN-LAST:Properties
-    
+
     // EventSet identifiers//GEN-FIRST:Events
 
     // EventSet array
     /*lazy EventSetDescriptor*/
     private static EventSetDescriptor[] getEdescriptor(){
         EventSetDescriptor[] eventSets = new EventSetDescriptor[0];//GEN-HEADEREND:Events
-        
+
         // Here you can add code for customizing the event sets array.
-        
+
         return eventSets;     }//GEN-LAST:Events
-    
+
     // Method identifiers//GEN-FIRST:Methods
 
     // Method array 
     /*lazy MethodDescriptor*/
     private static MethodDescriptor[] getMdescriptor(){
         MethodDescriptor[] methods = new MethodDescriptor[0];//GEN-HEADEREND:Methods
-        
+
         // Here you can add code for customizing the methods array.
-        
+
         return methods;     }//GEN-LAST:Methods
-    
-    
     private static final int defaultPropertyIndex = -1;//GEN-BEGIN:Idx
     private static final int defaultEventIndex = -1;//GEN-END:Idx
-    
-    
+
 //GEN-FIRST:Superclass
-    
     // Here you can add code for customizing the Superclass BeanInfo.
-    
 //GEN-LAST:Superclass
-    
     /**
      * Gets the bean's <code>BeanDescriptor</code>s.
      *
@@ -174,11 +164,10 @@ public class DelimitedPropertiesBeanInfo extends SimpleBeanInfo
      * properties of this bean.  May return null if the
      * information should be obtained by automatic analysis.
      */
-    public BeanDescriptor getBeanDescriptor()
-    {
+    public BeanDescriptor getBeanDescriptor() {
         return getBdescriptor();
     }
-    
+
     /**
      * Gets the bean's <code>PropertyDescriptor</code>s.
      *
@@ -191,11 +180,10 @@ public class DelimitedPropertiesBeanInfo extends SimpleBeanInfo
      * A client of getPropertyDescriptors can use "instanceof" to check
      * if a given PropertyDescriptor is an IndexedPropertyDescriptor.
      */
-    public PropertyDescriptor[] getPropertyDescriptors()
-    {
+    public PropertyDescriptor[] getPropertyDescriptors() {
         return getPdescriptor();
     }
-    
+
     /**
      * Gets the bean's <code>EventSetDescriptor</code>s.
      *
@@ -203,11 +191,10 @@ public class DelimitedPropertiesBeanInfo extends SimpleBeanInfo
      * events fired by this bean.  May return null if the information
      * should be obtained by automatic analysis.
      */
-    public EventSetDescriptor[] getEventSetDescriptors()
-    {
+    public EventSetDescriptor[] getEventSetDescriptors() {
         return getEdescriptor();
     }
-    
+
     /**
      * Gets the bean's <code>MethodDescriptor</code>s.
      *
@@ -215,11 +202,10 @@ public class DelimitedPropertiesBeanInfo extends SimpleBeanInfo
      * implemented by this bean.  May return null if the information
      * should be obtained by automatic analysis.
      */
-    public MethodDescriptor[] getMethodDescriptors()
-    {
+    public MethodDescriptor[] getMethodDescriptors() {
         return getMdescriptor();
     }
-    
+
     /**
      * A bean may have a "default" property that is the property that will
      * mostly commonly be initially chosen for update by human's who are
@@ -228,11 +214,10 @@ public class DelimitedPropertiesBeanInfo extends SimpleBeanInfo
      * 		returned by getPropertyDescriptors.
      * <P>	Returns -1 if there is no default property.
      */
-    public int getDefaultPropertyIndex()
-    {
+    public int getDefaultPropertyIndex() {
         return defaultPropertyIndex;
     }
-    
+
     /**
      * A bean may have a "default" event that is the event that will
      * mostly commonly be used by human's when using the bean.
@@ -240,8 +225,7 @@ public class DelimitedPropertiesBeanInfo extends SimpleBeanInfo
      *		returned by getEventSetDescriptors.
      * <P>	Returns -1 if there is no default event.
      */
-    public int getDefaultEventIndex()
-    {
+    public int getDefaultEventIndex() {
         return defaultEventIndex;
     }
 }

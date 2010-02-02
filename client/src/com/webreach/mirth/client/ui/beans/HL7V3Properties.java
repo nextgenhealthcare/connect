@@ -3,18 +3,14 @@ package com.webreach.mirth.client.ui.beans;
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 
-public class HL7V3Properties implements Serializable
-{
-    
+public class HL7V3Properties implements Serializable {
+
     public static final String PROP_SAMPLE_PROPERTY = "sampleProperty";
-    
     private PropertyChangeSupport propertySupport;
-    
-    public HL7V3Properties()
-    {
+
+    public HL7V3Properties() {
         propertySupport = new PropertyChangeSupport(this);
     }
-
     /**
      * Holds value of property stripNamespaces.
      */
@@ -24,8 +20,7 @@ public class HL7V3Properties implements Serializable
      * Getter for property stripNamespaces.
      * @return Value of property stripNamespaces.
      */
-    public boolean isStripNamespaces()
-    {
+    public boolean isStripNamespaces() {
         return this.stripNamespaces;
     }
 
@@ -33,9 +28,7 @@ public class HL7V3Properties implements Serializable
      * Setter for property stripNamespaces.
      * @param stripNamespaces New value of property stripNamespaces.
      */
-    public void setStripNamespaces(boolean stripNamespaces)
-    {
+    public void setStripNamespaces(boolean stripNamespaces) {
         this.stripNamespaces = stripNamespaces;
     }
-    
 }

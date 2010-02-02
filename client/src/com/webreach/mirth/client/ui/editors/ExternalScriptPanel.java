@@ -6,52 +6,41 @@ import javax.swing.event.DocumentListener;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 
- * @author chrisr
- */
-public class ExternalScriptPanel extends BasePanel
-{
-    protected MirthEditorPane parent;
-	protected final boolean isStep;
+public class ExternalScriptPanel extends BasePanel {
 
-    public ExternalScriptPanel(MirthEditorPane p, boolean step)
-    {
+    protected MirthEditorPane parent;
+    protected final boolean isStep;
+
+    public ExternalScriptPanel(MirthEditorPane p, boolean step) {
         parent = p;
-	    isStep = step;
+        isStep = step;
         initComponents();
-        variableTextField.getDocument().addDocumentListener(new DocumentListener()
-        {
-            public void changedUpdate(DocumentEvent arg0)
-            {
+        variableTextField.getDocument().addDocumentListener(new DocumentListener() {
+
+            public void changedUpdate(DocumentEvent arg0) {
             }
 
-            public void insertUpdate(DocumentEvent arg0)
-            {
-	            if (isStep) {
+            public void insertUpdate(DocumentEvent arg0) {
+                if (isStep) {
                     updateTable();
-	            }
+                }
                 parent.modified = true;
             }
 
-            public void removeUpdate(DocumentEvent arg0)
-            {
-	            if (isStep) {
+            public void removeUpdate(DocumentEvent arg0) {
+                if (isStep) {
                     updateTable();
-	            }
+                }
                 parent.modified = true;
             }
         });
     }
 
-    public void updateTable()
-    {
-        if (parent.getSelectedRow() != -1 && !parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString().equals("File"))
-        {
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
+    public void updateTable() {
+        if (parent.getSelectedRow() != -1 && !parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString().equals("File")) {
+            SwingUtilities.invokeLater(new Runnable() {
+
+                public void run() {
                     //parent.getTableModel().setValueAt(variableTextField.getText(), parent.getSelectedRow(), parent.STEP_NAME_COL);
                     parent.updateTaskPane(parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString());
                 }
@@ -59,23 +48,18 @@ public class ExternalScriptPanel extends BasePanel
         }
     }
 
-    public Map<Object, Object> getData()
-    {
+    public Map<Object, Object> getData() {
         Map<Object, Object> m = new HashMap<Object, Object>();
         m.put("Variable", variableTextField.getText().trim());
         return m;
     }
 
-    public void setData(Map<Object, Object> data)
-    {
+    public void setData(Map<Object, Object> data) {
         boolean modified = parent.modified;
 
-        if (data != null)
-        {
+        if (data != null) {
             variableTextField.setText((String) data.get("Variable"));
-        }
-        else
-        {
+        } else {
             variableTextField.setText("");
         }
 
@@ -101,37 +85,35 @@ public class ExternalScriptPanel extends BasePanel
 
         jLabel2.setText("Enter the path of an external JavaScript file accessible from the Mirth server.");
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 534, Short.MAX_VALUE)
-                    .add(layout.createSequentialGroup()
-                        .add(jLabel1)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(variableTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 474, Short.MAX_VALUE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 534, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(variableTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 474, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jLabel2)
-                .add(8, 8, 8)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
-                    .add(variableTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jLabel2)
+                .addGap(8, 8, 8)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(variableTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(255, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JTextField variableTextField;
     // End of variables declaration//GEN-END:variables
-
 }

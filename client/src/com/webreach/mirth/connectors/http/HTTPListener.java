@@ -1,28 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.connectors.http;
 
 import java.util.ArrayList;
@@ -48,18 +23,15 @@ import com.webreach.mirth.model.Step;
  * A form that extends from ConnectorClass. All methods implemented are
  * described in ConnectorClass.
  */
-public class HTTPListener extends ConnectorClass
-{
-    /** Creates new form HTTPListener */
+public class HTTPListener extends ConnectorClass {
 
-    public HTTPListener()
-    {
+    /** Creates new form HTTPListener */
+    public HTTPListener() {
         name = HTTPListenerProperties.name;
         initComponents();
     }
 
-    public Properties getProperties()
-    {
+    public Properties getProperties() {
         Properties properties = new Properties();
         properties.put(HTTPListenerProperties.DATATYPE, name);
         properties.put(HTTPListenerProperties.HTTP_ADDRESS, listenerAddressField.getText());
@@ -67,117 +39,120 @@ public class HTTPListener extends ConnectorClass
         properties.put(HTTPListenerProperties.HTTP_RECEIVE_TIMEOUT, receiveTimeoutField.getText());
         properties.put(HTTPListenerProperties.HTTP_BUFFER_SIZE, bufferSizeField.getText());
         properties.put(HTTPListenerProperties.HTTP_EXTENDED_PAYLOAD, UIConstants.YES_OPTION);
-        
-        if (keepConnectionOpenYesRadio.isSelected())
-            properties.put(HTTPListenerProperties.HTTP_KEEP_CONNECTION_OPEN, UIConstants.YES_OPTION);
-        else
-            properties.put(HTTPListenerProperties.HTTP_KEEP_CONNECTION_OPEN, UIConstants.NO_OPTION);
 
-        properties.put(HTTPListenerProperties.HTTP_RESPONSE_VALUE, (String)responseFromTransformer.getSelectedItem());
-        
-        if (appendPayloadYesRadio.isSelected())
+        if (keepConnectionOpenYesRadio.isSelected()) {
+            properties.put(HTTPListenerProperties.HTTP_KEEP_CONNECTION_OPEN, UIConstants.YES_OPTION);
+        } else {
+            properties.put(HTTPListenerProperties.HTTP_KEEP_CONNECTION_OPEN, UIConstants.NO_OPTION);
+        }
+
+        properties.put(HTTPListenerProperties.HTTP_RESPONSE_VALUE, (String) responseFromTransformer.getSelectedItem());
+
+        if (appendPayloadYesRadio.isSelected()) {
             properties.put(HTTPListenerProperties.HTTP_APPEND_PAYLOAD, UIConstants.YES_OPTION);
-        else
+        } else {
             properties.put(HTTPListenerProperties.HTTP_APPEND_PAYLOAD, UIConstants.NO_OPTION);
-        
-        if (((String) payloadURLEncodingComboBox.getSelectedItem()).equals(HTTPListenerProperties.PAYLOAD_ENCODING_NONE))
+        }
+
+        if (((String) payloadURLEncodingComboBox.getSelectedItem()).equals(HTTPListenerProperties.PAYLOAD_ENCODING_NONE)) {
             properties.put(HTTPListenerProperties.HTTP_PAYLOAD_ENCODING, HTTPListenerProperties.PAYLOAD_ENCODING_NONE);
-        else if (((String) payloadURLEncodingComboBox.getSelectedItem()).equals(HTTPListenerProperties.PAYLOAD_ENCODING_ENCODE))
+        } else if (((String) payloadURLEncodingComboBox.getSelectedItem()).equals(HTTPListenerProperties.PAYLOAD_ENCODING_ENCODE)) {
             properties.put(HTTPListenerProperties.HTTP_PAYLOAD_ENCODING, HTTPListenerProperties.PAYLOAD_ENCODING_ENCODE);
-        else if (((String) payloadURLEncodingComboBox.getSelectedItem()).equals(HTTPListenerProperties.PAYLOAD_ENCODING_DECODE))
+        } else if (((String) payloadURLEncodingComboBox.getSelectedItem()).equals(HTTPListenerProperties.PAYLOAD_ENCODING_DECODE)) {
             properties.put(HTTPListenerProperties.HTTP_PAYLOAD_ENCODING, HTTPListenerProperties.PAYLOAD_ENCODING_DECODE);
+        }
 
         return properties;
     }
 
-    public void setProperties(Properties props)
-    {
+    public void setProperties(Properties props) {
         resetInvalidProperties();
-        
+
         listenerAddressField.setText((String) props.get(HTTPListenerProperties.HTTP_ADDRESS));
         listenerPortField.setText((String) props.get(HTTPListenerProperties.HTTP_PORT));
         receiveTimeoutField.setText((String) props.get(HTTPListenerProperties.HTTP_RECEIVE_TIMEOUT));
         bufferSizeField.setText((String) props.get(HTTPListenerProperties.HTTP_BUFFER_SIZE));
 
-        if (((String) props.get(HTTPListenerProperties.HTTP_KEEP_CONNECTION_OPEN)).equals(UIConstants.YES_OPTION))
+        if (((String) props.get(HTTPListenerProperties.HTTP_KEEP_CONNECTION_OPEN)).equals(UIConstants.YES_OPTION)) {
             keepConnectionOpenYesRadio.setSelected(true);
-        else
+        } else {
             keepConnectionOpenNoRadio.setSelected(true);
-        
+        }
+
         updateResponseDropDown();
-        
-        if (parent.channelEditPanel.synchronousCheckBox.isSelected())
+
+        if (parent.channelEditPanel.synchronousCheckBox.isSelected()) {
             responseFromTransformer.setSelectedItem((String) props.getProperty(HTTPListenerProperties.HTTP_RESPONSE_VALUE));
-        
-        if (((String) props.get(HTTPListenerProperties.HTTP_APPEND_PAYLOAD)).equals(UIConstants.YES_OPTION))
+        }
+
+        if (((String) props.get(HTTPListenerProperties.HTTP_APPEND_PAYLOAD)).equals(UIConstants.YES_OPTION)) {
             appendPayloadYesRadio.setSelected(true);
-        else
+        } else {
             appendPayloadNoRadio.setSelected(true);
-        
-        if (props.get(HTTPListenerProperties.HTTP_PAYLOAD_ENCODING).equals(HTTPListenerProperties.PAYLOAD_ENCODING_NONE))
+        }
+
+        if (props.get(HTTPListenerProperties.HTTP_PAYLOAD_ENCODING).equals(HTTPListenerProperties.PAYLOAD_ENCODING_NONE)) {
             payloadURLEncodingComboBox.setSelectedItem(HTTPListenerProperties.PAYLOAD_ENCODING_NONE);
-        else if (props.get(HTTPListenerProperties.HTTP_PAYLOAD_ENCODING).equals(HTTPListenerProperties.PAYLOAD_ENCODING_ENCODE))
+        } else if (props.get(HTTPListenerProperties.HTTP_PAYLOAD_ENCODING).equals(HTTPListenerProperties.PAYLOAD_ENCODING_ENCODE)) {
             payloadURLEncodingComboBox.setSelectedItem(HTTPListenerProperties.PAYLOAD_ENCODING_ENCODE);
-        else if (props.get(HTTPListenerProperties.HTTP_PAYLOAD_ENCODING).equals(HTTPListenerProperties.PAYLOAD_ENCODING_DECODE))
+        } else if (props.get(HTTPListenerProperties.HTTP_PAYLOAD_ENCODING).equals(HTTPListenerProperties.PAYLOAD_ENCODING_DECODE)) {
             payloadURLEncodingComboBox.setSelectedItem(HTTPListenerProperties.PAYLOAD_ENCODING_DECODE);
+        }
     }
 
-    public Properties getDefaults()
-    {
+    public Properties getDefaults() {
         return new HTTPListenerProperties().getDefaults();
     }
 
-    public boolean checkProperties(Properties props, boolean highlight)
-    {
+    public boolean checkProperties(Properties props, boolean highlight) {
         resetInvalidProperties();
         boolean valid = true;
-        
-        if (((String) props.get(HTTPListenerProperties.HTTP_ADDRESS)).length() == 0)
-        {
+
+        if (((String) props.get(HTTPListenerProperties.HTTP_ADDRESS)).length() == 0) {
             valid = false;
-            if (highlight)
-            	listenerAddressField.setBackground(UIConstants.INVALID_COLOR);   
+            if (highlight) {
+                listenerAddressField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(HTTPListenerProperties.HTTP_PORT)).length() == 0)
-        {
+        if (((String) props.get(HTTPListenerProperties.HTTP_PORT)).length() == 0) {
             valid = false;
-            if (highlight)
-            	listenerPortField.setBackground(UIConstants.INVALID_COLOR);            
+            if (highlight) {
+                listenerPortField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(HTTPListenerProperties.HTTP_RECEIVE_TIMEOUT)).length() == 0)
-        {
+        if (((String) props.get(HTTPListenerProperties.HTTP_RECEIVE_TIMEOUT)).length() == 0) {
             valid = false;
-            if (highlight)
-            	receiveTimeoutField.setBackground(UIConstants.INVALID_COLOR);            
+            if (highlight) {
+                receiveTimeoutField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(HTTPListenerProperties.HTTP_BUFFER_SIZE)).length() == 0)
-        {
+        if (((String) props.get(HTTPListenerProperties.HTTP_BUFFER_SIZE)).length() == 0) {
             valid = false;
-            if (highlight)
-            	bufferSizeField.setBackground(UIConstants.INVALID_COLOR);            
+            if (highlight) {
+                bufferSizeField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        
+
         return valid;
     }
-    
-    private void resetInvalidProperties()
-    {
+
+    private void resetInvalidProperties() {
         listenerAddressField.setBackground(null);
         listenerPortField.setBackground(null);
         receiveTimeoutField.setBackground(null);
         bufferSizeField.setBackground(null);
     }
-    
-    public String doValidate(Properties props, boolean highlight)
-    {
-    	String error = null;
-    	
-    	if (!checkProperties(props, highlight))
-    		error = "Error in the form for connector \"" + getName() + "\".\n\n";
-    	
-    	return error;
+
+    public String doValidate(Properties props, boolean highlight) {
+        String error = null;
+
+        if (!checkProperties(props, highlight)) {
+            error = "Error in the form for connector \"" + getName() + "\".\n\n";
+        }
+
+        return error;
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -274,76 +249,76 @@ public class HTTPListener extends ConnectorClass
 
         jLabel7.setText("Payload URL Encoding:");
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, responseFromLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel5)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel4)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(payloadURLEncodingComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(appendPayloadYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(appendPayloadNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(responseFromTransformer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(keepConnectionOpenYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(keepConnectionOpenNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(receiveTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(listenerAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel7, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(responseFromLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(payloadURLEncodingComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(appendPayloadYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(appendPayloadNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(responseFromTransformer, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(keepConnectionOpenYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(keepConnectionOpenNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(bufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(receiveTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(listenerPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(listenerAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(listenerAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel1))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel2))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(receiveTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel3))
-                .add(8, 8, 8)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel4))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(keepConnectionOpenYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(keepConnectionOpenNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel5))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(responseFromLabel)
-                    .add(responseFromTransformer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(appendPayloadYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(appendPayloadNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel6))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(payloadURLEncodingComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel7))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(listenerAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(listenerPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(receiveTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3))
+                .addGap(8, 8, 8)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(bufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(keepConnectionOpenYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(keepConnectionOpenNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(responseFromLabel)
+                    .addComponent(responseFromTransformer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(appendPayloadYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(appendPayloadNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(payloadURLEncodingComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -351,15 +326,14 @@ public class HTTPListener extends ConnectorClass
     {//GEN-HEADEREND:event_payloadURLEncodingComboBoxActionPerformed
 // TODO add your handling code here:
     }//GEN-LAST:event_payloadURLEncodingComboBoxActionPerformed
-    
-    public void updateResponseDropDown()
-    {               
+
+    public void updateResponseDropDown() {
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
-        
+
         String selectedItem = (String) responseFromTransformer.getSelectedItem();
-        
+
         Channel channel = parent.channelEditPanel.currentChannel;
-        
+
         Set<String> variables = new LinkedHashSet<String>();
 
         variables.add("None");
@@ -369,18 +343,13 @@ public class HTTPListener extends ConnectorClass
 
         List<String> scripts = new ArrayList<String>();
 
-        for (Connector connector : channel.getDestinationConnectors())
-        {
-            if (connector.getTransportName().equals("Database Writer"))
-            {
-                if (connector.getProperties().getProperty("useScript").equals(UIConstants.YES_OPTION))
-                {
+        for (Connector connector : channel.getDestinationConnectors()) {
+            if (connector.getTransportName().equals("Database Writer")) {
+                if (connector.getProperties().getProperty("useScript").equals(UIConstants.YES_OPTION)) {
                     scripts.add(connector.getProperties().getProperty("script"));
                 }
 
-            }
-            else if (connector.getTransportName().equals("JavaScript Writer"))
-            {
+            } else if (connector.getTransportName().equals("JavaScript Writer")) {
                 scripts.add(connector.getProperties().getProperty("script"));
             }
 
@@ -391,27 +360,22 @@ public class HTTPListener extends ConnectorClass
         Pattern pattern = Pattern.compile(RESULT_PATTERN);
 
         int i = 0;
-        for (Iterator it = stepsToCheck.iterator(); it.hasNext();)
-        {
+        for (Iterator it = stepsToCheck.iterator(); it.hasNext();) {
             Step step = (Step) it.next();
             Map data;
             data = (Map) step.getData();
 
-            if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE))
-            {
+            if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE)) {
                 Matcher matcher = pattern.matcher(step.getScript());
-                while (matcher.find())
-                {
+                while (matcher.find()) {
                     String key = matcher.group(1);
                     variables.add(key);
                 }
-            }
-            else if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE))
-            {
-                if (data.containsKey(UIConstants.IS_GLOBAL))
-                {
-                    if (((String) data.get(UIConstants.IS_GLOBAL)).equalsIgnoreCase(UIConstants.IS_GLOBAL_RESPONSE))
+            } else if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE)) {
+                if (data.containsKey(UIConstants.IS_GLOBAL)) {
+                    if (((String) data.get(UIConstants.IS_GLOBAL)).equalsIgnoreCase(UIConstants.IS_GLOBAL_RESPONSE)) {
                         variables.add((String) data.get("Variable"));
+                    }
                 }
             }
         }
@@ -419,41 +383,35 @@ public class HTTPListener extends ConnectorClass
         scripts.add(channel.getPreprocessingScript());
         scripts.add(channel.getPostprocessingScript());
 
-        for (String script : scripts)
-        {
-            if (script != null && script.length() > 0)
-            {
+        for (String script : scripts) {
+            if (script != null && script.length() > 0) {
                 Matcher matcher = pattern.matcher(script);
-                while (matcher.find())
-                {
+                while (matcher.find()) {
                     String key = matcher.group(1);
                     variables.add(key);
                 }
             }
         }
-        
+
         responseFromTransformer.setModel(new DefaultComboBoxModel(variables.toArray()));
-        
-        if(variables.contains(selectedItem))
+
+        if (variables.contains(selectedItem)) {
             responseFromTransformer.setSelectedItem(selectedItem);
-        else
+        } else {
             responseFromTransformer.setSelectedIndex(0);
-        
-        if (!parent.channelEditPanel.synchronousCheckBox.isSelected())
-        {
+        }
+
+        if (!parent.channelEditPanel.synchronousCheckBox.isSelected()) {
             responseFromTransformer.setEnabled(false);
             responseFromLabel.setEnabled(false);
             responseFromTransformer.setSelectedIndex(0);
-        }
-        else
-        {
+        } else {
             responseFromTransformer.setEnabled(true);
             responseFromLabel.setEnabled(true);
         }
-        
+
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
-    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup appendPayloadGroup;
     private com.webreach.mirth.client.ui.components.MirthRadioButton appendPayloadNoRadio;
@@ -476,5 +434,4 @@ public class HTTPListener extends ConnectorClass
     private javax.swing.JLabel responseFromLabel;
     private com.webreach.mirth.client.ui.components.MirthComboBox responseFromTransformer;
     // End of variables declaration//GEN-END:variables
-
 }

@@ -1,27 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
 package com.webreach.mirth.client.ui;
 
 import java.awt.Cursor;
@@ -54,16 +30,16 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
 
         jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         setModal(true);
-        
+
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-        
+
         this.addWindowListener(new WindowAdapter() {
 
             public void windowClosing(WindowEvent e) {
                 finishButtonActionPerformed(null);
             }
         });
-        
+
         pack();
         Dimension dlgSize = getPreferredSize();
         Dimension frmSize = parent.getSize();
@@ -75,10 +51,10 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
             setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         }
 
-        
+
         usageStatsMoreInfoLabel.setToolTipText(UIConstants.PRIVACY_TOOLTIP);
         usageStatsMoreInfoLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        
+
         setVisible(true);
     }
 
@@ -129,20 +105,20 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Welcome to Mirth");
 
-        org.jdesktop.layout.GroupLayout mirthHeadingPanel1Layout = new org.jdesktop.layout.GroupLayout(mirthHeadingPanel1);
+        javax.swing.GroupLayout mirthHeadingPanel1Layout = new javax.swing.GroupLayout(mirthHeadingPanel1);
         mirthHeadingPanel1.setLayout(mirthHeadingPanel1Layout);
         mirthHeadingPanel1Layout.setHorizontalGroup(
-            mirthHeadingPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(mirthHeadingPanel1Layout.createSequentialGroup()
+            mirthHeadingPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(mirthHeadingPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jLabel2)
+                .addComponent(jLabel2)
                 .addContainerGap(209, Short.MAX_VALUE))
         );
         mirthHeadingPanel1Layout.setVerticalGroup(
-            mirthHeadingPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(mirthHeadingPanel1Layout.createSequentialGroup()
+            mirthHeadingPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(mirthHeadingPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 29, Short.MAX_VALUE)
+                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 29, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -174,64 +150,64 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
             }
         });
 
-        org.jdesktop.layout.GroupLayout channelOverviewLayout = new org.jdesktop.layout.GroupLayout(channelOverview);
+        javax.swing.GroupLayout channelOverviewLayout = new javax.swing.GroupLayout(channelOverview);
         channelOverview.setLayout(channelOverviewLayout);
         channelOverviewLayout.setHorizontalGroup(
-            channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, channelOverviewLayout.createSequentialGroup()
+            channelOverviewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, channelOverviewLayout.createSequentialGroup()
                 .addContainerGap(311, Short.MAX_VALUE)
-                .add(finishButton)
-                .add(9, 9, 9))
-            .add(mirthHeadingPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 379, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, channelOverviewLayout.createSequentialGroup()
+                .addComponent(finishButton)
+                .addGap(9, 9, 9))
+            .addComponent(mirthHeadingPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, channelOverviewLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 359, Short.MAX_VALUE)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 359, Short.MAX_VALUE)
                 .addContainerGap())
-            .add(channelOverviewLayout.createSequentialGroup()
+            .addGroup(channelOverviewLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 359, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 359, Short.MAX_VALUE)
                 .addContainerGap())
-            .add(channelOverviewLayout.createSequentialGroup()
+            .addGroup(channelOverviewLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(registerCheckBox)
-                    .add(userEditPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(channelOverviewLayout.createSequentialGroup()
-                        .add(usageStatsCheckBox)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(usageStatsMoreInfoLabel)))
+                .addGroup(channelOverviewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(registerCheckBox)
+                    .addComponent(userEditPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(channelOverviewLayout.createSequentialGroup()
+                        .addComponent(usageStatsCheckBox)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(usageStatsMoreInfoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(37, Short.MAX_VALUE))
         );
         channelOverviewLayout.setVerticalGroup(
-            channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, channelOverviewLayout.createSequentialGroup()
-                .add(mirthHeadingPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 51, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(userEditPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(registerCheckBox)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(channelOverviewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(usageStatsCheckBox)
-                    .add(usageStatsMoreInfoLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 6, Short.MAX_VALUE)
-                .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(finishButton)
+            channelOverviewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, channelOverviewLayout.createSequentialGroup()
+                .addComponent(mirthHeadingPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(userEditPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(registerCheckBox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(channelOverviewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(usageStatsCheckBox)
+                    .addComponent(usageStatsMoreInfoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 6, Short.MAX_VALUE)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(finishButton)
                 .addContainerGap())
         );
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(channelOverview, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 373, Short.MAX_VALUE)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(channelOverview, javax.swing.GroupLayout.DEFAULT_SIZE, 373, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(channelOverview, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(channelOverview, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -243,47 +219,46 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
      */
 private void finishButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_finishButtonActionPerformed
     finishButton.requestFocus();
-	String validateUserMessage = userEditPanel.validateUser(true);
+    String validateUserMessage = userEditPanel.validateUser(true);
     if (validateUserMessage != null) {
         parent.alertWarning(this, validateUserMessage);
     } else {
         User user = userEditPanel.getUser();
         parent.updateAndSwitchUser(this, user, user.getUsername(), userEditPanel.getPassword());
-        
+
         if (registerCheckBox.isSelected()) {
-			parent.registerUser(user);
+            parent.registerUser(user);
         }
-        
+
         try {
-			Properties serverProperties = parent.mirthClient.getServerProperties();
-			
-			if (usageStatsCheckBox.isSelected()) {
-				serverProperties.put("stats.enabled", UIConstants.YES_OPTION);
-                                serverProperties.put("update.enabled", UIConstants.YES_OPTION);
-			} else {
-				serverProperties.put("stats.enabled", UIConstants.NO_OPTION);
-                                serverProperties.put("update.enabled", UIConstants.NO_OPTION);
-			}
-			
-			serverProperties.put("firstlogin", UIConstants.NO_OPTION);
-			parent.mirthClient.setServerProperties(serverProperties);
-		} catch (ClientException e) {
-			parent.alertException(this, e.getStackTrace(), e.getMessage());
-		}
-        
-		this.dispose();
+            Properties serverProperties = parent.mirthClient.getServerProperties();
+
+            if (usageStatsCheckBox.isSelected()) {
+                serverProperties.put("stats.enabled", UIConstants.YES_OPTION);
+                serverProperties.put("update.enabled", UIConstants.YES_OPTION);
+            } else {
+                serverProperties.put("stats.enabled", UIConstants.NO_OPTION);
+                serverProperties.put("update.enabled", UIConstants.NO_OPTION);
+            }
+
+            serverProperties.put("firstlogin", UIConstants.NO_OPTION);
+            parent.mirthClient.setServerProperties(serverProperties);
+        } catch (ClientException e) {
+            parent.alertException(this, e.getStackTrace(), e.getMessage());
+        }
+
+        this.dispose();
     }
 }//GEN-LAST:event_finishButtonActionPerformed
 
 private void registerCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_registerCheckBoxActionPerformed
     boolean selected = registerCheckBox.isSelected();
-	userEditPanel.setRequiredFields(selected, selected, selected, selected);
+    userEditPanel.setRequiredFields(selected, selected, selected, selected);
 }//GEN-LAST:event_registerCheckBoxActionPerformed
 
 private void usageStatsMoreInfoLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_usageStatsMoreInfoLabelMouseClicked
-	BareBonesBrowserLaunch.openURL(UIConstants.PRIVACY_URL);
+    BareBonesBrowserLaunch.openURL(UIConstants.PRIVACY_URL);
 }//GEN-LAST:event_usageStatsMoreInfoLabelMouseClicked
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel channelOverview;
     private javax.swing.JButton finishButton;

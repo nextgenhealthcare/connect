@@ -1,28 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.client.ui.components;
 
 import java.awt.event.MouseEvent;
@@ -60,45 +35,29 @@ import com.webreach.mirth.model.CodeTemplate.ContextType;
  * parent. Also adds a trigger button (right click) editor menu with Cut, Copy,
  * Paste, Delete, and Select All.
  */
-public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInterface
-{
+public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInterface {
+
     private Frame parent;
-
     // private JPopupMenu menu;
-
     private CutAction cutAction;
-
     private CopyAction copyAction;
-
     private PasteAction pasteAction;
-
     private DeleteAction deleteAction;
-
     private SelectAllAction selectAllAction;
-
     private UndoAction undoAction;
-
     private RedoAction redoAction;
-    
     private FindAndReplaceAction findReplaceAction;
-
     private ShowLineEndingsAction showLineEndingsAction;
-    
     private JMenu varlist;
-
     private JMenu hl7list;
-
     private JMenu funclist;
-
     protected boolean showSnippets;
 
-    public MirthSyntaxTextArea()
-    {
+    public MirthSyntaxTextArea() {
         initialize(false, false, ContextType.GLOBAL_CONTEXT.getContext());
     }
 
-    private void initialize(boolean lineNumbers, final boolean showSnippets, final int context)
-    {
+    private void initialize(boolean lineNumbers, final boolean showSnippets, final int context) {
         this.parent = PlatformUI.MIRTH_FRAME;
         this.setFocusable(true);
         this.showSnippets = showSnippets;
@@ -128,9 +87,8 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
         popup.add(selectAllAction);
         popup.add(findReplaceAction);
         popup.add(new JCheckBoxMenuItem(showLineEndingsAction));
-        
-        if (showSnippets)
-        {
+
+        if (showSnippets) {
             varlist = new JMenu("Built-in Variables");
             hl7list = new JMenu("HL7 Helpers");
             funclist = new JMenu("Built-in Functions");
@@ -138,20 +96,18 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
             ArrayList<CodeTemplate> jshelpers = functionBuilder.getVariableListItems(ListType.ALL.getValue(), context);
             Iterator<CodeTemplate> it = jshelpers.iterator();
 
-            while (it.hasNext())
-            {
+            while (it.hasNext()) {
                 CodeTemplate item = it.next();
-                switch (item.getType())
-                {
-                case FUNCTION:
-                    funclist.add(new SnippetAction(this, item.getName(), item.getCode()));
-                    break;
-                case VARIABLE:
-                    varlist.add(new SnippetAction(this, item.getName(), item.getCode()));
-                    break;
-                case CODE:
-                    funclist.add(new SnippetAction(this, item.getName(), item.getCode()));
-                    break;    
+                switch (item.getType()) {
+                    case FUNCTION:
+                        funclist.add(new SnippetAction(this, item.getName(), item.getCode()));
+                        break;
+                    case VARIABLE:
+                        varlist.add(new SnippetAction(this, item.getName(), item.getCode()));
+                        break;
+                    case CODE:
+                        funclist.add(new SnippetAction(this, item.getName(), item.getCode()));
+                        break;
                 }
             }
             popup.addSeparator();
@@ -160,11 +116,9 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
             // popup.add(hl7list);
         }
 
-        this.popupHandler = new PopUpHandler()
-        {
+        this.popupHandler = new PopUpHandler() {
 
-            public void showPopupMenu(JPopupMenu menu, MouseEvent evt)
-            {
+            public void showPopupMenu(JPopupMenu menu, MouseEvent evt) {
                 menu.getComponent(0).setEnabled(undoAction.isEnabled());
                 menu.getComponent(1).setEnabled(redoAction.isEnabled());
                 menu.getComponent(3).setEnabled(cutAction.isEnabled());
@@ -174,32 +128,28 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
                 menu.getComponent(9).setEnabled(selectAllAction.isEnabled());
                 menu.getComponent(10).setEnabled(findReplaceAction.isEnabled());
                 menu.getComponent(11).setEnabled(showLineEndingsAction.isEnabled());
-                if (isShowLineEndings()){
-                	((JCheckBoxMenuItem)menu.getComponent(11)).setState(true);
-                }else{
-                	((JCheckBoxMenuItem)menu.getComponent(11)).setState(false);
+                if (isShowLineEndings()) {
+                    ((JCheckBoxMenuItem) menu.getComponent(11)).setState(true);
+                } else {
+                    ((JCheckBoxMenuItem) menu.getComponent(11)).setState(false);
                 }
-                if (showSnippets)
-                {
+                if (showSnippets) {
                     menu.getComponent(12).setEnabled(varlist.isEnabled());
                     menu.getComponent(13).setEnabled(funclist.isEnabled());
                     // menu.getComponent(14).setEnabled(hl7list.isEnabled());
                 }
                 menu.show(evt.getComponent(), evt.getX(), evt.getY());
             }
-
         };
 
     }
 
-    public MirthSyntaxTextArea(boolean lineNumbers, final boolean showSnippets)
-    {
+    public MirthSyntaxTextArea(boolean lineNumbers, final boolean showSnippets) {
         super(lineNumbers);
         initialize(lineNumbers, showSnippets, ContextType.GLOBAL_CONTEXT.getContext());
     }
 
-    public MirthSyntaxTextArea(boolean lineNumbers, final boolean showSnippets, final int context)
-    {
+    public MirthSyntaxTextArea(boolean lineNumbers, final boolean showSnippets, final int context) {
         super(lineNumbers);
         initialize(lineNumbers, showSnippets, context);
     }
@@ -208,29 +158,23 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
      * Support for undo and redo
      * 
      */
-    public void undo()
-    {
-        if (this.undo.canUndo())
-        {
+    public void undo() {
+        if (this.undo.canUndo()) {
             this.undo.undo();
         }
     }
 
-    public void redo()
-    {
-        if (this.undo.canRedo())
-        {
+    public void redo() {
+        if (this.undo.canRedo()) {
             this.undo.redo();
         }
     }
 
-    public boolean canRedo()
-    {
+    public boolean canRedo() {
         return this.undo.canRedo();
     }
 
-    public boolean canUndo()
-    {
+    public boolean canUndo() {
         return this.undo.canUndo();
     }
 
@@ -238,24 +182,20 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
      * Overrides setDocument(Document doc) so that a document listener is added
      * to the current document to listen for changes.
      */
-    public void setDocument(SyntaxDocument doc)
-    {
+    public void setDocument(SyntaxDocument doc) {
 
         super.setDocument(doc);
-        this.getDocument().addDocumentListener(new DocumentListener()
-        {
-            public void changedUpdate(DocumentEvent e)
-            {
+        this.getDocument().addDocumentListener(new DocumentListener() {
+
+            public void changedUpdate(DocumentEvent e) {
                 parent.enableSave();
             }
 
-            public void removeUpdate(DocumentEvent e)
-            {
+            public void removeUpdate(DocumentEvent e) {
                 parent.enableSave();
             }
 
-            public void insertUpdate(DocumentEvent e)
-            {
+            public void insertUpdate(DocumentEvent e) {
                 parent.enableSave();
             }
         });
@@ -266,22 +206,21 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
      * Overrides setText(String t) so that the save button is disabled when
      * Mirth sets the text of a field.
      */
-    public void setText(String t)
-    {
+    public void setText(String t) {
         boolean visible = parent.changesHaveBeenMade();
 
         // if (t != null)
         // t = t.replaceAll("\r", "\n");
         super.setText(t);
 
-        if(visible)
+        if (visible) {
             parent.enableSave();
-        else
+        } else {
             parent.disableSave();
+        }
     }
 
-    public String getText()
-    {
+    public String getText() {
         return super.getText();
         /*
          * StringBuffer sb = new StringBuffer(); // Get paragraph element
@@ -300,11 +239,8 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
          */
     }
 
-    public void replaceSelection(String text)
-    {
+    public void replaceSelection(String text) {
         setSelectedText(text);
 
     }
-
-
 }

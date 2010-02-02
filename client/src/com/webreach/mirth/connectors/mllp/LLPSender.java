@@ -1,28 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.connectors.mllp;
 
 import java.util.ArrayList;
@@ -43,14 +18,12 @@ import com.webreach.mirth.util.ConnectionTestResponse;
  * A form that extends from ConnectorClass. All methods implemented are
  * described in ConnectorClass.
  */
-public class LLPSender extends ConnectorClass
-{
-    /** Creates new form LLPSender */
+public class LLPSender extends ConnectorClass {
 
+    /** Creates new form LLPSender */
     private HashMap channelList;
 
-    public LLPSender()
-    {
+    public LLPSender() {
         name = LLPSenderProperties.name;
         initComponents();
         serverTimeoutField.setDocument(new MirthFieldConstraints(0, false, false, true));
@@ -63,8 +36,7 @@ public class LLPSender extends ConnectorClass
         parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
 
-    public Properties getProperties()
-    {
+    public Properties getProperties() {
         Properties properties = new Properties();
         properties.put(LLPSenderProperties.DATATYPE, name);
         properties.put(LLPSenderProperties.LLP_PROTOCOL_NAME, LLPSenderProperties.LLP_PROTOCOL_NAME_VALUE);
@@ -73,108 +45,114 @@ public class LLPSender extends ConnectorClass
         properties.put(LLPSenderProperties.LLP_SERVER_TIMEOUT, serverTimeoutField.getText());
         properties.put(LLPSenderProperties.LLP_BUFFER_SIZE, bufferSizeField.getText());
 
-        if (keepConnectionOpenYesRadio.isSelected())
+        if (keepConnectionOpenYesRadio.isSelected()) {
             properties.put(LLPSenderProperties.LLP_KEEP_CONNECTION_OPEN, UIConstants.YES_OPTION);
-        else
+        } else {
             properties.put(LLPSenderProperties.LLP_KEEP_CONNECTION_OPEN, UIConstants.NO_OPTION);
+        }
 
         properties.put(LLPSenderProperties.LLP_MAX_RETRY_COUNT, maximumRetryCountField.getText());
         properties.put(LLPSenderProperties.LLP_START_OF_MESSAGE_CHARACTER, startOfMessageCharacterField.getText());
         properties.put(LLPSenderProperties.LLP_END_OF_MESSAGE_CHARACTER, endOfMessageCharacterField.getText());
 
-        if (ascii.isSelected())
+        if (ascii.isSelected()) {
             properties.put(LLPSenderProperties.LLP_CHAR_ENCODING, "ascii");
-        else
+        } else {
             properties.put(LLPSenderProperties.LLP_CHAR_ENCODING, "hex");
+        }
 
         properties.put(LLPSenderProperties.LLP_RECORD_SEPARATOR, recordSeparatorField.getText());
 
         properties.put(LLPSenderProperties.LLP_SEGMENT_END, segmentEnd.getText());
 
         properties.put(QueuedSenderProperties.RECONNECT_INTERVAL, reconnectInterval.getText());
-        
-        if (usePersistentQueuesYesRadio.isSelected())
-            properties.put(QueuedSenderProperties.USE_PERSISTENT_QUEUES, UIConstants.YES_OPTION);
-        else
-            properties.put(QueuedSenderProperties.USE_PERSISTENT_QUEUES, UIConstants.NO_OPTION);
 
-        if (rotateMessages.isSelected())
+        if (usePersistentQueuesYesRadio.isSelected()) {
+            properties.put(QueuedSenderProperties.USE_PERSISTENT_QUEUES, UIConstants.YES_OPTION);
+        } else {
+            properties.put(QueuedSenderProperties.USE_PERSISTENT_QUEUES, UIConstants.NO_OPTION);
+        }
+
+        if (rotateMessages.isSelected()) {
             properties.put(QueuedSenderProperties.ROTATE_QUEUE, UIConstants.YES_OPTION);
-        else
+        } else {
             properties.put(QueuedSenderProperties.ROTATE_QUEUE, UIConstants.NO_OPTION);
-        
+        }
+
         properties.put(LLPSenderProperties.LLP_ACK_TIMEOUT, ackTimeoutField.getText());
-        
-        if (processHL7AckYesRadio.isSelected())
+
+        if (processHL7AckYesRadio.isSelected()) {
             properties.put(LLPSenderProperties.LLP_HL7_ACK_RESPONSE, UIConstants.YES_OPTION);
-        else
+        } else {
             properties.put(LLPSenderProperties.LLP_HL7_ACK_RESPONSE, UIConstants.NO_OPTION);
-        
+        }
+
         properties.put(LLPSenderProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
         properties.put(LLPSenderProperties.LLP_TEMPLATE, template.getText());
         properties.put(LLPSenderProperties.CHANNEL_ID, channelList.get((String) channelNames.getSelectedItem()));
-        
+
         return properties;
     }
 
-    public void setProperties(Properties props)
-    {
+    public void setProperties(Properties props) {
         resetInvalidProperties();
-        
+
         hostAddressField.setText((String) props.get(LLPSenderProperties.LLP_ADDRESS));
         hostPortField.setText((String) props.get(LLPSenderProperties.LLP_PORT));
         serverTimeoutField.setText((String) props.get(LLPSenderProperties.LLP_SERVER_TIMEOUT));
         bufferSizeField.setText((String) props.get(LLPSenderProperties.LLP_BUFFER_SIZE));
 
-        if (((String) props.get(LLPSenderProperties.LLP_KEEP_CONNECTION_OPEN)).equals(UIConstants.YES_OPTION))
+        if (((String) props.get(LLPSenderProperties.LLP_KEEP_CONNECTION_OPEN)).equals(UIConstants.YES_OPTION)) {
             keepConnectionOpenYesRadio.setSelected(true);
-        else
+        } else {
             keepConnectionOpenNoRadio.setSelected(true);
+        }
 
         maximumRetryCountField.setText((String) props.get(LLPSenderProperties.LLP_MAX_RETRY_COUNT));
 
-        if (((String) props.get(LLPSenderProperties.LLP_CHAR_ENCODING)).equals("ascii"))
+        if (((String) props.get(LLPSenderProperties.LLP_CHAR_ENCODING)).equals("ascii")) {
             ascii.setSelected(true);
-        else
+        } else {
             hex.setSelected(true);
+        }
 
         startOfMessageCharacterField.setText((String) props.get(LLPSenderProperties.LLP_START_OF_MESSAGE_CHARACTER));
         endOfMessageCharacterField.setText((String) props.get(LLPSenderProperties.LLP_END_OF_MESSAGE_CHARACTER));
         recordSeparatorField.setText((String) props.get(LLPSenderProperties.LLP_RECORD_SEPARATOR));
         segmentEnd.setText((String) props.get(LLPSenderProperties.LLP_SEGMENT_END));
-        
+
         reconnectInterval.setText((String) props.get(QueuedSenderProperties.RECONNECT_INTERVAL));
-        
-        if (((String) props.get(QueuedSenderProperties.USE_PERSISTENT_QUEUES)).equals(UIConstants.YES_OPTION))
-        {
+
+        if (((String) props.get(QueuedSenderProperties.USE_PERSISTENT_QUEUES)).equals(UIConstants.YES_OPTION)) {
             usePersistentQueuesYesRadio.setSelected(true);
             usePersistentQueuesYesRadioActionPerformed(null);
-        }
-        else
-        {
+        } else {
             usePersistentQueuesNoRadio.setSelected(true);
             usePersistentQueuesNoRadioActionPerformed(null);
         }
-        
-        if (((String) props.get(QueuedSenderProperties.ROTATE_QUEUE)).equals(UIConstants.YES_OPTION))
+
+        if (((String) props.get(QueuedSenderProperties.ROTATE_QUEUE)).equals(UIConstants.YES_OPTION)) {
             rotateMessages.setSelected(true);
-        else
+        } else {
             rotateMessages.setSelected(false);
-        
-        if (((String) props.get(LLPSenderProperties.LLP_ACK_TIMEOUT)).equals("0"))
+        }
+
+        if (((String) props.get(LLPSenderProperties.LLP_ACK_TIMEOUT)).equals("0")) {
             ignoreACKCheckBox.setSelected(true);
-        else
+        } else {
             ignoreACKCheckBox.setSelected(false);
-        
+        }
+
         ignoreACKCheckBoxActionPerformed(null);
-        
+
         ackTimeoutField.setText((String) props.get(LLPSenderProperties.LLP_ACK_TIMEOUT));
 
-        if (((String) props.get(LLPSenderProperties.LLP_HL7_ACK_RESPONSE)).equals(UIConstants.YES_OPTION))
+        if (((String) props.get(LLPSenderProperties.LLP_HL7_ACK_RESPONSE)).equals(UIConstants.YES_OPTION)) {
             processHL7AckYesRadio.setSelected(true);
-        else
+        } else {
             processHL7AckNoRadio.setSelected(true);
-       
+        }
+
         template.setText((String) props.get(LLPSenderProperties.LLP_TEMPLATE));
         parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(LLPSenderProperties.CONNECTOR_CHARSET_ENCODING));
 
@@ -182,14 +160,14 @@ public class LLPSender extends ConnectorClass
         channelList = new HashMap();
         channelList.put("None", "sink");
         channelNameArray.add("None");
-        
+
         String selectedChannelName = "None";
-        
-        for (Channel channel : parent.channels.values())
-        {
-        	if (((String) props.get(LLPSenderProperties.CHANNEL_ID)).equalsIgnoreCase(channel.getId()))
-        		selectedChannelName = channel.getName();
-        	
+
+        for (Channel channel : parent.channels.values()) {
+            if (((String) props.get(LLPSenderProperties.CHANNEL_ID)).equalsIgnoreCase(channel.getId())) {
+                selectedChannelName = channel.getName();
+            }
+
             channelList.put(channel.getName(), channel.getId());
             channelNameArray.add(channel.getName());
         }
@@ -202,94 +180,91 @@ public class LLPSender extends ConnectorClass
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
 
-    public Properties getDefaults()
-    {
+    public Properties getDefaults() {
         return new LLPSenderProperties().getDefaults();
     }
 
-    public boolean checkProperties(Properties props, boolean highlight)
-    {
+    public boolean checkProperties(Properties props, boolean highlight) {
         resetInvalidProperties();
         boolean valid = true;
-        
-        if (((String) props.get(LLPSenderProperties.LLP_ADDRESS)).length() == 0)
-        {
+
+        if (((String) props.get(LLPSenderProperties.LLP_ADDRESS)).length() == 0) {
             valid = false;
-            if (highlight)
-            	hostAddressField.setBackground(UIConstants.INVALID_COLOR);     
+            if (highlight) {
+                hostAddressField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(LLPSenderProperties.LLP_PORT)).length() == 0)
-        {
+        if (((String) props.get(LLPSenderProperties.LLP_PORT)).length() == 0) {
             valid = false;
-            if (highlight)
-            	hostPortField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                hostPortField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(LLPSenderProperties.LLP_SERVER_TIMEOUT)).length() == 0)
-        {
+        if (((String) props.get(LLPSenderProperties.LLP_SERVER_TIMEOUT)).length() == 0) {
             valid = false;
-            if (highlight)
-            	serverTimeoutField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                serverTimeoutField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(QueuedSenderProperties.RECONNECT_INTERVAL)).length() == 0)
-        {
+        if (((String) props.get(QueuedSenderProperties.RECONNECT_INTERVAL)).length() == 0) {
             valid = false;
-            if (highlight)
-            	reconnectInterval.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                reconnectInterval.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(LLPSenderProperties.LLP_BUFFER_SIZE)).length() == 0)
-        {
+        if (((String) props.get(LLPSenderProperties.LLP_BUFFER_SIZE)).length() == 0) {
             valid = false;
-            if (highlight)
-            	bufferSizeField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                bufferSizeField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(LLPSenderProperties.LLP_MAX_RETRY_COUNT)).length() == 0)
-        {
+        if (((String) props.get(LLPSenderProperties.LLP_MAX_RETRY_COUNT)).length() == 0) {
             valid = false;
-            if (highlight)
-            	maximumRetryCountField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                maximumRetryCountField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(LLPSenderProperties.LLP_TEMPLATE)).length() == 0)
-        {
+        if (((String) props.get(LLPSenderProperties.LLP_TEMPLATE)).length() == 0) {
             valid = false;
-            if (highlight)
-            	template.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                template.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(LLPSenderProperties.LLP_ACK_TIMEOUT)).length() == 0)
-        {
+        if (((String) props.get(LLPSenderProperties.LLP_ACK_TIMEOUT)).length() == 0) {
             valid = false;
-            if (highlight)
-            	ackTimeoutField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                ackTimeoutField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(LLPSenderProperties.LLP_END_OF_MESSAGE_CHARACTER)).length() == 0)
-        {
+        if (((String) props.get(LLPSenderProperties.LLP_END_OF_MESSAGE_CHARACTER)).length() == 0) {
             valid = false;
-            if (highlight)
-            	endOfMessageCharacterField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                endOfMessageCharacterField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(LLPSenderProperties.LLP_START_OF_MESSAGE_CHARACTER)).length() == 0)
-        {
+        if (((String) props.get(LLPSenderProperties.LLP_START_OF_MESSAGE_CHARACTER)).length() == 0) {
             valid = false;
-            if (highlight)
-            	startOfMessageCharacterField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                startOfMessageCharacterField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(LLPSenderProperties.LLP_RECORD_SEPARATOR)).length() == 0)
-        {
+        if (((String) props.get(LLPSenderProperties.LLP_RECORD_SEPARATOR)).length() == 0) {
             valid = false;
-            if (highlight)
-            	recordSeparatorField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                recordSeparatorField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(LLPSenderProperties.LLP_SEGMENT_END)).length() == 0)
-        {
+        if (((String) props.get(LLPSenderProperties.LLP_SEGMENT_END)).length() == 0) {
             valid = false;
-            if (highlight)
-            	segmentEnd.setBackground(UIConstants.INVALID_COLOR);
-        } 
-        
+            if (highlight) {
+                segmentEnd.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+
         return valid;
     }
-    
-    private void resetInvalidProperties()
-    {
+
+    private void resetInvalidProperties() {
         hostAddressField.setBackground(null);
         hostPortField.setBackground(null);
         serverTimeoutField.setBackground(null);
@@ -303,15 +278,15 @@ public class LLPSender extends ConnectorClass
         segmentEnd.setBackground(null);
         reconnectInterval.setBackground(null);
     }
-    
-    public String doValidate(Properties props, boolean highlight)
-    {
-    	String error = null;
-    	
-    	if (!checkProperties(props, highlight))
-    		error = "Error in the form for connector \"" + getName() + "\".\n\n";
-    	
-    	return error;
+
+    public String doValidate(Properties props, boolean highlight) {
+        String error = null;
+
+        if (!checkProperties(props, highlight)) {
+            error = "Error in the form for connector \"" + getName() + "\".\n\n";
+        }
+
+        return error;
     }
 
     /**
@@ -533,172 +508,169 @@ public class LLPSender extends ConnectorClass
             }
         });
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel2)
-                    .add(jLabel18)
-                    .add(jLabel17)
-                    .add(jLabel16)
-                    .add(jLabel15)
-                    .add(jLabel13)
-                    .add(jLabel8)
-                    .add(jLabel14)
-                    .add(jLabel10)
-                    .add(jLabel12)
-                    .add(jLabel36)
-                    .add(jLabel19)
-                    .add(jLabel20)
-                    .add(URL)
-                    .add(jLabel7)
-                    .add(jLabel1))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(reconnectInterval, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(channelNames, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(usePersistentQueuesYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(usePersistentQueuesNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(rotateMessages, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(ackTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 71, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(ignoreACKCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(processHL7AckYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(processHL7AckNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(startOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel11)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(endOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(serverTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(ascii, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(hex, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, maximumRetryCountField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, keepConnectionOpenYesRadio, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(keepConnectionOpenNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(hostAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(testConnection))
-                    .add(hostPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(recordSeparatorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel37)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(segmentEnd, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 317, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel18)
+                    .addComponent(jLabel17)
+                    .addComponent(jLabel16)
+                    .addComponent(jLabel15)
+                    .addComponent(jLabel13)
+                    .addComponent(jLabel8)
+                    .addComponent(jLabel14)
+                    .addComponent(jLabel10)
+                    .addComponent(jLabel12)
+                    .addComponent(jLabel36)
+                    .addComponent(jLabel19)
+                    .addComponent(jLabel20)
+                    .addComponent(URL)
+                    .addComponent(jLabel7)
+                    .addComponent(jLabel1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(reconnectInterval, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(channelNames, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(usePersistentQueuesYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(usePersistentQueuesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(rotateMessages, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(ackTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ignoreACKCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(processHL7AckYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(processHL7AckNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(startOfMessageCharacterField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel11)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(endOfMessageCharacterField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(bufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(serverTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(ascii, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(hex, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(maximumRetryCountField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(keepConnectionOpenYesRadio, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(keepConnectionOpenNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(hostAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(testConnection))
+                    .addComponent(hostPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(recordSeparatorField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel37)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(segmentEnd, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(template, javax.swing.GroupLayout.DEFAULT_SIZE, 317, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(hostAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel18))
-                        .add(6, 6, 6)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(hostPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel17))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel16)
-                            .add(serverTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(reconnectInterval, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel1))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel15))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(keepConnectionOpenYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jLabel13)
-                            .add(keepConnectionOpenNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel8)
-                            .add(maximumRetryCountField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jLabel14)
-                            .add(ascii, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(hex, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(testConnection))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(startOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel10)
-                    .add(endOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel11))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel12)
-                    .add(recordSeparatorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel37)
-                    .add(segmentEnd, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel36)
-                    .add(usePersistentQueuesYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(usePersistentQueuesNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(rotateMessages, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel19)
-                    .add(ackTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(ignoreACKCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel2)
-                    .add(processHL7AckYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(processHL7AckNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel20)
-                    .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(URL)
-                    .add(channelNames, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel7)
-                    .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 79, Short.MAX_VALUE))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(hostAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel18))
+                        .addGap(6, 6, 6)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(hostPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel17))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel16)
+                            .addComponent(serverTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(reconnectInterval, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel1))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(bufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel15))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(keepConnectionOpenYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel13)
+                            .addComponent(keepConnectionOpenNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel8)
+                            .addComponent(maximumRetryCountField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel14)
+                            .addComponent(ascii, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(hex, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(testConnection))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(startOfMessageCharacterField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel10)
+                    .addComponent(endOfMessageCharacterField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel11))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel12)
+                    .addComponent(recordSeparatorField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel37)
+                    .addComponent(segmentEnd, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel36)
+                    .addComponent(usePersistentQueuesYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(usePersistentQueuesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(rotateMessages, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel19)
+                    .addComponent(ackTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ignoreACKCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(processHL7AckYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(processHL7AckNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel20)
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(URL)
+                    .addComponent(channelNames, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel7)
+                    .addComponent(template, javax.swing.GroupLayout.DEFAULT_SIZE, 79, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void ignoreACKCheckBoxActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_ignoreACKCheckBoxActionPerformed
     {//GEN-HEADEREND:event_ignoreACKCheckBoxActionPerformed
-        if (ignoreACKCheckBox.isSelected())
-        {
+        if (ignoreACKCheckBox.isSelected()) {
             ackTimeoutField.setText("0");
             ackTimeoutField.setEnabled(false);
-        }
-        else
-        {
+        } else {
             ackTimeoutField.setEnabled(true);
         }
     }//GEN-LAST:event_ignoreACKCheckBoxActionPerformed
@@ -712,20 +684,20 @@ private void usePersistentQueuesNoRadioActionPerformed(java.awt.event.ActionEven
 }//GEN-LAST:event_usePersistentQueuesNoRadioActionPerformed
 
 private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
-parent.setWorking("Testing connection...", true);
+    parent.setWorking("Testing connection...", true);
 
     SwingWorker worker = new SwingWorker<Void, Void>() {
 
         public Void doInBackground() {
-            
+
             try {
                 ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(name, "testConnection", getProperties());
-                
+
                 if (response == null) {
                     throw new ClientException("Failed to invoke service.");
-                } else if(response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) { 
+                } else if (response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
                     parent.alertInformation(parent, response.getMessage());
-                } else { 
+                } else {
                     parent.alertWarning(parent, response.getMessage());
                 }
 
@@ -744,11 +716,9 @@ parent.setWorking("Testing connection...", true);
     worker.execute();
 }//GEN-LAST:event_testConnectionActionPerformed
 
-    private void charsetEncodingComboboxActionPerformed(java.awt.event.ActionEvent evt)
-    {// GEN-FIRST:event_charsetEncodingComboboxActionPerformed
+    private void charsetEncodingComboboxActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_charsetEncodingComboboxActionPerformed
         // TODO add your handling code here:
     }// GEN-LAST:event_charsetEncodingComboboxActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel URL;
     private com.webreach.mirth.client.ui.components.MirthTextField ackTimeoutField;
@@ -798,5 +768,4 @@ parent.setWorking("Testing connection...", true);
     private com.webreach.mirth.client.ui.components.MirthRadioButton usePersistentQueuesNoRadio;
     private com.webreach.mirth.client.ui.components.MirthRadioButton usePersistentQueuesYesRadio;
     // End of variables declaration//GEN-END:variables
-
 }

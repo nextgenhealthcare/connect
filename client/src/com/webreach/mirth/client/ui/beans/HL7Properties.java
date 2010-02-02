@@ -1,26 +1,16 @@
-/*
- * X12Properties.java
- *
- * Created on February 16, 2007, 4:21 PM
- */
-
 package com.webreach.mirth.client.ui.beans;
 
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;
 
-public class HL7Properties implements Serializable
-{
-    
+public class HL7Properties implements Serializable {
+
     public static final String PROP_SAMPLE_PROPERTY = "sampleProperty";
-    
     private PropertyChangeSupport propertySupport;
-    
-    public HL7Properties()
-    {
+
+    public HL7Properties() {
         propertySupport = new PropertyChangeSupport(this);
     }
-
     /**
      * Holds value of property useStrictParser.
      */
@@ -30,8 +20,7 @@ public class HL7Properties implements Serializable
      * Getter for property validateMessage.
      * @return Value of property validateMessage.
      */
-    public boolean isUseStrictParser()
-    {
+    public boolean isUseStrictParser() {
         return this.useStrictParser;
     }
 
@@ -39,11 +28,9 @@ public class HL7Properties implements Serializable
      * Setter for property validateMessage.
      * @param validateMessage New value of property validateMessage.
      */
-    public void setUseStrictParser(boolean useStrictParser)
-    {
+    public void setUseStrictParser(boolean useStrictParser) {
         this.useStrictParser = useStrictParser;
     }
-
     /**
      * Holds value of property useStrictValidation.
      */
@@ -64,7 +51,6 @@ public class HL7Properties implements Serializable
     public void setUseStrictValidation(boolean useStrictValidation) {
         this.useStrictValidation = useStrictValidation;
     }
-    
     /**
      * Holds value of property stripNamespaces.
      */
@@ -74,8 +60,7 @@ public class HL7Properties implements Serializable
      * Getter for property stripNamespaces.
      * @return Value of property stripNamespaces.
      */
-    public boolean isStripNamespaces()
-    {
+    public boolean isStripNamespaces() {
         return this.stripNamespaces;
     }
 
@@ -83,11 +68,9 @@ public class HL7Properties implements Serializable
      * Setter for property stripNamespaces.
      * @param stripNamespaces New value of property stripNamespaces.
      */
-    public void setStripNamespaces(boolean stripNamespaces)
-    {
+    public void setStripNamespaces(boolean stripNamespaces) {
         this.stripNamespaces = stripNamespaces;
     }
-    
     /**
      * Holds value of property handleRepetitions.
      */
@@ -97,8 +80,7 @@ public class HL7Properties implements Serializable
      * Getter for property handleRepetitions.
      * @return Value of property handleRepetitions.
      */
-    public boolean isHandleRepetitions()
-    {
+    public boolean isHandleRepetitions() {
         return this.handleRepetitions;
     }
 
@@ -106,11 +88,9 @@ public class HL7Properties implements Serializable
      * Setter for property handleRepetitions.
      * @param handleRepetitions New value of property handleRepetitions.
      */
-    public void setHandleRepetitions(boolean handleRepetitions)
-    {
+    public void setHandleRepetitions(boolean handleRepetitions) {
         this.handleRepetitions = handleRepetitions;
     }
-
     /**
      * Holds value of property convertLFtoCR.
      */
@@ -120,8 +100,7 @@ public class HL7Properties implements Serializable
      * Getter for property convertLFtoCR.
      * @return Value of property convertLFtoCR.
      */
-    public boolean isConvertLFtoCR()
-    {
+    public boolean isConvertLFtoCR() {
         return this.convertLFtoCR;
     }
 
@@ -129,8 +108,7 @@ public class HL7Properties implements Serializable
      * Setter for property convertLFtoCR.
      * @param encodeEntities New value of property convertLFtoCR.
      */
-    public void setConvertLFtoCR(boolean convertLFtoCR)
-    {
+    public void setConvertLFtoCR(boolean convertLFtoCR) {
         this.convertLFtoCR = convertLFtoCR;
     }
 }

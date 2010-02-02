@@ -1,28 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.client.ui;
 
 import java.awt.Cursor;
@@ -36,13 +11,11 @@ import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.core.VersionMismatchException;
 import com.webreach.mirth.model.User;
 
-/** Creates the new channel wizard dialog */
-public class LoginPanel extends javax.swing.JFrame
-{
+public class LoginPanel extends javax.swing.JFrame {
+
     private Client client;
 
-    public LoginPanel(String mirthServer, String version, String user, String pass)
-    {
+    public LoginPanel(String mirthServer, String version, String user, String pass) {
         PlatformUI.CLIENT_VERSION = version;
         initComponents();
         setTitle("Mirth Connect Administrator - Login");
@@ -55,33 +28,36 @@ public class LoginPanel extends javax.swing.JFrame
         setVisible(true);
         username.grabFocus();
         username.setText(user);
-        password.setText(pass);        
+        password.setText(pass);
         errorPane.setVisible(false);
-        
+
         mirthCorpImage.setIcon(UIConstants.MIRTHCORP_LOGO);
         mirthCorpImage.setText("");
         mirthCorpImage.setToolTipText(UIConstants.MIRTHCORP_TOOLTIP);
         mirthCorpImage.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        
+
         mirthCorpImage.addMouseListener(new java.awt.event.MouseAdapter() {
+
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-            	BareBonesBrowserLaunch.openURL(UIConstants.MIRTHCORP_URL);
+                BareBonesBrowserLaunch.openURL(UIConstants.MIRTHCORP_URL);
             }
         });
-        
+
         mirthCorpImage1.setIcon(UIConstants.MIRTHCORP_LOGO);
         mirthCorpImage1.setText("");
         mirthCorpImage1.setToolTipText(UIConstants.MIRTHCORP_TOOLTIP);
         mirthCorpImage1.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        
+
         mirthCorpImage1.addMouseListener(new java.awt.event.MouseAdapter() {
+
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-            	BareBonesBrowserLaunch.openURL(UIConstants.MIRTHCORP_URL);
+                BareBonesBrowserLaunch.openURL(UIConstants.MIRTHCORP_URL);
             }
         });
-        
-        if(user.length() > 0 && pass.length() > 0)
+
+        if (user.length() > 0 && pass.length() > 0) {
             loginButtonActionPerformed(null);
+        }
     }
 
     /**
@@ -166,20 +142,20 @@ public class LoginPanel extends javax.swing.JFrame
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Mirth Connect Administrator Login");
 
-        org.jdesktop.layout.GroupLayout mirthHeadingPanel2Layout = new org.jdesktop.layout.GroupLayout(mirthHeadingPanel2);
+        javax.swing.GroupLayout mirthHeadingPanel2Layout = new javax.swing.GroupLayout(mirthHeadingPanel2);
         mirthHeadingPanel2.setLayout(mirthHeadingPanel2Layout);
         mirthHeadingPanel2Layout.setHorizontalGroup(
-            mirthHeadingPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(mirthHeadingPanel2Layout.createSequentialGroup()
+            mirthHeadingPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(mirthHeadingPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jLabel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 322, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(46, Short.MAX_VALUE))
         );
         mirthHeadingPanel2Layout.setVerticalGroup(
-            mirthHeadingPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(mirthHeadingPanel2Layout.createSequentialGroup()
+            mirthHeadingPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(mirthHeadingPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 27, Short.MAX_VALUE)
+                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 27, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -191,7 +167,6 @@ public class LoginPanel extends javax.swing.JFrame
 
         jLabel6.setText("Password:");
 
-        password.setFont(new java.awt.Font("Tahoma", 0, 11));
         password.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 passwordActionPerformed(evt);
@@ -200,68 +175,68 @@ public class LoginPanel extends javax.swing.JFrame
 
         mirthCorpImage.setText(" ");
 
-        org.jdesktop.layout.GroupLayout loginMainLayout = new org.jdesktop.layout.GroupLayout(loginMain);
+        javax.swing.GroupLayout loginMainLayout = new javax.swing.GroupLayout(loginMain);
         loginMain.setLayout(loginMainLayout);
         loginMainLayout.setHorizontalGroup(
-            loginMainLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(loginMainLayout.createSequentialGroup()
+            loginMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(loginMainLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 358, Short.MAX_VALUE)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 358, Short.MAX_VALUE)
                 .addContainerGap())
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, loginMainLayout.createSequentialGroup()
-                .add(49, 49, 49)
-                .add(loginMainLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, errorPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 277, Short.MAX_VALUE)
-                    .add(loginMainLayout.createSequentialGroup()
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 2, Short.MAX_VALUE)
-                        .add(loginMainLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel6)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(loginMainLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(serverName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)
-                            .add(username, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)
-                            .add(password, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE))))
-                .add(52, 52, 52))
-            .add(mirthHeadingPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, loginMainLayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, loginMainLayout.createSequentialGroup()
+                .addGap(49, 49, 49)
+                .addGroup(loginMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(errorPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 277, Short.MAX_VALUE)
+                    .addGroup(loginMainLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 2, Short.MAX_VALUE)
+                        .addGroup(loginMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(loginMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(serverName, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)
+                            .addComponent(username, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)
+                            .addComponent(password, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE))))
+                .addGap(52, 52, 52))
+            .addComponent(mirthHeadingPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, loginMainLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(mirthCorpImage)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 235, Short.MAX_VALUE)
-                .add(loginButton)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(closeButton)
+                .addComponent(mirthCorpImage)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 235, Short.MAX_VALUE)
+                .addComponent(loginButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(closeButton)
                 .addContainerGap())
         );
 
-        loginMainLayout.linkSize(new java.awt.Component[] {closeButton, loginButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+        loginMainLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {closeButton, loginButton});
 
         loginMainLayout.setVerticalGroup(
-            loginMainLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, loginMainLayout.createSequentialGroup()
-                .add(mirthHeadingPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(22, 22, 22)
-                .add(loginMainLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
-                    .add(serverName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(loginMainLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel3)
-                    .add(username, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(loginMainLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(password, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel6))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .add(errorPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 46, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(loginMainLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(closeButton)
-                    .add(loginButton)
-                    .add(mirthCorpImage))
+            loginMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, loginMainLayout.createSequentialGroup()
+                .addComponent(mirthHeadingPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(22, 22, 22)
+                .addGroup(loginMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(serverName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(loginMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(username, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(loginMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(password, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(errorPane, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(loginMainLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(closeButton)
+                    .addComponent(loginButton)
+                    .addComponent(mirthCorpImage))
                 .addContainerGap())
         );
 
@@ -271,20 +246,20 @@ public class LoginPanel extends javax.swing.JFrame
         jLabel5.setForeground(new java.awt.Color(255, 255, 255));
         jLabel5.setText("Mirth Connect Administrator Login");
 
-        org.jdesktop.layout.GroupLayout mirthHeadingPanel1Layout = new org.jdesktop.layout.GroupLayout(mirthHeadingPanel1);
+        javax.swing.GroupLayout mirthHeadingPanel1Layout = new javax.swing.GroupLayout(mirthHeadingPanel1);
         mirthHeadingPanel1.setLayout(mirthHeadingPanel1Layout);
         mirthHeadingPanel1Layout.setHorizontalGroup(
-            mirthHeadingPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(mirthHeadingPanel1Layout.createSequentialGroup()
+            mirthHeadingPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(mirthHeadingPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jLabel5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 326, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 326, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(42, Short.MAX_VALUE))
         );
         mirthHeadingPanel1Layout.setVerticalGroup(
-            mirthHeadingPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(mirthHeadingPanel1Layout.createSequentialGroup()
+            mirthHeadingPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(mirthHeadingPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jLabel5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 27, Short.MAX_VALUE)
+                .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, 27, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -294,54 +269,54 @@ public class LoginPanel extends javax.swing.JFrame
 
         mirthCorpImage1.setText(" ");
 
-        org.jdesktop.layout.GroupLayout loggingInLayout = new org.jdesktop.layout.GroupLayout(loggingIn);
+        javax.swing.GroupLayout loggingInLayout = new javax.swing.GroupLayout(loggingIn);
         loggingIn.setLayout(loggingInLayout);
         loggingInLayout.setHorizontalGroup(
-            loggingInLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(mirthHeadingPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, loggingInLayout.createSequentialGroup()
+            loggingInLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(mirthHeadingPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 378, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, loggingInLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(loginProgress, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 358, Short.MAX_VALUE)
+                .addComponent(loginProgress, javax.swing.GroupLayout.DEFAULT_SIZE, 358, Short.MAX_VALUE)
                 .addContainerGap())
-            .add(loggingInLayout.createSequentialGroup()
+            .addGroup(loggingInLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(status)
+                .addComponent(status)
                 .addContainerGap(247, Short.MAX_VALUE))
-            .add(loggingInLayout.createSequentialGroup()
+            .addGroup(loggingInLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(jSeparator2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 358, Short.MAX_VALUE)
+                .addComponent(jSeparator2, javax.swing.GroupLayout.DEFAULT_SIZE, 358, Short.MAX_VALUE)
                 .addContainerGap())
-            .add(loggingInLayout.createSequentialGroup()
+            .addGroup(loggingInLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(mirthCorpImage1)
+                .addComponent(mirthCorpImage1)
                 .addContainerGap(365, Short.MAX_VALUE))
         );
         loggingInLayout.setVerticalGroup(
-            loggingInLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(loggingInLayout.createSequentialGroup()
-                .add(mirthHeadingPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(45, 45, 45)
-                .add(status)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(loginProgress, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(66, 66, 66)
-                .add(jSeparator2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 15, Short.MAX_VALUE)
-                .add(mirthCorpImage1)
+            loggingInLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(loggingInLayout.createSequentialGroup()
+                .addComponent(mirthHeadingPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(45, 45, 45)
+                .addComponent(status)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(loginProgress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(66, 66, 66)
+                .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE)
+                .addComponent(mirthCorpImage1)
                 .addContainerGap())
         );
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(loginMain, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .add(loggingIn, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(loginMain, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(loggingIn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(loginMain, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .add(loggingIn, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(loginMain, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(loggingIn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -365,57 +340,48 @@ public class LoginPanel extends javax.swing.JFrame
     private void loginButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_loginButtonActionPerformed
     {// GEN-HEADEREND:event_loginButtonActionPerformed
         errorPane.setVisible(false);
-        
+
         final LoginPanel thisPanel = this;
 
-        SwingWorker worker = new SwingWorker<Void, Void>()
-        {
-            public Void doInBackground()
-            {
-                try
-                {
-                    if (login())
-                    {
+        SwingWorker worker = new SwingWorker<Void, Void>() {
+
+            public Void doInBackground() {
+                try {
+                    if (login()) {
                         setStatus("Authenticated...");
                         new Mirth(client);
                         thisPanel.dispose();
-                        
+
                         try {
-                			Properties serverProperties = client.getServerProperties();
-                			String registered = serverProperties.getProperty("firstlogin");
-                			if (registered == null || registered.equals(UIConstants.YES_OPTION)) {
+                            Properties serverProperties = client.getServerProperties();
+                            String registered = serverProperties.getProperty("firstlogin");
+                            if (registered == null || registered.equals(UIConstants.YES_OPTION)) {
                                 User currentUser = PlatformUI.MIRTH_FRAME.getCurrentUser(PlatformUI.MIRTH_FRAME);
-                                
+
                                 if (currentUser != null) {
-                                	new FirstLoginDialog(currentUser);
+                                    new FirstLoginDialog(currentUser);
                                 }
-                			}
-                		} catch (ClientException e) {
-                			PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                		}
-                        
+                            }
+                        } catch (ClientException e) {
+                            PlatformUI.MIRTH_FRAME.alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
+                        }
+
                         PlatformUI.MIRTH_FRAME.checkForUpdates();
                         PlatformUI.MIRTH_FRAME.sendUsageStatistics();
-                    }
-                    else
-                    {
+                    } else {
                         errorPane.setVisible(true);
                         loggingIn.setVisible(false);
                         loginMain.setVisible(true);
                         loginProgress.setIndeterminate(false);
                         password.grabFocus();
                     }
-                }
-                catch(Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 return null;
             }
 
-            public void done()
-            {
-
+            public void done() {
             }
         };
         worker.execute();
@@ -435,36 +401,30 @@ public class LoginPanel extends javax.swing.JFrame
         System.exit(0);
     }// GEN-LAST:event_closeButtonActionPerformed
 
-    private boolean login()
-    {
-        try
-        {
+    private boolean login() {
+        try {
             String server = serverName.getText();
             client = new Client(server);
             PlatformUI.SERVER_NAME = server;
-            if (client.login(username.getText(), String.valueOf(password.getPassword()), PlatformUI.CLIENT_VERSION))
-            {
+            if (client.login(username.getText(), String.valueOf(password.getPassword()), PlatformUI.CLIENT_VERSION)) {
                 PlatformUI.USER_NAME = username.getText();
                 return true;
-            }
-            else
+            } else {
                 error.setText("There was a problem authenticating the information that\nwas entered.  Please verify that the server is up and \nrunning and that the user information is valid.");
-        }
-        catch (ClientException ex)
-        {
-            if (ex.getCause() instanceof VersionMismatchException)
+            }
+        } catch (ClientException ex) {
+            if (ex.getCause() instanceof VersionMismatchException) {
                 error.setText("The version of this client does not match the version\nof the server.  Please clear your Java cache and\nrelaunch the client from the server webpage.");
-            else
-                error.setText("There was a problem authenticating the information that\nwas entered.  Please verify that the server is up and \nrunning and that the user information is valid.");	
+            } else {
+                error.setText("There was a problem authenticating the information that\nwas entered.  Please verify that the server is up and \nrunning and that the user information is valid.");
+            }
         }
         return false;
     }
 
-    public void setStatus(String status)
-    {
+    public void setStatus(String status) {
         this.status.setText("Please wait: " + status);
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
@@ -491,5 +451,4 @@ public class LoginPanel extends javax.swing.JFrame
     private javax.swing.JLabel status;
     private javax.swing.JTextField username;
     // End of variables declaration//GEN-END:variables
-
 }

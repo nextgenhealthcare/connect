@@ -1,28 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.connectors.mllp;
 
 import java.util.ArrayList;
@@ -52,12 +27,10 @@ import com.webreach.mirth.util.ConnectionTestResponse;
  * A form that extends from ConnectorClass. All methods implemented are
  * described in ConnectorClass.
  */
-public class LLPListener extends ConnectorClass
-{
-    /** Creates new form LLPListener */
+public class LLPListener extends ConnectorClass {
 
-    public LLPListener()
-    {
+    /** Creates new form LLPListener */
+    public LLPListener() {
         name = LLPListenerProperties.name;
         initComponents();
         reconnectIntervalField.setDocument(new MirthFieldConstraints(0, false, false, true));
@@ -66,16 +39,16 @@ public class LLPListener extends ConnectorClass
         parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
 
-    public Properties getProperties()
-    {
+    public Properties getProperties() {
         Properties properties = new Properties();
         properties.put(LLPListenerProperties.DATATYPE, name);
         properties.put(LLPListenerProperties.LLP_PROTOCOL_NAME, LLPListenerProperties.LLP_PROTOCOL_NAME_VALUE);
 
-        if (serverRadioButton.isSelected())
+        if (serverRadioButton.isSelected()) {
             properties.put(LLPListenerProperties.LLP_SERVER_MODE, UIConstants.YES_OPTION);
-        else
+        } else {
             properties.put(LLPListenerProperties.LLP_SERVER_MODE, UIConstants.NO_OPTION);
+        }
 
         properties.put(LLPListenerProperties.LLP_ADDRESS, listenerAddressField.getText());
         properties.put(LLPListenerProperties.LLP_PORT, listenerPortField.getText());
@@ -86,33 +59,30 @@ public class LLPListener extends ConnectorClass
         properties.put(LLPListenerProperties.LLP_START_OF_MESSAGE_CHARACTER, startOfMessageCharacterField.getText());
         properties.put(LLPListenerProperties.LLP_END_OF_MESSAGE_CHARACTER, endOfMessageCharacterField.getText());
 
-        if (ascii.isSelected())
+        if (ascii.isSelected()) {
             properties.put(LLPListenerProperties.LLP_CHAR_ENCODING, "ascii");
-        else
+        } else {
             properties.put(LLPListenerProperties.LLP_CHAR_ENCODING, "hex");
+        }
 
-        if (processBatchYes.isSelected())
+        if (processBatchYes.isSelected()) {
             properties.put(LLPListenerProperties.LLP_PROCESS_BATCH_FILES, UIConstants.YES_OPTION);
-        else
+        } else {
             properties.put(LLPListenerProperties.LLP_PROCESS_BATCH_FILES, UIConstants.NO_OPTION);
+        }
 
         properties.put(LLPListenerProperties.LLP_RECORD_SEPARATOR, recordSeparatorField.getText());
         properties.put(LLPListenerProperties.LLP_SEGMENT_END, segmentEnd.getText());
 
-        if (sendACKYes.isSelected())
-        {
+        if (sendACKYes.isSelected()) {
             properties.put(LLPListenerProperties.LLP_SEND_ACK, UIConstants.YES_OPTION);
             properties.put(LLPListenerProperties.LLP_RESPONSE_FROM_TRANSFORMER, UIConstants.NO_OPTION);
             properties.put(LLPListenerProperties.LLP_RESPONSE_VALUE, "None");
-        }
-        else if (sendACKNo.isSelected())
-        {
+        } else if (sendACKNo.isSelected()) {
             properties.put(LLPListenerProperties.LLP_SEND_ACK, UIConstants.NO_OPTION);
             properties.put(LLPListenerProperties.LLP_RESPONSE_FROM_TRANSFORMER, UIConstants.NO_OPTION);
             properties.put(LLPListenerProperties.LLP_RESPONSE_VALUE, "None");
-        }
-        else if (sendACKTransformer.isSelected())
-        {
+        } else if (sendACKTransformer.isSelected()) {
             properties.put(LLPListenerProperties.LLP_RESPONSE_FROM_TRANSFORMER, UIConstants.YES_OPTION);
             properties.put(LLPListenerProperties.LLP_SEND_ACK, UIConstants.NO_OPTION);
             properties.put(LLPListenerProperties.LLP_RESPONSE_VALUE, (String) responseFromTransformer.getSelectedItem());
@@ -126,43 +96,43 @@ public class LLPListener extends ConnectorClass
         properties.put(LLPListenerProperties.LLP_ACKCODE_REJECTED, rejectedACKCode.getText());
         properties.put(LLPListenerProperties.LLP_ACKMSG_REJECTED, rejectedACKMessage.getText());
 
-        if (mshAckAcceptYes.isSelected())
+        if (mshAckAcceptYes.isSelected()) {
             properties.put(LLPListenerProperties.LLP_ACK_MSH_15, UIConstants.YES_OPTION);
-        else
+        } else {
             properties.put(LLPListenerProperties.LLP_ACK_MSH_15, UIConstants.NO_OPTION);
+        }
 
-        if (ackOnNewConnectionYes.isSelected())
+        if (ackOnNewConnectionYes.isSelected()) {
             properties.put(LLPListenerProperties.LLP_ACK_NEW_CONNECTION, UIConstants.YES_OPTION);
-        else
+        } else {
             properties.put(LLPListenerProperties.LLP_ACK_NEW_CONNECTION, UIConstants.NO_OPTION);
+        }
 
         properties.put(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_IP, ackAddressField.getText());
         properties.put(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_PORT, ackPortField.getText());
 
-        if (waitForEndOfMessageCharYes.isSelected())
+        if (waitForEndOfMessageCharYes.isSelected()) {
             properties.put(LLPListenerProperties.LLP_WAIT_FOR_END_OF_MESSAGE_CHAR, UIConstants.YES_OPTION);
-        else
+        } else {
             properties.put(LLPListenerProperties.LLP_WAIT_FOR_END_OF_MESSAGE_CHAR, UIConstants.NO_OPTION);
+        }
 
-        if (useStrictLLPYes.isSelected())
+        if (useStrictLLPYes.isSelected()) {
             properties.put(LLPListenerProperties.LLP_USE_STRICT_LLP, UIConstants.YES_OPTION);
-        else
+        } else {
             properties.put(LLPListenerProperties.LLP_USE_STRICT_LLP, UIConstants.NO_OPTION);
+        }
 
         return properties;
     }
 
-    public void setProperties(Properties props)
-    {
+    public void setProperties(Properties props) {
         resetInvalidProperties();
 
-        if (((String) props.get(LLPListenerProperties.LLP_SERVER_MODE)).equalsIgnoreCase(UIConstants.YES_OPTION))
-        {
+        if (((String) props.get(LLPListenerProperties.LLP_SERVER_MODE)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             serverRadioButtonActionPerformed(null);
             serverRadioButton.setSelected(true);
-        }
-        else
-        {
+        } else {
             clientRadioButtonActionPerformed(null);
             clientRadioButton.setSelected(true);
         }
@@ -173,15 +143,17 @@ public class LLPListener extends ConnectorClass
         receiveTimeoutField.setText((String) props.get(LLPListenerProperties.LLP_RECEIVE_TIMEOUT));
         bufferSizeField.setText((String) props.get(LLPListenerProperties.LLP_BUFFER_SIZE));
 
-        if (((String) props.get(LLPListenerProperties.LLP_CHAR_ENCODING)).equals("ascii"))
+        if (((String) props.get(LLPListenerProperties.LLP_CHAR_ENCODING)).equals("ascii")) {
             ascii.setSelected(true);
-        else
+        } else {
             hex.setSelected(true);
+        }
 
-        if (((String) props.get(LLPListenerProperties.LLP_PROCESS_BATCH_FILES)).equals(UIConstants.YES_OPTION))
+        if (((String) props.get(LLPListenerProperties.LLP_PROCESS_BATCH_FILES)).equals(UIConstants.YES_OPTION)) {
             processBatchYes.setSelected(true);
-        else
+        } else {
             processBatchNo.setSelected(true);
+        }
 
         startOfMessageCharacterField.setText((String) props.get(LLPListenerProperties.LLP_START_OF_MESSAGE_CHARACTER));
         endOfMessageCharacterField.setText((String) props.get(LLPListenerProperties.LLP_END_OF_MESSAGE_CHARACTER));
@@ -189,20 +161,14 @@ public class LLPListener extends ConnectorClass
         segmentEnd.setText((String) props.get(LLPListenerProperties.LLP_SEGMENT_END));
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
 
-        if (((String) props.get(LLPListenerProperties.LLP_RESPONSE_FROM_TRANSFORMER)).equals(UIConstants.YES_OPTION))
-        {
+        if (((String) props.get(LLPListenerProperties.LLP_RESPONSE_FROM_TRANSFORMER)).equals(UIConstants.YES_OPTION)) {
             sendACKTransformerActionPerformed(null);
             sendACKTransformer.setSelected(true);
-        }
-        else
-        {
-            if (((String) props.get(LLPListenerProperties.LLP_SEND_ACK)).equals(UIConstants.YES_OPTION))
-            {
+        } else {
+            if (((String) props.get(LLPListenerProperties.LLP_SEND_ACK)).equals(UIConstants.YES_OPTION)) {
                 sendACKYesActionPerformed(null);
                 sendACKYes.setSelected(true);
-            }
-            else if (((String) props.get(LLPListenerProperties.LLP_SEND_ACK)).equals(UIConstants.NO_OPTION))
-            {
+            } else if (((String) props.get(LLPListenerProperties.LLP_SEND_ACK)).equals(UIConstants.NO_OPTION)) {
                 sendACKNoActionPerformed(null);
                 sendACKNo.setSelected(true);
             }
@@ -210,8 +176,9 @@ public class LLPListener extends ConnectorClass
 
         updateResponseDropDown();
 
-        if (parent.channelEditPanel.synchronousCheckBox.isSelected())
+        if (parent.channelEditPanel.synchronousCheckBox.isSelected()) {
             responseFromTransformer.setSelectedItem((String) props.getProperty(LLPListenerProperties.LLP_RESPONSE_VALUE));
+        }
 
         parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(LLPListenerProperties.CONNECTOR_CHARSET_ENCODING));
 
@@ -222,18 +189,16 @@ public class LLPListener extends ConnectorClass
         rejectedACKCode.setText((String) props.get(LLPListenerProperties.LLP_ACKCODE_REJECTED));
         rejectedACKMessage.setText((String) props.get(LLPListenerProperties.LLP_ACKMSG_REJECTED));
 
-        if (((String) props.get(LLPListenerProperties.LLP_ACK_MSH_15)).equals(UIConstants.YES_OPTION))
+        if (((String) props.get(LLPListenerProperties.LLP_ACK_MSH_15)).equals(UIConstants.YES_OPTION)) {
             mshAckAcceptYes.setSelected(true);
-        else
+        } else {
             mshAckAcceptNo.setSelected(true);
+        }
 
-        if (((String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION)).equalsIgnoreCase(UIConstants.YES_OPTION))
-        {
+        if (((String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             ackOnNewConnectionYesActionPerformed(null);
             ackOnNewConnectionYes.setSelected(true);
-        }
-        else
-        {
+        } else {
             ackOnNewConnectionNoActionPerformed(null);
             ackOnNewConnectionNo.setSelected(true);
         }
@@ -242,18 +207,16 @@ public class LLPListener extends ConnectorClass
 
         ackPortField.setText((String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_PORT));
 
-        if (((String) props.get(LLPListenerProperties.LLP_WAIT_FOR_END_OF_MESSAGE_CHAR)).equals(UIConstants.YES_OPTION))
+        if (((String) props.get(LLPListenerProperties.LLP_WAIT_FOR_END_OF_MESSAGE_CHAR)).equals(UIConstants.YES_OPTION)) {
             waitForEndOfMessageCharYes.setSelected(true);
-        else
+        } else {
             waitForEndOfMessageCharNo.setSelected(true);
+        }
 
-        if (((String) props.get(LLPListenerProperties.LLP_USE_STRICT_LLP)).equals(UIConstants.YES_OPTION))
-        {
+        if (((String) props.get(LLPListenerProperties.LLP_USE_STRICT_LLP)).equals(UIConstants.YES_OPTION)) {
             useStrictLLPYesActionPerformed(null);
             useStrictLLPYes.setSelected(true);
-        }
-        else
-        {
+        } else {
             useStrictLLPNoActionPerformed(null);
             useStrictLLPNo.setSelected(true);
         }
@@ -261,112 +224,107 @@ public class LLPListener extends ConnectorClass
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
 
-    public Properties getDefaults()
-    {
+    public Properties getDefaults() {
         return new LLPListenerProperties().getDefaults();
     }
 
-    public boolean checkProperties(Properties props, boolean highlight)
-    {
+    public boolean checkProperties(Properties props, boolean highlight) {
         resetInvalidProperties();
         boolean valid = true;
 
-        if (((String) props.get(LLPListenerProperties.LLP_ADDRESS)).length() == 0)
-        {
+        if (((String) props.get(LLPListenerProperties.LLP_ADDRESS)).length() == 0) {
             valid = false;
-            if (highlight)
+            if (highlight) {
                 listenerAddressField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(LLPListenerProperties.LLP_PORT)).length() == 0)
-        {
+        if (((String) props.get(LLPListenerProperties.LLP_PORT)).length() == 0) {
             valid = false;
-            if (highlight)
+            if (highlight) {
                 listenerPortField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (clientRadioButton.isSelected() && ((String) props.get(LLPListenerProperties.LLP_RECONNECT_INTERVAL)).length() == 0)
-        {
+        if (clientRadioButton.isSelected() && ((String) props.get(LLPListenerProperties.LLP_RECONNECT_INTERVAL)).length() == 0) {
             valid = false;
-            if (highlight)
+            if (highlight) {
                 reconnectIntervalField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(LLPListenerProperties.LLP_RECEIVE_TIMEOUT)).length() == 0)
-        {
+        if (((String) props.get(LLPListenerProperties.LLP_RECEIVE_TIMEOUT)).length() == 0) {
             valid = false;
-            if (highlight)
+            if (highlight) {
                 receiveTimeoutField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(LLPListenerProperties.LLP_BUFFER_SIZE)).length() == 0)
-        {
+        if (((String) props.get(LLPListenerProperties.LLP_BUFFER_SIZE)).length() == 0) {
             valid = false;
-            if (highlight)
+            if (highlight) {
                 bufferSizeField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(LLPListenerProperties.LLP_END_OF_MESSAGE_CHARACTER)).length() == 0)
-        {
+        if (((String) props.get(LLPListenerProperties.LLP_END_OF_MESSAGE_CHARACTER)).length() == 0) {
             valid = false;
-            if (highlight)
+            if (highlight) {
                 endOfMessageCharacterField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(LLPListenerProperties.LLP_START_OF_MESSAGE_CHARACTER)).length() == 0)
-        {
+        if (((String) props.get(LLPListenerProperties.LLP_START_OF_MESSAGE_CHARACTER)).length() == 0) {
             valid = false;
-            if (highlight)
+            if (highlight) {
                 startOfMessageCharacterField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(LLPListenerProperties.LLP_RECORD_SEPARATOR)).length() == 0)
-        {
+        if (((String) props.get(LLPListenerProperties.LLP_RECORD_SEPARATOR)).length() == 0) {
             valid = false;
-            if (highlight)
+            if (highlight) {
                 recordSeparatorField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(LLPListenerProperties.LLP_SEGMENT_END)).length() == 0)
-        {
+        if (((String) props.get(LLPListenerProperties.LLP_SEGMENT_END)).length() == 0) {
             valid = false;
-            if (highlight)
+            if (highlight) {
                 segmentEnd.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(LLPListenerProperties.LLP_SEND_ACK)).equals(UIConstants.YES_OPTION))
-        {
-            if (((String) props.get(LLPListenerProperties.LLP_ACKCODE_SUCCESSFUL)).length() == 0)
-            {
+        if (((String) props.get(LLPListenerProperties.LLP_SEND_ACK)).equals(UIConstants.YES_OPTION)) {
+            if (((String) props.get(LLPListenerProperties.LLP_ACKCODE_SUCCESSFUL)).length() == 0) {
                 valid = false;
-                if (highlight)
+                if (highlight) {
                     successACKCode.setBackground(UIConstants.INVALID_COLOR);
+                }
             }
-            if (((String) props.get(LLPListenerProperties.LLP_ACKCODE_ERROR)).length() == 0)
-            {
+            if (((String) props.get(LLPListenerProperties.LLP_ACKCODE_ERROR)).length() == 0) {
                 valid = false;
-                if (highlight)
+                if (highlight) {
                     errorACKCode.setBackground(UIConstants.INVALID_COLOR);
+                }
             }
-            if (((String) props.get(LLPListenerProperties.LLP_ACKCODE_REJECTED)).length() == 0)
-            {
+            if (((String) props.get(LLPListenerProperties.LLP_ACKCODE_REJECTED)).length() == 0) {
                 valid = false;
-                if (highlight)
+                if (highlight) {
                     rejectedACKCode.setBackground(UIConstants.INVALID_COLOR);
+                }
             }
         }
-        if (((String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION)).equals(UIConstants.YES_OPTION) && (((String) props.get(LLPListenerProperties.LLP_SEND_ACK)).equals(UIConstants.YES_OPTION) || ((String) props.get(LLPListenerProperties.LLP_RESPONSE_FROM_TRANSFORMER)).equals(UIConstants.YES_OPTION)))
-        {
-            if (((String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_IP)).length() == 0)
-            {
+        if (((String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION)).equals(UIConstants.YES_OPTION) && (((String) props.get(LLPListenerProperties.LLP_SEND_ACK)).equals(UIConstants.YES_OPTION) || ((String) props.get(LLPListenerProperties.LLP_RESPONSE_FROM_TRANSFORMER)).equals(UIConstants.YES_OPTION))) {
+            if (((String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_IP)).length() == 0) {
                 valid = false;
-                if (highlight)
+                if (highlight) {
                     ackAddressField.setBackground(UIConstants.INVALID_COLOR);
+                }
             }
-            if (((String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_PORT)).length() == 0)
-            {
+            if (((String) props.get(LLPListenerProperties.LLP_ACK_NEW_CONNECTION_PORT)).length() == 0) {
                 valid = false;
-                if (highlight)
+                if (highlight) {
                     ackPortField.setBackground(UIConstants.INVALID_COLOR);
+                }
             }
         }
 
         return valid;
     }
 
-    private void resetInvalidProperties()
-    {
+    private void resetInvalidProperties() {
         listenerAddressField.setBackground(null);
         listenerPortField.setBackground(null);
         reconnectIntervalField.setBackground(null);
@@ -383,12 +341,12 @@ public class LLPListener extends ConnectorClass
         ackPortField.setBackground(null);
     }
 
-    public String doValidate(Properties props, boolean highlight)
-    {
+    public String doValidate(Properties props, boolean highlight) {
         String error = null;
 
-        if (!checkProperties(props, highlight))
+        if (!checkProperties(props, highlight)) {
             error = "Error in the form for connector \"" + getName() + "\".\n\n";
+        }
 
         return error;
     }
@@ -736,241 +694,241 @@ public class LLPListener extends ConnectorClass
             }
         });
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(10, 10, 10)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel4)
-                    .add(jLabel6)
-                    .add(jLabel34)
-                    .add(jLabel36)
-                    .add(jLabel8)
-                    .add(waitForEndOfMessageCharLabel)
-                    .add(jLabel39)
-                    .add(jLabel38)
-                    .add(successACKCodeLabel)
-                    .add(errorACKCodeLabel)
-                    .add(rejectedACKCodeLabel)
-                    .add(mshAckAcceptLabel)
-                    .add(ackOnNewConnectionLabel)
-                    .add(ackIPLabel)
-                    .add(ackPortLabel)
-                    .add(jLabel3)
-                    .add(portLabel)
-                    .add(addressLabel)
-                    .add(llpModeLabel)
-                    .add(reconnectIntervalLabel)
-                    .add(jLabel1))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(reconnectIntervalField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(serverRadioButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(clientRadioButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(receiveTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(listenerAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(testConnection))
-                    .add(layout.createSequentialGroup()
-                        .add(startOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel35)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(endOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(sendACKYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(sendACKNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(sendACKTransformer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(responseFromTransformer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(successACKCode, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(successACKMessageLabel)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(successACKMessage, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 345, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(errorACKCode, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(errorACKMessageLabel)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(errorACKMessage, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 345, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(rejectedACKCode, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(rejectedACKMessageLabel)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(rejectedACKMessage, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 345, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(mshAckAcceptYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(mshAckAcceptNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(ackPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(ackAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(ackOnNewConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(ackOnNewConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(recordSeparatorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel37)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(segmentEnd, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(waitForEndOfMessageCharYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(useStrictLLPYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(useStrictLLPNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(waitForEndOfMessageCharNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(layout.createSequentialGroup()
-                        .add(ascii, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(hex, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(processBatchYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(processBatchNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel6)
+                    .addComponent(jLabel34)
+                    .addComponent(jLabel36)
+                    .addComponent(jLabel8)
+                    .addComponent(waitForEndOfMessageCharLabel)
+                    .addComponent(jLabel39)
+                    .addComponent(jLabel38)
+                    .addComponent(successACKCodeLabel)
+                    .addComponent(errorACKCodeLabel)
+                    .addComponent(rejectedACKCodeLabel)
+                    .addComponent(mshAckAcceptLabel)
+                    .addComponent(ackOnNewConnectionLabel)
+                    .addComponent(ackIPLabel)
+                    .addComponent(ackPortLabel)
+                    .addComponent(jLabel3)
+                    .addComponent(portLabel)
+                    .addComponent(addressLabel)
+                    .addComponent(llpModeLabel)
+                    .addComponent(reconnectIntervalLabel)
+                    .addComponent(jLabel1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(reconnectIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(serverRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(clientRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(listenerPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(receiveTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(bufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(listenerAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(testConnection))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(startOfMessageCharacterField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel35)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(endOfMessageCharacterField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(sendACKYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(sendACKNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(sendACKTransformer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(responseFromTransformer, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(successACKCode, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(successACKMessageLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(successACKMessage, javax.swing.GroupLayout.PREFERRED_SIZE, 345, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(errorACKCode, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(errorACKMessageLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(errorACKMessage, javax.swing.GroupLayout.PREFERRED_SIZE, 345, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(rejectedACKCode, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(rejectedACKMessageLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(rejectedACKMessage, javax.swing.GroupLayout.PREFERRED_SIZE, 345, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(mshAckAcceptYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(mshAckAcceptNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(ackPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ackAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(ackOnNewConnectionYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ackOnNewConnectionNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(recordSeparatorField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel37)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(segmentEnd, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(waitForEndOfMessageCharYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(useStrictLLPYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(useStrictLLPNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(waitForEndOfMessageCharNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(ascii, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(hex, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(processBatchYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(processBatchNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(serverRadioButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(clientRadioButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(llpModeLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(listenerAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(addressLabel)
-                    .add(testConnection))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(listenerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(portLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(reconnectIntervalField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(reconnectIntervalLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel3)
-                    .add(receiveTimeoutField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel4)
-                    .add(bufferSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(processBatchYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(processBatchNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel1))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(hex, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(ascii, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel6))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel34)
-                    .add(startOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(endOfMessageCharacterField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel35))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel36)
-                    .add(recordSeparatorField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(segmentEnd, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel37))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel8)
-                    .add(useStrictLLPYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(useStrictLLPNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(waitForEndOfMessageCharLabel)
-                    .add(waitForEndOfMessageCharYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(waitForEndOfMessageCharNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel39)
-                    .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel38)
-                    .add(sendACKYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(sendACKNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(sendACKTransformer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(responseFromTransformer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(successACKCodeLabel)
-                    .add(successACKCode, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(successACKMessageLabel)
-                    .add(successACKMessage, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(errorACKCodeLabel)
-                    .add(errorACKCode, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(errorACKMessage, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(errorACKMessageLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(rejectedACKCodeLabel)
-                    .add(rejectedACKCode, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(rejectedACKMessageLabel)
-                    .add(rejectedACKMessage, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(mshAckAcceptLabel)
-                    .add(mshAckAcceptYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(mshAckAcceptNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(ackOnNewConnectionLabel)
-                    .add(ackOnNewConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(ackOnNewConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(ackAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(ackIPLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(ackPortLabel)
-                    .add(ackPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(serverRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(clientRadioButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(llpModeLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(listenerAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(addressLabel)
+                    .addComponent(testConnection))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(listenerPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(portLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(reconnectIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(reconnectIntervalLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(receiveTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(bufferSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(processBatchYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(processBatchNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(hex, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ascii, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel34)
+                    .addComponent(startOfMessageCharacterField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(endOfMessageCharacterField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel35))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel36)
+                    .addComponent(recordSeparatorField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(segmentEnd, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel37))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel8)
+                    .addComponent(useStrictLLPYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(useStrictLLPNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(waitForEndOfMessageCharLabel)
+                    .addComponent(waitForEndOfMessageCharYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(waitForEndOfMessageCharNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel39)
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel38)
+                    .addComponent(sendACKYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(sendACKNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(sendACKTransformer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(responseFromTransformer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(successACKCodeLabel)
+                    .addComponent(successACKCode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(successACKMessageLabel)
+                    .addComponent(successACKMessage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(errorACKCodeLabel)
+                    .addComponent(errorACKCode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(errorACKMessage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(errorACKMessageLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(rejectedACKCodeLabel)
+                    .addComponent(rejectedACKCode, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(rejectedACKMessageLabel)
+                    .addComponent(rejectedACKMessage, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(mshAckAcceptLabel)
+                    .addComponent(mshAckAcceptYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(mshAckAcceptNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(ackOnNewConnectionLabel)
+                    .addComponent(ackOnNewConnectionYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ackOnNewConnectionNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(ackAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ackIPLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(ackPortLabel)
+                    .addComponent(ackPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
 private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
-parent.setWorking("Testing connection...", true);
+    parent.setWorking("Testing connection...", true);
 
     SwingWorker worker = new SwingWorker<Void, Void>() {
 
         public Void doInBackground() {
-            
+
             try {
                 ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(name, "testConnection", getProperties());
 
                 if (response == null) {
                     throw new ClientException("Failed to invoke service.");
-                } else if(response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) { 
+                } else if (response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
                     parent.alertInformation(parent, response.getMessage());
-                } else { 
+                } else {
                     parent.alertWarning(parent, response.getMessage());
                 }
 
@@ -1024,15 +982,13 @@ parent.setWorking("Testing connection...", true);
 
     private void responseFromTransformerActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_responseFromTransformerActionPerformed
     {// GEN-HEADEREND:event_responseFromTransformerActionPerformed
-        if (responseFromTransformer.getSelectedIndex() != 0 && !parent.channelEditPanel.synchronousCheckBox.isSelected())
-        {
+        if (responseFromTransformer.getSelectedIndex() != 0 && !parent.channelEditPanel.synchronousCheckBox.isSelected()) {
             parent.alertInformation(this, "The synchronize source connector setting has been enabled since it is required to use this feature.");
             parent.channelEditPanel.synchronousCheckBox.setSelected(true);
         }
     }// GEN-LAST:event_responseFromTransformerActionPerformed
 
-    public void updateResponseDropDown()
-    {
+    public void updateResponseDropDown() {
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
 
         String selectedItem = (String) responseFromTransformer.getSelectedItem();
@@ -1048,18 +1004,13 @@ parent.setWorking("Testing connection...", true);
 
         List<String> scripts = new ArrayList<String>();
 
-        for (Connector connector : channel.getDestinationConnectors())
-        {
-            if (connector.getTransportName().equals("Database Writer"))
-            {
-                if (connector.getProperties().getProperty("useScript").equals(UIConstants.YES_OPTION))
-                {
+        for (Connector connector : channel.getDestinationConnectors()) {
+            if (connector.getTransportName().equals("Database Writer")) {
+                if (connector.getProperties().getProperty("useScript").equals(UIConstants.YES_OPTION)) {
                     scripts.add(connector.getProperties().getProperty("script"));
                 }
 
-            }
-            else if (connector.getTransportName().equals("JavaScript Writer"))
-            {
+            } else if (connector.getTransportName().equals("JavaScript Writer")) {
                 scripts.add(connector.getProperties().getProperty("script"));
             }
 
@@ -1070,27 +1021,22 @@ parent.setWorking("Testing connection...", true);
         Pattern pattern = Pattern.compile(RESULT_PATTERN);
 
         int i = 0;
-        for (Iterator it = stepsToCheck.iterator(); it.hasNext();)
-        {
+        for (Iterator it = stepsToCheck.iterator(); it.hasNext();) {
             Step step = (Step) it.next();
             Map data;
             data = (Map) step.getData();
 
-            if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE))
-            {
+            if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE)) {
                 Matcher matcher = pattern.matcher(step.getScript());
-                while (matcher.find())
-                {
+                while (matcher.find()) {
                     String key = matcher.group(1);
                     variables.add(key);
                 }
-            }
-            else if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE))
-            {
-                if (data.containsKey(UIConstants.IS_GLOBAL))
-                {
-                    if (((String) data.get(UIConstants.IS_GLOBAL)).equalsIgnoreCase(UIConstants.IS_GLOBAL_RESPONSE))
+            } else if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE)) {
+                if (data.containsKey(UIConstants.IS_GLOBAL)) {
+                    if (((String) data.get(UIConstants.IS_GLOBAL)).equalsIgnoreCase(UIConstants.IS_GLOBAL_RESPONSE)) {
                         variables.add((String) data.get("Variable"));
+                    }
                 }
             }
         }
@@ -1098,13 +1044,10 @@ parent.setWorking("Testing connection...", true);
         scripts.add(channel.getPreprocessingScript());
         scripts.add(channel.getPostprocessingScript());
 
-        for (String script : scripts)
-        {
-            if (script != null && script.length() > 0)
-            {
+        for (String script : scripts) {
+            if (script != null && script.length() > 0) {
                 Matcher matcher = pattern.matcher(script);
-                while (matcher.find())
-                {
+                while (matcher.find()) {
                     String key = matcher.group(1);
                     variables.add(key);
                 }
@@ -1113,27 +1056,26 @@ parent.setWorking("Testing connection...", true);
 
         responseFromTransformer.setModel(new DefaultComboBoxModel(variables.toArray()));
 
-        if (variables.contains(selectedItem))
+        if (variables.contains(selectedItem)) {
             responseFromTransformer.setSelectedItem(selectedItem);
-        else
-            responseFromTransformer.setSelectedIndex(0);
-
-        if (!parent.channelEditPanel.synchronousCheckBox.isSelected())
-        {
-            responseFromTransformer.setEnabled(false);
+        } else {
             responseFromTransformer.setSelectedIndex(0);
         }
-        else
-        {
+
+        if (!parent.channelEditPanel.synchronousCheckBox.isSelected()) {
+            responseFromTransformer.setEnabled(false);
+            responseFromTransformer.setSelectedIndex(0);
+        } else {
             responseFromTransformer.setEnabled(true);
         }
 
         // Reset the proper enabled fields if sendACKNo or sendACKYes were
         // selected.
-        if (sendACKYes.isSelected())
+        if (sendACKYes.isSelected()) {
             sendACKYesActionPerformed(null);
-        else if (sendACKNo.isSelected())
+        } else if (sendACKNo.isSelected()) {
             sendACKNoActionPerformed(null);
+        }
 
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
@@ -1161,8 +1103,7 @@ parent.setWorking("Testing connection...", true);
         mshAckAcceptYes.setEnabled(false);
         mshAckAcceptLabel.setEnabled(false);
 
-        if (ackOnNewConnectionYes.isSelected())
-        {
+        if (ackOnNewConnectionYes.isSelected()) {
             ackAddressField.setEnabled(true);
             ackPortField.setEnabled(true);
             ackIPLabel.setEnabled(true);
@@ -1194,15 +1135,12 @@ parent.setWorking("Testing connection...", true);
         successACKCode.setEnabled(true);
         successACKMessage.setEnabled(true);
 
-        if (parent.channelEditPanel.synchronousCheckBox.isSelected())
-        {
+        if (parent.channelEditPanel.synchronousCheckBox.isSelected()) {
             errorACKCode.setEnabled(true);
             errorACKMessage.setEnabled(true);
             rejectedACKCode.setEnabled(true);
             rejectedACKMessage.setEnabled(true);
-        }
-        else
-        {
+        } else {
             errorACKCode.setEnabled(false);
             errorACKMessage.setEnabled(false);
             rejectedACKCode.setEnabled(false);
@@ -1212,15 +1150,12 @@ parent.setWorking("Testing connection...", true);
         successACKCodeLabel.setEnabled(true);
         successACKMessageLabel.setEnabled(true);
 
-        if (parent.channelEditPanel.synchronousCheckBox.isSelected())
-        {
+        if (parent.channelEditPanel.synchronousCheckBox.isSelected()) {
             errorACKCodeLabel.setEnabled(true);
             errorACKMessageLabel.setEnabled(true);
             rejectedACKCodeLabel.setEnabled(true);
             rejectedACKMessageLabel.setEnabled(true);
-        }
-        else
-        {
+        } else {
             errorACKCodeLabel.setEnabled(false);
             errorACKMessageLabel.setEnabled(false);
             rejectedACKCodeLabel.setEnabled(false);
@@ -1234,8 +1169,7 @@ parent.setWorking("Testing connection...", true);
         mshAckAcceptYes.setEnabled(true);
         mshAckAcceptLabel.setEnabled(true);
 
-        if (ackOnNewConnectionYes.isSelected())
-        {
+        if (ackOnNewConnectionYes.isSelected()) {
             ackAddressField.setEnabled(true);
             ackPortField.setEnabled(true);
             ackIPLabel.setEnabled(true);
@@ -1275,7 +1209,6 @@ parent.setWorking("Testing connection...", true);
 
         responseFromTransformer.setEnabled(false);
     }// GEN-LAST:event_sendACKNoActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.webreach.mirth.client.ui.components.MirthTextField ackAddressField;
     private javax.swing.JLabel ackIPLabel;
@@ -1349,5 +1282,4 @@ parent.setWorking("Testing connection...", true);
     private com.webreach.mirth.client.ui.components.MirthRadioButton waitForEndOfMessageCharNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton waitForEndOfMessageCharYes;
     // End of variables declaration//GEN-END:variables
-
 }

@@ -1,28 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.client.ui;
 
 import javax.swing.ImageIcon;
@@ -31,12 +6,10 @@ import javax.swing.border.BevelBorder;
 /**
  * Creates the status bar for the Mirth client application.
  */
-public class StatusBar extends javax.swing.JPanel
-{
+public class StatusBar extends javax.swing.JPanel {
 
     /** Creates new form StatusBar */
-    public StatusBar()
-    {
+    public StatusBar() {
         initComponents();
         workingText.setText("");
         left.setText("Connected to: " + PlatformUI.SERVER_NAME);
@@ -46,18 +19,15 @@ public class StatusBar extends javax.swing.JPanel
         this.setBorder(new BevelBorder(BevelBorder.LOWERED));
     }
 
-    public void setWorking(boolean working)
-    {
+    public void setWorking(boolean working) {
         progressBar.setIndeterminate(working);
     }
-    
-    public void setText(String text)
-    {
+
+    public void setText(String text) {
         workingText.setText(text);
     }
-    
-    public String getText()
-    {
+
+    public String getText() {
         return workingText.getText();
     }
 
@@ -83,33 +53,31 @@ public class StatusBar extends javax.swing.JPanel
         workingText.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         workingText.setText("jLabel1");
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(left)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 207, Short.MAX_VALUE)
-                .add(workingText)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(progressBar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 90, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(8, 8, 8))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(left)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 207, Short.MAX_VALUE)
+                .addComponent(workingText)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(8, 8, 8))
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                .add(left)
-                .add(workingText))
-            .add(layout.createSequentialGroup()
-                .add(4, 4, 4)
-                .add(progressBar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 9, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addComponent(left)
+                .addComponent(workingText))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(4, 4, 4)
+                .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, 9, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
     }// </editor-fold>//GEN-END:initComponents
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel left;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JLabel workingText;
     // End of variables declaration//GEN-END:variables
-
 }

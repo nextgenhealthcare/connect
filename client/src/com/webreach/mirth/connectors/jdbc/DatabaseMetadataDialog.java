@@ -1,27 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
 package com.webreach.mirth.connectors.jdbc;
 
 import java.awt.Dimension;
@@ -52,8 +28,8 @@ import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.connectors.ConnectorClass;
 
-/** Creates the About Mirth dialog. The content is loaded from about.txt. */
 public class DatabaseMetadataDialog extends javax.swing.JDialog {
+
     private Frame parent;
     private ConnectorClass parentConnector;
     private STATEMENT_TYPE type;
@@ -63,12 +39,12 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
     private final String INCLUDED_TYPE_COLUMN_NAME = "Type";
     private final String TABLE_TYPE_COLUMN = "table";
     private final String COLUMN_TYPE_COLUMN = "column";
-    
-    public enum STATEMENT_TYPE {SELECT_TYPE, UPDATE_TYPE, INSERT_TYPE};
 
-    /**
-     * Creates new form ViewContentDialog
-     */
+    public enum STATEMENT_TYPE {
+
+        SELECT_TYPE, UPDATE_TYPE, INSERT_TYPE
+    };
+
     public DatabaseMetadataDialog(ConnectorClass parentConnector, STATEMENT_TYPE type, Properties connectionProperties) {
         super(PlatformUI.MIRTH_FRAME);
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -89,14 +65,14 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
             setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         }
         Map<String, Object> metaData = null;
-        
-        try { 
-    		metaData = (Map<String, Object>) parent.mirthClient.invokeConnectorService("Database Reader", "getInformationSchema", connectionProperties);
+
+        try {
+            metaData = (Map<String, Object>) parent.mirthClient.invokeConnectorService("Database Reader", "getInformationSchema", connectionProperties);
         } catch (ClientException e) {
-        	parent.alertError(parent, "Could not retrieve database metadata.  Please ensure that your driver, URL, username, and password are correct.");
-        	return;
+            parent.alertError(parent, "Could not retrieve database metadata.  Please ensure that your driver, URL, username, and password are correct.");
+            return;
         }
-        
+
         makeIncludedDestinationsTable(metaData);
         generateButton.requestFocus();
         generateButton.addKeyListener(new KeyListener() {
@@ -138,11 +114,12 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
         includedMetaDataTable.getColumnExt(INCLUDED_TYPE_COLUMN_NAME).setVisible(false);
 
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
-        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
-        	includedMetaDataTable.setHighlighters(highlighter);
+            Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+            includedMetaDataTable.setHighlighters(highlighter);
         }
 
         includedMetaDataTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
             public void valueChanged(ListSelectionEvent e) {
             }
         });
@@ -151,10 +128,10 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
 
         // Key Listener trigger for CTRL-S
         includedMetaDataTable.addKeyListener(new KeyListener() {
+
             public void keyPressed(KeyEvent e) {
                 boolean isAccelerated = (e.getModifiers() & java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0;
-                if ((e.getKeyCode() == KeyEvent.VK_S) && isAccelerated)
-                {
+                if ((e.getKeyCode() == KeyEvent.VK_S) && isAccelerated) {
                     PlatformUI.MIRTH_FRAME.doSaveAlerts();
                 }
             }
@@ -165,91 +142,86 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
             public void keyTyped(KeyEvent e) {
             }
         });
-        
-     // Mouse listener for trigger-button popup on the table.
-        includedMetaDataTable.addMouseListener(new java.awt.event.MouseAdapter()
-        {
-            public void mousePressed(java.awt.event.MouseEvent evt)
-            {
+
+        // Mouse listener for trigger-button popup on the table.
+        includedMetaDataTable.addMouseListener(new java.awt.event.MouseAdapter() {
+
+            public void mousePressed(java.awt.event.MouseEvent evt) {
             }
 
-            public void mouseReleased(java.awt.event.MouseEvent evt)
-            {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
                 checkTableNameSelected(evt);
             }
         });
 
     }
 
-    private void checkTableNameSelected(java.awt.event.MouseEvent evt)
-    {
-        if (!evt.isPopupTrigger())
-        {
+    private void checkTableNameSelected(java.awt.event.MouseEvent evt) {
+        if (!evt.isPopupTrigger()) {
             int row = includedMetaDataTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
             int column = includedMetaDataTable.columnAtPoint(new Point(evt.getX(), evt.getY()));
-            
-            if(row != -1 && column == 0) {
-            	String type = (String) includedMetaDataTable.getModel().getValueAt(row, 2);
-            	Boolean selected = (Boolean) includedMetaDataTable.getModel().getValueAt(row, 0);
-            	
-                if(type.equals(TABLE_TYPE_COLUMN)) { 
-                	RefreshTableModel model = (RefreshTableModel) includedMetaDataTable.getModel();
+
+            if (row != -1 && column == 0) {
+                String type = (String) includedMetaDataTable.getModel().getValueAt(row, 2);
+                Boolean selected = (Boolean) includedMetaDataTable.getModel().getValueAt(row, 0);
+
+                if (type.equals(TABLE_TYPE_COLUMN)) {
+                    RefreshTableModel model = (RefreshTableModel) includedMetaDataTable.getModel();
                     boolean nextTableFound = false;
                     int tableLength = model.getRowCount();
-                	int endRow = -1;
-                    for(int i = row+1; !nextTableFound && i != tableLength; i++) {
-                		String nextType = (String) includedMetaDataTable.getModel().getValueAt(i, 2);
-                		if(nextType.equals(TABLE_TYPE_COLUMN)) {
-                			endRow = i;
-                			nextTableFound = true;
-                		} else if (i+1 == tableLength) { 
-                			endRow = i+1;
-                		}
-                	}
-                    	
-                    if(endRow == -1) { 
-                    	return;
+                    int endRow = -1;
+                    for (int i = row + 1; !nextTableFound && i != tableLength; i++) {
+                        String nextType = (String) includedMetaDataTable.getModel().getValueAt(i, 2);
+                        if (nextType.equals(TABLE_TYPE_COLUMN)) {
+                            endRow = i;
+                            nextTableFound = true;
+                        } else if (i + 1 == tableLength) {
+                            endRow = i + 1;
+                        }
                     }
-                    
-                	for(int i = row+1; i < endRow; i++) { 
-                		model.setValueAt(selected, i, 0);
-                	}
+
+                    if (endRow == -1) {
+                        return;
+                    }
+
+                    for (int i = row + 1; i < endRow; i++) {
+                        model.setValueAt(selected, i, 0);
+                    }
                 }
             }
         }
     }
-    
-    public void updateIncludedDestinationsTable(Map<String,Object> metaData) {
+
+    public void updateIncludedDestinationsTable(Map<String, Object> metaData) {
         Object[][] tableData = null;
         int tableSize = 0;
 
         if (metaData != null) {
-            for(Object o : metaData.values()) { 
+            for (Object o : metaData.values()) {
                 tableSize++;
                 List<String> l = (List<String>) o;
                 tableSize += l.size();
             }
-        	
+
             tableData = new Object[tableSize][3];
             int i = 0;
             Iterator iterator = metaData.entrySet().iterator();
-            while (iterator.hasNext())
-            {
+            while (iterator.hasNext()) {
                 Entry entry = (Entry) iterator.next();
-               
+
                 tableData[i][0] = Boolean.FALSE;
                 tableData[i][1] = "<html><b>" + entry.getKey() + "</b></html>";
                 tableData[i][2] = TABLE_TYPE_COLUMN;
                 i++;
-                
-               	List<String> columns = (List<String>) metaData.get(entry.getKey());
-            
-               	for(String column : columns) { 
+
+                List<String> columns = (List<String>) metaData.get(entry.getKey());
+
+                for (String column : columns) {
                     tableData[i][0] = Boolean.FALSE;
                     tableData[i][1] = "     " + column;
                     tableData[i][2] = COLUMN_TYPE_COLUMN;
                     i++;
-               	}
+                }
             }
         }
 
@@ -268,71 +240,69 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
             });
         }
     }
-    
-    public String createQueryFromMetaData(Map<String, Object> metaData) { 
+
+    public String createQueryFromMetaData(Map<String, Object> metaData) {
         String query = "";
-        
+
         if (metaData != null) {
             query += "SELECT ";
             int i = 0;
-            
+
             Iterator iterator = metaData.entrySet().iterator();
             while (iterator.hasNext()) {
-            	Entry entry = (Entry) iterator.next();
-            	String tableName = (String)entry.getKey();
+                Entry entry = (Entry) iterator.next();
+                String tableName = (String) entry.getKey();
                 List<String> columns = (List<String>) metaData.get(tableName);
-                
-                for(String column : columns) { 
-                    if(i != 0) { 
+
+                for (String column : columns) {
+                    if (i != 0) {
                         query += ", ";
                     }
                     query += tableName + "." + column.trim() + " AS " + tableName + "_" + column.trim();
-                    i++;                          
+                    i++;
                 }
             }
-            
+
             query += "\nFROM ";
 
             iterator = metaData.entrySet().iterator();
             i = 0;
-            while (iterator.hasNext())
-            {
+            while (iterator.hasNext()) {
                 Entry entry = (Entry) iterator.next();
-               	if(i != 0) { 
+                if (i != 0) {
                     query += ", ";
                 }
                 query += entry.getKey();
                 i++;
             }
         }
-        
+
         return query;
     }
-    
-    public List<String> createInsertFromMetaData(Map<String, Object> metaData) { 
+
+    public List<String> createInsertFromMetaData(Map<String, Object> metaData) {
         List<String> insertStatements = new LinkedList<String>();
-    	
-        if (metaData != null) {           
+
+        if (metaData != null) {
             Iterator iterator = metaData.entrySet().iterator();
-            
-            while (iterator.hasNext())
-            {
-            	String statement = "INSERT INTO ";
-            	String values = "\nVALUES (";
+
+            while (iterator.hasNext()) {
+                String statement = "INSERT INTO ";
+                String values = "\nVALUES (";
                 Entry entry = (Entry) iterator.next();
                 statement += entry.getKey();
-                
+
                 List<String> columns = (List<String>) metaData.get(entry.getKey());
                 statement += " (";
                 int i = 0;
-                for(String column : columns) { 
-                    if(i != 0) { 
+                for (String column : columns) {
+                    if (i != 0) {
                         statement += ", ";
                         values += ", ";
                     }
                     statement += column.trim();
                     values += "?";
-                    i++;                          
+                    i++;
                 }
                 statement += ")";
                 values += ")";
@@ -340,57 +310,56 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
                 insertStatements.add(statement);
             }
         }
-        
+
         return insertStatements;
     }
-    
-    public List<String> createUpdateFromMetaData(Map<String, Object> metaData) { 
-    	List<String> insertStatements = new LinkedList<String>();
-    	
-        if (metaData != null) {           
+
+    public List<String> createUpdateFromMetaData(Map<String, Object> metaData) {
+        List<String> insertStatements = new LinkedList<String>();
+
+        if (metaData != null) {
             Iterator iterator = metaData.entrySet().iterator();
-            
-            while (iterator.hasNext())
-            {
-            	String statement = "UPDATE ";
-                 Entry entry = (Entry) iterator.next();
+
+            while (iterator.hasNext()) {
+                String statement = "UPDATE ";
+                Entry entry = (Entry) iterator.next();
                 statement += entry.getKey();
                 statement += "\nSET ";
-                
+
                 List<String> columns = (List<String>) metaData.get(entry.getKey());
                 int i = 0;
-                for(String column : columns) { 
-                    if(i != 0) { 
+                for (String column : columns) {
+                    if (i != 0) {
                         statement += ", ";
                     }
                     statement += column.trim() + " = ?";
 
-                    i++;                          
+                    i++;
                 }
 
                 insertStatements.add(statement);
             }
         }
-        
+
         return insertStatements;
     }
-    
+
     public Map<String, Object> getSelectedMetaData() {
         Map<String, Object> metaData = new HashMap<String, Object>();
         String currentTableName = "";
         for (int i = 0; i < includedMetaDataTable.getModel().getRowCount(); i++) {
             String type = (String) includedMetaDataTable.getModel().getValueAt(i, 2);
-        
-            if(type.equals(TABLE_TYPE_COLUMN)) { 
+
+            if (type.equals(TABLE_TYPE_COLUMN)) {
                 currentTableName = ((String) includedMetaDataTable.getModel().getValueAt(i, 1)).replaceAll("<html><b>", "").replaceAll("</b></html>", "");
-            } else { 
-                 if (((Boolean) includedMetaDataTable.getModel().getValueAt(i, 0)).booleanValue()) {
-                    if(metaData.get(currentTableName) == null) { 
+            } else {
+                if (((Boolean) includedMetaDataTable.getModel().getValueAt(i, 0)).booleanValue()) {
+                    if (metaData.get(currentTableName) == null) {
                         metaData.put(currentTableName, new LinkedList<String>());
-                    } 
-                    
-                    ((List<String>)metaData.get(currentTableName)).add((String) includedMetaDataTable.getModel().getValueAt(i, 1));
-                 }
+                    }
+
+                    ((List<String>) metaData.get(currentTableName)).add((String) includedMetaDataTable.getModel().getValueAt(i, 1));
+                }
             }
         }
         return metaData;
@@ -434,47 +403,47 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
 
         includedDestinationsPane.setViewportView(includedMetaDataTable);
 
-        org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, includedDestinationsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 361, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 361, Short.MAX_VALUE)
-                    .add(jPanel1Layout.createSequentialGroup()
-                        .add(generateButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(cancelButton)))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(includedDestinationsPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 361, Short.MAX_VALUE)
+                    .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 361, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(generateButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cancelButton)))
                 .addContainerGap())
         );
 
-        jPanel1Layout.linkSize(new java.awt.Component[] {cancelButton, generateButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {cancelButton, generateButton});
 
         jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(includedDestinationsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 413, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(cancelButton)
-                    .add(generateButton))
+                .addComponent(includedDestinationsPane, javax.swing.GroupLayout.DEFAULT_SIZE, 413, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cancelButton)
+                    .addComponent(generateButton))
                 .addContainerGap())
         );
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -485,14 +454,14 @@ private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 }//GEN-LAST:event_cancelButtonActionPerformed
 
 private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButtonActionPerformed
-    if(parentConnector instanceof DatabaseReader) { 
-    	if(type == STATEMENT_TYPE.SELECT_TYPE) { 
+    if (parentConnector instanceof DatabaseReader) {
+        if (type == STATEMENT_TYPE.SELECT_TYPE) {
             ((DatabaseReader) parentConnector).setSelectText(createQueryFromMetaData(getSelectedMetaData()));
-        } else { 
+        } else {
             ((DatabaseReader) parentConnector).setUpdateText(createUpdateFromMetaData(getSelectedMetaData()));
         }
-    } else if(parentConnector instanceof DatabaseWriter) { 
-    	((DatabaseWriter) parentConnector).setInsertText(createInsertFromMetaData(getSelectedMetaData()));
+    } else if (parentConnector instanceof DatabaseWriter) {
+        ((DatabaseWriter) parentConnector).setInsertText(createInsertFromMetaData(getSelectedMetaData()));
     }
 
     this.dispose();

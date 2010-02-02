@@ -13,7 +13,6 @@
 	<classpathentry kind="lib" path="lib/extensions/pdfviewer/acrobat.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/pdfviewer/MRJToolkitStubs.jar"/>
 	<classpathentry kind="lib" path="lib/commons-httpclient-3.0.1.jar"/>
-	<classpathentry kind="lib" path="lib/swing-layout.jar"/>
 	<classpathentry kind="lib" path="lib/swingx-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/looks-2.2.2.jar"/>
 	<classpathentry kind="lib" path="lib/hapi-0.6.jar"/>

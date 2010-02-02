@@ -1,27 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
 package com.webreach.mirth.client.ui;
 
 import java.awt.Dimension;
@@ -43,20 +19,14 @@ import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.filters.MessageObjectFilter;
 
-/** Creates the About Mirth dialog. The content is loaded from about.txt. */
 public class ReprocessMessagesDialog extends javax.swing.JDialog {
 
     private Frame parent;
-    
     private MessageObjectFilter filter = null;
-    
     private final String INCLUDED_DESTINATION_NAME_COLUMN_NAME = "Destination";
     private final String INCLUDED_STATUS_COLUMN_NAME = "Include";
     private final String INCLUDED_ID_COLUMN_NAME = "Id";
-    
-    /**
-     * Creates new form ViewContentDialog
-     */
+
     public ReprocessMessagesDialog(MessageObjectFilter filter) {
         super(PlatformUI.MIRTH_FRAME);
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -78,21 +48,21 @@ public class ReprocessMessagesDialog extends javax.swing.JDialog {
 
         makeIncludedDestinationsTable();
         okButton.requestFocus();
-        okButton.addKeyListener(new KeyListener(){
+        okButton.addKeyListener(new KeyListener() {
 
-			public void keyPressed(KeyEvent e) {
-				// TODO Auto-generated method stub
-			}
+            public void keyPressed(KeyEvent e) {
+                // TODO Auto-generated method stub
+            }
 
-			public void keyReleased(KeyEvent e) {
-				if(e.getKeyCode() == KeyEvent.VK_ENTER) {
-					okButtonActionPerformed(null);
-				}
-			}
+            public void keyReleased(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    okButtonActionPerformed(null);
+                }
+            }
 
-			public void keyTyped(KeyEvent e) {
-				// TODO Auto-generated method stub
-			}
+            public void keyTyped(KeyEvent e) {
+                // TODO Auto-generated method stub
+            }
         });
         setVisible(true);
     }
@@ -115,16 +85,15 @@ public class ReprocessMessagesDialog extends javax.swing.JDialog {
         includedDestinationsTable.getColumnExt(INCLUDED_STATUS_COLUMN_NAME).setMaxWidth(50);
         includedDestinationsTable.getColumnExt(INCLUDED_STATUS_COLUMN_NAME).setMinWidth(50);
         includedDestinationsTable.getColumnExt(INCLUDED_ID_COLUMN_NAME).setVisible(false);
-        
+
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
-        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
-        	includedDestinationsTable.setHighlighters(highlighter);
+            Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+            includedDestinationsTable.setHighlighters(highlighter);
         }
 
         includedDestinationsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
             public void valueChanged(ListSelectionEvent e) {
-
             }
         });
 
@@ -151,20 +120,20 @@ public class ReprocessMessagesDialog extends javax.swing.JDialog {
     public void updateIncludedDestinationsTable(Channel channel) {
         Object[][] tableData = null;
         int tableSize = 0;
-        
-        List<Connector> enabledDestinations = new LinkedList<Connector>(); 
-        
-        if (channel != null) {        
+
+        List<Connector> enabledDestinations = new LinkedList<Connector>();
+
+        if (channel != null) {
             tableSize = channel.getEnabledDestinationConnectors().size();
             tableData = new Object[tableSize][3];
 
             int i = 0, j = 0;
             for (Connector connector : channel.getDestinationConnectors()) {
-                if(connector.isEnabled()) { 
-	            	tableData[i][0] = connector.getName();
-	                tableData[i][1] = Boolean.TRUE;
-	                tableData[i][2] = channel.getId() + "_destination_" + (j+1) + "_connector";
-	                i++;
+                if (connector.isEnabled()) {
+                    tableData[i][0] = connector.getName();
+                    tableData[i][1] = Boolean.TRUE;
+                    tableData[i][2] = channel.getId() + "_destination_" + (j + 1) + "_connector";
+                    i++;
                 }
                 j++;
             }
@@ -185,25 +154,22 @@ public class ReprocessMessagesDialog extends javax.swing.JDialog {
             });
         }
     }
-    
-    public boolean isReprocessOriginal() { 
+
+    public boolean isReprocessOriginal() {
         return reprocessOriginal.isSelected();
     }
-    
-    public List<String> getConnectors()
-    {
+
+    public List<String> getConnectors() {
         LinkedList<String> connectors = new LinkedList<String>();
 
-        for (int i = 0; i < includedDestinationsTable.getModel().getRowCount(); i++)
-        {
-            if (((Boolean) includedDestinationsTable.getModel().getValueAt(i, 1)).booleanValue())
-            {
+        for (int i = 0; i < includedDestinationsTable.getModel().getRowCount(); i++) {
+            if (((Boolean) includedDestinationsTable.getModel().getValueAt(i, 1)).booleanValue()) {
                 connectors.add((String) includedDestinationsTable.getModel().getValueAt(i, 2));
             }
         }
         return connectors;
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -250,53 +216,53 @@ public class ReprocessMessagesDialog extends javax.swing.JDialog {
 
         jLabel1.setText("Reprocess to the following destinations:");
 
-        org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, includedDestinationsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE)
-                    .add(jPanel1Layout.createSequentialGroup()
-                        .add(okButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(cancelButton))
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, reprocessOriginal)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jLabel1))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(includedDestinationsPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE)
+                    .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(okButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cancelButton))
+                    .addComponent(reprocessOriginal, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING))
                 .addContainerGap())
         );
 
-        jPanel1Layout.linkSize(new java.awt.Component[] {cancelButton, okButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {cancelButton, okButton});
 
         jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(reprocessOriginal)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jLabel1)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(includedDestinationsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(cancelButton)
-                    .add(okButton))
+                .addComponent(reprocessOriginal)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(includedDestinationsPane, javax.swing.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cancelButton)
+                    .addComponent(okButton))
                 .addContainerGap())
         );
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -310,7 +276,6 @@ private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     parent.reprocessMessage(filter, isReprocessOriginal(), getConnectors());
     this.dispose();
 }//GEN-LAST:event_okButtonActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
     private javax.swing.JScrollPane includedDestinationsPane;

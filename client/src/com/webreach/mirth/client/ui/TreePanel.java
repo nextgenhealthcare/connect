@@ -1,9 +1,3 @@
-/*
- * TreePanel.java
- *
- * Created on July 3, 2007, 3:48 PM
- */
-
 package com.webreach.mirth.client.ui;
 
 import java.awt.Cursor;
@@ -55,12 +49,8 @@ import com.webreach.mirth.model.util.MessageVocabulary;
 import com.webreach.mirth.model.util.MessageVocabularyFactory;
 import com.webreach.mirth.util.StringUtil;
 
-/**
- * 
- * @author brendanh
- */
-public class TreePanel extends javax.swing.JPanel
-{
+public class TreePanel extends javax.swing.JPanel {
+
     private static final String EMPTY = "[empty]";
     private String version = "";
     private String type = "";
@@ -76,104 +66,87 @@ public class TreePanel extends javax.swing.JPanel
     /**
      * Creates new form TreePanel
      */
-    public TreePanel()
-    {
+    public TreePanel() {
         setup();
     }
 
-    public TreePanel(String prefix, String suffix)
-    {
+    public TreePanel(String prefix, String suffix) {
         _dropPrefix = prefix;
         _dropSuffix = suffix;
 
         setup();
     }
 
-    public void setup()
-    {
+    public void setup() {
         initComponents();
 
-        filterTextBox.addKeyListener(new KeyAdapter()
-        {
-            public void keyPressed(KeyEvent arg0)
-            {
+        filterTextBox.addKeyListener(new KeyAdapter() {
+
+            public void keyPressed(KeyEvent arg0) {
             }
 
-            public void keyReleased(KeyEvent e)
-            {
+            public void keyReleased(KeyEvent e) {
                 filterActionPerformed();
             }
 
-            public void keyTyped(KeyEvent e)
-            {
+            public void keyTyped(KeyEvent e) {
             }
         });
 
-        exact.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
+        exact.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
                 filterActionPerformed();
             }
         });
     }
 
-    private void recursivelyExpandChildren(MirthTreeNode tn)
-    {
+    private void recursivelyExpandChildren(MirthTreeNode tn) {
         tree.expandPath(new TreePath(tn.getPath()));
         Enumeration<TreeNode> children = tn.children();
-        while (children.hasMoreElements())
-        {
+        while (children.hasMoreElements()) {
             MirthTreeNode child = (MirthTreeNode) children.nextElement();
-            if (child.getChildCount() > 0)
+            if (child.getChildCount() > 0) {
                 recursivelyExpandChildren(child);
+            }
             tree.expandPath(new TreePath(child.getPath()));
         }
     }
 
-    private void recursivelyCollapseChildren(MirthTreeNode tn)
-    {
+    private void recursivelyCollapseChildren(MirthTreeNode tn) {
         Enumeration<TreeNode> children = tn.children();
-        while (children.hasMoreElements())
-        {
+        while (children.hasMoreElements()) {
             MirthTreeNode child = (MirthTreeNode) children.nextElement();
-            if (child.getChildCount() > 0)
+            if (child.getChildCount() > 0) {
                 recursivelyCollapseChildren(child);
+            }
             tree.collapsePath(new TreePath(child.getPath()));
         }
     }
 
-    public void setPrefix(String prefix)
-    {
+    public void setPrefix(String prefix) {
         _dropPrefix = prefix;
     }
 
-    public void setSuffix(String suffix)
-    {
+    public void setSuffix(String suffix) {
         _dropSuffix = suffix;
     }
-    
-    public void setupPopupMenu()
-    {
+
+    public void setupPopupMenu() {
         popupMenu = new JPopupMenu();
         JMenuItem expandAll = new JMenuItem("Expand");
         expandAll.setIcon(new ImageIcon(this.getClass().getResource("images/add.png")));
-        expandAll.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
+        expandAll.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
                 MirthTreeNode tn;
-                if (tree.getSelectionPath() != null)
-                {
+                if (tree.getSelectionPath() != null) {
                     TreePath tp = tree.getSelectionPath();
                     tn = (MirthTreeNode) tp.getLastPathComponent();
-                }
-                else
-                {
+                } else {
                     tn = (MirthTreeNode) tree.getModel().getRoot();
                 }
-                if (!tn.isLeaf())
-                {
+                if (!tn.isLeaf()) {
                     recursivelyExpandChildren(tn);
                     tree.expandPath(new TreePath(tn.getPath()));
                 }
@@ -184,22 +157,17 @@ public class TreePanel extends javax.swing.JPanel
 
         JMenuItem collapseAll = new JMenuItem("Collapse");
         collapseAll.setIcon(new ImageIcon(this.getClass().getResource("images/delete.png")));
-        collapseAll.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
+        collapseAll.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
                 MirthTreeNode tn;
-                if (tree.getSelectionPath() != null)
-                {
+                if (tree.getSelectionPath() != null) {
                     TreePath tp = tree.getSelectionPath();
                     tn = (MirthTreeNode) tp.getLastPathComponent();
-                }
-                else
-                {
+                } else {
                     tn = (MirthTreeNode) tree.getModel().getRoot();
                 }
-                if (!tn.isLeaf())
-                {
+                if (!tn.isLeaf()) {
                     recursivelyCollapseChildren(tn);
                     tree.collapsePath(new TreePath(tn.getPath()));
                 }
@@ -208,106 +176,95 @@ public class TreePanel extends javax.swing.JPanel
         popupMenu.add(collapseAll);
 
         popupMenu.addSeparator();
-        
-        if (_dropPrefix.equals(MessageTreePanel.MAPPER_PREFIX))
-        {
+
+        if (_dropPrefix.equals(MessageTreePanel.MAPPER_PREFIX)) {
             JMenuItem mapNode = new JMenuItem("Map to Variable");
             mapNode.setIcon(new ImageIcon(this.getClass().getResource("images/book_previous.png")));
-            mapNode.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
+            mapNode.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
                     TreePath path = tree.getSelectionPath();
-                    if (path == null)
+                    if (path == null) {
                         return;
+                    }
                     TreeNode tp = (TreeNode) path.getLastPathComponent();
-                    if (tp == null)
+                    if (tp == null) {
                         return;
+                    }
 
                     String variable = MirthTree.constructVariable(tp);
                     PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addNewStep(variable, variable, MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), TransformerPane.MAPPER);
                 }
             });
             popupMenu.add(mapNode);
-        }
-        else if (_dropPrefix.equals(MessageTreePanel.MESSAGE_BUILDER_PREFIX))
-        {
+        } else if (_dropPrefix.equals(MessageTreePanel.MESSAGE_BUILDER_PREFIX)) {
             JMenuItem mapNode = new JMenuItem("Map Segment");
             mapNode.setIcon(new ImageIcon(this.getClass().getResource("images/book_previous.png")));
-            mapNode.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
+            mapNode.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
                     TreePath path = tree.getSelectionPath();
-                    if (path == null)
+                    if (path == null) {
                         return;
+                    }
                     TreeNode tp = (TreeNode) path.getLastPathComponent();
-                    if (tp == null)
+                    if (tp == null) {
                         return;
-                    
+                    }
+
                     PlatformUI.MIRTH_FRAME.channelEditPanel.transformerPane.addNewStep(MirthTree.constructMessageBuilderStepName(null, tp), MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString(), "", TransformerPane.MESSAGE_BUILDER);
                 }
             });
             popupMenu.add(mapNode);
         }
-        
+
         JMenuItem ruleNode = new JMenuItem("Filter Segment");
         ruleNode.setIcon(new ImageIcon(this.getClass().getResource("images/book_previous.png")));
-        ruleNode.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
+        ruleNode.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
                 TreePath path = tree.getSelectionPath();
-                if (path == null)
+                if (path == null) {
                     return;
+                }
                 TreeNode tp = (TreeNode) path.getLastPathComponent();
-                if (tp == null)
+                if (tp == null) {
                     return;
-                
+                }
+
                 PlatformUI.MIRTH_FRAME.channelEditPanel.filterPane.addNewRule(MirthTree.constructNodeDescription(tp), MirthTree.constructPath(tp, tree.getPrefix(), tree.getSuffix()).toString());
             }
         });
         popupMenu.add(ruleNode);
     }
-    
-    public void setFilterView()
-    {
+
+    public void setFilterView() {
         popupMenu.getComponent(3).setVisible(false);
         popupMenu.getComponent(4).setVisible(true);
     }
-    
-    public void setTransformerView()
-    {
+
+    public void setTransformerView() {
         popupMenu.getComponent(3).setVisible(true);
         popupMenu.getComponent(4).setVisible(false);
     }
-    
-    public void setBorderText(String text)
-    {
 
+    public void setBorderText(String text) {
     }
 
-    public void filterActionPerformed()
-    {
+    public void filterActionPerformed() {
 
-        class FilterTimer extends TimerTask
-        {
+        class FilterTimer extends TimerTask {
 
             @Override
-            public void run()
-            {
+            public void run() {
                 filter();
             }
-
         }
 
-        if (timer == null)
-        {
+        if (timer == null) {
             timer = new Timer();
             timer.schedule(new FilterTimer(), 1000);
-        }
-        else
-        {
+        } else {
             timer.cancel();
             PlatformUI.MIRTH_FRAME.setWorking("", false);
             timer = new Timer();
@@ -315,26 +272,26 @@ public class TreePanel extends javax.swing.JPanel
         }
     }
 
-    public void filter()
-    {
+    public void filter() {
         PlatformUI.MIRTH_FRAME.setWorking("Filtering...", true);
         FilterTreeModel model = (FilterTreeModel) tree.getModel();
 
-        if (filterTextBox.getText().length() > 0)
+        if (filterTextBox.getText().length() > 0) {
             model.setFiltered(true);
-        else
+        } else {
             model.setFiltered(false);
+        }
 
         model.performFilter(model.getRoot(), filterTextBox.getText(), exact.isSelected(), false);
         model.updateTreeStructure();
-        if (filterTextBox.getText().length() > 0)
+        if (filterTextBox.getText().length() > 0) {
             tree.expandAll();
+        }
 
         PlatformUI.MIRTH_FRAME.setWorking("", false);
     }
 
-    public void setMessage(Properties protocolProperties, String messageType, String source, String ignoreText, Properties dataProperties)
-    {
+    public void setMessage(Properties protocolProperties, String messageType, String source, String ignoreText, Properties dataProperties) {
 
         Document xmlDoc = null;
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -345,73 +302,50 @@ public class TreePanel extends javax.swing.JPanel
         type = "";
         String messageDescription = "";
         Protocol protocol = null;
-        if (source.length() > 0 && !source.equals(ignoreText))
-        {
+        if (source.length() > 0 && !source.equals(ignoreText)) {
             IXMLSerializer<String> serializer;
-            if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2).equals(messageType))
-            {
+            if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2).equals(messageType)) {
                 protocol = Protocol.HL7V2;
                 //The \n to \r conversion is ONLY valid for HL7
                 boolean convertLFtoCR = true;
-                if (protocolProperties != null && protocolProperties.get("convertLFtoCR") != null){
-        			convertLFtoCR = Boolean.parseBoolean((String) protocolProperties.get("convertLFtoCR"));
-        		}
-                if (convertLFtoCR){
-                	source = StringUtil.convertLFtoCR(source).trim();
+                if (protocolProperties != null && protocolProperties.get("convertLFtoCR") != null) {
+                    convertLFtoCR = Boolean.parseBoolean((String) protocolProperties.get("convertLFtoCR"));
                 }
-            }
-            else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.NCPDP).equals(messageType))
-            {
+                if (convertLFtoCR) {
+                    source = StringUtil.convertLFtoCR(source).trim();
+                }
+            } else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.NCPDP).equals(messageType)) {
                 protocol = Protocol.NCPDP;
-            }
-            else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DICOM).equals(messageType))
-            {
+            } else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DICOM).equals(messageType)) {
                 protocol = Protocol.DICOM;
-            }
-            else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V3).equals(messageType))
-            {
+            } else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V3).equals(messageType)) {
                 protocol = Protocol.HL7V3;
-            }
-            else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12).equals(messageType))
-            {
+            } else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12).equals(messageType)) {
                 protocol = Protocol.X12;
-            }
-            else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.XML).equals(messageType))
-            {
+            } else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.XML).equals(messageType)) {
                 protocol = Protocol.XML;
-            }
-            else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI).equals(messageType))
-            {
+            } else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI).equals(messageType)) {
                 protocol = Protocol.EDI;
-            }
-            else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DELIMITED).equals(messageType))
-            {
+            } else if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DELIMITED).equals(messageType)) {
                 protocol = Protocol.DELIMITED;
-            }
-            else
-            {
+            } else {
                 logger.error("Invalid protocol");
                 return;
             }
 
-            try
-            {
+            try {
                 serializer = SerializerFactory.getSerializer(protocol, protocolProperties);
                 docBuilder = docFactory.newDocumentBuilder();
 
                 String message;
-                if (protocol.equals(Protocol.DICOM))
-                {
+                if (protocol.equals(Protocol.DICOM)) {
                     message = source;
-                }
-                else
-                {
+                } else {
                     message = serializer.toXML(source);
                 }
                 xmlDoc = docBuilder.parse(new InputSource(new StringReader(message)));
 
-                if (xmlDoc != null)
-                {
+                if (xmlDoc != null) {
                     Map<String, String> metadata = serializer.getMetadataFromDocument(xmlDoc);
                     version = metadata.get("version").trim();
                     type = metadata.get("type").trim();
@@ -420,24 +354,19 @@ public class TreePanel extends javax.swing.JPanel
                     messageDescription = vocabulary.getDescription(type.replaceAll("-", ""));
 
                 }
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
 
             }
 
-            if (xmlDoc != null)
-            {
+            if (xmlDoc != null) {
                 createTree(protocol, xmlDoc, messageName, messageDescription);
                 filter();
-            }
-            else
+            } else {
                 setInvalidMessage(messageType);
-        }
-        else
-        {
+            }
+        } else {
             clearMessage();
         }
     }
@@ -445,13 +374,11 @@ public class TreePanel extends javax.swing.JPanel
     /**
      * Shows the trigger-button popup menu.
      */
-    private void showTreePopupMenu(java.awt.event.MouseEvent evt)
-    {
-        if (evt.isPopupTrigger())
-        {
+    private void showTreePopupMenu(java.awt.event.MouseEvent evt) {
+        if (evt.isPopupTrigger()) {
             int row = tree.getRowForLocation(evt.getX(), evt.getY());
             tree.setSelectionRow(row);
-            
+
             popupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
     }
@@ -459,18 +386,17 @@ public class TreePanel extends javax.swing.JPanel
     /**
      * Updates the panel with a new Message.
      */
-    private void createTree(Protocol protocol, Document xmlDoc, String messageName, String messageDescription)
-    {
+    private void createTree(Protocol protocol, Document xmlDoc, String messageName, String messageDescription) {
         Element el = xmlDoc.getDocumentElement();
         MirthTreeNode top;
-        if (messageDescription.length() > 0)
+        if (messageDescription.length() > 0) {
             top = new MirthTreeNode(messageName + " (" + messageDescription + ")");
-        else
+        } else {
             top = new MirthTreeNode(messageName);
+        }
 
         NodeList children = el.getChildNodes();
-        for (int i = 0; i < children.getLength(); i++)
-        {
+        for (int i = 0; i < children.getLength(); i++) {
             processElement(protocol, children.item(i), top);
         }
         // processElement(xmlDoc.getDocumentElement(), top);
@@ -480,152 +406,115 @@ public class TreePanel extends javax.swing.JPanel
 
         tree.setDragEnabled(true);
         tree.setTransferHandler(new TreeTransferHandler());
-        tree.addMouseMotionListener(new MouseMotionAdapter()
-        {
-            public void mouseDragged(MouseEvent evt)
-            {
-                if (tree.getSelectionPath() != null)
-                {
+        tree.addMouseMotionListener(new MouseMotionAdapter() {
+
+            public void mouseDragged(MouseEvent evt) {
+                if (tree.getSelectionPath() != null) {
                     TreePath tp = tree.getSelectionPath();
                     TreeNode tn = (TreeNode) tp.getLastPathComponent();
-                    if (tn.isLeaf())
-                    {
+                    if (tn.isLeaf()) {
                         refTableMouseDragged(evt);
                     }
                 }
             }
 
-            public void mouseMoved(MouseEvent evt)
-            {
+            public void mouseMoved(MouseEvent evt) {
                 refTableMouseMoved(evt);
             }
         });
-        tree.addMouseListener(new MouseListener()
-        {
+        tree.addMouseListener(new MouseListener() {
 
-            public void mouseClicked(MouseEvent e)
-            {
+            public void mouseClicked(MouseEvent e) {
                 // TODO Auto-generated method stub
-
             }
 
-            public void mouseEntered(MouseEvent e)
-            {
+            public void mouseEntered(MouseEvent e) {
                 // TODO Auto-generated method stub
-
             }
 
-            public void mouseExited(MouseEvent e)
-            {
+            public void mouseExited(MouseEvent e) {
                 refTableMouseExited(e);
 
             }
 
-            public void mousePressed(MouseEvent e)
-            {
+            public void mousePressed(MouseEvent e) {
                 showTreePopupMenu(e);
 
             }
 
-            public void mouseReleased(MouseEvent e)
-            {
+            public void mouseReleased(MouseEvent e) {
                 showTreePopupMenu(e);
             }
-
         });
-        try
-        {
+        try {
             tree.setScrollsOnExpand(true);
             treePane.setViewportView(tree);
             tree.revalidate();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.error(e);
         }
         PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
-    private void refTableMouseExited(MouseEvent evt)
-    {
-        if (!popupMenu.isShowing())
+    private void refTableMouseExited(MouseEvent evt) {
+        if (!popupMenu.isShowing()) {
             tree.clearSelection();
+        }
     }
 
-    private void refTableMouseDragged(MouseEvent evt)
-    {
-
+    private void refTableMouseDragged(MouseEvent evt) {
     }
 
-    private void refTableMouseMoved(MouseEvent evt)
-    {
+    private void refTableMouseMoved(MouseEvent evt) {
         int row = tree.getRowForLocation(evt.getPoint().x, evt.getPoint().y);
 
-        if (!popupMenu.isShowing() && row >= 0 && row < tree.getRowCount())
+        if (!popupMenu.isShowing() && row >= 0 && row < tree.getRowCount()) {
             tree.setSelectionRow(row);
+        }
     }
 
-    private void processElement(Protocol protocol, Object elo, MirthTreeNode mtn)
-    {
-        if (elo instanceof Element)
-        {
+    private void processElement(Protocol protocol, Object elo, MirthTreeNode mtn) {
+        if (elo instanceof Element) {
             Element el = (Element) elo;
             String description;
-            if (vocabulary instanceof DICOMVocabulary)
-            {
+            if (vocabulary instanceof DICOMVocabulary) {
                 description = vocabulary.getDescription(el.getAttribute("tag"));
-                if(description.equals("?")){
-                    description="";
+                if (description.equals("?")) {
+                    description = "";
                 }
-            }
-            else
-            {
+            } else {
                 description = vocabulary.getDescription(el.getNodeName());
             }
             MirthTreeNode currentNode;
-            if (description != null && description.length() > 0)
-            {
-                if (vocabulary instanceof DICOMVocabulary)
-                {
+            if (description != null && description.length() > 0) {
+                if (vocabulary instanceof DICOMVocabulary) {
                     //currentNode = new MirthTreeNode(vocabulary.getDescription(el.getAttribute("tag").replaceAll(" ", "")) + " (" + description + ")");
-                    currentNode = new MirthTreeNode("tag"+el.getAttribute("tag") + " (" + description + ")");
-                }
-                else
-                {
+                    currentNode = new MirthTreeNode("tag" + el.getAttribute("tag") + " (" + description + ")");
+                } else {
                     currentNode = new MirthTreeNode(el.getNodeName() + " (" + description + ")");
                 }
-            }
-            else
+            } else {
                 currentNode = new MirthTreeNode(el.getNodeName());
+            }
 
             String text = "";
-            if (el.hasChildNodes())
-            {
+            if (el.hasChildNodes()) {
                 text = el.getFirstChild().getNodeValue();
-                if ((text == null) || (text.equals("") || text.trim().length() == 0))
-                {
+                if ((text == null) || (text.equals("") || text.trim().length() == 0)) {
                     currentNode.add(new MirthTreeNode(el.getNodeName()));
-                }
-                else
-                {
+                } else {
                     currentNode.add(new MirthTreeNode(text));
                 }
-            }
-            else
-            {
+            } else {
                 // Check if we are in the format SEG.1.1
-                if (protocol.equals(Protocol.HL7V3) || protocol.equals(Protocol.XML) || el.getNodeName().matches(".*\\..*\\..") || protocol.equals(Protocol.DICOM))
-                {
+                if (protocol.equals(Protocol.HL7V3) || protocol.equals(Protocol.XML) || el.getNodeName().matches(".*\\..*\\..") || protocol.equals(Protocol.DICOM)) {
                     // We already at the last possible child segment, so just
                     // add empty node
                     currentNode.add(new MirthTreeNode(EMPTY));
-                }
-                else if (protocol.equals(Protocol.DELIMITED)) {
+                } else if (protocol.equals(Protocol.DELIMITED)) {
                     // We have empty column node
                     currentNode.add(new MirthTreeNode(EMPTY));
-                }
-                else
-                {
+                } else {
                     // We have empty node and possibly empty children
                     // Add the sub-node handler (SEG.1)
                     currentNode.add(new MirthTreeNode(el.getNodeName()));
@@ -633,12 +522,9 @@ public class TreePanel extends javax.swing.JPanel
                     String newNodeName = el.getNodeName() + ".1";
                     description = vocabulary.getDescription(newNodeName);
                     MirthTreeNode parentNode;
-                    if (description != null && description.length() > 0)
-                    {
+                    if (description != null && description.length() > 0) {
                         parentNode = new MirthTreeNode(newNodeName + " (" + description + ")");
-                    }
-                    else
-                    {
+                    } else {
                         parentNode = new MirthTreeNode(newNodeName);
                     }
                     parentNode.add(new MirthTreeNode(EMPTY));
@@ -650,19 +536,16 @@ public class TreePanel extends javax.swing.JPanel
             processAttributes(el, currentNode);
 
             NodeList children = el.getChildNodes();
-            for (int i = 0; i < children.getLength(); i++)
-            {
+            for (int i = 0; i < children.getLength(); i++) {
                 processElement(protocol, children.item(i), currentNode);
             }
             mtn.add(currentNode);
         }
     }
 
-    private void processAttributes(Element el, MirthTreeNode dmtn)
-    {
+    private void processAttributes(Element el, MirthTreeNode dmtn) {
         NamedNodeMap atts = el.getAttributes();
-        for (int i = 0; i < atts.getLength(); i++)
-        {
+        for (int i = 0; i < atts.getLength(); i++) {
             Attr att = (Attr) atts.item(i);
             MirthTreeNode attNode = new MirthTreeNode("@" + att.getName());
             attNode.add(new MirthTreeNode(att.getValue()));
@@ -670,58 +553,53 @@ public class TreePanel extends javax.swing.JPanel
         }
     }
 
-    public class TreeTransferHandler extends TransferHandler
-    {
-        protected Transferable createTransferable(JComponent c)
-        {
-            if (c != null)
-            {
-                try
-                {
-                    TreePath path = ((MirthTree) c).getSelectionPath();
-                    if (path == null)
-                        return null;
-                    TreeNode tp = (TreeNode) path.getLastPathComponent();
-                    if (tp == null)
-                        return null;
-                    if (!tp.isLeaf())
-                        return null;
+    public class TreeTransferHandler extends TransferHandler {
 
-                    if (_dropPrefix.equals(MessageTreePanel.MAPPER_PREFIX))
+        protected Transferable createTransferable(JComponent c) {
+            if (c != null) {
+                try {
+                    TreePath path = ((MirthTree) c).getSelectionPath();
+                    if (path == null) {
+                        return null;
+                    }
+                    TreeNode tp = (TreeNode) path.getLastPathComponent();
+                    if (tp == null) {
+                        return null;
+                    }
+                    if (!tp.isLeaf()) {
+                        return null;
+                    }
+
+                    if (_dropPrefix.equals(MessageTreePanel.MAPPER_PREFIX)) {
                         return new TreeTransferable(tp, _dropPrefix, _dropSuffix, TreeTransferable.MAPPER_DATA_FLAVOR);
-                    else
+                    } else {
                         return new TreeTransferable(tp, _dropPrefix, _dropSuffix, TreeTransferable.MESSAGE_BUILDER_DATA_FLAVOR);
-                }
-                catch (ClassCastException cce)
-                {
+                    }
+                } catch (ClassCastException cce) {
                     return null;
                 }
-            }
-            else
+            } else {
                 return null;
+            }
         }
 
-        public int getSourceActions(JComponent c)
-        {
+        public int getSourceActions(JComponent c) {
             return COPY;
         }
 
-        public boolean canImport(JComponent c, DataFlavor[] df)
-        {
+        public boolean canImport(JComponent c, DataFlavor[] df) {
             return false;
         }
     }
 
-    public void clearMessage()
-    {
+    public void clearMessage() {
         MirthTreeNode top = new MirthTreeNode("Please provide a message template.");
         MirthTree tree = new MirthTree(top, _dropPrefix, _dropSuffix);
         treePane.setViewportView(tree);
         revalidate();
     }
 
-    public void setInvalidMessage(String messageType)
-    {
+    public void setInvalidMessage(String messageType) {
         MirthTreeNode top = new MirthTreeNode("The message template is not valid " + messageType + ".");
         MirthTree tree = new MirthTree(top, _dropPrefix, _dropSuffix);
         treePane.setViewportView(tree);
@@ -734,9 +612,9 @@ public class TreePanel extends javax.swing.JPanel
      * regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // ">//GEN-BEGIN:initComponents
-    private void initComponents()
-    {
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
         jLabel1 = new javax.swing.JLabel();
         filterTextBox = new javax.swing.JTextField();
         treePane = new javax.swing.JScrollPane();
@@ -744,7 +622,8 @@ public class TreePanel extends javax.swing.JPanel
         exact = new javax.swing.JCheckBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
-        setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(5, 1, 1, 1), "Message Tree", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11), new java.awt.Color(0, 0, 0)));
+        setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(5, 1, 1, 1), "Message Tree", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 1, 11))); // NOI18N
+
         jLabel1.setText("Filter:");
 
         treePane.setViewportView(tree);
@@ -754,12 +633,34 @@ public class TreePanel extends javax.swing.JPanel
         exact.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         exact.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
-        layout.setHorizontalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup().addContainerGap().add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING).add(treePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 163, Short.MAX_VALUE).add(layout.createSequentialGroup().add(jLabel1).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(filterTextBox, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 48, Short.MAX_VALUE).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(exact).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))).addContainerGap()));
-        layout.setVerticalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(layout.createSequentialGroup().add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE).add(jLabel1).add(filterTextBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE).add(exact)).addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED).add(treePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE).addContainerGap()));
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(treePane, javax.swing.GroupLayout.DEFAULT_SIZE, 163, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(filterTextBox, javax.swing.GroupLayout.DEFAULT_SIZE, 48, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(exact)))
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(filterTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(exact))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(treePane, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
+                .addContainerGap())
+        );
     }// </editor-fold>//GEN-END:initComponents
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox exact;
     private javax.swing.JTextField filterTextBox;

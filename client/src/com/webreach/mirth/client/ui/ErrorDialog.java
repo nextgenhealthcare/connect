@@ -1,28 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.client.ui;
 
 import java.awt.Dimension;
@@ -33,36 +8,30 @@ import javax.swing.Icon;
 import javax.swing.UIManager;
 
 /** Creates the error dialog. */
-public class ErrorDialog extends javax.swing.JDialog
-{
+public class ErrorDialog extends javax.swing.JDialog {
+
     private Frame parent;
 
-    public ErrorDialog(java.awt.Frame owner, String message)
-    {
+    public ErrorDialog(java.awt.Frame owner, String message) {
         super(owner);
         initialize(message);
     }
-    
-    public ErrorDialog(java.awt.Dialog owner, String message)
-    {
+
+    public ErrorDialog(java.awt.Dialog owner, String message) {
         super(owner);
         initialize(message);
     }
-    
+
     private void initialize(String message) {
-    	this.parent = PlatformUI.MIRTH_FRAME;
+        this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
         question.setBackground(UIManager.getColor("Control"));
         errorContent.setBackground(UIManager.getColor("Control"));
         image.setIcon((Icon) UIManager.get("OptionPane.errorIcon"));
         questionPane.setBorder(null);
-        try
-        {
+        try {
             message = java.net.URLDecoder.decode(message, "UTF-8");
-        }
-        catch (UnsupportedEncodingException e)
-        {
-
+        } catch (UnsupportedEncodingException e) {
         }
         loadContent(message);
         errorContent.setCaretPosition(0);
@@ -72,19 +41,18 @@ public class ErrorDialog extends javax.swing.JDialog
         Dimension dlgSize = getPreferredSize();
         Dimension frmSize = parent.getSize();
         Point loc = parent.getLocation();
-        
+
         if ((frmSize.width == 0 && frmSize.height == 0) || (loc.x == 0 && loc.y == 0)) {
-        	setLocationRelativeTo(null);
+            setLocationRelativeTo(null);
         } else {
-	        setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+            setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         }
-        
+
         setVisible(true);
     }
 
     /** Loads the contents of the error */
-    public void loadContent(String message)
-    {
+    public void loadContent(String message) {
         errorContent.setText(message);
     }
 
@@ -126,33 +94,33 @@ public class ErrorDialog extends javax.swing.JDialog
         question.setFocusable(false);
         questionPane.setViewportView(question);
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, cancel)
-                    .add(layout.createSequentialGroup()
-                        .add(image)
-                        .add(20, 20, 20)
-                        .add(questionPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 364, Short.MAX_VALUE)
-                        .add(20, 20, 20))
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 404, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(cancel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(image)
+                        .addGap(20, 20, 20)
+                        .addComponent(questionPane, javax.swing.GroupLayout.DEFAULT_SIZE, 364, Short.MAX_VALUE)
+                        .addGap(20, 20, 20))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 404, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, image, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 35, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, questionPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 35, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(15, 15, 15)
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(cancel)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(image, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(questionPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(15, 15, 15)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(cancel)
                 .addContainerGap())
         );
 
@@ -163,7 +131,6 @@ public class ErrorDialog extends javax.swing.JDialog
     {// GEN-HEADEREND:event_cancelActionPerformed
         this.dispose();
     }// GEN-LAST:event_cancelActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancel;
     private javax.swing.JTextPane errorContent;
@@ -172,5 +139,4 @@ public class ErrorDialog extends javax.swing.JDialog
     private javax.swing.JTextPane question;
     private javax.swing.JScrollPane questionPane;
     // End of variables declaration//GEN-END:variables
-
 }

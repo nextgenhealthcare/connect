@@ -1,27 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
 package com.webreach.mirth.client.ui.editors.transformer;
 
 import java.awt.BorderLayout;
@@ -366,8 +342,8 @@ public class TransformerPane extends MirthEditorPane implements
                 new ImageIcon(Frame.class.getResource("images/resultset_previous.png"))));
         parent.setNonFocusable(viewTasks);
         viewTasks.setVisible(false);
-        parent.taskPaneContainer.add(viewTasks, parent.taskPaneContainer.getComponentCount()-1);
-        
+        parent.taskPaneContainer.add(viewTasks, parent.taskPaneContainer.getComponentCount() - 1);
+
         transformerTasks = new JXTaskPane();
         transformerTasks.setTitle("Transformer Tasks");
         transformerTasks.setFocusable(false);
@@ -465,7 +441,7 @@ public class TransformerPane extends MirthEditorPane implements
         // add the tasks to the taskpane, and the taskpane to the mirth client
         parent.setNonFocusable(transformerTasks);
         transformerTasks.setVisible(false);
-        parent.taskPaneContainer.add(transformerTasks, parent.taskPaneContainer.getComponentCount()-1);
+        parent.taskPaneContainer.add(transformerTasks, parent.taskPaneContainer.getComponentCount() - 1);
 
         makeTransformerTable();
 
@@ -492,7 +468,7 @@ public class TransformerPane extends MirthEditorPane implements
         this.add(vSplitPane, BorderLayout.CENTER);
         setBorder(BorderFactory.createEmptyBorder());
         resizePanes();
-    // END LAYOUT
+        // END LAYOUT
 
     } // END initComponents()
 
@@ -520,7 +496,7 @@ public class TransformerPane extends MirthEditorPane implements
                 return canEdit[columnIndex];
             }
         });
-        
+
         transformerTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 
         transformerTableModel = (DefaultTableModel) transformerTable.getModel();
@@ -595,7 +571,7 @@ public class TransformerPane extends MirthEditorPane implements
         transformerTable.getTableHeader().setReorderingAllowed(false);
 
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
-        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+            Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
             transformerTable.setHighlighters(highlighter);
         }
 
@@ -631,13 +607,10 @@ public class TransformerPane extends MirthEditorPane implements
 
             public void keyPressed(KeyEvent e) {
                 boolean isAccelerated = (e.getModifiers() & java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0;
-                if ((e.getKeyCode() == KeyEvent.VK_S) && isAccelerated)
-                {
+                if ((e.getKeyCode() == KeyEvent.VK_S) && isAccelerated) {
                     PlatformUI.MIRTH_FRAME.doContextSensitiveSave();
-                }
-                else if (e.getKeyCode() == KeyEvent.VK_DELETE)
-                {
-                	deleteStep();
+                } else if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+                    deleteStep();
                 }
             }
 
@@ -655,10 +628,9 @@ public class TransformerPane extends MirthEditorPane implements
      * Shows the popup menu when the trigger button (right-click) has been
      * pushed.
      */
-    private void checkSelectionAndPopupMenu(java.awt.event.MouseEvent evt)
-    {
+    private void checkSelectionAndPopupMenu(java.awt.event.MouseEvent evt) {
         int row = transformerTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
-        
+
         if (evt.isPopupTrigger()) {
             if (row != -1) {
                 transformerTable.setRowSelectionInterval(row, row);
@@ -847,8 +819,9 @@ public class TransformerPane extends MirthEditorPane implements
 
             updating = true;
             transformerTableModel.addRow(tableData);
-            if (selectRow)
-            	transformerTable.setRowSelectionInterval(row, row);
+            if (selectRow) {
+                transformerTable.setRowSelectionInterval(row, row);
+            }
             updating = false;
         } catch (Exception e) {
             parent.alertException(this, e.getStackTrace(), e.getMessage());
@@ -962,11 +935,12 @@ public class TransformerPane extends MirthEditorPane implements
     /*
      * Import the transfomer
      */
-    public void doImport() {	
-    	File importFile = parent.importFile("XML");
-    	
-    	if (importFile != null)
-    		importTransformer(importFile);
+    public void doImport() {
+        File importFile = parent.importFile("XML");
+
+        if (importFile != null) {
+            importTransformer(importFile);
+        }
     }
 
     private void importTransformer(File importFile) {
@@ -1025,10 +999,10 @@ public class TransformerPane extends MirthEditorPane implements
         if (invalidVar) {
             return;
         }
-        
+
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         String transformerXML = serializer.toXML(transformer);
-        
+
         parent.exportFile(transformerXML, null, "XML", "Transformer");
     }
 
@@ -1231,7 +1205,7 @@ public class TransformerPane extends MirthEditorPane implements
         // if (transformerTable.getRowCount() > index0 &&
         // transformerTable.getRowCount() >= index1){
         transformerTable.setRowSelectionInterval(index0, index1);
-    // }
+        // }
     }
 
     public Frame getParentFrame() {

@@ -1,28 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.client.ui;
 
 import java.awt.Component;
@@ -56,9 +31,9 @@ import com.webreach.mirth.client.ui.components.MirthVariableList;
 import com.webreach.mirth.model.Alert;
 import com.webreach.mirth.model.Channel;
 
-/** The channel editor panel. Majority of the client application */
-public class AlertPanel extends javax.swing.JPanel
-{
+/** The alert editor panel. */
+public class AlertPanel extends javax.swing.JPanel {
+
     private Frame parent;
     private boolean isDeletingAlert = false;
     private boolean updatingAlertTable = false;
@@ -74,11 +49,10 @@ public class AlertPanel extends javax.swing.JPanel
     private final JPanel blankPanel;
 
     /**
-     * Creates the Channel Editor panel. Calls initComponents() and sets up the
+     * Creates the Alert Editor panel. Calls initComponents() and sets up the
      * model, dropdowns, and mouse listeners.
      */
-    public AlertPanel()
-    {
+    public AlertPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
         lastAlertRow = -1;
         blankPanel = new JPanel();
@@ -95,10 +69,9 @@ public class AlertPanel extends javax.swing.JPanel
      * Makes the alert table with a parameter that is true if a new alert should
      * be added as well.
      */
-    public void makeAlertTable()
-    {
+    public void makeAlertTable() {
         updateAlertTable();
-        
+
         alertTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 
         // Set the custom cell editor for the Alert Name column.
@@ -116,30 +89,27 @@ public class AlertPanel extends javax.swing.JPanel
         alertTable.getColumnExt(ALERT_STATUS_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         alertTable.getColumnExt(ALERT_STATUS_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
 
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
-        {
-        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
-        	alertTable.setHighlighters(highlighter);
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+            Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+            alertTable.setHighlighters(highlighter);
         }
 
         // This action is called when a new selection is made on the alert
         // table.
-        alertTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
-        {
-            public void valueChanged(ListSelectionEvent evt)
-            {
-                if(updatingAlertTable || isDeletingAlert || alertTable.isEditing())
+        alertTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+            public void valueChanged(ListSelectionEvent evt) {
+                if (updatingAlertTable || isDeletingAlert || alertTable.isEditing()) {
                     return;
-                
-                if (!evt.getValueIsAdjusting())
-                {
-                    if (lastAlertRow != -1 && 
-                        lastAlertRow != alertTable.getSelectedModelIndex() && 
-                        lastAlertRow < alertTable.getModel().getRowCount())
-                    {
+                }
+
+                if (!evt.getValueIsAdjusting()) {
+                    if (lastAlertRow != -1
+                            && lastAlertRow != alertTable.getSelectedModelIndex()
+                            && lastAlertRow < alertTable.getModel().getRowCount()) {
                         saveAlert();
                     }
-                    
+
                     loadAlert();
                     refreshAlertTableRow();
                     checkVisibleAlertTasks();
@@ -148,15 +118,13 @@ public class AlertPanel extends javax.swing.JPanel
         });
 
         // Mouse listener for trigger-button popup on the table.
-        alertTable.addMouseListener(new java.awt.event.MouseAdapter()
-        {
-            public void mousePressed(java.awt.event.MouseEvent evt)
-            {
+        alertTable.addMouseListener(new java.awt.event.MouseAdapter() {
+
+            public void mousePressed(java.awt.event.MouseEvent evt) {
                 checkAlertSelectionAndPopupMenu(evt);
             }
 
-            public void mouseReleased(java.awt.event.MouseEvent evt)
-            {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
                 checkAlertSelectionAndPopupMenu(evt);
             }
         });
@@ -164,90 +132,74 @@ public class AlertPanel extends javax.swing.JPanel
         alertPane.setViewportView(alertTable);
 
         // Key Listener trigger for CTRL-S and DEL
-        alertTable.addKeyListener(new KeyListener()
-        {
-            public void keyPressed(KeyEvent e)
-            {
+        alertTable.addKeyListener(new KeyListener() {
+
+            public void keyPressed(KeyEvent e) {
                 boolean isAccelerated = (e.getModifiers() & java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0;
-                if ((e.getKeyCode() == KeyEvent.VK_S) && isAccelerated)
-                {
+                if ((e.getKeyCode() == KeyEvent.VK_S) && isAccelerated) {
                     PlatformUI.MIRTH_FRAME.doSaveAlerts();
-                }
-                else if (e.getKeyCode() == KeyEvent.VK_DELETE)
-                {
-                	parent.doDeleteAlert();
+                } else if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+                    parent.doDeleteAlert();
                 }
             }
 
-            public void keyReleased(KeyEvent e)
-            {
+            public void keyReleased(KeyEvent e) {
             }
 
-            public void keyTyped(KeyEvent e)
-            {
+            public void keyTyped(KeyEvent e) {
             }
         });
     }
 
-    public void updateAlertTable()
-    {
+    public void updateAlertTable() {
         Object[][] tableData = null;
         int tableSize = 0;
 
-        if (parent.alerts != null)
-        {
+        if (parent.alerts != null) {
             tableSize = parent.alerts.size();
 
             tableData = new Object[tableSize][2];
-            for (int i = 0; i < tableSize; i++)
-            {
+            for (int i = 0; i < tableSize; i++) {
                 Alert alert = parent.alerts.get(i);
-                if (alert.isEnabled())
+                if (alert.isEnabled()) {
                     tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")), ENABLED_TEXT);
-                else
+                } else {
                     tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), DISABLED_TEXT);
+                }
                 tableData[i][1] = alert.getName();
             }
         }
 
-        if (alertTable != null)
-        {
+        if (alertTable != null) {
             RefreshTableModel model = (RefreshTableModel) alertTable.getModel();
             updatingAlertTable = true;
             model.refreshDataVector(tableData);
             updatingAlertTable = false;
-        }
-        else
-        {
+        } else {
             alertTable = new MirthTable();
-            alertTable.setModel(new RefreshTableModel(tableData, new String[] { ALERT_STATUS_COLUMN_NAME, ALERT_NAME_COLUMN_NAME })
-            {
-                boolean[] canEdit = new boolean[] { false, true };
+            alertTable.setModel(new RefreshTableModel(tableData, new String[]{ALERT_STATUS_COLUMN_NAME, ALERT_NAME_COLUMN_NAME}) {
 
-                public boolean isCellEditable(int rowIndex, int columnIndex)
-                {
+                boolean[] canEdit = new boolean[]{false, true};
+
+                public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
                 }
             });
         }
-        
+
         refreshAlertTableRow();
     }
-    
+
     private void refreshAlertTableRow() {
         lastAlertRow = alertTable.getSelectedModelIndex();
     }
 
-    public void setDefaultAlert()
-    {
+    public void setDefaultAlert() {
         lastAlertRow = -1;
 
-        if (parent.alerts.size() > 0)
-        {
+        if (parent.alerts.size() > 0) {
             alertTable.setRowSelectionInterval(0, 0);
-        }
-        else
-        {
+        } else {
             deselectAlertRows();
         }
     }
@@ -255,25 +207,18 @@ public class AlertPanel extends javax.swing.JPanel
     /**
      * Checks to see what tasks should be available in the alert pane
      */
-    public void checkVisibleAlertTasks()
-    {
+    public void checkVisibleAlertTasks() {
         int selected = alertTable.getSelectedModelIndex();
 
-        if (selected == UIConstants.ERROR_CONSTANT)
-        {
+        if (selected == UIConstants.ERROR_CONSTANT) {
             parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 5, 6, false);
-        }
-        else
-        {
+        } else {
             parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 5, 5, true);
 
-            if (parent.alerts.get(selected).isEnabled())
-            {
+            if (parent.alerts.get(selected).isEnabled()) {
                 parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 6, 6, false);
                 parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 7, 7, true);
-            }
-            else
-            {
+            } else {
                 parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 6, 6, true);
                 parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 7, 7, false);
             }
@@ -284,8 +229,7 @@ public class AlertPanel extends javax.swing.JPanel
      * Makes the alert table with a parameter that is true if a new alert should
      * be added as well.
      */
-    public void makeApplyToChannelsTable()
-    {
+    public void makeApplyToChannelsTable() {
         updateApplyToChannelsTable(null);
 
         applyToChannelsTable.setDragEnabled(false);
@@ -301,33 +245,28 @@ public class AlertPanel extends javax.swing.JPanel
 
         applyToChannelsTable.getColumnExt(APPLY_CHANNEL_ID_COLUMN_NAME).setVisible(false);
 
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
-        {
-        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
-        	applyToChannelsTable.setHighlighters(highlighter);
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+            Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+            applyToChannelsTable.setHighlighters(highlighter);
         }
 
-        applyToChannelsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
-        {
-            public void valueChanged(ListSelectionEvent e)
-            {
-                if (applyToChannelsTable.convertColumnIndexToModel(applyToChannelsTable.getSelectedColumn()) == 1)
-                {
+        applyToChannelsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+            public void valueChanged(ListSelectionEvent e) {
+                if (applyToChannelsTable.convertColumnIndexToModel(applyToChannelsTable.getSelectedColumn()) == 1) {
                     parent.enableSave();
                 }
             }
         });
 
         // Mouse listener for trigger-button popup on the table.
-        applyToChannelsTable.addMouseListener(new java.awt.event.MouseAdapter()
-        {
-            public void mousePressed(java.awt.event.MouseEvent evt)
-            {
+        applyToChannelsTable.addMouseListener(new java.awt.event.MouseAdapter() {
+
+            public void mousePressed(java.awt.event.MouseEvent evt) {
                 checkAlertSelectionAndPopupMenu(evt);
             }
 
-            public void mouseReleased(java.awt.event.MouseEvent evt)
-            {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
                 checkAlertSelectionAndPopupMenu(evt);
             }
         });
@@ -335,47 +274,37 @@ public class AlertPanel extends javax.swing.JPanel
         applyToChannelsScrollPane.setViewportView(applyToChannelsTable);
 
         // Key Listener trigger for CTRL-S
-        applyToChannelsTable.addKeyListener(new KeyListener()
-        {
-            public void keyPressed(KeyEvent e)
-            {
+        applyToChannelsTable.addKeyListener(new KeyListener() {
+
+            public void keyPressed(KeyEvent e) {
                 boolean isAccelerated = (e.getModifiers() & java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0;
-                if ((e.getKeyCode() == KeyEvent.VK_S) && isAccelerated)
-                {
+                if ((e.getKeyCode() == KeyEvent.VK_S) && isAccelerated) {
                     PlatformUI.MIRTH_FRAME.doSaveAlerts();
                 }
             }
 
-            public void keyReleased(KeyEvent e)
-            {
+            public void keyReleased(KeyEvent e) {
             }
 
-            public void keyTyped(KeyEvent e)
-            {
+            public void keyTyped(KeyEvent e) {
             }
         });
     }
 
-    public void updateApplyToChannelsTable(Alert alert)
-    {
+    public void updateApplyToChannelsTable(Alert alert) {
         Object[][] tableData = null;
         int tableSize = 0;
 
-        if (alert != null && parent.alerts != null)
-        {
+        if (alert != null && parent.alerts != null) {
             tableSize = parent.channels.size();
             tableData = new Object[tableSize][3];
 
             int i = 0;
-            for (Channel channel : parent.channels.values())
-            {
+            for (Channel channel : parent.channels.values()) {
                 tableData[i][0] = channel.getName();
-                if (alert.getChannels() != null && alert.getChannels().contains(channel.getId()))
-                {
+                if (alert.getChannels() != null && alert.getChannels().contains(channel.getId())) {
                     tableData[i][1] = Boolean.TRUE;
-                }
-                else
-                {
+                } else {
                     tableData[i][1] = Boolean.FALSE;
                 }
                 tableData[i][2] = channel.getId();
@@ -383,28 +312,23 @@ public class AlertPanel extends javax.swing.JPanel
             }
         }
 
-        if (alert != null && applyToChannelsTable != null)
-        {
+        if (alert != null && applyToChannelsTable != null) {
             RefreshTableModel model = (RefreshTableModel) applyToChannelsTable.getModel();
             model.refreshDataVector(tableData);
-        }
-        else
-        {
+        } else {
             applyToChannelsTable = new MirthTable();
-            applyToChannelsTable.setModel(new RefreshTableModel(tableData, new String[] { APPLY_CHANNEL_NAME_COLUMN_NAME, APPLY_STATUS_COLUMN_NAME, APPLY_CHANNEL_ID_COLUMN_NAME })
-            {
-                boolean[] canEdit = new boolean[] { false, true, false };
+            applyToChannelsTable.setModel(new RefreshTableModel(tableData, new String[]{APPLY_CHANNEL_NAME_COLUMN_NAME, APPLY_STATUS_COLUMN_NAME, APPLY_CHANNEL_ID_COLUMN_NAME}) {
 
-                public boolean isCellEditable(int rowIndex, int columnIndex)
-                {
+                boolean[] canEdit = new boolean[]{false, true, false};
+
+                public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
                 }
             });
         }
     }
 
-    public void setAlertErrorList()
-    {
+    public void setAlertErrorList() {
         ArrayList<String> variables = new ArrayList<String>();
         variables.add("Any");
         variables.add("Server");
@@ -427,14 +351,13 @@ public class AlertPanel extends javax.swing.JPanel
         variables.add("411: TCP Connector");
         variables.add("412: VM Connector");
         variables.add("413: Email Connector");
-            	
+
         errorList.removeAll();
         errorList.setListData(variables.toArray());
         errorScrollPane.setViewportView(errorList);
     }
 
-    public void setAlertTemplateVariableList()
-    {
+    public void setAlertTemplateVariableList() {
         ArrayList<String> variables = new ArrayList<String>();
         variables.add("ERROR");
         variables.add("SYSTIME");
@@ -447,12 +370,12 @@ public class AlertPanel extends javax.swing.JPanel
     }
 
     /** Loads a selected connector and returns true on success. */
-    public boolean loadAlert()
-    {
+    public boolean loadAlert() {
         int index = alertTable.getSelectedModelIndex();
 
-        if (index == UIConstants.ERROR_CONSTANT)
+        if (index == UIConstants.ERROR_CONSTANT) {
             return false;
+        }
 
         boolean changed = parent.alertTasks.getContentPane().getComponent(1).isVisible();
 
@@ -472,13 +395,13 @@ public class AlertPanel extends javax.swing.JPanel
         return true;
     }
 
-    public boolean saveAlert()
-    {
-        if (lastAlertRow == UIConstants.ERROR_CONSTANT)
+    public boolean saveAlert() {
+        if (lastAlertRow == UIConstants.ERROR_CONSTANT) {
             return false;
-        
+        }
+
         int index = lastAlertRow;
-        
+
         boolean changed = parent.alertTasks.getContentPane().getComponent(1).isVisible();
 
         Alert current = parent.alerts.get(index);
@@ -497,14 +420,11 @@ public class AlertPanel extends javax.swing.JPanel
         return true;
     }
 
-    public List<String> getChannels()
-    {
+    public List<String> getChannels() {
         ArrayList<String> channelList = new ArrayList<String>();
 
-        for (int i = 0; i < applyToChannelsTable.getModel().getRowCount(); i++)
-        {
-            if (((Boolean) applyToChannelsTable.getModel().getValueAt(i, 1)).booleanValue())
-            {
+        for (int i = 0; i < applyToChannelsTable.getModel().getRowCount(); i++) {
+            if (((Boolean) applyToChannelsTable.getModel().getValueAt(i, 1)).booleanValue()) {
                 channelList.add((String) applyToChannelsTable.getModel().getValueAt(i, 2));
             }
         }
@@ -514,32 +434,30 @@ public class AlertPanel extends javax.swing.JPanel
     /**
      * Get the name that should be used for a new alert so that it is unique.
      */
-    private String getNewAlertName(int size)
-    {
+    private String getNewAlertName(int size) {
         String temp = "Alert ";
 
-        for (int i = 1; i <= size; i++)
-        {
+        for (int i = 1; i <= size; i++) {
             boolean exists = false;
-            for (int j = 0; j < size - 1; j++)
-            {
-                if (((String) alertTable.getModel().getValueAt(j, alertTable.getColumnModelIndex(ALERT_NAME_COLUMN_NAME))).equalsIgnoreCase(temp + i))
+            for (int j = 0; j < size - 1; j++) {
+                if (((String) alertTable.getModel().getValueAt(j, alertTable.getColumnModelIndex(ALERT_NAME_COLUMN_NAME))).equalsIgnoreCase(temp + i)) {
                     exists = true;
+                }
             }
-            if (!exists)
+            if (!exists) {
                 return temp + i;
+            }
         }
         return "";
     }
-    
+
     /**
      * Shows the popup menu when the trigger button (right-click) has been
      * pushed.
      */
-    private void checkAlertSelectionAndPopupMenu(java.awt.event.MouseEvent evt)
-    {
+    private void checkAlertSelectionAndPopupMenu(java.awt.event.MouseEvent evt) {
         int row = alertTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
-        
+
         if (evt.isPopupTrigger()) {
             if (row != -1) {
                 alertTable.setRowSelectionInterval(row, row);
@@ -549,71 +467,65 @@ public class AlertPanel extends javax.swing.JPanel
     }
 
     /** Adds a new alert. */
-    public void addAlert()
-    {
+    public void addAlert() {
         stopAlertEditing();
         saveAlert();
-        
+
         RefreshTableModel model = (RefreshTableModel) alertTable.getModel();
-        
+
         Alert alert = new Alert();
-        
-        try
-        {
+
+        try {
             alert.setId(parent.mirthClient.getGuid());
-        }
-        catch (ClientException e)
-        {
+        } catch (ClientException e) {
             parent.alertException(this, e.getStackTrace(), e.getMessage());
         }
-        
+
         alert.setName(getNewAlertName(model.getRowCount() + 1));
         alert.setEnabled(false);
-        
+
         Object[] rowData = new Object[2];
         rowData[0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), DISABLED_TEXT);
         rowData[1] = alert.getName();
-        
+
         parent.alerts.add(alert);
         model.addRow(rowData);
-        
+
         int newViewIndex = alertTable.convertRowIndexToView(alertTable.getModel().getRowCount() - 1);
         alertTable.setRowSelectionInterval(newViewIndex, newViewIndex);
-        
+
         alertPane.getViewport().setViewPosition(new Point(0, alertTable.getRowHeight() * alertTable.getModel().getRowCount()));
         parent.enableSave();
     }
 
-    public void enableAlert()
-    {
+    public void enableAlert() {
         stopAlertEditing();
         parent.alerts.get(alertTable.getSelectedModelIndex()).setEnabled(true);
-        
+
         CellData enabled = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")), ENABLED_TEXT);
         alertTable.getModel().setValueAt(enabled, alertTable.getSelectedModelIndex(), alertTable.getColumnModelIndex(ALERT_STATUS_COLUMN_NAME));
-        
+
         parent.enableSave();
     }
 
-    public void disableAlert()
-    {
+    public void disableAlert() {
         stopAlertEditing();
         parent.alerts.get(alertTable.getSelectedModelIndex()).setEnabled(false);
-        
+
         CellData disabled = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), DISABLED_TEXT);
         alertTable.getModel().setValueAt(disabled, alertTable.getSelectedModelIndex(), alertTable.getColumnModelIndex(ALERT_STATUS_COLUMN_NAME));
-        
+
         parent.enableSave();
     }
 
-    public void deleteAlert()
-    {
-        if (!parent.alertOption(this, "Are you sure you want to delete this alert?"))
+    public void deleteAlert() {
+        if (!parent.alertOption(this, "Are you sure you want to delete this alert?")) {
             return;
+        }
         isDeletingAlert = true;
 
         stopAlertEditing();
-        
+
         RefreshTableModel model = (RefreshTableModel) alertTable.getModel();
 
         int selectedModelIndex = alertTable.getSelectedModelIndex();
@@ -621,15 +533,15 @@ public class AlertPanel extends javax.swing.JPanel
         if (newViewIndex == (model.getRowCount() - 1)) {
             newViewIndex--;
         }
-        
+
         // must set lastModelRow to -1 so that when setting the new
         // row selection below the old data won't try to be saved.
         lastAlertRow = -1;
         parent.alerts.remove(selectedModelIndex);
         model.removeRow(selectedModelIndex);
-        
+
         parent.enableSave();
-       
+
         isDeletingAlert = false;
 
         if (parent.alerts.size() == 0) {
@@ -639,34 +551,30 @@ public class AlertPanel extends javax.swing.JPanel
         }
     }
 
-    public void makeEmailsTable()
-    {
+    public void makeEmailsTable() {
         updateEmailsTable(null);
 
-        emailsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
-        {
-            public void valueChanged(ListSelectionEvent evt)
-            {
-                if (emailsTable.getSelectedRow() != -1)
+        emailsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+            public void valueChanged(ListSelectionEvent evt) {
+                if (emailsTable.getSelectedRow() != -1) {
                     removeButton.setEnabled(true);
-                else
+                } else {
                     removeButton.setEnabled(false);
+                }
             }
         });
 
-        class EmailsTableCellEditor extends AbstractCellEditor implements TableCellEditor
-        {
-            JComponent component = new JTextField();
+        class EmailsTableCellEditor extends AbstractCellEditor implements TableCellEditor {
 
+            JComponent component = new JTextField();
             Object originalValue;
 
-            public EmailsTableCellEditor()
-            {
+            public EmailsTableCellEditor() {
                 super();
             }
 
-            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
-            {
+            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
                 // 'value' is value contained in the cell located at (rowIndex,
                 // vColIndex)
                 originalValue = value;
@@ -678,13 +586,11 @@ public class AlertPanel extends javax.swing.JPanel
                 return component;
             }
 
-            public Object getCellEditorValue()
-            {
+            public Object getCellEditorValue() {
                 return ((JTextField) component).getText();
             }
 
-            public boolean stopCellEditing()
-            {
+            public boolean stopCellEditing() {
                 String s = (String) getCellEditorValue();
                 parent.enableSave();
                 removeButton.setEnabled(true);
@@ -694,16 +600,15 @@ public class AlertPanel extends javax.swing.JPanel
             /**
              * Enables the editor only for double-clicks.
              */
-            public boolean isCellEditable(EventObject evt)
-            {
-                if (evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2)
-                {
+            public boolean isCellEditable(EventObject evt) {
+                if (evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2) {
                     return true;
                 }
                 return false;
             }
-        };
-        
+        }
+        ;
+
         emailsTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 
         // Set the custom cell editor for the Destination Name column.
@@ -717,96 +622,85 @@ public class AlertPanel extends javax.swing.JPanel
         emailsTable.setSortable(true);
         emailsTable.getTableHeader().setReorderingAllowed(false);
 
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
-        {
-        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
-        	emailsTable.setHighlighters(highlighter);
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+            Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+            emailsTable.setHighlighters(highlighter);
         }
 
         emailsScrollPane.setViewportView(emailsTable);
     }
 
-    public void updateEmailsTable(Alert alert)
-    {
+    public void updateEmailsTable(Alert alert) {
         Object[][] tableData = null;
 
-        if (alert != null)
-        {
+        if (alert != null) {
             tableData = new Object[alert.getEmails().size()][1];
 
-            for (int i = 0; i < alert.getEmails().size(); i++)
-            {
+            for (int i = 0; i < alert.getEmails().size(); i++) {
                 tableData[i][0] = alert.getEmails().get(i);
             }
         }
 
-        if (alert != null && emailsTable != null)
-        {
+        if (alert != null && emailsTable != null) {
             RefreshTableModel model = (RefreshTableModel) emailsTable.getModel();
             model.refreshDataVector(tableData);
-            if (alert.getEmails().size() == 0)
-            {
+            if (alert.getEmails().size() == 0) {
                 deselectEmailRows();
             }
-        }
-        else
-        {
+        } else {
             emailsTable = new MirthTable();
-            emailsTable.setModel(new RefreshTableModel(tableData, new String[] { EMAIL_COLUMN_NAME })
-            {
-                boolean[] canEdit = new boolean[] { true };
+            emailsTable.setModel(new RefreshTableModel(tableData, new String[]{EMAIL_COLUMN_NAME}) {
 
-                public boolean isCellEditable(int rowIndex, int columnIndex)
-                {
+                boolean[] canEdit = new boolean[]{true};
+
+                public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
                 }
             });
         }
     }
 
-    public List<String> getEmails()
-    {
+    public List<String> getEmails() {
         ArrayList<String> emails = new ArrayList<String>();
 
-        for (int i = 0; i < emailsTable.getModel().getRowCount(); i++)
-            if (((String) emailsTable.getModel().getValueAt(i, 0)).length() > 0)
+        for (int i = 0; i < emailsTable.getModel().getRowCount(); i++) {
+            if (((String) emailsTable.getModel().getValueAt(i, 0)).length() > 0) {
                 emails.add((String) emailsTable.getModel().getValueAt(i, 0));
+            }
+        }
 
         return emails;
     }
 
     /** Clears the selection in the table */
-    public void deselectEmailRows()
-    {
+    public void deselectEmailRows() {
         emailsTable.clearSelection();
         removeButton.setEnabled(false);
     }
 
     /** Clears the selection in the table and sets the tasks appropriately */
-    public void deselectAlertRows()
-    {
+    public void deselectAlertRows() {
         alertTable.clearSelection();
         parent.setVisibleTasks(parent.alertTasks, parent.alertPopupMenu, 5, 7, false);
         resetBlankPane();
     }
 
-    public void resetBlankPane()
-    {
+    public void resetBlankPane() {
         int dividerLocation = split.getDividerLocation();
         split.setRightComponent(blankPanel);
         split.setDividerLocation(dividerLocation);
     }
 
-    public void stopAlertEditing()
-    {
-        if (alertTable.isEditing())
+    public void stopAlertEditing() {
+        if (alertTable.isEditing()) {
             alertTable.getColumnModel().getColumn(alertTable.getColumnModelIndex(ALERT_NAME_COLUMN_NAME)).getCellEditor().stopCellEditing();
+        }
     }
 
-    public void stopEmailEditing()
-    {
-        if (emailsTable.isEditing())
+    public void stopEmailEditing() {
+        if (emailsTable.isEditing()) {
             emailsTable.getColumnModel().getColumn(emailsTable.getColumnModelIndex(EMAIL_COLUMN_NAME)).getCellEditor().stopCellEditing();
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
@@ -856,15 +750,15 @@ public class AlertPanel extends javax.swing.JPanel
 
         applyToChannelsScrollPane.setViewportView(applyToChannelsTable);
 
-        org.jdesktop.layout.GroupLayout applyToChannelsPanelLayout = new org.jdesktop.layout.GroupLayout(applyToChannelsPanel);
+        javax.swing.GroupLayout applyToChannelsPanelLayout = new javax.swing.GroupLayout(applyToChannelsPanel);
         applyToChannelsPanel.setLayout(applyToChannelsPanelLayout);
         applyToChannelsPanelLayout.setHorizontalGroup(
-            applyToChannelsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, applyToChannelsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)
+            applyToChannelsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(applyToChannelsScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)
         );
         applyToChannelsPanelLayout.setVerticalGroup(
-            applyToChannelsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, applyToChannelsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 63, Short.MAX_VALUE)
+            applyToChannelsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(applyToChannelsScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 63, Short.MAX_VALUE)
         );
 
         errorPane.setBackground(new java.awt.Color(255, 255, 255));
@@ -872,15 +766,15 @@ public class AlertPanel extends javax.swing.JPanel
 
         errorField.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        org.jdesktop.layout.GroupLayout errorPaneLayout = new org.jdesktop.layout.GroupLayout(errorPane);
+        javax.swing.GroupLayout errorPaneLayout = new javax.swing.GroupLayout(errorPane);
         errorPane.setLayout(errorPaneLayout);
         errorPaneLayout.setHorizontalGroup(
-            errorPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(errorField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE)
+            errorPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(errorField, javax.swing.GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE)
         );
         errorPaneLayout.setVerticalGroup(
-            errorPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(errorField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
+            errorPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(errorField, javax.swing.GroupLayout.DEFAULT_SIZE, 67, Short.MAX_VALUE)
         );
 
         emailsPane.setBackground(new java.awt.Color(255, 255, 255));
@@ -902,25 +796,25 @@ public class AlertPanel extends javax.swing.JPanel
             }
         });
 
-        org.jdesktop.layout.GroupLayout emailsPaneLayout = new org.jdesktop.layout.GroupLayout(emailsPane);
+        javax.swing.GroupLayout emailsPaneLayout = new javax.swing.GroupLayout(emailsPane);
         emailsPane.setLayout(emailsPaneLayout);
         emailsPaneLayout.setHorizontalGroup(
-            emailsPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, emailsPaneLayout.createSequentialGroup()
-                .add(emailsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(emailsPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                    .add(addButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(removeButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+            emailsPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, emailsPaneLayout.createSequentialGroup()
+                .addComponent(emailsScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(emailsPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(addButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(removeButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         emailsPaneLayout.setVerticalGroup(
-            emailsPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(emailsPaneLayout.createSequentialGroup()
-                .add(addButton)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(removeButton)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .add(emailsScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 63, Short.MAX_VALUE)
+            emailsPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(emailsPaneLayout.createSequentialGroup()
+                .addComponent(addButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(removeButton)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(emailsScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 63, Short.MAX_VALUE)
         );
 
         templatePane.setBackground(new java.awt.Color(255, 255, 255));
@@ -928,15 +822,15 @@ public class AlertPanel extends javax.swing.JPanel
 
         template.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        org.jdesktop.layout.GroupLayout templatePaneLayout = new org.jdesktop.layout.GroupLayout(templatePane);
+        javax.swing.GroupLayout templatePaneLayout = new javax.swing.GroupLayout(templatePane);
         templatePane.setLayout(templatePaneLayout);
         templatePaneLayout.setHorizontalGroup(
-            templatePaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE)
+            templatePaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(template, javax.swing.GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE)
         );
         templatePaneLayout.setVerticalGroup(
-            templatePaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(template, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE)
+            templatePaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(template, javax.swing.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE)
         );
 
         errorPanel.setBackground(new java.awt.Color(255, 255, 255));
@@ -949,15 +843,15 @@ public class AlertPanel extends javax.swing.JPanel
         });
         errorScrollPane.setViewportView(errorList);
 
-        org.jdesktop.layout.GroupLayout errorPanelLayout = new org.jdesktop.layout.GroupLayout(errorPanel);
+        javax.swing.GroupLayout errorPanelLayout = new javax.swing.GroupLayout(errorPanel);
         errorPanel.setLayout(errorPanelLayout);
         errorPanelLayout.setHorizontalGroup(
-            errorPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(errorScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 166, Short.MAX_VALUE)
+            errorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(errorScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 166, Short.MAX_VALUE)
         );
         errorPanelLayout.setVerticalGroup(
-            errorPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(errorScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
+            errorPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(errorScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 67, Short.MAX_VALUE)
         );
 
         templateVariablesPanel.setBackground(new java.awt.Color(255, 255, 255));
@@ -970,93 +864,92 @@ public class AlertPanel extends javax.swing.JPanel
         });
         templateVariablesPane.setViewportView(templateVariableList);
 
-        org.jdesktop.layout.GroupLayout templateVariablesPanelLayout = new org.jdesktop.layout.GroupLayout(templateVariablesPanel);
+        javax.swing.GroupLayout templateVariablesPanelLayout = new javax.swing.GroupLayout(templateVariablesPanel);
         templateVariablesPanel.setLayout(templateVariablesPanelLayout);
         templateVariablesPanelLayout.setHorizontalGroup(
-            templateVariablesPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(templateVariablesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 166, Short.MAX_VALUE)
+            templateVariablesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(templateVariablesPane, javax.swing.GroupLayout.DEFAULT_SIZE, 166, Short.MAX_VALUE)
         );
         templateVariablesPanelLayout.setVerticalGroup(
-            templateVariablesPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(templateVariablesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 107, Short.MAX_VALUE)
+            templateVariablesPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(templateVariablesPane, javax.swing.GroupLayout.DEFAULT_SIZE, 108, Short.MAX_VALUE)
         );
 
         emailSubjectPanel.setBackground(new java.awt.Color(255, 255, 255));
         emailSubjectPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0), "Email Subject"));
 
-        org.jdesktop.layout.GroupLayout emailSubjectPanelLayout = new org.jdesktop.layout.GroupLayout(emailSubjectPanel);
+        javax.swing.GroupLayout emailSubjectPanelLayout = new javax.swing.GroupLayout(emailSubjectPanel);
         emailSubjectPanel.setLayout(emailSubjectPanelLayout);
         emailSubjectPanelLayout.setHorizontalGroup(
-            emailSubjectPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(emailSubjectField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE)
+            emailSubjectPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(emailSubjectField, javax.swing.GroupLayout.DEFAULT_SIZE, 370, Short.MAX_VALUE)
         );
         emailSubjectPanelLayout.setVerticalGroup(
-            emailSubjectPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(emailSubjectField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+            emailSubjectPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(emailSubjectField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
-        org.jdesktop.layout.GroupLayout bottomPaneLayout = new org.jdesktop.layout.GroupLayout(bottomPane);
+        javax.swing.GroupLayout bottomPaneLayout = new javax.swing.GroupLayout(bottomPane);
         bottomPane.setLayout(bottomPaneLayout);
         bottomPaneLayout.setHorizontalGroup(
-            bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(bottomPaneLayout.createSequentialGroup()
+            bottomPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(bottomPaneLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, bottomPaneLayout.createSequentialGroup()
-                        .add(applyToChannelsPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(emailsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, bottomPaneLayout.createSequentialGroup()
-                        .add(bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(errorPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(emailSubjectPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, templatePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, templateVariablesPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(errorPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                .addGroup(bottomPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, bottomPaneLayout.createSequentialGroup()
+                        .addComponent(applyToChannelsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(emailsPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, bottomPaneLayout.createSequentialGroup()
+                        .addGroup(bottomPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(errorPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(emailSubjectPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(templatePane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(bottomPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(templateVariablesPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(errorPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap())
         );
         bottomPaneLayout.setVerticalGroup(
-            bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(bottomPaneLayout.createSequentialGroup()
+            bottomPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(bottomPaneLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(applyToChannelsPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(emailsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(errorPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(errorPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(bottomPaneLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(bottomPaneLayout.createSequentialGroup()
-                        .add(emailSubjectPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(templatePane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .add(templateVariablesPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(bottomPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(applyToChannelsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(emailsPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(bottomPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(errorPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(errorPane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(bottomPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(bottomPaneLayout.createSequentialGroup()
+                        .addComponent(emailSubjectPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(templatePane, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(templateVariablesPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
         split.setRightComponent(bottomPane);
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(split, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 578, Short.MAX_VALUE)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(split, javax.swing.GroupLayout.DEFAULT_SIZE, 578, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(split, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 468, Short.MAX_VALUE)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(split, javax.swing.GroupLayout.DEFAULT_SIZE, 468, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void removeButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_removeButtonActionPerformed
     {// GEN-HEADEREND:event_removeButtonActionPerformed
         stopEmailEditing();
-        if (emailsTable.getSelectedModelIndex() != -1 && !emailsTable.isEditing())
-        {
+        if (emailsTable.getSelectedModelIndex() != -1 && !emailsTable.isEditing()) {
             DefaultTableModel model = (DefaultTableModel) emailsTable.getModel();
 
             int selectedModelIndex = emailsTable.getSelectedModelIndex();
@@ -1064,7 +957,7 @@ public class AlertPanel extends javax.swing.JPanel
             if (newViewIndex == (model.getRowCount() - 1)) {
                 newViewIndex--;
             }
-            
+
             // must set lastModelRow to -1 so that when setting the new
             // row selection below the old data won't try to be saved.
             // lastEmailRow = -1;
@@ -1073,7 +966,7 @@ public class AlertPanel extends javax.swing.JPanel
             if (emailsTable.getModel().getRowCount() != 0) {
                 emailsTable.setRowSelectionInterval(newViewIndex, newViewIndex);
             }
-            
+
             parent.enableSave();
         }
     }// GEN-LAST:event_removeButtonActionPerformed
@@ -1081,11 +974,10 @@ public class AlertPanel extends javax.swing.JPanel
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_addButtonActionPerformed
     {// GEN-HEADEREND:event_addButtonActionPerformed
         stopEmailEditing();
-        ((DefaultTableModel) emailsTable.getModel()).addRow(new Object[] { "" });
+        ((DefaultTableModel) emailsTable.getModel()).addRow(new Object[]{""});
         emailsTable.setRowSelectionInterval(emailsTable.getRowCount() - 1, emailsTable.getRowCount() - 1);
         parent.enableSave();
     }// GEN-LAST:event_addButtonActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addButton;
     private javax.swing.JScrollPane alertPane;
@@ -1112,5 +1004,4 @@ public class AlertPanel extends javax.swing.JPanel
     private javax.swing.JScrollPane templateVariablesPane;
     private javax.swing.JPanel templateVariablesPanel;
     // End of variables declaration//GEN-END:variables
-
 }

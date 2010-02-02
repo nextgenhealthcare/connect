@@ -15,46 +15,39 @@ import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
 import com.webreach.mirth.model.CodeTemplate.ContextType;
 import com.webreach.mirth.plugins.ClientPlugin;
 
-public class ReferenceListFactory
-{          
-    public enum ListType
-    {
-        ALL("All"), CONVERSION("Conversion Functions"), LOGGING_AND_ALERTS("Logging and Alerts"), DATABASE("Database Functions"), UTILITY("Utility Functions"), DATE("Date Functions"), MESSAGE("Message Functions"), MAP("Map Functions");
+public class ReferenceListFactory {
 
+    public enum ListType {
+
+        ALL("All"), CONVERSION("Conversion Functions"), LOGGING_AND_ALERTS("Logging and Alerts"), DATABASE("Database Functions"), UTILITY("Utility Functions"), DATE("Date Functions"), MESSAGE("Message Functions"), MAP("Map Functions");
         private String value;
 
-        ListType(String value)
-        {
+        ListType(String value) {
             this.value = value;
         }
 
-        public String getValue()
-        {
+        public String getValue() {
             return value;
         }
     }
-    
     public static final String USER_TEMPLATE_VARIABLES = "User Defined Variables";
     public static final String USER_TEMPLATE_CODE = "User Defined Code";
     public static final String USER_TEMPLATE_FUNCTIONS = "User Defined Functions";
-    
     private Frame parent = PlatformUI.MIRTH_FRAME;
     private static ReferenceListFactory instance;
     private LinkedHashMap<String, ArrayList<CodeTemplate>> references;
 
-    public ReferenceListFactory()
-    {
+    public ReferenceListFactory() {
         references = new LinkedHashMap<String, ArrayList<CodeTemplate>>();
         if (parent != null) // null parent check to let forms load in NetBeans
+        {
             setup();
+        }
     }
 
-    public static ReferenceListFactory getInstance()
-    {
-        synchronized (ReferenceListFactory.class)
-        {
-            if (instance == null)
-            {
+    public static ReferenceListFactory getInstance() {
+        synchronized (ReferenceListFactory.class) {
+            if (instance == null) {
                 instance = new ReferenceListFactory();
             }
 
@@ -62,13 +55,11 @@ public class ReferenceListFactory
         }
     }
 
-    public LinkedHashMap<String, ArrayList<CodeTemplate>> getReferences()
-    {
+    public LinkedHashMap<String, ArrayList<CodeTemplate>> getReferences() {
         return references;
     }
 
-    public void setup()
-    {
+    public void setup() {
         references.put(ListType.CONVERSION.getValue(), setupConversionItems());
         references.put(ListType.DATABASE.getValue(), setupDatabaseItems());
         references.put(ListType.LOGGING_AND_ALERTS.getValue(), setupLoggingAndAlertsItems());
@@ -78,106 +69,87 @@ public class ReferenceListFactory
         references.put(ListType.DATE.getValue(), setupDateItems());
 
         Map<String, ConnectorMetaData> connectors = parent.getConnectorMetaData();
-        for (ConnectorMetaData metaData : connectors.values())
-        {
-            if (metaData.isEnabled())
-            {
-                try
-                {
+        for (ConnectorMetaData metaData : connectors.values()) {
+            if (metaData.isEnabled()) {
+                try {
                     String pluginName = metaData.getName();
                     ArrayList<CodeTemplate> items = ((ConnectorClass) Class.forName(metaData.getClientClassName()).newInstance()).getReferenceItems();
-                    if(items.size() > 0)
+                    if (items.size() > 0) {
                         references.put(pluginName + " Functions", items);
-                }
-                catch (Exception e)
-                {
+                    }
+                } catch (Exception e) {
                     parent.alertException(parent, e.getStackTrace(), e.getMessage());
                 }
             }
         }
 
         Map<String, PluginMetaData> plugins = parent.getPluginMetaData();
-        for (PluginMetaData metaData : plugins.values())
-        {
-            if (metaData.isEnabled())
-            {
-                for (ExtensionPoint extensionPoint : metaData.getExtensionPoints())
-                {
-                    try
-                    {
-                        if (extensionPoint.getMode().equals(ExtensionPoint.Mode.CLIENT) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0)
-                        {
+        for (PluginMetaData metaData : plugins.values()) {
+            if (metaData.isEnabled()) {
+                for (ExtensionPoint extensionPoint : metaData.getExtensionPoints()) {
+                    try {
+                        if (extensionPoint.getMode().equals(ExtensionPoint.Mode.CLIENT) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0) {
                             String pluginName = extensionPoint.getName();
-                            ArrayList<CodeTemplate> items = ((ClientPlugin)Class.forName(extensionPoint.getClassName()).getDeclaredConstructor(new Class[]{String.class}).newInstance(new Object[]{pluginName})).getReferenceItems();
-                            if(items.size() > 0)
+                            ArrayList<CodeTemplate> items = ((ClientPlugin) Class.forName(extensionPoint.getClassName()).getDeclaredConstructor(new Class[]{String.class}).newInstance(new Object[]{pluginName})).getReferenceItems();
+                            if (items.size() > 0) {
                                 references.put(pluginName + " Functions", items);
+                            }
                         }
-                    }
-                    catch (Exception e)
-                    {
+                    } catch (Exception e) {
                         parent.alertException(parent, e.getStackTrace(), e.getMessage());
                     }
                 }
             }
         }
-        
+
         updateUserTemplates();
     }
-    
-    public void updateUserTemplates()
-    {
+
+    public void updateUserTemplates() {
         ArrayList<CodeTemplate> variables = new ArrayList<CodeTemplate>();
         ArrayList<CodeTemplate> functions = new ArrayList<CodeTemplate>();
         ArrayList<CodeTemplate> code = new ArrayList<CodeTemplate>();
-        for(CodeTemplate template : parent.codeTemplates)
-        {
-            if(template.getType() == CodeSnippetType.VARIABLE)
-            {
+        for (CodeTemplate template : parent.codeTemplates) {
+            if (template.getType() == CodeSnippetType.VARIABLE) {
                 variables.add(template);
             }
-            
-            if(template.getType() == CodeSnippetType.FUNCTION)
-            {
+
+            if (template.getType() == CodeSnippetType.FUNCTION) {
                 functions.add(template);
             }
-            
-            if(template.getType() == CodeSnippetType.CODE)
-            {
+
+            if (template.getType() == CodeSnippetType.CODE) {
                 code.add(template);
             }
         }
-        
+
         references.put(USER_TEMPLATE_VARIABLES, variables);
         references.put(USER_TEMPLATE_CODE, code);
         references.put(USER_TEMPLATE_FUNCTIONS, functions);
     }
-    
-    public ArrayList<CodeTemplate> getVariableListItems(String itemName, int context)
-    {
+
+    public ArrayList<CodeTemplate> getVariableListItems(String itemName, int context) {
         if (parent != null) // null parent check to let forms load in NetBeans
+        {
             updateUserTemplates();
-        
-        if (itemName == ListType.ALL.getValue())
-        {
-            return getAllItems(context);
         }
-        else
-        {
+
+        if (itemName == ListType.ALL.getValue()) {
+            return getAllItems(context);
+        } else {
             return getItems(itemName, context);
         }
     }
 
-    private ArrayList<CodeTemplate> getItems(String reference, int context)
-    {
+    private ArrayList<CodeTemplate> getItems(String reference, int context) {
         ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
-        
-        if(references.get(reference) == null)
+
+        if (references.get(reference) == null) {
             return new ArrayList<CodeTemplate>();
-        
-        for (CodeTemplate item : references.get(reference))
-        {
-            if (context >= item.getScope())
-            {
+        }
+
+        for (CodeTemplate item : references.get(reference)) {
+            if (context >= item.getScope()) {
                 variablelistItems.add(item);
             }
         }
@@ -185,16 +157,12 @@ public class ReferenceListFactory
         return variablelistItems;
     }
 
-    private ArrayList<CodeTemplate> getAllItems(int context)
-    {
+    private ArrayList<CodeTemplate> getAllItems(int context) {
         ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
 
-        for (ArrayList<CodeTemplate> items : references.values())
-        {
-            for (CodeTemplate item : items)
-            {
-                if (context >= item.getScope())
-                {
+        for (ArrayList<CodeTemplate> items : references.values()) {
+            for (CodeTemplate item : items) {
+                if (context >= item.getScope()) {
                     variablelistItems.add(item);
                 }
             }
@@ -203,8 +171,7 @@ public class ReferenceListFactory
         return variablelistItems;
     }
 
-    private ArrayList<CodeTemplate> setupConversionItems()
-    {
+    private ArrayList<CodeTemplate> setupConversionItems() {
         ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
 
         variablelistItems.add(new CodeTemplate("Convert HL7 to XML", "Converts an encoded HL7 string to XML", "SerializerFactory.getHL7Serializer(useStrictParser, useStrictValidation, handleRepetitions).toXML(message);\ndefault xml namespace = new Namespace('urn:hl7-org:v2xml');\n", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
@@ -222,8 +189,7 @@ public class ReferenceListFactory
         return variablelistItems;
     }
 
-    private ArrayList<CodeTemplate> setupLoggingAndAlertsItems()
-    {
+    private ArrayList<CodeTemplate> setupLoggingAndAlertsItems() {
         ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
         variablelistItems.add(new CodeTemplate("Log an Info Statement", "Outputs the message to the system info log.", "logger.info('message');", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Log an Error Statement", "Outputs the message to the system error log.", "logger.error('message');", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
@@ -233,8 +199,7 @@ public class ReferenceListFactory
         return variablelistItems;
     }
 
-    private ArrayList<CodeTemplate> setupDatabaseItems()
-    {
+    private ArrayList<CodeTemplate> setupDatabaseItems() {
         ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
         variablelistItems.add(new CodeTemplate("Perform Database Query", "Performs a database query and returns the rowset.", "var dbConn = DatabaseConnectionFactory.createDatabaseConnection('driver', 'address', 'username', 'password');\nvar result = dbConn.executeCachedQuery('expression');\ndbConn.close();", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Perform Parameterized Database Query", "Performs a database query with a (Java) list of parameters.", "var dbConn = DatabaseConnectionFactory.createDatabaseConnection('driver', 'address', 'username', 'password');\nvar result = dbConn.executeCachedQuery('expression', paramList);\ndbConn.close();", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
@@ -253,8 +218,7 @@ public class ReferenceListFactory
         return variablelistItems;
     }
 
-    private ArrayList<CodeTemplate> setupMessageItems()
-    {
+    private ArrayList<CodeTemplate> setupMessageItems() {
         ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
 
         variablelistItems.add(new CodeTemplate("Incoming Message", "The original message received.", "messageObject.getRawData()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
@@ -276,8 +240,7 @@ public class ReferenceListFactory
         return variablelistItems;
     }
 
-    private ArrayList<CodeTemplate> setupMapItems()
-    {
+    private ArrayList<CodeTemplate> setupMapItems() {
         ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
         variablelistItems.add(new CodeTemplate("Lookup Value in All Maps", "Returns the value of the key if it exists in any map.", "$('key')", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Get Global Variable Map", "The variable map that persists values between channels.", "globalMap.get('')", CodeSnippetType.VARIABLE, ContextType.GLOBAL_CONTEXT.getContext()));
@@ -293,8 +256,7 @@ public class ReferenceListFactory
         return variablelistItems;
     }
 
-    private ArrayList<CodeTemplate> setupUtilityItems()
-    {
+    private ArrayList<CodeTemplate> setupUtilityItems() {
         ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
         variablelistItems.add(new CodeTemplate("Use Java Class", "Access any Java class in the current classpath", "var object = Packages.[fully-qualified name];", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Generate Unique ID", "Generate a Universally Unique Identifier", "var uuid = UUIDGenerator.getUUID();", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
@@ -317,12 +279,11 @@ public class ReferenceListFactory
         variablelistItems.add(new CodeTemplate("Strip Namespaces", "Remove namespaces from an XML string", "var newMessage = message.replace(/xmlns:?[^=]*=[\"\"][^\"\"]*[\"\"]/g, '');\n", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Parse HTTP Headers", "Takes the string of an HTTP Response and returns it represented as a map for easy access.", "var headers = HTTPUtil.parseHeaders(header);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Remove Illegal XML Characters", "Removes illegal XML characters like control characters that cause a parsing error in e4x (\\x00-\\x1F besides TAB, LF, and CR)", "var newMessage = message.replace(/[\\x00-\\x08]|[\\x0B-\\x0C]|[\\x0E-\\x1F]/g, '');\n", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));  // MIRTH-1202
-        
+
         return variablelistItems;
     }
 
-    private ArrayList<CodeTemplate> setupDateItems()
-    {
+    private ArrayList<CodeTemplate> setupDateItems() {
         ArrayList<CodeTemplate> variablelistItems = new ArrayList<CodeTemplate>();
         variablelistItems.add(new CodeTemplate("Get Date Object From Pattern", "Parse a date according to specified pattern", "var date = DateUtil.getDate(pattern, date);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Format Date Object", "Formats a date object based on specified format", "var dateString = DateUtil.formatDate(pattern, date);", CodeSnippetType.CODE, ContextType.GLOBAL_CONTEXT.getContext()));

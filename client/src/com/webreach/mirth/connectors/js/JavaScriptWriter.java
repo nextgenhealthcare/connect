@@ -1,28 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
-* WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.connectors.js;
 
 import java.util.List;
@@ -42,107 +17,91 @@ import com.webreach.mirth.model.DriverInfo;
  * A form that extends from ConnectorClass. All methods implemented are
  * described in ConnectorClass.
  */
-public class JavaScriptWriter extends ConnectorClass
-{
-    /**
-     * Creates new form JavaScriptWriter
-     */
+public class JavaScriptWriter extends ConnectorClass {
 
     private static SyntaxDocument jsMappingDoc;
-
     private List<DriverInfo> drivers;
 
-    public JavaScriptWriter()
-    {
+    public JavaScriptWriter() {
         name = JavaScriptWriterProperties.name;
 
         initComponents();
 
         jsMappingDoc = new SyntaxDocument();
         jsMappingDoc.setTokenMarker(new JavaScriptTokenMarker());
-        
+
         javaScriptTextPane.setDocument(jsMappingDoc);
     }
 
-    public Properties getProperties()
-    {
+    public Properties getProperties() {
         Properties properties = new Properties();
         properties.put(JavaScriptWriterProperties.DATATYPE, name);
         properties.put(JavaScriptWriterProperties.JAVASCRIPT_HOST, "sink");
         properties.put(JavaScriptWriterProperties.JAVASCRIPT_SCRIPT, javaScriptTextPane.getText());
-   
+
         return properties;
     }
 
-    public void setProperties(Properties props)
-    {
+    public void setProperties(Properties props) {
         resetInvalidProperties();
         javaScriptTextPane.setText((String) props.get(JavaScriptWriterProperties.JAVASCRIPT_SCRIPT));
 
     }
 
-    public Properties getDefaults()
-    {
+    public Properties getDefaults() {
         return new JavaScriptWriterProperties().getDefaults();
     }
 
-    public boolean checkProperties(Properties props, boolean highlight)
-    {
+    public boolean checkProperties(Properties props, boolean highlight) {
         resetInvalidProperties();
         boolean valid = true;
-       
-        if (((String) props.get(JavaScriptWriterProperties.JAVASCRIPT_SCRIPT)).length() == 0)
-        {
+
+        if (((String) props.get(JavaScriptWriterProperties.JAVASCRIPT_SCRIPT)).length() == 0) {
             valid = false;
-            if (highlight)
-            	javaScriptTextPane.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                javaScriptTextPane.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        
+
         return valid;
     }
-    
-    public String[] getDragAndDropCharacters(Properties props)
-    {
+
+    public String[] getDragAndDropCharacters(Properties props) {
         return new String[]{"$('", "')"};
     }
-    
-    private void resetInvalidProperties()
-    {
+
+    private void resetInvalidProperties() {
         javaScriptTextPane.setBackground(null);
     }
-    
-    public String doValidate(Properties props, boolean highlight)
-    {
-    	String error = null;
-    	
-    	if (!checkProperties(props, highlight))
-    		error = "Error in the form for connector \"" + getName() + "\".\n\n";
-    	
-    	String script = ((String) props.get(JavaScriptWriterProperties.JAVASCRIPT_SCRIPT));
-    	
-    	if (script.length() != 0)
-    	{
-	    	Context context = Context.enter();
-	        try
-	        {
-	            context.compileString("function rhinoWrapper() {" + script + "\n}", UUID.randomUUID().toString(), 1, null);
-	        }
-	        catch (EvaluatorException e)
-	        {
-	        	if (error == null)
-	        		error = "";
-	            error += "Error in connector \"" + getName() + "\" at Javascript:\nError on line " + e.lineNumber() + ": " + e.getMessage() + ".\n\n";
-	        }
-	        catch (Exception e)
-	        {
-	        	if (error == null)
-	        		error = "";
-	        	error += "Error in connector \"" + getName() + "\" at Javascript:\nUnknown error occurred during validation.";
-	        }
-	        
-	        Context.exit();
-    	}
-	        
+
+    public String doValidate(Properties props, boolean highlight) {
+        String error = null;
+
+        if (!checkProperties(props, highlight)) {
+            error = "Error in the form for connector \"" + getName() + "\".\n\n";
+        }
+
+        String script = ((String) props.get(JavaScriptWriterProperties.JAVASCRIPT_SCRIPT));
+
+        if (script.length() != 0) {
+            Context context = Context.enter();
+            try {
+                context.compileString("function rhinoWrapper() {" + script + "\n}", UUID.randomUUID().toString(), 1, null);
+            } catch (EvaluatorException e) {
+                if (error == null) {
+                    error = "";
+                }
+                error += "Error in connector \"" + getName() + "\" at Javascript:\nError on line " + e.lineNumber() + ": " + e.getMessage() + ".\n\n";
+            } catch (Exception e) {
+                if (error == null) {
+                    error = "";
+                }
+                error += "Error in connector \"" + getName() + "\" at Javascript:\nUnknown error occurred during validation.";
+            }
+
+            Context.exit();
+        }
+
         return error;
     }
 
@@ -166,31 +125,29 @@ public class JavaScriptWriter extends ConnectorClass
 
         javaScriptTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jsLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(javaScriptTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 327, Short.MAX_VALUE)
+                .addComponent(jsLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(javaScriptTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 327, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(javaScriptTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
-                    .add(jsLabel))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(javaScriptTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
+                    .addComponent(jsLabel))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
-    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea javaScriptTextPane;
     private javax.swing.JLabel jsLabel;
     // End of variables declaration//GEN-END:variables
-
 }

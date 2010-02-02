@@ -7,13 +7,6 @@ import java.beans.MethodDescriptor;
 import java.beans.PropertyDescriptor;
 import java.beans.SimpleBeanInfo;
 
-/**
- * Created by IntelliJ IDEA.
- * User: dans
- * Date: Sep 18, 2007
- * Time: 9:53:34 PM
- * To change this template use File | Settings | File Templates.
- */
 public class DICOMPropertiesBeanInfo extends SimpleBeanInfo {
 
     // Bean descriptor//GEN-FIRST:BeanDescriptor
@@ -24,8 +17,6 @@ public class DICOMPropertiesBeanInfo extends SimpleBeanInfo {
         // Here you can add code for customizing the BeanDescriptor.
 
         return beanDescriptor;     }//GEN-LAST:BeanDescriptor
-
-
     // Property identifiers//GEN-FIRST:Properties
     private static final int PROPERTY_includeGroupLength = 0;
 
@@ -69,18 +60,12 @@ public class DICOMPropertiesBeanInfo extends SimpleBeanInfo {
         // Here you can add code for customizing the methods array.
 
         return methods;     }//GEN-LAST:Methods
-
-
     private static final int defaultPropertyIndex = -1;//GEN-BEGIN:Idx
     private static final int defaultEventIndex = -1;//GEN-END:Idx
 
-
 //GEN-FIRST:Superclass
-
     // Here you can add code for customizing the Superclass BeanInfo.
-
 //GEN-LAST:Superclass
-
     /**
      * Gets the bean's <code>BeanDescriptor</code>s.
      *
@@ -88,8 +73,7 @@ public class DICOMPropertiesBeanInfo extends SimpleBeanInfo {
      * properties of this bean.  May return null if the
      * information should be obtained by automatic analysis.
      */
-    public BeanDescriptor getBeanDescriptor()
-    {
+    public BeanDescriptor getBeanDescriptor() {
         return getBdescriptor();
     }
 
@@ -105,8 +89,7 @@ public class DICOMPropertiesBeanInfo extends SimpleBeanInfo {
      * A client of getPropertyDescriptors can use "instanceof" to check
      * if a given PropertyDescriptor is an IndexedPropertyDescriptor.
      */
-    public PropertyDescriptor[] getPropertyDescriptors()
-    {
+    public PropertyDescriptor[] getPropertyDescriptors() {
         return getPdescriptor();
     }
 
@@ -117,8 +100,7 @@ public class DICOMPropertiesBeanInfo extends SimpleBeanInfo {
      * events fired by this bean.  May return null if the information
      * should be obtained by automatic analysis.
      */
-    public EventSetDescriptor[] getEventSetDescriptors()
-    {
+    public EventSetDescriptor[] getEventSetDescriptors() {
         return getEdescriptor();
     }
 
@@ -129,8 +111,7 @@ public class DICOMPropertiesBeanInfo extends SimpleBeanInfo {
      * implemented by this bean.  May return null if the information
      * should be obtained by automatic analysis.
      */
-    public MethodDescriptor[] getMethodDescriptors()
-    {
+    public MethodDescriptor[] getMethodDescriptors() {
         return getMdescriptor();
     }
 
@@ -142,8 +123,7 @@ public class DICOMPropertiesBeanInfo extends SimpleBeanInfo {
      * 		returned by getPropertyDescriptors.
      * <P>	Returns -1 if there is no default property.
      */
-    public int getDefaultPropertyIndex()
-    {
+    public int getDefaultPropertyIndex() {
         return defaultPropertyIndex;
     }
 
@@ -154,11 +134,7 @@ public class DICOMPropertiesBeanInfo extends SimpleBeanInfo {
      *		returned by getEventSetDescriptors.
      * <P>	Returns -1 if there is no default event.
      */
-    public int getDefaultEventIndex()
-    {
+    public int getDefaultEventIndex() {
         return defaultEventIndex;
     }
-
-
-
 }

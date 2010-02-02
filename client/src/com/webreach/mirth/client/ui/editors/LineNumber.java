@@ -1,28 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.client.ui.editors;
 
 import java.awt.Dimension;
@@ -33,54 +8,43 @@ import java.awt.Rectangle;
 
 import javax.swing.JComponent;
 
-public class LineNumber extends JComponent
-{
+public class LineNumber extends JComponent {
 
     // LineNumber height (abends when I use MAX_VALUE)
     private final static int HEIGHT = Integer.MAX_VALUE - 1000000;
-
     // LineNumber width
     private final static int WIDTH = 999;
-
     // Set right/left margin
     private final static int MARGIN = 5;
-
     // Line height of this LineNumber component
     private int lineHeight;
-
     // Line height of this LineNumber component
     private int fontLineHeight;
-
     //	
     private int currentRowWidth;
-
     // Metrics of this LineNumber component
     private FontMetrics fontMetrics;
 
     /**
      * Convenience constructor for Text Components
      */
-    public LineNumber(JComponent component)
-    {
+    public LineNumber(JComponent component) {
         setBackground(EditorConstants.PANEL_BACKGROUND);
         setForeground(EditorConstants.LINENUMBER_FOREGROUND);
         setFont(EditorConstants.DEFAULT_FONT);
         setPreferredSize(WIDTH);
     }
 
-    public void setPreferredSize(int row)
-    {
+    public void setPreferredSize(int row) {
         int width = fontMetrics.stringWidth(String.valueOf(row));
 
-        if (currentRowWidth < width)
-        {
+        if (currentRowWidth < width) {
             currentRowWidth = width;
             setPreferredSize(new Dimension(2 * MARGIN + width, HEIGHT));
         }
     }
 
-    public void setFont(Font font)
-    {
+    public void setFont(Font font) {
         super.setFont(font);
         fontMetrics = getFontMetrics(getFont());
         fontLineHeight = fontMetrics.getHeight();
@@ -91,27 +55,25 @@ public class LineNumber extends JComponent
      * component. The line height can be overridden by setting it to a positive
      * non-zero value.
      */
-    public int getLineHeight()
-    {
-        if (lineHeight == 0)
+    public int getLineHeight() {
+        if (lineHeight == 0) {
             return fontLineHeight;
-        else
+        } else {
             return lineHeight;
+        }
     }
 
-    public void setLineHeight(int lineHeight)
-    {
-        if (lineHeight > 0)
+    public void setLineHeight(int lineHeight) {
+        if (lineHeight > 0) {
             this.lineHeight = lineHeight;
+        }
     }
 
-    public int getStartOffset()
-    {
+    public int getStartOffset() {
         return 4;
     }
 
-    public void paintComponent(Graphics g)
-    {
+    public void paintComponent(Graphics g) {
         int lineHeight = getLineHeight();
         int startOffset = getStartOffset();
         Rectangle drawHere = g.getClipBounds();
@@ -134,8 +96,7 @@ public class LineNumber extends JComponent
         // System.out.println( startLineNumber + " : " + endLineNumber + " : " +
         // start );
 
-        for (int i = startLineNumber; i <= endLineNumber; i++)
-        {
+        for (int i = startLineNumber; i <= endLineNumber; i++) {
             String lineNumber = String.valueOf(i);
             int width = fontMetrics.stringWidth(lineNumber);
             g.drawString(lineNumber, MARGIN + currentRowWidth - width, start);

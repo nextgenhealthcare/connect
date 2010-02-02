@@ -1,12 +1,3 @@
-/*
- * DashboardConnectorStatusClient.java
- *
- * Created on October 10, 2007, 3:39 PM
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
-
 package com.webreach.mirth.plugins.dashboardstatus;
 
 import java.util.ArrayList;
@@ -30,10 +21,8 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
     private ConcurrentHashMap<String, LinkedList<String[]>> connectorInfoLogs;
     private int currentDashboardLogSize;
 
-    
     /** Creates a new instance of DashboardConnectorStatusClient */
-    public DashboardConnectorStatusClient(String name)
-    {
+    public DashboardConnectorStatusClient(String name) {
         super(name);
         connectorInfoLogs = new ConcurrentHashMap<String, LinkedList<String[]>>();
         dcsp = new DashboardConnectorStatusPanel(this);
@@ -66,7 +55,7 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
             // get the currentChannelLog
             LinkedList<String[]> newChannelLog = connectorInfoLogs.get(selectedChannel);
             // if log size got reduced...  remove that much extra LastRows.
-            synchronized(this) {
+            synchronized (this) {
                 while (newDashboardLogSize < newChannelLog.size()) {
                     newChannelLog.removeLast();
                 }
@@ -79,11 +68,10 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
                 dcsp.updateTable(newChannelLog);
             }
         }
-        
+
         // reset currentLogSize.
         currentDashboardLogSize = newDashboardLogSize;
     }
-
 
     // used for setting actions to be called for updating when there is no status selected
     public void update() {
@@ -93,7 +81,6 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
 
     }
 
-       
     // used for setting actions to be called for updating when there is a status selected    
     public void update(List<ChannelStatus> statuses) {
         // Keep status as null if there are more than one channels selected
@@ -101,12 +88,12 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
         if ((statuses != null) && (statuses.size() == 1)) {
             status = statuses.get(0);
         }
-        
+
         boolean channelsDeployed = false;
         try {
             channelsDeployed = (Boolean) PlatformUI.MIRTH_FRAME.mirthClient.invokePluginMethod(SERVER_PLUGIN_NAME, CHANNELS_DEPLOYED, null);
         } catch (ClientException e) {
-            parent.alertException(parent, e.getStackTrace(), e.getMessage());            
+            parent.alertException(parent, e.getStackTrace(), e.getMessage());
         }
 
         if (channelsDeployed) {
@@ -124,7 +111,7 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
             // channel is selected.
             selectedChannel = status.getName();
         }
-        
+
         // If there are more than one channels selected, create an array of those names
         List<String> selectedChannels = null;
         if (statuses != null && statuses.size() > 1) {
@@ -160,8 +147,8 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
                 parent.alertException(parent, e.getStackTrace(), e.getMessage());
             }
 
-            synchronized(this) {
-                for (int i = connectionInfoLogsReceived.size()-1; i >= 0; i--) {
+            synchronized (this) {
+                for (int i = connectionInfoLogsReceived.size() - 1; i >= 0; i--) {
                     while (currentDashboardLogSize <= channelLog.size()) {
                         channelLog.removeLast();
                     }
@@ -185,9 +172,8 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
 
     // used for starting processes in the plugin when the program is started
     public void start() {
-
     }
-    
+
     // used for stopping processes in the plugin when the program is exited
     public void stop() {
         // invoke method to remove everything involving this client's sessionId.
@@ -197,5 +183,4 @@ public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
             parent.alertException(parent, e.getStackTrace(), e.getMessage());
         }
     }
-
 }

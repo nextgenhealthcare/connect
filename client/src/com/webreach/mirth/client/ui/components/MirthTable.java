@@ -1,12 +1,3 @@
-/*
- * MirthTable.java
- *
- * Created on October 18, 2006, 10:42 AM
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
-
 package com.webreach.mirth.client.ui.components;
 
 import java.awt.event.KeyEvent;
@@ -32,15 +23,12 @@ public class MirthTable extends JXTable {
             }
 
             public void keyReleased(KeyEvent e) {
-            // TODO Auto-generated method stub
-
+                // TODO Auto-generated method stub
             }
 
             public void keyTyped(KeyEvent e) {
-            // TODO Auto-generated method stub
-
+                // TODO Auto-generated method stub
             }
-
         });
 
         // Swingx 1.0 has this set to true by default, which doesn't allow
@@ -54,10 +42,11 @@ public class MirthTable extends JXTable {
     @Override
     public Class getColumnClass(int column) {
         try {
-            if (getRowCount() >= 0 && column >= 0 && column < getColumnCount() && getValueAt(0, column) != null)
+            if (getRowCount() >= 0 && column >= 0 && column < getColumnCount() && getValueAt(0, column) != null) {
                 return getValueAt(0, column).getClass();
-            else
+            } else {
                 return Object.class;
+            }
         } catch (Exception e) {
             return Object.class;
         }
@@ -66,7 +55,7 @@ public class MirthTable extends JXTable {
     public int getColumnViewIndex(String columnName) {
         return this.getColumnModel().getColumnIndex(columnName);
     }
-    
+
     public int getColumnModelIndex(String columnName) {
         return this.convertColumnIndexToModel(this.getColumnModel().getColumnIndex(columnName));
     }
@@ -74,13 +63,15 @@ public class MirthTable extends JXTable {
     public int getSelectedModelIndex() {
         int index = -1;
 
-        if (this.isEditing())
+        if (this.isEditing()) {
             index = this.getEditingRow();
-        else
+        } else {
             index = this.getSelectedRow();
+        }
 
-        if (index == -1)
+        if (index == -1) {
             return index;
+        }
 
         return this.convertRowIndexToModel(index);
     }
@@ -94,5 +85,4 @@ public class MirthTable extends JXTable {
 
         return views;
     }
-
 }

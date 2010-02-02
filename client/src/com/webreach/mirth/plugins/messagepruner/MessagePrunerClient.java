@@ -1,12 +1,3 @@
-/*
- * MessagePrunerClient.java
- *
- * Created on June 22, 2007, 5:25 PM
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
-
 package com.webreach.mirth.plugins.messagepruner;
 
 import java.util.LinkedList;
@@ -18,10 +9,9 @@ import javax.swing.SwingWorker;
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.plugins.ClientPanelPlugin;
 
-public class MessagePrunerClient extends ClientPanelPlugin
-{
-    public MessagePrunerClient(String name)
-    {
+public class MessagePrunerClient extends ClientPanelPlugin {
+
+    public MessagePrunerClient(String name) {
         super(name, true, true);
 
         getTaskPane().setTitle("Pruner Tasks");
@@ -31,37 +21,32 @@ public class MessagePrunerClient extends ClientPanelPlugin
         getComponent().addMouseListener(getPopupMenuMouseAdapter());
     }
 
-    public void doRefresh()
-    {
+    public void doRefresh() {
         setWorking("Loading pruner properties...", true);
 
         final Properties serverProperties = new Properties();
         final List<String[]> log = new LinkedList<String[]>();
-        
-        SwingWorker worker = new SwingWorker<Void, Void>()
-        {
-            public Void doInBackground()
-            {
-                try
-                {
-                	if (!confirmLeave())
-                		return null;
 
-                	if (getPropertiesFromServer() != null) {
-                	    serverProperties.putAll(getPropertiesFromServer());
-                	}
-               	        
-                	log.addAll((List<String[]>) invoke("getLog", null));
-                }
-                catch (ClientException e)
-                {
+        SwingWorker worker = new SwingWorker<Void, Void>() {
+
+            public Void doInBackground() {
+                try {
+                    if (!confirmLeave()) {
+                        return null;
+                    }
+
+                    if (getPropertiesFromServer() != null) {
+                        serverProperties.putAll(getPropertiesFromServer());
+                    }
+
+                    log.addAll((List<String[]>) invoke("getLog", null));
+                } catch (ClientException e) {
                     alertException(parent, e.getStackTrace(), e.getMessage());
                 }
                 return null;
             }
 
-            public void done()
-            {
+            public void done() {
                 ((MessagePrunerPanel) getComponent()).setProperties(serverProperties, log);
                 setWorking("", false);
             }
@@ -70,57 +55,43 @@ public class MessagePrunerClient extends ClientPanelPlugin
         worker.execute();
     }
 
-    public void doSave()
-    {
+    public void doSave() {
         setWorking("Saving pruner properties...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>()
-        {
-            public Void doInBackground()
-            {
-                try
-                {
+        SwingWorker worker = new SwingWorker<Void, Void>() {
+
+            public Void doInBackground() {
+                try {
                     save();
-                }
-                catch (ClientException e)
-                {
+                } catch (ClientException e) {
                     alertException(parent, e.getStackTrace(), e.getMessage());
                 }
                 return null;
             }
 
-            public void done()
-            {
-            	disableSave();
+            public void done() {
+                disableSave();
                 setWorking("", false);
             }
         };
 
         worker.execute();
     }
-    
-    public void refresh() throws ClientException
-    {
-        
+
+    public void refresh() throws ClientException {
     }
-    
-    public void save() throws ClientException
-    {
+
+    public void save() throws ClientException {
         setPropertiesToServer(((MessagePrunerPanel) getComponent()).getProperties());
     }
-    
-    public void start()
-    {
 
+    public void start() {
     }
 
-    public void stop()
-    {
-
+    public void stop() {
     }
-    
-    public void display()
-    {
-    	doRefresh();
+
+    public void display() {
+        doRefresh();
     }
 }

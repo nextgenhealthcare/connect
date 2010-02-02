@@ -1,28 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.client.ui;
 
 import java.awt.Cursor;
@@ -45,8 +20,8 @@ import com.webreach.mirth.model.util.ImportConverter;
 /**
  * The main configuration panel.
  */
-public class SettingsPanel extends javax.swing.JPanel
-{
+public class SettingsPanel extends javax.swing.JPanel {
+
     private static Preferences userPreferences;
     private Properties serverProperties;
     private Frame parent;
@@ -54,33 +29,28 @@ public class SettingsPanel extends javax.swing.JPanel
     /**
      * Creates new form SettingsPanel
      */
-    public SettingsPanel()
-    {
+    public SettingsPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
 
-        this.addMouseListener(new java.awt.event.MouseAdapter()
-        {
-            public void mousePressed(java.awt.event.MouseEvent evt)
-            {
+        this.addMouseListener(new java.awt.event.MouseAdapter() {
+
+            public void mousePressed(java.awt.event.MouseEvent evt) {
                 showSettingsPopupMenu(evt);
             }
 
-            public void mouseReleased(java.awt.event.MouseEvent evt)
-            {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
                 showSettingsPopupMenu(evt);
             }
         });
-        
+
         usageStatsMoreInfoLabel.setToolTipText(UIConstants.PRIVACY_TOOLTIP);
         usageStatsMoreInfoLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
     /** Shows the right click popup menu */
-    private void showSettingsPopupMenu(java.awt.event.MouseEvent evt)
-    {
-        if (evt.isPopupTrigger())
-        {
+    private void showSettingsPopupMenu(java.awt.event.MouseEvent evt) {
+        if (evt.isPopupTrigger()) {
             parent.settingsPopupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
         }
     }
@@ -171,33 +141,33 @@ public class SettingsPanel extends javax.swing.JPanel
 
         lastBackup.setText("None");
 
-        org.jdesktop.layout.GroupLayout backupPanelLayout = new org.jdesktop.layout.GroupLayout(backupPanel);
+        javax.swing.GroupLayout backupPanelLayout = new javax.swing.GroupLayout(backupPanel);
         backupPanel.setLayout(backupPanelLayout);
         backupPanelLayout.setHorizontalGroup(
-            backupPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(backupPanelLayout.createSequentialGroup()
+            backupPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(backupPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(backupPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(backupPanelLayout.createSequentialGroup()
-                        .add(backupButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(restoreButton))
-                    .add(backupPanelLayout.createSequentialGroup()
-                        .add(jLabel4)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(lastBackup)))
+                .addGroup(backupPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(backupPanelLayout.createSequentialGroup()
+                        .addComponent(backupButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(restoreButton))
+                    .addGroup(backupPanelLayout.createSequentialGroup()
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lastBackup)))
                 .addContainerGap(346, Short.MAX_VALUE))
         );
         backupPanelLayout.setVerticalGroup(
-            backupPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(backupPanelLayout.createSequentialGroup()
-                .add(backupPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel4)
-                    .add(lastBackup))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(backupPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(restoreButton)
-                    .add(backupButton))
+            backupPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(backupPanelLayout.createSequentialGroup()
+                .addGroup(backupPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(lastBackup))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(backupPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(restoreButton)
+                    .addComponent(backupButton))
                 .addContainerGap())
         );
 
@@ -290,79 +260,79 @@ public class SettingsPanel extends javax.swing.JPanel
             }
         });
 
-        org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel1Layout.createSequentialGroup()
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel5)
-                    .add(jLabel10)
-                    .add(jLabel11)
-                    .add(jLabel1)
-                    .add(jLabel12)
-                    .add(usernameLabel)
-                    .add(passwordLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jPanel1Layout.createSequentialGroup()
-                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(defaultFrom, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
-                            .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                                .add(smtpPassword, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
-                                .add(smtpUsername, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
-                                .add(jPanel1Layout.createSequentialGroup()
-                                    .add(requireAuthenticationYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                    .add(requireAuthenticationNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                .add(smtpPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 44, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .add(smtpHost, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 117, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                        .add(279, 279, 279))
-                    .add(jPanel1Layout.createSequentialGroup()
-                        .add(secureConnectionNone, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(secureConnectionTLS, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(secureConnectionSSL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(271, 271, 271))))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel5)
+                    .addComponent(jLabel10)
+                    .addComponent(jLabel11)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel12)
+                    .addComponent(usernameLabel)
+                    .addComponent(passwordLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(defaultFrom, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(smtpPassword, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
+                                .addComponent(smtpUsername, javax.swing.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE)
+                                .addGroup(jPanel1Layout.createSequentialGroup()
+                                    .addComponent(requireAuthenticationYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(requireAuthenticationNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(smtpPort, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(smtpHost, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(279, 279, 279))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(secureConnectionNone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(secureConnectionTLS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(secureConnectionSSL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(271, 271, 271))))
         );
 
-        jPanel1Layout.linkSize(new java.awt.Component[] {defaultFrom, smtpHost, smtpPassword, smtpUsername}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+        jPanel1Layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {defaultFrom, smtpHost, smtpPassword, smtpUsername});
 
         jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel1Layout.createSequentialGroup()
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(smtpHost, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel10))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(smtpPort, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel11))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
-                    .add(defaultFrom, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel5)
-                    .add(secureConnectionNone, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(secureConnectionTLS, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(secureConnectionSSL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel12)
-                    .add(requireAuthenticationYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(requireAuthenticationNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(smtpUsername, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(usernameLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(passwordLabel)
-                    .add(smtpPassword, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(smtpHost, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel10))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(smtpPort, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel11))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(defaultFrom, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(secureConnectionNone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(secureConnectionTLS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(secureConnectionSSL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel12)
+                    .addComponent(requireAuthenticationYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(requireAuthenticationNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(smtpUsername, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(usernameLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(passwordLabel)
+                    .addComponent(smtpPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(12, Short.MAX_VALUE))
         );
 
@@ -461,59 +431,59 @@ public class SettingsPanel extends javax.swing.JPanel
             }
         });
 
-        org.jdesktop.layout.GroupLayout serverSettingsLayout = new org.jdesktop.layout.GroupLayout(serverSettings);
+        javax.swing.GroupLayout serverSettingsLayout = new javax.swing.GroupLayout(serverSettings);
         serverSettings.setLayout(serverSettingsLayout);
         serverSettingsLayout.setHorizontalGroup(
-            serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(serverSettingsLayout.createSequentialGroup()
+            serverSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(serverSettingsLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(checkForUpdatesLabel)
-                    .add(jLabel2)
-                    .add(sendUsageStatsLabel)
-                    .add(updateUrlLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(serverSettingsLayout.createSequentialGroup()
-                        .add(clearGlobalMapYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(clearGlobalMapNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(serverSettingsLayout.createSequentialGroup()
-                        .add(checkForUpdatesYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(checkForUpdatesNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(serverSettingsLayout.createSequentialGroup()
-                        .add(sendUsageStatsYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(sendUsageStatsNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(usageStatsMoreInfoLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(updateUrl, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addGroup(serverSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(checkForUpdatesLabel)
+                    .addComponent(jLabel2)
+                    .addComponent(sendUsageStatsLabel)
+                    .addComponent(updateUrlLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(serverSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(serverSettingsLayout.createSequentialGroup()
+                        .addComponent(clearGlobalMapYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(clearGlobalMapNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(serverSettingsLayout.createSequentialGroup()
+                        .addComponent(checkForUpdatesYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(checkForUpdatesNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(serverSettingsLayout.createSequentialGroup()
+                        .addComponent(sendUsageStatsYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(sendUsageStatsNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(usageStatsMoreInfoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(updateUrl, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(167, Short.MAX_VALUE))
         );
         serverSettingsLayout.setVerticalGroup(
-            serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(serverSettingsLayout.createSequentialGroup()
-                .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel2)
-                    .add(clearGlobalMapYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(clearGlobalMapNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(checkForUpdatesLabel)
-                    .add(checkForUpdatesYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(checkForUpdatesNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(sendUsageStatsLabel)
-                    .add(sendUsageStatsYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(sendUsageStatsNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(usageStatsMoreInfoLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(serverSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(updateUrl, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(updateUrlLabel))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            serverSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(serverSettingsLayout.createSequentialGroup()
+                .addGroup(serverSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(clearGlobalMapYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(clearGlobalMapNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(serverSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(checkForUpdatesLabel)
+                    .addComponent(checkForUpdatesYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(checkForUpdatesNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(serverSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(sendUsageStatsLabel)
+                    .addComponent(sendUsageStatsYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(sendUsageStatsNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(usageStatsMoreInfoLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(serverSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(updateUrl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(updateUrlLabel))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         clientSettings.setBackground(new java.awt.Color(255, 255, 255));
@@ -550,163 +520,148 @@ public class SettingsPanel extends javax.swing.JPanel
         asteriskLabel1.setForeground(new java.awt.Color(255, 0, 0));
         asteriskLabel1.setText("*");
 
-        org.jdesktop.layout.GroupLayout clientSettingsLayout = new org.jdesktop.layout.GroupLayout(clientSettings);
+        javax.swing.GroupLayout clientSettingsLayout = new javax.swing.GroupLayout(clientSettings);
         clientSettings.setLayout(clientSettingsLayout);
         clientSettingsLayout.setHorizontalGroup(
-            clientSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(clientSettingsLayout.createSequentialGroup()
+            clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(clientSettingsLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(clientSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel6)
-                    .add(jLabel7)
-                    .add(jLabel3))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(clientSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(clientSettingsLayout.createSequentialGroup()
-                        .add(messageBrowserPageSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 78, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(asteriskLabel1))
-                    .add(clientSettingsLayout.createSequentialGroup()
-                        .add(rowHighlightYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(rowHighlightNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(clientSettingsLayout.createSequentialGroup()
-                        .add(intervalTime, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 78, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(asteriskLabel)))
+                .addGroup(clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel6)
+                    .addComponent(jLabel7)
+                    .addComponent(jLabel3))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(clientSettingsLayout.createSequentialGroup()
+                        .addComponent(messageBrowserPageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(asteriskLabel1))
+                    .addGroup(clientSettingsLayout.createSequentialGroup()
+                        .addComponent(rowHighlightYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(rowHighlightNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(clientSettingsLayout.createSequentialGroup()
+                        .addComponent(intervalTime, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(asteriskLabel)))
                 .addContainerGap(239, Short.MAX_VALUE))
         );
         clientSettingsLayout.setVerticalGroup(
-            clientSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(clientSettingsLayout.createSequentialGroup()
-                .add(clientSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel6)
-                    .add(intervalTime, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(asteriskLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(clientSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(rowHighlightYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(rowHighlightNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel7))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .add(clientSettingsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(messageBrowserPageSizeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel3)
-                    .add(asteriskLabel1))
+            clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(clientSettingsLayout.createSequentialGroup()
+                .addGroup(clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(intervalTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(asteriskLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(rowHighlightYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(rowHighlightNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel7))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(clientSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(messageBrowserPageSizeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3)
+                    .addComponent(asteriskLabel1))
                 .addContainerGap())
         );
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(clientSettings, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(serverSettings, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(backupPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(clientSettings, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(serverSettings, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(backupPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(clientSettings, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(serverSettings, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(backupPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(clientSettings, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(serverSettings, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(backupPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void restoreButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_restoreButtonActionPerformed
     {//GEN-HEADEREND:event_restoreButtonActionPerformed
-        if (parent.settingsTasks.getContentPane().getComponent(1).isVisible())
-        {
-            if (!parent.alertOkCancel(this, "Your new settings will first be saved.  Continue?"))
+        if (parent.settingsTasks.getContentPane().getComponent(1).isVisible()) {
+            if (!parent.alertOkCancel(this, "Your new settings will first be saved.  Continue?")) {
                 return;
+            }
             saveSettings();
         }
-        
-    	File backupFile = parent.importFile("XML");
-    	
-    	if (backupFile != null)
-    	{
-    		String backupXML = null;
-            try
-            {
+
+        File backupFile = parent.importFile("XML");
+
+        if (backupFile != null) {
+            String backupXML = null;
+            try {
                 backupXML = FileUtil.read(backupFile);
-            }
-            catch (IOException ex)
-            {
+            } catch (IOException ex) {
                 parent.alertError(this, "File could not be read.");
                 return;
             }
-            try
-            {
+            try {
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 ServerConfiguration configuration = ImportConverter.convertServerConfiguration(backupXML);
-                
-                if (parent.alertOption(this, "Import configuration from " + configuration.getDate() + "?\nWARNING: This will overwrite all current channels, alerts, and server properties."))
-                {
-                    try
-                    {
+
+                if (parent.alertOption(this, "Import configuration from " + configuration.getDate() + "?\nWARNING: This will overwrite all current channels, alerts, and server properties.")) {
+                    try {
                         parent.mirthClient.setServerConfiguration(configuration);
                         parent.clearChannelCache();
                         loadSettings();
                         parent.alertInformation(this, "Your configuration was successfully restored.");
-                    }
-                    catch (ClientException e)
-                    {
+                    } catch (ClientException e) {
                         parent.alertException(this, e.getStackTrace(), e.getMessage());
                     }
                 }
-            }
-            catch(Exception e)
-            {
+            } catch (Exception e) {
                 parent.alertError(this, "Invalid server configuration file.");
             }
-    	}
+        }
     }//GEN-LAST:event_restoreButtonActionPerformed
 
     private void backupButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_backupButtonActionPerformed
     {//GEN-HEADEREND:event_backupButtonActionPerformed
-        if (parent.settingsTasks.getContentPane().getComponent(1).isVisible())
-        {
+        if (parent.settingsTasks.getContentPane().getComponent(1).isVisible()) {
             int option = JOptionPane.showConfirmDialog(this, "Would you like to save the settings first?");
 
-            if (option == JOptionPane.YES_OPTION)
+            if (option == JOptionPane.YES_OPTION) {
                 saveSettings();
-            else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION)
+            } else if (option == JOptionPane.CANCEL_OPTION || option == JOptionPane.CLOSED_OPTION) {
                 return;
+            }
         }
-        
+
         String backupDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-        
+
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         ServerConfiguration configuration = null;
-        try
-        {
+        try {
             configuration = parent.mirthClient.getServerConfiguration();
-        }
-        catch (ClientException e)
-        {
+        } catch (ClientException e) {
             parent.alertException(this, e.getStackTrace(), e.getMessage());
             return;
         }
-        
+
         configuration.setDate(backupDate);
         String backupXML = serializer.toXML(configuration);
-        
-        boolean fileWritten = parent.exportFile(backupXML, backupDate.substring(0,10) + " Mirth Backup.xml", "XML", "Server Configuration");
-        if (fileWritten)
-        {
-        	userPreferences.put("lastBackup", backupDate);
+
+        boolean fileWritten = parent.exportFile(backupXML, backupDate.substring(0, 10) + " Mirth Backup.xml", "XML", "Server Configuration");
+        if (fileWritten) {
+            userPreferences.put("lastBackup", backupDate);
             lastBackup.setText(backupDate);
         }
     }//GEN-LAST:event_backupButtonActionPerformed
@@ -738,7 +693,7 @@ private void sendUsageStatsNoActionPerformed(java.awt.event.ActionEvent evt) {//
 }//GEN-LAST:event_sendUsageStatsNoActionPerformed
 
 private void usageStatsMoreInfoLabelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_usageStatsMoreInfoLabelMouseClicked
-BareBonesBrowserLaunch.openURL(UIConstants.PRIVACY_URL);
+    BareBonesBrowserLaunch.openURL(UIConstants.PRIVACY_URL);
 }//GEN-LAST:event_usageStatsMoreInfoLabelMouseClicked
 
 private void secureConnectionNoneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_secureConnectionNoneActionPerformed
@@ -770,200 +725,191 @@ private void secureConnectionSSLActionPerformed(java.awt.event.ActionEvent evt) 
     }// GEN-LAST:event_requireAuthenticationYesActionPerformed
 
     /** Loads the current settings into the Settings form */
-    public void loadSettings()
-    {
+    public void loadSettings() {
         intervalTime.setDocument(new MirthFieldConstraints(3, false, false, true));
         messageBrowserPageSizeField.setDocument(new MirthFieldConstraints(3, false, false, true));
         userPreferences = Preferences.userNodeForPackage(Mirth.class);
         int interval = userPreferences.getInt("intervalTime", 10);
         intervalTime.setText(interval + "");
-        
+
         int messageBrowserPageSize = userPreferences.getInt("messageBrowserPageSize", 20);
         messageBrowserPageSizeField.setText(messageBrowserPageSize + "");
 
-        if (userPreferences.getBoolean("highlightRows", true))
+        if (userPreferences.getBoolean("highlightRows", true)) {
             rowHighlightYes.setSelected(true);
-        else
+        } else {
             rowHighlightNo.setSelected(true);
-        try
-        {
+        }
+        try {
             serverProperties = parent.mirthClient.getServerProperties();
 
-            if (serverProperties.getProperty("smtp.host") != null)
+            if (serverProperties.getProperty("smtp.host") != null) {
                 smtpHost.setText((String) serverProperties.getProperty("smtp.host"));
-            else
+            } else {
                 smtpHost.setText("");
+            }
 
-            if (serverProperties.getProperty("smtp.port") != null)
+            if (serverProperties.getProperty("smtp.port") != null) {
                 smtpPort.setText((String) serverProperties.getProperty("smtp.port"));
-            else
+            } else {
                 smtpPort.setText("");
+            }
 
-            if (serverProperties.getProperty("smtp.from") != null)
+            if (serverProperties.getProperty("smtp.from") != null) {
                 defaultFrom.setText((String) serverProperties.getProperty("smtp.from"));
-            else
+            } else {
                 defaultFrom.setText("");
-            
-            String smtpSecure = (String) serverProperties.getProperty("smtp.secure");
-            if (smtpSecure != null && smtpSecure.equalsIgnoreCase("tls"))
-                secureConnectionTLS.setSelected(true);
-            else if (smtpSecure != null && smtpSecure.equalsIgnoreCase("ssl"))
-                secureConnectionSSL.setSelected(true);
-            else
-                secureConnectionNone.setSelected(true);
+            }
 
-            if (serverProperties.getProperty("smtp.auth") != null)
-            {
-                if (serverProperties.getProperty("smtp.auth").equals(UIConstants.YES_OPTION))
-                {
+            String smtpSecure = (String) serverProperties.getProperty("smtp.secure");
+            if (smtpSecure != null && smtpSecure.equalsIgnoreCase("tls")) {
+                secureConnectionTLS.setSelected(true);
+            } else if (smtpSecure != null && smtpSecure.equalsIgnoreCase("ssl")) {
+                secureConnectionSSL.setSelected(true);
+            } else {
+                secureConnectionNone.setSelected(true);
+            }
+
+            if (serverProperties.getProperty("smtp.auth") != null) {
+                if (serverProperties.getProperty("smtp.auth").equals(UIConstants.YES_OPTION)) {
                     requireAuthenticationYes.setSelected(true);
                     requireAuthenticationYesActionPerformed(null);
-                }
-                else
-                {
+                } else {
                     requireAuthenticationNo.setSelected(true);
                     requireAuthenticationNoActionPerformed(null);
                 }
-            }
-            else
-            {
+            } else {
                 requireAuthenticationNo.setSelected(true);
                 requireAuthenticationNoActionPerformed(null);
             }
-            
-            if(serverProperties.getProperty("server.resetglobalvariables") != null)
-            {
-                if(serverProperties.getProperty("server.resetglobalvariables").equals(UIConstants.YES_OPTION))
+
+            if (serverProperties.getProperty("server.resetglobalvariables") != null) {
+                if (serverProperties.getProperty("server.resetglobalvariables").equals(UIConstants.YES_OPTION)) {
                     clearGlobalMapYes.setSelected(true);
-                else
+                } else {
                     clearGlobalMapNo.setSelected(true);
-            }
-            else
+                }
+            } else {
                 clearGlobalMapYes.setSelected(true);
-            
-            if(serverProperties.getProperty("update.enabled") != null)
-            {
-                if(serverProperties.getProperty("update.enabled").equals(UIConstants.YES_OPTION))
+            }
+
+            if (serverProperties.getProperty("update.enabled") != null) {
+                if (serverProperties.getProperty("update.enabled").equals(UIConstants.YES_OPTION)) {
                     checkForUpdatesYes.setSelected(true);
-                else
-                	checkForUpdatesNo.setSelected(true);
+                } else {
+                    checkForUpdatesNo.setSelected(true);
+                }
+            } else {
+                checkForUpdatesYes.setSelected(true);
             }
-            else
-            	checkForUpdatesYes.setSelected(true);
-            
-            if(serverProperties.getProperty("stats.enabled") != null)
-            {
-                if(serverProperties.getProperty("stats.enabled").equals(UIConstants.YES_OPTION))
+
+            if (serverProperties.getProperty("stats.enabled") != null) {
+                if (serverProperties.getProperty("stats.enabled").equals(UIConstants.YES_OPTION)) {
                     sendUsageStatsYes.setSelected(true);
-                else
-                	sendUsageStatsNo.setSelected(true);
+                } else {
+                    sendUsageStatsNo.setSelected(true);
+                }
+            } else {
+                sendUsageStatsYes.setSelected(true);
             }
-            else
-            	sendUsageStatsYes.setSelected(true);
-            
-            if (serverProperties.getProperty("update.url") != null)
+
+            if (serverProperties.getProperty("update.url") != null) {
                 updateUrl.setText((String) serverProperties.getProperty("update.url"));
-            else
-            	updateUrl.setText("");
+            } else {
+                updateUrl.setText("");
+            }
 
-            if (serverProperties.getProperty("smtp.username") != null)
+            if (serverProperties.getProperty("smtp.username") != null) {
                 smtpUsername.setText((String) serverProperties.getProperty("smtp.username"));
-            else
+            } else {
                 smtpUsername.setText("");
+            }
 
-            if (serverProperties.getProperty("smtp.password") != null)
+            if (serverProperties.getProperty("smtp.password") != null) {
                 smtpPassword.setText((String) serverProperties.getProperty("smtp.password"));
-            else
+            } else {
                 smtpPassword.setText("");
-            
+            }
+
             lastBackup.setText(userPreferences.get("lastBackup", "None"));
-        }
-        catch (ClientException e)
-        {
+        } catch (ClientException e) {
             parent.alertException(this, e.getStackTrace(), e.getMessage());
         }
     }
 
     /** Saves the current settings from the settings form */
-    public void saveSettings()
-    {
-        if (intervalTime.getText().length() == 0)
-        {
+    public void saveSettings() {
+        if (intervalTime.getText().length() == 0) {
             parent.alertWarning(this, "Please enter a valid interval time.");
             return;
         }
-        if (messageBrowserPageSizeField.getText().length() == 0)
-        {
+        if (messageBrowserPageSizeField.getText().length() == 0) {
             parent.alertWarning(this, "Please enter a valid message browser page size.");
             return;
         }
 
         int interval = Integer.parseInt(intervalTime.getText());
         int messageBrowserPageSize = Integer.parseInt(messageBrowserPageSizeField.getText());
-        
-        if (interval <= 0)
+
+        if (interval <= 0) {
             parent.alertWarning(this, "Please enter an interval time that is larger than 0.");
-        else if (messageBrowserPageSize <= 0)
+        } else if (messageBrowserPageSize <= 0) {
             parent.alertWarning(this, "Please enter an message browser page size larger than 0.");
-        else
-        {
+        } else {
             userPreferences.putInt("intervalTime", interval);
             userPreferences.putInt("messageBrowserPageSize", messageBrowserPageSize);
             userPreferences.putBoolean("highlightRows", rowHighlightYes.isSelected());
-            
-            if(clearGlobalMapNo.isSelected())
+
+            if (clearGlobalMapNo.isSelected()) {
                 serverProperties.put("server.resetglobalvariables", UIConstants.NO_OPTION);
-            else
+            } else {
                 serverProperties.put("server.resetglobalvariables", UIConstants.YES_OPTION);
-            
-            if(checkForUpdatesNo.isSelected())
+            }
+
+            if (checkForUpdatesNo.isSelected()) {
                 serverProperties.put("update.enabled", UIConstants.NO_OPTION);
-            else
+            } else {
                 serverProperties.put("update.enabled", UIConstants.YES_OPTION);
-            
-            if(sendUsageStatsNo.isSelected())
+            }
+
+            if (sendUsageStatsNo.isSelected()) {
                 serverProperties.put("stats.enabled", UIConstants.NO_OPTION);
-            else
+            } else {
                 serverProperties.put("stats.enabled", UIConstants.YES_OPTION);
-            
+            }
+
             serverProperties.put("update.url", updateUrl.getText());
-            
+
             serverProperties.put("smtp.host", smtpHost.getText());
             serverProperties.put("smtp.port", smtpPort.getText());
             serverProperties.put("smtp.from", defaultFrom.getText());
-            
-            if (secureConnectionTLS.isSelected())
-            	serverProperties.put("smtp.secure", "tls");
-            else if (secureConnectionSSL.isSelected())
-            	serverProperties.put("smtp.secure", "ssl");
-            else
-            	serverProperties.put("smtp.secure", "none");
 
-            if (requireAuthenticationYes.isSelected())
-            {
+            if (secureConnectionTLS.isSelected()) {
+                serverProperties.put("smtp.secure", "tls");
+            } else if (secureConnectionSSL.isSelected()) {
+                serverProperties.put("smtp.secure", "ssl");
+            } else {
+                serverProperties.put("smtp.secure", "none");
+            }
+
+            if (requireAuthenticationYes.isSelected()) {
                 serverProperties.put("smtp.auth", UIConstants.YES_OPTION);
                 serverProperties.put("smtp.username", smtpUsername.getText());
                 serverProperties.put("smtp.password", new String(smtpPassword.getPassword()));
-            }
-            else
-            {
+            } else {
                 serverProperties.put("smtp.auth", UIConstants.NO_OPTION);
                 serverProperties.put("smtp.username", "");
                 serverProperties.put("smtp.password", "");
             }
-            
-            try
-            {
+
+            try {
                 parent.mirthClient.setServerProperties(serverProperties);
-            }
-            catch (ClientException e)
-            {
+            } catch (ClientException e) {
                 parent.alertException(this, e.getStackTrace(), e.getMessage());
             }
             parent.settingsTasks.getContentPane().getComponent(1).setVisible(false);
         }
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel asteriskLabel;
     private javax.swing.JLabel asteriskLabel1;
@@ -1018,5 +964,4 @@ private void secureConnectionSSLActionPerformed(java.awt.event.ActionEvent evt) 
     private javax.swing.JLabel usageStatsMoreInfoLabel;
     private javax.swing.JLabel usernameLabel;
     // End of variables declaration//GEN-END:variables
-
 }

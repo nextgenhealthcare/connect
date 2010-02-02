@@ -22,7 +22,7 @@
     <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
-    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
     <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
@@ -183,7 +183,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="summaryDescriptionLabel" min="-2" max="-2" attributes="0"/>
-                          <Component id="jScrollPane1" pref="245" max="32767" attributes="0"/>
+                          <Component id="jScrollPane1" pref="247" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -537,7 +537,7 @@
                           <Component id="sourceSourceDropdown" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="sourceConnectorPane" pref="407" max="32767" attributes="0"/>
+                      <Component id="sourceConnectorPane" pref="409" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -658,8 +658,8 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="destinationVariableList" pref="236" max="32767" attributes="1"/>
-                          <Component id="destinationConnectorPane" alignment="0" pref="236" max="32767" attributes="1"/>
+                          <Component id="destinationVariableList" pref="238" max="32767" attributes="1"/>
+                          <Component id="destinationConnectorPane" alignment="0" pref="238" max="32767" attributes="1"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>

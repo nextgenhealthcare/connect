@@ -1,28 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.connectors.doc;
 
 import java.util.Properties;
@@ -38,34 +13,33 @@ import com.webreach.mirth.util.ConnectionTestResponse;
  * A form that extends from ConnectorClass. All methods implemented are
  * described in ConnectorClass.
  */
-public class DocumentWriter extends ConnectorClass
-{
+public class DocumentWriter extends ConnectorClass {
+
     /**
      * Creates new form DocumentWriter
      */
-
-    public DocumentWriter()
-    {
+    public DocumentWriter() {
         name = DocumentWriterProperties.name;
         initComponents();
     }
 
-    public Properties getProperties()
-    {
+    public Properties getProperties() {
         Properties properties = new Properties();
         properties.put(DocumentWriterProperties.DATATYPE, name);
         properties.put(DocumentWriterProperties.FILE_DIRECTORY, directoryField.getText().replace('\\', '/'));
         properties.put(DocumentWriterProperties.FILE_NAME, fileNameField.getText());
 
-        if (pdf.isSelected())
+        if (pdf.isSelected()) {
             properties.put(DocumentWriterProperties.DOCUMENT_TYPE, "pdf");
-        else
+        } else {
             properties.put(DocumentWriterProperties.DOCUMENT_TYPE, "rtf");
+        }
 
-        if (passwordYes.isSelected())
+        if (passwordYes.isSelected()) {
             properties.put(DocumentWriterProperties.DOCUMENT_PASSWORD_PROTECTED, UIConstants.YES_OPTION);
-        else
+        } else {
             properties.put(DocumentWriterProperties.DOCUMENT_PASSWORD_PROTECTED, UIConstants.NO_OPTION);
+        }
 
         properties.put(DocumentWriterProperties.DOCUMENT_PASSWORD, new String(passwordField.getPassword()));
         properties.put(DocumentWriterProperties.FILE_CONTENTS, fileContentsTextPane.getText());
@@ -73,91 +47,84 @@ public class DocumentWriter extends ConnectorClass
         return properties;
     }
 
-    public void setProperties(Properties props)
-    {
+    public void setProperties(Properties props) {
         resetInvalidProperties();
 
         directoryField.setText((String) props.get(DocumentWriterProperties.FILE_DIRECTORY));
         fileNameField.setText((String) props.get(DocumentWriterProperties.FILE_NAME));
 
-        if (((String) props.get(DocumentWriterProperties.DOCUMENT_PASSWORD_PROTECTED)).equalsIgnoreCase(UIConstants.YES_OPTION))
-        {
+        if (((String) props.get(DocumentWriterProperties.DOCUMENT_PASSWORD_PROTECTED)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             passwordYes.setSelected(true);
             passwordYesActionPerformed(null);
-        }
-        else
-        {
+        } else {
             passwordNo.setSelected(true);
             passwordNoActionPerformed(null);
         }
 
-        if (((String) props.get(DocumentWriterProperties.DOCUMENT_TYPE)).equals("pdf"))
+        if (((String) props.get(DocumentWriterProperties.DOCUMENT_TYPE)).equals("pdf")) {
             pdf.setSelected(true);
-        else
+        } else {
             rtf.setSelected(true);
+        }
 
         passwordField.setText((String) props.get(DocumentWriterProperties.DOCUMENT_PASSWORD));
 
         fileContentsTextPane.setText((String) props.get(DocumentWriterProperties.FILE_CONTENTS));
     }
 
-    public Properties getDefaults()
-    {
+    public Properties getDefaults() {
         return new DocumentWriterProperties().getDefaults();
     }
 
-    public boolean checkProperties(Properties props, boolean highlight)
-    {
+    public boolean checkProperties(Properties props, boolean highlight) {
         resetInvalidProperties();
         boolean valid = true;
 
-        if (((String) props.get(DocumentWriterProperties.FILE_DIRECTORY)).length() == 0)
-        {
+        if (((String) props.get(DocumentWriterProperties.FILE_DIRECTORY)).length() == 0) {
             valid = false;
-            if (highlight)
-            	directoryField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                directoryField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(DocumentWriterProperties.FILE_NAME)).length() == 0)
-        {
+        if (((String) props.get(DocumentWriterProperties.FILE_NAME)).length() == 0) {
             valid = false;
-            if (highlight)
-            	fileNameField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                fileNameField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(DocumentWriterProperties.FILE_CONTENTS)).length() == 0)
-        {
+        if (((String) props.get(DocumentWriterProperties.FILE_CONTENTS)).length() == 0) {
             valid = false;
-            if (highlight)
-            	fileContentsTextPane.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                fileContentsTextPane.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(DocumentWriterProperties.DOCUMENT_PASSWORD_PROTECTED)).equals(UIConstants.YES_OPTION))
-        {
-            if (((String) props.get(DocumentWriterProperties.DOCUMENT_PASSWORD)).length() == 0)
-            {
+        if (((String) props.get(DocumentWriterProperties.DOCUMENT_PASSWORD_PROTECTED)).equals(UIConstants.YES_OPTION)) {
+            if (((String) props.get(DocumentWriterProperties.DOCUMENT_PASSWORD)).length() == 0) {
                 valid = false;
-                if (highlight)
-                	passwordField.setBackground(UIConstants.INVALID_COLOR);
+                if (highlight) {
+                    passwordField.setBackground(UIConstants.INVALID_COLOR);
+                }
             }
         }
 
         return valid;
     }
 
-    private void resetInvalidProperties()
-    {
+    private void resetInvalidProperties() {
         directoryField.setBackground(null);
         fileNameField.setBackground(null);
         fileContentsTextPane.setBackground(null);
         passwordField.setBackground(null);
     }
-    
-    public String doValidate(Properties props, boolean highlight)
-    {
-    	String error = null;
-    	
-    	if (!checkProperties(props, highlight))
-    		error = "Error in the form for connector \"" + getName() + "\".\n\n";
-    	
-    	return error;
+
+    public String doValidate(Properties props, boolean highlight) {
+        String error = null;
+
+        if (!checkProperties(props, highlight)) {
+            error = "Error in the form for connector \"" + getName() + "\".\n\n";
+        }
+
+        return error;
     }
 
     /**
@@ -266,67 +233,67 @@ public class DocumentWriter extends ConnectorClass
             }
         });
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel5)
-                    .add(jLabel2)
-                    .add(jLabel1)
-                    .add(encryptedLabel)
-                    .add(passwordLabel)
-                    .add(jLabel3))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(directoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(testConnection))
-                    .add(fileNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(passwordYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(passwordNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(passwordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
-                    .add(layout.createSequentialGroup()
-                        .add(pdf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(rtf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel5)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel1)
+                    .addComponent(encryptedLabel)
+                    .addComponent(passwordLabel)
+                    .addComponent(jLabel3))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(directoryField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(testConnection))
+                    .addComponent(fileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(passwordYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(passwordNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(pdf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(rtf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
-                    .add(directoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(testConnection))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel2)
-                    .add(fileNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel5)
-                    .add(pdf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(rtf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(passwordYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(passwordNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(encryptedLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(passwordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(passwordLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel3)
-                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(directoryField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(testConnection))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(fileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(pdf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(rtf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(passwordYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(passwordNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(encryptedLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(passwordLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel3)
+                    .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 110, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -343,7 +310,7 @@ public class DocumentWriter extends ConnectorClass
 
                     if (response == null) {
                         throw new ClientException("Failed to invoke service.");
-                    } else if(response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
+                    } else if (response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
                         parent.alertInformation(parent, response.getMessage());
                     } else {
                         parent.alertWarning(parent, response.getMessage());
@@ -366,10 +333,11 @@ public class DocumentWriter extends ConnectorClass
 
     private void pdfActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_pdfActionPerformed
     {// GEN-HEADEREND:event_pdfActionPerformed
-        if (passwordYes.isSelected())
+        if (passwordYes.isSelected()) {
             passwordYesActionPerformed(null);
-        else
+        } else {
             passwordNoActionPerformed(null);
+        }
 
         encryptedLabel.setEnabled(true);
         passwordYes.setEnabled(true);
@@ -384,18 +352,15 @@ public class DocumentWriter extends ConnectorClass
         passwordNoActionPerformed(null);
     }// GEN-LAST:event_rtfActionPerformed
 
-    private void passwordNoActionPerformed(java.awt.event.ActionEvent evt)
-    {// GEN-FIRST:event_passwordNoActionPerformed
+    private void passwordNoActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_passwordNoActionPerformed
         passwordLabel.setEnabled(false);
         passwordField.setEnabled(false);
     }// GEN-LAST:event_passwordNoActionPerformed
 
-    private void passwordYesActionPerformed(java.awt.event.ActionEvent evt)
-    {// GEN-FIRST:event_passwordYesActionPerformed
+    private void passwordYesActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_passwordYesActionPerformed
         passwordLabel.setEnabled(true);
         passwordField.setEnabled(true);
     }// GEN-LAST:event_passwordYesActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
@@ -415,5 +380,4 @@ public class DocumentWriter extends ConnectorClass
     private com.webreach.mirth.client.ui.components.MirthRadioButton rtf;
     private javax.swing.JButton testConnection;
     // End of variables declaration//GEN-END:variables
-
 }

@@ -388,7 +388,7 @@ public class ManagerController {
         PlatformUI.MANAGER_TRAY.setStopButtonActive(stop);
         PlatformUI.MANAGER_TRAY.setRestartButtonActive(restart);
         PlatformUI.MANAGER_TRAY.setLaunchButtonActive(launch);
-        
+
         if (start) {
             PlatformUI.MANAGER_TRAY.setTrayIcon(ManagerTray.STOPPED);
         } else if (stop) {

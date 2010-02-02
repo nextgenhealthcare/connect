@@ -1,9 +1,3 @@
-/*
- * MessageTreeTemplate.java
- *
- * Created on February 2, 2007, 2:58 PM
- */
-
 package com.webreach.mirth.client.ui.editors;
 
 import java.awt.event.HierarchyEvent;
@@ -15,28 +9,22 @@ import javax.swing.border.TitledBorder;
 import com.webreach.mirth.client.ui.TemplatePanel;
 import com.webreach.mirth.client.ui.TreePanel;
 
-/**
- *
- * @author brendanh
- */
-public class MessageTemplatePanel extends javax.swing.JPanel
-{
-    protected MirthEditorPane parent;    
-    
+public class MessageTemplatePanel extends javax.swing.JPanel {
+
+    protected MirthEditorPane parent;
+
     /** Creates new form MessageTreeTemplate */
-    public MessageTemplatePanel()
-    {
+    public MessageTemplatePanel() {
         initComponents();
     }
-    
-    public MessageTemplatePanel(MirthEditorPane m)
-    {
+
+    public MessageTemplatePanel(MirthEditorPane m) {
         this.parent = m;
         initComponents();
-        
-        try
-        {
-            split.addHierarchyListener(new HierarchyListener(){
+
+        try {
+            split.addHierarchyListener(new HierarchyListener() {
+
                 public void hierarchyChanged(HierarchyEvent e) {
                     if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
                         split.setDividerLocation(.5); //There we set the initial divider locatino
@@ -44,132 +32,108 @@ public class MessageTemplatePanel extends javax.swing.JPanel
                     }
                 }
             });
-        }
-        catch (Exception e)
-        {
-            
+        } catch (Exception e) {
         }
         split.setOneTouchExpandable(true);
-        
-        ((TitledBorder)templatePanelInbound.getBorder()).setTitle("Inbound Message Template");
-        ((TitledBorder)templatePanelOutbound.getBorder()).setTitle("Outbound Message Template");
-        
+
+        ((TitledBorder) templatePanelInbound.getBorder()).setTitle("Inbound Message Template");
+        ((TitledBorder) templatePanelOutbound.getBorder()).setTitle("Outbound Message Template");
+
         templatePanelInbound.setDataTypeEnabled(false);
         templatePanelOutbound.setDataTypeEnabled(true);
     }
-    
-    public void hideOutbound()
-    {
+
+    public void hideOutbound() {
         split.setBottomComponent(null);
         split.setDividerSize(0);
         split.setOneTouchExpandable(false);
     }
-    
-    public void showOutbound()
-    {
+
+    public void showOutbound() {
         split.setBottomComponent(templatePanelOutbound);
         split.setDividerSize(6);
         split.setDividerLocation(.5);
         split.setResizeWeight(.5);
         split.setOneTouchExpandable(true);
     }
-    
-    public void setInboundTreePanel(TreePanel tree)
-    {
+
+    public void setInboundTreePanel(TreePanel tree) {
         templatePanelInbound.setTreePanel(tree);
     }
-    
-    public void setOutboundTreePanel(TreePanel tree)
-    {
+
+    public void setOutboundTreePanel(TreePanel tree) {
         templatePanelOutbound.setTreePanel(tree);
     }
-    
-    public TemplatePanel getInboundTemplatePanel()
-    {
+
+    public TemplatePanel getInboundTemplatePanel() {
         return templatePanelInbound;
     }
-    
-    public TemplatePanel getOutboundTemplatePanel()
-    {
+
+    public TemplatePanel getOutboundTemplatePanel() {
         return templatePanelOutbound;
     }
-    
-    public String getInboundMessage()
-    {
+
+    public String getInboundMessage() {
         return templatePanelInbound.getMessage();
     }
-    
-    public String getOutboundMessage()
-    {
+
+    public String getOutboundMessage() {
         return templatePanelOutbound.getMessage();
     }
-    
-    public void setInboundMessage(String msg)
-    {
+
+    public void setInboundMessage(String msg) {
         templatePanelInbound.setMessage(msg);
     }
-    
-    public void setOutboundMessage(String msg)
-    {
+
+    public void setOutboundMessage(String msg) {
         templatePanelOutbound.setMessage(msg);
     }
-    
-    public void clearInboundMessage()
-    {
+
+    public void clearInboundMessage() {
         templatePanelInbound.clearMessage();
     }
-    
-    public void clearOutboundMessage()
-    {
+
+    public void clearOutboundMessage() {
         templatePanelOutbound.clearMessage();
     }
-    
-    public void setInboundProtocol(String protocol)
-    {
+
+    public void setInboundProtocol(String protocol) {
         templatePanelInbound.setProtocol(protocol);
     }
-    
-    public void setOutboundProtocol(String protocol)
-    {
+
+    public void setOutboundProtocol(String protocol) {
         templatePanelOutbound.setProtocol(protocol);
     }
-    
-    public String getInboundProtocol()
-    {
+
+    public String getInboundProtocol() {
         return templatePanelInbound.getProtocol();
     }
-    
-    public String getOutboundProtocol()
-    {
+
+    public String getOutboundProtocol() {
         return templatePanelOutbound.getProtocol();
     }
-    
-    public Properties getInboundDataProperties()
-    {
+
+    public Properties getInboundDataProperties() {
         return templatePanelInbound.getDataProperties();
     }
-    
-    public Properties getOutboundDataProperties()
-    {
+
+    public Properties getOutboundDataProperties() {
         return templatePanelOutbound.getDataProperties();
     }
-    
-    public void setInboundDataProperties(Properties p)
-    {
+
+    public void setInboundDataProperties(Properties p) {
         templatePanelInbound.setDataProperties(p);
     }
-    
-    public void setOutboundDataProperties(Properties p)
-    {
+
+    public void setOutboundDataProperties(Properties p) {
         templatePanelOutbound.setDataProperties(p);
     }
-    
-    public void resizePanes()
-    {
+
+    public void resizePanes() {
         split.setDividerLocation(.5);
         split.setResizeWeight(.5);
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -177,8 +141,7 @@ public class MessageTemplatePanel extends javax.swing.JPanel
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents()
-    {
+    private void initComponents() {
 
         split = new javax.swing.JSplitPane();
         templatePanelInbound = new TemplatePanel(parent);
@@ -192,23 +155,20 @@ public class MessageTemplatePanel extends javax.swing.JPanel
         split.setLeftComponent(templatePanelInbound);
         split.setRightComponent(templatePanelOutbound);
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, split, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(split, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, split, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 500, Short.MAX_VALUE)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(split, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 500, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
-                                    
-    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JSplitPane split;
     private com.webreach.mirth.client.ui.TemplatePanel templatePanelInbound;
     private com.webreach.mirth.client.ui.TemplatePanel templatePanelOutbound;
     // End of variables declaration//GEN-END:variables
-    
 }

@@ -1,28 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.connectors.email;
 
 import java.awt.Component;
@@ -55,8 +30,8 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
  * A form that extends from ConnectorClass. All methods implemented are
  * described in ConnectorClass.
  */
-public class EmailSender extends ConnectorClass
-{
+public class EmailSender extends ConnectorClass {
+
     private final int NAME_COLUMN = 0;
     private final int CONTENT_COLUMN = 1;
     private final int MIME_TYPE_COLUMN = 2;
@@ -64,16 +39,14 @@ public class EmailSender extends ConnectorClass
     private final String CONTENT_COLUMN_NAME = "Content";
     private final String MIME_TYPE_COLUMN_NAME = "MIME type";
     private int attachmentsLastIndex = -1;
-    
+
     /** Creates new form EmailSender */
-    public EmailSender()
-    {
+    public EmailSender() {
         name = EmailSenderProperties.name;
         initComponents();
     }
 
-    public Properties getProperties()
-    {
+    public Properties getProperties() {
         Properties properties = new Properties();
         properties.put(EmailSenderProperties.DATATYPE, name);
 
@@ -85,13 +58,14 @@ public class EmailSender extends ConnectorClass
 
         properties.put(EmailSenderProperties.EMAIL_ADDRESS, SMTPServerHostField.getText());
         properties.put(EmailSenderProperties.EMAIL_PORT, SMTPServerPortField.getText());
-        
-        if (secureConnectionTLS.isSelected())
+
+        if (secureConnectionTLS.isSelected()) {
             properties.put(EmailSenderProperties.EMAIL_SECURE, "tls");
-        else if (secureConnectionSSL.isSelected())
-        	properties.put(EmailSenderProperties.EMAIL_SECURE, "ssl");
-        else
-        	properties.put(EmailSenderProperties.EMAIL_SECURE, "none");
+        } else if (secureConnectionSSL.isSelected()) {
+            properties.put(EmailSenderProperties.EMAIL_SECURE, "ssl");
+        } else {
+            properties.put(EmailSenderProperties.EMAIL_SECURE, "none");
+        }
 
         if (useAuthenticationYes.isSelected()) {
             properties.put(EmailSenderProperties.EMAIL_USE_AUTHENTICATION, UIConstants.YES_OPTION);
@@ -104,264 +78,244 @@ public class EmailSender extends ConnectorClass
         properties.put(EmailSenderProperties.EMAIL_TO, emailToField.getText());
         properties.put(EmailSenderProperties.EMAIL_FROM, emailFromField.getText());
         properties.put(EmailSenderProperties.EMAIL_SUBJECT, emailSubjectField.getText());
-        
-        if (contentTypeHTMLButton.isSelected())
+
+        if (contentTypeHTMLButton.isSelected()) {
             properties.put(EmailSenderProperties.EMAIL_CONTENT_TYPE, "text/html");
-        else
+        } else {
             properties.put(EmailSenderProperties.EMAIL_CONTENT_TYPE, "text/plain");
-        
+        }
+
         properties.put(EmailSenderProperties.EMAIL_BODY, emailBodyTextPane.getText());
-        
+
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         ArrayList<ArrayList<String>> attachments = getAttachments();
         properties.put(EmailSenderProperties.EMAIL_ATTACHMENT_NAMES, serializer.toXML(attachments.get(0)));
         properties.put(EmailSenderProperties.EMAIL_ATTACHMENT_CONTENTS, serializer.toXML(attachments.get(1)));
         properties.put(EmailSenderProperties.EMAIL_ATTACHMENT_TYPES, serializer.toXML(attachments.get(2)));
-        
+
         return properties;
     }
 
-    public void setProperties(Properties props)
-    {
+    public void setProperties(Properties props) {
         resetInvalidProperties();
 
-        if (((String) props.get(EmailSenderProperties.EMAIL_USE_SERVER_SETTINGS)).equalsIgnoreCase(UIConstants.YES_OPTION))
-        {
+        if (((String) props.get(EmailSenderProperties.EMAIL_USE_SERVER_SETTINGS)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             useServerSettingsYesRadioActionPerformed(null);
             useServerSettingsYesRadio.setSelected(true);
-        }
-        else
-        {
+        } else {
             useServerSettingsNoRadioActionPerformed(null);
             useServerSettingsNoRadio.setSelected(true);
         }
 
         SMTPServerHostField.setText((String) props.get(EmailSenderProperties.EMAIL_ADDRESS));
         SMTPServerPortField.setText((String) props.get(EmailSenderProperties.EMAIL_PORT));
-        
-        if (((String) props.getProperty(EmailSenderProperties.EMAIL_SECURE)).equalsIgnoreCase("tls"))
+
+        if (((String) props.getProperty(EmailSenderProperties.EMAIL_SECURE)).equalsIgnoreCase("tls")) {
             secureConnectionTLS.setSelected(true);
-        else if (((String) props.getProperty(EmailSenderProperties.EMAIL_SECURE)).equalsIgnoreCase("ssl"))
+        } else if (((String) props.getProperty(EmailSenderProperties.EMAIL_SECURE)).equalsIgnoreCase("ssl")) {
             secureConnectionSSL.setSelected(true);
-        else
+        } else {
             secureConnectionNone.setSelected(true);
-        
-        if (((String) props.get(EmailSenderProperties.EMAIL_USE_AUTHENTICATION)).equalsIgnoreCase(UIConstants.YES_OPTION))
-        {
+        }
+
+        if (((String) props.get(EmailSenderProperties.EMAIL_USE_AUTHENTICATION)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             useAuthenticationYesActionPerformed(null);
             useAuthenticationYes.setSelected(true);
-        }
-        else
-        {
+        } else {
             useAuthenticationNoActionPerformed(null);
             useAuthenticationNo.setSelected(true);
         }
-        
+
         usernameField.setText((String) props.get(EmailSenderProperties.EMAIL_USERNAME));
         passwordField.setText((String) props.get(EmailSenderProperties.EMAIL_PASSWORD));
         emailToField.setText((String) props.get(EmailSenderProperties.EMAIL_TO));
         emailFromField.setText((String) props.get(EmailSenderProperties.EMAIL_FROM));
         emailSubjectField.setText((String) props.get(EmailSenderProperties.EMAIL_SUBJECT));
-        
-        if (((String) props.get(EmailSenderProperties.EMAIL_CONTENT_TYPE)).equalsIgnoreCase("text/html"))
-        	contentTypeHTMLButton.setSelected(true);
-        else
-        	contentTypePlainButton.setSelected(true);
-        
+
+        if (((String) props.get(EmailSenderProperties.EMAIL_CONTENT_TYPE)).equalsIgnoreCase("text/html")) {
+            contentTypeHTMLButton.setSelected(true);
+        } else {
+            contentTypePlainButton.setSelected(true);
+        }
+
         emailBodyTextPane.setText((String) props.get(EmailSenderProperties.EMAIL_BODY));
-        
+
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-        
+
         ArrayList<ArrayList<String>> attachments = new ArrayList<ArrayList<String>>();
         ArrayList<String> attachmentNames = new ArrayList<String>();
-    	ArrayList<String> attachmentContents = new ArrayList<String>();
-    	ArrayList<String> attachmentTypes = new ArrayList<String>();
-        
+        ArrayList<String> attachmentContents = new ArrayList<String>();
+        ArrayList<String> attachmentTypes = new ArrayList<String>();
+
         if (((String) props.get(EmailSenderProperties.EMAIL_ATTACHMENT_NAMES)).length() > 0) {
-        	attachmentNames = (ArrayList<String>) serializer.fromXML((String) props.get(EmailSenderProperties.EMAIL_ATTACHMENT_NAMES));
-        	attachmentContents = (ArrayList<String>) serializer.fromXML((String) props.get(EmailSenderProperties.EMAIL_ATTACHMENT_CONTENTS));
-        	attachmentTypes = (ArrayList<String>) serializer.fromXML((String) props.get(EmailSenderProperties.EMAIL_ATTACHMENT_TYPES));
+            attachmentNames = (ArrayList<String>) serializer.fromXML((String) props.get(EmailSenderProperties.EMAIL_ATTACHMENT_NAMES));
+            attachmentContents = (ArrayList<String>) serializer.fromXML((String) props.get(EmailSenderProperties.EMAIL_ATTACHMENT_CONTENTS));
+            attachmentTypes = (ArrayList<String>) serializer.fromXML((String) props.get(EmailSenderProperties.EMAIL_ATTACHMENT_TYPES));
         }
-        
-    	attachments.add(attachmentNames);
-    	attachments.add(attachmentContents);
-    	attachments.add(attachmentTypes);
-    	
-    	setAttachments(attachments);
+
+        attachments.add(attachmentNames);
+        attachments.add(attachmentContents);
+        attachments.add(attachmentTypes);
+
+        setAttachments(attachments);
     }
 
-    public Properties getDefaults()
-    {
+    public Properties getDefaults() {
         return new EmailSenderProperties().getDefaults();
     }
 
-    public boolean checkProperties(Properties props, boolean highlight)
-    {
+    public boolean checkProperties(Properties props, boolean highlight) {
         resetInvalidProperties();
         boolean valid = true;
-        
-        if (((String) props.get(EmailSenderProperties.EMAIL_ADDRESS)).length() == 0)
-        {
+
+        if (((String) props.get(EmailSenderProperties.EMAIL_ADDRESS)).length() == 0) {
             valid = false;
-            if (highlight)
-            	SMTPServerHostField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                SMTPServerHostField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(EmailSenderProperties.EMAIL_PORT)).length() == 0)
-        {
+        if (((String) props.get(EmailSenderProperties.EMAIL_PORT)).length() == 0) {
             valid = false;
-            if (highlight)
-            	SMTPServerPortField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                SMTPServerPortField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        if (((String) props.get(EmailSenderProperties.EMAIL_TO)).length() == 0)
-        {
+        if (((String) props.get(EmailSenderProperties.EMAIL_TO)).length() == 0) {
             valid = false;
-            if (highlight)
-            	emailToField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                emailToField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        
+
         return valid;
     }
-    
-    private void resetInvalidProperties()
-    {
+
+    private void resetInvalidProperties() {
         SMTPServerHostField.setBackground(null);
         SMTPServerPortField.setBackground(null);
         emailToField.setBackground(null);
     }
-    
-    public String doValidate(Properties props, boolean highlight)
-    {
-    	String error = null;
-    	
-    	if (!checkProperties(props, highlight))
-    		error = "Error in the form for connector \"" + getName() + "\".\n\n";
-    	
-    	return error;
+
+    public String doValidate(Properties props, boolean highlight) {
+        String error = null;
+
+        if (!checkProperties(props, highlight)) {
+            error = "Error in the form for connector \"" + getName() + "\".\n\n";
+        }
+
+        return error;
     }
-    
-    public void setAttachments(ArrayList<ArrayList<String>> attachments)
-    {
-    	ArrayList<String> attachmentNames = attachments.get(0);
-    	ArrayList<String> attachmentContents = attachments.get(1);
-    	ArrayList<String> attachmentTypes = attachments.get(2);
-    	
+
+    public void setAttachments(ArrayList<ArrayList<String>> attachments) {
+        ArrayList<String> attachmentNames = attachments.get(0);
+        ArrayList<String> attachmentContents = attachments.get(1);
+        ArrayList<String> attachmentTypes = attachments.get(2);
+
         Object[][] tableData = new Object[attachmentNames.size()][3];
-        
+
         attachmentsTable = new MirthTable();
-        
-        for (int i = 0; i < attachmentNames.size(); i++)
-        {
-        	tableData[i][NAME_COLUMN] = attachmentNames.get(i);
+
+        for (int i = 0; i < attachmentNames.size(); i++) {
+            tableData[i][NAME_COLUMN] = attachmentNames.get(i);
             tableData[i][CONTENT_COLUMN] = attachmentContents.get(i);
             tableData[i][MIME_TYPE_COLUMN] = attachmentTypes.get(i);
         }
-        
-        attachmentsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { NAME_COLUMN_NAME, CONTENT_COLUMN_NAME, MIME_TYPE_COLUMN_NAME })
-        {
-            boolean[] canEdit = new boolean[] { true, true, true };
-            
-            public boolean isCellEditable(int rowIndex, int columnIndex)
-            {
+
+        attachmentsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[]{NAME_COLUMN_NAME, CONTENT_COLUMN_NAME, MIME_TYPE_COLUMN_NAME}) {
+
+            boolean[] canEdit = new boolean[]{true, true, true};
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit[columnIndex];
             }
         });
-        
-        attachmentsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
-        {
-            public void valueChanged(ListSelectionEvent evt)
-            {
-                if (getSelectedRow(attachmentsTable) != -1)
-                {
+
+        attachmentsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+            public void valueChanged(ListSelectionEvent evt) {
+                if (getSelectedRow(attachmentsTable) != -1) {
                     attachmentsLastIndex = getSelectedRow(attachmentsTable);
                     deleteButton.setEnabled(true);
-                }
-                else
+                } else {
                     deleteButton.setEnabled(false);
+                }
             }
         });
-        
-        class AttachmentsTableCellEditor extends AbstractCellEditor implements TableCellEditor
-        {
+
+        class AttachmentsTableCellEditor extends AbstractCellEditor implements TableCellEditor {
+
             JComponent component = new JTextField();
-            
             Object originalValue;
-            
             boolean checkAttachments;
-            
-            public AttachmentsTableCellEditor(boolean checkAttachments)
-            {
+
+            public AttachmentsTableCellEditor(boolean checkAttachments) {
                 super();
                 this.checkAttachments = checkAttachments;
             }
-            
-            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
-            {
+
+            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
                 // 'value' is value contained in the cell located at (rowIndex,
                 // vColIndex)
                 originalValue = value;
-                
-                if (isSelected)
-                {
+
+                if (isSelected) {
                     // cell (and perhaps other cells) are selected
                 }
-                
+
                 // Configure the component with the specified value
                 ((JTextField) component).setText((String) value);
-                
+
                 // Return the configured component
                 return component;
             }
-            
-            public Object getCellEditorValue()
-            {
+
+            public Object getCellEditorValue() {
                 return ((JTextField) component).getText();
             }
-            
-            public boolean stopCellEditing()
-            {
+
+            public boolean stopCellEditing() {
                 String s = (String) getCellEditorValue();
-                
-                if (checkAttachments && (s.length() == 0 || checkUniqueAttachment(s)))
+
+                if (checkAttachments && (s.length() == 0 || checkUniqueAttachment(s))) {
                     super.cancelCellEditing();
-                else
+                } else {
                     parent.enableSave();
-                
+                }
+
                 deleteButton.setEnabled(true);
-                
+
                 return super.stopCellEditing();
             }
-            
-            public boolean checkUniqueAttachment(String attachmentName)
-            {
+
+            public boolean checkUniqueAttachment(String attachmentName) {
                 boolean exists = false;
-                
-                for (int i = 0; i < attachmentsTable.getRowCount(); i++)
-                {
-                    if (attachmentsTable.getValueAt(i, NAME_COLUMN) != null && ((String) attachmentsTable.getValueAt(i, NAME_COLUMN)).equalsIgnoreCase(attachmentName))
+
+                for (int i = 0; i < attachmentsTable.getRowCount(); i++) {
+                    if (attachmentsTable.getValueAt(i, NAME_COLUMN) != null && ((String) attachmentsTable.getValueAt(i, NAME_COLUMN)).equalsIgnoreCase(attachmentName)) {
                         exists = true;
+                    }
                 }
-                
+
                 return exists;
             }
-            
+
             /**
              * Enables the editor only for double-clicks.
              */
-            public boolean isCellEditable(EventObject evt)
-            {
-                if (evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2)
-                {
+            public boolean isCellEditable(EventObject evt) {
+                if (evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2) {
                     deleteButton.setEnabled(false);
                     return true;
                 }
                 return false;
             }
-        };
-        
+        }
+        ;
+
         attachmentsTable.getColumnModel().getColumn(attachmentsTable.getColumnModel().getColumnIndex(NAME_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(true));
         attachmentsTable.getColumnModel().getColumn(attachmentsTable.getColumnModel().getColumnIndex(CONTENT_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(false));
         attachmentsTable.getColumnModel().getColumn(attachmentsTable.getColumnModel().getColumnIndex(MIME_TYPE_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(false));
-        
+
         attachmentsTable.setSelectionMode(0);
         attachmentsTable.setRowSelectionAllowed(true);
         attachmentsTable.setRowHeight(UIConstants.ROW_HEIGHT);
@@ -369,75 +323,68 @@ public class EmailSender extends ConnectorClass
         attachmentsTable.setOpaque(true);
         attachmentsTable.setSortable(false);
         attachmentsTable.getTableHeader().setReorderingAllowed(false);
-        
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
-        {
-        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
-        	attachmentsTable.setHighlighters(highlighter);
+
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+            Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+            attachmentsTable.setHighlighters(highlighter);
         }
-        
+
         attachmentsPane.setViewportView(attachmentsTable);
     }
-    
+
     public ArrayList<ArrayList<String>> getAttachments() {
         ArrayList<ArrayList<String>> attachments = new ArrayList<ArrayList<String>>();
-        
+
         ArrayList<String> attachmentNames = new ArrayList<String>();
         ArrayList<String> attachmentContents = new ArrayList<String>();
         ArrayList<String> attachmentTypes = new ArrayList<String>();
-        
-        for (int i = 0; i < attachmentsTable.getRowCount(); i++)
-        {
-            if (((String) attachmentsTable.getValueAt(i, NAME_COLUMN)).length() > 0)
-            {
-                attachmentNames.add((String)attachmentsTable.getValueAt(i, NAME_COLUMN));
-                attachmentContents.add((String)attachmentsTable.getValueAt(i, CONTENT_COLUMN));
-                attachmentTypes.add((String)attachmentsTable.getValueAt(i, MIME_TYPE_COLUMN));
+
+        for (int i = 0; i < attachmentsTable.getRowCount(); i++) {
+            if (((String) attachmentsTable.getValueAt(i, NAME_COLUMN)).length() > 0) {
+                attachmentNames.add((String) attachmentsTable.getValueAt(i, NAME_COLUMN));
+                attachmentContents.add((String) attachmentsTable.getValueAt(i, CONTENT_COLUMN));
+                attachmentTypes.add((String) attachmentsTable.getValueAt(i, MIME_TYPE_COLUMN));
             }
         }
-        
+
         attachments.add(attachmentNames);
         attachments.add(attachmentContents);
         attachments.add(attachmentTypes);
-        
+
         return attachments;
     }
-    
+
     /** Clears the selection in the table and sets the tasks appropriately */
-    public void deselectRows(MirthTable table, JButton button)
-    {
+    public void deselectRows(MirthTable table, JButton button) {
         table.clearSelection();
         button.setEnabled(false);
     }
-    
+
     /** Get the currently selected table index */
-    public int getSelectedRow(MirthTable table)
-    {
-        if (table.isEditing())
+    public int getSelectedRow(MirthTable table) {
+        if (table.isEditing()) {
             return table.getEditingRow();
-        else
+        } else {
             return table.getSelectedRow();
+        }
     }
-    
+
     /**
      * Get the name that should be used for a new property so that it is unique.
      */
-    private String getNewAttachmentName(MirthTable table)
-    {
+    private String getNewAttachmentName(MirthTable table) {
         String temp = "Attachment ";
-        
-        for (int i = 1; i <= table.getRowCount() + 1; i++)
-        {
+
+        for (int i = 1; i <= table.getRowCount() + 1; i++) {
             boolean exists = false;
-            for (int j = 0; j < table.getRowCount(); j++)
-            {
-                if (((String) table.getValueAt(j, NAME_COLUMN)).equalsIgnoreCase(temp + i))
-                {
+            for (int j = 0; j < table.getRowCount(); j++) {
+                if (((String) table.getValueAt(j, NAME_COLUMN)).equalsIgnoreCase(temp + i)) {
                     exists = true;
                 }
             }
-            if (!exists)
+            if (!exists) {
                 return temp + i;
+            }
         }
         return "";
     }
@@ -662,148 +609,147 @@ public class EmailSender extends ConnectorClass
             }
         });
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(useServerSettingsLabel)
-                    .add(useAuthenticationLabel)
-                    .add(usernameLabel)
-                    .add(passwordLabel)
-                    .add(jLabel5)
-                    .add(jLabel8)
-                    .add(jLabel6)
-                    .add(contentTypeLabel)
-                    .add(jLabel7)
-                    .add(jLabel9)
-                    .add(secureConnectionLabel)
-                    .add(SMTPServerPortLabel)
-                    .add(SMTPServerHostLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(useAuthenticationYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(useAuthenticationNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(contentTypeHTMLButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(contentTypePlainButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(emailSubjectField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(emailFromField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(emailToField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(passwordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(usernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(SMTPServerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(SMTPServerHostField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(attachmentsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 233, Short.MAX_VALUE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                            .add(newButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(deleteButton)))
-                    .add(emailBodyTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 302, Short.MAX_VALUE)
-                    .add(layout.createSequentialGroup()
-                        .add(secureConnectionNone, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(secureConnectionTLS, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(secureConnectionSSL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(useServerSettingsYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(useServerSettingsNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(useServerSettingsLabel)
+                    .addComponent(useAuthenticationLabel)
+                    .addComponent(usernameLabel)
+                    .addComponent(passwordLabel)
+                    .addComponent(jLabel5)
+                    .addComponent(jLabel8)
+                    .addComponent(jLabel6)
+                    .addComponent(contentTypeLabel)
+                    .addComponent(jLabel7)
+                    .addComponent(jLabel9)
+                    .addComponent(secureConnectionLabel)
+                    .addComponent(SMTPServerPortLabel)
+                    .addComponent(SMTPServerHostLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(useAuthenticationYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(useAuthenticationNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(contentTypeHTMLButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(contentTypePlainButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(emailSubjectField, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(emailFromField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(emailToField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(SMTPServerPortField, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(SMTPServerHostField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(attachmentsPane, javax.swing.GroupLayout.DEFAULT_SIZE, 233, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(newButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(deleteButton)))
+                    .addComponent(emailBodyTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 302, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(secureConnectionNone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(secureConnectionTLS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(secureConnectionSSL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(useServerSettingsYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(useServerSettingsNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(useServerSettingsLabel)
-                    .add(useServerSettingsYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(useServerSettingsNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(SMTPServerHostLabel)
-                    .add(SMTPServerHostField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(SMTPServerPortLabel)
-                    .add(SMTPServerPortField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(secureConnectionLabel)
-                    .add(secureConnectionNone, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(secureConnectionTLS, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(secureConnectionSSL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(useAuthenticationYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(useAuthenticationNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(useAuthenticationLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(usernameLabel)
-                    .add(usernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(passwordLabel)
-                    .add(passwordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel5)
-                    .add(emailToField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel8)
-                    .add(emailFromField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel6)
-                    .add(emailSubjectField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(contentTypeLabel)
-                    .add(contentTypeHTMLButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(contentTypePlainButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel7)
-                    .add(emailBodyTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 71, Short.MAX_VALUE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel9)
-                    .add(attachmentsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE)
-                    .add(layout.createSequentialGroup()
-                        .add(newButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(deleteButton)))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(useServerSettingsLabel)
+                    .addComponent(useServerSettingsYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(useServerSettingsNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(SMTPServerHostLabel)
+                    .addComponent(SMTPServerHostField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(SMTPServerPortLabel)
+                    .addComponent(SMTPServerPortField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(secureConnectionLabel)
+                    .addComponent(secureConnectionNone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(secureConnectionTLS, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(secureConnectionSSL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(useAuthenticationYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(useAuthenticationNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(useAuthenticationLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(usernameLabel)
+                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(passwordLabel)
+                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(emailToField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel8)
+                    .addComponent(emailFromField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(emailSubjectField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(contentTypeLabel)
+                    .addComponent(contentTypeHTMLButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(contentTypePlainButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel7)
+                    .addComponent(emailBodyTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 71, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel9)
+                    .addComponent(attachmentsPane, javax.swing.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(newButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(deleteButton)))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
 private void newButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newButtonActionPerformed
-    ((DefaultTableModel) attachmentsTable.getModel()).addRow(new Object[] { getNewAttachmentName(attachmentsTable), "" });
+    ((DefaultTableModel) attachmentsTable.getModel()).addRow(new Object[]{getNewAttachmentName(attachmentsTable), ""});
     attachmentsTable.setRowSelectionInterval(attachmentsTable.getRowCount() - 1, attachmentsTable.getRowCount() - 1);
     parent.enableSave();
 }//GEN-LAST:event_newButtonActionPerformed
 
 private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
-    if (getSelectedRow(attachmentsTable) != -1 && !attachmentsTable.isEditing())
-    {
+    if (getSelectedRow(attachmentsTable) != -1 && !attachmentsTable.isEditing()) {
         ((DefaultTableModel) attachmentsTable.getModel()).removeRow(getSelectedRow(attachmentsTable));
 
-        if (attachmentsTable.getRowCount() != 0)
-        {
-            if (attachmentsLastIndex == 0)
+        if (attachmentsTable.getRowCount() != 0) {
+            if (attachmentsLastIndex == 0) {
                 attachmentsTable.setRowSelectionInterval(0, 0);
-            else if (attachmentsLastIndex == attachmentsTable.getRowCount())
+            } else if (attachmentsLastIndex == attachmentsTable.getRowCount()) {
                 attachmentsTable.setRowSelectionInterval(attachmentsLastIndex - 1, attachmentsLastIndex - 1);
-            else
+            } else {
                 attachmentsTable.setRowSelectionInterval(attachmentsLastIndex, attachmentsLastIndex);
+            }
         }
 
         parent.enableSave();
@@ -879,7 +825,6 @@ private void useServerSettingsNoRadioActionPerformed(java.awt.event.ActionEvent 
         useAuthenticationNoActionPerformed(null);
     }
 }//GEN-LAST:event_useServerSettingsNoRadioActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.webreach.mirth.client.ui.components.MirthTextField SMTPServerHostField;
     private javax.swing.JLabel SMTPServerHostLabel;
@@ -920,5 +865,4 @@ private void useServerSettingsNoRadioActionPerformed(java.awt.event.ActionEvent 
     private com.webreach.mirth.client.ui.components.MirthTextField usernameField;
     private javax.swing.JLabel usernameLabel;
     // End of variables declaration//GEN-END:variables
-
 }

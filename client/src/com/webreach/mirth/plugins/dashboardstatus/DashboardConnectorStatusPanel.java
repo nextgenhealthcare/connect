@@ -1,9 +1,3 @@
-/*
- * DashboardConnectorStatusPanel.java
- *
- * Created on October 10, 2007, 3:40 PM
- */
-
 package com.webreach.mirth.plugins.dashboardstatus;
 
 import java.awt.event.ActionEvent;
@@ -41,13 +35,10 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
     private static final String CONNECTOR_INFO_COLUMN_HEADER = "Connector Info";
     private static final String EVENT_COLUMN_HEADER = "Event";
     private static final String INFORMATION_COLUMN_HEADER = "Info";
-    
     private static final int PAUSED = 0;
     private static final int RESUMED = 1;
     private HashMap<String, Integer> channelStates = new HashMap<String, Integer>();
-    
     private JPopupMenu rightclickPopup;
-
     private ImageIcon greenBullet;      //  CONNECTED
     private ImageIcon yellowBullet;     //  BUSY
     private ImageIcon redBullet;        //  DISCONNECTED
@@ -61,11 +52,9 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
     private Frame parent;
     private int currentDashboardLogSize;
 
-
     /** Creates new form DashboardConnectorStatusPanel */
-    public DashboardConnectorStatusPanel(DashboardConnectorStatusClient dcsc)
-    {
-        this.parent = PlatformUI.MIRTH_FRAME;        
+    public DashboardConnectorStatusPanel(DashboardConnectorStatusClient dcsc) {
+        this.parent = PlatformUI.MIRTH_FRAME;
         this.dcsc = dcsc;
         greenBullet = new ImageIcon(Frame.class.getResource("images/bullet_green.png"));
         yellowBullet = new ImageIcon(Frame.class.getResource("images/bullet_yellow.png"));
@@ -76,7 +65,7 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
 
         initComponents();
         initLayouts();
-        
+
         clearLog.setIcon(UIConstants.CLEAR_LOG_ICON);
         clearLog.setToolTipText("Clear Displayed Log");
 
@@ -93,54 +82,28 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
     }
 
     /*
-        This method overwrites the setting layout part in initComponent generated code by NetBeans, because NetBeans wouldn't support the vertical alignment well enough.
+    This method overwrites the setting layout part in initComponent generated code by NetBeans, because NetBeans wouldn't support the vertical alignment well enough.
      */
     public void initLayouts() {
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(2, 2, 2)
-                .add(pauseResume, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(2, 2, 2)
-                .add(clearLog, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 336, Short.MAX_VALUE)
-                .add(logSizeText)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(logSizeTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 45, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(2, 2, 2)
-                .add(logSizeChange, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(2, 2, 2))
-            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
-        );
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addGap(2, 2, 2).addComponent(pauseResume, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addGap(2, 2, 2).addComponent(clearLog, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 336, Short.MAX_VALUE).addComponent(logSizeText).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(logSizeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE).addGap(2, 2, 2).addComponent(logSizeChange, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addGap(2, 2, 2)).addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE));
 
-        layout.linkSize(new java.awt.Component[] {clearLog, logSizeChange, pauseResume}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[]{clearLog, logSizeChange, pauseResume});
 
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 345, Short.MAX_VALUE)
-                .add(2, 2, 2)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.CENTER)
-                    .add(pauseResume, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(clearLog, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(logSizeChange, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(logSizeTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(logSizeText))
-                .add(2, 2, 2))
-        );
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup().addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 345, Short.MAX_VALUE).addGap(0, 0, 0).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE).addComponent(pauseResume, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(clearLog, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(logSizeChange, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(logSizeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(logSizeText))));
 
-        layout.linkSize(new java.awt.Component[] {clearLog, logSizeChange, pauseResume}, org.jdesktop.layout.GroupLayout.VERTICAL);
+        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[]{clearLog, logSizeChange, pauseResume});
 
     }
 
     /**
      * Makes the status table with all current server information.
      */
-    public void makeLogTable()
-    {
+    public void makeLogTable() {
         updateTable(null);
         logTable.setDoubleBuffered(true);
         logTable.setSelectionMode(0);
@@ -187,8 +150,8 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
         logTable.addMouseListener(popupListener);
     }
 
-    class PauseResumeActionListener implements ActionListener
-    {
+    class PauseResumeActionListener implements ActionListener {
+
         public void actionPerformed(ActionEvent e) {
             if (!isPaused(selectedChannel)) {
                 channelStates.put(selectedChannel, PAUSED);
@@ -199,8 +162,8 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
         }
     }
 
-    class ClearLogActionListener implements ActionListener
-    {
+    class ClearLogActionListener implements ActionListener {
+
         public void actionPerformed(ActionEvent e) {
             // "clear log" only affects on the client side.
             // because clearing log on one client should NOT affect other clients' logs.
@@ -209,8 +172,8 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
         }
     }
 
-    class PopupListener extends MouseAdapter
-    {
+    class PopupListener extends MouseAdapter {
+
         JPopupMenu popup;
 
         PopupListener(JPopupMenu popupMenu) {
@@ -243,7 +206,7 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
     public void setSelectedChannel(String channelName) {
         selectedChannel = channelName;
     }
-    
+
     public void setSelectedChannels(List<String> channelNames) {
         selectedChannels = channelNames;
     }
@@ -280,14 +243,12 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
      * This method won't be called when it's in the PAUSED state.
      * @param channelLogs
      */
-    public synchronized void updateTable(LinkedList<String[]> channelLogs)
-    {
+    public synchronized void updateTable(LinkedList<String[]> channelLogs) {
         Object[][] tableData;
-        if (channelLogs != null)
-        {
+        if (channelLogs != null) {
             tableData = new Object[channelLogs.size()][6];
             int tableSize = 0;
-            for (int i=0; i < channelLogs.size(); i++) {
+            for (int i = 0; i < channelLogs.size(); i++) {
                 // If there are multiple selected channels defined (not null), then 
                 // check to make sure this channel log row is one of those channels.
                 //
@@ -297,30 +258,31 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
                 // multi-select because it is enforcing the size on the larger list.
                 if (selectedChannels == null || (selectedChannels != null && selectedChannels.contains(channelLogs.get(i)[1]))) {
                     tableSize++;
-                
+
                     tableData[i][0] = channelLogs.get(i)[0];       // Id (hidden)
                     tableData[i][1] = channelLogs.get(i)[2];       // Timestamp
                     tableData[i][2] = channelLogs.get(i)[1];       // Channel Name (hidden when viewing a specific channel)
                     tableData[i][3] = channelLogs.get(i)[3];       // Connector Info
-    
+
                     // Event State - INITIALIZED (blue), CONNECTED (green), BUSY (yellow), DONE (black), DISCONNECTED (red)
-                    if (channelLogs.get(i)[4].equalsIgnoreCase("INITIALIZED"))
+                    if (channelLogs.get(i)[4].equalsIgnoreCase("INITIALIZED")) {
                         tableData[i][4] = new CellData(blueBullet, "Initialized");
-                    else if (channelLogs.get(i)[4].equalsIgnoreCase("ATTEMPTING_TO_CONNECT"))
+                    } else if (channelLogs.get(i)[4].equalsIgnoreCase("ATTEMPTING_TO_CONNECT")) {
                         tableData[i][4] = new CellData(yellowBullet, "Attempting to Connect");
-                    else if (channelLogs.get(i)[4].equalsIgnoreCase("CONNECTED"))
+                    } else if (channelLogs.get(i)[4].equalsIgnoreCase("CONNECTED")) {
                         tableData[i][4] = new CellData(greenBullet, "Connected");
-                    else if (channelLogs.get(i)[4].equalsIgnoreCase("BUSY"))
+                    } else if (channelLogs.get(i)[4].equalsIgnoreCase("BUSY")) {
                         tableData[i][4] = new CellData(yellowBullet, "Busy");
-                    else if (channelLogs.get(i)[4].equalsIgnoreCase("DONE"))
+                    } else if (channelLogs.get(i)[4].equalsIgnoreCase("DONE")) {
                         tableData[i][4] = new CellData(blackBullet, "Done");
-                    else if (channelLogs.get(i)[4].equalsIgnoreCase("DISCONNECTED"))
+                    } else if (channelLogs.get(i)[4].equalsIgnoreCase("DISCONNECTED")) {
                         tableData[i][4] = new CellData(redBullet, "Disconnected");
-    
+                    }
+
                     tableData[i][5] = channelLogs.get(i)[5];       // Infomation
                 }
             }
-            
+
             // If there were multiple rows selected, the number of rows
             // added might be smaller than the array.  Rebuild the array
             // with only the rows added.
@@ -339,43 +301,38 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
             tableData = new Object[0][6];
         }
 
-        if (logTable != null)
-        {
+        if (logTable != null) {
             RefreshTableModel model = (RefreshTableModel) logTable.getModel();
             model.refreshDataVector(tableData);
-        }
-        else
-        {
+        } else {
             logTable = new MirthTable();
             logTable.setModel(new RefreshTableModel(tableData,
-                                                       new String[] {ID_COLUMN_HEADER, TIME_COLUMN_HEADER,
-                                                                     CHANNEL_COLUMN_HEADER, CONNECTOR_INFO_COLUMN_HEADER,
-                                                                     EVENT_COLUMN_HEADER, INFORMATION_COLUMN_HEADER })
-            {
-                boolean[] canEdit = new boolean[] { false, false, false, false, false, false };
+                    new String[]{ID_COLUMN_HEADER, TIME_COLUMN_HEADER,
+                        CHANNEL_COLUMN_HEADER, CONNECTOR_INFO_COLUMN_HEADER,
+                        EVENT_COLUMN_HEADER, INFORMATION_COLUMN_HEADER}) {
 
-                public boolean isCellEditable(int rowIndex, int columnIndex)
-                {
+                boolean[] canEdit = new boolean[]{false, false, false, false, false, false};
+
+                public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
                 }
             });
         }
 
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
-        {
-        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
-        	logTable.setHighlighters(highlighter);
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+            Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+            logTable.setHighlighters(highlighter);
         }
     }
-
 
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
      * always regenerated by the Form Editor.
      */
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+
         logSizeChange = new javax.swing.JButton();
         clearLog = new javax.swing.JButton();
         pauseResume = new javax.swing.JButton();
@@ -453,42 +410,41 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
 
         jScrollPane1.setViewportView(logTable);
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(2, 2, 2)
-                .add(pauseResume, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(2, 2, 2)
-                .add(clearLog, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 336, Short.MAX_VALUE)
-                .add(logSizeText)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(logSizeTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 45, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(2, 2, 2)
-                .add(logSizeChange, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(2, 2, 2))
-            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(2, 2, 2)
+                .addComponent(pauseResume, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(2, 2, 2)
+                .addComponent(clearLog, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 336, Short.MAX_VALUE)
+                .addComponent(logSizeText)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(logSizeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(2, 2, 2)
+                .addComponent(logSizeChange, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(2, 2, 2))
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
         );
 
-        layout.linkSize(new java.awt.Component[] {clearLog, logSizeChange, pauseResume}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {clearLog, logSizeChange, pauseResume});
 
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 345, Short.MAX_VALUE)
-                .add(2, 2, 2)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.CENTER)
-                    .add(pauseResume, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(clearLog, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(logSizeChange, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(logSizeTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(logSizeText))
-                .add(2, 2, 2))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 345, Short.MAX_VALUE)
+                .addGap(0, 0, 0)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(pauseResume, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(clearLog, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(logSizeChange, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(logSizeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(logSizeText)))
         );
 
-        layout.linkSize(new java.awt.Component[] {clearLog, logSizeChange, pauseResume}, org.jdesktop.layout.GroupLayout.VERTICAL);
+        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {clearLog, logSizeChange, pauseResume});
 
     }// </editor-fold>//GEN-END:initComponents
 
@@ -512,8 +468,7 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
         // NOTE: the log size on the server is always 1000, which is max. because if there are multiple clients connected to the same server,
         //  it has to be able to support the maximum allowed in case some client has it set at 999.
         // i.e. this log size change only affects on the client side.
-        if (logSizeTextField.getText().length() == 0)
-        {
+        if (logSizeTextField.getText().length() == 0) {
             parent.alertWarning(this, "Please enter a valid number.");
             return;
         }
@@ -558,8 +513,6 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
         pauseResume.setBorderPainted(true);
         pauseResume.setContentAreaFilled(true);
     }//GEN-LAST:event_pauseResumeMouseEntered
-
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton clearLog;
     private javax.swing.JScrollPane jScrollPane1;
@@ -569,5 +522,4 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
     private com.webreach.mirth.client.ui.components.MirthTable logTable;
     private javax.swing.JButton pauseResume;
     // End of variables declaration//GEN-END:variables
-
 }

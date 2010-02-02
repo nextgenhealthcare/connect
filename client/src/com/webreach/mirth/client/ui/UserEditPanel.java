@@ -14,7 +14,6 @@ public class UserEditPanel extends javax.swing.JPanel {
     private UserDialogInterface dialog;
     private Frame parent;
 
-    /** Creates new form ServerIdentificationPanel */
     public UserEditPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
@@ -66,41 +65,41 @@ public class UserEditPanel extends javax.swing.JPanel {
      * This method checks if the finish button can now be enabled
      */
     public boolean checkIfAbleToFinish(boolean checkPasswords) {
-    	if (firstNameAsteriskLabel.isVisible() && firstName.getText().trim().equals("")) {
-    		dialog.setFinishButtonEnabled(false);
-            return false;
-    	} else if (lastNameAsteriskLabel.isVisible() && lastName.getText().trim().equals("")) {
-    		dialog.setFinishButtonEnabled(false);
-            return false;
-    	} else if (emailAsteriskLabel.isVisible() && email.getText().trim().equals("")) {
-    		dialog.setFinishButtonEnabled(false);
-            return false;
-    	} else if (organizationAsteriskLabel.isVisible() && organization.getText().trim().equals("")) {
+        if (firstNameAsteriskLabel.isVisible() && firstName.getText().trim().equals("")) {
             dialog.setFinishButtonEnabled(false);
             return false;
-    	} else if (checkPasswords && (String.valueOf(password.getPassword()).trim().equals("") || String.valueOf(confirmPassword.getPassword()).trim().equals("") || username.getText().trim().equals(""))) {
-        	dialog.setFinishButtonEnabled(false);
+        } else if (lastNameAsteriskLabel.isVisible() && lastName.getText().trim().equals("")) {
+            dialog.setFinishButtonEnabled(false);
+            return false;
+        } else if (emailAsteriskLabel.isVisible() && email.getText().trim().equals("")) {
+            dialog.setFinishButtonEnabled(false);
+            return false;
+        } else if (organizationAsteriskLabel.isVisible() && organization.getText().trim().equals("")) {
+            dialog.setFinishButtonEnabled(false);
+            return false;
+        } else if (checkPasswords && (String.valueOf(password.getPassword()).trim().equals("") || String.valueOf(confirmPassword.getPassword()).trim().equals("") || username.getText().trim().equals(""))) {
+            dialog.setFinishButtonEnabled(false);
             return false;
         } else {
             dialog.setFinishButtonEnabled(true);
             return true;
         }
     }
-    
+
     public void setRequiredFields(boolean firstName, boolean lastName, boolean email, boolean organization) {
-    	firstNameAsteriskLabel.setVisible(firstName);
-    	lastNameAsteriskLabel.setVisible(lastName);
-    	emailAsteriskLabel.setVisible(email);
-    	organizationAsteriskLabel.setVisible(organization);
-    	
-    	checkIfAbleToFinish(true);
+        firstNameAsteriskLabel.setVisible(firstName);
+        lastNameAsteriskLabel.setVisible(lastName);
+        emailAsteriskLabel.setVisible(email);
+        organizationAsteriskLabel.setVisible(organization);
+
+        checkIfAbleToFinish(true);
     }
 
     public String validateUser(boolean checkPasswords) {
         if (!checkIfAbleToFinish(checkPasswords)) {
             return "Please fill in all required information.";
         }
-        
+
         // If it's a new user or the username was changed, make sure the username isn't already used.
         if (user.getId() == null || !user.getUsername().equals(username.getText())) {
             for (int i = 0; i < parent.users.size(); i++) {
@@ -113,21 +112,21 @@ public class UserEditPanel extends javax.swing.JPanel {
         if (checkPasswords && !String.valueOf(password.getPassword()).equals(String.valueOf(confirmPassword.getPassword()))) {
             return "Passwords must be the same.";
         }
-        
+
         try {
             PasswordRequirements requirements = parent.getPasswordRequirements();
             Vector<String> passwordProblems = PasswordRequirementsChecker.getInstance().doesPasswordMeetRequirements(String.valueOf(password.getPassword()), requirements);
-            if (passwordProblems != null){
+            if (passwordProblems != null) {
                 String retString = "";
-                for (String problem : passwordProblems){
+                for (String problem : passwordProblems) {
                     retString += problem + "\n";
                 }
                 return retString;
             }
         } catch (ClientException e) {
             return "Unable to retrieve password policy";
-        }        
-        
+        }
+
         return null;
     }
 
@@ -249,7 +248,6 @@ public class UserEditPanel extends javax.swing.JPanel {
 
         descriptionLabel.setText("Description:");
 
-        password.setFont(new java.awt.Font("Tahoma", 0, 11));
         password.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 passwordKeyReleased(evt);
@@ -260,7 +258,6 @@ public class UserEditPanel extends javax.swing.JPanel {
 
         confirmPasswordLabel.setText("Confirm Password:");
 
-        confirmPassword.setFont(new java.awt.Font("Tahoma", 0, 11));
         confirmPassword.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 confirmPasswordKeyReleased(evt);
@@ -279,90 +276,90 @@ public class UserEditPanel extends javax.swing.JPanel {
         lastNameAsteriskLabel.setForeground(new java.awt.Color(255, 0, 0));
         lastNameAsteriskLabel.setText("*");
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, usernameLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, passwordLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, confirmPasswordLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, firstNameLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, lastNameLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, organizationLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, emailLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, phoneLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, descriptionLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(confirmPassword, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                    .add(username, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                    .add(password, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                    .add(lastName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                    .add(organization, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                    .add(email, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                    .add(phone, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                    .add(firstName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-                    .add(jScrollPane1))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(lastNameAsteriskLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(emailAsteriskLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(organizationAsteriskLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(passwordAsteriskLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(usernameAsteriskLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(confirmPasswordAsteriskLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(firstNameAsteriskLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(confirmPasswordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(firstNameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(lastNameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(organizationLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(emailLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(phoneLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(descriptionLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(confirmPassword, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                    .addComponent(username, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                    .addComponent(password, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                    .addComponent(lastName, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                    .addComponent(organization, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                    .addComponent(email, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                    .addComponent(phone, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                    .addComponent(firstName, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(lastNameAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(emailAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(organizationAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(passwordAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(usernameAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(confirmPasswordAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(firstNameAsteriskLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(18, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(username, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(usernameLabel)
-                    .add(usernameAsteriskLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(passwordLabel)
-                    .add(password, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(passwordAsteriskLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(confirmPasswordLabel)
-                    .add(confirmPassword, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(confirmPasswordAsteriskLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(firstNameLabel)
-                    .add(firstName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(firstNameAsteriskLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(lastNameLabel)
-                    .add(lastName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(lastNameAsteriskLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(organizationLabel)
-                    .add(organization, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(organizationAsteriskLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(emailLabel)
-                    .add(email, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(emailAsteriskLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(phoneLabel)
-                    .add(phone, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(descriptionLabel)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 74, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(username, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(usernameLabel)
+                    .addComponent(usernameAsteriskLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(passwordLabel)
+                    .addComponent(password, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(passwordAsteriskLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(confirmPasswordLabel)
+                    .addComponent(confirmPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(confirmPasswordAsteriskLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(firstNameLabel)
+                    .addComponent(firstName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(firstNameAsteriskLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lastNameLabel)
+                    .addComponent(lastName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lastNameAsteriskLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(organizationLabel)
+                    .addComponent(organization, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(organizationAsteriskLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(emailLabel)
+                    .addComponent(email, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(emailAsteriskLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(phoneLabel)
+                    .addComponent(phone, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(descriptionLabel)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 74, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents

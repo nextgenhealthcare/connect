@@ -1,9 +1,3 @@
-/*
- * ServerLogPanel.java
- *
- * Created on October 15, 2007, 11:30 PM
- */
-
 package com.webreach.mirth.plugins.serverlog;
 
 import java.awt.Point;
@@ -29,11 +23,6 @@ import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.components.MirthTable;
 
-/**
- *
- * @author  chrisr
- */
-
 public class ServerLogPanel extends javax.swing.JPanel {
 
     private static final String ID_COLUMN_HEADER = "Id";
@@ -48,11 +37,10 @@ public class ServerLogPanel extends javax.swing.JPanel {
     private ServerLogClient serverLogClient;
 
     /** Creates new form ServerLogPanel */
-    public ServerLogPanel(ServerLogClient serverLogClient)
-    {
+    public ServerLogPanel(ServerLogClient serverLogClient) {
         this.parent = PlatformUI.MIRTH_FRAME;
         this.serverLogClient = serverLogClient;
-        
+
         initComponents();
         initLayouts();
 
@@ -72,48 +60,21 @@ public class ServerLogPanel extends javax.swing.JPanel {
 
 
     /*
-        This method overwrites the setting layout part in initComponent generated code by NetBeans, because NetBeans wouldn't support the vertical alignment well enough.
+    This method overwrites the setting layout part in initComponent generated code by NetBeans, because NetBeans wouldn't support the vertical alignment well enough.
      */
     public void initLayouts() {
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(2, 2, 2)
-                .add(pauseResume, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(2, 2, 2)
-                .add(clearLog, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 336, Short.MAX_VALUE)
-                .add(logSizeText)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(logSizeTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 45, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(2, 2, 2)
-                .add(logSizeChange, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(2, 2, 2))
-            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
-        );
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout.createSequentialGroup().addGap(2, 2, 2).addComponent(pauseResume, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addGap(2, 2, 2).addComponent(clearLog, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 336, Short.MAX_VALUE).addComponent(logSizeText).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(logSizeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE).addGap(2, 2, 2).addComponent(logSizeChange, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addGap(2, 2, 2)).addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE));
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE)
-                .add(2, 2, 2)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.CENTER)
-                    .add(pauseResume, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(clearLog, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(logSizeChange, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(logSizeTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(logSizeText))
-                .add(2, 2, 2))
-        );
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup().addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE).addGap(0, 0, 0).addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER).addComponent(pauseResume, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(clearLog, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(logSizeChange, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(logSizeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE).addComponent(logSizeText))));
     }
-
 
     /**
      * Makes the status table with all current server information.
      */
-    public void makeLogTextArea()
-    {
+    public void makeLogTextArea() {
         updateTable(null);
         logTable.setDoubleBuffered(true);
         logTable.setSelectionMode(0);
@@ -129,17 +90,15 @@ public class ServerLogPanel extends javax.swing.JPanel {
         createPopupMenu();
         jScrollPane1.setViewportView(logTable);
 
-         // listen for trigger button and double click to edit channel.
-        logTable.addMouseListener(new java.awt.event.MouseAdapter()
-        {
-            public void mouseClicked(java.awt.event.MouseEvent evt)
-            {
+        // listen for trigger button and double click to edit channel.
+        logTable.addMouseListener(new java.awt.event.MouseAdapter() {
+
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
                 if (logTable.rowAtPoint(new Point(evt.getX(), evt.getY())) == -1) {
                     return;
                 }
-                
-                if (evt.getClickCount() >= 2)
-                {
+
+                if (evt.getClickCount() >= 2) {
                     // synchronizing this to prevent ArrayIndexOutOfBoundsException since the server log table is constantly being redrawn.
                     synchronized (this) {
                         new ViewServerLogContentDialog(parent, (String) logTable.getModel().getValueAt(logTable.convertRowIndexToModel(logTable.getSelectedRow()), 1));
@@ -174,19 +133,18 @@ public class ServerLogPanel extends javax.swing.JPanel {
         //Add listener to the text area so the popup menu can come up.
         MouseListener popupListener = new PopupListener(rightclickPopup);
         jScrollPane1.addMouseListener(popupListener);
-        logTable.addMouseListener(popupListener); 
+        logTable.addMouseListener(popupListener);
     }
 
+    class PauseResumeActionListener implements ActionListener {
 
-    class PauseResumeActionListener implements ActionListener
-    {
         public void actionPerformed(ActionEvent e) {
             adjustPauseResumeButton();
         }
     }
 
-    class ClearLogActionListener implements ActionListener
-    {
+    class ClearLogActionListener implements ActionListener {
+
         public void actionPerformed(ActionEvent e) {
             // "clear log" only affects on the client side.
             // because clearing log on one client should NOT affect other clients' logs.
@@ -195,18 +153,15 @@ public class ServerLogPanel extends javax.swing.JPanel {
         }
     }
 
-
     /**
      * This method won't be called when it's in the PAUSED state.
      * @param serverLogs
      */
-    public synchronized void updateTable(LinkedList<String[]> serverLogs)
-    {
+    public synchronized void updateTable(LinkedList<String[]> serverLogs) {
         Object[][] tableData;
-        if (serverLogs != null)
-        {
+        if (serverLogs != null) {
             tableData = new Object[serverLogs.size()][2];
-            for (int i=0; i < serverLogs.size(); i++) {
+            for (int i = 0; i < serverLogs.size(); i++) {
                 tableData[i][0] = serverLogs.get(i)[0];       // Id (hidden) - used to keep track of which log entries are sent new.
                 tableData[i][1] = serverLogs.get(i)[1];       // Log Information
             }
@@ -214,31 +169,26 @@ public class ServerLogPanel extends javax.swing.JPanel {
             tableData = new Object[0][2];
         }
 
-        if (logTable != null)
-        {
+        if (logTable != null) {
             RefreshTableModel model = (RefreshTableModel) logTable.getModel();
             model.refreshDataVector(tableData);
-        }
-        else
-        {
+        } else {
             logTable = new MirthTable();
-            logTable.setModel(new RefreshTableModel(tableData, new String[] { ID_COLUMN_HEADER, LOG_INFO_COLUMN_HEADER })
-            {
-                boolean[] canEdit = new boolean[] { false, false };
+            logTable.setModel(new RefreshTableModel(tableData, new String[]{ID_COLUMN_HEADER, LOG_INFO_COLUMN_HEADER}) {
 
-                public boolean isCellEditable(int rowIndex, int columnIndex)
-                {
+                boolean[] canEdit = new boolean[]{false, false};
+
+                public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
                 }
             });
         }
 
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
-        {
-        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
-        	logTable.setHighlighters(highlighter);
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+            Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+            logTable.setHighlighters(highlighter);
         }
-        
+
     }
 
     public boolean isPaused() {
@@ -261,8 +211,8 @@ public class ServerLogPanel extends javax.swing.JPanel {
         }
     }
 
-    class PopupListener extends MouseAdapter
-    {
+    class PopupListener extends MouseAdapter {
+
         JPopupMenu popup;
 
         PopupListener(JPopupMenu popupMenu) {
@@ -377,35 +327,35 @@ public class ServerLogPanel extends javax.swing.JPanel {
 
         jScrollPane1.setViewportView(logTable);
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(2, 2, 2)
-                .add(pauseResume, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(2, 2, 2)
-                .add(clearLog, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 336, Short.MAX_VALUE)
-                .add(logSizeText)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(logSizeTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 45, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(2, 2, 2)
-                .add(logSizeChange, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(2, 2, 2))
-            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(2, 2, 2)
+                .addComponent(pauseResume, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(2, 2, 2)
+                .addComponent(clearLog, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 336, Short.MAX_VALUE)
+                .addComponent(logSizeText)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(logSizeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(2, 2, 2)
+                .addComponent(logSizeChange, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(2, 2, 2))
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 508, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE)
-                .add(0, 0, 0)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(pauseResume, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(clearLog, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(logSizeChange, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(logSizeTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(logSizeText)))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 341, Short.MAX_VALUE)
+                .addGap(0, 0, 0)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(pauseResume, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(clearLog, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(logSizeChange, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(logSizeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(logSizeText)))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -424,8 +374,7 @@ public class ServerLogPanel extends javax.swing.JPanel {
         // NOTE: the log size on the server is always 100, which is max. because if there are multiple clients connected to the same server,
         //  it has to be able to support the maximum allowed in case some client has it set at 99.
         // i.e. this log size change only affects on the client side.
-        if (logSizeTextField.getText().length() == 0)
-        {
+        if (logSizeTextField.getText().length() == 0) {
             parent.alertWarning(this, "Please enter a valid number.");
             return;
         }
@@ -470,8 +419,6 @@ public class ServerLogPanel extends javax.swing.JPanel {
         pauseResume.setBorderPainted(true);
         pauseResume.setContentAreaFilled(true);
     }//GEN-LAST:event_pauseResumeMouseEntered
-
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton clearLog;
     private javax.swing.JScrollPane jScrollPane1;
@@ -481,5 +428,4 @@ public class ServerLogPanel extends javax.swing.JPanel {
     private com.webreach.mirth.client.ui.components.MirthTable logTable;
     private javax.swing.JButton pauseResume;
     // End of variables declaration//GEN-END:variables
-
 }

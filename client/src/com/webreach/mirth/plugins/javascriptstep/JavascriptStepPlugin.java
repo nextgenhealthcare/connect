@@ -15,79 +15,78 @@ import com.webreach.mirth.model.CodeTemplate.ContextType;
 import com.webreach.mirth.plugins.TransformerStepPlugin;
 
 public class JavascriptStepPlugin extends TransformerStepPlugin {
-	private ScriptPanel panel;
 
-    public JavascriptStepPlugin (String name)
-    {
+    private ScriptPanel panel;
+
+    public JavascriptStepPlugin(String name) {
         super(name);
     }
-    
-	public JavascriptStepPlugin(String name, TransformerPane parent) {
-		super(name, parent);
-		panel = new ScriptPanel(parent, new JavaScriptTokenMarker(), ContextType.MESSAGE_CONTEXT.getContext());
-	}
 
-	@Override
-	public BasePanel getPanel() {
-		return panel;
-	}
+    public JavascriptStepPlugin(String name, TransformerPane parent) {
+        super(name, parent);
+        panel = new ScriptPanel(parent, new JavaScriptTokenMarker(), ContextType.MESSAGE_CONTEXT.getContext());
+    }
 
-	@Override
-	public boolean isNameEditable() {
-		return true;
-	}
+    @Override
+    public BasePanel getPanel() {
+        return panel;
+    }
 
-	public String getNewName() {
-		return "New Step";
-	}
+    @Override
+    public boolean isNameEditable() {
+        return true;
+    }
 
-	@Override
-	public Map<Object, Object> getData(int row) {
-		return panel.getData();
-	}
+    public String getNewName() {
+        return "New Step";
+    }
 
-	@Override
-	public void setData(Map<Object, Object> data) {
-		panel.setData(data);
-	}
+    @Override
+    public Map<Object, Object> getData(int row) {
+        return panel.getData();
+    }
 
-	@Override
-	public void clearData() {
-		panel.setData(null);
-	}
+    @Override
+    public void setData(Map<Object, Object> data) {
+        panel.setData(data);
+    }
 
-	@Override
-	public void initData() {
-		((TransformerPane) parent).invalidVar = false;
-		clearData();
-	}
+    @Override
+    public void clearData() {
+        panel.setData(null);
+    }
 
-	public String doValidate(Map<Object, Object> data) {
-		try {
-			Context context = Context.enter();
-			Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + getScript(data) + "\n}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
-		} catch (EvaluatorException e) {
-			return "Error on line " + e.lineNumber() + ": " + e.getMessage() + ".";
-		} catch (Exception e) {
-			return "Unknown error occurred during validation.";
-		} finally {
-			Context.exit();
-		}
-		return null;
-	}
+    @Override
+    public void initData() {
+        ((TransformerPane) parent).invalidVar = false;
+        clearData();
+    }
 
-	@Override
-	public String getScript(Map<Object, Object> data) {
-		return data.get("Script").toString();
-	}
+    public String doValidate(Map<Object, Object> data) {
+        try {
+            Context context = Context.enter();
+            Script compiledFilterScript = context.compileString("function rhinoWrapper() {" + getScript(data) + "\n}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
+        } catch (EvaluatorException e) {
+            return "Error on line " + e.lineNumber() + ": " + e.getMessage() + ".";
+        } catch (Exception e) {
+            return "Unknown error occurred during validation.";
+        } finally {
+            Context.exit();
+        }
+        return null;
+    }
 
-	public boolean showValidateTask() {
-		return true;
-	}
+    @Override
+    public String getScript(Map<Object, Object> data) {
+        return data.get("Script").toString();
+    }
 
-	@Override
-	public String getDisplayName() {
-		return "JavaScript";
-	}
+    public boolean showValidateTask() {
+        return true;
+    }
 
+    @Override
+    public String getDisplayName() {
+        return "JavaScript";
+    }
 }

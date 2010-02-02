@@ -1,28 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.client.ui;
 
 import java.awt.Dimension;
@@ -32,32 +7,30 @@ import javax.swing.Icon;
 import javax.swing.UIManager;
 
 /** Creates the error dialog. */
-public class CustomErrorDialog extends javax.swing.JDialog
-{
+public class CustomErrorDialog extends javax.swing.JDialog {
+
     private Frame parent;
     public static final String ERROR_SAVING_CHANNEL = "There was an error in the validation of your channel.  It has been DISABLED and saved.  Before you can deploy you must fix the following error(s):";
     public static final String ERROR_VALIDATING_CONNECTOR = "There was an error in the validation of your connector.  Please fix the following error(s):";
     public static final String ERROR_ENABLING_CHANNEL = "The channel was not configured properly.  Please fix the following problem(s) in the channel before trying to enable it again:";
     public static final String ERROR_VALIDATING_GLOBAL_SCRIPTS = "There was an error in the validation of your global scripts.  Please fix the following error(s):";
-    
-    public CustomErrorDialog(java.awt.Frame owner, String errorMessage, String errorQuestion)
-    {
+
+    public CustomErrorDialog(java.awt.Frame owner, String errorMessage, String errorQuestion) {
         super(owner);
         initialize(errorMessage, errorQuestion);
     }
-    
-    public CustomErrorDialog(java.awt.Dialog owner, String errorMessage, String errorQuestion)
-    {
+
+    public CustomErrorDialog(java.awt.Dialog owner, String errorMessage, String errorQuestion) {
         super(owner);
         initialize(errorMessage, errorQuestion);
     }
-    
+
     private void initialize(String errorMessage, String errorQuestion) {
-    	this.parent = PlatformUI.MIRTH_FRAME;
+        this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
-        
+
         question.setText(errorQuestion);
-                
+
         question.setBackground(UIManager.getColor("Control"));
         errorContent.setBackground(UIManager.getColor("Control"));
         image.setIcon((Icon) UIManager.get("OptionPane.errorIcon"));
@@ -70,13 +43,13 @@ public class CustomErrorDialog extends javax.swing.JDialog
         Dimension dlgSize = getPreferredSize();
         Dimension frmSize = parent.getSize();
         Point loc = parent.getLocation();
-        
+
         if ((frmSize.width == 0 && frmSize.height == 0) || (loc.x == 0 && loc.y == 0)) {
-        	setLocationRelativeTo(null);
+            setLocationRelativeTo(null);
         } else {
-	        setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+            setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         }
-        
+
         setVisible(true);
     }
 
@@ -87,9 +60,9 @@ public class CustomErrorDialog extends javax.swing.JDialog
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents()
-    {
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
         questionPane = new javax.swing.JScrollPane();
         question = new javax.swing.JTextPane();
         image = new javax.swing.JLabel();
@@ -99,7 +72,9 @@ public class CustomErrorDialog extends javax.swing.JDialog
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Error(s)");
+
         questionPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
         question.setBackground(new java.awt.Color(224, 223, 227));
         question.setBorder(null);
         question.setEditable(false);
@@ -107,10 +82,8 @@ public class CustomErrorDialog extends javax.swing.JDialog
         questionPane.setViewportView(question);
 
         cancel.setText("Close");
-        cancel.addActionListener(new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(java.awt.event.ActionEvent evt)
-            {
+        cancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelActionPerformed(evt);
             }
         });
@@ -119,38 +92,39 @@ public class CustomErrorDialog extends javax.swing.JDialog
         errorContent.setEditable(false);
         jScrollPane1.setViewportView(errorContent);
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 329, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 329, Short.MAX_VALUE)
                         .addContainerGap())
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(cancel)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(cancel)
                         .addContainerGap())
-                    .add(layout.createSequentialGroup()
-                        .add(image)
-                        .add(20, 20, 20)
-                        .add(questionPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE)
-                        .add(30, 30, 30))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(image)
+                        .addGap(20, 20, 20)
+                        .addComponent(questionPane, javax.swing.GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE)
+                        .addGap(30, 30, 30))))
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, image, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 42, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, questionPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 42, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(15, 15, 15)
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(cancel)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(image, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(questionPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 42, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(15, 15, 15)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 209, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(cancel)
                 .addContainerGap())
         );
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -158,7 +132,6 @@ public class CustomErrorDialog extends javax.swing.JDialog
     {// GEN-HEADEREND:event_cancelActionPerformed
         this.dispose();
     }// GEN-LAST:event_cancelActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancel;
     private javax.swing.JTextPane errorContent;
@@ -167,5 +140,4 @@ public class CustomErrorDialog extends javax.swing.JDialog
     private javax.swing.JTextPane question;
     private javax.swing.JScrollPane questionPane;
     // End of variables declaration//GEN-END:variables
-
 }

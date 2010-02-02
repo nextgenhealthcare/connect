@@ -1,9 +1,3 @@
-/*
- * TabbedTemplatePanel.java
- *
- * Created on February 2, 2007, 1:50 PM
- */
-
 package com.webreach.mirth.client.ui.editors;
 
 import java.util.Properties;
@@ -14,17 +8,12 @@ import com.webreach.mirth.client.ui.VariableListHandler;
 import com.webreach.mirth.client.ui.panels.reference.VariableReferenceTable;
 import com.webreach.mirth.model.CodeTemplate.ContextType;
 
-/**
- * 
- * @author brendanh
- */
-public class TabbedTemplatePanel extends javax.swing.JPanel
-{
+public class TabbedTemplatePanel extends javax.swing.JPanel {
+
     private MirthEditorPane parent;
 
     /** Creates new form TabbedTemplatePanel */
-    public TabbedTemplatePanel(MirthEditorPane p)
-    {
+    public TabbedTemplatePanel(MirthEditorPane p) {
         parent = p;
         initComponents();
         messageTemplatePanel.setInboundTreePanel(messageTreePanel.getInboundTreePanel());
@@ -32,108 +21,91 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
 
         // ArrayList<ReferenceListItem> functionListItems = new
         // ReferenceListBuilder().getVariableListItems();
-        variableTable = new VariableReferenceTable("Available Variables", new String[] {});
+        variableTable = new VariableReferenceTable("Available Variables", new String[]{});
         variableTable.setDragEnabled(true);
         variableTable.setTransferHandler(new VariableListHandler("$('", "')"));
-        variableListScrollPane.setViewportView(variableTable);      
+        variableListScrollPane.setViewportView(variableTable);
     }
-    
-    public void setFilterView()
-    {
+
+    public void setFilterView() {
         messageTreePanel.hideOutbound();
         messageTemplatePanel.hideOutbound();
-        
+
         messageTreePanel.getInboundTreePanel().setFilterView();
         messageTreePanel.getOutboundTreePanel().setFilterView();
     }
-    
-    public void setTransformerView()
-    {
+
+    public void setTransformerView() {
         messageTreePanel.showOutbound();
         messageTemplatePanel.showOutbound();
-        
+
         messageTreePanel.getInboundTreePanel().setTransformerView();
         messageTreePanel.getOutboundTreePanel().setTransformerView();
     }
-    
-    public void resizePanes()
-    {
+
+    public void resizePanes() {
         variableSplitPane.setDividerLocation(.5);
         variableSplitPane.setResizeWeight(.5);
         messageTreePanel.resizePanes();
         messageTemplatePanel.resizePanes();
     }
 
-    public void updateVariables(Set<String> rules, Set<String> steps)
-    {
-    	if (rules != null && steps != null){
-    		rules.addAll(steps);
-    	}
+    public void updateVariables(Set<String> rules, Set<String> steps) {
+        if (rules != null && steps != null) {
+            rules.addAll(steps);
+        }
         variableTable.updateVariables(rules);
     }
 
-    public String getIncomingMessage()
-    {
+    public String getIncomingMessage() {
         return messageTemplatePanel.getInboundMessage();
     }
 
-    public void setIncomingMessage(String msg)
-    {
+    public void setIncomingMessage(String msg) {
         messageTemplatePanel.setInboundMessage(msg);
     }
 
-    public String getOutgoingMessage()
-    {
+    public String getOutgoingMessage() {
         return messageTemplatePanel.getOutboundMessage();
     }
 
-    public void setOutgoingMessage(String msg)
-    {
+    public void setOutgoingMessage(String msg) {
         messageTemplatePanel.setOutboundMessage(msg);
     }
 
-    public void setIncomingDataType(String protocol)
-    {
+    public void setIncomingDataType(String protocol) {
         messageTemplatePanel.setInboundProtocol(protocol);
     }
 
-    public void setOutgoingDataType(String protocol)
-    {
+    public void setOutgoingDataType(String protocol) {
         messageTemplatePanel.setOutboundProtocol(protocol);
     }
 
-    public String getIncomingDataType()
-    {
+    public String getIncomingDataType() {
         return messageTemplatePanel.getInboundProtocol();
     }
 
-    public String getOutgoingDataType()
-    {
+    public String getOutgoingDataType() {
         return messageTemplatePanel.getOutboundProtocol();
     }
 
-    public void setIncomingDataProperties(Properties properties)
-    {
+    public void setIncomingDataProperties(Properties properties) {
         messageTemplatePanel.setInboundDataProperties(properties);
     }
 
-    public void setOutgoingDataProperties(Properties properties)
-    {
+    public void setOutgoingDataProperties(Properties properties) {
         messageTemplatePanel.setOutboundDataProperties(properties);
     }
 
-    public Properties getIncomingDataProperties()
-    {
+    public Properties getIncomingDataProperties() {
         return messageTemplatePanel.getInboundDataProperties();
     }
 
-    public Properties getOutgoingDataProperties()
-    {
+    public Properties getOutgoingDataProperties() {
         return messageTemplatePanel.getOutboundDataProperties();
     }
 
-    public void setDefaultComponent()
-    {
+    public void setDefaultComponent() {
         tabPanel.setSelectedIndex(0);
         functionList.setDefaultDropDownValue();
     }
@@ -145,8 +117,7 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents()
-    {
+    private void initComponents() {
 
         tabPanel = new javax.swing.JTabbedPane();
         variableTab = new javax.swing.JPanel();
@@ -171,63 +142,62 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
 
         variableSplitPane.setRightComponent(variableListScrollPane);
 
-        org.jdesktop.layout.GroupLayout variableTabLayout = new org.jdesktop.layout.GroupLayout(variableTab);
+        javax.swing.GroupLayout variableTabLayout = new javax.swing.GroupLayout(variableTab);
         variableTab.setLayout(variableTabLayout);
         variableTabLayout.setHorizontalGroup(
-            variableTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, variableSplitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
+            variableTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(variableSplitPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
         );
         variableTabLayout.setVerticalGroup(
-            variableTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, variableTabLayout.createSequentialGroup()
+            variableTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, variableTabLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(variableSplitPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 518, Short.MAX_VALUE))
+                .addComponent(variableSplitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 518, Short.MAX_VALUE))
         );
 
         tabPanel.addTab("Reference", variableTab);
 
         treeTab.setBackground(new java.awt.Color(255, 255, 255));
 
-        org.jdesktop.layout.GroupLayout treeTabLayout = new org.jdesktop.layout.GroupLayout(treeTab);
+        javax.swing.GroupLayout treeTabLayout = new javax.swing.GroupLayout(treeTab);
         treeTab.setLayout(treeTabLayout);
         treeTabLayout.setHorizontalGroup(
-            treeTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(messageTreePanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
+            treeTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(messageTreePanel, javax.swing.GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
         );
         treeTabLayout.setVerticalGroup(
-            treeTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(messageTreePanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE)
+            treeTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(messageTreePanel, javax.swing.GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE)
         );
 
         tabPanel.addTab("Message Trees", treeTab);
 
         messageTab.setBackground(new java.awt.Color(255, 255, 255));
 
-        org.jdesktop.layout.GroupLayout messageTabLayout = new org.jdesktop.layout.GroupLayout(messageTab);
+        javax.swing.GroupLayout messageTabLayout = new javax.swing.GroupLayout(messageTab);
         messageTab.setLayout(messageTabLayout);
         messageTabLayout.setHorizontalGroup(
-            messageTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(messageTemplatePanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 257, Short.MAX_VALUE)
+            messageTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(messageTemplatePanel, javax.swing.GroupLayout.PREFERRED_SIZE, 257, Short.MAX_VALUE)
         );
         messageTabLayout.setVerticalGroup(
-            messageTabLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(messageTemplatePanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE)
+            messageTabLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(messageTemplatePanel, javax.swing.GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE)
         );
 
         tabPanel.addTab("Message Templates", messageTab);
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(tabPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 262, Short.MAX_VALUE)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(tabPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 262, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(tabPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 557, Short.MAX_VALUE)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(tabPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 557, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.webreach.mirth.client.ui.FunctionList functionList;
     public javax.swing.JPanel messageTab;
@@ -240,5 +210,4 @@ public class TabbedTemplatePanel extends javax.swing.JPanel
     private javax.swing.JPanel variableTab;
     private com.webreach.mirth.client.ui.panels.reference.VariableReferenceTable variableTable;
     // End of variables declaration//GEN-END:variables
-
 }

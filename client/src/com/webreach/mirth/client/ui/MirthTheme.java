@@ -8,32 +8,21 @@ import javax.swing.plaf.ColorUIResource;
 import com.jgoodies.looks.plastic.PlasticScrollBarUI;
 import com.jgoodies.looks.plastic.theme.SkyBluer;
 
-/**
- * A theme with medium blue primary colors and a light gray window background.
- * 
- * @author Karsten Lentzsch
- * @version $Revision: 1.2 $
- */
-public class MirthTheme extends SkyBluer
-{
+public class MirthTheme extends SkyBluer {
 
-    public String getName()
-    {
+    public String getName() {
         return "Mirth";
     }
 
-    protected ColorUIResource getPrimary1()
-    {
+    protected ColorUIResource getPrimary1() {
         return new ColorUIResource(Color.DARK_GRAY);
     }
 
-    protected ColorUIResource getPrimary2()
-    {
+    protected ColorUIResource getPrimary2() {
         return new ColorUIResource(0x9EB1C9);
     }
 
-    protected ColorUIResource getPrimary3()
-    {
+    protected ColorUIResource getPrimary3() {
         return new ColorUIResource(0xc0d2dc);
     }
 
@@ -64,12 +53,9 @@ public class MirthTheme extends SkyBluer
      * ColorUIResource getWindowTitleBackground() { return getPrimary1(); }
      * public ColorUIResource getWindowTitleForeground() { return WHITE; }
      */
-
-    public void addCustomEntriesToTable(UIDefaults table)
-    {
+    public void addCustomEntriesToTable(UIDefaults table) {
         super.addCustomEntriesToTable(table);
-        Object[] uiDefaults = { PlasticScrollBarUI.MAX_BUMPS_WIDTH_KEY, new Integer(30), };
+        Object[] uiDefaults = {PlasticScrollBarUI.MAX_BUMPS_WIDTH_KEY, new Integer(30),};
         table.putDefaults(uiDefaults);
     }
-
 }

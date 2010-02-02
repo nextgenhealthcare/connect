@@ -1,9 +1,3 @@
-/*
- * UserPanel.java
- *
- * Created on February 21, 2007, 5:29 PM
- */
-
 package com.webreach.mirth.client.ui;
 
 import java.awt.Point;
@@ -23,12 +17,8 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.model.User;
 
-/**
- * 
- * @author brendanh
- */
-public class UserPanel extends javax.swing.JPanel
-{
+public class UserPanel extends javax.swing.JPanel {
+
     private final String USER_EMAIL_COLUMN_NAME = "Email";
     private final String USERNAME_COLUMN_NAME = "Username";
     private final String USERFIRSTNAME_COLUMN_NAME = "First Name";
@@ -40,8 +30,7 @@ public class UserPanel extends javax.swing.JPanel
     private Frame parent;
     private int lastRow;
 
-    public UserPanel()
-    {
+    public UserPanel() {
         this.parent = PlatformUI.MIRTH_FRAME;
         lastRow = -1;
         initComponents();
@@ -54,8 +43,7 @@ public class UserPanel extends javax.swing.JPanel
     /**
      * Makes the users table with the information from the server
      */
-    public void makeUsersTable()
-    {
+    public void makeUsersTable() {
         updateUserTable();
 
         usersTable.setSelectionMode(0);
@@ -73,7 +61,7 @@ public class UserPanel extends javax.swing.JPanel
         usersTable.getColumnExt(USERPHONENUMBER_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         usersTable.getColumnExt(USERLASTLOGIN_COLUMN_NAME).setMinWidth(125);
         usersTable.getColumnExt(USERLASTLOGIN_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
-        
+
         usersTable.packTable(UIConstants.COL_MARGIN);
 
         usersTable.setRowHeight(UIConstants.ROW_HEIGHT);
@@ -84,68 +72,58 @@ public class UserPanel extends javax.swing.JPanel
 
         usersPane.setViewportView(usersTable);
 
-        usersTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
-        {
-            public void valueChanged(ListSelectionEvent evt)
-            {
+        usersTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+            public void valueChanged(ListSelectionEvent evt) {
                 UsersListSelected(evt);
             }
         });
-        usersTable.addMouseListener(new java.awt.event.MouseAdapter()
-        {
-            public void mousePressed(java.awt.event.MouseEvent evt)
-            {
+        usersTable.addMouseListener(new java.awt.event.MouseAdapter() {
+
+            public void mousePressed(java.awt.event.MouseEvent evt) {
                 checkSelectionAndPopupMenu(evt);
             }
 
-            public void mouseReleased(java.awt.event.MouseEvent evt)
-            {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
                 checkSelectionAndPopupMenu(evt);
             }
 
-            public void mouseClicked(java.awt.event.MouseEvent evt)
-            {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
                 if (usersTable.rowAtPoint(new Point(evt.getX(), evt.getY())) == -1) {
                     return;
                 }
 
-                if (evt.getClickCount() >= 2)
+                if (evt.getClickCount() >= 2) {
                     parent.doEditUser();
-            }
-        });
-        
-        // Key Listener trigger for DEL
-        usersTable.addKeyListener(new KeyListener()
-        {
-            public void keyPressed(KeyEvent e)
-            {
-                if (e.getKeyCode() == KeyEvent.VK_DELETE)
-                {
-                	parent.doDeleteUser();
                 }
             }
-            
-            public void keyReleased(KeyEvent e)
-            {
+        });
+
+        // Key Listener trigger for DEL
+        usersTable.addKeyListener(new KeyListener() {
+
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+                    parent.doDeleteUser();
+                }
             }
-            
-            public void keyTyped(KeyEvent e)
-            {
+
+            public void keyReleased(KeyEvent e) {
+            }
+
+            public void keyTyped(KeyEvent e) {
             }
         });
 
     }
 
-    public void updateUserTable()
-    {
+    public void updateUserTable() {
         Object[][] tableData = null;
 
-        if (parent.users != null)
-        {
+        if (parent.users != null) {
             tableData = new Object[parent.users.size()][8];
 
-            for (int i = 0; i < parent.users.size(); i++)
-            {
+            for (int i = 0; i < parent.users.size(); i++) {
                 User temp = parent.users.get(i);
 
                 tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user.png")), temp.getUsername());
@@ -159,51 +137,46 @@ public class UserPanel extends javax.swing.JPanel
             }
         }
 
-        if (usersTable != null)
-        {
+        if (usersTable != null) {
             lastRow = usersTable.getSelectedRow();
             RefreshTableModel model = (RefreshTableModel) usersTable.getModel();
             model.refreshDataVector(tableData);
-        }
-        else
-        {
+        } else {
             usersTable = new MirthTable();
-            usersTable.setModel(new RefreshTableModel(tableData, new String[] { USERNAME_COLUMN_NAME, USERFIRSTNAME_COLUMN_NAME, USERLASTNAME_COLUMN_NAME, USERORGANIZATION_COLUMN_NAME, USER_EMAIL_COLUMN_NAME, USERPHONENUMBER_COLUMN_NAME, USERLASTLOGIN_COLUMN_NAME, USERDESCRIPTION_COLUMN_NAME })
-            {
-                boolean[] canEdit = new boolean[] { false, false, false, false, false, false, false, false };
+            usersTable.setModel(new RefreshTableModel(tableData, new String[]{USERNAME_COLUMN_NAME, USERFIRSTNAME_COLUMN_NAME, USERLASTNAME_COLUMN_NAME, USERORGANIZATION_COLUMN_NAME, USER_EMAIL_COLUMN_NAME, USERPHONENUMBER_COLUMN_NAME, USERLASTLOGIN_COLUMN_NAME, USERDESCRIPTION_COLUMN_NAME}) {
 
-                public boolean isCellEditable(int rowIndex, int columnIndex)
-                {
+                boolean[] canEdit = new boolean[]{false, false, false, false, false, false, false, false};
+
+                public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
                 }
             });
         }
 
-        if (lastRow >= 0 && lastRow < usersTable.getRowCount())
+        if (lastRow >= 0 && lastRow < usersTable.getRowCount()) {
             usersTable.setRowSelectionInterval(lastRow, lastRow);
-        else
+        } else {
             lastRow = UIConstants.ERROR_CONSTANT;
-        
-        // Set highlighter.
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
-        {
-        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
-        	usersTable.setHighlighters(highlighter);
         }
-        
+
+        // Set highlighter.
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+            Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+            usersTable.setHighlighters(highlighter);
+        }
+
     }
 
     /**
      * Shows the popup menu when the trigger button (right-click) has been
      * pushed.  Deselects the rows if no row was selected.
      */
-    private void checkSelectionAndPopupMenu(java.awt.event.MouseEvent evt)
-    {
+    private void checkSelectionAndPopupMenu(java.awt.event.MouseEvent evt) {
         int row = usersTable.rowAtPoint(new Point(evt.getX(), evt.getY()));
         if (row == -1) {
             deselectRows();
         }
-        
+
         if (evt.isPopupTrigger()) {
             if (row != -1) {
                 usersTable.setRowSelectionInterval(row, row);
@@ -216,11 +189,9 @@ public class UserPanel extends javax.swing.JPanel
      * An action to set the correct tasks to visible when a user is selected in
      * the table.
      */
-    private void UsersListSelected(ListSelectionEvent evt)
-    {
+    private void UsersListSelected(ListSelectionEvent evt) {
         int row = usersTable.getSelectedRow();
-        if (row >= 0 && row < usersTable.getRowCount())
-        {
+        if (row >= 0 && row < usersTable.getRowCount()) {
             parent.setVisibleTasks(parent.userTasks, parent.userPopupMenu, 2, -1, true);
         }
     }
@@ -228,21 +199,17 @@ public class UserPanel extends javax.swing.JPanel
     /**
      * Returns the selected row in the user table.
      */
-    public int getSelectedRow()
-    {
+    public int getSelectedRow() {
         return usersTable.getSelectedRow();
     }
 
     /**
      * Sets the selected user to user with the given 'userName'.
      */
-    public boolean setSelectedUser(String userName)
-    {
+    public boolean setSelectedUser(String userName) {
         int columnNumber = usersTable.getColumnViewIndex(USERNAME_COLUMN_NAME);
-        for (int i = 0; i < parent.users.size(); i++)
-        {
-            if (userName.equals((String) (((CellData) usersTable.getValueAt(i, columnNumber)).getText())))
-            {
+        for (int i = 0; i < parent.users.size(); i++) {
+            if (userName.equals((String) (((CellData) usersTable.getValueAt(i, columnNumber)).getText()))) {
                 usersTable.setRowSelectionInterval(i, i);
                 return true;
             }
@@ -254,18 +221,14 @@ public class UserPanel extends javax.swing.JPanel
      * Returns the index according to the stored server's user list of the
      * currently selected user.
      */
-    public int getUserIndex()
-    {
+    public int getUserIndex() {
         int columnNumber = usersTable.getColumnViewIndex(USERNAME_COLUMN_NAME);
 
-        if (usersTable.getSelectedRow() != -1)
-        {
+        if (usersTable.getSelectedRow() != -1) {
             String userName = ((CellData) usersTable.getValueAt(getSelectedRow(), columnNumber)).getText();
 
-            for (int i = 0; i < parent.users.size(); i++)
-            {
-                if (parent.users.get(i).getUsername().equals(userName))
-                {
+            for (int i = 0; i < parent.users.size(); i++) {
+                if (parent.users.get(i).getUsername().equals(userName)) {
                     return i;
                 }
             }
@@ -273,8 +236,7 @@ public class UserPanel extends javax.swing.JPanel
         return UIConstants.ERROR_CONSTANT;
     }
 
-    public void deselectRows()
-    {
+    public void deselectRows() {
         usersTable.clearSelection();
         parent.setVisibleTasks(parent.userTasks, parent.userPopupMenu, 2, -1, false);
     }
@@ -285,25 +247,28 @@ public class UserPanel extends javax.swing.JPanel
      * regenerated by the Form Editor.
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code
-    // ">//GEN-BEGIN:initComponents
-    private void initComponents()
-    {
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
         usersPane = new javax.swing.JScrollPane();
         usersTable = null;
 
         usersPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         usersPane.setViewportView(usersTable);
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
-        layout.setHorizontalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(usersPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE));
-        layout.setVerticalGroup(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING).add(usersPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE));
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(usersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(usersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+        );
     }// </editor-fold>//GEN-END:initComponents
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane usersPane;
-
     public com.webreach.mirth.client.ui.components.MirthTable usersTable;
     // End of variables declaration//GEN-END:variables
-
 }

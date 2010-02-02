@@ -1,28 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.connectors.ws;
 
 import java.awt.Component;
@@ -69,43 +44,40 @@ import com.webreach.mirth.model.converters.ObjectXMLSerializer;
  * A form that extends from ConnectorClass. All methods implemented are
  * described in ConnectorClass.
  */
-public class WebServiceListener extends ConnectorClass
-{
+public class WebServiceListener extends ConnectorClass {
+
     private final int USERNAME_COLUMN_NUMBER = 0;
     private final int PASSWORD_COLUMN_NUMBER = 1;
     private final String USERNAME_COLUMN_NAME = "Username";
     private final String PASSWORD_COLUMN_NAME = "Password";
 
-    public WebServiceListener()
-    {
+    public WebServiceListener() {
         name = WebServiceListenerProperties.name;
         initComponents();
         wsdlURLField.setEditable(false);
         methodField.setEditable(false);
     }
 
-    public Properties getProperties()
-    {
+    public Properties getProperties() {
         Properties properties = new Properties();
         properties.put(WebServiceListenerProperties.DATATYPE, name);
         properties.put(WebServiceListenerProperties.WEBSERVICE_HOST, listenerAddressField.getText());
         properties.put(WebServiceListenerProperties.WEBSERVICE_PORT, portField.getText());
         properties.put(WebServiceListenerProperties.WEBSERVICE_CLASS_NAME, classNameField.getText());
         properties.put(WebServiceListenerProperties.WEBSERVICE_SERVICE_NAME, serviceNameField.getText());
-        properties.put(WebServiceListenerProperties.WEBSERVICE_RESPONSE_VALUE, (String)respondFromComboBox.getSelectedItem());
-        
+        properties.put(WebServiceListenerProperties.WEBSERVICE_RESPONSE_VALUE, (String) respondFromComboBox.getSelectedItem());
+
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         ArrayList<ArrayList<String>> credentials = getCredentials();
         properties.put(WebServiceListenerProperties.WEBSERVICE_USERNAMES, serializer.toXML(credentials.get(0)));
         properties.put(WebServiceListenerProperties.WEBSERVICE_PASSWORDS, serializer.toXML(credentials.get(1)));
-        
+
         return properties;
     }
 
-    public void setProperties(Properties props)
-    {
+    public void setProperties(Properties props) {
         resetInvalidProperties();
-        
+
         listenerAddressField.setText(props.getProperty(WebServiceListenerProperties.WEBSERVICE_HOST));
         updateListenerAddressRadio();
 
@@ -117,11 +89,12 @@ public class WebServiceListener extends ConnectorClass
         serviceNameField.setText(props.getProperty(WebServiceListenerProperties.WEBSERVICE_SERVICE_NAME));
         updateResponseDropDown();
 
-        if (parent.channelEditPanel.synchronousCheckBox.isSelected())
-            respondFromComboBox.setSelectedItem(props.getProperty(WebServiceListenerProperties.WEBSERVICE_RESPONSE_VALUE));        
-        
+        if (parent.channelEditPanel.synchronousCheckBox.isSelected()) {
+            respondFromComboBox.setSelectedItem(props.getProperty(WebServiceListenerProperties.WEBSERVICE_RESPONSE_VALUE));
+        }
+
         updateWSDL();
-        
+
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         ArrayList<ArrayList<String>> credentials = new ArrayList<ArrayList<String>>();
         credentials.add((ArrayList<String>) serializer.fromXML((String) props.get(WebServiceListenerProperties.WEBSERVICE_USERNAMES)));
@@ -129,8 +102,7 @@ public class WebServiceListener extends ConnectorClass
         setCredentials(credentials);
     }
 
-    public Properties getDefaults()
-    {
+    public Properties getDefaults() {
         return new WebServiceListenerProperties().getDefaults();
     }
 
@@ -154,99 +126,94 @@ public class WebServiceListener extends ConnectorClass
         }
     }
 
-    public void updateWSDL()
-    {
+    public void updateWSDL() {
         String server = "<server ip>";
         try {
             server = new URI(PlatformUI.SERVER_NAME).getHost();
         } catch (Exception e) {
             // ignore exceptions getting the server ip
         }
-        
+
         wsdlURLField.setText("http://" + server + ":" + portField.getText() + "/services/" + serviceNameField.getText() + "?wsdl");
     }
 
-    public boolean checkProperties(Properties props, boolean highlight)
-    {
+    public boolean checkProperties(Properties props, boolean highlight) {
         resetInvalidProperties();
         boolean valid = true;
 
-        if (((String) props.get(WebServiceListenerProperties.WEBSERVICE_HOST)).length() == 0)
-        {
+        if (((String) props.get(WebServiceListenerProperties.WEBSERVICE_HOST)).length() == 0) {
             valid = false;
-            if (highlight)
+            if (highlight) {
                 listenerAddressField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
 
-        if (((String) props.get(WebServiceListenerProperties.WEBSERVICE_PORT)).length() == 0)
-        {
+        if (((String) props.get(WebServiceListenerProperties.WEBSERVICE_PORT)).length() == 0) {
             valid = false;
-            if (highlight)
-            	portField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                portField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        
-        if (((String) props.get(WebServiceListenerProperties.WEBSERVICE_CLASS_NAME)).length() == 0)
-        {
+
+        if (((String) props.get(WebServiceListenerProperties.WEBSERVICE_CLASS_NAME)).length() == 0) {
             valid = false;
-            if (highlight)
+            if (highlight) {
                 classNameField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        
-        if (((String) props.get(WebServiceListenerProperties.WEBSERVICE_SERVICE_NAME)).length() == 0)
-        {
+
+        if (((String) props.get(WebServiceListenerProperties.WEBSERVICE_SERVICE_NAME)).length() == 0) {
             valid = false;
-            if (highlight)
-            	serviceNameField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                serviceNameField.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        
+
         return valid;
     }
-    
-    private void resetInvalidProperties()
-    {
+
+    private void resetInvalidProperties() {
         listenerAddressField.setBackground(null);
         portField.setBackground(null);
         classNameField.setBackground(null);
         serviceNameField.setBackground(null);
     }
 
-    public String doValidate(Properties props, boolean highlight)
-    {
-    	String error = null;
-    	
-    	if (!checkProperties(props, highlight))
-    		error = "Error in the form for connector \"" + getName() + "\".\n\n";
-    	
-    	return error;
+    public String doValidate(Properties props, boolean highlight) {
+        String error = null;
+
+        if (!checkProperties(props, highlight)) {
+            error = "Error in the form for connector \"" + getName() + "\".\n\n";
+        }
+
+        return error;
     }
-    
-    
-    
+
     public void setCredentials(ArrayList<ArrayList<String>> credentials) {
 
         ArrayList<String> usernames = credentials.get(0);
         ArrayList<String> passwords = credentials.get(1);
-        
+
         Object[][] tableData = new Object[usernames.size()][2];
 
         credentialsTable = new MirthTable();
 
-        for (int i = 0; i < usernames.size(); i++)
-        {
+        for (int i = 0; i < usernames.size(); i++) {
             tableData[i][USERNAME_COLUMN_NUMBER] = usernames.get(i);
             tableData[i][PASSWORD_COLUMN_NUMBER] = passwords.get(i);
         }
-        
-        credentialsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { USERNAME_COLUMN_NAME, PASSWORD_COLUMN_NAME }) {
-            boolean[] canEdit = new boolean[] { true, true };
 
-            public boolean isCellEditable(int rowIndex, int columnIndex)
-            {
+        credentialsTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[]{USERNAME_COLUMN_NAME, PASSWORD_COLUMN_NAME}) {
+
+            boolean[] canEdit = new boolean[]{true, true};
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit[columnIndex];
             }
         });
 
         credentialsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
             public void valueChanged(ListSelectionEvent evt) {
                 if (credentialsTable.getSelectedModelIndex() != -1) {
                     deleteButton.setEnabled(true);
@@ -257,10 +224,9 @@ public class WebServiceListener extends ConnectorClass
         });
 
         class AttachmentsTableCellEditor extends AbstractCellEditor implements TableCellEditor {
+
             JComponent component = new JTextField();
-
             Object originalValue;
-
             boolean checkUnique;
 
             public AttachmentsTableCellEditor(boolean checkUnique) {
@@ -295,7 +261,7 @@ public class WebServiceListener extends ConnectorClass
                 } else {
                     parent.enableSave();
                 }
-                    
+
                 deleteButton.setEnabled(true);
 
                 return super.stopCellEditing();
@@ -316,16 +282,15 @@ public class WebServiceListener extends ConnectorClass
             /**
              * Enables the editor only for double-clicks.
              */
-            public boolean isCellEditable(EventObject evt)
-            {
-                if (evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2)
-                {
+            public boolean isCellEditable(EventObject evt) {
+                if (evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2) {
                     deleteButton.setEnabled(false);
                     return true;
                 }
                 return false;
             }
-        };
+        }
+        ;
 
         credentialsTable.getColumnModel().getColumn(credentialsTable.getColumnModelIndex(USERNAME_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(true));
         credentialsTable.getColumnModel().getColumn(credentialsTable.getColumnModelIndex(PASSWORD_COLUMN_NAME)).setCellEditor(new AttachmentsTableCellEditor(false));
@@ -337,8 +302,7 @@ public class WebServiceListener extends ConnectorClass
         credentialsTable.setOpaque(true);
         credentialsTable.setSortable(true);
 
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
-        {
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
             credentialsTable.setHighlighters(highlighter);
         }
@@ -349,29 +313,29 @@ public class WebServiceListener extends ConnectorClass
 
     public ArrayList<ArrayList<String>> getCredentials() {
         ArrayList<ArrayList<String>> credentials = new ArrayList<ArrayList<String>>();
-        
+
         ArrayList<String> usernames = new ArrayList<String>();
         ArrayList<String> passwords = new ArrayList<String>();
 
         for (int i = 0; i < credentialsTable.getModel().getRowCount(); i++) {
             if (((String) credentialsTable.getModel().getValueAt(i, USERNAME_COLUMN_NUMBER)).length() > 0) {
-                usernames.add((String)credentialsTable.getModel().getValueAt(i, USERNAME_COLUMN_NUMBER));
-                passwords.add((String)credentialsTable.getModel().getValueAt(i, PASSWORD_COLUMN_NUMBER));
+                usernames.add((String) credentialsTable.getModel().getValueAt(i, USERNAME_COLUMN_NUMBER));
+                passwords.add((String) credentialsTable.getModel().getValueAt(i, PASSWORD_COLUMN_NUMBER));
             }
         }
-        
+
         credentials.add(usernames);
         credentials.add(passwords);
 
         return credentials;
     }
-    
+
     public void stopCellEditing() {
         if (credentialsTable.isEditing()) {
             credentialsTable.getColumnModel().getColumn(credentialsTable.convertColumnIndexToModel(credentialsTable.getEditingColumn())).getCellEditor().stopCellEditing();
         }
     }
-    
+
     /**
      * Get the name that should be used for a new user so that it is unique.
      */
@@ -380,22 +344,21 @@ public class WebServiceListener extends ConnectorClass
 
         for (int i = 1; i <= size; i++) {
             boolean exists = false;
-            
+
             for (int j = 0; j < size - 1; j++) {
-                if (((String) credentialsTable.getModel().getValueAt(j, credentialsTable.getColumnModelIndex(USERNAME_COLUMN_NAME))).equalsIgnoreCase(temp + i))
+                if (((String) credentialsTable.getModel().getValueAt(j, credentialsTable.getColumnModelIndex(USERNAME_COLUMN_NAME))).equalsIgnoreCase(temp + i)) {
                     exists = true;
+                }
             }
-            
+
             if (!exists) {
                 return temp + i;
             }
         }
         return "";
     }
-    
 
-    public void updateResponseDropDown()
-    {
+    public void updateResponseDropDown() {
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
 
         String selectedItem = (String) respondFromComboBox.getSelectedItem();
@@ -411,18 +374,13 @@ public class WebServiceListener extends ConnectorClass
 
         List<String> scripts = new ArrayList<String>();
 
-        for (Connector connector : channel.getDestinationConnectors())
-        {
-            if (connector.getTransportName().equals("Database Writer"))
-            {
-                if (connector.getProperties().getProperty("useScript").equals(UIConstants.YES_OPTION))
-                {
+        for (Connector connector : channel.getDestinationConnectors()) {
+            if (connector.getTransportName().equals("Database Writer")) {
+                if (connector.getProperties().getProperty("useScript").equals(UIConstants.YES_OPTION)) {
                     scripts.add(connector.getProperties().getProperty("script"));
                 }
 
-            }
-            else if (connector.getTransportName().equals("JavaScript Writer"))
-            {
+            } else if (connector.getTransportName().equals("JavaScript Writer")) {
                 scripts.add(connector.getProperties().getProperty("script"));
             }
 
@@ -433,27 +391,22 @@ public class WebServiceListener extends ConnectorClass
         Pattern pattern = Pattern.compile(RESULT_PATTERN);
 
         int i = 0;
-        for (Iterator it = stepsToCheck.iterator(); it.hasNext();)
-        {
+        for (Iterator it = stepsToCheck.iterator(); it.hasNext();) {
             Step step = (Step) it.next();
             Map data;
             data = (Map) step.getData();
 
-            if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE))
-            {
+            if (step.getType().equalsIgnoreCase(TransformerPane.JAVASCRIPT_TYPE)) {
                 Matcher matcher = pattern.matcher(step.getScript());
-                while (matcher.find())
-                {
+                while (matcher.find()) {
                     String key = matcher.group(1);
                     variables.add(key);
                 }
-            }
-            else if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE))
-            {
-                if (data.containsKey(UIConstants.IS_GLOBAL))
-                {
-                    if (((String) data.get(UIConstants.IS_GLOBAL)).equalsIgnoreCase(UIConstants.IS_GLOBAL_RESPONSE))
+            } else if (step.getType().equalsIgnoreCase(TransformerPane.MAPPER_TYPE)) {
+                if (data.containsKey(UIConstants.IS_GLOBAL)) {
+                    if (((String) data.get(UIConstants.IS_GLOBAL)).equalsIgnoreCase(UIConstants.IS_GLOBAL_RESPONSE)) {
                         variables.add((String) data.get("Variable"));
+                    }
                 }
             }
         }
@@ -461,13 +414,10 @@ public class WebServiceListener extends ConnectorClass
         scripts.add(channel.getPreprocessingScript());
         scripts.add(channel.getPostprocessingScript());
 
-        for (String script : scripts)
-        {
-            if (script != null && script.length() > 0)
-            {
+        for (String script : scripts) {
+            if (script != null && script.length() > 0) {
                 Matcher matcher = pattern.matcher(script);
-                while (matcher.find())
-                {
+                while (matcher.find()) {
                     String key = matcher.group(1);
                     variables.add(key);
                 }
@@ -476,26 +426,24 @@ public class WebServiceListener extends ConnectorClass
 
         respondFromComboBox.setModel(new DefaultComboBoxModel(variables.toArray()));
 
-        if(variables.contains(selectedItem))
+        if (variables.contains(selectedItem)) {
             respondFromComboBox.setSelectedItem(selectedItem);
-        else
+        } else {
             respondFromComboBox.setSelectedIndex(0);
+        }
 
-        if (!parent.channelEditPanel.synchronousCheckBox.isSelected())
-        {
+        if (!parent.channelEditPanel.synchronousCheckBox.isSelected()) {
             respondFromComboBox.setEnabled(false);
             responseFromLabel.setEnabled(false);
             respondFromComboBox.setSelectedIndex(0);
-        }
-        else
-        {
+        } else {
             respondFromComboBox.setEnabled(true);
             responseFromLabel.setEnabled(true);
         }
 
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -661,94 +609,94 @@ public class WebServiceListener extends ConnectorClass
 
         classNameLabel.setText("Service Class Name:");
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel1)
-                    .add(jLabel3)
-                    .add(URL)
-                    .add(URL1)
-                    .add(jLabel2)
-                    .add(responseFromLabel)
-                    .add(webServiceLabel)
-                    .add(credentialsLabel)
-                    .add(classNameLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(credentialsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 343, Short.MAX_VALUE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                            .add(newButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(deleteButton)))
-                    .add(respondFromComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(serviceNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 150, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(portField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                        .add(org.jdesktop.layout.GroupLayout.LEADING, wsdlURLField)
-                        .add(org.jdesktop.layout.GroupLayout.LEADING, methodField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE))
-                    .add(layout.createSequentialGroup()
-                        .add(classNameDefaultRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(classNameCustomRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(listenerAllRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(listenerSpecificRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(listenerAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 155, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(classNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel3)
+                    .addComponent(URL)
+                    .addComponent(URL1)
+                    .addComponent(jLabel2)
+                    .addComponent(responseFromLabel)
+                    .addComponent(webServiceLabel)
+                    .addComponent(credentialsLabel)
+                    .addComponent(classNameLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(credentialsPane, javax.swing.GroupLayout.DEFAULT_SIZE, 343, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(newButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(deleteButton)))
+                    .addComponent(respondFromComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(serviceNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(portField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(wsdlURLField, javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(methodField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(classNameDefaultRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(classNameCustomRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(listenerAllRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(listenerSpecificRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(listenerAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(classNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel3)
-                    .add(listenerAllRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(listenerSpecificRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(listenerAddressField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
-                    .add(portField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(classNameDefaultRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(classNameCustomRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(webServiceLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(classNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(classNameLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(URL)
-                    .add(serviceNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(URL1)
-                    .add(wsdlURLField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel2)
-                    .add(methodField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(responseFromLabel)
-                    .add(respondFromComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(credentialsLabel)
-                    .add(layout.createSequentialGroup()
-                        .add(newButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(deleteButton))
-                    .add(credentialsPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 118, Short.MAX_VALUE))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(listenerAllRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(listenerSpecificRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(listenerAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(portField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(classNameDefaultRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(classNameCustomRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(webServiceLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(classNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(classNameLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(URL)
+                    .addComponent(serviceNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(URL1)
+                    .addComponent(wsdlURLField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(methodField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(responseFromLabel)
+                    .addComponent(respondFromComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(credentialsLabel)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(newButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(deleteButton))
+                    .addComponent(credentialsPane, javax.swing.GroupLayout.DEFAULT_SIZE, 118, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -785,37 +733,36 @@ public class WebServiceListener extends ConnectorClass
 
     private void newButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newButtonActionPerformed
         stopCellEditing();
-        ((DefaultTableModel) credentialsTable.getModel()).addRow(new Object[] { getNewUsername(credentialsTable.getModel().getRowCount() + 1), "" });
+        ((DefaultTableModel) credentialsTable.getModel()).addRow(new Object[]{getNewUsername(credentialsTable.getModel().getRowCount() + 1), ""});
         int newViewIndex = credentialsTable.convertRowIndexToView(credentialsTable.getModel().getRowCount() - 1);
         credentialsTable.setRowSelectionInterval(newViewIndex, newViewIndex);
-        
+
         credentialsPane.getViewport().setViewPosition(new Point(0, credentialsTable.getRowHeight() * credentialsTable.getModel().getRowCount()));
         parent.enableSave();
     }//GEN-LAST:event_newButtonActionPerformed
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
         stopCellEditing();
-        
+
         int selectedModelIndex = credentialsTable.getSelectedModelIndex();
         int newViewIndex = credentialsTable.convertRowIndexToView(selectedModelIndex);
         if (newViewIndex == (credentialsTable.getModel().getRowCount() - 1)) {
             newViewIndex--;
         }
 
-        ((DefaultTableModel)credentialsTable.getModel()).removeRow(selectedModelIndex);
-        
+        ((DefaultTableModel) credentialsTable.getModel()).removeRow(selectedModelIndex);
+
         parent.enableSave();
-       
+
         if (credentialsTable.getModel().getRowCount() == 0) {
             credentialsTable.clearSelection();
             deleteButton.setEnabled(false);
         } else {
             credentialsTable.setRowSelectionInterval(newViewIndex, newViewIndex);
         }
-        
-        parent.enableSave();        
-    }//GEN-LAST:event_deleteButtonActionPerformed
 
+        parent.enableSave();
+    }//GEN-LAST:event_deleteButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel URL;
     private javax.swing.JLabel URL1;
@@ -844,5 +791,4 @@ public class WebServiceListener extends ConnectorClass
     private javax.swing.JLabel webServiceLabel;
     private javax.swing.JTextField wsdlURLField;
     // End of variables declaration//GEN-END:variables
-
 }

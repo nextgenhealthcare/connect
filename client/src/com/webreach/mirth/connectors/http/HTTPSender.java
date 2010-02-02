@@ -1,28 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.connectors.http;
 
 import java.awt.Component;
@@ -63,302 +38,284 @@ import com.webreach.mirth.util.ConnectionTestResponse;
  * A form that extends from ConnectorClass. All methods implemented are
  * described in ConnectorClass.
  */
-public class HTTPSender extends ConnectorClass
-{
+public class HTTPSender extends ConnectorClass {
+
     private final int VARIABLE_COLUMN = 0;
-    
     private final int VALUE_COLUMN = 1;
-    
     private final String VARIABLE_COLUMN_NAME = "Variable";
-    
     private final String VALUE_COLUMN_NAME = "Value";
-    
     private final String PAYLOAD_KEY = "$payload";
-    
     private int propertiesLastIndex = -1;
-    
     private int headerLastIndex = -1;
-    
     /** Creates new form HTTPWriter */
     private HashMap channelList;
-    
-    public HTTPSender()
-    {
+
+    public HTTPSender() {
         name = HTTPSenderProperties.name;
         initComponents();
-        propertiesPane.addMouseListener(new java.awt.event.MouseAdapter()
-        {
-            public void mouseClicked(java.awt.event.MouseEvent evt)
-            {
+        propertiesPane.addMouseListener(new java.awt.event.MouseAdapter() {
+
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
                 deselectRows(propertiesTable, deleteButton);
             }
         });
-        headerVariablesPane.addMouseListener(new java.awt.event.MouseAdapter()
-        {
-            public void mouseClicked(java.awt.event.MouseEvent evt)
-            {
+        headerVariablesPane.addMouseListener(new java.awt.event.MouseAdapter() {
+
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
                 deselectRows(headerVariablesTable, headerDeleteButton);
             }
         });
         deleteButton.setEnabled(false);
         headerDeleteButton.setEnabled(false);
     }
-    
-    public Properties getProperties()
-    {
+
+    public Properties getProperties() {
         Properties properties = new Properties();
         properties.put(HTTPSenderProperties.DATATYPE, name);
         properties.put(HTTPSenderProperties.HTTP_URL, httpURL.getText());
-        
-        if (post.isSelected())
-            properties.put(HTTPSenderProperties.HTTP_METHOD, "post");
-        else if(get.isSelected())
-            properties.put(HTTPSenderProperties.HTTP_METHOD, "get");
-        else if(put.isSelected())
-            properties.put(HTTPSenderProperties.HTTP_METHOD, "put");
-        else if(delete.isSelected())
-            properties.put(HTTPSenderProperties.HTTP_METHOD, "delete");
-        
-        if (multipartYesButton.isSelected())
-            properties.put(HTTPSenderProperties.HTTP_MULTIPART, UIConstants.YES_OPTION);
-        else
-            properties.put(HTTPSenderProperties.HTTP_MULTIPART, UIConstants.NO_OPTION);
-        
-        if (includeResponseHeadersYesButton.isSelected())
-            properties.put(HTTPSenderProperties.HTTP_EXCLUDE_HEADERS, UIConstants.NO_OPTION);
-        else
-            properties.put(HTTPSenderProperties.HTTP_EXCLUDE_HEADERS, UIConstants.YES_OPTION);
-        
-        properties.put(HTTPSenderProperties.CHANNEL_ID, channelList.get((String) channelNames.getSelectedItem()));
-        
-        properties.put(QueuedSenderProperties.RECONNECT_INTERVAL, reconnectInterval.getText());
-        
-        if (usePersistentQueuesYesRadio.isSelected())
-            properties.put(QueuedSenderProperties.USE_PERSISTENT_QUEUES, UIConstants.YES_OPTION);
-        else
-            properties.put(QueuedSenderProperties.USE_PERSISTENT_QUEUES, UIConstants.NO_OPTION);
 
-        if (rotateMessages.isSelected())
+        if (post.isSelected()) {
+            properties.put(HTTPSenderProperties.HTTP_METHOD, "post");
+        } else if (get.isSelected()) {
+            properties.put(HTTPSenderProperties.HTTP_METHOD, "get");
+        } else if (put.isSelected()) {
+            properties.put(HTTPSenderProperties.HTTP_METHOD, "put");
+        } else if (delete.isSelected()) {
+            properties.put(HTTPSenderProperties.HTTP_METHOD, "delete");
+        }
+
+        if (multipartYesButton.isSelected()) {
+            properties.put(HTTPSenderProperties.HTTP_MULTIPART, UIConstants.YES_OPTION);
+        } else {
+            properties.put(HTTPSenderProperties.HTTP_MULTIPART, UIConstants.NO_OPTION);
+        }
+
+        if (includeResponseHeadersYesButton.isSelected()) {
+            properties.put(HTTPSenderProperties.HTTP_EXCLUDE_HEADERS, UIConstants.NO_OPTION);
+        } else {
+            properties.put(HTTPSenderProperties.HTTP_EXCLUDE_HEADERS, UIConstants.YES_OPTION);
+        }
+
+        properties.put(HTTPSenderProperties.CHANNEL_ID, channelList.get((String) channelNames.getSelectedItem()));
+
+        properties.put(QueuedSenderProperties.RECONNECT_INTERVAL, reconnectInterval.getText());
+
+        if (usePersistentQueuesYesRadio.isSelected()) {
+            properties.put(QueuedSenderProperties.USE_PERSISTENT_QUEUES, UIConstants.YES_OPTION);
+        } else {
+            properties.put(QueuedSenderProperties.USE_PERSISTENT_QUEUES, UIConstants.NO_OPTION);
+        }
+
+        if (rotateMessages.isSelected()) {
             properties.put(QueuedSenderProperties.ROTATE_QUEUE, UIConstants.YES_OPTION);
-        else
+        } else {
             properties.put(QueuedSenderProperties.ROTATE_QUEUE, UIConstants.NO_OPTION);
-        
+        }
+
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         properties.put(HTTPSenderProperties.HTTP_ADDITIONAL_PROPERTIES, serializer.toXML(getAdditionalProperties()));
         properties.put(HTTPSenderProperties.HTTP_HEADER_PROPERTIES, serializer.toXML(getHeaderProperties()));
         return properties;
     }
-    
-    public void setProperties(Properties props)
-    {
+
+    public void setProperties(Properties props) {
         resetInvalidProperties();
-        
+
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
-        
+
         httpURL.setText((String) props.get(HTTPSenderProperties.HTTP_URL));
-        
-        if (((String) props.get(HTTPSenderProperties.HTTP_METHOD)).equalsIgnoreCase("post"))
+
+        if (((String) props.get(HTTPSenderProperties.HTTP_METHOD)).equalsIgnoreCase("post")) {
             post.setSelected(true);
-        else if (((String) props.get(HTTPSenderProperties.HTTP_METHOD)).equalsIgnoreCase("get"))
+        } else if (((String) props.get(HTTPSenderProperties.HTTP_METHOD)).equalsIgnoreCase("get")) {
             get.setSelected(true);
-        else if (((String) props.get(HTTPSenderProperties.HTTP_METHOD)).equalsIgnoreCase("put"))
+        } else if (((String) props.get(HTTPSenderProperties.HTTP_METHOD)).equalsIgnoreCase("put")) {
             put.setSelected(true);
-        else if (((String) props.get(HTTPSenderProperties.HTTP_METHOD)).equalsIgnoreCase("delete"))
+        } else if (((String) props.get(HTTPSenderProperties.HTTP_METHOD)).equalsIgnoreCase("delete")) {
             delete.setSelected(true);
-        
-        if (((String) props.get(HTTPSenderProperties.HTTP_MULTIPART)).equals(UIConstants.YES_OPTION))
+        }
+
+        if (((String) props.get(HTTPSenderProperties.HTTP_MULTIPART)).equals(UIConstants.YES_OPTION)) {
             multipartYesButton.setSelected(true);
-        else
+        } else {
             multipartNoButton.setSelected(true);
-        
+        }
+
         checkMultipartEnabled();
-        
-        if (((String) props.get(HTTPSenderProperties.HTTP_EXCLUDE_HEADERS)).equals(UIConstants.YES_OPTION))
+
+        if (((String) props.get(HTTPSenderProperties.HTTP_EXCLUDE_HEADERS)).equals(UIConstants.YES_OPTION)) {
             includeResponseHeadersNoButton.setSelected(true);
-        else
+        } else {
             includeResponseHeadersYesButton.setSelected(true);
-        
+        }
+
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-        
-        if (((String) props.get(HTTPSenderProperties.HTTP_ADDITIONAL_PROPERTIES)).length() > 0)
+
+        if (((String) props.get(HTTPSenderProperties.HTTP_ADDITIONAL_PROPERTIES)).length() > 0) {
             setAdditionalProperties((Properties) serializer.fromXML((String) props.get(HTTPSenderProperties.HTTP_ADDITIONAL_PROPERTIES)));
-        else
+        } else {
             setAdditionalProperties(new Properties());
-        
-        if (((String) props.get(HTTPSenderProperties.HTTP_HEADER_PROPERTIES)).length() > 0)
+        }
+
+        if (((String) props.get(HTTPSenderProperties.HTTP_HEADER_PROPERTIES)).length() > 0) {
             setHeaderProperties((Properties) serializer.fromXML((String) props.get(HTTPSenderProperties.HTTP_HEADER_PROPERTIES)));
-        else
+        } else {
             setHeaderProperties(new Properties());
-        
+        }
+
         reconnectInterval.setText((String) props.get(QueuedSenderProperties.RECONNECT_INTERVAL));
-        
-        if (((String) props.get(QueuedSenderProperties.USE_PERSISTENT_QUEUES)).equals(UIConstants.YES_OPTION))
-        {
+
+        if (((String) props.get(QueuedSenderProperties.USE_PERSISTENT_QUEUES)).equals(UIConstants.YES_OPTION)) {
             usePersistentQueuesYesRadio.setSelected(true);
             usePersistentQueuesYesRadioActionPerformed(null);
-        }
-        else
-        {
+        } else {
             usePersistentQueuesNoRadio.setSelected(true);
             usePersistentQueuesNoRadioActionPerformed(null);
         }
-        
-        if (((String) props.get(QueuedSenderProperties.ROTATE_QUEUE)).equals(UIConstants.YES_OPTION))
+
+        if (((String) props.get(QueuedSenderProperties.ROTATE_QUEUE)).equals(UIConstants.YES_OPTION)) {
             rotateMessages.setSelected(true);
-        else
+        } else {
             rotateMessages.setSelected(false);
-        
+        }
+
         ArrayList<String> channelNameArray = new ArrayList<String>();
         channelList = new HashMap();
         channelList.put("None", "sink");
         channelNameArray.add("None");
-        
+
         String selectedChannelName = "None";
-        
-        for (Channel channel : parent.channels.values())
-        {
-        	if (((String) props.get(HTTPSenderProperties.CHANNEL_ID)).equalsIgnoreCase(channel.getId()))
-        		selectedChannelName = channel.getName();
-        	
+
+        for (Channel channel : parent.channels.values()) {
+            if (((String) props.get(HTTPSenderProperties.CHANNEL_ID)).equalsIgnoreCase(channel.getId())) {
+                selectedChannelName = channel.getName();
+            }
+
             channelList.put(channel.getName(), channel.getId());
             channelNameArray.add(channel.getName());
         }
         channelNames.setModel(new javax.swing.DefaultComboBoxModel(channelNameArray.toArray()));
-        
+
         channelNames.setSelectedItem(selectedChannelName);
-        
+
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
-    
-    public Properties getDefaults()
-    {
+
+    public Properties getDefaults() {
         return new HTTPSenderProperties().getDefaults();
     }
-    
-    public void setAdditionalProperties(Properties properties)
-    {
+
+    public void setAdditionalProperties(Properties properties) {
         Object[][] tableData = new Object[properties.size()][2];
-        
+
         propertiesTable = new MirthTable();
-        
+
         int j = 0;
         Iterator i = properties.entrySet().iterator();
-        while (i.hasNext())
-        {
+        while (i.hasNext()) {
             Map.Entry entry = (Map.Entry) i.next();
             tableData[j][VARIABLE_COLUMN] = (String) entry.getKey();
             tableData[j][VALUE_COLUMN] = (String) entry.getValue();
             j++;
         }
-        
-        propertiesTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { VARIABLE_COLUMN_NAME, VALUE_COLUMN_NAME })
-        {
-            boolean[] canEdit = new boolean[] { true, true };
-            
-            public boolean isCellEditable(int rowIndex, int columnIndex)
-            {
+
+        propertiesTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[]{VARIABLE_COLUMN_NAME, VALUE_COLUMN_NAME}) {
+
+            boolean[] canEdit = new boolean[]{true, true};
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit[columnIndex];
             }
         });
-        
-        propertiesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
-        {
-            public void valueChanged(ListSelectionEvent evt)
-            {
-                if (getSelectedRow(propertiesTable) != -1)
-                {
+
+        propertiesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+            public void valueChanged(ListSelectionEvent evt) {
+                if (getSelectedRow(propertiesTable) != -1) {
                     propertiesLastIndex = getSelectedRow(propertiesTable);
                     deleteButton.setEnabled(true);
-                }
-                else
+                } else {
                     deleteButton.setEnabled(false);
+                }
             }
         });
-        
-        class HTTPTableCellEditor extends AbstractCellEditor implements TableCellEditor
-        {
+
+        class HTTPTableCellEditor extends AbstractCellEditor implements TableCellEditor {
+
             JComponent component = new JTextField();
-            
             Object originalValue;
-            
             boolean checkProperties;
-            
-            public HTTPTableCellEditor(boolean checkProperties)
-            {
+
+            public HTTPTableCellEditor(boolean checkProperties) {
                 super();
                 this.checkProperties = checkProperties;
             }
-            
-            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
-            {
+
+            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
                 // 'value' is value contained in the cell located at (rowIndex,
                 // vColIndex)
                 originalValue = value;
-                
-                if (isSelected)
-                {
+
+                if (isSelected) {
                     // cell (and perhaps other cells) are selected
                 }
-                
+
                 // Configure the component with the specified value
                 ((JTextField) component).setText((String) value);
-                
+
                 // Return the configured component
                 return component;
             }
-            
-            public Object getCellEditorValue()
-            {
+
+            public Object getCellEditorValue() {
                 return ((JTextField) component).getText();
             }
-            
-            public boolean stopCellEditing()
-            {
+
+            public boolean stopCellEditing() {
                 String s = (String) getCellEditorValue();
-                
-                if (checkProperties && (s.length() == 0 || checkUniqueProperty(s)))
+
+                if (checkProperties && (s.length() == 0 || checkUniqueProperty(s))) {
                     super.cancelCellEditing();
-                else
+                } else {
                     parent.enableSave();
-                
+                }
+
                 deleteButton.setEnabled(true);
-                
+
                 return super.stopCellEditing();
             }
-            
-            public boolean checkUniqueProperty(String property)
-            {
+
+            public boolean checkUniqueProperty(String property) {
                 boolean exists = false;
-                
-                for (int i = 0; i < propertiesTable.getRowCount(); i++)
-                {
-                    if (propertiesTable.getValueAt(i, VARIABLE_COLUMN) != null && ((String) propertiesTable.getValueAt(i, VARIABLE_COLUMN)).equalsIgnoreCase(property))
+
+                for (int i = 0; i < propertiesTable.getRowCount(); i++) {
+                    if (propertiesTable.getValueAt(i, VARIABLE_COLUMN) != null && ((String) propertiesTable.getValueAt(i, VARIABLE_COLUMN)).equalsIgnoreCase(property)) {
                         exists = true;
+                    }
                 }
-                
+
                 return exists;
             }
-            
+
             /**
              * Enables the editor only for double-clicks.
              */
-            public boolean isCellEditable(EventObject evt)
-            {
-                if (evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2)
-                {
+            public boolean isCellEditable(EventObject evt) {
+                if (evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2) {
                     deleteButton.setEnabled(false);
                     return true;
                 }
                 return false;
             }
-        };
-        
+        }
+        ;
+
         // Set the custom cell editor for the Destination Name column.
         propertiesTable.getColumnModel().getColumn(propertiesTable.getColumnModel().getColumnIndex(VARIABLE_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(true));
-        
+
         // Set the custom cell editor for the Destination Name column.
         propertiesTable.getColumnModel().getColumn(propertiesTable.getColumnModel().getColumnIndex(VALUE_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(false));
-        
+
         propertiesTable.setSelectionMode(0);
         propertiesTable.setRowSelectionAllowed(true);
         propertiesTable.setRowHeight(UIConstants.ROW_HEIGHT);
@@ -366,140 +323,126 @@ public class HTTPSender extends ConnectorClass
         propertiesTable.setOpaque(true);
         propertiesTable.setSortable(false);
         propertiesTable.getTableHeader().setReorderingAllowed(false);
-        
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
-        {
-        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
-        	propertiesTable.setHighlighters(highlighter);
+
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+            Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+            propertiesTable.setHighlighters(highlighter);
         }
-        
+
         propertiesPane.setViewportView(propertiesTable);
     }
-    
-    public void setHeaderProperties(Properties properties)
-    {
+
+    public void setHeaderProperties(Properties properties) {
         Object[][] tableData = new Object[properties.size()][2];
-        
+
         headerVariablesTable = new MirthTable();
-        
+
         int j = 0;
         Iterator i = properties.entrySet().iterator();
-        while (i.hasNext())
-        {
+        while (i.hasNext()) {
             Map.Entry entry = (Map.Entry) i.next();
             tableData[j][VARIABLE_COLUMN] = (String) entry.getKey();
             tableData[j][VALUE_COLUMN] = (String) entry.getValue();
             j++;
         }
-        
-        headerVariablesTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[] { VARIABLE_COLUMN_NAME, VALUE_COLUMN_NAME })
-        {
-            boolean[] canEdit = new boolean[] { true, true };
-            
-            public boolean isCellEditable(int rowIndex, int columnIndex)
-            {
+
+        headerVariablesTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[]{VARIABLE_COLUMN_NAME, VALUE_COLUMN_NAME}) {
+
+            boolean[] canEdit = new boolean[]{true, true};
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit[columnIndex];
             }
         });
-        
-        headerVariablesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
-        {
-            public void valueChanged(ListSelectionEvent evt)
-            {
-                if (getSelectedRow(headerVariablesTable) != -1)
-                {
+
+        headerVariablesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+            public void valueChanged(ListSelectionEvent evt) {
+                if (getSelectedRow(headerVariablesTable) != -1) {
                     headerLastIndex = getSelectedRow(headerVariablesTable);
                     headerDeleteButton.setEnabled(true);
-                }
-                else
+                } else {
                     headerDeleteButton.setEnabled(false);
+                }
             }
         });
-        
-        class HTTPTableCellEditor extends AbstractCellEditor implements TableCellEditor
-        {
+
+        class HTTPTableCellEditor extends AbstractCellEditor implements TableCellEditor {
+
             JComponent component = new JTextField();
-            
             Object originalValue;
-            
             boolean checkProperties;
-            
-            public HTTPTableCellEditor(boolean checkProperties)
-            {
+
+            public HTTPTableCellEditor(boolean checkProperties) {
                 super();
                 this.checkProperties = checkProperties;
             }
-            
-            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column)
-            {
+
+            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
                 // 'value' is value contained in the cell located at (rowIndex,
                 // vColIndex)
                 originalValue = value;
-                
-                if (isSelected)
-                {
+
+                if (isSelected) {
                     // cell (and perhaps other cells) are selected
                 }
-                
+
                 // Configure the component with the specified value
                 ((JTextField) component).setText((String) value);
-                
+
                 // Return the configured component
                 return component;
             }
-            
-            public Object getCellEditorValue()
-            {
+
+            public Object getCellEditorValue() {
                 return ((JTextField) component).getText();
             }
-            
-            public boolean stopCellEditing()
-            {
+
+            public boolean stopCellEditing() {
                 String s = (String) getCellEditorValue();
-                
-                if (checkProperties && (s.length() == 0 || checkUniqueProperty(s)))
+
+                if (checkProperties && (s.length() == 0 || checkUniqueProperty(s))) {
                     super.cancelCellEditing();
-                else
+                } else {
                     parent.enableSave();
-                
+                }
+
                 headerDeleteButton.setEnabled(true);
-                
+
                 return super.stopCellEditing();
             }
-            
-            public boolean checkUniqueProperty(String property)
-            {
+
+            public boolean checkUniqueProperty(String property) {
                 boolean exists = false;
-                
-                for (int i = 0; i < headerVariablesTable.getRowCount(); i++)
-                {
-                    if (headerVariablesTable.getValueAt(i, VARIABLE_COLUMN) != null && ((String) headerVariablesTable.getValueAt(i, VARIABLE_COLUMN)).equalsIgnoreCase(property))
+
+                for (int i = 0; i < headerVariablesTable.getRowCount(); i++) {
+                    if (headerVariablesTable.getValueAt(i, VARIABLE_COLUMN) != null && ((String) headerVariablesTable.getValueAt(i, VARIABLE_COLUMN)).equalsIgnoreCase(property)) {
                         exists = true;
+                    }
                 }
-                
+
                 return exists;
             }
-            
+
             /**
              * Enables the editor only for double-clicks.
              */
-            public boolean isCellEditable(EventObject evt)
-            {
-                if (evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2)
-                {
+            public boolean isCellEditable(EventObject evt) {
+                if (evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2) {
                     headerDeleteButton.setEnabled(false);
                     return true;
                 }
                 return false;
             }
-        };
-        
+        }
+        ;
+
         // Set the custom cell editor for the Destination Name column.
         headerVariablesTable.getColumnModel().getColumn(headerVariablesTable.getColumnModel().getColumnIndex(VARIABLE_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(true));
-        
+
         // Set the custom cell editor for the Destination Name column.
         headerVariablesTable.getColumnModel().getColumn(headerVariablesTable.getColumnModel().getColumnIndex(VALUE_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(false));
-        
+
         headerVariablesTable.setSelectionMode(0);
         headerVariablesTable.setRowSelectionAllowed(true);
         headerVariablesTable.setRowHeight(UIConstants.ROW_HEIGHT);
@@ -507,112 +450,107 @@ public class HTTPSender extends ConnectorClass
         headerVariablesTable.setOpaque(true);
         headerVariablesTable.setSortable(false);
         headerVariablesTable.getTableHeader().setReorderingAllowed(false);
-        
-        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true))
-        {
-        	Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
-        	headerVariablesTable.setHighlighters(highlighter);
+
+        if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
+            Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
+            headerVariablesTable.setHighlighters(highlighter);
         }
-        
+
         headerVariablesPane.setViewportView(headerVariablesTable);
     }
-    
-    public Map getAdditionalProperties()
-    {
+
+    public Map getAdditionalProperties() {
         Properties properties = new Properties();
-        
-        for (int i = 0; i < propertiesTable.getRowCount(); i++)
-            if (((String) propertiesTable.getValueAt(i, VARIABLE_COLUMN)).length() > 0)
+
+        for (int i = 0; i < propertiesTable.getRowCount(); i++) {
+            if (((String) propertiesTable.getValueAt(i, VARIABLE_COLUMN)).length() > 0) {
                 properties.put(((String) propertiesTable.getValueAt(i, VARIABLE_COLUMN)), ((String) propertiesTable.getValueAt(i, VALUE_COLUMN)));
-        
+            }
+        }
+
         return properties;
     }
-    
-    public Map getHeaderProperties()
-    {
+
+    public Map getHeaderProperties() {
         Properties properties = new Properties();
-        
-        for (int i = 0; i < headerVariablesTable.getRowCount(); i++)
-            if (((String) headerVariablesTable.getValueAt(i, VARIABLE_COLUMN)).length() > 0)
+
+        for (int i = 0; i < headerVariablesTable.getRowCount(); i++) {
+            if (((String) headerVariablesTable.getValueAt(i, VARIABLE_COLUMN)).length() > 0) {
                 properties.put(((String) headerVariablesTable.getValueAt(i, VARIABLE_COLUMN)), ((String) headerVariablesTable.getValueAt(i, VALUE_COLUMN)));
-        
+            }
+        }
+
         return properties;
     }
-    
+
     /** Clears the selection in the table and sets the tasks appropriately */
-    public void deselectRows(MirthTable table, JButton button)
-    {
+    public void deselectRows(MirthTable table, JButton button) {
         table.clearSelection();
         button.setEnabled(false);
     }
-    
+
     /** Get the currently selected table index */
-    public int getSelectedRow(MirthTable table)
-    {
-        if (table.isEditing())
+    public int getSelectedRow(MirthTable table) {
+        if (table.isEditing()) {
             return table.getEditingRow();
-        else
+        } else {
             return table.getSelectedRow();
+        }
     }
-    
+
     /**
      * Get the name that should be used for a new property so that it is unique.
      */
-    private String getNewPropertyName(MirthTable table)
-    {
+    private String getNewPropertyName(MirthTable table) {
         String temp = "Property ";
-        
-        for (int i = 1; i <= table.getRowCount() + 1; i++)
-        {
+
+        for (int i = 1; i <= table.getRowCount() + 1; i++) {
             boolean exists = false;
-            for (int j = 0; j < table.getRowCount(); j++)
-            {
-                if (((String) table.getValueAt(j, VARIABLE_COLUMN)).equalsIgnoreCase(temp + i))
-                {
+            for (int j = 0; j < table.getRowCount(); j++) {
+                if (((String) table.getValueAt(j, VARIABLE_COLUMN)).equalsIgnoreCase(temp + i)) {
                     exists = true;
                 }
             }
-            if (!exists)
+            if (!exists) {
                 return temp + i;
+            }
         }
         return "";
     }
-    
-    public boolean checkProperties(Properties props, boolean highlight)
-    {
+
+    public boolean checkProperties(Properties props, boolean highlight) {
         resetInvalidProperties();
         boolean valid = true;
-        
-        if (((String) props.getProperty(HTTPSenderProperties.HTTP_URL)).length() == 0)
-        {
+
+        if (((String) props.getProperty(HTTPSenderProperties.HTTP_URL)).length() == 0) {
             valid = false;
-            if (highlight)
-            	httpURL.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                httpURL.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        
-        if (((String) props.get(QueuedSenderProperties.USE_PERSISTENT_QUEUES)).equals(UIConstants.YES_OPTION) && ((String) props.get(QueuedSenderProperties.RECONNECT_INTERVAL)).length() == 0)
-        {
+
+        if (((String) props.get(QueuedSenderProperties.USE_PERSISTENT_QUEUES)).equals(UIConstants.YES_OPTION) && ((String) props.get(QueuedSenderProperties.RECONNECT_INTERVAL)).length() == 0) {
             valid = false;
-            if (highlight)
-            	reconnectInterval.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                reconnectInterval.setBackground(UIConstants.INVALID_COLOR);
+            }
         }
-        
+
         return valid;
     }
-    
-    private void resetInvalidProperties()
-    {
+
+    private void resetInvalidProperties() {
         httpURL.setBackground(null);
     }
-    
-    public String doValidate(Properties props, boolean highlight)
-    {
-    	String error = null;
-    	
-    	if (!checkProperties(props, highlight))
-    		error = "Error in the form for connector \"" + getName() + "\".\n\n";
-    	
-    	return error;
+
+    public String doValidate(Properties props, boolean highlight) {
+        String error = null;
+
+        if (!checkProperties(props, highlight)) {
+            error = "Error in the form for connector \"" + getName() + "\".\n\n";
+        }
+
+        return error;
     }
 
     private void checkMultipartEnabled() {
@@ -627,7 +565,7 @@ public class HTTPSender extends ConnectorClass
             multipartNoButton.setSelected(true);
         }
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -866,172 +804,171 @@ public class HTTPSender extends ConnectorClass
         multipartNoButton.setToolTipText("Set not to use multipart in the Content-Type header.");
         multipartNoButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, multipartLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel1)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, URL1)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, responseHeadersLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel36)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, reconnectIntervalLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel2)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel3)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel7))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(multipartYesButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(multipartNoButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(multipartLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(URL1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(responseHeadersLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel36, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(reconnectIntervalLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel7, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(multipartYesButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(multipartNoButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap())
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                        .add(layout.createSequentialGroup()
-                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                .add(layout.createSequentialGroup()
-                                    .add(includeResponseHeadersYesButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                    .add(includeResponseHeadersNoButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                .add(layout.createSequentialGroup()
-                                    .add(httpURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 300, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                    .add(testConnection))
-                                .add(layout.createSequentialGroup()
-                                    .add(post, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                    .add(get, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                    .add(put, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                    .add(delete, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                .add(channelNames, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 250, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .add(layout.createSequentialGroup()
-                                    .add(usePersistentQueuesYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                    .add(usePersistentQueuesNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                    .add(rotateMessages, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                .add(reconnectInterval, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(14, 14, 14))
-                        .add(layout.createSequentialGroup()
-                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                .add(layout.createSequentialGroup()
-                                    .add(headerVariablesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 375, Short.MAX_VALUE)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                                        .add(headerNewButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .add(headerDeleteButton)))
-                                .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                                    .add(propertiesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 375, Short.MAX_VALUE)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                        .add(deleteButton)
-                                        .add(newButton))))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(includeResponseHeadersYesButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(includeResponseHeadersNoButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(httpURL, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(testConnection))
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(post, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(get, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(put, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(delete, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(channelNames, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(usePersistentQueuesYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(usePersistentQueuesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(rotateMessages, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(reconnectInterval, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGap(14, 14, 14))
+                        .addGroup(layout.createSequentialGroup()
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(headerVariablesPane, javax.swing.GroupLayout.DEFAULT_SIZE, 375, Short.MAX_VALUE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addComponent(headerNewButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(headerDeleteButton)))
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                    .addComponent(propertiesPane, javax.swing.GroupLayout.DEFAULT_SIZE, 375, Short.MAX_VALUE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(deleteButton)
+                                        .addComponent(newButton))))
                             .addContainerGap()))))
         );
 
-        layout.linkSize(new java.awt.Component[] {deleteButton, newButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {deleteButton, newButton});
 
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel7)
-                    .add(httpURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(testConnection))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
-                    .add(post, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(get, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(put, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(delete, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(multipartLabel)
-                    .add(multipartYesButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(multipartNoButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(URL1)
-                    .add(channelNames, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(includeResponseHeadersYesButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(includeResponseHeadersNoButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(responseHeadersLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel36)
-                    .add(usePersistentQueuesYesRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(usePersistentQueuesNoRadio, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(rotateMessages, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(reconnectInterval, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(reconnectIntervalLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jLabel2)
-                            .add(newButton))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(deleteButton))
-                    .add(propertiesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 52, Short.MAX_VALUE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(headerVariablesPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 52, Short.MAX_VALUE)
-                    .add(jLabel3)
-                    .add(layout.createSequentialGroup()
-                        .add(headerNewButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(headerDeleteButton)))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel7)
+                    .addComponent(httpURL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(testConnection))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(post, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(get, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(put, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(delete, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(multipartLabel)
+                    .addComponent(multipartYesButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(multipartNoButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(URL1)
+                    .addComponent(channelNames, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(includeResponseHeadersYesButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(includeResponseHeadersNoButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(responseHeadersLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel36)
+                    .addComponent(usePersistentQueuesYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(usePersistentQueuesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(rotateMessages, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(reconnectInterval, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(reconnectIntervalLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel2)
+                            .addComponent(newButton))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(deleteButton))
+                    .addComponent(propertiesPane, javax.swing.GroupLayout.DEFAULT_SIZE, 52, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(headerVariablesPane, javax.swing.GroupLayout.DEFAULT_SIZE, 52, Short.MAX_VALUE)
+                    .addComponent(jLabel3)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(headerNewButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(headerDeleteButton)))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
-    
+
     private void headerDeleteButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_headerDeleteButtonActionPerformed
     {//GEN-HEADEREND:event_headerDeleteButtonActionPerformed
-        if (getSelectedRow(headerVariablesTable) != -1 && !headerVariablesTable.isEditing())
-        {
+        if (getSelectedRow(headerVariablesTable) != -1 && !headerVariablesTable.isEditing()) {
             ((DefaultTableModel) headerVariablesTable.getModel()).removeRow(getSelectedRow(headerVariablesTable));
-            
-            if (headerVariablesTable.getRowCount() != 0)
-            {
-                if (headerLastIndex == 0)
+
+            if (headerVariablesTable.getRowCount() != 0) {
+                if (headerLastIndex == 0) {
                     headerVariablesTable.setRowSelectionInterval(0, 0);
-                else if (headerLastIndex == headerVariablesTable.getRowCount())
+                } else if (headerLastIndex == headerVariablesTable.getRowCount()) {
                     headerVariablesTable.setRowSelectionInterval(headerLastIndex - 1, headerLastIndex - 1);
-                else
+                } else {
                     headerVariablesTable.setRowSelectionInterval(headerLastIndex, headerLastIndex);
+                }
             }
-            
+
             parent.enableSave();
         }
     }//GEN-LAST:event_headerDeleteButtonActionPerformed
-    
+
     private void headerNewButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_headerNewButtonActionPerformed
     {//GEN-HEADEREND:event_headerNewButtonActionPerformed
-        ((DefaultTableModel) headerVariablesTable.getModel()).addRow(new Object[] { getNewPropertyName(headerVariablesTable), "" });
+        ((DefaultTableModel) headerVariablesTable.getModel()).addRow(new Object[]{getNewPropertyName(headerVariablesTable), ""});
         headerVariablesTable.setRowSelectionInterval(headerVariablesTable.getRowCount() - 1, headerVariablesTable.getRowCount() - 1);
         parent.enableSave();
     }//GEN-LAST:event_headerNewButtonActionPerformed
 
 private void usePersistentQueuesNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usePersistentQueuesNoRadioActionPerformed
-rotateMessages.setEnabled(false);
-reconnectInterval.setEnabled(false);
-reconnectIntervalLabel.setEnabled(false);
+    rotateMessages.setEnabled(false);
+    reconnectInterval.setEnabled(false);
+    reconnectIntervalLabel.setEnabled(false);
 }//GEN-LAST:event_usePersistentQueuesNoRadioActionPerformed
 
 private void usePersistentQueuesYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usePersistentQueuesYesRadioActionPerformed
-rotateMessages.setEnabled(true);
-reconnectInterval.setEnabled(true);
-reconnectIntervalLabel.setEnabled(true);
+    rotateMessages.setEnabled(true);
+    reconnectInterval.setEnabled(true);
+    reconnectIntervalLabel.setEnabled(true);
 }//GEN-LAST:event_usePersistentQueuesYesRadioActionPerformed
 
 private void includeResponseHeadersYesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_includeResponseHeadersYesButtonActionPerformed
@@ -1039,56 +976,56 @@ private void includeResponseHeadersYesButtonActionPerformed(java.awt.event.Actio
 }//GEN-LAST:event_includeResponseHeadersYesButtonActionPerformed
 
 private void postActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_postActionPerformed
-	Properties properties = (Properties)getAdditionalProperties();
-	if (!properties.containsKey(PAYLOAD_KEY)) {
-		properties.put(PAYLOAD_KEY, "");
-		setAdditionalProperties(properties);
-	}
+    Properties properties = (Properties) getAdditionalProperties();
+    if (!properties.containsKey(PAYLOAD_KEY)) {
+        properties.put(PAYLOAD_KEY, "");
+        setAdditionalProperties(properties);
+    }
     checkMultipartEnabled();
 }//GEN-LAST:event_postActionPerformed
 
 private void getActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getActionPerformed
-	Properties properties = (Properties)getAdditionalProperties();
-	if (properties.containsKey(PAYLOAD_KEY)) {
-		properties.remove(PAYLOAD_KEY);
-		setAdditionalProperties(properties);
-	}
+    Properties properties = (Properties) getAdditionalProperties();
+    if (properties.containsKey(PAYLOAD_KEY)) {
+        properties.remove(PAYLOAD_KEY);
+        setAdditionalProperties(properties);
+    }
     checkMultipartEnabled();
 }//GEN-LAST:event_getActionPerformed
 
 private void putActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_putActionPerformed
-	Properties properties = (Properties)getAdditionalProperties();
-	if (!properties.containsKey(PAYLOAD_KEY)) {
-		properties.put(PAYLOAD_KEY, "");
-		setAdditionalProperties(properties);
-	}
+    Properties properties = (Properties) getAdditionalProperties();
+    if (!properties.containsKey(PAYLOAD_KEY)) {
+        properties.put(PAYLOAD_KEY, "");
+        setAdditionalProperties(properties);
+    }
     checkMultipartEnabled();
 }//GEN-LAST:event_putActionPerformed
 
 private void deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteActionPerformed
-	Properties properties = (Properties)getAdditionalProperties();
-	if (properties.containsKey(PAYLOAD_KEY)) {
-		properties.remove(PAYLOAD_KEY);
-		setAdditionalProperties(properties);
-	}
+    Properties properties = (Properties) getAdditionalProperties();
+    if (properties.containsKey(PAYLOAD_KEY)) {
+        properties.remove(PAYLOAD_KEY);
+        setAdditionalProperties(properties);
+    }
     checkMultipartEnabled();
 }//GEN-LAST:event_deleteActionPerformed
 
 private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
-parent.setWorking("Testing connection...", true);
+    parent.setWorking("Testing connection...", true);
 
     SwingWorker worker = new SwingWorker<Void, Void>() {
 
         public Void doInBackground() {
-            
+
             try {
                 ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(name, "testConnection", getProperties());
 
                 if (response == null) {
                     throw new ClientException("Failed to invoke service.");
-                } else if(response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) { 
+                } else if (response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
                     parent.alertInformation(parent, response.getMessage());
-                } else { 
+                } else {
                     parent.alertWarning(parent, response.getMessage());
                 }
 
@@ -1106,34 +1043,32 @@ parent.setWorking("Testing connection...", true);
 
     worker.execute();
 }//GEN-LAST:event_testConnectionActionPerformed
-    
+
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_deleteButtonActionPerformed
     {// GEN-HEADEREND:event_deleteButtonActionPerformed
-        if (getSelectedRow(propertiesTable) != -1 && !propertiesTable.isEditing())
-        {
+        if (getSelectedRow(propertiesTable) != -1 && !propertiesTable.isEditing()) {
             ((DefaultTableModel) propertiesTable.getModel()).removeRow(getSelectedRow(propertiesTable));
-            
-            if (propertiesTable.getRowCount() != 0)
-            {
-                if (propertiesLastIndex == 0)
+
+            if (propertiesTable.getRowCount() != 0) {
+                if (propertiesLastIndex == 0) {
                     propertiesTable.setRowSelectionInterval(0, 0);
-                else if (propertiesLastIndex == propertiesTable.getRowCount())
+                } else if (propertiesLastIndex == propertiesTable.getRowCount()) {
                     propertiesTable.setRowSelectionInterval(propertiesLastIndex - 1, propertiesLastIndex - 1);
-                else
+                } else {
                     propertiesTable.setRowSelectionInterval(propertiesLastIndex, propertiesLastIndex);
+                }
             }
-            
+
             parent.enableSave();
         }
     }// GEN-LAST:event_deleteButtonActionPerformed
-    
+
     private void newButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_newButtonActionPerformed
     {// GEN-HEADEREND:event_newButtonActionPerformed
-        ((DefaultTableModel) propertiesTable.getModel()).addRow(new Object[] { getNewPropertyName(propertiesTable), "" });
+        ((DefaultTableModel) propertiesTable.getModel()).addRow(new Object[]{getNewPropertyName(propertiesTable), ""});
         propertiesTable.setRowSelectionInterval(propertiesTable.getRowCount() - 1, propertiesTable.getRowCount() - 1);
         parent.enableSave();
     }// GEN-LAST:event_newButtonActionPerformed
-    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel URL1;
     private javax.swing.ButtonGroup buttonGroup1;
@@ -1172,5 +1107,4 @@ parent.setWorking("Testing connection...", true);
     private com.webreach.mirth.client.ui.components.MirthRadioButton usePersistentQueuesNoRadio;
     private com.webreach.mirth.client.ui.components.MirthRadioButton usePersistentQueuesYesRadio;
     // End of variables declaration//GEN-END:variables
-    
 }

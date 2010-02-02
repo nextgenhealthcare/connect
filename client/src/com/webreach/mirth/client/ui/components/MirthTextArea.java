@@ -1,28 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.client.ui.components;
 
 import java.awt.event.KeyEvent;
@@ -46,24 +21,17 @@ import com.webreach.mirth.client.ui.actions.SelectAllAction;
  * parent. Also adds a trigger button (right click) editor menu with Cut, Copy,
  * Paste, Delete, and Select All.
  */
-public class MirthTextArea extends javax.swing.JTextArea implements MirthTextInterface
-{
+public class MirthTextArea extends javax.swing.JTextArea implements MirthTextInterface {
+
     private Frame parent;
-
     private JPopupMenu menu;
-
     private CutAction cutAction;
-
     private CopyAction copyAction;
-
     private PasteAction pasteAction;
-
     private DeleteAction deleteAction;
-
     private SelectAllAction selectAllAction;
 
-    public MirthTextArea()
-    {
+    public MirthTextArea() {
         super();
         this.parent = PlatformUI.MIRTH_FRAME;
         this.setFocusable(true);
@@ -81,40 +49,30 @@ public class MirthTextArea extends javax.swing.JTextArea implements MirthTextInt
         menu.add(deleteAction);
         menu.addSeparator();
         menu.add(selectAllAction);
-        this.addKeyListener(new KeyListener()
-        {
+        this.addKeyListener(new KeyListener() {
 
-            public void keyPressed(KeyEvent e)
-            {
+            public void keyPressed(KeyEvent e) {
                 boolean isAccelerated = (e.getModifiers() & java.awt.Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) > 0;
-                if ((e.getKeyCode() == KeyEvent.VK_S) && isAccelerated)
-                {
-                	PlatformUI.MIRTH_FRAME.doContextSensitiveSave();
+                if ((e.getKeyCode() == KeyEvent.VK_S) && isAccelerated) {
+                    PlatformUI.MIRTH_FRAME.doContextSensitiveSave();
                 }
             }
 
-            public void keyReleased(KeyEvent e)
-            {
+            public void keyReleased(KeyEvent e) {
                 // TODO Auto-generated method stub
-
             }
 
-            public void keyTyped(KeyEvent e)
-            {
+            public void keyTyped(KeyEvent e) {
                 // TODO Auto-generated method stub
-
             }
-
         });
-        this.addMouseListener(new java.awt.event.MouseAdapter()
-        {
-            public void mousePressed(java.awt.event.MouseEvent evt)
-            {
+        this.addMouseListener(new java.awt.event.MouseAdapter() {
+
+            public void mousePressed(java.awt.event.MouseEvent evt) {
                 showPopupMenu(evt);
             }
 
-            public void mouseReleased(java.awt.event.MouseEvent evt)
-            {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
                 showPopupMenu(evt);
             }
         });
@@ -123,10 +81,8 @@ public class MirthTextArea extends javax.swing.JTextArea implements MirthTextInt
     /**
      * Shows the popup menu for the trigger button
      */
-    private void showPopupMenu(java.awt.event.MouseEvent evt)
-    {
-        if (evt.isPopupTrigger())
-        {
+    private void showPopupMenu(java.awt.event.MouseEvent evt) {
+        if (evt.isPopupTrigger()) {
             menu.getComponent(0).setEnabled(cutAction.isEnabled());
             menu.getComponent(1).setEnabled(copyAction.isEnabled());
             menu.getComponent(2).setEnabled(pasteAction.isEnabled());
@@ -141,23 +97,19 @@ public class MirthTextArea extends javax.swing.JTextArea implements MirthTextInt
      * Overrides setDocument(Document doc) so that a document listener is added
      * to the current document to listen for changes.
      */
-    public void setDocument(Document doc)
-    {
+    public void setDocument(Document doc) {
         super.setDocument(doc);
 
-        this.getDocument().addDocumentListener(new DocumentListener()
-        {
-            public void changedUpdate(DocumentEvent e)
-            {
+        this.getDocument().addDocumentListener(new DocumentListener() {
+
+            public void changedUpdate(DocumentEvent e) {
             }
 
-            public void removeUpdate(DocumentEvent e)
-            {
+            public void removeUpdate(DocumentEvent e) {
                 parent.enableSave();
             }
 
-            public void insertUpdate(DocumentEvent e)
-            {
+            public void insertUpdate(DocumentEvent e) {
                 parent.enableSave();
             }
         });
@@ -167,8 +119,7 @@ public class MirthTextArea extends javax.swing.JTextArea implements MirthTextInt
      * Overrides setText(String t) so that the save button is disabled when
      * Mirth sets the text of a field.
      */
-    public void setText(String t)
-    {
+    public void setText(String t) {
         super.setText(t);
         parent.disableSave();
     }

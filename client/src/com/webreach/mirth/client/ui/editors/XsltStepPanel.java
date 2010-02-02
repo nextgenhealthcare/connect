@@ -1,9 +1,3 @@
-/*
- * XsltStepPanel.java
- *
- * Created on October 2, 2008, 10:58 AM
- */
-
 package com.webreach.mirth.client.ui.editors;
 
 import org.syntax.jedit.SyntaxDocument;
@@ -15,54 +9,42 @@ import java.util.Map;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-/**
- * 
- * @author chrisr
- */
-public class XsltStepPanel extends BasePanel
-{
-    protected static SyntaxDocument mappingDoc;
 
+public class XsltStepPanel extends BasePanel {
+
+    protected static SyntaxDocument mappingDoc;
     protected MirthEditorPane parent;
 
-    /** Creates new form MapperPanel */
-    public XsltStepPanel(MirthEditorPane p)
-    {
+    public XsltStepPanel(MirthEditorPane p) {
         parent = p;
         initComponents();
 
-        sourceVariableField.getDocument().addDocumentListener(new DocumentListener()
-        {
-            public void changedUpdate(DocumentEvent arg0)
-            {
+        sourceVariableField.getDocument().addDocumentListener(new DocumentListener() {
+
+            public void changedUpdate(DocumentEvent arg0) {
             }
 
-            public void insertUpdate(DocumentEvent arg0)
-            {
+            public void insertUpdate(DocumentEvent arg0) {
                 updateTable();
                 parent.modified = true;
             }
 
-            public void removeUpdate(DocumentEvent arg0)
-            {
+            public void removeUpdate(DocumentEvent arg0) {
                 updateTable();
                 parent.modified = true;
             }
         });
 
-        resultVariableField.getDocument().addDocumentListener(new DocumentListener()
-        {
-            public void changedUpdate(DocumentEvent arg0)
-            {
+        resultVariableField.getDocument().addDocumentListener(new DocumentListener() {
+
+            public void changedUpdate(DocumentEvent arg0) {
             }
 
-            public void insertUpdate(DocumentEvent arg0)
-            {
+            public void insertUpdate(DocumentEvent arg0) {
                 parent.modified = true;
             }
 
-            public void removeUpdate(DocumentEvent arg0)
-            {
+            public void removeUpdate(DocumentEvent arg0) {
                 parent.modified = true;
             }
         });
@@ -74,14 +56,11 @@ public class XsltStepPanel extends BasePanel
 
     }
 
-    public void updateTable()
-    {
-        if (parent.getSelectedRow() != -1 && !parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString().equals("JavaScript"))
-        {
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
+    public void updateTable() {
+        if (parent.getSelectedRow() != -1 && !parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString().equals("JavaScript")) {
+            SwingUtilities.invokeLater(new Runnable() {
+
+                public void run() {
                     //parent.getTableModel().setValueAt(variableTextField.getText(), parent.getSelectedRow(), parent.STEP_NAME_COL);
                     parent.updateTaskPane(parent.getTableModel().getValueAt(parent.getSelectedRow(), parent.STEP_TYPE_COL).toString());
                 }
@@ -89,8 +68,7 @@ public class XsltStepPanel extends BasePanel
         }
     }
 
-    public Map<Object, Object> getData()
-    {
+    public Map<Object, Object> getData() {
         Map<Object, Object> m = new HashMap<Object, Object>();
         m.put("Source", sourceVariableField.getText().trim());
         m.put("Result", resultVariableField.getText().trim());
@@ -98,18 +76,14 @@ public class XsltStepPanel extends BasePanel
         return m;
     }
 
-    public void setData(Map<Object, Object> data)
-    {
+    public void setData(Map<Object, Object> data) {
         boolean modified = parent.modified;
 
-        if (data != null)
-        {
+        if (data != null) {
             sourceVariableField.setText((String) data.get("Source"));
             resultVariableField.setText((String) data.get("Result"));
             xsltTemplateTextPane.setText((String) data.get("XsltTemplate"));
-        }
-        else
-        {
+        } else {
             sourceVariableField.setText("");
             resultVariableField.setText("");
             xsltTemplateTextPane.setText("");
@@ -144,38 +118,38 @@ public class XsltStepPanel extends BasePanel
 
         xsltTemplateTextPane.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(10, 10, 10)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel2)
-                    .add(jLabel4)
-                    .add(jLabel1))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, sourceVariableField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 439, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, xsltTemplateTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 439, Short.MAX_VALUE)
-                    .add(resultVariableField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 439, Short.MAX_VALUE))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGap(10, 10, 10)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(sourceVariableField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 439, Short.MAX_VALUE)
+                    .addComponent(xsltTemplateTextPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 439, Short.MAX_VALUE)
+                    .addComponent(resultVariableField, javax.swing.GroupLayout.DEFAULT_SIZE, 439, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(sourceVariableField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel1))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel2)
-                    .add(resultVariableField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel4)
-                    .add(xsltTemplateTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(sourceVariableField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(resultVariableField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel4)
+                    .addComponent(xsltTemplateTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -187,5 +161,4 @@ public class XsltStepPanel extends BasePanel
     private javax.swing.JTextField sourceVariableField;
     private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea xsltTemplateTextPane;
     // End of variables declaration//GEN-END:variables
-
 }

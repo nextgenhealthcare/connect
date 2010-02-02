@@ -1,28 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.connectors.file;
 
 import java.util.Properties;
@@ -40,92 +15,93 @@ import com.webreach.mirth.util.ConnectionTestResponse;
  * A form that extends from ConnectorClass. All methods implemented are
  * described in ConnectorClass.
  */
-public class FileWriter extends ConnectorClass
-{
+public class FileWriter extends ConnectorClass {
+
     private Logger logger = Logger.getLogger(this.getClass());
 
     /** Creates new form FileWriter */
-
-    public FileWriter()
-    {
+    public FileWriter() {
         name = FileWriterProperties.name;
         initComponents();
         parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
 
-    public Properties getProperties()
-    {
+    public Properties getProperties() {
         Properties properties = new Properties();
         properties.put(FileWriterProperties.DATATYPE, name);
-        
-        if (((String) schemeComboBox.getSelectedItem()).equals("file"))
+
+        if (((String) schemeComboBox.getSelectedItem()).equals("file")) {
             properties.put(FileWriterProperties.FILE_SCHEME, FileWriterProperties.SCHEME_FILE);
-        else if (((String) schemeComboBox.getSelectedItem()).equals("ftp"))
+        } else if (((String) schemeComboBox.getSelectedItem()).equals("ftp")) {
             properties.put(FileWriterProperties.FILE_SCHEME, FileWriterProperties.SCHEME_FTP);
-        else if (((String) schemeComboBox.getSelectedItem()).equals("sftp"))
+        } else if (((String) schemeComboBox.getSelectedItem()).equals("sftp")) {
             properties.put(FileWriterProperties.FILE_SCHEME, FileWriterProperties.SCHEME_SFTP);
-        else if (((String) schemeComboBox.getSelectedItem()).equals("smb"))
+        } else if (((String) schemeComboBox.getSelectedItem()).equals("smb")) {
             properties.put(FileWriterProperties.FILE_SCHEME, FileWriterProperties.SCHEME_SMB);
-        else if (((String) schemeComboBox.getSelectedItem()).equals("webdav"))
+        } else if (((String) schemeComboBox.getSelectedItem()).equals("webdav")) {
             properties.put(FileReaderProperties.FILE_SCHEME, FileWriterProperties.SCHEME_WEBDAV);
-	    else {
-           	// This "can't happen"
+        } else {
+            // This "can't happen"
             logger.error("Unrecognized this.schemeComboBox value '" + schemeComboBox.getSelectedItem() + "', using 'file' instead");
             properties.put(FileWriterProperties.FILE_SCHEME, FileWriterProperties.SCHEME_FILE);
         }
 
         if (schemeComboBox.getSelectedItem().equals("file")) {
             properties.put(FileReaderProperties.FILE_HOST, directoryField.getText().replace('\\', '/'));
-        }
-        else {
+        } else {
             properties.put(FileWriterProperties.FILE_HOST, hostField.getText() + "/" + pathField.getText());
         }
-        
+
         properties.put(FileWriterProperties.FILE_NAME, fileNameField.getText());
 
         if (anonymousYes.isSelected()) {
             properties.put(FileWriterProperties.FILE_ANONYMOUS, UIConstants.YES_OPTION);
-			if (((String) schemeComboBox.getSelectedItem()).equals(FileWriterProperties.SCHEME_WEBDAV)) {
-				properties.put(FileWriterProperties.FILE_USERNAME, "null");
-				properties.put(FileWriterProperties.FILE_PASSWORD, "null");
-			}
-        }
-        else
+            if (((String) schemeComboBox.getSelectedItem()).equals(FileWriterProperties.SCHEME_WEBDAV)) {
+                properties.put(FileWriterProperties.FILE_USERNAME, "null");
+                properties.put(FileWriterProperties.FILE_PASSWORD, "null");
+            }
+        } else {
             properties.put(FileWriterProperties.FILE_ANONYMOUS, UIConstants.NO_OPTION);
+        }
 
         properties.put(FileWriterProperties.FILE_USERNAME, usernameField.getText());
         properties.put(FileWriterProperties.FILE_PASSWORD, new String(passwordField.getPassword()));
 
-        if (secureModeYes.isSelected())
+        if (secureModeYes.isSelected()) {
             properties.put(FileWriterProperties.FILE_SECURE_MODE, UIConstants.YES_OPTION);
-        else
+        } else {
             properties.put(FileWriterProperties.FILE_SECURE_MODE, UIConstants.NO_OPTION);
+        }
 
-        if (passiveModeYes.isSelected())
+        if (passiveModeYes.isSelected()) {
             properties.put(FileWriterProperties.FILE_PASSIVE_MODE, UIConstants.YES_OPTION);
-        else
+        } else {
             properties.put(FileWriterProperties.FILE_PASSIVE_MODE, UIConstants.NO_OPTION);
+        }
 
-        if (validateConnectionYes.isSelected())
+        if (validateConnectionYes.isSelected()) {
             properties.put(FileWriterProperties.FILE_VALIDATE_CONNECTION, UIConstants.YES_OPTION);
-        else
+        } else {
             properties.put(FileWriterProperties.FILE_VALIDATE_CONNECTION, UIConstants.NO_OPTION);
+        }
 
-        if (appendToFileYes.isSelected())
+        if (appendToFileYes.isSelected()) {
             properties.put(FileWriterProperties.FILE_APPEND, UIConstants.YES_OPTION);
-        else
+        } else {
             properties.put(FileWriterProperties.FILE_APPEND, UIConstants.NO_OPTION);
+        }
 
         properties.put(FileWriterProperties.FILE_CONTENTS, fileContentsTextPane.getText());
 
         properties.put(FileWriterProperties.CONNECTOR_CHARSET_ENCODING, parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
 
-        if (fileTypeBinary.isSelected())
+        if (fileTypeBinary.isSelected()) {
             properties.put(FileWriterProperties.FILE_TYPE, UIConstants.YES_OPTION);
-        else
+        } else {
             properties.put(FileWriterProperties.FILE_TYPE, UIConstants.NO_OPTION);
-        
-    	logger.debug("getProperties: properties=" + properties);
+        }
+
+        logger.debug("getProperties: properties=" + properties);
 
         return properties;
     }
@@ -141,93 +117,85 @@ public class FileWriter extends ConnectorClass
      * corresponding form controls.
      * @param highlight If true, fields for which the parsed values
      * are invalid are highlighted.
-     */ 
+     */
     public boolean setDirHostPath(Properties props, boolean store, boolean highlight) {
-    	
-    	boolean valid = true;
+
+        boolean valid = true;
         Object schemeValue = props.get(FileWriterProperties.FILE_SCHEME);
-    	String hostPropValue = (String) props.get(FileWriterProperties.FILE_HOST);
-    	String directoryValue = "";
-    	String hostValue = "";
-    	String pathValue = "";
+        String hostPropValue = (String) props.get(FileWriterProperties.FILE_HOST);
+        String directoryValue = "";
+        String hostValue = "";
+        String pathValue = "";
         if (schemeValue.equals(FileWriterProperties.SCHEME_FILE)) {
-        	
-        	directoryValue = hostPropValue;
-        	if (directoryValue.length() <= 0) {
-        		if (highlight) {
-        			directoryField.setBackground(UIConstants.INVALID_COLOR);
-        		}
-        		valid = false;
-        	}
-        }
-        else {
-        	
+
+            directoryValue = hostPropValue;
+            if (directoryValue.length() <= 0) {
+                if (highlight) {
+                    directoryField.setBackground(UIConstants.INVALID_COLOR);
+                }
+                valid = false;
+            }
+        } else {
+
             int splitIndex = hostPropValue.indexOf('/');
-            if (splitIndex != -1)
-            {
-            	hostValue = hostPropValue.substring(0, splitIndex);
-            	pathValue = hostPropValue.substring(splitIndex + 1);
+            if (splitIndex != -1) {
+                hostValue = hostPropValue.substring(0, splitIndex);
+                pathValue = hostPropValue.substring(splitIndex + 1);
+            } else {
+                hostValue = hostPropValue;
             }
-            else
-            {
-            	hostValue = hostPropValue;
+
+            if (hostValue.length() <= 0) {
+                if (highlight) {
+                    hostField.setBackground(UIConstants.INVALID_COLOR);
+                }
+                valid = false;
             }
-            
-        	if (hostValue.length() <= 0) {
-        		if (highlight) {
-        			hostField.setBackground(UIConstants.INVALID_COLOR);
-        		}
-        		valid = false;
-        	}
         }
-        
+
         if (store) {
-        	
-        	directoryField.setText(directoryValue);
+
+            directoryField.setText(directoryValue);
             hostField.setText(hostValue);
             pathField.setText(pathValue);
         }
-        
+
         return valid;
     }
 
-    public void setProperties(Properties props)
-    {
-    	logger.debug("setProperties: props=" + props);
+    public void setProperties(Properties props) {
+        logger.debug("setProperties: props=" + props);
 
         resetInvalidProperties();
 
         Object schemeValue = props.get(FileWriterProperties.FILE_SCHEME);
-        if (schemeValue.equals(FileWriterProperties.SCHEME_FILE))
+        if (schemeValue.equals(FileWriterProperties.SCHEME_FILE)) {
             schemeComboBox.setSelectedItem("file");
-        else if (schemeValue.equals(FileWriterProperties.SCHEME_FTP))
+        } else if (schemeValue.equals(FileWriterProperties.SCHEME_FTP)) {
             schemeComboBox.setSelectedItem("ftp");
-        else if (schemeValue.equals(FileWriterProperties.SCHEME_SFTP))
+        } else if (schemeValue.equals(FileWriterProperties.SCHEME_SFTP)) {
             schemeComboBox.setSelectedItem("sftp");
-        else if (schemeValue.equals(FileWriterProperties.SCHEME_SMB))
+        } else if (schemeValue.equals(FileWriterProperties.SCHEME_SMB)) {
             schemeComboBox.setSelectedItem("smb");
-        else if (schemeValue.equals(FileWriterProperties.SCHEME_WEBDAV))
+        } else if (schemeValue.equals(FileWriterProperties.SCHEME_WEBDAV)) {
             schemeComboBox.setSelectedItem("webdav");
-	    else {
-           	// This "can't happen"
+        } else {
+            // This "can't happen"
             logger.error("Unrecognized props[\"scheme\"] value '" + schemeValue + "', using 'file' instead");
             schemeComboBox.setSelectedItem("file");
         }
 
         schemeComboBoxActionPerformed(null);
-        
+
         setDirHostPath(props, true, false);
-        
+
         fileNameField.setText((String) props.get(FileWriterProperties.FILE_NAME));
 
-        if (((String) props.get(FileWriterProperties.FILE_ANONYMOUS)).equalsIgnoreCase(UIConstants.YES_OPTION))
-        {
+        if (((String) props.get(FileWriterProperties.FILE_ANONYMOUS)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             anonymousYes.setSelected(true);
             anonymousNo.setSelected(false);
             anonymousYesActionPerformed(null);
-        }
-        else
-        {
+        } else {
             anonymousYes.setSelected(false);
             anonymousNo.setSelected(true);
             anonymousNoActionPerformed(null);
@@ -238,23 +206,21 @@ public class FileWriter extends ConnectorClass
         if (((String) props.get(FileWriterProperties.FILE_SECURE_MODE)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             secureModeYes.setSelected(true);
             secureModeNo.setSelected(false);
-	        if (schemeValue.equals(FileWriterProperties.SCHEME_WEBDAV)) {
-	            hostLabel.setText("https://");
-	        }
-        }
-        else {
+            if (schemeValue.equals(FileWriterProperties.SCHEME_WEBDAV)) {
+                hostLabel.setText("https://");
+            }
+        } else {
             secureModeYes.setSelected(false);
             secureModeNo.setSelected(true);
-	        if (schemeValue.equals(FileWriterProperties.SCHEME_WEBDAV)) {
-	            hostLabel.setText("http://");
-	        }
+            if (schemeValue.equals(FileWriterProperties.SCHEME_WEBDAV)) {
+                hostLabel.setText("http://");
+            }
         }
 
         if (((String) props.get(FileWriterProperties.FILE_PASSIVE_MODE)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             passiveModeYes.setSelected(true);
             passiveModeNo.setSelected(false);
-        }
-        else {
+        } else {
             passiveModeYes.setSelected(false);
             passiveModeNo.setSelected(true);
         }
@@ -262,8 +228,7 @@ public class FileWriter extends ConnectorClass
         if (((String) props.get(FileWriterProperties.FILE_VALIDATE_CONNECTION)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             validateConnectionYes.setSelected(true);
             validateConnectionNo.setSelected(false);
-        }
-        else {
+        } else {
             validateConnectionYes.setSelected(false);
             validateConnectionNo.setSelected(true);
         }
@@ -271,8 +236,7 @@ public class FileWriter extends ConnectorClass
         if (((String) props.get(FileWriterProperties.FILE_APPEND)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             appendToFileYes.setSelected(true);
             appendToFileNo.setSelected(false);
-        }
-        else {
+        } else {
             appendToFileYes.setSelected(false);
             appendToFileNo.setSelected(true);
         }
@@ -281,64 +245,57 @@ public class FileWriter extends ConnectorClass
 
         fileContentsTextPane.setText((String) props.get(FileWriterProperties.FILE_CONTENTS));
 
-        if (((String) props.get(FileWriterProperties.FILE_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION))
-        {
+        if (((String) props.get(FileWriterProperties.FILE_TYPE)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             fileTypeBinary.setSelected(true);
             fileTypeASCII.setSelected(false);
             fileTypeBinaryActionPerformed(null);
-        }
-        else
-        {
+        } else {
             fileTypeBinary.setSelected(false);
             fileTypeASCII.setSelected(true);
             fileTypeASCIIActionPerformed(null);
         }
     }
 
-    public Properties getDefaults()
-    {
+    public Properties getDefaults() {
         return new FileWriterProperties().getDefaults();
     }
 
-    public boolean checkProperties(Properties props, boolean highlight)
-    {
+    public boolean checkProperties(Properties props, boolean highlight) {
         resetInvalidProperties();
         boolean valid = true;
 
         valid = setDirHostPath(props, false, highlight);
-        if (((String) props.get(FileWriterProperties.FILE_NAME)).length() == 0)
-        {
+        if (((String) props.get(FileWriterProperties.FILE_NAME)).length() == 0) {
             valid = false;
-            if (highlight)
-            	fileNameField.setBackground(UIConstants.INVALID_COLOR);
-        }
-        if (((String) props.get(FileWriterProperties.FILE_CONTENTS)).length() == 0)
-        {
-            valid = false;
-            if (highlight)
-            	fileContentsTextPane.setBackground(UIConstants.INVALID_COLOR);
-        }
-        if (((String) props.get(FileWriterProperties.FILE_ANONYMOUS)).equals(UIConstants.NO_OPTION))
-        {
-            if (((String) props.get(FileWriterProperties.FILE_USERNAME)).length() == 0)
-            {
-                valid = false;
-                if (highlight)
-                	usernameField.setBackground(UIConstants.INVALID_COLOR);
+            if (highlight) {
+                fileNameField.setBackground(UIConstants.INVALID_COLOR);
             }
-            if (((String) props.get(FileWriterProperties.FILE_PASSWORD)).length() == 0)
-            {
+        }
+        if (((String) props.get(FileWriterProperties.FILE_CONTENTS)).length() == 0) {
+            valid = false;
+            if (highlight) {
+                fileContentsTextPane.setBackground(UIConstants.INVALID_COLOR);
+            }
+        }
+        if (((String) props.get(FileWriterProperties.FILE_ANONYMOUS)).equals(UIConstants.NO_OPTION)) {
+            if (((String) props.get(FileWriterProperties.FILE_USERNAME)).length() == 0) {
                 valid = false;
-                if (highlight)
-                	passwordField.setBackground(UIConstants.INVALID_COLOR);
+                if (highlight) {
+                    usernameField.setBackground(UIConstants.INVALID_COLOR);
+                }
+            }
+            if (((String) props.get(FileWriterProperties.FILE_PASSWORD)).length() == 0) {
+                valid = false;
+                if (highlight) {
+                    passwordField.setBackground(UIConstants.INVALID_COLOR);
+                }
             }
         }
 
         return valid;
     }
 
-    private void resetInvalidProperties()
-    {
+    private void resetInvalidProperties() {
         directoryField.setBackground(null);
         hostField.setBackground(null);
         pathField.setBackground(null);
@@ -347,15 +304,15 @@ public class FileWriter extends ConnectorClass
         usernameField.setBackground(null);
         passwordField.setBackground(null);
     }
-    
-    public String doValidate(Properties props, boolean highlight)
-    {
-    	String error = null;
-    	
-    	if (!checkProperties(props, highlight))
-    		error = "Error in the form for connector \"" + getName() + "\".\n\n";
-    	
-    	return error;
+
+    public String doValidate(Properties props, boolean highlight) {
+        String error = null;
+
+        if (!checkProperties(props, highlight)) {
+            error = "Error in the form for connector \"" + getName() + "\".\n\n";
+        }
+
+        return error;
     }
 
     /**
@@ -587,138 +544,138 @@ public class FileWriter extends ConnectorClass
         passiveModeNo.setToolTipText("Select Yes to connect to the server in \"normal mode\" as opposed to passive mode.");
         passiveModeNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(templateLabel)
-                    .add(encodingLabel)
-                    .add(fileTypeLabel)
-                    .add(anonymousLabel)
-                    .add(fileNameLabel)
-                    .add(hostLabel)
-                    .add(directoryLabel)
-                    .add(schemeLabel)
-                    .add(secureModeLabel)
-                    .add(passwordLabel)
-                    .add(validateConnectionLabel)
-                    .add(appendToFileLabel)
-                    .add(usernameLabel)
-                    .add(passiveModeLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(schemeComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(testConnection))
-                    .add(layout.createSequentialGroup()
-                        .add(hostField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(pathLabel)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(pathField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(fileNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(anonymousYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(anonymousNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(usernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(passwordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(secureModeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(secureModeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(validateConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(validateConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(appendToFileYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(appendToFileNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 125, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE)
-                    .add(directoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 200, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(passiveModeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(passiveModeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(templateLabel)
+                    .addComponent(encodingLabel)
+                    .addComponent(fileTypeLabel)
+                    .addComponent(anonymousLabel)
+                    .addComponent(fileNameLabel)
+                    .addComponent(hostLabel)
+                    .addComponent(directoryLabel)
+                    .addComponent(schemeLabel)
+                    .addComponent(secureModeLabel)
+                    .addComponent(passwordLabel)
+                    .addComponent(validateConnectionLabel)
+                    .addComponent(appendToFileLabel)
+                    .addComponent(usernameLabel)
+                    .addComponent(passiveModeLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(schemeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(testConnection))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(hostField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(pathLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(pathField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(fileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(anonymousYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(anonymousNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(secureModeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(secureModeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(validateConnectionYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(validateConnectionNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(appendToFileYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(appendToFileNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(fileTypeBinary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(fileTypeASCII, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE)
+                    .addComponent(directoryField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(passiveModeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(passiveModeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(schemeLabel)
-                    .add(schemeComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(testConnection))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(directoryLabel)
-                    .add(directoryField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(hostLabel)
-                    .add(hostField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(pathLabel)
-                    .add(pathField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(fileNameLabel)
-                    .add(fileNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(anonymousLabel)
-                    .add(anonymousYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(anonymousNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(usernameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(usernameLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(passwordLabel)
-                    .add(passwordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(secureModeLabel)
-                    .add(secureModeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(secureModeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(passiveModeLabel)
-                    .add(passiveModeYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(passiveModeNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(validateConnectionLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(validateConnectionYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(validateConnectionNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(appendToFileLabel)
-                    .add(appendToFileYes, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(appendToFileNo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(fileTypeLabel)
-                    .add(fileTypeBinary, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(fileTypeASCII, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(encodingLabel)
-                    .add(charsetEncodingCombobox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(templateLabel)
-                    .add(fileContentsTextPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE))
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(schemeLabel)
+                    .addComponent(schemeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(testConnection))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(directoryLabel)
+                    .addComponent(directoryField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(hostLabel)
+                    .addComponent(hostField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(pathLabel)
+                    .addComponent(pathField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(fileNameLabel)
+                    .addComponent(fileNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(anonymousLabel)
+                    .addComponent(anonymousYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(anonymousNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(usernameLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(passwordLabel)
+                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(secureModeLabel)
+                    .addComponent(secureModeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(secureModeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(passiveModeLabel)
+                    .addComponent(passiveModeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(passiveModeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(validateConnectionLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(validateConnectionYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(validateConnectionNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(appendToFileLabel)
+                    .addComponent(appendToFileYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(appendToFileNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(fileTypeLabel)
+                    .addComponent(fileTypeBinary, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(fileTypeASCII, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(encodingLabel)
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(templateLabel)
+                    .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -726,7 +683,7 @@ public class FileWriter extends ConnectorClass
     private void anonymousNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_anonymousNoActionPerformed
         usernameLabel.setEnabled(true);
         usernameField.setEnabled(true);
-        
+
         passwordLabel.setEnabled(true);
         passwordField.setEnabled(true);
     }//GEN-LAST:event_anonymousNoActionPerformed
@@ -735,23 +692,22 @@ public class FileWriter extends ConnectorClass
         usernameLabel.setEnabled(false);
         usernameField.setEnabled(false);
         usernameField.setText("anonymous");
-        
+
         passwordLabel.setEnabled(false);
         passwordField.setEnabled(false);
         passwordField.setText("anonymous");
     }//GEN-LAST:event_anonymousYesActionPerformed
 
     private void onSchemeChange(boolean enableHost, boolean anonymous, boolean allowAppend, String scheme) {
-        
+
         // act like the appropriate Anonymous button was selected.
         if (anonymous) {
-            
+
             anonymousNo.setSelected(false);
             anonymousYes.setSelected(true);
             anonymousYesActionPerformed(null);
-        }
-        else {
-            
+        } else {
+
             anonymousNo.setSelected(true);
             anonymousYes.setSelected(false);
             anonymousNoActionPerformed(null);
@@ -767,89 +723,84 @@ public class FileWriter extends ConnectorClass
         anonymousLabel.setEnabled(false);
         anonymousYes.setEnabled(false);
         anonymousNo.setEnabled(false);
-		passiveModeLabel.setEnabled(false);
-		passiveModeYes.setEnabled(false);
-		passiveModeNo.setEnabled(false);
+        passiveModeLabel.setEnabled(false);
+        passiveModeYes.setEnabled(false);
+        passiveModeNo.setEnabled(false);
         secureModeLabel.setEnabled(false);
         secureModeYes.setEnabled(false);
         secureModeNo.setEnabled(false);
         validateConnectionLabel.setEnabled(false);
         validateConnectionYes.setEnabled(false);
         validateConnectionNo.setEnabled(false);
-        
+
         if (allowAppend) {
-        	
-        	appendToFileNo.setEnabled(true); 
-        	appendToFileYes.setEnabled(true); 
-        	appendToFileLabel.setEnabled(true);
+
+            appendToFileNo.setEnabled(true);
+            appendToFileYes.setEnabled(true);
+            appendToFileLabel.setEnabled(true);
+        } else {
+
+            if (appendToFileYes.isSelected()) {
+                appendToFileNo.setSelected(true);
+                appendToFileYes.setSelected(false);
+            }
+
+            appendToFileNo.setEnabled(false);
+            appendToFileYes.setEnabled(false);
+            appendToFileLabel.setEnabled(false);
         }
-        else {
 
-        	if (appendToFileYes.isSelected()) {
-	    		appendToFileNo.setSelected(true);
-	        	appendToFileYes.setSelected(false);
-        	}
-        	
-        	appendToFileNo.setEnabled(false); 
-        	appendToFileYes.setEnabled(false); 
-        	appendToFileLabel.setEnabled(false);
+        if (scheme.equals(FileWriterProperties.SCHEME_FTP)) {
+
+            anonymousLabel.setEnabled(true);
+            anonymousYes.setEnabled(true);
+            anonymousNo.setEnabled(true);
+            passiveModeLabel.setEnabled(true);
+            passiveModeYes.setEnabled(true);
+            passiveModeNo.setEnabled(true);
+            validateConnectionLabel.setEnabled(true);
+            validateConnectionYes.setEnabled(true);
+            validateConnectionNo.setEnabled(true);
+
+        } else if (scheme.equals(FileWriterProperties.SCHEME_WEBDAV)) {
+
+            anonymousLabel.setEnabled(true);
+            anonymousYes.setEnabled(true);
+            anonymousNo.setEnabled(true);
+            secureModeLabel.setEnabled(true);
+            secureModeYes.setEnabled(true);
+            secureModeNo.setEnabled(true);
+
+            // set Passive Mode and validate connection to No.
+            passiveModeNo.setSelected(true);
+            validateConnectionNo.setSelected(true);
+
         }
-
-	    if (scheme.equals(FileWriterProperties.SCHEME_FTP)) {
-
-			anonymousLabel.setEnabled(true);
-			anonymousYes.setEnabled(true);
-			anonymousNo.setEnabled(true);
-			passiveModeLabel.setEnabled(true);
-			passiveModeYes.setEnabled(true);
-			passiveModeNo.setEnabled(true);
-			validateConnectionLabel.setEnabled(true);
-			validateConnectionYes.setEnabled(true);
-			validateConnectionNo.setEnabled(true);
-
-	    } else if (scheme.equals(FileWriterProperties.SCHEME_WEBDAV)) {
-
-			anonymousLabel.setEnabled(true);
-			anonymousYes.setEnabled(true);
-			anonymousNo.setEnabled(true);
-			secureModeLabel.setEnabled(true);
-			secureModeYes.setEnabled(true);
-			secureModeNo.setEnabled(true);
-
-		    // set Passive Mode and validate connection to No.
-		    passiveModeNo.setSelected(true);
-		    validateConnectionNo.setSelected(true);
-		    
-	    }
     }
 
     private void schemeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_schemeComboBoxActionPerformed
         String text = (String) schemeComboBox.getSelectedItem();
-        
+
         // if File is selected
         if (text.equals(FileWriterProperties.SCHEME_FILE)) {
-            
+
             onSchemeChange(false, true, true, FileWriterProperties.SCHEME_FTP);
-        }
-        // else if FTP is selected
+        } // else if FTP is selected
         else if (text.equals(FileWriterProperties.SCHEME_FTP)) {
-            
+
             onSchemeChange(true, anonymousYes.isSelected(), true, FileWriterProperties.SCHEME_FTP);
             hostLabel.setText("ftp://");
-        }
-        // else if SFTP is selected
+        } // else if SFTP is selected
         else if (text.equals(FileWriterProperties.SCHEME_SFTP)) {
-            
+
             onSchemeChange(true, false, true, FileWriterProperties.SCHEME_SFTP);
             hostLabel.setText("sftp://");
-        }
-        // else if SMB is selected
+        } // else if SMB is selected
         else if (text.equals(FileWriterProperties.SCHEME_SMB)) {
-            
+
             onSchemeChange(true, false, true, FileWriterProperties.SCHEME_SMB);
             hostLabel.setText("smb://");
-        }
-        // else if WEBDAV is selected
+        } // else if WEBDAV is selected
         else if (text.equals(FileWriterProperties.SCHEME_WEBDAV)) {
 
             onSchemeChange(true, anonymousYes.isSelected(), false, FileWriterProperties.SCHEME_WEBDAV);
@@ -862,20 +813,20 @@ public class FileWriter extends ConnectorClass
     }//GEN-LAST:event_schemeComboBoxActionPerformed
 
 private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
-parent.setWorking("Testing connection...", true);
+    parent.setWorking("Testing connection...", true);
 
     SwingWorker worker = new SwingWorker<Void, Void>() {
 
         public Void doInBackground() {
-            
+
             try {
                 ConnectionTestResponse response = (ConnectionTestResponse) parent.mirthClient.invokeConnectorService(name, "testWrite", getProperties());
-                
+
                 if (response == null) {
                     throw new ClientException("Failed to invoke service.");
-                } else if(response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) { 
+                } else if (response.getType().equals(ConnectionTestResponse.Type.SUCCESS)) {
                     parent.alertInformation(parent, response.getMessage());
-                } else { 
+                } else {
                     parent.alertWarning(parent, response.getMessage());
                 }
 
@@ -918,7 +869,6 @@ private void secureModeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         charsetEncodingCombobox.setEnabled(false);
         charsetEncodingCombobox.setSelectedIndex(0);
     }// GEN-LAST:event_fileTypeBinaryActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel anonymousLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton anonymousNo;
@@ -964,5 +914,4 @@ private void secureModeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private com.webreach.mirth.client.ui.components.MirthRadioButton validateConnectionNo;
     private com.webreach.mirth.client.ui.components.MirthRadioButton validateConnectionYes;
     // End of variables declaration//GEN-END:variables
-
 }

@@ -35,8 +35,7 @@ import com.l2fprod.common.propertysheet.PropertySheetPanel;
  * 
  * <b>Note: this class is not part of the library</b>
  */
-public class BeanBinder
-{
+public class BeanBinder {
 
     private final Object bean;
     private final PropertySheetPanel sheet;
@@ -44,13 +43,11 @@ public class BeanBinder
     private ActionListener updateListener;
     private boolean writeEnabled;
 
-    public BeanBinder(Object bean, PropertySheetPanel sheet, ActionListener updateListener)
-    {
+    public BeanBinder(Object bean, PropertySheetPanel sheet, ActionListener updateListener) {
         this(bean, sheet, new DefaultBeanInfoResolver().getBeanInfo(bean), updateListener);
     }
 
-    public BeanBinder(Object bean, PropertySheetPanel sheet, BeanInfo beanInfo, ActionListener updateListener)
-    {
+    public BeanBinder(Object bean, PropertySheetPanel sheet, BeanInfo beanInfo, ActionListener updateListener) {
         this.bean = bean;
         this.sheet = sheet;
         this.updateListener = updateListener;
@@ -58,25 +55,19 @@ public class BeanBinder
         sheet.readFromObject(bean);
 
         // everytime a property change, update the button with it
-        listener = new PropertyChangeListener()
-        {
-            public void propertyChange(PropertyChangeEvent evt)
-            {
-                if (writeEnabled)
-                {
+        listener = new PropertyChangeListener() {
+
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (writeEnabled) {
                     Property prop = (Property) evt.getSource();
 
-                    try
-                    {
+                    try {
                         prop.writeToObject(BeanBinder.this.bean);
                         BeanBinder.this.updateListener.actionPerformed(new ActionEvent(evt, 0, ""));
-                    }
-                    catch (RuntimeException e)
-                    {
+                    } catch (RuntimeException e) {
                         // handle PropertyVetoException and restore previous
                         // value
-                        if (e.getCause() instanceof PropertyVetoException)
-                        {
+                        if (e.getCause() instanceof PropertyVetoException) {
                             UIManager.getLookAndFeel().provideErrorFeedback(BeanBinder.this.sheet);
                             prop.setValue(evt.getOldValue());
                         }
@@ -88,21 +79,17 @@ public class BeanBinder
         sheet.addPropertySheetChangeListener(listener);
     }
 
-    public void unbind()
-    {
+    public void unbind() {
         sheet.removePropertyChangeListener(listener);
         sheet.setProperties(new Property[0]);
 
     }
 
-    public boolean isWriteEnabled()
-    {
+    public boolean isWriteEnabled() {
         return writeEnabled;
     }
 
-    public void setWriteEnabled(boolean writeEnabled)
-    {
+    public void setWriteEnabled(boolean writeEnabled) {
         this.writeEnabled = writeEnabled;
     }
-
 }

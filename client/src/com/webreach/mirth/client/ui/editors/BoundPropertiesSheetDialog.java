@@ -1,28 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
-
 package com.webreach.mirth.client.ui.editors;
 
 import java.beans.BeanInfo;
@@ -35,21 +10,16 @@ import java.util.Properties;
 import com.webreach.mirth.client.ui.BeanBinder;
 import com.webreach.mirth.client.ui.PlatformUI;
 
-/** Creates the error dialog. */
-public class BoundPropertiesSheetDialog extends javax.swing.JDialog
-{
-    Object bean;
+public class BoundPropertiesSheetDialog extends javax.swing.JDialog {
 
+    Object bean;
     Properties properties;
 
-    /** Creates new form AboutMirth */
-    public BoundPropertiesSheetDialog(Properties p, Object bean)
-    {
+    public BoundPropertiesSheetDialog(Properties p, Object bean) {
         this(p, bean, -1, -1);
     }
-    
-    public BoundPropertiesSheetDialog(Properties p, Object bean, int width, int height)
-    {
+
+    public BoundPropertiesSheetDialog(Properties p, Object bean, int width, int height) {
         super(PlatformUI.MIRTH_FRAME);
         this.bean = bean;
         this.properties = p;
@@ -59,96 +29,64 @@ public class BoundPropertiesSheetDialog extends javax.swing.JDialog
         beanBinder.setWriteEnabled(true);
 
         if (width > 0 && height > 0) {
-        	this.setSize(width, height);
+            this.setSize(width, height);
         }
 
         this.setLocationRelativeTo(PlatformUI.MIRTH_FRAME);
         setVisible(true);
     }
 
-    public void setBeanInfo()
-    {
+    public void setBeanInfo() {
         BeanInfo info = null;
-        try
-        {
+        try {
             info = Introspector.getBeanInfo(bean.getClass());
-        }
-        catch (IntrospectionException ex)
-        {
+        } catch (IntrospectionException ex) {
             ex.printStackTrace();
         }
 
-        for (PropertyDescriptor pd : info.getPropertyDescriptors())
-        {
-            if (!pd.getName().equals("class"))
-            {
-                try
-                {
+        for (PropertyDescriptor pd : info.getPropertyDescriptors()) {
+            if (!pd.getName().equals("class")) {
+                try {
                     Object value = null;
-                    if (properties.get(pd.getName()) != null)
-                    {
+                    if (properties.get(pd.getName()) != null) {
                         value = properties.get(pd.getName());
-                        if (value.equals("false") || value.equals("true"))
-                        {
-                            pd.getWriteMethod().invoke(bean, new Object[] { Boolean.valueOf((String) value)});
+                        if (value.equals("false") || value.equals("true")) {
+                            pd.getWriteMethod().invoke(bean, new Object[]{Boolean.valueOf((String) value)});
+                        } else {
+                            pd.getWriteMethod().invoke(bean, new Object[]{value});
                         }
-                        else
-                        {
-                            pd.getWriteMethod().invoke(bean, new Object[] { value });
-                        }
+                    } else {
+                        value = pd.getReadMethod().invoke(bean, new Object[]{});
+                        pd.getWriteMethod().invoke(bean, new Object[]{value});
                     }
-                    else
-                    {
-                        value = pd.getReadMethod().invoke(bean, new Object[] {});
-                        pd.getWriteMethod().invoke(bean, new Object[] { value });
-                    }
-                }
-                catch (IllegalArgumentException ex)
-                {
+                } catch (IllegalArgumentException ex) {
                     ex.printStackTrace();
-                }
-                catch (IllegalAccessException ex)
-                {
+                } catch (IllegalAccessException ex) {
                     ex.printStackTrace();
-                }
-                catch (InvocationTargetException ex)
-                {
+                } catch (InvocationTargetException ex) {
                     ex.printStackTrace();
                 }
             }
         }
     }
 
-    public void getBeanInfo()
-    {
+    public void getBeanInfo() {
         BeanInfo info = null;
-        try
-        {
+        try {
             info = Introspector.getBeanInfo(bean.getClass());
-        }
-        catch (IntrospectionException ex)
-        {
+        } catch (IntrospectionException ex) {
             ex.printStackTrace();
         }
 
-        for (PropertyDescriptor pd : info.getPropertyDescriptors())
-        {
-            if (!pd.getName().equals("class"))
-            {
-                try
-                {
-                    properties.put(pd.getName(), String.valueOf(pd.getReadMethod().invoke(bean, new Object[] {})));
-                }
-                catch (IllegalArgumentException ex)
-                {
+        for (PropertyDescriptor pd : info.getPropertyDescriptors()) {
+            if (!pd.getName().equals("class")) {
+                try {
+                    properties.put(pd.getName(), String.valueOf(pd.getReadMethod().invoke(bean, new Object[]{})));
+                } catch (IllegalArgumentException ex) {
                     ex.printStackTrace();
-                }
-                catch (IllegalAccessException ex)
-                {
+                } catch (IllegalAccessException ex) {
                     ex.printStackTrace();
-                }
-                catch (InvocationTargetException ex)
-                {
+                } catch (InvocationTargetException ex) {
                     ex.printStackTrace();
                 }
             }
@@ -169,7 +107,6 @@ public class BoundPropertiesSheetDialog extends javax.swing.JDialog
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Properties");
-        setBackground(java.awt.Color.white);
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         setModal(true);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -183,15 +120,15 @@ public class BoundPropertiesSheetDialog extends javax.swing.JDialog
         propertySheetPanel.setDescriptionVisible(true);
         propertySheetPanel.setToolBarVisible(true);
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(propertySheetPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 273, Short.MAX_VALUE)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(propertySheetPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 273, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(propertySheetPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 283, Short.MAX_VALUE)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(propertySheetPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 283, Short.MAX_VALUE)
         );
 
         pack();
@@ -201,9 +138,7 @@ public class BoundPropertiesSheetDialog extends javax.swing.JDialog
     {// GEN-HEADEREND:event_formWindowClosed
         getBeanInfo();
     }// GEN-LAST:event_formWindowClosed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.l2fprod.common.propertysheet.PropertySheetPanel propertySheetPanel;
     // End of variables declaration//GEN-END:variables
-
 }

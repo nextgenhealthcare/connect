@@ -19,6 +19,7 @@ import javax.swing.JProgressBar;
 import com.webreach.mirth.client.ui.PlatformUI;
 
 public class ExtensionUtil {
+
     public String getURLContents(String address) {
         StringBuilder builder = new StringBuilder();
 

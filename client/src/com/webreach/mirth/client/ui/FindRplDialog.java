@@ -1,4 +1,5 @@
 package com.webreach.mirth.client.ui;
+
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dialog;
@@ -14,8 +15,8 @@ import java.util.regex.Pattern;
 import org.syntax.jedit.JEditTextArea;
 
 public class FindRplDialog extends javax.swing.JDialog {
+
     static MyOwnFocusTraversalPolicy tabPolicy;
-    
     private Frame parent;
 
     /** Creates new form FindRplDialog */
@@ -23,12 +24,12 @@ public class FindRplDialog extends javax.swing.JDialog {
         super(parent, modal);
         initialize(textarea);
     }
-    
+
     public FindRplDialog(Dialog parent, boolean modal, JEditTextArea textarea) {
         super(parent, modal);
         initialize(textarea);
     }
-    
+
     private void initialize(JEditTextArea textarea) {
         initComponents();
         this.parent = PlatformUI.MIRTH_FRAME;
@@ -36,17 +37,16 @@ public class FindRplDialog extends javax.swing.JDialog {
         Dimension dlgSize = getPreferredSize();
         Dimension frmSize = parent.getSize();
         Point loc = parent.getLocation();
-        
+
         if ((frmSize.width == 0 && frmSize.height == 0) || (loc.x == 0 && loc.y == 0)) {
-        	setLocationRelativeTo(null);
+            setLocationRelativeTo(null);
         } else {
-	        setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+            setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         }
-        
-        if(search_text.isEditable()){
+
+        if (search_text.isEditable()) {
             this.enableReplace();
-        }
-        else {
+        } else {
             this.disableReplace();
         }
         // set the initial search field to what is highlighted
@@ -64,54 +64,53 @@ public class FindRplDialog extends javax.swing.JDialog {
         tabPolicy = new MyOwnFocusTraversalPolicy(order);
         setFocusTraversalPolicy(tabPolicy);
 
-        textField_find.addKeyListener(new KeyListener(){
+        textField_find.addKeyListener(new KeyListener() {
 
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_ENTER){
-					find(true);
-				}else if (e.getKeyCode() == KeyEvent.VK_ESCAPE){
-					exit();
-				}
-			}
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    find(true);
+                } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    exit();
+                }
+            }
 
-			public void keyReleased(KeyEvent e) {
-			}
+            public void keyReleased(KeyEvent e) {
+            }
 
-			public void keyTyped(KeyEvent e) {
-			}});    
+            public void keyTyped(KeyEvent e) {
+            }
+        });
     }
-    
-    void exit(){
-    	this.setVisible(false);
+
+    void exit() {
+        this.setVisible(false);
     }
-    
+
     void replaceAll() {
-        if(search_text.isEditable()){
+        if (search_text.isEditable()) {
             boolean anyRemaining = true;
-            search_text.select(0,0);
-            int min =  Integer.MIN_VALUE;
-            while(anyRemaining){
+            search_text.select(0, 0);
+            int min = Integer.MIN_VALUE;
+            while (anyRemaining) {
                 find(false);
                 int start = search_text.getSelectionStart();
                 int end = search_text.getSelectionEnd();
-                if(start < end){
+                if (start < end) {
                     search_text.setSelectedText(textField_replaceWith.getText());
-                }
-                else {
+                } else {
                     anyRemaining = false;
                 }
-                if(start <= min){
+                if (start <= min) {
                     break;
-                }
-                else {
+                } else {
                     min = start;
                 }
             }
         }
     }
-    
+
     void replace() {
-        if(search_text.isEditable()) {
+        if (search_text.isEditable()) {
             // if no word is selected, the first 'replace' click will behave like FIND.
             // if there's already a selection, do REPLACE.
             if (search_text.getSelectedText() == null) {
@@ -120,66 +119,64 @@ public class FindRplDialog extends javax.swing.JDialog {
             } else {
                 int start = search_text.getSelectionStart();
                 int end = search_text.getSelectionEnd();
-                if(start < end){
+                if (start < end) {
                     search_text.setSelectedText(textField_replaceWith.getText());
                 }
             }
         }
     }
-    
+
     void find(boolean wrapSearch) {
         String text = search_text.getText();
         String search = textField_find.getText();
         // check for case sensitive
-        if(!checkBox_matchCase.isSelected()){
+        if (!checkBox_matchCase.isSelected()) {
             text = text.toLowerCase();
             search = search.toLowerCase();
         }
-        if(checkBox_regularExpression.isSelected()){
+        if (checkBox_regularExpression.isSelected()) {
             // do regular expression
             Pattern p = Pattern.compile(search);
             Matcher m = p.matcher(text);
-            if(m.find(search_text.getSelectionEnd())){
+            if (m.find(search_text.getSelectionEnd())) {
                 int position = m.start();
                 String group = m.group();
-                if(position > -1){
-                    search_text.select(position,position+group.length());
+                if (position > -1) {
+                    search_text.select(position, position + group.length());
                 }
-            }
-            else if(m.find(0)){
+            } else if (m.find(0)) {
                 int position = m.start();
                 String group = m.group();
-                if(position > -1){
-                    search_text.select(position,position+group.length());
+                if (position > -1) {
+                    search_text.select(position, position + group.length());
                 }
             }
-        }
-        else {
-            int position = text.indexOf(search,search_text.getSelectionEnd());
-            if(position > -1){
-                search_text.select(position,position+search.length());
-            }
-            // if we are at the end. wrap and search from start
+        } else {
+            int position = text.indexOf(search, search_text.getSelectionEnd());
+            if (position > -1) {
+                search_text.select(position, position + search.length());
+            } // if we are at the end. wrap and search from start
             else {
-                if(wrapSearch){
+                if (wrapSearch) {
                     position = text.indexOf(search, 0);
-                    if(position > -1){
-                        search_text.select(position,position+search.length());
+                    if (position > -1) {
+                        search_text.select(position, position + search.length());
                     }
                 }
             }
         }
     }
 
-
-    void disableReplace(){
+    void disableReplace() {
         button_replace.setVisible(false);
         button_replaceAll.setVisible(false);
     }
-    void enableReplace(){
+
+    void enableReplace() {
         button_replace.setVisible(true);
         button_replaceAll.setVisible(true);
     }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -239,60 +236,60 @@ public class FindRplDialog extends javax.swing.JDialog {
 
         checkBox_matchCase.setText("Match Case");
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jLabel2)
-                    .add(jLabel1))
-                .add(12, 12, 12)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(textField_replaceWith, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
-                        .add(checkBox_regularExpression)
-                        .add(18, 18, 18))
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
-                        .add(checkBox_matchCase)
-                        .add(54, 54, 54))
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, textField_find, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                            .add(button_replace, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(button_find, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .add(button_replaceAll))
-                    .add(button_close, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 85, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel1))
+                .addGap(12, 12, 12)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(textField_replaceWith, javax.swing.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addComponent(checkBox_regularExpression)
+                        .addGap(18, 18, 18))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addComponent(checkBox_matchCase)
+                        .addGap(54, 54, 54))
+                    .addComponent(textField_find, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(button_replace, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(button_find, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(button_replaceAll))
+                    .addComponent(button_close, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
-        layout.linkSize(new java.awt.Component[] {button_close, button_find, button_replace, button_replaceAll}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {button_close, button_find, button_replace, button_replaceAll});
 
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
-                    .add(button_find)
-                    .add(textField_find, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel2)
-                    .add(button_replace)
-                    .add(textField_replaceWith, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                    .add(checkBox_regularExpression, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(button_replaceAll, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(button_close)
-                    .add(checkBox_matchCase, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 15, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(button_find)
+                    .addComponent(textField_find, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(button_replace)
+                    .addComponent(textField_replaceWith, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(checkBox_regularExpression, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(button_replaceAll, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(button_close)
+                    .addComponent(checkBox_matchCase, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -313,8 +310,6 @@ public class FindRplDialog extends javax.swing.JDialog {
     private void button_closeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button_closeActionPerformed
         exit();
     }//GEN-LAST:event_button_closeActionPerformed
-
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton button_close;
     private javax.swing.JButton button_find;
@@ -327,22 +322,23 @@ public class FindRplDialog extends javax.swing.JDialog {
     private javax.swing.JTextField textField_find;
     private javax.swing.JTextField textField_replaceWith;
     // End of variables declaration//GEN-END:variables
-   JEditTextArea search_text;
-
+    JEditTextArea search_text;
 
     public static class MyOwnFocusTraversalPolicy
-                  extends FocusTraversalPolicy
-    {
+            extends FocusTraversalPolicy {
+
         Vector<Component> order;
 
         public MyOwnFocusTraversalPolicy(Vector<Component> order) {
             this.order = new Vector<Component>(order.size());
             this.order.addAll(order);
         }
+
         public Component getComponentAfter(Container focusCycleRoot, Component aComponent) {
             int idx = (order.indexOf(aComponent) + 1) % order.size();
             return order.get(idx);
         }
+
         public Component getComponentBefore(Container focusCycleRoot, Component aComponent) {
             int idx = order.indexOf(aComponent) - 1;
             if (idx < 0) {
@@ -350,12 +346,15 @@ public class FindRplDialog extends javax.swing.JDialog {
             }
             return order.get(idx);
         }
+
         public Component getDefaultComponent(Container focusCycleRoot) {
             return order.get(0);
         }
+
         public Component getLastComponent(Container focusCycleRoot) {
             return order.lastElement();
         }
+
         public Component getFirstComponent(Container focusCycleRoot) {
             return order.get(0);
         }

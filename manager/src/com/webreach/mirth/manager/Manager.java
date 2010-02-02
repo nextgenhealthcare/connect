@@ -61,6 +61,6 @@ public class Manager {
         tray = new ManagerTray();
         PlatformUI.MANAGER_TRAY = tray;
         tray.setupTray();
-        
+
     }
 }

@@ -8,15 +8,8 @@ import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.model.ChannelStatus;
 import com.webreach.mirth.plugins.DashboardPanelPlugin;
 
-/**
- * Created by IntelliJ IDEA.
- * User: chrisr
- * Date: Oct 26, 2007
- * Time: 11:28:09 AM
- * To change this template use File | Settings | File Templates.
- */
-public class ServerLogClient extends DashboardPanelPlugin
-{
+public class ServerLogClient extends DashboardPanelPlugin {
+
     private ServerLogPanel serverLogPanel;
     private LinkedList<String[]> serverLogs;
     private static final String GET_SERVER_LOGS = "getMirthServerLogs";
@@ -24,8 +17,7 @@ public class ServerLogClient extends DashboardPanelPlugin
     private static final String SERVER_PLUGIN_NAME = "Server Log";
     private int currentServerLogSize;
 
-    public ServerLogClient(String name)
-    {
+    public ServerLogClient(String name) {
         super(name);
         serverLogs = new LinkedList<String[]>();
         serverLogPanel = new ServerLogPanel(this);
@@ -47,7 +39,7 @@ public class ServerLogClient extends DashboardPanelPlugin
         // update (refresh) log only if the new logsize got smaller.
         if (newServerLogSize < currentServerLogSize) {
             // if log size got reduced...  remove that much extra LastRows.
-            synchronized(this) {
+            synchronized (this) {
                 while (newServerLogSize < serverLogs.size()) {
                     serverLogs.removeLast();
                 }
@@ -71,8 +63,8 @@ public class ServerLogClient extends DashboardPanelPlugin
             }
 
             if (serverLogReceived.size() > 0) {
-                synchronized(this) {
-                    for (int i = serverLogReceived.size()-1; i >= 0; i--) {
+                synchronized (this) {
+                    for (int i = serverLogReceived.size() - 1; i >= 0; i--) {
                         while (currentServerLogSize <= serverLogs.size()) {
                             serverLogs.removeLast();
                         }
@@ -96,7 +88,6 @@ public class ServerLogClient extends DashboardPanelPlugin
 
     // used for starting processes in the plugin when the program is started
     public void start() {
-
     }
 
     // used for stopping processes in the plugin when the program is exited

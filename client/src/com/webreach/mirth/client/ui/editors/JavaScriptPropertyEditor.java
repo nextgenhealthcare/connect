@@ -14,53 +14,57 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 public class JavaScriptPropertyEditor extends PropertyEditorSupport {
-	public boolean supportsCustomEditor() {
-		return true;
-	}
 
-	/**
-	 * Returns the custom property editor.
-	 */
-	public Component getCustomEditor() {
-		JPanel fieldPanel = new JPanel(new BorderLayout());
+    public boolean supportsCustomEditor() {
+        return true;
+    }
 
-		JLabel scriptLabel = new JLabel();
+    /**
+     * Returns the custom property editor.
+     */
+    public Component getCustomEditor() {
+        JPanel fieldPanel = new JPanel(new BorderLayout());
 
-		if (getValue() == null) {
-			scriptLabel.setText("");
-		} else {
-			scriptLabel.setText(getAsText());
-		}
+        JLabel scriptLabel = new JLabel();
 
-		JButton scriptButton = new JButton("...");
+        if (getValue() == null) {
+            scriptLabel.setText("");
+        } else {
+            scriptLabel.setText(getAsText());
+        }
 
-		scriptLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-			public void mouseClicked(java.awt.event.MouseEvent evt) {
-				if (evt.getClickCount() >= 2)
-					displayEditor((Component) evt.getSource());
-			}
-		});
+        JButton scriptButton = new JButton("...");
 
-		scriptButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent ae) {
-				displayEditor((Component) ae.getSource());
-			}
-		});
+        scriptLabel.addMouseListener(new java.awt.event.MouseAdapter() {
 
-		fieldPanel.add(scriptLabel, BorderLayout.CENTER);
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                if (evt.getClickCount() >= 2) {
+                    displayEditor((Component) evt.getSource());
+                }
+            }
+        });
 
-		fieldPanel.add(scriptButton, BorderLayout.EAST);
+        scriptButton.addActionListener(new ActionListener() {
 
-		return fieldPanel;
-	}
+            public void actionPerformed(ActionEvent ae) {
+                displayEditor((Component) ae.getSource());
+            }
+        });
 
-	private void displayEditor(Component source) {
-		Window win = SwingUtilities.windowForComponent(source);
+        fieldPanel.add(scriptLabel, BorderLayout.CENTER);
 
-		JavaScriptEditorDialog dialog = new JavaScriptEditorDialog((Dialog) win, (String) getValue());
+        fieldPanel.add(scriptButton, BorderLayout.EAST);
 
-		setValue(dialog.getSavedScript());
+        return fieldPanel;
+    }
 
-		firePropertyChange();
-	}
+    private void displayEditor(Component source) {
+        Window win = SwingUtilities.windowForComponent(source);
+
+        JavaScriptEditorDialog dialog = new JavaScriptEditorDialog((Dialog) win, (String) getValue());
+
+        setValue(dialog.getSavedScript());
+
+        firePropertyChange();
+    }
 }

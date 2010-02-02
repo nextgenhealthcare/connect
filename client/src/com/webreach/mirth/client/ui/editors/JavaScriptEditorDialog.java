@@ -1,27 +1,3 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
 package com.webreach.mirth.client.ui.editors;
 
 import java.awt.Dialog;
@@ -61,17 +37,17 @@ public class JavaScriptEditorDialog extends javax.swing.JDialog implements DropT
         super(PlatformUI.MIRTH_FRAME, true);
         initialize(script);
     }
-    
+
     public JavaScriptEditorDialog(java.awt.Frame owner, String script) {
         super(owner, true);
         initialize(script);
     }
-    
+
     public JavaScriptEditorDialog(Dialog owner, String script) {
         super(owner, true);
         initialize(script);
     }
-    
+
     private void initialize(String script) {
         this.parent = PlatformUI.MIRTH_FRAME;
         initComponents();
@@ -80,38 +56,38 @@ public class JavaScriptEditorDialog extends javax.swing.JDialog implements DropT
         scriptContent.setDocument(doc);
         setSavedScript(script);
         scriptContent.setCaretPosition(0);
-        
+
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-        
+
         this.addWindowListener(new WindowAdapter() {
 
             public void windowClosing(WindowEvent e) {
                 cancelButtonActionPerformed(null);
             }
         });
-        
+
         pack();
         new DropTarget(scriptContent, this);
         Dimension dlgSize = getPreferredSize();
         Dimension frmSize = parent.getSize();
         Point loc = parent.getLocation();
-        
+
         if ((frmSize.width == 0 && frmSize.height == 0) || (loc.x == 0 && loc.y == 0)) {
-        	setLocationRelativeTo(null);
+            setLocationRelativeTo(null);
         } else {
-	        setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
+            setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         }
-        
+
         setVisible(true);
     }
-    
+
     public String getSavedScript() {
-    	return savedScript;
+        return savedScript;
     }
-    
+
     public void setSavedScript(String script) {
-    	scriptContent.setText(script);
-    	savedScript = script;
+        scriptContent.setText(script);
+        savedScript = script;
     }
 
     public void dragEnter(DropTargetDragEvent dtde) {
@@ -219,47 +195,47 @@ public class JavaScriptEditorDialog extends javax.swing.JDialog implements DropT
             }
         });
 
-        org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel1Layout.createSequentialGroup()
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .add(openFileButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(validateScriptButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(okButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(cancelButton))
-                    .add(scriptContent, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addComponent(openFileButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(validateScriptButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(okButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(cancelButton))
+                    .addComponent(scriptContent, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(scriptContent, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 252, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(cancelButton)
-                    .add(validateScriptButton)
-                    .add(openFileButton)
-                    .add(okButton))
+                .addComponent(scriptContent, javax.swing.GroupLayout.DEFAULT_SIZE, 252, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cancelButton)
+                    .addComponent(validateScriptButton)
+                    .addComponent(openFileButton)
+                    .addComponent(okButton))
                 .addContainerGap())
         );
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -267,15 +243,15 @@ public class JavaScriptEditorDialog extends javax.swing.JDialog implements DropT
 
     private void openFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openFileButtonActionPerformed
 // TODO add your handling code here:
-    	File importFile = parent.importFile(null);
-    	
-    	if (importFile != null) {
-    		try {
+        File importFile = parent.importFile(null);
+
+        if (importFile != null) {
+            try {
                 scriptContent.setText(FileUtil.read(importFile));
             } catch (IOException e) {
                 parent.alertError(this, "Unable to read file.");
             }
-    	}
+        }
     }//GEN-LAST:event_openFileButtonActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_cancelButtonActionPerformed
@@ -286,30 +262,24 @@ public class JavaScriptEditorDialog extends javax.swing.JDialog implements DropT
 private void validateScriptButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_validateScriptButtonActionPerformed
     StringBuilder sb = new StringBuilder();
     Context context = Context.enter();
-    try
-    {
+    try {
         context.compileString("function rhinoWrapper() {" + scriptContent.getText() + "\n}", PlatformUI.MIRTH_FRAME.mirthClient.getGuid(), 1, null);
         sb.append("JavaScript was successfully validated.");
-    }
-    catch (EvaluatorException e)
-    {
+    } catch (EvaluatorException e) {
         sb.append("Error on line " + e.lineNumber() + ": " + e.getMessage() + " of the current script.");
+    } catch (Exception e) {
+        sb.append("Unknown error occurred during validation.");
     }
-    catch (Exception e)
-    {
-    	sb.append("Unknown error occurred during validation.");
-    }
-    
+
     Context.exit();
-    
-    parent.alertInformation(this, sb.toString());   
+
+    parent.alertInformation(this, sb.toString());
 }//GEN-LAST:event_validateScriptButtonActionPerformed
 
 private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
-		savedScript = scriptContent.getText();
-		this.dispose();
+    savedScript = scriptContent.getText();
+    this.dispose();
 }//GEN-LAST:event_okButtonActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
     private javax.swing.JPanel jPanel1;

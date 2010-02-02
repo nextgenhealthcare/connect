@@ -1,12 +1,3 @@
-/*
- * RefreshTableModel.java
- *
- * Created on February 15, 2007, 12:38 PM
- *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
- */
-
 package com.webreach.mirth.client.ui;
 
 import java.util.Vector;
@@ -17,63 +8,54 @@ import javax.swing.table.DefaultTableModel;
 
 import org.jdesktop.swingx.JXTable;
 
-public class RefreshTableModel extends DefaultTableModel
-{
-    public RefreshTableModel()
-    {
+public class RefreshTableModel extends DefaultTableModel {
+
+    public RefreshTableModel() {
         super();
     }
 
-    public RefreshTableModel(int numRows, int numColumns)
-    {
+    public RefreshTableModel(int numRows, int numColumns) {
         super(numRows, numColumns);
     }
 
-    public RefreshTableModel(Object[][] data, Object[] columnNames)
-    {
+    public RefreshTableModel(Object[][] data, Object[] columnNames) {
         super(data, columnNames);
     }
 
-    public RefreshTableModel(Object[] columnNames, int numRows)
-    {
+    public RefreshTableModel(Object[] columnNames, int numRows) {
         super(columnNames, numRows);
     }
 
-    public RefreshTableModel(Vector columnNames, int numRows)
-    {
+    public RefreshTableModel(Vector columnNames, int numRows) {
         super(columnNames, numRows);
     }
 
-    public RefreshTableModel(Vector data, Vector columnNames)
-    {
+    public RefreshTableModel(Vector data, Vector columnNames) {
         super(data, columnNames);
     }
 
-    public void refreshDataVector(Vector data)
-    {
+    public void refreshDataVector(Vector data) {
         /*if (dataVector != null && dataVector.size() > 0)
-            fireTableRowsDeleted(0, dataVector.size() - 1);
+        fireTableRowsDeleted(0, dataVector.size() - 1);
         
         dataVector = data;
-            
+        
         if (data.size() > 0)
-            fireTableRowsInserted(0, data.size() - 1);
-        */
+        fireTableRowsInserted(0, data.size() - 1);
+         */
         dataVector = data;
 
         fireTableDataChanged();
     }
 
-    public void refreshDataVector(Object[][] data)
-    {
+    public void refreshDataVector(Object[][] data) {
         refreshDataVector(convertToVector(data));
     }
 
     // Unit test
-    public static void main(String[] args)
-    {
-        Object[][] data = { { "four", "A" }, { "three", "B" }, { "two", "C" }, { "one", "D" } };
-        String[] columnNames = { "Number", "Letter" };
+    public static void main(String[] args) {
+        Object[][] data = {{"four", "A"}, {"three", "B"}, {"two", "C"}, {"one", "D"}};
+        String[] columnNames = {"Number", "Letter"};
         RefreshTableModel model = new RefreshTableModel(data, columnNames);
         JXTable table = new JXTable(model);
         table.setSortable(true);
@@ -87,15 +69,12 @@ public class RefreshTableModel extends DefaultTableModel
         frame.pack();
         frame.setVisible(true);
 
-        try
-        {
+        try {
             Thread.sleep(3000);
-        }
-        catch (InterruptedException e)
-        {
+        } catch (InterruptedException e) {
         }
 
-        Object[][] refresh = { { "five", "E" }, { "six", "F" } };
+        Object[][] refresh = {{"five", "E"}, {"six", "F"}};
         model.refreshDataVector(refresh);
     }
 }

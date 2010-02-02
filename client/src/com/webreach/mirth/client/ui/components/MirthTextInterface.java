@@ -1,7 +1,7 @@
 package com.webreach.mirth.client.ui.components;
 
-public interface MirthTextInterface
-{
+public interface MirthTextInterface {
+
     public void cut();
 
     public void copy();

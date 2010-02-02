@@ -19,7 +19,6 @@ public class ManagerTray {
     private MenuItem restartItem;
     private MenuItem administratorItem;
     private MenuItem quitItem;
-    
     public static final int STARTED = 1;
     public static final int STOPPED = 0;
     public static final int BUSY = -1;
@@ -145,7 +144,7 @@ public class ManagerTray {
     public void alertWarning(String caption, String text) {
         mirthTrayIcon.displayMessage("Warning", text, TrayIcon.MessageType.WARNING);
     }
-    
+
     public void setTrayIcon(int icon) {
         ImageIcon imageIcon = null;
         if (icon == STARTED) {
@@ -155,8 +154,8 @@ public class ManagerTray {
         } else {
             imageIcon = new ImageIcon(this.getClass().getResource("images/mirth_32_ico_gray.png"));
         }
-        
+
         mirthTrayIcon.setImage(imageIcon.getImage());
-        
+
     }
 }
