@@ -1,7 +1,19 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * http://www.mirthcorp.com
+ *
+ * The software in this package is published under the terms of the MPL
+ * license a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
+ */
+
 package com.webreach.mirth.connectors.file.filesystems;
 
-import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
-import com.webreach.mirth.connectors.file.filters.RegexFilenameFilter;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.HttpsURL;
@@ -10,19 +22,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.webdav.lib.WebdavFile;
 import org.apache.webdav.lib.WebdavResource;
 
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
+import com.webreach.mirth.connectors.file.filters.RegexFilenameFilter;
 
-/**
- * Created by IntelliJ IDEA.
- * User: chrisr
- * Date: Mar 3, 2009
- * Time: 3:22:21 PM
- * To change this template use File | Settings | File Templates.
- */
 public class WebDavConnection implements FileSystemConnection
 {
 	public class WebDavFileInfo implements FileInfo {

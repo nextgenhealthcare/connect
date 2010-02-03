@@ -1,16 +1,12 @@
 /*
- * $Header: /home/projects/mule/scm/mule/providers/file/src/java/org/mule/providers/file/filters/FilenameWildcardFilter.java,v 1.6 2005/08/27 10:49:07 rossmason Exp $
- * $Revision: 1.6 $
- * $Date: 2005/08/27 10:49:07 $
- * ------------------------------------------------------------------------------------------------------
- *
  * Copyright (c) SymphonySoft Limited. All rights reserved.
  * http://www.symphonysoft.com
  *
  * The software in this package is published under the terms of the BSD
  * style license a copy of which has been included with this distribution in
- * the LICENSE.txt file.
+ * the LICENSE-MULE.txt file.
  */
+
 package com.webreach.mirth.connectors.file.filters;
 
 import java.io.File;

@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * http://www.mirthcorp.com
+ *
+ * The software in this package is published under the terms of the MPL
+ * license a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
+ */
+
 package com.webreach.mirth.connectors.file.filesystems;
 
 import java.io.IOException;
@@ -12,7 +21,6 @@ import com.webreach.mirth.connectors.file.FileConnector;
  * A factory to create instances of FileSystemConnection based on the endpoint
  * and connector properties, and to adapt between them and the connection pool.
  * 
- * @author Erik Horstkotte
  */
 public class FileSystemConnectionFactory implements PoolableObjectFactory {
     private static transient Log logger = LogFactory.getLog(FileSystemConnectionFactory.class);

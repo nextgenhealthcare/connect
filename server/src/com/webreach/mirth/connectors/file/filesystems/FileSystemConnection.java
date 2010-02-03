@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * http://www.mirthcorp.com
+ *
+ * The software in this package is published under the terms of the MPL
+ * license a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
+ */
+
 package com.webreach.mirth.connectors.file.filesystems;
 
 import java.io.InputStream;
@@ -5,8 +14,6 @@ import java.util.List;
 
 /** The interface that must be implemented by a file system for it to be
  *  usable by the File connector.
- *  
- * @author Erik Horstkotte
  */
 public interface FileSystemConnection {
 
