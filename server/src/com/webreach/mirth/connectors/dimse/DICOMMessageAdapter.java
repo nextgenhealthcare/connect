@@ -1,55 +1,41 @@
-/* 
- * $Header: /home/projects/mule/scm/mule/providers/ftp/src/java/org/mule/providers/ftp/FtpMessageAdapter.java,v 1.2 2005/06/03 01:20:33 gnt Exp $
- * $Revision: 1.2 $
- * $Date: 2005/06/03 01:20:33 $
- * ------------------------------------------------------------------------------------------------------
- * 
- * Copyright (c) SymphonySoft Limited. All rights reserved.
- * http://www.symphonysoft.com
- * 
- * The software in this package is published under the terms of the BSD
- * style license a copy of which has been included with this distribution in
- * the LICENSE.txt file. 
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * http://www.mirthcorp.com
  *
+ * The software in this package is published under the terms of the MPL
+ * license a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
  */
+
 package com.webreach.mirth.connectors.dimse;
 
 import org.mule.providers.AbstractMessageAdapter;
 import org.mule.umo.MessagingException;
 import org.mule.umo.provider.MessageTypeNotSupportedException;
 
-/**
- * @author <a href="mailto:gnt@codehaus.org">Guillaume Nodet</a>
- * @version $Revision: 1.2 $
- */
-public class DICOMMessageAdapter extends AbstractMessageAdapter
-{
+public class DICOMMessageAdapter extends AbstractMessageAdapter {
 
     private byte[] message;
 
-    public DICOMMessageAdapter(Object message) throws MessagingException
-    {
+    public DICOMMessageAdapter(Object message) throws MessagingException {
         if (message instanceof byte[]) {
             this.message = (byte[]) message;
-        }else if (message instanceof String){
-            this.message = ((String)message).getBytes();
-        }else{
+        } else if (message instanceof String) {
+            this.message = ((String) message).getBytes();
+        } else {
             throw new MessageTypeNotSupportedException(message, getClass());
         }
     }
 
-    public String getPayloadAsString() throws Exception
-    {
+    public String getPayloadAsString() throws Exception {
         return new String(message);
     }
 
-    public byte[] getPayloadAsBytes() throws Exception
-    {
+    public byte[] getPayloadAsBytes() throws Exception {
         return message;
     }
 
-    public Object getPayload()
-    {
+    public Object getPayload() {
         return message;
     }
 

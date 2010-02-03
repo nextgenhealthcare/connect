@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * http://www.mirthcorp.com
+ *
+ * The software in this package is published under the terms of the MPL
+ * license a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
+ */
+
 package com.webreach.mirth.connectors.dimse;
 
 import org.mule.umo.UMOException;
@@ -5,15 +14,8 @@ import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageDispatcher;
 import org.mule.umo.provider.UMOMessageDispatcherFactory;
 
-/**
- * Created by IntelliJ IDEA.
- * Date: Jun 11, 2008
- * Time: 10:23:07 AM
- * To change this template use File | Settings | File Templates.
- */
 public class DICOMMessageDispatcherFactory implements UMOMessageDispatcherFactory {
-    public UMOMessageDispatcher create(UMOConnector connector) throws UMOException
-    {
+    public UMOMessageDispatcher create(UMOConnector connector) throws UMOException {
         return new DICOMMessageDispatcher((DICOMConnector) connector);
     }
 }

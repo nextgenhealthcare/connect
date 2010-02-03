@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * http://www.mirthcorp.com
+ *
+ * The software in this package is published under the terms of the MPL
+ * license a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
+ */
+
 package com.webreach.mirth.connectors.dimse;
 
 import java.util.Properties;
@@ -5,35 +14,35 @@ import java.util.Properties;
 import com.webreach.mirth.model.ComponentProperties;
 
 public class DICOMSenderProperties implements ComponentProperties {
-	public static final String name = "DICOM Sender";
-	
+    public static final String name = "DICOM Sender";
+
     public static final String DATATYPE = "DataType";
     public static final String DICOM_ADDRESS = "host";
     public static final String DICOM_PORT = "port";
     public static final String DICOM_APPENTITY = "applicationEntity";
     public static final String DICOM_LOCALADDRESS = "localHost";
     public static final String DICOM_LOCALPORT = "localPort";
-    public static final String DICOM_LOCALAPPENTITY = "localApplicationEntity";    
+    public static final String DICOM_LOCALAPPENTITY = "localApplicationEntity";
     public static final String DICOM_TEMPLATE = "template";
     public static final String DICOM_ACCECPTTO = "accecptto";
     public static final String DICOM_ASYNC = "async";
     public static final String DICOM_BUFSIZE = "bufsize";
     public static final String DICOM_CONNECTTO = "connectto";
     public static final String DICOM_PRIORITY = "priority";
-    public static final String DICOM_KEYPW = "keypw";    
-    public static final String DICOM_KEYSTORE = "keystore";    
-    public static final String DICOM_KEYSTOREPW = "keystorepw";   
-    public static final String DICOM_NOCLIENTAUTH = "noclientauth";   
+    public static final String DICOM_KEYPW = "keypw";
+    public static final String DICOM_KEYSTORE = "keystore";
+    public static final String DICOM_KEYSTOREPW = "keystorepw";
+    public static final String DICOM_NOCLIENTAUTH = "noclientauth";
     public static final String DICOM_NOSSL2 = "nossl2";
     public static final String DICOM_PASSCODE = "passcode";
-    public static final String DICOM_PDV1 = "pdv1"; 
-    public static final String DICOM_RCVPDULEN = "rcvpdulen"; 
+    public static final String DICOM_PDV1 = "pdv1";
+    public static final String DICOM_RCVPDULEN = "rcvpdulen";
     public static final String DICOM_REAPER = "reaper";
     public static final String DICOM_RELEASETO = "releaseto";
     public static final String DICOM_RSPTO = "rspto";
     public static final String DICOM_SHUTDOWNDELAY = "shutdowndelay";
     public static final String DICOM_SNDPDULEN = "sndpdulen";
-    public static final String DICOM_SOCLOSEDELAY = "soclosedelay";     
+    public static final String DICOM_SOCLOSEDELAY = "soclosedelay";
     public static final String DICOM_SORCVBUF = "sorcvbuf";
     public static final String DICOM_SOSNDBUF = "sosndbuf";
     public static final String DICOM_STGCMT = "stgcmt";
@@ -45,9 +54,7 @@ public class DICOMSenderProperties implements ComponentProperties {
     public static final String DICOM_UIDNEGRSP = "uidnegrsp";
     public static final String DICOM_USERNAME = "username";
 
-
-    public Properties getDefaults()
-    {
+    public Properties getDefaults() {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
         properties.put(DICOM_ADDRESS, "127.0.0.1");
@@ -84,8 +91,8 @@ public class DICOMSenderProperties implements ComponentProperties {
         properties.put(DICOM_USERNAME, "");
         properties.put(DICOM_APPENTITY, "");
         properties.put(DICOM_LOCALADDRESS, "");
-        properties.put(DICOM_LOCALPORT, "");        
-        properties.put(DICOM_LOCALAPPENTITY, "");           
+        properties.put(DICOM_LOCALPORT, "");
+        properties.put(DICOM_LOCALAPPENTITY, "");
         return properties;
-    }    
+    }
 }

@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * http://www.mirthcorp.com
+ *
+ * The software in this package is published under the terms of the MPL
+ * license a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
+ */
+
 package com.webreach.mirth.connectors.dimse;
 
 import java.util.Map;
@@ -17,59 +26,53 @@ import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.EventController;
 
-/**
- * Created by IntelliJ IDEA.
- * Date: Jun 12, 2008
- * Time: 12:02:15 PM
- * To change this template use File | Settings | File Templates.
- */
 public class DICOMConnector extends AbstractServiceEnabledConnector {
-    //--------------------------------
-	// custom properties
+    // --------------------------------
+    // custom properties
     public static final String DICOM_TEMPLATE = "template";
     public static final String DICOM_HOST = "host";
     public static final String DICOM_PORT = "port";
     public static final String DICOM_LOCALHOST = "localHost";
     public static final String DICOM_LOCALPORT = "localPort";
-    public static final String DICOM_ACCECPTTO = "accecptto";        // int
-    public static final String DICOM_ASYNC = "async";                // int
-    public static final String DICOM_BUFSIZE = "bufsize";            // int
-    public static final String DICOM_CONNECTTO = "connectto";        // int
-    public static final String DICOM_PRIORITY = "priority";          // string
-    public static final String DICOM_KEYPW = "keypw";                // string
-    public static final String DICOM_KEYSTORE = "keystore";          // string
-    public static final String DICOM_KEYSTOREPW = "keystorepw";      // string
-    public static final String DICOM_NOCLIENTAUTH = "noclientauth";  // boolean   
-    public static final String DICOM_NOSSL2 = "nossl2";              // boolean
-    public static final String DICOM_PASSCODE = "passcode";          // string
-    public static final String DICOM_PDV1 = "pdv1";                  // boolean
-    public static final String DICOM_RCVPDULEN = "rcvpdulen";        // int
-    public static final String DICOM_REAPER = "reaper";              // int
-    public static final String DICOM_RELEASETO = "releaseto";        // int
-    public static final String DICOM_RSPTO = "rspto";                // int
+    public static final String DICOM_ACCECPTTO = "accecptto"; // int
+    public static final String DICOM_ASYNC = "async"; // int
+    public static final String DICOM_BUFSIZE = "bufsize"; // int
+    public static final String DICOM_CONNECTTO = "connectto"; // int
+    public static final String DICOM_PRIORITY = "priority"; // string
+    public static final String DICOM_KEYPW = "keypw"; // string
+    public static final String DICOM_KEYSTORE = "keystore"; // string
+    public static final String DICOM_KEYSTOREPW = "keystorepw"; // string
+    public static final String DICOM_NOCLIENTAUTH = "noclientauth"; // boolean
+    public static final String DICOM_NOSSL2 = "nossl2"; // boolean
+    public static final String DICOM_PASSCODE = "passcode"; // string
+    public static final String DICOM_PDV1 = "pdv1"; // boolean
+    public static final String DICOM_RCVPDULEN = "rcvpdulen"; // int
+    public static final String DICOM_REAPER = "reaper"; // int
+    public static final String DICOM_RELEASETO = "releaseto"; // int
+    public static final String DICOM_RSPTO = "rspto"; // int
     public static final String DICOM_SHUTDOWNDELAY = "shutdowndelay";// int
-    public static final String DICOM_SNDPDULEN = "sndpdulen";        // int
-    public static final String DICOM_SOCLOSEDELAY = "soclosedelay";  // int   
-    public static final String DICOM_SORCVBUF = "sorcvbuf";          // int
-    public static final String DICOM_SOSNDBUF = "sosndbuf";          // int
-    public static final String DICOM_STGCMT = "stgcmt";              // boolean
-    public static final String DICOM_TCPDELAY = "tcpdelay";          // boolean
-    public static final String DICOM_TLS = "tls";                    // string
-    public static final String DICOM_TRUSTSTORE = "truststore";      // string
-    public static final String DICOM_TRUSTSTOREPW = "truststorepw";  // string
-    public static final String DICOM_TS1 = "ts1";                    // boolean
-    public static final String DICOM_UIDNEGRSP = "uidnegrsp";        // boolean
-    public static final String DICOM_USERNAME = "username";          // string
-    
-    public static final String DICOM_REQUESTTO = "requestto";        // int
-    public static final String DICOM_IDLETO = "idleto";              // int
-    public static final String DICOM_RSPDELAY = "rspdelay";          // int
-    public static final String DICOM_BIGENDIAN = "bigendian";        // boolean
-    public static final String DICOM_DEFTS = "defts";                // boolean
-    public static final String DICOM_DEST = "dest";                  // string
-    public static final String DICOM_NATIVE = "nativeData";              // boolean
-    public static final String DICOM_APPENTITY = "applicationEntity";        
-    public static final String DICOM_LOCALAPPENTITY = "localApplicationEntity";        
+    public static final String DICOM_SNDPDULEN = "sndpdulen"; // int
+    public static final String DICOM_SOCLOSEDELAY = "soclosedelay"; // int
+    public static final String DICOM_SORCVBUF = "sorcvbuf"; // int
+    public static final String DICOM_SOSNDBUF = "sosndbuf"; // int
+    public static final String DICOM_STGCMT = "stgcmt"; // boolean
+    public static final String DICOM_TCPDELAY = "tcpdelay"; // boolean
+    public static final String DICOM_TLS = "tls"; // string
+    public static final String DICOM_TRUSTSTORE = "truststore"; // string
+    public static final String DICOM_TRUSTSTOREPW = "truststorepw"; // string
+    public static final String DICOM_TS1 = "ts1"; // boolean
+    public static final String DICOM_UIDNEGRSP = "uidnegrsp"; // boolean
+    public static final String DICOM_USERNAME = "username"; // string
+
+    public static final String DICOM_REQUESTTO = "requestto"; // int
+    public static final String DICOM_IDLETO = "idleto"; // int
+    public static final String DICOM_RSPDELAY = "rspdelay"; // int
+    public static final String DICOM_BIGENDIAN = "bigendian"; // boolean
+    public static final String DICOM_DEFTS = "defts"; // boolean
+    public static final String DICOM_DEST = "dest"; // string
+    public static final String DICOM_NATIVE = "nativeData"; // boolean
+    public static final String DICOM_APPENTITY = "applicationEntity";
+    public static final String DICOM_LOCALAPPENTITY = "localApplicationEntity";
 
     // custom properties
     private NetworkConnection nc = new NetworkConnection();
@@ -108,172 +111,168 @@ public class DICOMConnector extends AbstractServiceEnabledConnector {
     private boolean ts1;
     private boolean uidnegrsp;
     private String username;
-    
+
     private int requestto;
     private int idleto;
-    private int rspdelay;        
-    private boolean bigendian;        
-    private boolean defts;        
-    private String dest;        
-    private boolean nativeData;        
-    private String applicationEntity;        
-    private String localApplicationEntity;   
+    private int rspdelay;
+    private boolean bigendian;
+    private boolean defts;
+    private String dest;
+    private boolean nativeData;
+    private String applicationEntity;
+    private String localApplicationEntity;
     private UMOComponent component = null;
     private String channelId;
-	// ast: encoding Charset
-	public static final String PROPERTY_CHARSET_ENCODING = "charsetEncoding";
-	public static final String CHARSET_KEY = "ca.uhn.hl7v2.llp.charset";
-	public static final String DEFAULT_CHARSET_ENCODING = System.getProperty(CHARSET_KEY, java.nio.charset.Charset.defaultCharset().name());
-	private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
+    // ast: encoding Charset
+    public static final String PROPERTY_CHARSET_ENCODING = "charsetEncoding";
+    public static final String CHARSET_KEY = "ca.uhn.hl7v2.llp.charset";
+    public static final String DEFAULT_CHARSET_ENCODING = System.getProperty(CHARSET_KEY, java.nio.charset.Charset.defaultCharset().name());
+    private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
 
-	// ast: overload of the creator, to allow the test of the charset Encoding
-	public DICOMConnector() {
-		super();
-		// //ast: try to set the default encoding
-		this.setCharsetEncoding(DEFAULT_CHARSET_ENCODING);
-	}
+    // ast: overload of the creator, to allow the test of the charset Encoding
+    public DICOMConnector() {
+        super();
+        // //ast: try to set the default encoding
+        this.setCharsetEncoding(DEFAULT_CHARSET_ENCODING);
+    }
 
-
-	// //////////////////////////////////////////////////////////////////////
-	public void doInitialise() throws InitialisationException {
-		super.doInitialise();
+    // //////////////////////////////////////////////////////////////////////
+    public void doInitialise() throws InitialisationException {
+        super.doInitialise();
         ae.setNetworkConnection(nc);
         ae.setAssociationAcceptor(true);
         ae.register(new VerificationService());
-	}
+    }
 
     /**
      * @see org.mule.umo.provider.UMOConnector#getProtocol()
      */
-    public String getProtocol()
-    {
+    public String getProtocol() {
         return "dicom";
     }
 
+    public boolean isRemoteSyncEnabled() {
+        return true;
+    }
 
-	public boolean isRemoteSyncEnabled() {
-		return true;
-	}
+    public char stringToChar(String source) {
+        return source.charAt(0);
+    }
 
-	public char stringToChar(String source) {
-		return source.charAt(0);
-	}
+    // ast: set the charset Encoding
+    public void setCharsetEncoding(String charsetEncoding) {
+        if ((charsetEncoding == null) || (charsetEncoding.equals("")) || (charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING")))
+            charsetEncoding = DEFAULT_CHARSET_ENCODING;
+        logger.debug("FileConnector: trying to set the encoding to " + charsetEncoding);
+        try {
+            byte b[] = { 20, 21, 22, 23 };
+            String k = new String(b, charsetEncoding);
+            this.charsetEncoding = charsetEncoding;
+        } catch (Exception e) {
+            // set the encoding to the default one: this charset can't launch an
+            // exception
+            this.charsetEncoding = java.nio.charset.Charset.defaultCharset().name();
+            logger.error("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
+            EventController systemLogger = ControllerFactory.getFactory().createEventController();
+            SystemEvent event = new SystemEvent("Exception occured in channel.");
+            event.setDescription("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
+            systemLogger.logSystemEvent(event);
+        }
+    }
 
+    // ast: get the charset Encoding
+    public String getCharsetEncoding() {
+        if ((this.charsetEncoding == null) || (this.charsetEncoding.equals("")) || (this.charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))) {
+            // Default Charset
+            return DEFAULT_CHARSET_ENCODING;
+        }
+        return (this.charsetEncoding);
+    }
 
-	// ast: set the charset Encoding
-	public void setCharsetEncoding(String charsetEncoding) {
-		if ((charsetEncoding == null) || (charsetEncoding.equals("")) || (charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING")))
-			charsetEncoding = DEFAULT_CHARSET_ENCODING;
-		logger.debug("FileConnector: trying to set the encoding to " + charsetEncoding);
-		try {
-			byte b[] = { 20, 21, 22, 23 };
-			String k = new String(b, charsetEncoding);
-			this.charsetEncoding = charsetEncoding;
-		} catch (Exception e) {
-			// set the encoding to the default one: this charset can't launch an
-			// exception
-			this.charsetEncoding = java.nio.charset.Charset.defaultCharset().name();
-			logger.error("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
-			EventController systemLogger = ControllerFactory.getFactory().createEventController();
-			SystemEvent event = new SystemEvent("Exception occured in channel.");
-			event.setDescription("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
-			systemLogger.logSystemEvent(event);
-		}
-	}
+    /*
+     * Overload method to avoid error startting the channel after an stop
+     * (non-Javadoc)
+     * 
+     * @seeorg.mule.providers.AbstractConnector#registerListener(org.mule.umo.
+     * UMOComponent, org.mule.umo.endpoint.UMOEndpoint)
+     */
+    public UMOMessageReceiver registerListener(UMOComponent component, UMOEndpoint endpoint) throws Exception {
+        UMOMessageReceiver r = null;
+        this.component = component;
+        try {
+            r = super.registerListener(component, endpoint);
+        } catch (org.mule.umo.provider.ConnectorException e) {
+            logger.warn("Trying to reconnect a listener: this is not an error with this kind of router");
+        }
+        return r;
 
-	// ast: get the charset Encoding
-	public String getCharsetEncoding() {
-		if ((this.charsetEncoding == null) || (this.charsetEncoding.equals("")) || (this.charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))) {
-			// Default Charset
-			return DEFAULT_CHARSET_ENCODING;
-		}
-		return (this.charsetEncoding);
-	}
+    }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.mule.umo.provider.UMOConnector#registerListener(org.mule.umo.UMOSession
+     * , org.mule.umo.endpoint.UMOEndpoint)
+     */
+    public UMOMessageReceiver createReceiver(UMOComponent component, UMOEndpoint endpoint) throws Exception {
+        this.component = component;
+        Map props = endpoint.getProperties();
+        if (props != null) {
+            // Override properties on the endpoint for the specific endpoint
+            String template = (String) props.get(DICOM_TEMPLATE);
+            if (template != null) {
+                setTemplate(template);
+            }
+            String prop_host = (String) props.get(DICOM_HOST);
+            if (prop_host != null) {
+                setHost(prop_host);
+            }
+            String prop_port = (String) props.get(DICOM_PORT);
+            if (prop_port != null && !prop_port.equals("")) {
+                setPort(prop_port);
+            }
+        }
+        return super.createReceiver(component, endpoint);
+    }
 
-	/*
-	 * Overload method to avoid error startting the channel after an stop
-	 * (non-Javadoc)
-	 * 
-	 * @see org.mule.providers.AbstractConnector#registerListener(org.mule.umo.UMOComponent,
-	 *      org.mule.umo.endpoint.UMOEndpoint)
-	 */
-	public UMOMessageReceiver registerListener(UMOComponent component, UMOEndpoint endpoint) throws Exception {
-		UMOMessageReceiver r = null;
-		this.component = component;
-		try {
-			r = super.registerListener(component, endpoint);
-		} catch (org.mule.umo.provider.ConnectorException e) {
-			logger.warn("Trying to reconnect a listener: this is not an error with this kind of router");
-		}
-		return r;
+    public void incErrorStatistics() {
+        incErrorStatistics(component);
+    }
 
-	}
+    public void incErrorStatistics(UMOComponent umoComponent) {
+        ComponentStatistics statistics = null;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.mule.umo.provider.UMOConnector#registerListener(org.mule.umo.UMOSession,
-	 *      org.mule.umo.endpoint.UMOEndpoint)
-	 */
-	public UMOMessageReceiver createReceiver(UMOComponent component, UMOEndpoint endpoint) throws Exception {
-		this.component = component;
-		Map props = endpoint.getProperties();
-		if (props != null) {
-			// Override properties on the endpoint for the specific endpoint
-			String template = (String) props.get(DICOM_TEMPLATE);
-			if (template != null) {
-				setTemplate(template);
-			}
-			String prop_host = (String) props.get(DICOM_HOST);
-			if (prop_host != null) {
-				setHost(prop_host);
-			}
-			String prop_port = (String) props.get(DICOM_PORT);
-			if (prop_port != null && !prop_port.equals("")) {
-				setPort(prop_port);
-			}
-		}    
-    	return super.createReceiver(component, endpoint);
-	}
+        if (umoComponent != null)
+            component = umoComponent;
 
-	public void incErrorStatistics() {
-		incErrorStatistics(component);
-	}
+        if (component == null) {
+            return;
+        }
 
-	public void incErrorStatistics(UMOComponent umoComponent) {
-		ComponentStatistics statistics = null;
+        if (!(component instanceof AbstractComponent)) {
+            return;
+        }
 
-		if (umoComponent != null)
-			component = umoComponent;
+        try {
+            statistics = ((AbstractComponent) component).getStatistics();
+            if (statistics == null) {
+                return;
+            }
+            statistics.incExecutionError();
+        } catch (Throwable t) {
+            logger.error("Error setting statistics ");
+        }
+    }
 
-		if (component == null) {
-			return;
-		}
+    public String getTemplate() {
+        return template;
+    }
 
-		if (!(component instanceof AbstractComponent)) {
-			return;
-		}
+    public void setTemplate(String template) {
+        this.template = template;
+    }
 
-		try {
-			statistics = ((AbstractComponent) component).getStatistics();
-			if (statistics == null) {
-				return;
-			}
-			statistics.incExecutionError();
-		} catch (Throwable t) {
-			logger.error("Error setting statistics ");
-		}
-	}
-
-	public String getTemplate() {
-		return template;
-	}
-
-	public void setTemplate(String template) {
-		this.template = template;
-	}
-    
     public String getHost() {
         return host;
     }
