@@ -76,7 +76,6 @@ public class VariableReferenceTable extends ReferenceTable {
         });
 
         this.getColumnExt(headerName).setPreferredWidth(80);
-        this.getColumnExt(headerName).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
 
     }
 

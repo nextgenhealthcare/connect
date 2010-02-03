@@ -558,10 +558,6 @@ public class TransformerPane extends MirthEditorPane implements
         // MyComboBoxRenderer(comboBoxValues));
 
         transformerTable.getColumnExt(STEP_DATA_COL).setVisible(false);
-        transformerTable.getColumnExt(STEP_NUMBER_COL).setHeaderRenderer(
-                PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
-        transformerTable.getColumnExt(STEP_TYPE_COL).setHeaderRenderer(
-                PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
 
         transformerTable.setRowHeight(UIConstants.ROW_HEIGHT);
         transformerTable.packTable(UIConstants.COL_MARGIN);

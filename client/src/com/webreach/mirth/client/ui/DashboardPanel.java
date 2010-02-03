@@ -210,7 +210,6 @@ public class DashboardPanel extends javax.swing.JPanel {
             statusTable.getColumnExt(columnName).setMaxWidth(plugin.getMaxWidth());
             statusTable.getColumnExt(columnName).setMinWidth(plugin.getMinWidth());
             statusTable.getColumnExt(columnName).setCellRenderer(plugin.getCellRenderer());
-            statusTable.getColumnExt(columnName).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
         }
 
         statusTable.getColumnExt(STATUS_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
@@ -238,20 +237,12 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.getColumnExt(QUEUED_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
         statusTable.getColumnExt(ALERTED_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
 
-        statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
-        statusTable.getColumnExt(SENT_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
-        statusTable.getColumnExt(ERROR_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
-        statusTable.getColumnExt(FILTERED_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
-        statusTable.getColumnExt(QUEUED_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
-        statusTable.getColumnExt(ALERTED_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
-
         for (DashboardColumnPlugin plugin : loadedColumnPluginsAfterStatus.values()) {
             String columnName = plugin.getColumnHeader();
             statusTable.getColumnExt(columnName).setMaxWidth(plugin.getMaxWidth());
             ;
             statusTable.getColumnExt(columnName).setMinWidth(plugin.getMinWidth());
             statusTable.getColumnExt(columnName).setCellRenderer(plugin.getCellRenderer());
-            statusTable.getColumnExt(columnName).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
         }
 
         statusTable.packTable(UIConstants.COL_MARGIN);

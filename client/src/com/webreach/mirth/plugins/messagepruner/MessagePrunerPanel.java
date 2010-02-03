@@ -112,7 +112,6 @@ public class MessagePrunerPanel extends javax.swing.JPanel {
         logTable.setSelectionMode(0);
 
         logTable.getColumnExt(NUMBER_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
-        logTable.getColumnExt(NUMBER_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
 
         logTable.packTable(UIConstants.COL_MARGIN);
 

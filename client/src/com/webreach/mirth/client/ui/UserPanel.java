@@ -49,7 +49,6 @@ public class UserPanel extends javax.swing.JPanel {
         usersTable.setSelectionMode(0);
 
         usersTable.getColumnExt(USERNAME_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
-        usersTable.getColumnExt(USER_EMAIL_COLUMN_NAME).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
 
         usersTable.getColumnExt(USERNAME_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);
         usersTable.getColumnExt(USERFIRSTNAME_COLUMN_NAME).setMaxWidth(UIConstants.MAX_WIDTH);

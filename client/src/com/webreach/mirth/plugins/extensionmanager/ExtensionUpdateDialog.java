@@ -15,13 +15,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
+import javax.swing.RowFilter;
 import javax.swing.SwingWorker;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
-import org.jdesktop.swingx.decorator.Filter;
-import org.jdesktop.swingx.decorator.FilterPipeline;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
-import org.jdesktop.swingx.decorator.PatternFilter;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.core.IgnoredComponent;
@@ -365,33 +365,43 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog {
     }
 
     private void updateTableFilters() {
-        List<Filter> filterList = new ArrayList<Filter>();
+        RowFilter<Object,Object> filter = new RowFilter<Object,Object>() {
 
-        if (updatesCheckBox.isSelected() && newCheckBox.isSelected()) {
-            filterList.add(new PatternFilter("true|false", 0, EXTENSION_NEW_COLUMN_NUMBER));
-        } else if (updatesCheckBox.isSelected()) {
-            filterList.add(new PatternFilter("false", 0, EXTENSION_NEW_COLUMN_NUMBER));
-        } else if (newCheckBox.isSelected()) {
-            filterList.add(new PatternFilter("true", 0, EXTENSION_NEW_COLUMN_NUMBER));
-        } else {
-            filterList.add(new PatternFilter("displayNone", 1, EXTENSION_NEW_COLUMN_NUMBER));
-        }
+            @Override
+            public boolean include(Entry<? extends Object, ? extends Object> entry) {
+                boolean include = true;
+                if (updatesCheckBox.isSelected() && newCheckBox.isSelected()) {
+                    // leave true
+                } else if (updatesCheckBox.isSelected()) {
+                    if (entry.getStringValue(EXTENSION_NEW_COLUMN_NUMBER).equalsIgnoreCase("true")) {
+                        include = false;
+                    }
+                } else if (newCheckBox.isSelected()) {
+                    if (entry.getStringValue(EXTENSION_NEW_COLUMN_NUMBER).equalsIgnoreCase("false")) {
+                        include = false;
+                    }
+                } else {
+                    include = false;
+                }
+                
+                if (!optionalCheckBox.isSelected()) {
+                    if (!entry.getStringValue(EXTENSION_PRIORITY_COLUMN_NUMBER).equalsIgnoreCase(PRIORITY_RECOMMENDED)) {
+                        include = false;
+                    }
+                }
 
-        if (!optionalCheckBox.isSelected()) {
-            filterList.add(new PatternFilter(PRIORITY_RECOMMENDED, 0, EXTENSION_PRIORITY_COLUMN_NUMBER));
-        }
-
-        if (!ignoredCheckBox.isSelected()) {
-            filterList.add(new PatternFilter("false", 0, EXTENSION_IGNORE_COLUMN_NUMBER));
-        }
-
-        FilterPipeline filterPipeline = null;
-        if (filterList.size() > 0) {
-            Filter[] filterArray = filterList.toArray(new Filter[filterList.size()]);
-            filterPipeline = new FilterPipeline(filterArray);
-        }
-
-        loadedExtensionTable.setFilters(filterPipeline);
+                if (!ignoredCheckBox.isSelected()) {
+                    if (entry.getStringValue(EXTENSION_IGNORE_COLUMN_NUMBER).equalsIgnoreCase("true")) {
+                        include = false;
+                    }
+                }
+                
+                return include;
+            }};
+        
+        TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(loadedExtensionTable.getModel());
+        sorter.setRowFilter(filter);
+        loadedExtensionTable.setRowSorter(sorter);
     }
 
     /**

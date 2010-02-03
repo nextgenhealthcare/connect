@@ -525,10 +525,6 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         filterTable.getColumnExt(RULE_NUMBER_COL).setCellRenderer(new CenterCellRenderer());
         filterTable.getColumnExt(RULE_OP_COL).setCellEditor(comboBoxOp);
 
-        filterTable.getColumnExt(RULE_NUMBER_COL).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
-        filterTable.getColumnExt(RULE_OP_COL).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
-        filterTable.getColumnExt(RULE_TYPE_COL).setHeaderRenderer(PlatformUI.CENTER_COLUMN_HEADER_RENDERER);
-
         filterTable.getColumnExt(RULE_TYPE_COL).setMaxWidth(UIConstants.MAX_WIDTH);
         filterTable.getColumnExt(RULE_TYPE_COL).setMinWidth(120);
         filterTable.getColumnExt(RULE_TYPE_COL).setPreferredWidth(120);

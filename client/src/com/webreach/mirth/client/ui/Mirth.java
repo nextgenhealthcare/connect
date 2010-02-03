@@ -19,7 +19,6 @@ import javax.swing.text.JTextComponent.KeyBinding;
 
 import org.jdesktop.swingx.plaf.LookAndFeelAddons;
 import org.jdesktop.swingx.plaf.windows.WindowsLookAndFeelAddons;
-import org.jdesktop.swingx.table.ColumnHeaderRenderer;
 
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
@@ -39,9 +38,6 @@ public class Mirth {
      */
     public Mirth(Client m) {
         PlatformUI.MIRTH_FRAME = new Frame();
-        PlatformUI.CENTER_COLUMN_HEADER_RENDERER.setHorizontalAlignment(SwingConstants.CENTER);
-        PlatformUI.CENTER_COLUMN_HEADER_RENDERER.setDownIcon(UIManager.getIcon("ColumnHeaderRenderer.downIcon"));
-        PlatformUI.CENTER_COLUMN_HEADER_RENDERER.setUpIcon(UIManager.getIcon("ColumnHeaderRenderer.upIcon"));
 
         UIManager.put("Tree.leafIcon", UIConstants.LEAF_ICON);
         UIManager.put("Tree.openIcon", UIConstants.OPEN_ICON);
@@ -202,9 +198,6 @@ public class Mirth {
                 UIManager.put("ComboBox.font", UIConstants.TEXTFIELD_PLAIN_FONT);
                 UIManager.put("JXLoginPanel.banner.font", UIConstants.BANNER_FONT);
                 UIManager.put("List.font", UIConstants.TEXTFIELD_PLAIN_FONT);
-
-                // Problem with JGoodies and JXTable: http://forums.java.net/jive/thread.jspa?messageID=278977
-                UIManager.put(ColumnHeaderRenderer.VISTA_BORDER_HACK, UIManager.get("TableHeader.cellBorder"));
 
                 try {
                     UIManager.put("wizard.sidebar.image", ImageIO.read(com.webreach.mirth.client.ui.Frame.class.getResource("images/wizardsidebar.png")));
