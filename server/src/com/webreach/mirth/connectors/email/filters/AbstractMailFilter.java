@@ -1,16 +1,12 @@
 /*
- * $Header: /home/projects/mule/scm/mule/providers/email/src/java/org/mule/providers/email/filters/AbstractMailFilter.java,v 1.4 2005/06/08 20:52:09 gnt Exp $
- * $Revision: 1.4 $
- * $Date: 2005/06/08 20:52:09 $
- * ------------------------------------------------------------------------------------------------------
- *
  * Copyright (c) SymphonySoft Limited. All rights reserved.
  * http://www.symphonysoft.com
  *
  * The software in this package is published under the terms of the BSD
  * style license a copy of which has been included with this distribution in
- * the LICENSE.txt file.
+ * the LICENSE-MULE.txt file.
  */
+
 package com.webreach.mirth.connectors.email.filters;
 
 import javax.mail.Message;

@@ -1,17 +1,12 @@
-/* 
-* $Header: /home/projects/mule/scm/mule/providers/email/src/java/org/mule/providers/email/transformers/ObjectToMimeMessage.java,v 1.2 2005/09/26 16:19:42 aperepel Exp $
-* $Revision: 1.2 $
-* $Date: 2005/09/26 16:19:42 $
-* ------------------------------------------------------------------------------------------------------
-* 
-* Copyright (c) SymphonySoft Limited. All rights reserved.
-* http://www.symphonysoft.com
-* 
-* The software in this package is published under the terms of the BSD
-* style license a copy of which has been included with this distribution in
-* the LICENSE.txt file. 
-*
-*/
+/*
+ * Copyright (c) SymphonySoft Limited. All rights reserved.
+ * http://www.symphonysoft.com
+ *
+ * The software in this package is published under the terms of the BSD
+ * style license a copy of which has been included with this distribution in
+ * the LICENSE-MULE.txt file.
+ */
+
 package com.webreach.mirth.connectors.email.transformers;
 
 import java.io.IOException;
