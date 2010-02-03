@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * http://www.mirthcorp.com
+ *
+ * The software in this package is published under the terms of the MPL
+ * license a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
+ */
+
 package com.webreach.mirth.connectors.mllp.protocols;
 
 import java.io.ByteArrayOutputStream;
@@ -19,8 +28,6 @@ import com.webreach.mirth.connectors.mllp.TcpProtocol;
  * messages. Adapted from HAPI HL7 Reader:
  * http://cvs.sourceforge.net/viewcvs.py/hl7api/hapi/ca/uhn/hl7v2/llp/MinLLPReader.java?rev=1.9&view=auto
  * 
- * @author <a href="mailto:eclipxe@gmail.com">Chris Lang</a>
- * @version $Revision: 1.0 $
  */
 public class LlpProtocol implements TcpProtocol {
 	private static final Log logger = LogFactory.getLog(LlpProtocol.class);

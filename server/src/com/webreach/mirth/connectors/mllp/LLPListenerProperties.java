@@ -1,38 +1,21 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * http://www.mirthcorp.com
  *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
- 
+ * The software in this package is published under the terms of the MPL
+ * license a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
+ */
+
 package com.webreach.mirth.connectors.mllp;
 
 import java.util.Properties;
 
 import com.webreach.mirth.model.ComponentProperties;
 
-public class LLPListenerProperties implements ComponentProperties
-{
-	public static final String name = "LLP Listener";
-	
+public class LLPListenerProperties implements ComponentProperties {
+    public static final String name = "LLP Listener";
+
     public static final String DATATYPE = "DataType";
     public static final String LLP_PROTOCOL_NAME = "tcpProtocolClassName";
     public static final String LLP_PROTOCOL_NAME_VALUE = "org.mule.providers.tcp.protocols.TcpProtocol";
@@ -58,7 +41,7 @@ public class LLPListenerProperties implements ComponentProperties
     public static final String LLP_ACK_MSH_15 = "checkMSH15";
     public static final String LLP_ACK_NEW_CONNECTION = "ackOnNewConnection";
     public static final String LLP_ACK_NEW_CONNECTION_IP = "ackIP";
-    public static final String LLP_ACK_NEW_CONNECTION_PORT = "ackPort";    
+    public static final String LLP_ACK_NEW_CONNECTION_PORT = "ackPort";
     public static final String LLP_RESPONSE_FROM_TRANSFORMER = "responseFromTransformer";
     public static final String LLP_RESPONSE_VALUE = "responseValue";
     public static final String LLP_WAIT_FOR_END_OF_MESSAGE_CHAR = "waitForEndOfMessageCharacter";
@@ -66,8 +49,7 @@ public class LLPListenerProperties implements ComponentProperties
     public static final String LLP_PROCESS_BATCH_FILES = "processBatchFiles";
     public static final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
 
-    public Properties getDefaults()
-    {
+    public Properties getDefaults() {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
         properties.put(LLP_PROTOCOL_NAME, LLP_PROTOCOL_NAME_VALUE);
