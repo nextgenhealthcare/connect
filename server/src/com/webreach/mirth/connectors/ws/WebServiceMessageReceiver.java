@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * http://www.mirthcorp.com
+ *
+ * The software in this package is published under the terms of the MPL
+ * license a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
+ */
+
 package com.webreach.mirth.connectors.ws;
 
 import java.lang.reflect.Constructor;
@@ -53,29 +62,29 @@ public class WebServiceMessageReceiver extends AbstractMessageReceiver {
 
     public void doConnect() throws Exception {
         logger.debug("starting Web Service HTTP server on port: " + endpoint.getEndpointURI().getUri().getPort());
-        
+
         java.util.logging.Logger.getLogger("javax.enterprise.resource.webservices.jaxws.server").setLevel(java.util.logging.Level.OFF);
-        
+
         server = HttpServer.create(new InetSocketAddress(endpoint.getEndpointURI().getUri().getHost(), endpoint.getEndpointURI().getUri().getPort()), 5);
-        
+
         threads = Executors.newFixedThreadPool(5);
         server.setExecutor(threads);
         server.start();
-        
+
         AcceptMessage acceptMessageWebService = null;
-        
+
         try {
             Class<?> clazz = Class.forName(connector.getReceiverClassName());
-        
+
             if (clazz.getSuperclass().equals(AcceptMessage.class)) {
                 Constructor<?>[] constructors = clazz.getDeclaredConstructors();
-                for (int i=0; i < constructors.length; i++) {
+                for (int i = 0; i < constructors.length; i++) {
                     Class<?>[] parameters = constructors[i].getParameterTypes();
                     if ((parameters.length == 1) && parameters[0].equals(this.getClass())) {
-                        acceptMessageWebService = (AcceptMessage) constructors[i].newInstance(new Object[] {this});
+                        acceptMessageWebService = (AcceptMessage) constructors[i].newInstance(new Object[] { this });
                     }
                 }
-                
+
                 if (acceptMessageWebService == null) {
                     logger.error("Custom web service class must implement the constructor: public AcceptMessage(WebServiceMessageReceiver webServiceMessageReceiver)");
                 }
@@ -85,19 +94,19 @@ public class WebServiceMessageReceiver extends AbstractMessageReceiver {
         } catch (Exception e) {
             logger.error("Custom web service class initialization failed", e);
         }
-        
+
         if (acceptMessageWebService == null) {
             logger.error("Custom web service class initialization failed, using DefaultAcceptMessage");
             acceptMessageWebService = new DefaultAcceptMessage(this);
         }
-        
+
         webServiceEndpoint = Endpoint.create(acceptMessageWebService);
         Binding binding = webServiceEndpoint.getBinding();
         List<Handler> handlerChain = new LinkedList<Handler>();
         handlerChain.add(new LoggingSOAPHandler(this));
         binding.setHandlerChain(handlerChain);
         HttpContext context = server.createContext("/services/" + connector.getReceiverServiceName());
-        
+
         if (connector.getReceiverUsernames().size() > 0) {
             context.setAuthenticator(new BasicAuthenticator("/services/" + connector.getReceiverServiceName()) {
                 @Override
@@ -112,8 +121,8 @@ public class WebServiceMessageReceiver extends AbstractMessageReceiver {
                 }
             });
         }
-        
-        webServiceEndpoint.publish(context);        
+
+        webServiceEndpoint.publish(context);
 
         monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
     }
@@ -121,32 +130,33 @@ public class WebServiceMessageReceiver extends AbstractMessageReceiver {
     public void doDisconnect() throws Exception {
 
     }
-    
+
     public void doStop() throws UMOException {
         super.doStop();
-        
+
         try {
             logger.debug("stopping Web Service HTTP server");
-            webServiceEndpoint.stop();            server.stop(1);
+            webServiceEndpoint.stop();
+            server.stop(1);
             threads.shutdown();
         } catch (Exception e) {
             throw new MuleException(new Message(Messages.FAILED_TO_STOP_X, "Web Service Listener"), e.getCause());
         }
     }
-    
+
     protected String processData(String message) {
         try {
             monitoringController.updateStatus(connector, connectorType, Event.BUSY);
             UMOMessageAdapter adapter = connector.getMessageAdapter(message);
             UMOMessage response = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
-    
+
             if ((response != null) && (response instanceof MuleMessage)) {
                 Object payload = response.getPayload();
-    
+
                 if (payload instanceof MessageObject) {
                     MessageObject messageObjectResponse = (MessageObject) payload;
                     postProcessor.doPostProcess(messageObjectResponse);
-                    
+
                     if (!connector.getReceiverResponseValue().equalsIgnoreCase("None")) {
                         return ((Response) messageObjectResponse.getResponseMap().get(connector.getReceiverResponseValue())).getMessage();
                     } else {

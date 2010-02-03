@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * http://www.mirthcorp.com
+ *
+ * The software in this package is published under the terms of the MPL
+ * license a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
+ */
+
 package com.webreach.mirth.connectors.ws;
 
 import java.util.Set;
@@ -22,13 +31,13 @@ public class LoggingSOAPHandler implements SOAPHandler<SOAPMessageContext> {
     private Logger logger = Logger.getLogger(this.getClass());
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private ConnectorType connectorType = ConnectorType.LISTENER;
-    
+
     private WebServiceMessageReceiver webServiceMessageReceiver;
-    
+
     public LoggingSOAPHandler(WebServiceMessageReceiver webServiceMessageReceiver) {
         this.webServiceMessageReceiver = webServiceMessageReceiver;
     }
-    
+
     public Set<QName> getHeaders() {
         return null;
     }
@@ -58,5 +67,5 @@ public class LoggingSOAPHandler implements SOAPHandler<SOAPMessageContext> {
         }
         return true;
     }
-    
+
 }

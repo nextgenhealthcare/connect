@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * http://www.mirthcorp.com
+ *
+ * The software in this package is published under the terms of the MPL
+ * license a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
+ */
+
 package com.webreach.mirth.connectors.ws;
 
 import java.io.File;
@@ -46,7 +55,7 @@ public class WebServiceUtil {
         } else {
             baseUri = uri;
         }
-        
+
         if (baseUri.getScheme() != null && baseUri.getScheme().equalsIgnoreCase("file")) {
             return new FileInputStream(new File(baseUri));
         }
@@ -59,7 +68,7 @@ public class WebServiceUtil {
             client.getState().setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(username, password));
             status = client.executeMethod(method);
         }
-        
+
         if (status == HttpStatus.SC_OK) {
             return method.getResponseBodyAsStream();
         }

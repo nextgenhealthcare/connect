@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * http://www.mirthcorp.com
+ *
+ * The software in this package is published under the terms of the MPL
+ * license a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
+ */
+
 package com.webreach.mirth.connectors.ws;
 
 import java.io.InputStream;
@@ -10,41 +19,40 @@ import org.apache.log4j.Logger;
 import org.xml.sax.InputSource;
 
 public class AuthWsdlLocator implements WSDLLocator {
-    
+
     private Logger logger = Logger.getLogger(this.getClass());
-    
+
     private String wsdlUrl;
     private String username;
     private String password;
     private String lastImportUri;
-    
+
     public AuthWsdlLocator(String wsdlUrl, String username, String password) {
         this.wsdlUrl = wsdlUrl;
         this.username = username;
-        this.password = password;        
+        this.password = password;
     }
-    
-    public void close() {
-    }
+
+    public void close() {}
 
     public InputSource getBaseInputSource() throws RuntimeException {
         InputSource inputSource = new InputSource();
         try {
             URI baseUri = null;
-            
+
             try {
                 baseUri = new URI(wsdlUrl);
             } catch (URISyntaxException e) {
                 logger.error(e);
             }
-            
+
             InputStream inputStream = WebServiceUtil.getUrlContents(baseUri, null, username, password);
             inputSource.setByteStream(inputStream);
         } catch (Exception e) {
             logger.error(e);
             throw new RuntimeException(e);
         }
-        
+
         return inputSource;
     }
 
@@ -57,14 +65,14 @@ public class AuthWsdlLocator implements WSDLLocator {
         try {
             URI importUri = null;
             URI parentUri = null;
-            
+
             try {
                 importUri = new URI(importLocation);
                 parentUri = new URI(parentLocation);
             } catch (URISyntaxException e) {
                 logger.error(e);
             }
-            
+
             InputStream inputStream = WebServiceUtil.getUrlContents(importUri, parentUri, username, password);
             lastImportUri = importLocation;
             inputSource.setByteStream(inputStream);
@@ -72,7 +80,7 @@ public class AuthWsdlLocator implements WSDLLocator {
             logger.error(e);
             throw new RuntimeException(e);
         }
-        
+
         return inputSource;
     }
 
