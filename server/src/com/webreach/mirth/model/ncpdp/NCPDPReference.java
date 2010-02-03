@@ -13,15 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
-/**
- * Created by IntelliJ IDEA.
- * User: dans
- * Date: Jun 7, 2007
- * Time: 9:17:29 AM
- * To change this template use File | Settings | File Templates.
- */
 public class NCPDPReference {
 
     private Map<String, String> NCPDPmap = new HashMap<String, String>();
@@ -67,8 +59,8 @@ public class NCPDPReference {
             return new String();
     }
     public String getCodeFromName(String desc) {
-        Set keys = NCPDPmap.keySet();
-        Iterator iter = keys.iterator();
+        Iterator<String> iter = NCPDPmap.keySet().iterator();
+        
         while(iter.hasNext()){
             Object key = iter.next();
             String value = NCPDPmap.get(key);
@@ -79,8 +71,8 @@ public class NCPDPReference {
         return desc;
     }
     public String getSegmentIdFromName(String desc) {
-        Set keys = segmentMap.keySet();
-        Iterator iter = keys.iterator();
+        Iterator<String> iter = segmentMap.keySet().iterator();
+        
         while(iter.hasNext()){
             Object key = iter.next();
             String value = segmentMap.get(key);
