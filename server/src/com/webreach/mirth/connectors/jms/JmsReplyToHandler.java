@@ -1,16 +1,12 @@
 /*
- * $Header: /home/projects/mule/scm/mule/providers/jms/src/java/org/mule/providers/jms/JmsReplyToHandler.java,v 1.16 2005/09/30 15:11:12 rossmason Exp $
- * $Revision: 1.16 $
- * $Date: 2005/09/30 15:11:12 $
- * ------------------------------------------------------------------------------------------------------
- *
  * Copyright (c) SymphonySoft Limited. All rights reserved.
  * http://www.symphonysoft.com
  *
  * The software in this package is published under the terms of the BSD
  * style license a copy of which has been included with this distribution in
- * the LICENSE.txt file.
+ * the LICENSE-MULE.txt file.
  */
+
 package com.webreach.mirth.connectors.jms;
 
 import javax.jms.DeliveryMode;

@@ -1,17 +1,12 @@
 /*
- * $Header: /home/projects/mule/scm/mule/providers/jms/src/java/org/mule/providers/jms/JmsMessageAdapter.java,v 1.12 2005/10/23 15:19:36 holger Exp $
- * $Revision: 1.12 $
- * $Date: 2005/10/23 15:19:36 $
- * ------------------------------------------------------------------------------------------------------
- *
  * Copyright (c) SymphonySoft Limited. All rights reserved.
  * http://www.symphonysoft.com
  *
  * The software in this package is published under the terms of the BSD
  * style license a copy of which has been included with this distribution in
- * the LICENSE.txt file.
- *
+ * the LICENSE-MULE.txt file.
  */
+
 package com.webreach.mirth.connectors.jms;
 
 import java.util.Enumeration;

@@ -1,17 +1,12 @@
 /*
- * $Header: /home/projects/mule/scm/mule/providers/jms/src/java/org/mule/providers/jms/JmsConstants.java,v 1.1 2005/10/20 13:08:20 holger Exp $
- * $Revision: 1.1 $
- * $Date: 2005/10/20 13:08:20 $
- * ------------------------------------------------------------------------------------------------------
- *
  * Copyright (c) SymphonySoft Limited. All rights reserved.
  * http://www.symphonysoft.com
  *
  * The software in this package is published under the terms of the BSD
  * style license a copy of which has been included with this distribution in
- * the LICENSE.txt file.
- *
+ * the LICENSE-MULE.txt file.
  */
+
 package com.webreach.mirth.connectors.jms;
 
 /**
