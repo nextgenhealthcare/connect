@@ -21,20 +21,17 @@ import org.apache.commons.logging.LogFactory;
  * @author Guillaume Nodet
  * @version $Revision: 1.4 $
  */
-public class JmsUtils
-{
+public class JmsUtils {
 
     private static final transient Log logger = LogFactory.getLog(JmsUtils.class);
 
-    public static void close(MessageProducer producer) throws JMSException
-    {
+    public static void close(MessageProducer producer) throws JMSException {
         if (producer != null) {
             producer.close();
         }
     }
 
-    public static void closeQuietly(MessageProducer producer)
-    {
+    public static void closeQuietly(MessageProducer producer) {
         if (producer != null) {
             try {
                 producer.close();
@@ -44,15 +41,13 @@ public class JmsUtils
         }
     }
 
-    public static void close(MessageConsumer consumer) throws JMSException
-    {
+    public static void close(MessageConsumer consumer) throws JMSException {
         if (consumer != null) {
             consumer.close();
         }
     }
 
-    public static void closeQuietly(MessageConsumer consumer)
-    {
+    public static void closeQuietly(MessageConsumer consumer) {
         if (consumer != null) {
             try {
                 consumer.close();
@@ -62,15 +57,13 @@ public class JmsUtils
         }
     }
 
-    public static void close(Session session) throws JMSException
-    {
+    public static void close(Session session) throws JMSException {
         if (session != null) {
             session.close();
         }
     }
 
-    public static void closeQuietly(Session session)
-    {
+    public static void closeQuietly(Session session) {
         if (session != null) {
             try {
                 session.close();

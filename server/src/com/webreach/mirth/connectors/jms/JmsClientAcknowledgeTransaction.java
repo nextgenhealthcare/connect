@@ -21,17 +21,16 @@ import org.mule.umo.TransactionException;
 
 /**
  * <p>
- * <code>JmsClientAcknowledgeTransaction</code> is a transaction
- * implementation of performing a message acknowledgement. There is no notion of
- * rollback with client acknowledgement, but this transaction can be useful for
- * controlling how messages are consumed from a destination.
+ * <code>JmsClientAcknowledgeTransaction</code> is a transaction implementation
+ * of performing a message acknowledgement. There is no notion of rollback with
+ * client acknowledgement, but this transaction can be useful for controlling
+ * how messages are consumed from a destination.
  * 
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @author Guillaume Nodet
  * @version $Revision: 1.6 $
  */
-public class JmsClientAcknowledgeTransaction extends AbstractSingleResourceTransaction
-{
+public class JmsClientAcknowledgeTransaction extends AbstractSingleResourceTransaction {
     private Message message;
 
     /*
@@ -39,9 +38,8 @@ public class JmsClientAcknowledgeTransaction extends AbstractSingleResourceTrans
      * 
      * @see org.mule.transaction.AbstractSingleResourceTransaction#doBegin()
      */
-    protected void doBegin() throws TransactionException
-    {
-        // nothing to do
+    protected void doBegin() throws TransactionException {
+    // nothing to do
     }
 
     /*
@@ -49,8 +47,7 @@ public class JmsClientAcknowledgeTransaction extends AbstractSingleResourceTrans
      * 
      * @see org.mule.transaction.AbstractSingleResourceTransaction#doCommit()
      */
-    protected void doCommit() throws TransactionException
-    {
+    protected void doCommit() throws TransactionException {
         try {
             if (message == null) {
                 throw new IllegalTransactionStateException(new org.mule.config.i18n.Message("jms", 6));
@@ -66,8 +63,7 @@ public class JmsClientAcknowledgeTransaction extends AbstractSingleResourceTrans
      * 
      * @see org.mule.transaction.AbstractSingleResourceTransaction#doRollback()
      */
-    protected void doRollback() throws TransactionException
-    {
+    protected void doRollback() throws TransactionException {
         // If a message has been bound, rollback is forbidden
         if (message != null) {
             throw new UnsupportedOperationException("Jms Client Acknowledge doesn't support rollback");
@@ -78,17 +74,15 @@ public class JmsClientAcknowledgeTransaction extends AbstractSingleResourceTrans
      * (non-Javadoc)
      * 
      * @see org.mule.umo.UMOTransaction#bindResource(java.lang.Object,
-     *      java.lang.Object)
+     * java.lang.Object)
      */
-    public void bindResource(Object key, Object resource) throws TransactionException
-    {
+    public void bindResource(Object key, Object resource) throws TransactionException {
         if (key instanceof Message) {
             this.message = (Message) key;
             return;
         }
         if (!(key instanceof Connection) || !(resource instanceof Session)) {
-            throw new IllegalTransactionStateException(new org.mule.config.i18n.Message(Messages.TX_CAN_ONLY_BIND_TO_X_TYPE_RESOURCES,
-                                                                                        "javax.jms.Connection/javax.jms.Session"));
+            throw new IllegalTransactionStateException(new org.mule.config.i18n.Message(Messages.TX_CAN_ONLY_BIND_TO_X_TYPE_RESOURCES, "javax.jms.Connection/javax.jms.Session"));
         }
         Session session = (Session) resource;
         try {

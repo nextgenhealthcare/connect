@@ -23,14 +23,14 @@ import org.mule.umo.MessagingException;
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @version $Revision: 1.4 $
  */
-public interface RedeliveryHandler
-{
+public interface RedeliveryHandler {
 
     /**
      * The connector associated with this handler is set before
      * <code>handleRedelivery()</code> is called
      * 
-     * @param connector the connector associated with this handler
+     * @param connector
+     *            the connector associated with this handler
      */
     public void setConnector(JmsConnector connector);
 
@@ -41,11 +41,13 @@ public interface RedeliveryHandler
      * should be handled by the connector Exception Handler.
      * 
      * @param message
-     * @throws JMSException if properties cannot be read from the JMSMessage
-     * @throws MessageRedeliveredException should be thrown if the message
-     *             should be handled by the connection exception handler
-     * @throws MessagingException if there is a problem reading or proessing the
-     *             message
+     * @throws JMSException
+     *             if properties cannot be read from the JMSMessage
+     * @throws MessageRedeliveredException
+     *             should be thrown if the message should be handled by the
+     *             connection exception handler
+     * @throws MessagingException
+     *             if there is a problem reading or proessing the message
      */
     public void handleRedelivery(Message message) throws JMSException, MessageRedeliveredException, MessagingException;
 }

@@ -22,22 +22,20 @@ import org.mule.umo.UMOTransactionFactory;
  * @version $Revision: 1.6 $
  */
 
-public class JmsClientAcknowledgeTransactionFactory implements UMOTransactionFactory
-{
+public class JmsClientAcknowledgeTransactionFactory implements UMOTransactionFactory {
     /*
      * (non-Javadoc)
      * 
-     * @see org.mule.umo.UMOTransactionFactory#beginTransaction(java.lang.Object)
+     * @see
+     * org.mule.umo.UMOTransactionFactory#beginTransaction(java.lang.Object)
      */
-    public UMOTransaction beginTransaction() throws TransactionException
-    {
+    public UMOTransaction beginTransaction() throws TransactionException {
         JmsClientAcknowledgeTransaction tx = new JmsClientAcknowledgeTransaction();
         tx.begin();
         return tx;
     }
 
-    public boolean isTransacted()
-    {
+    public boolean isTransacted() {
         return false;
     }
 }

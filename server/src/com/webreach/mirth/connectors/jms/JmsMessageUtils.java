@@ -42,15 +42,13 @@ import org.mule.util.compression.CompressionHelper;
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @version $Revision: 1.5 $
  */
-public class JmsMessageUtils
-{
+public class JmsMessageUtils {
     /**
      * The logger for this class
      */
     private static final transient Log logger = LogFactory.getLog(JmsMessageUtils.class);
 
-    public static Message getMessageForObject(Object object, Session session) throws JMSException
-    {
+    public static Message getMessageForObject(Object object, Session session) throws JMSException {
         if (object instanceof Message) {
             return (Message) object;
         } else if (object instanceof String) {
@@ -99,8 +97,7 @@ public class JmsMessageUtils
         }
     }
 
-    public static Object getObjectForMessage(Message source) throws JMSException
-    {
+    public static Object getObjectForMessage(Message source) throws JMSException {
         Object result = null;
         try {
             if (source instanceof ObjectMessage) {
@@ -132,8 +129,7 @@ public class JmsMessageUtils
                 baos.close();
                 if (result != null) {
                     if (logger.isDebugEnabled())
-                        logger.debug("JMSToObject: extracted " + ((byte[]) result).length
-                                + " bytes from JMS BytesMessage");
+                        logger.debug("JMSToObject: extracted " + ((byte[]) result).length + " bytes from JMS BytesMessage");
                 }
             } else if (source instanceof TextMessage) {
                 result = ((TextMessage) source).getText();
@@ -165,17 +161,18 @@ public class JmsMessageUtils
     }
 
     /**
-     * @param message the message to receive the bytes from. Note this only
-     *            works for TextMessge, ObjectMessage, StreamMessage and
-     *            BytesMessage.
+     * @param message
+     *            the message to receive the bytes from. Note this only works
+     *            for TextMessge, ObjectMessage, StreamMessage and BytesMessage.
      * @return a byte array corresponding with the message payload
-     * @throws JMSException if the message can't be read or if the message
-     *             passed is a MapMessage
-     * @throws java.io.IOException if a failiare occurs while stream and
-     *             converting the message data
+     * @throws JMSException
+     *             if the message can't be read or if the message passed is a
+     *             MapMessage
+     * @throws java.io.IOException
+     *             if a failiare occurs while stream and converting the message
+     *             data
      */
-    public static byte[] getBytesFromMessage(Message message) throws JMSException, IOException
-    {
+    public static byte[] getBytesFromMessage(Message message) throws JMSException, IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] buffer = new byte[1024 * 2];
         int len;
@@ -215,8 +212,7 @@ public class JmsMessageUtils
         return bytes;
     }
 
-    public static String getNameForDestination(Destination dest) throws JMSException
-    {
+    public static String getNameForDestination(Destination dest) throws JMSException {
         if (dest instanceof Queue) {
             return ((Queue) dest).getQueueName();
         } else if (dest instanceof Topic) {

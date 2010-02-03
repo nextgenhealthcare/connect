@@ -21,22 +21,21 @@ import org.mule.umo.UMOTransactionFactory;
  * @author Guillaume Nodet
  * @version $Revision: 1.7 $
  */
-public class JmsTransactionFactory implements UMOTransactionFactory
-{
+public class JmsTransactionFactory implements UMOTransactionFactory {
     /*
      * (non-Javadoc)
      * 
-     * @see org.mule.umo.UMOTransactionFactory#beginTransaction(org.mule.umo.provider.UMOMessageDispatcher)
+     * @see
+     * org.mule.umo.UMOTransactionFactory#beginTransaction(org.mule.umo.provider
+     * .UMOMessageDispatcher)
      */
-    public UMOTransaction beginTransaction() throws TransactionException
-    {
+    public UMOTransaction beginTransaction() throws TransactionException {
         JmsTransaction tx = new JmsTransaction();
         tx.begin();
         return tx;
     }
 
-    public boolean isTransacted()
-    {
+    public boolean isTransacted() {
         return true;
     }
 

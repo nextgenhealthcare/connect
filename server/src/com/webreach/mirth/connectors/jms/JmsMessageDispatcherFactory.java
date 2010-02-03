@@ -18,10 +18,8 @@ import org.mule.umo.provider.UMOMessageDispatcherFactory;
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @version $Revision: 1.5 $
  */
-public class JmsMessageDispatcherFactory implements UMOMessageDispatcherFactory
-{
-    public UMOMessageDispatcher create(UMOConnector connector) throws UMOException
-    {
+public class JmsMessageDispatcherFactory implements UMOMessageDispatcherFactory {
+    public UMOMessageDispatcher create(UMOConnector connector) throws UMOException {
         return new JmsMessageDispatcher((JmsConnector) connector);
     }
 }

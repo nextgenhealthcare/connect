@@ -26,8 +26,7 @@ import org.mule.umo.MessagingException;
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @version $Revision: 1.6 $
  */
-public class DefaultRedeliveryHandler implements RedeliveryHandler
-{
+public class DefaultRedeliveryHandler implements RedeliveryHandler {
     /**
      * logger used by this class
      */
@@ -37,8 +36,7 @@ public class DefaultRedeliveryHandler implements RedeliveryHandler
 
     protected JmsConnector connector;
 
-    public DefaultRedeliveryHandler()
-    {
+    public DefaultRedeliveryHandler() {
         messages = Collections.synchronizedMap(new LRUMap(256));
     }
 
@@ -46,10 +44,10 @@ public class DefaultRedeliveryHandler implements RedeliveryHandler
      * The connector associated with this handler is set before
      * <code>handleRedelivery()</code> is called
      * 
-     * @param connector the connector associated with this handler
+     * @param connector
+     *            the connector associated with this handler
      */
-    public void setConnector(JmsConnector connector)
-    {
+    public void setConnector(JmsConnector connector) {
         this.connector = connector;
     }
 
@@ -61,8 +59,7 @@ public class DefaultRedeliveryHandler implements RedeliveryHandler
      * 
      * @param message
      */
-    public void handleRedelivery(Message message) throws JMSException, MessagingException
-    {
+    public void handleRedelivery(Message message) throws JMSException, MessagingException {
         if (connector.getMaxRedelivery() <= 0)
             return;
 
@@ -76,8 +73,7 @@ public class DefaultRedeliveryHandler implements RedeliveryHandler
             return;
         } else if (i.intValue() == connector.getMaxRedelivery()) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Message with id: " + id + " has been redelivered " + (i.intValue() + 1)
-                        + " times, which exceeds the maxRedelivery setting on the connector");
+                logger.debug("Message with id: " + id + " has been redelivered " + (i.intValue() + 1) + " times, which exceeds the maxRedelivery setting on the connector");
             }
             JmsMessageAdapter adapter = (JmsMessageAdapter) connector.getMessageAdapter(message);
             throw new MessageRedeliveredException(adapter);

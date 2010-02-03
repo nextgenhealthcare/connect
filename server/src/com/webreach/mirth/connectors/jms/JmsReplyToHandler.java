@@ -25,24 +25,21 @@ import org.mule.umo.provider.DispatchException;
 import org.mule.umo.transformer.UMOTransformer;
 
 /**
- * <code>JmsReplyToHandler</code> will process a Jms replyTo or hand off to
- * the defualt replyTo handler if the replyTo is a url
+ * <code>JmsReplyToHandler</code> will process a Jms replyTo or hand off to the
+ * defualt replyTo handler if the replyTo is a url
  * 
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @version $Revision: 1.16 $
  */
-public class JmsReplyToHandler extends DefaultReplyToHandler
-{
+public class JmsReplyToHandler extends DefaultReplyToHandler {
     private JmsConnector connector;
 
-    public JmsReplyToHandler(JmsConnector connector, UMOTransformer transformer)
-    {
+    public JmsReplyToHandler(JmsConnector connector, UMOTransformer transformer) {
         super(transformer);
         this.connector = connector;
     }
 
-    public void processReplyTo(UMOEvent event, UMOMessage returnMessage, Object replyTo) throws UMOException
-    {
+    public void processReplyTo(UMOEvent event, UMOMessage returnMessage, Object replyTo) throws UMOException {
         Destination replyToDestination = null;
         MessageProducer replyToProducer = null;
         Session session = null;
@@ -65,8 +62,7 @@ public class JmsReplyToHandler extends DefaultReplyToHandler
 
             replyToMessage.setJMSReplyTo(null);
             if (logger.isDebugEnabled()) {
-                logger.debug("Sending jms reply to: " + replyToDestination + "("
-                        + replyToDestination.getClass().getName() + ")");
+                logger.debug("Sending jms reply to: " + replyToDestination + "(" + replyToDestination.getClass().getName() + ")");
             }
             replyToProducer = connector.getJmsSupport().createProducer(session, replyToDestination);
 
@@ -97,9 +93,7 @@ public class JmsReplyToHandler extends DefaultReplyToHandler
             logger.info("Reply Message sent to: " + replyToDestination);
             ((AbstractComponent) event.getComponent()).getStatistics().incSentReplyToEvent();
         } catch (Exception e) {
-            throw new DispatchException(new org.mule.config.i18n.Message("jms", 8, replyToDestination.toString()),
-                                        returnMessage,
-                                        null, e);
+            throw new DispatchException(new org.mule.config.i18n.Message("jms", 8, replyToDestination.toString()), returnMessage, null, e);
         } finally {
             JmsUtils.closeQuietly(replyToProducer);
             JmsUtils.closeQuietly(session);

@@ -29,20 +29,17 @@ import org.mule.umo.TransactionException;
  * @author Guillaume Nodet
  * @version $Revision: 1.6 $
  */
-public class JmsTransaction extends AbstractSingleResourceTransaction
-{
+public class JmsTransaction extends AbstractSingleResourceTransaction {
 
     /*
      * (non-Javadoc)
      * 
      * @see org.mule.umo.UMOTransaction#bindResource(java.lang.Object,
-     *      java.lang.Object)
+     * java.lang.Object)
      */
-    public void bindResource(Object key, Object resource) throws TransactionException
-    {
+    public void bindResource(Object key, Object resource) throws TransactionException {
         if (!(key instanceof Connection) || !(resource instanceof Session)) {
-            throw new IllegalTransactionStateException(new Message(Messages.TX_CAN_ONLY_BIND_TO_X_TYPE_RESOURCES,
-                                                                   "javax.jms.Connection/javax.jms.Session"));
+            throw new IllegalTransactionStateException(new Message(Messages.TX_CAN_ONLY_BIND_TO_X_TYPE_RESOURCES, "javax.jms.Connection/javax.jms.Session"));
         }
         Session session = (Session) resource;
         try {
@@ -60,9 +57,8 @@ public class JmsTransaction extends AbstractSingleResourceTransaction
      * 
      * @see org.mule.transaction.AbstractSingleResourceTransaction#doBegin()
      */
-    protected void doBegin() throws TransactionException
-    {
-        // do nothing
+    protected void doBegin() throws TransactionException {
+    // do nothing
     }
 
     /*
@@ -70,8 +66,7 @@ public class JmsTransaction extends AbstractSingleResourceTransaction
      * 
      * @see org.mule.transaction.AbstractSingleResourceTransaction#doCommit()
      */
-    protected void doCommit() throws TransactionException
-    {
+    protected void doCommit() throws TransactionException {
         try {
             ((Session) resource).commit();
         } catch (JMSException e) {
@@ -84,8 +79,7 @@ public class JmsTransaction extends AbstractSingleResourceTransaction
      * 
      * @see org.mule.transaction.AbstractSingleResourceTransaction#doRollback()
      */
-    protected void doRollback() throws TransactionException
-    {
+    protected void doRollback() throws TransactionException {
         try {
             ((Session) resource).rollback();
         } catch (JMSException e) {

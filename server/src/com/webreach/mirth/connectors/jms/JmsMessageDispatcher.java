@@ -45,11 +45,11 @@ import com.webreach.mirth.server.controllers.MonitoringController.Event;
 import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 
 /**
- * <code>JmsMessageDispatcher</code> is responsible for dispatching messages
- * to Jms destinations. All Jms sematics apply and settings such as replyTo and
- * QoS properties are read from the event properties or defaults are used
- * (according to the Jms specification)
- *
+ * <code>JmsMessageDispatcher</code> is responsible for dispatching messages to
+ * Jms destinations. All Jms sematics apply and settings such as replyTo and QoS
+ * properties are read from the event properties or defaults are used (according
+ * to the Jms specification)
+ * 
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @author Guillaume Nodet
  * @version $Revision: 1.22 $
@@ -58,11 +58,12 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
 
     private JmsConnector connector;
     private Session delegateSession;
-	private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
-	private AlertController alertController = ControllerFactory.getFactory().createAlertController();
-	private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
-	private TemplateValueReplacer replacer = new TemplateValueReplacer();
-	private ConnectorType connectorType = ConnectorType.WRITER;
+    private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
+    private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
+    private TemplateValueReplacer replacer = new TemplateValueReplacer();
+    private ConnectorType connectorType = ConnectorType.WRITER;
+
     public JmsMessageDispatcher(JmsConnector connector) {
         super(connector);
         this.connector = connector;
@@ -73,22 +74,21 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
      * (non-Javadoc)
      * 
      * @see org.mule.providers.UMOConnector#dispatchEvent(org.mule.MuleEvent,
-     *      org.mule.providers.MuleEndpoint)
+     * org.mule.providers.MuleEndpoint)
      */
     public void doDispatch(UMOEvent event) throws Exception {
         dispatchMessage(event);
     }
 
     private UMOMessage dispatchMessage(UMOEvent event) throws Exception {
-    	monitoringController.updateStatus(connector, connectorType, Event.BUSY);
-    	MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
-		if (messageObject == null) {
-			return null;
-		}
+        monitoringController.updateStatus(connector, connectorType, Event.BUSY);
+        MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
+        if (messageObject == null) {
+            return null;
+        }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("dispatching on endpoint: " + event.getEndpoint().getEndpointURI() + ". Event id is: "
-                    + event.getId());
+            logger.debug("dispatching on endpoint: " + event.getEndpoint().getEndpointURI() + ". Event id is: " + event.getId());
         }
         Session txSession = null;
         Session session = null;
@@ -116,8 +116,9 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
             boolean topic = false;
             String resourceInfo = endpointUri.getResourceInfo();
             topic = (resourceInfo != null && "topic".equalsIgnoreCase(resourceInfo));
-            //todo MULE20 remove resource info support
-            if(!topic) topic = PropertiesHelper.getBooleanProperty(event.getEndpoint().getProperties(), "topic", false);
+            // todo MULE20 remove resource info support
+            if (!topic)
+                topic = PropertiesHelper.getBooleanProperty(event.getEndpoint().getProperties(), "topic", false);
             String host = replacer.replaceValues(endpointUri.toString(), messageObject);
             Destination dest = connector.getJmsSupport().createDestination(session, endpointUri.getAddress(), topic);
             producer = connector.getJmsSupport().createProducer(session, dest);
@@ -125,12 +126,7 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
             transformer.setEndpoint(event.getEndpoint());
             Object message = transformer.doTransform(messageObject);
             if (!(message instanceof Message)) {
-                throw new DispatchException(new org.mule.config.i18n.Message(Messages.MESSAGE_NOT_X_IT_IS_TYPE_X_CHECK_TRANSFORMER_ON_X,
-                        "JMS message",
-                        message.getClass().getName(),
-                        connector.getName()),
-                        event.getMessage(),
-                        event.getEndpoint());
+                throw new DispatchException(new org.mule.config.i18n.Message(Messages.MESSAGE_NOT_X_IT_IS_TYPE_X_CHECK_TRANSFORMER_ON_X, "JMS message", message.getClass().getName(), connector.getName()), event.getMessage(), event.getEndpoint());
             }
 
             Message msg = (Message) message;
@@ -163,7 +159,7 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
             if (replyTo != null) {
                 msg.setJMSReplyTo(replyTo);
             }
-            
+
             // Are we going to wait for a return event ?
             if (remoteSync) {
                 consumer = connector.getJmsSupport().createConsumer(session, replyTo);
@@ -189,7 +185,7 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
             }
 
             if (consumer != null && topic) {
-                //need to register a listener for a topic
+                // need to register a listener for a topic
                 Latch l = new Latch();
                 ReplyToListener listener = new ReplyToListener(l);
                 consumer.setMessageListener(listener);
@@ -203,7 +199,7 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
                 listener.release();
                 Message result = listener.getMessage();
                 if (result == null) {
-                	messageObjectController.setSuccess(messageObject, "Jms message sent", null);
+                    messageObjectController.setSuccess(messageObject, "Jms message sent", null);
                     logger.debug("No message was returned via replyTo destination");
                     return null;
                 } else {
@@ -218,7 +214,7 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
                     logger.debug("Waiting for return event for: " + timeout + " ms on " + replyTo);
                     Message result = consumer.receive(timeout);
                     if (result == null) {
-                    	messageObjectController.setSuccess(messageObject, "Jms message sent", null);
+                        messageObjectController.setSuccess(messageObject, "Jms message sent", null);
                         logger.debug("No message was returned via replyTo destination");
                         return null;
                     } else {
@@ -226,15 +222,15 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
                         messageObjectController.setSuccess(messageObject, resultObject.toString(), null);
                         return new MuleMessage(resultObject);
                     }
-                }else{
-                	messageObjectController.setSuccess(messageObject, "Jms message sent", null);
+                } else {
+                    messageObjectController.setSuccess(messageObject, "Jms message sent", null);
                 }
             }
             return null;
-        } catch (Exception e){
-        	alertController.sendAlerts(((JmsConnector) connector).getChannelId(), Constants.ERROR_407, "Jms Error", e);
-        	messageObjectController.setError(messageObject, Constants.ERROR_407, "Jms Error", e, null);
-        	connector.handleException(e);
+        } catch (Exception e) {
+            alertController.sendAlerts(((JmsConnector) connector).getChannelId(), Constants.ERROR_407, "Jms Error", e);
+            messageObjectController.setError(messageObject, Constants.ERROR_407, "Jms Error", e, null);
+            connector.handleException(e);
         } finally {
             JmsUtils.closeQuietly(consumer);
             JmsUtils.closeQuietly(producer);
@@ -243,14 +239,14 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
             }
             monitoringController.updateStatus(connector, connectorType, Event.DONE);
         }
-		return null;
+        return null;
     }
 
     /*
      * (non-Javadoc)
      * 
      * @see org.mule.providers.UMOConnector#sendEvent(org.mule.MuleEvent,
-     *      org.mule.providers.MuleEndpoint)
+     * org.mule.providers.MuleEndpoint)
      */
     public UMOMessage doSend(UMOEvent event) throws Exception {
         UMOMessage message = dispatchMessage(event);
@@ -261,7 +257,7 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
      * (non-Javadoc)
      * 
      * @see org.mule.providers.UMOConnector#sendEvent(org.mule.MuleEvent,
-     *      org.mule.providers.MuleEndpoint)
+     * org.mule.providers.MuleEndpoint)
      */
     public UMOMessage receive(UMOEndpointURI endpointUri, long timeout) throws Exception {
         Session session = null;
@@ -365,7 +361,6 @@ public class JmsMessageDispatcher extends AbstractMessageDispatcher {
                 }
             }
         }
-
 
     }
 }

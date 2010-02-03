@@ -14,10 +14,9 @@ import java.util.Properties;
 import com.webreach.mirth.model.ComponentProperties;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 
-public class JMSReaderProperties implements ComponentProperties
-{
-	public static final String name = "JMS Reader";
-	
+public class JMSReaderProperties implements ComponentProperties {
+    public static final String name = "JMS Reader";
+
     public static final String DATATYPE = "DataType";
     public static final String JMS_SPECIFICATION = "specification";
     public static final String JMS_DURABLE = "durable";
@@ -33,9 +32,8 @@ public class JMSReaderProperties implements ComponentProperties
     public static final String JMS_ACK_MODE = "acknowledgementMode";
     public static final String JMS_SELECTOR = "selector";
     public static final String JMS_ADDITIONAL_PROPERTIES = "connectionFactoryProperties";
- 
-    public Properties getDefaults()
-    {
+
+    public Properties getDefaults() {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
         properties.put(JMS_SPECIFICATION, "1.1");
