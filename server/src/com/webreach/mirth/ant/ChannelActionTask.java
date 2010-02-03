@@ -253,7 +253,7 @@ public class ChannelActionTask extends AbstractMirthTask {
 	}
 
 	private List<ChannelStatus> getMatchingChannelStatuses(String key) throws ClientException {
-		List<ChannelStatus> result = new ArrayList();
+		List<ChannelStatus> result = new ArrayList<ChannelStatus>();
 
 		for (ChannelStatus status : client.getChannelStatusList()) {
 			if (matchesChannel(key, status.getName(), status.getChannelId())) {
@@ -265,7 +265,7 @@ public class ChannelActionTask extends AbstractMirthTask {
 	}
 
 	private List<Channel> getMatchingChannels(String key) throws ClientException {
-		List<Channel> result = new ArrayList();
+		List<Channel> result = new ArrayList<Channel>();
 
 		for (Channel channel : client.getChannel(null)) {
 			if (matchesChannel(key, channel.getName(), channel.getId())) {

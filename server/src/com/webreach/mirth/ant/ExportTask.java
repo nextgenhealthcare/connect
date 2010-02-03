@@ -29,7 +29,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -128,9 +127,8 @@ public class ExportTask extends AbstractMirthTask {
 		List<Channel> channels = client.getChannel(null);
 
 		if (selector.equals("*")) {
-			for (Iterator iter = channels.iterator(); iter.hasNext();) {
+			for (Channel channel : channels) {
 				try {
-					Channel channel = (Channel) iter.next();
 					File fXml = new File(filename + channel.getName() + ".xml");
 					System.out.println("Exporting " + channel.getName());
 					String channelXML = serializer.toXML(channel);
@@ -145,8 +143,7 @@ public class ExportTask extends AbstractMirthTask {
 		} else {
 			File fXml = new File(filename);
 
-			for (Iterator iter = channels.iterator(); iter.hasNext();) {
-				Channel channel = (Channel) iter.next();
+			for (Channel channel : channels) {
 				if (selector.equalsIgnoreCase(channel.getName()) != selector.equalsIgnoreCase(channel.getId())) {
 					System.out.println("Exporting " + channel.getName());
 					String channelXML = serializer.toXML(channel);

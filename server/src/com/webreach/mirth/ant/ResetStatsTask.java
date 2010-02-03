@@ -25,9 +25,6 @@
 
 package com.webreach.mirth.ant;
 
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.tools.ant.BuildException;
 
 import com.webreach.mirth.client.core.ClientException;
@@ -58,10 +55,7 @@ public class ResetStatsTask extends AbstractMirthTask {
 	}
 
 	private void commandResetStatsAll() throws ClientException {
-		List<Channel> channels = client.getChannel(null);
-
-		for (Iterator iter = channels.iterator(); iter.hasNext();) {
-			Channel channel = (Channel) iter.next();
+		for (Channel channel : client.getChannel(null)) {
 			client.clearStatistics(channel.getId(), true, true, true, true, true, true);
 		}
 

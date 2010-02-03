@@ -25,7 +25,6 @@
 
 package com.webreach.mirth.ant;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.tools.ant.BuildException;
@@ -76,12 +75,9 @@ public class DeployTask extends AbstractMirthTask {
 	private void commandDeployAll() throws ClientException {
 		System.out.println("Deploying Channels");
 
-		List<Channel> channels = client.getChannel(null);
-
 		boolean hasChannels = false;
 
-		for (Iterator iter = channels.iterator(); iter.hasNext();) {
-			Channel channel = (Channel) iter.next();
+		for (Channel channel : client.getChannel(null)) {
 			if (channel.isEnabled()) {
 				hasChannels = true;
 				break;

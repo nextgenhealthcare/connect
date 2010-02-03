@@ -109,10 +109,7 @@ public class DumpTask extends AbstractMirthTask {
 			writer.write(" Mirth Channel Statistics Dump: " + (new Date()).toString() + "\n");
 			writer.write(" Name, Received, Filtered, Sent, Error\n");
 
-			List<Channel> channels = client.getChannel(null);
-
-			for (Iterator iter = channels.iterator(); iter.hasNext();) {
-				Channel channel = (Channel) iter.next();
+			for (Channel channel : client.getChannel(null)) {
 				ChannelStatistics stats = client.getStatistics(channel.getId());
 				writer.write(channel.getName() + ", " + stats.getReceived() + ", " + stats.getFiltered() + ", " + stats.getSent() + ", " + stats.getError() + "\n");
 			}
@@ -153,8 +150,8 @@ public class DumpTask extends AbstractMirthTask {
 				List<SystemEvent> events = eventListHandler.getFirstPage();
 
 				while (events.size() != 0) {
-					for (Iterator iter = events.iterator(); iter.hasNext();) {
-						SystemEvent event = (SystemEvent) iter.next();
+					for (Iterator<SystemEvent> iter = events.iterator(); iter.hasNext();) {
+						SystemEvent event = iter.next();
 						writer.write(event.getId() + ", " + event.getEvent() + ", " + formatDate(event.getDate()) + ", " + event.getDescription() + ", " + event.getLevel() + "\n");
 					}
 
