@@ -27,8 +27,8 @@ public class Entities {
 		return instance;
 	}
 
-	final Hashtable decoder = new Hashtable(300);
-	final Hashtable decoderXML = new Hashtable(10);
+	final Hashtable<String, String> decoder = new Hashtable<String, String>(300);
+	final Hashtable<String, String> decoderXML = new Hashtable<String, String>(10);
 	final String[] encoder = new String[0x100];
 	final String[] encoderXML = new String[0x100];
 
@@ -46,7 +46,8 @@ public class Entities {
 			Character c = new Character((char) Integer.parseInt(entity.substring(start), radix));
 			return c.toString();
 		} else {
-			String s = (String) decoder.get(entity);
+			String s = decoder.get(entity);
+			
 			if (s != null)
 				return s;
 			else
@@ -57,7 +58,7 @@ public class Entities {
 	public String encode(char s) {
 		StringBuffer buffer = new StringBuffer(4);
 		char c = s;
-		int j = (int) c;
+		int j = c;
 		if (j < 0x100 && encoderXML[j] != null) {
 			buffer.append(encoderXML[j]); // have a named encoding
 			buffer.append(';');
@@ -87,7 +88,7 @@ public class Entities {
 		for (int i = start; i < length + start; i++) {
 			char c = text[i];
 
-			int j = (int) c;
+			int j = c;
 			if (j < 0x100 && encoderXML[j] != null) {
 				buffer.append(encoderXML[j]); // have a named encoding
 				buffer.append(';');

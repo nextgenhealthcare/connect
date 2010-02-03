@@ -221,7 +221,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             ControllerFactory.getFactory().createTemplateController().clearTemplates();
             ControllerFactory.getFactory().createChannelController().loadChannelCache();
             ControllerFactory.getFactory().createChannelController().refreshChannelCache(channels);
-            ControllerFactory.getFactory().createExtensionController().deployTriggered();
+            ControllerFactory.getFactory().createExtensionController().triggerDeploy();
             CommandQueue.getInstance().addCommand(new Command(Command.Operation.DEPLOY_CHANNELS, channels));
             ControllerFactory.getFactory().createChannelController().loadChannelCache();
         } catch (Exception e) {

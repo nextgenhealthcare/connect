@@ -205,9 +205,11 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
 		monitoringController.updateStatus(componentName, connectorType, Event.BUSY, null);
 		try {
 			UMOMessage umoMessage = routeMessage(new MuleMessage(event.getTransformedMessage(), event.getProperties()), true);
+			
 			if (umoMessage != null) {
 				postProcessor.doPostProcess(umoMessage.getPayload());
 			}
+			
 			monitoringController.updateStatus(componentName, connectorType, Event.DONE, null);
 		} catch (UMOException e) {
 			throw e;

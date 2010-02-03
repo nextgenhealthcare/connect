@@ -110,6 +110,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 		super(connector, component, endpoint);
 		MllpConnector tcpConnector = (MllpConnector) connector;
 		this.connector = tcpConnector;
+		
 		if (tcpConnector.getCharEncoding().equals("hex")) {
 			START_MESSAGE = (char) Integer.decode(tcpConnector.getMessageStart()).intValue();
 			END_MESSAGE = (char) Integer.decode(tcpConnector.getMessageEnd()).intValue();
@@ -126,6 +127,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
 
 	public void doConnect() throws ConnectException {
 		disposing.set(false);
+		
 		if (connector.isServerMode()) {
 			URI uri = endpoint.getEndpointURI().getUri();
 			try {

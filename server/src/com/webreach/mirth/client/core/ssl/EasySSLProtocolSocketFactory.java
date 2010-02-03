@@ -40,6 +40,7 @@ import javax.net.ssl.TrustManager;
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.HttpClientError;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
+import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -89,7 +90,7 @@ import org.apache.commons.logging.LogFactory;
  * </p>
  */
 
-public class EasySSLProtocolSocketFactory implements SecureProtocolSocketFactory {
+public class EasySSLProtocolSocketFactory implements ProtocolSocketFactory {
 
     /** Log object for this class. */
     private static final Log LOG = LogFactory.getLog(EasySSLProtocolSocketFactory.class);

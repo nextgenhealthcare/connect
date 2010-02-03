@@ -117,7 +117,7 @@ public abstract class ExtensionController extends Controller {
 
     public abstract void updatePlugin(String name, Properties properties);
 
-    public abstract void deployTriggered();
+    public abstract void triggerDeploy();
 
     public abstract Object invoke(String name, String method, Object object, String sessionId) throws Exception;
 

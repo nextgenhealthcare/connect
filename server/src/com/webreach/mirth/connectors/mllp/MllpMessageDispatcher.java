@@ -140,7 +140,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 				int maxRetries = connector.getMaxRetryCount();
 				while (!success && !disposed && (retryCount < maxRetries)) {
 
-                    monitoringController.updateStatus(connector, connectorType, Event.ATTEMPTING_TO_CONNECT, socket);
+                    monitoringController.updateStatus(connector, connectorType, Event.ATTEMPTING, socket);
 
                     if (maxRetries != TcpConnector.KEEP_RETRYING_INDEFINETLY) {
 						retryCount++;

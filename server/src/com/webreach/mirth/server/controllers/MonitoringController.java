@@ -9,7 +9,7 @@ import com.webreach.mirth.model.ExtensionPointDefinition;
 
 public abstract class MonitoringController extends Controller {
     public enum Event {
-        CONNECTED, DISCONNECTED, INITIALIZED, BUSY, DONE, ATTEMPTING_TO_CONNECT
+        CONNECTED, DISCONNECTED, INITIALIZED, BUSY, DONE, ATTEMPTING
     };
 
     public enum ConnectorType {

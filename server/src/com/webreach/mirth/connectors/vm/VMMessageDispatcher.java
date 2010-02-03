@@ -70,6 +70,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private ConnectorType connectorType = ConnectorType.SENDER;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
+    
     public VMMessageDispatcher(VMConnector connector)
     {
         super(connector);
@@ -272,7 +273,7 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher
 			MuleMessage muleResponse = (MuleMessage)response;
 		    UMOExceptionPayload payload = muleResponse.getExceptionPayload();
 		    if (payload != null) {
-		        alertController.sendAlerts(((VMConnector) connector).getChannelId(), Constants.ERROR_412, "Error routing message", payload.getException());
+		        alertController.sendAlerts(connector.getChannelId(), Constants.ERROR_412, "Error routing message", payload.getException());
 		        messageObjectController.setError(messageObject, Constants.ERROR_412, "Error routing message", payload.getException(), null);
 		    } else {
 		        messageObjectController.setSuccess(messageObject, "Message routed successfully", null);

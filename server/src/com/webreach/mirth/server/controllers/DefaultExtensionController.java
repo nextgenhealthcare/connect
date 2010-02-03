@@ -162,7 +162,7 @@ public class DefaultExtensionController extends ExtensionController {
         loadedPlugins.get(name).update(properties);
     }
 
-    public void deployTriggered() {
+    public void triggerDeploy() {
         for (ServerPlugin plugin : loadedPlugins.values())
             plugin.onDeploy();
     }

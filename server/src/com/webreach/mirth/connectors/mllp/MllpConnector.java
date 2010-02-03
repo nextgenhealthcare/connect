@@ -1,17 +1,6 @@
-/*
- * $Header: /home/projects/mule/scm/mule/providers/tcp/src/java/org/mule/providers/tcp/TcpConnector.java,v 1.11 2005/11/05 12:23:27 aperepel Exp $
- * $Revision: 1.11 $
- * $Date: 2005/11/05 12:23:27 $
- * ------------------------------------------------------------------------------------------------------
- *
- * Copyright (c) SymphonySoft Limited. All rights reserved.
- * http://www.symphonysoft.com
- *
- * The software in this package is published under the terms of the BSD
- * style license a copy of which has been included with this distribution in
- * the LICENSE.txt file.
- */
 package com.webreach.mirth.connectors.mllp;
+
+import java.nio.charset.Charset;
 
 import org.mule.config.i18n.Message;
 import org.mule.impl.model.AbstractComponent;
@@ -20,6 +9,7 @@ import org.mule.providers.QueueEnabledConnector;
 import org.mule.umo.UMOComponent;
 import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.lifecycle.InitialisationException;
+import org.mule.umo.provider.ConnectorException;
 import org.mule.umo.provider.UMOMessageReceiver;
 
 import com.webreach.mirth.connectors.mllp.protocols.LlpProtocol;
@@ -28,15 +18,6 @@ import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.EventController;
 
-/**
- * <code>TcpConnector</code> can bind or sent to a given tcp port on a given
- * host.
- * 
- * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
- * @author <a href="mailto:tsuppari@yahoo.co.uk">P.Oikari</a>
- * 
- * @version $Revision: 1.11 $
- */
 public class MllpConnector extends QueueEnabledConnector {
 	// custom properties
 	public static final String PROPERTY_CHAR_ENCODING = "charEncoding";
@@ -116,15 +97,11 @@ public class MllpConnector extends QueueEnabledConnector {
 	public static final String DEFAULT_CHARSET_ENCODING = System.getProperty(CHARSET_KEY, java.nio.charset.Charset.defaultCharset().name());
 	private String charsetEncoding = DEFAULT_CHARSET_ENCODING;
 
-	// /////////////////////////////////////////////
 	// Does this protocol have any connected sockets?
-	// /////////////////////////////////////////////
 	private boolean sendSocketValid = false;
 	private int receiveSocketsCount = 0;
 
-	// //////////////////////////////////////////////////////////////////////
 	// Properties for 'keepSocketConnected' TcpMessageDispatcher
-	// //////////////////////////////////////////////////////////////////////
 	public static final int KEEP_RETRYING_INDEFINETLY = 100;
 	public static final int DEFAULT_RETRY_TIMES = 100;
 	private boolean keepSendSocketOpen = false;
@@ -133,8 +110,8 @@ public class MllpConnector extends QueueEnabledConnector {
 	private int maxRetryCount = DEFAULT_RETRY_TIMES;
 	private boolean keepAlive = true;
 	private boolean processBatchFiles = true;
-	
 	private boolean processHl7AckResponse = true;
+	
 	public String getChannelId() {
 		return this.channelId;
 	}
@@ -146,7 +123,7 @@ public class MllpConnector extends QueueEnabledConnector {
 	// ast: overload of the creator, to allow the test of the charset Encoding
 	public MllpConnector() {
 		super();
-		// //ast: try to set the default encoding
+		// ast: try to set the default encoding
 		this.setCharsetEncoding(DEFAULT_CHARSET_ENCODING);
 	}
 
@@ -173,9 +150,9 @@ public class MllpConnector extends QueueEnabledConnector {
 		}
 	}
 
-	// //////////////////////////////////////////////////////////////////////
 	public void doInitialise() throws InitialisationException {
 		super.doInitialise();
+		
 		if (llpProtocol == null) {
 			try {
 				llpProtocol = new LlpProtocol();
@@ -190,7 +167,7 @@ public class MllpConnector extends QueueEnabledConnector {
 			}
 		}
 		
-		if(isUsePersistentQueues()) { 
+		if (isUsePersistentQueues()) { 
 			setConnectorErrorCode(Constants.ERROR_408);			
 			setDispatcher(new MllpMessageDispatcher(this));
 		}
@@ -200,9 +177,7 @@ public class MllpConnector extends QueueEnabledConnector {
 		return "MLLP";
 	}
 
-	/**
-	 * A shorthand property setting timeout for both SEND and RECEIVE sockets.
-	 */
+	// a shorthand property setting timeout for both SEND and RECEIVE sockets.
 	public void setTimeout(int timeout) {
 		setSendTimeout(timeout);
 		setReceiveTimeout(timeout);
@@ -227,16 +202,16 @@ public class MllpConnector extends QueueEnabledConnector {
 		this.sendTimeout = timeout;
 	}
 
-	// ////////////////////////////////////////////
-	// New independednt Socket timeout for receiveSocket
-	// ////////////////////////////////////////////
+	// new independednt Socket timeout for receiveSocket
 	public int getReceiveTimeout() {
 		return receiveTimeout;
 	}
 
 	public void setReceiveTimeout(int timeout) {
-		if (timeout < 0)
-			timeout = DEFAULT_SOCKET_TIMEOUT;
+		if (timeout < 0) {
+		    timeout = DEFAULT_SOCKET_TIMEOUT;
+		}
+			
 		this.receiveTimeout = timeout;
 	}
 
@@ -260,9 +235,9 @@ public class MllpConnector extends QueueEnabledConnector {
 	 */
 	public synchronized void updateReceiveSocketsCount(boolean addSocket) {
 		if (addSocket) {
-			this.receiveSocketsCount++;
+			receiveSocketsCount++;
 		} else {
-			this.receiveSocketsCount--;
+			receiveSocketsCount--;
 		}
 	}
 
@@ -279,8 +254,10 @@ public class MllpConnector extends QueueEnabledConnector {
 	}
 
 	public void setBufferSize(int bufferSize) {
-		if (bufferSize < 1)
-			bufferSize = DEFAULT_BUFFER_SIZE;
+		if (bufferSize < 1) {
+		    bufferSize = DEFAULT_BUFFER_SIZE;
+		}
+			
 		this.bufferSize = bufferSize;
 	}
 
@@ -354,38 +331,41 @@ public class MllpConnector extends QueueEnabledConnector {
 
 	// ast: set the charset Encoding
 	public void setCharsetEncoding(String charsetEncoding) {
-		if ((charsetEncoding == null) || (charsetEncoding.equals("")) || (charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING")))
-			charsetEncoding = DEFAULT_CHARSET_ENCODING;
+		if ((charsetEncoding == null) || (charsetEncoding.equals("")) || (charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))) {
+		    charsetEncoding = DEFAULT_CHARSET_ENCODING;
+		}
+			
 		logger.debug("FileConnector: trying to set the encoding to " + charsetEncoding);
+		
 		try {
-			byte b[] = { 20, 21, 22, 23 };
-			String k = new String(b, charsetEncoding);
 			this.charsetEncoding = charsetEncoding;
 		} catch (Exception e) {
 			// set the encoding to the default one: this charset can't launch an
 			// exception
-			this.charsetEncoding = java.nio.charset.Charset.defaultCharset().name();
-			logger.error("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
+			this.charsetEncoding = Charset.defaultCharset().name();
+			
+			logger.error("Unable to use " + charsetEncoding + " as the charset encoding: changing to the platform default [" + this.charsetEncoding + "]");
 			EventController systemLogger = ControllerFactory.getFactory().createEventController();
 			SystemEvent event = new SystemEvent("Exception occured in channel.");
-			event.setDescription("Impossible to use [" + charsetEncoding + "] as the Charset Encoding: changing to the platform default [" + this.charsetEncoding + "]");
+			event.setDescription("Unable to use " + charsetEncoding + " as the charset encoding: changing to the platform default [" + this.charsetEncoding + "]");
 			systemLogger.logSystemEvent(event);
 		}
 	}
 
 	// ast: get the charset Encoding
 	public String getCharsetEncoding() {
-		if ((this.charsetEncoding == null) || (this.charsetEncoding.equals("")) || (this.charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))) {
-			// Default Charset
+		if ((charsetEncoding == null) || (charsetEncoding.equals("")) || (charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))) {
 			return DEFAULT_CHARSET_ENCODING;
 		}
-		return (this.charsetEncoding);
+		
+		return charsetEncoding;
 	}
 
 	public void setAckTimeout(int timeout) {
 		if (timeout < 0) {
 			timeout = DEFAULT_ACK_TIMEOUT;
 		}
+		
 		this.ackTimeout = timeout;
 	}
 
@@ -401,15 +381,16 @@ public class MllpConnector extends QueueEnabledConnector {
 	 *      org.mule.umo.endpoint.UMOEndpoint)
 	 */
 	public UMOMessageReceiver registerListener(UMOComponent component, UMOEndpoint endpoint) throws Exception {
-		UMOMessageReceiver r = null;
+		UMOMessageReceiver receiver = null;
 		this.component = component;
+		
 		try {
-			r = super.registerListener(component, endpoint);
-		} catch (org.mule.umo.provider.ConnectorException e) {
+			receiver = super.registerListener(component, endpoint);
+		} catch (ConnectorException e) {
 			logger.warn("Trying to reconnect a listener: this is not an error with this kind of router");
 		}
-		return r;
-
+		
+		return receiver;
 	}
 
 	/*
@@ -430,8 +411,9 @@ public class MllpConnector extends QueueEnabledConnector {
 	public void incErrorStatistics(UMOComponent umoComponent) {
 		ComponentStatistics statistics = null;
 
-		if (umoComponent != null)
-			component = umoComponent;
+		if (umoComponent != null) {
+		    component = umoComponent;
+		}
 
 		if (component == null) {
 			return;
@@ -443,9 +425,11 @@ public class MllpConnector extends QueueEnabledConnector {
 
 		try {
 			statistics = ((AbstractComponent) component).getStatistics();
+			
 			if (statistics == null) {
 				return;
 			}
+			
 			statistics.incExecutionError();
 		} catch (Throwable t) {
 			logger.error("Error setting statistics ");
