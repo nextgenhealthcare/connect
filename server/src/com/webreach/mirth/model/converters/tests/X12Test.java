@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.converters;
+package com.webreach.mirth.model.converters.tests;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,6 +17,11 @@ import java.io.InputStream;
 import junit.framework.Assert;
 
 import org.xml.sax.SAXException;
+
+import com.webreach.mirth.model.converters.DocumentSerializer;
+import com.webreach.mirth.model.converters.SerializerException;
+import com.webreach.mirth.model.converters.Stopwatch;
+import com.webreach.mirth.model.converters.X12Serializer;
 
 public class X12Test {
 	public static void main(String[] args) {

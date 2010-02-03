@@ -25,104 +25,105 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 public class DelimitedSerializer implements IXMLSerializer<String> {
-	private Logger logger = Logger.getLogger(this.getClass());
-	
-	private DelimitedProperties props;
-	private DelimitedReader delimitedBatchReader = null;
-	
-	public static Map<String, String> getDefaultProperties() {
-		return DelimitedProperties.getDefaultProperties();
-	}
-	
-	public DelimitedSerializer(Map delimitedProperties) {
-		props = new DelimitedProperties(delimitedProperties);
-	}
+    private Logger logger = Logger.getLogger(this.getClass());
+    private DelimitedProperties props;
+    private DelimitedReader delimitedBatchReader = null;
 
-	public String fromXML(String source) throws SerializerException {
-		
-		StringBuilder builder = new StringBuilder();
+    public DelimitedSerializer(Map<String, String> properties) {
+        props = new DelimitedProperties(properties);
+    }
 
-		try {
-			
-			DelimitedXMLHandler handler = new DelimitedXMLHandler(props);
-			XMLReader xr = XMLReaderFactory.createXMLReader();
-			xr.setContentHandler(handler);
-			xr.setErrorHandler(handler);
-			xr.parse(new InputSource(new StringReader(source)));
-			builder.append(handler.getOutput());
-		} catch (Exception e) {
-			String exceptionMessage = e.getClass().getName() + ":" + e.getMessage();
-			logger.error(exceptionMessage);
-			throw new SerializerException(e);
-		}
-		return builder.toString();
-	}
+    public static Map<String, String> getDefaultProperties() {
+        return DelimitedProperties.getDefaultProperties();
+    }
 
-	public Map<String,String> getMetadataFromDocument(Document doc) throws SerializerException {
-		Map<String, String> map = new HashMap<String, String>();
-		populateMetadata(map);
-		return map;
-	}
+    public String fromXML(String source) throws SerializerException {
+        StringBuilder builder = new StringBuilder();
 
-	public Map<String,String> getMetadataFromEncoded(String source) throws SerializerException {
-		Map<String, String> map = new HashMap<String, String>();
-		populateMetadata(map);
-		return map;
-	}
+        try {
+            DelimitedXMLHandler handler = new DelimitedXMLHandler(props);
+            XMLReader reader = XMLReaderFactory.createXMLReader();
+            reader.setContentHandler(handler);
+            reader.setErrorHandler(handler);
+            reader.parse(new InputSource(new StringReader(source)));
+            builder.append(handler.getOutput());
+        } catch (Exception e) {
+            String exceptionMessage = e.getClass().getName() + ":" + e.getMessage();
+            logger.error(exceptionMessage);
+            throw new SerializerException(e);
+        }
+        return builder.toString();
+    }
 
-	public Map<String, String> getMetadataFromXML(String xmlSource) throws SerializerException {
-		Map<String, String> map = new HashMap<String, String>();
-		populateMetadata(map);
-		return map;
-	}
+    public Map<String, String> getMetadataFromDocument(Document doc) throws SerializerException {
+        Map<String, String> map = new HashMap<String, String>();
+        populateMetadata(map);
+        return map;
+    }
 
-	private void populateMetadata(Map<String, String> map) {
-		// There is no meaningful meta data available in the delimited text case
-		// for version, type and source, so populate empty strings.
-		map.put("version", "");
-		map.put("type", "delimited");
-		map.put("source", "");
-	}
-	
-	public String toXML(String source) throws SerializerException {
-		try {
-			StringWriter stringWriter = new StringWriter();
-			XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
-			serializer.setEncodeEntities(true);
-			ByteArrayOutputStream os = new ByteArrayOutputStream();
-			try {
-				DelimitedReader delimitedReader = new DelimitedReader(props);
-				delimitedReader.setContentHandler(serializer);
-				delimitedReader.parse(new InputSource(new StringReader(source)));
-				os.write(stringWriter.toString().getBytes());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			return os.toString();
-		} catch (Exception e) {
-			logger.error(e);
-		}
-		return new String();
-	}
+    public Map<String, String> getMetadataFromEncoded(String source) throws SerializerException {
+        Map<String, String> map = new HashMap<String, String>();
+        populateMetadata(map);
+        return map;
+    }
 
-	/**
-	 * Finds the next message in the input stream and returns it.
-	 * 
-	 * @param in The input stream (it's a BufferedReader, because operations on it require in.mark()).
-	 * @param skipHeader Pass true to skip the configured number of header rows, otherwise false.
-	 * @return The next message, or null if there are no more messages.
-	 * @throws IOException
-	 */
-	public String getMessage(BufferedReader in, boolean skipHeader) throws IOException {
-		
-		// Allocate a batch reader if not already allocated
-		if (delimitedBatchReader == null) {
-			try {
+    public Map<String, String> getMetadataFromXML(String xmlSource) throws SerializerException {
+        Map<String, String> map = new HashMap<String, String>();
+        populateMetadata(map);
+        return map;
+    }
+
+    private void populateMetadata(Map<String, String> map) {
+        // There is no meaningful meta data available in the delimited text case
+        // for version, type and source, so populate empty strings.
+        map.put("version", "");
+        map.put("type", "delimited");
+        map.put("source", "");
+    }
+
+    public String toXML(String source) throws SerializerException {
+        try {
+            StringWriter stringWriter = new StringWriter();
+            XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
+            serializer.setEncodeEntities(true);
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            try {
+                DelimitedReader delimitedReader = new DelimitedReader(props);
+                delimitedReader.setContentHandler(serializer);
+                delimitedReader.parse(new InputSource(new StringReader(source)));
+                os.write(stringWriter.toString().getBytes());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return os.toString();
+        } catch (Exception e) {
+            logger.error(e);
+        }
+        return new String();
+    }
+
+    /**
+     * Finds the next message in the input stream and returns it.
+     * 
+     * @param in
+     *            The input stream (it's a BufferedReader, because operations on
+     *            it require in.mark()).
+     * @param skipHeader
+     *            Pass true to skip the configured number of header rows,
+     *            otherwise false.
+     * @return The next message, or null if there are no more messages.
+     * @throws IOException
+     */
+    public String getMessage(BufferedReader in, boolean skipHeader) throws IOException {
+
+        // Allocate a batch reader if not already allocated
+        if (delimitedBatchReader == null) {
+            try {
                 delimitedBatchReader = new DelimitedReader(props);
             } catch (SAXException e) {
                 logger.error("Error creating Delimited Reader", e);
-            } 
-		}
-		return delimitedBatchReader.getMessage(in, skipHeader);
-	}
+            }
+        }
+        return delimitedBatchReader.getMessage(in, skipHeader);
+    }
 }

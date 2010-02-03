@@ -7,20 +7,24 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.converters;
+package com.webreach.mirth.model.converters.tests;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 
 import org.xml.sax.SAXException;
 
 import com.webreach.mirth.client.core.Client;
 import com.webreach.mirth.model.Attachment;
+import com.webreach.mirth.model.converters.DICOMSerializer;
+import com.webreach.mirth.model.converters.SerializerException;
+import com.webreach.mirth.model.converters.Stopwatch;
 
 /**
  * Created by IntelliJ IDEA.
@@ -105,7 +109,7 @@ public class DICOMTest {
 
 	private static long runTest(String testMessage) throws SerializerException, SAXException, IOException {
 		Stopwatch stopwatch = new Stopwatch();
-		Properties properties = new Properties();
+		Map<String, String> properties = new HashMap<String, String>();
         properties.put("includePixelData","no");
         properties.put("isEncoded","no");       
         stopwatch.start();

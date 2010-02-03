@@ -110,15 +110,6 @@ public class XMLPrettyPrinter implements ContentHandler {
 		}
 	}
 
-	private void indent() throws IOException {
-
-		int spaces = 2; // number of spaces to indent
-
-		for (int i = 0; i < depth * spaces; i++) {
-			out.write(' ');
-		}
-	}
-
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 		endElement(localName);
 
