@@ -1,17 +1,12 @@
 /*
- * $Header: /home/projects/mule/scm/mule/providers/tcp/src/java/org/mule/providers/tcp/TcpMessageReceiver.java,v 1.23 2005/11/05 12:23:27 aperepel Exp $
- * $Revision: 1.23 $
- * $Date: 2005/11/05 12:23:27 $
- * ------------------------------------------------------------------------------------------------------
- *
  * Copyright (c) SymphonySoft Limited. All rights reserved.
  * http://www.symphonysoft.com
  *
  * The software in this package is published under the terms of the BSD
  * style license a copy of which has been included with this distribution in
- * the LICENSE.txt file.
- *
+ * the LICENSE-MULE.txt file.
  */
+
 package com.webreach.mirth.connectors.tcp;
 
 import java.io.BufferedInputStream;
@@ -72,294 +67,296 @@ import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
  * @version $Revision: 1.23 $
  */
 public class TcpMessageReceiver extends AbstractMessageReceiver implements Work {
-	protected ServerSocket serverSocket = null;
-	protected TcpConnector connector;
-	private AlertController alertController = ControllerFactory.getFactory().createAlertController();
-	private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
-	private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
-	private TemplateValueReplacer replacer = new TemplateValueReplacer();
-	private TcpWorker work;
-	private ConnectorType connectorType = ConnectorType.LISTENER;
-	public TcpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
-		super(connector, component, endpoint);
-		TcpConnector tcpConnector = (TcpConnector) connector;
-		this.connector = tcpConnector;
-	}
+    protected ServerSocket serverSocket = null;
+    protected TcpConnector connector;
+    private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
+    private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
+    private TemplateValueReplacer replacer = new TemplateValueReplacer();
+    private TcpWorker work;
+    private ConnectorType connectorType = ConnectorType.LISTENER;
 
-	public void doConnect() throws ConnectException {
-		disposing.set(false);
-		URI uri = endpoint.getEndpointURI().getUri();
-		try {
-			serverSocket = createSocket(uri);
-			monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
-		} catch (Exception e) {
-			throw new org.mule.providers.ConnectException(new Message("tcp", 1, uri), e, this);
-		}
+    public TcpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
+        super(connector, component, endpoint);
+        TcpConnector tcpConnector = (TcpConnector) connector;
+        this.connector = tcpConnector;
+    }
 
-		try {
-			getWorkManager().scheduleWork(this, WorkManager.INDEFINITE, null, null);
-		} catch (WorkException e) {
-			throw new ConnectException(new Message(Messages.FAILED_TO_SCHEDULE_WORK), e, this);
-		}
-	}
+    public void doConnect() throws ConnectException {
+        disposing.set(false);
+        URI uri = endpoint.getEndpointURI().getUri();
+        try {
+            serverSocket = createSocket(uri);
+            monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
+        } catch (Exception e) {
+            throw new org.mule.providers.ConnectException(new Message("tcp", 1, uri), e, this);
+        }
 
-	public void doDisconnect() throws ConnectException {
-		// this will cause the server thread to quit
-		disposing.set(true);
-		try {
-			if (serverSocket != null) {
-				serverSocket.close();
-			}
-		} catch (IOException e) {
-			logger.warn("Failed to close server socket: " + e.getMessage(), e);
-		} finally{
-			monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED);
-		}
-	}
+        try {
+            getWorkManager().scheduleWork(this, WorkManager.INDEFINITE, null, null);
+        } catch (WorkException e) {
+            throw new ConnectException(new Message(Messages.FAILED_TO_SCHEDULE_WORK), e, this);
+        }
+    }
 
-	protected ServerSocket createSocket(URI uri) throws Exception {
-		String host = uri.getHost();
-		int backlog = connector.getBacklog();
-		if (host == null || host.length() == 0) {
-			host = "localhost";
-		}
-		InetAddress inetAddress = InetAddress.getByName(host);
-		if (inetAddress.equals(InetAddress.getLocalHost()) || inetAddress.isLoopbackAddress() || host.trim().equals("localhost")) {
-			return new ServerSocket(uri.getPort(), backlog);
-		} else {
-			return new ServerSocket(uri.getPort(), backlog, inetAddress);
-		}
-	}
+    public void doDisconnect() throws ConnectException {
+        // this will cause the server thread to quit
+        disposing.set(true);
+        try {
+            if (serverSocket != null) {
+                serverSocket.close();
+            }
+        } catch (IOException e) {
+            logger.warn("Failed to close server socket: " + e.getMessage(), e);
+        } finally {
+            monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED);
+        }
+    }
 
-	/**
-	 * Obtain the serverSocket
-	 */
-	public ServerSocket getServerSocket() {
-		return serverSocket;
-	}
+    protected ServerSocket createSocket(URI uri) throws Exception {
+        String host = uri.getHost();
+        int backlog = connector.getBacklog();
+        if (host == null || host.length() == 0) {
+            host = "localhost";
+        }
+        InetAddress inetAddress = InetAddress.getByName(host);
+        if (inetAddress.equals(InetAddress.getLocalHost()) || inetAddress.isLoopbackAddress() || host.trim().equals("localhost")) {
+            return new ServerSocket(uri.getPort(), backlog);
+        } else {
+            return new ServerSocket(uri.getPort(), backlog, inetAddress);
+        }
+    }
 
-	public void run() {
-		while (!disposing.get()) {
-			if (connector.isStarted() && !disposing.get()) {
-				Socket socket = null;
-				try {
-					socket = serverSocket.accept();
-					logger.trace("Server socket Accepted on: " + serverSocket.getLocalPort());
-				} catch (java.io.InterruptedIOException iie) {
-					logger.debug("Interupted IO doing serverSocket.accept: " + iie.getMessage());
-				} catch (Exception e) {
-					if (!connector.isDisposed() && !disposing.get()) {
-						logger.warn("Accept failed on socket: " + e, e);
-						handleException(new ConnectException(e, this));
-					}
-				}
-				if (socket != null) {
-					try {
-						monitoringController.updateStatus(connector, connectorType, Event.CONNECTED, socket);
-						work = (TcpWorker)createWork(socket);
-						try {
-							getWorkManager().scheduleWork(work, WorkManager.IMMEDIATE, null, null);
-						} catch (WorkException e) {
-							logger.error("Tcp Server receiver Work was not processed: " + e.getMessage(), e);
-						}
-					} catch (SocketException e) {
-						alertController.sendAlerts(((TcpConnector) connector).getChannelId(), Constants.ERROR_411, null, e);
-						monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED, socket);
-						handleException(e);
-					}
+    /**
+     * Obtain the serverSocket
+     */
+    public ServerSocket getServerSocket() {
+        return serverSocket;
+    }
 
-				}
-			}
-		}
-	}
+    public void run() {
+        while (!disposing.get()) {
+            if (connector.isStarted() && !disposing.get()) {
+                Socket socket = null;
+                try {
+                    socket = serverSocket.accept();
+                    logger.trace("Server socket Accepted on: " + serverSocket.getLocalPort());
+                } catch (java.io.InterruptedIOException iie) {
+                    logger.debug("Interupted IO doing serverSocket.accept: " + iie.getMessage());
+                } catch (Exception e) {
+                    if (!connector.isDisposed() && !disposing.get()) {
+                        logger.warn("Accept failed on socket: " + e, e);
+                        handleException(new ConnectException(e, this));
+                    }
+                }
+                if (socket != null) {
+                    try {
+                        monitoringController.updateStatus(connector, connectorType, Event.CONNECTED, socket);
+                        work = (TcpWorker) createWork(socket);
+                        try {
+                            getWorkManager().scheduleWork(work, WorkManager.IMMEDIATE, null, null);
+                        } catch (WorkException e) {
+                            logger.error("Tcp Server receiver Work was not processed: " + e.getMessage(), e);
+                        }
+                    } catch (SocketException e) {
+                        alertController.sendAlerts(((TcpConnector) connector).getChannelId(), Constants.ERROR_411, null, e);
+                        monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED, socket);
+                        handleException(e);
+                    }
 
-	public void release() {}
+                }
+            }
+        }
+    }
 
-	public void doDispose() {
-		try {
-			monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED);
-			if (serverSocket != null && !serverSocket.isClosed()){
-				serverSocket.close();
-			}
-			serverSocket = null;
-			if (work != null){
-				work.dispose();
-			}
-		} catch (Exception e) {
-			logger.error(new DisposeException(new Message("tcp", 2), e));
-		}
-		logger.info("Closed Tcp port");
-	}
+    public void release() {}
 
-	protected Work createWork(Socket socket) throws SocketException {
-		return new TcpWorker(socket);
-	}
+    public void doDispose() {
+        try {
+            monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED);
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                serverSocket.close();
+            }
+            serverSocket = null;
+            if (work != null) {
+                work.dispose();
+            }
+        } catch (Exception e) {
+            logger.error(new DisposeException(new Message("tcp", 2), e));
+        }
+        logger.info("Closed Tcp port");
+    }
 
-	protected class TcpWorker implements Work, Disposable {
-		protected Socket socket = null;
+    protected Work createWork(Socket socket) throws SocketException {
+        return new TcpWorker(socket);
+    }
 
-		protected DataInputStream dataIn;
+    protected class TcpWorker implements Work, Disposable {
+        protected Socket socket = null;
 
-		protected DataOutputStream dataOut;
+        protected DataInputStream dataIn;
 
-		protected AtomicBoolean closed = new AtomicBoolean(false);
+        protected DataOutputStream dataOut;
 
-		protected TcpProtocol protocol;
+        protected AtomicBoolean closed = new AtomicBoolean(false);
 
-		public TcpWorker(Socket socket) {
-			this.socket = socket;
+        protected TcpProtocol protocol;
 
-			final TcpConnector tcpConnector = connector;
-			this.protocol = tcpConnector.getTcpProtocol();
-			tcpConnector.updateReceiveSocketsCount(true);
-			try {
-				socket.setReceiveBufferSize(tcpConnector.getBufferSize());
-				socket.setSendBufferSize(tcpConnector.getBufferSize());
-				socket.setSoTimeout(tcpConnector.getReceiveTimeout());
-				socket.setTcpNoDelay(true);
-				socket.setKeepAlive(tcpConnector.isKeepAlive());
-			} catch (SocketException e) {
-				logger.error("Failed to set Socket properties: " + e.getMessage(), e);
-			}
+        public TcpWorker(Socket socket) {
+            this.socket = socket;
 
-			logger.info("TCP connection from " + socket.getRemoteSocketAddress().toString() + " on port " + socket.getLocalPort());
-		}
+            final TcpConnector tcpConnector = connector;
+            this.protocol = tcpConnector.getTcpProtocol();
+            tcpConnector.updateReceiveSocketsCount(true);
+            try {
+                socket.setReceiveBufferSize(tcpConnector.getBufferSize());
+                socket.setSendBufferSize(tcpConnector.getBufferSize());
+                socket.setSoTimeout(tcpConnector.getReceiveTimeout());
+                socket.setTcpNoDelay(true);
+                socket.setKeepAlive(tcpConnector.isKeepAlive());
+            } catch (SocketException e) {
+                logger.error("Failed to set Socket properties: " + e.getMessage(), e);
+            }
 
-		public void release() {
-			dispose();
-		}
+            logger.info("TCP connection from " + socket.getRemoteSocketAddress().toString() + " on port " + socket.getLocalPort());
+        }
 
-		public void dispose() {
-			closed.set(true);
-			try {
-				if (socket != null && !socket.isClosed()) {
-					logger.debug("Closing listener: " + socket.getLocalSocketAddress().toString());
-					socket.shutdownInput();
-					socket.shutdownOutput();
-					socket.close();
-				}
-			} catch (IOException e) {
-				logger.error("Socket close failed with: " + e);
-			} finally {
-				connector.updateReceiveSocketsCount(false);
-			}
-		}
+        public void release() {
+            dispose();
+        }
 
-		/**
-		 * Accept requests from a given TCP port
-		 */
-		public void run() {
-			try {
-				dataIn = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-				dataOut = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+        public void dispose() {
+            closed.set(true);
+            try {
+                if (socket != null && !socket.isClosed()) {
+                    logger.debug("Closing listener: " + socket.getLocalSocketAddress().toString());
+                    socket.shutdownInput();
+                    socket.shutdownOutput();
+                    socket.close();
+                }
+            } catch (IOException e) {
+                logger.error("Socket close failed with: " + e);
+            } finally {
+                connector.updateReceiveSocketsCount(false);
+            }
+        }
 
-				while (!socket.isClosed() && !disposing.get()) {                    
-					byte[] b;
-					try {
+        /**
+         * Accept requests from a given TCP port
+         */
+        public void run() {
+            try {
+                dataIn = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+                dataOut = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+
+                while (!socket.isClosed() && !disposing.get()) {
+                    byte[] b;
+                    try {
                         b = protocol.read(dataIn);
-						// end of stream
-						if (b == null) {
-							break;	
-						} else {
-							monitoringController.updateStatus(connector, connectorType, Event.BUSY, socket);
-							processData(b);
-							dataOut.flush();
-							
-						}
-						
-					} catch (SocketTimeoutException e) {
-						if (!socket.getKeepAlive()) {
-							break;
-						}
-					} finally {
-						monitoringController.updateStatus(connector, connectorType, Event.DONE, socket);
-					}
-					
-				}
-			} catch (Exception e) {
-				handleException(e);
-			} finally {
-				monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED, socket);
-				dispose();
-			}
-		}
+                        // end of stream
+                        if (b == null) {
+                            break;
+                        } else {
+                            monitoringController.updateStatus(connector, connectorType, Event.BUSY, socket);
+                            processData(b);
+                            dataOut.flush();
 
-		protected byte[] processData(byte[] data) throws Exception {
-			if (data == null){
-				return null;
-			}
-			String str_data;
-			//if we are receiving binary, base64 the bytes
-			if (((TcpConnector)connector).isBinary()) {
-				str_data = new String(new Base64().encode(data));
-			} else {
-				String charset = connector.getCharsetEncoding();
-				str_data = new String(data, charset);
-			}
-			UMOMessage returnMessage = null;
-			OutputStream os;
+                        }
 
-			UMOMessageAdapter adapter = connector.getMessageAdapter(str_data);
-			adapter.setProperty("receiverSocket", socket);
-			os = new ResponseOutputStream(socket.getOutputStream(), socket);
-			try {
-				returnMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous(), os);
-				// We need to check the message status
-				if (returnMessage != null && returnMessage instanceof MuleMessage) {
-					Object payload = returnMessage.getPayload();
-					if (payload instanceof MessageObject) {
-						MessageObject messageObjectResponse = (MessageObject) payload;
-						postProcessor.doPostProcess(messageObjectResponse);
-						Map responseMap = messageObjectResponse.getResponseMap();
-						String errorString = "";
+                    } catch (SocketTimeoutException e) {
+                        if (!socket.getKeepAlive()) {
+                            break;
+                        }
+                    } finally {
+                        monitoringController.updateStatus(connector, connectorType, Event.DONE, socket);
+                    }
 
-						if (connector.isResponseFromTransformer()) {
-							if (connector.isAckOnNewConnection()) {
-								String endpointURI = connector.getAckIP() + ":" + connector.getAckPort();
-								endpointURI = replacer.replaceURLValues(endpointURI, messageObjectResponse);
-								Socket socket = initSocket("tcp://" + endpointURI);
-								BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
-								protocol.write(bos, ((Response) responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));
-								bos.flush();
-								bos.close();
-							} else {
-								protocol.write(os, ((Response) responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));
-								os.flush();  // need to flush the stream to actually commit the bytes
-								os.close();
-							}
-						}
-					}
-				}
-			} catch (Exception e) {
-				throw e;
-			} finally {
-				// Let the dispose take care of closing the socket
-			}
+                }
+            } catch (Exception e) {
+                handleException(e);
+            } finally {
+                monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED, socket);
+                dispose();
+            }
+        }
 
-			// The return message is always the last message routed if in a
-			// batch
-			// TODO: Check this for 1.2.1
-			if (returnMessage != null) {
-				return returnMessage.getPayloadAsBytes();
-			} else {
-				return null;
-			}
-		}
+        protected byte[] processData(byte[] data) throws Exception {
+            if (data == null) {
+                return null;
+            }
+            String str_data;
+            // if we are receiving binary, base64 the bytes
+            if (((TcpConnector) connector).isBinary()) {
+                str_data = new String(new Base64().encode(data));
+            } else {
+                String charset = connector.getCharsetEncoding();
+                str_data = new String(data, charset);
+            }
+            UMOMessage returnMessage = null;
+            OutputStream os;
 
-		protected Socket initSocket(String endpoint) throws IOException, URISyntaxException {
-			URI uri = new URI(endpoint);
-			int port = uri.getPort();
-			InetAddress inetAddress = InetAddress.getByName(uri.getHost());
-			Socket socket = createSocket(port, inetAddress);
-			socket.setReuseAddress(true);
-			socket.setReceiveBufferSize(connector.getBufferSize());
-			socket.setSendBufferSize(connector.getBufferSize());
-			socket.setSoTimeout(connector.getSendTimeout());
-			return socket;
-		}
+            UMOMessageAdapter adapter = connector.getMessageAdapter(str_data);
+            adapter.setProperty("receiverSocket", socket);
+            os = new ResponseOutputStream(socket.getOutputStream(), socket);
+            try {
+                returnMessage = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous(), os);
+                // We need to check the message status
+                if (returnMessage != null && returnMessage instanceof MuleMessage) {
+                    Object payload = returnMessage.getPayload();
+                    if (payload instanceof MessageObject) {
+                        MessageObject messageObjectResponse = (MessageObject) payload;
+                        postProcessor.doPostProcess(messageObjectResponse);
+                        Map responseMap = messageObjectResponse.getResponseMap();
+                        String errorString = "";
 
-		protected Socket createSocket(int port, InetAddress inetAddress) throws IOException {
-			return new Socket(inetAddress, port);
-		}
-	}
+                        if (connector.isResponseFromTransformer()) {
+                            if (connector.isAckOnNewConnection()) {
+                                String endpointURI = connector.getAckIP() + ":" + connector.getAckPort();
+                                endpointURI = replacer.replaceURLValues(endpointURI, messageObjectResponse);
+                                Socket socket = initSocket("tcp://" + endpointURI);
+                                BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
+                                protocol.write(bos, ((Response) responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));
+                                bos.flush();
+                                bos.close();
+                            } else {
+                                protocol.write(os, ((Response) responseMap.get(connector.getResponseValue())).getMessage().getBytes(connector.getCharsetEncoding()));
+                                os.flush(); // need to flush the stream to
+                                            // actually commit the bytes
+                                os.close();
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                throw e;
+            } finally {
+                // Let the dispose take care of closing the socket
+            }
+
+            // The return message is always the last message routed if in a
+            // batch
+            // TODO: Check this for 1.2.1
+            if (returnMessage != null) {
+                return returnMessage.getPayloadAsBytes();
+            } else {
+                return null;
+            }
+        }
+
+        protected Socket initSocket(String endpoint) throws IOException, URISyntaxException {
+            URI uri = new URI(endpoint);
+            int port = uri.getPort();
+            InetAddress inetAddress = InetAddress.getByName(uri.getHost());
+            Socket socket = createSocket(port, inetAddress);
+            socket.setReuseAddress(true);
+            socket.setReceiveBufferSize(connector.getBufferSize());
+            socket.setSendBufferSize(connector.getBufferSize());
+            socket.setSoTimeout(connector.getSendTimeout());
+            return socket;
+        }
+
+        protected Socket createSocket(int port, InetAddress inetAddress) throws IOException {
+            return new Socket(inetAddress, port);
+        }
+    }
 }

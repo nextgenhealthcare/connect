@@ -1,15 +1,10 @@
 /*
- * $Header: /home/projects/mule/scm/mule/providers/tcp/src/java/org/mule/providers/tcp/protocols/DefaultProtocol.java,v 1.4 2005/08/07 12:21:15 aperepel Exp $
- * $Revision: 1.4 $
- * $Date: 2005/08/07 12:21:15 $
- * ------------------------------------------------------------------------------------------------------
- *
  * Copyright (c) SymphonySoft Limited. All rights reserved.
  * http://www.symphonysoft.com
  *
  * The software in this package is published under the terms of the BSD
  * style license a copy of which has been included with this distribution in
- * the LICENSE.txt file.
+ * the LICENSE-MULE.txt file.
  */
 
 package com.webreach.mirth.connectors.tcp.protocols;
