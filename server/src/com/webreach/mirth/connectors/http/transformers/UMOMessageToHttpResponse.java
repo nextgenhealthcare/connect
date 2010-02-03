@@ -1,16 +1,12 @@
 /*
- * $Header: /home/projects/mule/scm/mule/providers/http/src/java/org/mule/providers/http/transformers/UMOMessageToHttpResponse.java,v 1.6 2005/10/25 19:47:52 holger Exp $
- * $Revision: 1.6 $
- * $Date: 2005/10/25 19:47:52 $
- * ------------------------------------------------------------------------------------------------------
- *
  * Copyright (c) SymphonySoft Limited. All rights reserved.
  * http://www.symphonysoft.com
  *
  * The software in this package is published under the terms of the BSD
  * style license a copy of which has been included with this distribution in
- * the LICENSE.txt file.
+ * the LICENSE-MULE.txt file.
  */
+
 package com.webreach.mirth.connectors.http.transformers;
 
 import java.io.IOException;
