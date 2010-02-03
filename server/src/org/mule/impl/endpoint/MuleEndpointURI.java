@@ -1,16 +1,12 @@
 /*
- * $Header: /home/projects/mule/scm/mule/mule/src/java/org/mule/impl/endpoint/MuleEndpointURI.java,v 1.17 2005/10/29 04:04:42 tcarlson Exp $
- * $Revision: 1.17 $
- * $Date: 2005/10/29 04:04:42 $
- * ------------------------------------------------------------------------------------------------------
- *
  * Copyright (c) SymphonySoft Limited. All rights reserved.
  * http://www.symphonysoft.com
  *
  * The software in this package is published under the terms of the BSD
  * style license a copy of which has been included with this distribution in
- * the LICENSE.txt file.
+ * the LICENSE-MULE.txt file.
  */
+
 package org.mule.impl.endpoint;
 
 import java.net.URI;

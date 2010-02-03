@@ -1,16 +1,12 @@
 /*
- * $Header: /cvsroot/mule/mule/src/java/org/mule/model/MuleModel.java,v 1.5
- * 2004/01/18 12:06:05 rossmason Exp $ $Revision: 1116 $ $Date: 2004/01/18
- * 12:06:05 $
- * ------------------------------------------------------------------------------------------------------
- * 
- * Copyright (c) SymphonySoft Limited. All rights reserved. http://www.symphonysoft.com
- * 
- * The software in this package is published under the terms of the BSD style
- * license a copy of which has been included with this distribution in the
- * LICENSE.txt file.
- *  
+ * Copyright (c) SymphonySoft Limited. All rights reserved.
+ * http://www.symphonysoft.com
+ *
+ * The software in this package is published under the terms of the BSD
+ * style license a copy of which has been included with this distribution in
+ * the LICENSE-MULE.txt file.
  */
+
 package org.mule.impl.model;
 
 import java.beans.ExceptionListener;

@@ -1,17 +1,12 @@
-/* 
- * $Header: /home/projects/mule/scm/mule/providers/http/src/java/org/mule/providers/http/HttpMessageReceiver.java,v 1.46 2005/11/12 09:04:17 rossmason Exp $
- * $Revision: 1.46 $
- * $Date: 2005/11/12 09:04:17 $
- * ------------------------------------------------------------------------------------------------------
- *
+/*
  * Copyright (c) SymphonySoft Limited. All rights reserved.
  * http://www.symphonysoft.com
  *
  * The software in this package is published under the terms of the BSD
  * style license a copy of which has been included with this distribution in
- * the LICENSE.txt file.
- *
+ * the LICENSE-MULE.txt file.
  */
+
 package org.mule.providers.http;
 
 import org.apache.commons.httpclient.ChunkedInputStream;

@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * http://www.mirthcorp.com
+ *
+ * The software in this package is published under the terms of the MPL
+ * license a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
+ */
+
 package org.mule.providers;
 
 import java.text.ParseException;
@@ -18,9 +27,7 @@ import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 
-import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
-import com.webreach.mirth.server.controllers.MonitoringController.Event;
 
 public abstract class PollingMessageReceiver extends AbstractMessageReceiver implements Work {
 	public static final long STARTUP_DELAY = 1000;

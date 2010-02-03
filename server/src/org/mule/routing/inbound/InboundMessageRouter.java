@@ -1,16 +1,12 @@
 /*
- * $Header: /home/projects/mule/scm/mule/mule/src/java/org/mule/routing/inbound/InboundMessageRouter.java,v 1.9 2005/09/23 11:31:43 holger Exp $
- * $Revision: 1.9 $
- * $Date: 2005/09/23 11:31:43 $
- * ------------------------------------------------------------------------------------------------------
- *
  * Copyright (c) SymphonySoft Limited. All rights reserved.
  * http://www.symphonysoft.com
  *
  * The software in this package is published under the terms of the BSD
  * style license a copy of which has been included with this distribution in
- * the LICENSE.txt file.
+ * the LICENSE-MULE.txt file.
  */
+
 package org.mule.routing.inbound;
 
 import java.util.Iterator;
