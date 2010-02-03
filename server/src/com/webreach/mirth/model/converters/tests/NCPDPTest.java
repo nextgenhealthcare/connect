@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.converters;
+package com.webreach.mirth.model.converters.tests;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,6 +23,12 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
+
+import com.webreach.mirth.model.converters.DocumentSerializer;
+import com.webreach.mirth.model.converters.NCPDPSerializer;
+import com.webreach.mirth.model.converters.NCPDPXMLHandler;
+import com.webreach.mirth.model.converters.SerializerException;
+import com.webreach.mirth.model.converters.Stopwatch;
 
 /**
  * Created by IntelliJ IDEA.

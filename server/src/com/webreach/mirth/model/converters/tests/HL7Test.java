@@ -7,36 +7,47 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.converters;
+package com.webreach.mirth.model.converters.tests;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Properties;
 
-import junit.framework.Assert;
-
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-public class X12Test {
+import com.webreach.mirth.model.converters.DocumentSerializer;
+import com.webreach.mirth.model.converters.ER7Serializer;
+import com.webreach.mirth.model.converters.SerializerException;
+import com.webreach.mirth.model.converters.Stopwatch;
+
+public class HL7Test {
+
 	public static void main(String[] args) {
+		      
 		String testMessage = "";
+		String testXML = null;
 		try {
 			testMessage = new String(getBytesFromFile(new File(args[0])));
+			if (args.length>1){
+				testXML =  new String(getBytesFromFile(new File(args[1])));
+			}
 			System.out.println(testMessage);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		try {
-
+			
 			long totalExecutionTime = 0;
-			int iterations = 100;
+			int iterations = 1;
 			for (int i = 0; i < iterations; i++) {
-				totalExecutionTime += runTest(testMessage);
+				totalExecutionTime+=runTest(testMessage, testXML);
 			}
-
-			System.out.println("Execution time average: " + totalExecutionTime / iterations + " ms");
+			
+			System.out.println("Execution time average: " + totalExecutionTime/iterations + " ms");
 		}
 		// System.out.println(new X12Serializer().toXML("SEG*1*2**4*5"));
 		catch (SAXException e) {
@@ -49,37 +60,56 @@ public class X12Test {
 
 	}
 
-	private static long runTest(String testMessage) throws SerializerException, SAXException, IOException {
+	private static long runTest(String testMessage, String xml) throws SerializerException, SAXException, IOException {
 		Stopwatch stopwatch = new Stopwatch();
+		Properties properties = new Properties();
+		properties.put("useStrictParser", "false");
+		properties.put("handleRepetitions", "true");
+		properties.put("convertLFtoCR", "false");
 		stopwatch.start();
-		X12Serializer serializer = new X12Serializer(true);
-		String xmloutput = serializer.toXML(testMessage);
+		ER7Serializer serializer = new ER7Serializer(properties);
+		String xmloutput = xml;
+		String er7 = "";
+		if (xml == null){
+			xmloutput = serializer.toXML(testMessage);
+			er7 = serializer.fromXML(xmloutput);
+			stopwatch.stop();
+		}else{
+			
+			DocumentSerializer docser = new DocumentSerializer();
+			Document doc = docser.fromXML(xmloutput);
+			er7 = serializer.fromXML(docser.toXML(doc));
+			stopwatch.stop();
+		}
+		
+		
+		//System.out.println(xmloutput);
 		DocumentSerializer docser = new DocumentSerializer();
-		String x12 = serializer.fromXML(xmloutput);
-		stopwatch.stop();
-
-		// System.out.println(docser.toXML(doc)); // handler.getOutput());
-		// System.out.println(x12);
-	    Assert.assertTrue(x12.replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim()));
-
-		if (x12.replace('\n', '\r').trim().equals(testMessage.replaceAll("\\r\\n", "\r").trim())) {
+		Document doc = docser.fromXML(xmloutput);
+		
+		
+		
+		System.out.println(docser.toXML(doc)); 
+		System.out.println(er7);
+		if (er7.trim().equals(testMessage.trim())) {
 			System.out.println("Test Successful!");
 		} else {
 			String original = testMessage.replaceAll("\\r\\n", "\r").trim();
-			String newm = x12.replace('\n', '\r').trim();
-			for (int i = 0; i < original.length(); i++) {
-				if (original.charAt(i) == newm.charAt(i)) {
+			String newm = er7.replace('\n', '\r').trim();
+			for (int i = 0; i < original.length(); i++){
+				if (original.charAt(i) == newm.charAt(i)){
 					System.out.print(newm.charAt(i));
-				} else {
+				}else{
 					System.out.println("");
 					System.out.print("Saw: ");
 					System.out.println(newm.charAt(i));
+				
 					System.out.print("Expected: ");
 					System.out.print(original.charAt(i));
 					break;
 				}
 			}
-			System.out.println("Test Failed!");
+			System.out.println("\nTest Failed!");
 		}
 		return stopwatch.toValue();
 	}
