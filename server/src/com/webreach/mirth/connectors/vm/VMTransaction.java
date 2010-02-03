@@ -1,17 +1,12 @@
-/* 
- * $Header: /home/projects/mule/scm/mule/providers/vm/src/java/org/mule/providers/vm/VMTransaction.java,v 1.2 2005/06/03 01:20:36 gnt Exp $
- * $Revision: 1.2 $
- * $Date: 2005/06/03 01:20:36 $
- * ------------------------------------------------------------------------------------------------------
- * 
+/*
  * Copyright (c) SymphonySoft Limited. All rights reserved.
  * http://www.symphonysoft.com
- * 
+ *
  * The software in this package is published under the terms of the BSD
  * style license a copy of which has been included with this distribution in
- * the LICENSE.txt file. 
- *
+ * the LICENSE-MULE.txt file.
  */
+
 package com.webreach.mirth.connectors.vm;
 
 import org.mule.MuleManager;
@@ -28,11 +23,9 @@ import org.mule.util.xa.ResourceManagerException;
  * @author <a href="mailto:gnt@codehaus.org">Guillaume Nodet</a>
  * @version $Revision: 1.2 $
  */
-public class VMTransaction extends AbstractSingleResourceTransaction
-{
+public class VMTransaction extends AbstractSingleResourceTransaction {
 
-    public VMTransaction() throws TransactionException
-    {
+    public VMTransaction() throws TransactionException {
         QueueManager qm = MuleManager.getInstance().getQueueManager();
         QueueSession qs = qm.getQueueSession();
         bindResource(qm, qs);
@@ -42,19 +35,16 @@ public class VMTransaction extends AbstractSingleResourceTransaction
      * (non-Javadoc)
      * 
      * @see org.mule.umo.UMOTransaction#bindResource(java.lang.Object,
-     *      java.lang.Object)
+     * java.lang.Object)
      */
-    public void bindResource(Object key, Object resource) throws TransactionException
-    {
+    public void bindResource(Object key, Object resource) throws TransactionException {
         if (!(key instanceof QueueManager) || !(resource instanceof QueueSession)) {
-            throw new IllegalTransactionStateException(new Message(Messages.TX_CAN_ONLY_BIND_TO_X_TYPE_RESOURCES,
-                                                                   "QueueManager/QueueSession"));
+            throw new IllegalTransactionStateException(new Message(Messages.TX_CAN_ONLY_BIND_TO_X_TYPE_RESOURCES, "QueueManager/QueueSession"));
         }
         super.bindResource(key, resource);
     }
 
-    protected void doBegin() throws TransactionException
-    {
+    protected void doBegin() throws TransactionException {
         try {
             ((QueueSession) resource).begin();
         } catch (ResourceManagerException e) {
@@ -62,8 +52,7 @@ public class VMTransaction extends AbstractSingleResourceTransaction
         }
     }
 
-    protected void doCommit() throws TransactionException
-    {
+    protected void doCommit() throws TransactionException {
         try {
             ((QueueSession) resource).commit();
         } catch (ResourceManagerException e) {
@@ -71,8 +60,7 @@ public class VMTransaction extends AbstractSingleResourceTransaction
         }
     }
 
-    protected void doRollback() throws TransactionException
-    {
+    protected void doRollback() throws TransactionException {
         try {
             ((QueueSession) resource).rollback();
         } catch (ResourceManagerException e) {

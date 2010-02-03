@@ -1,16 +1,10 @@
-/* 
- * $Header: /home/projects/mule/scm/mule/providers/vm/src/java/org/mule/providers/vm/VMConnector.java,v 1.11 2005/10/19 14:15:31 holger Exp $
- * $Revision: 1.11 $
- * $Date: 2005/10/19 14:15:31 $
- * ------------------------------------------------------------------------------------------------------
- * 
+/*
  * Copyright (c) SymphonySoft Limited. All rights reserved.
  * http://www.symphonysoft.com
- * 
+ *
  * The software in this package is published under the terms of the BSD
  * style license a copy of which has been included with this distribution in
- * the LICENSE.txt file. 
- *
+ * the LICENSE-MULE.txt file.
  */
 
 package com.webreach.mirth.connectors.vm;
@@ -44,21 +38,22 @@ import org.mule.util.queue.QueueSession;
 import com.webreach.mirth.server.util.VMRegistry;
 
 /**
- * <code>VMConnector</code> A simple endpoint wrapper to allow a Mule
- * component to <p/> be accessed from an endpoint
+ * <code>VMConnector</code> A simple endpoint wrapper to allow a Mule component
+ * to
+ * <p/>
+ * be accessed from an endpoint
  * 
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @author <a href="mailto:gnt@codehaus.org">Guillaume Nodet</a>
  * @version $Revision: 1.11 $
  */
 
-public class VMConnector extends AbstractServiceEnabledConnector
-{
-	// Sink connector address (specified in mule-template.conf)
-	public static final String SINK_CONNECTOR_ADDRESS = "vm://sink";
-	public static final String SOURCE_CHANNEL_ID = "sourceChannelId";
-	public static final String SOURCE_MESSAGE_ID = "sourceMessageId";
-	
+public class VMConnector extends AbstractServiceEnabledConnector {
+    // Sink connector address (specified in mule-template.conf)
+    public static final String SINK_CONNECTOR_ADDRESS = "vm://sink";
+    public static final String SOURCE_CHANNEL_ID = "sourceChannelId";
+    public static final String SOURCE_MESSAGE_ID = "sourceMessageId";
+
     private boolean queueEvents = false;
     private int maxQueues = 16;
     private QueueProfile queueProfile;
@@ -66,21 +61,21 @@ public class VMConnector extends AbstractServiceEnabledConnector
     private String channelId;
     private boolean synchronised = false;
     private String template;
+
     public String getChannelId() {
-		return this.channelId;
-	}
+        return this.channelId;
+    }
 
-	public void setChannelId(String channelId) {
-		this.channelId = channelId;
-	}
+    public void setChannelId(String channelId) {
+        this.channelId = channelId;
+    }
 
-	/*
+    /*
      * (non-Javadoc)
      * 
      * @see org.mule.providers.AbstractConnector#create()
      */
-    public void doInitialise() throws InitialisationException
-    {
+    public void doInitialise() throws InitialisationException {
         super.doInitialise();
         if (queueEvents) {
             if (queueProfile == null) {
@@ -91,19 +86,18 @@ public class VMConnector extends AbstractServiceEnabledConnector
         try {
             adapterClass = ClassHelper.loadClass(serviceDescriptor.getMessageAdapter(), getClass());
         } catch (ClassNotFoundException e) {
-            throw new InitialisationException(new Message(Messages.FAILED_LOAD_X, "Message Adapter: "
-                    + serviceDescriptor.getMessageAdapter()), e);
+            throw new InitialisationException(new Message(Messages.FAILED_LOAD_X, "Message Adapter: " + serviceDescriptor.getMessageAdapter()), e);
         }
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see org.mule.umo.provider.UMOConnector#registerListener(org.mule.umo.UMOSession,
-     *      org.mule.umo.endpoint.UMOEndpoint)
+     * @see
+     * org.mule.umo.provider.UMOConnector#registerListener(org.mule.umo.UMOSession
+     * , org.mule.umo.endpoint.UMOEndpoint)
      */
-    public UMOMessageReceiver createReceiver(UMOComponent component, UMOEndpoint endpoint) throws Exception
-    {
+    public UMOMessageReceiver createReceiver(UMOComponent component, UMOEndpoint endpoint) throws Exception {
         if (queueEvents) {
             queueProfile.configureQueue(endpoint.getEndpointURI().getAddress());
         }
@@ -113,10 +107,10 @@ public class VMConnector extends AbstractServiceEnabledConnector
     /*
      * (non-Javadoc)
      * 
-     * @see org.mule.umo.provider.UMOConnector#getMessageAdapter(java.lang.Object)
+     * @see
+     * org.mule.umo.provider.UMOConnector#getMessageAdapter(java.lang.Object)
      */
-    public UMOMessageAdapter getMessageAdapter(Object message) throws MessagingException
-    {
+    public UMOMessageAdapter getMessageAdapter(Object message) throws MessagingException {
         if (message == null) {
             throw new MessageTypeNotSupportedException(null, adapterClass);
 
@@ -134,8 +128,7 @@ public class VMConnector extends AbstractServiceEnabledConnector
      * 
      * @see org.mule.umo.provider.UMOConnector#getProtocol()
      */
-    public String getProtocol()
-    {
+    public String getProtocol() {
         return "VM";
     }
 
@@ -144,55 +137,46 @@ public class VMConnector extends AbstractServiceEnabledConnector
      * 
      * @see org.mule.providers.AbstractConnector#doDispose()
      */
-    protected void doDispose()
-    {
-    }
-   
-    public boolean isQueueEvents()
-    {
+    protected void doDispose() {}
+
+    public boolean isQueueEvents() {
         return queueEvents;
     }
 
-    public void setQueueEvents(boolean queueEvents)
-    {
+    public void setQueueEvents(boolean queueEvents) {
         this.queueEvents = queueEvents;
     }
 
-    public QueueProfile getQueueProfile()
-    {
+    public QueueProfile getQueueProfile() {
         return queueProfile;
     }
 
-    public void setQueueProfile(QueueProfile queueProfile)
-    {
+    public void setQueueProfile(QueueProfile queueProfile) {
         this.queueProfile = queueProfile;
     }
 
-    public void setMaxQueues(int maxQueues)
-    {
+    public void setMaxQueues(int maxQueues) {
         this.maxQueues = maxQueues;
     }
 
-    VMMessageReceiver getReceiver(UMOEndpointURI endpointUri) throws EndpointException
-    {
+    VMMessageReceiver getReceiver(UMOEndpointURI endpointUri) throws EndpointException {
         return (VMMessageReceiver) getReceiverByEndpoint(endpointUri);
     }
 
-    public QueueSession getQueueSession() throws InitialisationException
-    {
+    public QueueSession getQueueSession() throws InitialisationException {
         QueueManager qm = MuleManager.getInstance().getQueueManager();
         UMOTransaction tx = TransactionCoordination.getInstance().getTransaction();
         if (tx != null) {
             if (tx.hasResource(qm)) {
                 if (logger.isDebugEnabled()) {
-                	logger.debug("Retrieving queue session from current transaction");
+                    logger.debug("Retrieving queue session from current transaction");
                 }
                 return (QueueSession) tx.getResource(qm);
             }
         }
 
         if (logger.isDebugEnabled()) {
-			logger.debug("Retrieving new queue session from queue manager");
+            logger.debug("Retrieving new queue session from queue manager");
         }
 
         QueueSession session = qm.getQueueSession();
@@ -207,8 +191,7 @@ public class VMConnector extends AbstractServiceEnabledConnector
         return session;
     }
 
-    protected UMOMessageReceiver getReceiverByEndpoint(UMOEndpointURI endpointUri) throws EndpointException
-    {
+    protected UMOMessageReceiver getReceiverByEndpoint(UMOEndpointURI endpointUri) throws EndpointException {
         if (logger.isDebugEnabled()) {
             logger.debug("Looking up vm receiver for address: " + endpointUri.toString());
         }
@@ -218,7 +201,7 @@ public class VMConnector extends AbstractServiceEnabledConnector
         receiver = (UMOMessageReceiver) VMRegistry.getInstance().get(endpointUri.getAddress());
         if (receiver != null) {
             if (logger.isDebugEnabled()) {
-            	logger.debug("Found exact receiver match on endpointUri: " + endpointUri);
+                logger.debug("Found exact receiver match on endpointUri: " + endpointUri);
             }
             return receiver;
         }
@@ -232,35 +215,34 @@ public class VMConnector extends AbstractServiceEnabledConnector
                 receiver.getEndpoint().setEndpointURI(new MuleEndpointURI(endpointUri, filterAddress));
 
                 if (logger.isDebugEnabled()) {
-	                logger.debug("Found receiver match on endpointUri: " +
-	                		receiver.getEndpointURI() + " against " + endpointUri);
+                    logger.debug("Found receiver match on endpointUri: " + receiver.getEndpointURI() + " against " + endpointUri);
                 }
                 return receiver;
             }
         }
         if (logger.isDebugEnabled()) {
-        	logger.debug("No receiver found for endpointUri: " + endpointUri);
+            logger.debug("No receiver found for endpointUri: " + endpointUri);
         }
         return null;
     }
 
     public boolean isRemoteSyncEnabled() {
         return true;
-}
+    }
 
-	public boolean isSynchronised() {
-		return synchronised;
-	}
+    public boolean isSynchronised() {
+        return synchronised;
+    }
 
-	public void setSynchronised(boolean synchronised) {
-		this.synchronised = synchronised;
-	}
+    public void setSynchronised(boolean synchronised) {
+        this.synchronised = synchronised;
+    }
 
-	public String getTemplate() {
-		return template;
-	}
+    public String getTemplate() {
+        return template;
+    }
 
-	public void setTemplate(String template) {
-		this.template = template;
-	}
+    public void setTemplate(String template) {
+        this.template = template;
+    }
 }
