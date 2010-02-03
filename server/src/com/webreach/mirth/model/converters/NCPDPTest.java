@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.converters.tests;
+package com.webreach.mirth.model.converters;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,21 +15,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.Properties;
 
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
-
-import com.webreach.mirth.model.converters.DocumentSerializer;
-import com.webreach.mirth.model.converters.NCPDPSerializer;
-import com.webreach.mirth.model.converters.NCPDPXMLHandler;
-import com.webreach.mirth.model.converters.SerializerException;
-import com.webreach.mirth.model.converters.Stopwatch;
 
 /**
  * Created by IntelliJ IDEA.
@@ -133,7 +126,7 @@ public class NCPDPTest {
 
 	private static long runTest(String testMessage) throws SerializerException, SAXException, IOException {
 		Stopwatch stopwatch = new Stopwatch();
-		Map<String, String> properties = new HashMap<String, String>();
+		Properties properties = new Properties();
         String SchemaUrl = "/ncpdp.xsd";
         properties.put("useStrictParser", "true");
         properties.put("http://java.sun.com/xml/jaxp/properties/schemaSource",SchemaUrl);

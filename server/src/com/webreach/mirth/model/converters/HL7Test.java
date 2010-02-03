@@ -7,22 +7,16 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.converters.tests;
+package com.webreach.mirth.model.converters;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Properties;
 
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-
-import com.webreach.mirth.model.converters.DocumentSerializer;
-import com.webreach.mirth.model.converters.ER7Serializer;
-import com.webreach.mirth.model.converters.SerializerException;
-import com.webreach.mirth.model.converters.Stopwatch;
 
 public class HL7Test {
 
@@ -63,7 +57,7 @@ public class HL7Test {
 
 	private static long runTest(String testMessage, String xml) throws SerializerException, SAXException, IOException {
 		Stopwatch stopwatch = new Stopwatch();
-		Map<String, String> properties = new HashMap<String, String>();
+		Properties properties = new Properties();
 		properties.put("useStrictParser", "false");
 		properties.put("handleRepetitions", "true");
 		properties.put("convertLFtoCR", "false");
