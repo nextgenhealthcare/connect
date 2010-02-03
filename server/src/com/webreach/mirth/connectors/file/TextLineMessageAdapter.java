@@ -18,21 +18,18 @@ import org.mule.umo.provider.UniqueIdNotSupportedException;
 
 import com.webreach.mirth.connectors.file.filesystems.FileInfo;
 
-public class TextLineMessageAdapter extends AbstractMessageAdapter
-{
+public class TextLineMessageAdapter extends AbstractMessageAdapter {
     private String message = null;
     private FileInfo file;
-    public TextLineMessageAdapter(Object message) throws MessagingException
-    {
+
+    public TextLineMessageAdapter(Object message) throws MessagingException {
         if (message instanceof String) {
-            setMessage((String)message);
-        } 
-        else if (message instanceof FileInfo){
-        	//Hackish method
-        	this.file = (FileInfo) message;
-        	setMessage("");
-        }
-        else {
+            setMessage((String) message);
+        } else if (message instanceof FileInfo) {
+            // Hackish method
+            this.file = (FileInfo) message;
+            setMessage("");
+        } else {
             throw new MessageTypeNotSupportedException(message, getClass());
         }
     }
@@ -42,8 +39,7 @@ public class TextLineMessageAdapter extends AbstractMessageAdapter
      * 
      * @see org.mule.providers.UMOMessageAdapter#getPayload()
      */
-    public Object getPayload()
-    {
+    public Object getPayload() {
         return message;
     }
 
@@ -52,8 +48,7 @@ public class TextLineMessageAdapter extends AbstractMessageAdapter
      * 
      * @see org.mule.providers.UMOMessageAdapter#getPayloadAsBytes()
      */
-    public byte[] getPayloadAsBytes() throws Exception
-    {
+    public byte[] getPayloadAsBytes() throws Exception {
         return message.getBytes();
     }
 
@@ -62,8 +57,7 @@ public class TextLineMessageAdapter extends AbstractMessageAdapter
      * 
      * @see org.mule.providers.UMOMessageAdapter#getPayloadAsString()
      */
-    public String getPayloadAsString() throws Exception
-    {
+    public String getPayloadAsString() throws Exception {
         return message;
     }
 
@@ -72,31 +66,27 @@ public class TextLineMessageAdapter extends AbstractMessageAdapter
      * 
      * @see org.mule.providers.UMOMessageAdapter#setMessage(java.lang.Object)
      */
-    private void setMessage(String message) throws MessagingException
-    {
+    private void setMessage(String message) throws MessagingException {
         try {
-           
+
             this.message = message;
-            if (this.file != null){
-            	properties.put(FileConnector.PROPERTY_ORIGINAL_FILENAME, this.file.getName());
-            	properties.put(FileConnector.PROPERTY_DIRECTORY, this.file.getParent());
+            if (this.file != null) {
+                properties.put(FileConnector.PROPERTY_ORIGINAL_FILENAME, this.file.getName());
+                properties.put(FileConnector.PROPERTY_DIRECTORY, this.file.getParent());
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new MessagingException(new Message(Messages.FILE_X_DOES_NOT_EXIST, file.getAbsolutePath()), e);
         }
     }
 
-    public FileInfo getFile()
-    {
+    public FileInfo getFile() {
         return file;
     }
 
-    public String getUniqueId() throws UniqueIdNotSupportedException
-    {
-        if (file!=null)
-        	return file.getAbsolutePath();
+    public String getUniqueId() throws UniqueIdNotSupportedException {
+        if (file != null)
+            return file.getAbsolutePath();
         else
-        	throw new UniqueIdNotSupportedException(this);
+            throw new UniqueIdNotSupportedException(this);
     }
 }

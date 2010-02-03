@@ -13,12 +13,11 @@ import org.mule.umo.lifecycle.InitialisationException;
 
 /**
  * Creates a Smtp secured connection
- *
+ * 
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @version $Revision: 1.1 $
  */
 public class SmtpsConnector extends SmtpConnector {
-
 
     public static final String DEFAULT_SOCKET_FACTORY = "javax.net.ssl.SSLSocketFactory";
 
@@ -35,7 +34,7 @@ public class SmtpsConnector extends SmtpConnector {
 
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see org.mule.providers.UMOConnector#getProtocol()
      */
     public String getProtocol() {
@@ -52,9 +51,9 @@ public class SmtpsConnector extends SmtpConnector {
         System.setProperty("mail.smtp.socketFactory.class", getSocketFactory());
         System.setProperty("mail.smtp.socketFactory.fallback", getSocketFactoryFallback());
 
-        if(getTrustStore()!=null) {
+        if (getTrustStore() != null) {
             System.setProperty("javax.net.ssl.trustStore", getTrustStore());
-            if(getTrustStorePassword()!=null) {
+            if (getTrustStorePassword() != null) {
                 System.setProperty("javax.net.ssl.trustStorePassword", getTrustStorePassword());
             }
         }

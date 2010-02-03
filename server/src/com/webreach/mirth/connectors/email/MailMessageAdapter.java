@@ -27,7 +27,7 @@ import org.mule.umo.provider.MessageTypeNotSupportedException;
 
 /**
  * <code>MailMessageAdapter</code> is a wrapper for a javax.mail.Message.
- *
+ * 
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @version $Revision: 1.8 $
  */
@@ -127,7 +127,8 @@ public class MailMessageAdapter extends AbstractMessageAdapter {
                 for (int i = 1; i < ((Multipart) content).getCount(); i++) {
                     part = ((Multipart) content).getBodyPart(i);
                     name = part.getFileName();
-                    if (name == null) name = String.valueOf(i - 1);
+                    if (name == null)
+                        name = String.valueOf(i - 1);
                     addAttachment(name, part.getDataHandler());
                 }
             } else {
@@ -138,8 +139,8 @@ public class MailMessageAdapter extends AbstractMessageAdapter {
             setProperty(MailProperties.TO_ADDRESSES_PROPERTY, MailUtils.mailAddressesToString(msg.getRecipients(Message.RecipientType.TO)));
             setProperty(MailProperties.CC_ADDRESSES_PROPERTY, MailUtils.mailAddressesToString(msg.getRecipients(Message.RecipientType.CC)));
             setProperty(MailProperties.BCC_ADDRESSES_PROPERTY, MailUtils.mailAddressesToString(msg.getRecipients(Message.RecipientType.BCC)));
-            setProperty(MailProperties.REPLY_TO_ADDRESSES_PROPERTY,  MailUtils.mailAddressesToString(msg.getReplyTo()));
-            setProperty(MailProperties.FROM_ADDRESS_PROPERTY,  MailUtils.mailAddressesToString(msg.getFrom()));
+            setProperty(MailProperties.REPLY_TO_ADDRESSES_PROPERTY, MailUtils.mailAddressesToString(msg.getReplyTo()));
+            setProperty(MailProperties.FROM_ADDRESS_PROPERTY, MailUtils.mailAddressesToString(msg.getFrom()));
             setProperty(MailProperties.SUBJECT_PROPERTY, msg.getSubject());
             setProperty(MailProperties.CONTENT_TYPE_PROPERTY, msg.getContentType());
             setProperty(MailProperties.SENT_DATE_PROPERTY, msg.getSentDate());
@@ -150,8 +151,7 @@ public class MailMessageAdapter extends AbstractMessageAdapter {
             }
 
         } catch (Exception e) {
-            throw new MessagingException(new org.mule.config.i18n.Message(Messages.FAILED_TO_CREATE_X,
-                    "Message Adapter"), e);
+            throw new MessagingException(new org.mule.config.i18n.Message(Messages.FAILED_TO_CREATE_X, "Message Adapter"), e);
         }
     }
 }

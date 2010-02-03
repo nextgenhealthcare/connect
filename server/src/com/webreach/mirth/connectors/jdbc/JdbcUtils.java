@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * http://www.mirthcorp.com
+ *
+ * The software in this package is published under the terms of the MPL
+ * license a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
+ */
+
 package com.webreach.mirth.connectors.jdbc;
 
 import java.sql.Connection;
@@ -29,7 +38,7 @@ public abstract class JdbcUtils {
             if (con.getAutoCommit() == false) {
                 con.commit();
             }
-            
+
             con.close();
         }
     }
@@ -39,7 +48,7 @@ public abstract class JdbcUtils {
             if (con.getAutoCommit() == false) {
                 con.rollback();
             }
-            
+
             con.close();
         }
     }
@@ -92,7 +101,7 @@ public abstract class JdbcUtils {
             } else if (root instanceof org.w3c.dom.Document) {
                 org.w3c.dom.Document x3cDoc = (org.w3c.dom.Document) root;
                 org.dom4j.Document dom4jDoc = new DOMReader().read(x3cDoc);
-                
+
                 try {
                     Node node = dom4jDoc.selectSingleNode(name);
                     if (node != null) {
@@ -103,7 +112,7 @@ public abstract class JdbcUtils {
                 }
             } else if (root instanceof org.dom4j.Document) {
                 org.dom4j.Document dom4jDoc = (org.dom4j.Document) root;
-                
+
                 try {
                     Node node = dom4jDoc.selectSingleNode(name);
                     if (node != null) {
@@ -114,7 +123,7 @@ public abstract class JdbcUtils {
                 }
             } else if (root instanceof org.dom4j.Node) {
                 org.dom4j.Node dom4jNode = (org.dom4j.Node) root;
-                
+
                 try {
                     Node node = dom4jNode.selectSingleNode(name);
                     if (node != null) {
@@ -138,10 +147,10 @@ public abstract class JdbcUtils {
             if (value == null) {
                 throw new IllegalArgumentException("Can not retrieve argument " + name);
             }
-            
+
             params[i] = value;
         }
-        
+
         return params;
     }
 

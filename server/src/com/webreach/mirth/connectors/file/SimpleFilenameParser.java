@@ -14,8 +14,7 @@ import org.mule.util.UUID;
 import org.mule.util.Utility;
 
 /**
- * <code>SimpleFilenameParser</code> understands a limited set of tokens,
- * namely
+ * <code>SimpleFilenameParser</code> understands a limited set of tokens, namely
  * <ul>
  * <li>${DATE} : the currrent date in the format dd-MM-yy_HH-mm-ss.SS</li>
  * <li>${DATE:yy-MM-dd} : the current date using the specified format</li>
@@ -34,14 +33,12 @@ import org.mule.util.Utility;
  * @version $Revision: 1.5 $
  */
 
-public class SimpleFilenameParser implements FilenameParser
-{
+public class SimpleFilenameParser implements FilenameParser {
     public static final String DEFAULT_DATE_FORMAT = "dd-MM-yy_HH-mm-ss.SS";
 
     private long count = 1;
 
-    public String getFilename(UMOMessageAdapter adaptor, String pattern)
-    {
+    public String getFilename(UMOMessageAdapter adaptor, String pattern) {
         String result = null;
         if (pattern != null && pattern.indexOf('{') > -1) {
             result = getFilename(adaptor, pattern, '{', '}');
@@ -52,16 +49,14 @@ public class SimpleFilenameParser implements FilenameParser
         return result;
     }
 
-    protected String getFilename(UMOMessageAdapter adaptor, String pattern, char left, char right)
-    {
+    protected String getFilename(UMOMessageAdapter adaptor, String pattern, char left, char right) {
         String filename = pattern;
         if (pattern == null) {
             filename = System.currentTimeMillis() + ".dat";
         } else {
             int index = pattern.indexOf("$" + left + "DATE" + right);
             if (index > -1) {
-                filename = filename.replaceAll("\\$\\" + left + "DATE\\" + right,
-                                               Utility.getTimeStamp(DEFAULT_DATE_FORMAT));
+                filename = filename.replaceAll("\\$\\" + left + "DATE\\" + right, Utility.getTimeStamp(DEFAULT_DATE_FORMAT));
             }
             index = pattern.indexOf("$" + left + "DATE:");
             if (index > -1) {
@@ -70,8 +65,7 @@ public class SimpleFilenameParser implements FilenameParser
                     filename = filename.replaceAll("\\$\\" + left + "DATE:", Utility.getTimeStamp(DEFAULT_DATE_FORMAT));
                 } else {
                     String dateformat = pattern.substring(index + 7, curl);
-                    filename = filename.replaceAll("\\$\\" + left + "DATE:" + dateformat + "\\" + right,
-                                                   Utility.getTimeStamp(dateformat));
+                    filename = filename.replaceAll("\\$\\" + left + "DATE:" + dateformat + "\\" + right, Utility.getTimeStamp(dateformat));
                 }
             }
             index = pattern.indexOf("$" + left + "UUID" + right);
@@ -80,8 +74,7 @@ public class SimpleFilenameParser implements FilenameParser
             }
             index = pattern.indexOf("$" + left + "SYSTIME" + right);
             if (index > -1) {
-                filename = filename.replaceAll("\\$\\" + left + "SYSTIME\\" + right,
-                                               String.valueOf(System.currentTimeMillis()));
+                filename = filename.replaceAll("\\$\\" + left + "SYSTIME\\" + right, String.valueOf(System.currentTimeMillis()));
             }
             index = pattern.indexOf("$" + left + "COUNT" + right);
             if (index > -1) {
@@ -98,8 +91,7 @@ public class SimpleFilenameParser implements FilenameParser
         return filename;
     }
 
-    protected synchronized long getCount()
-    {
+    protected synchronized long getCount() {
         return count++;
     }
 }

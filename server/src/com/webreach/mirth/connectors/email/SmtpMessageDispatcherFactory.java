@@ -15,17 +15,19 @@ import org.mule.umo.provider.UMOMessageDispatcher;
 import org.mule.umo.provider.UMOMessageDispatcherFactory;
 
 /**
- * @author Ross Mason <p/> //TODO document
+ * @author Ross Mason
+ *         <p/>
+ *         //TODO document
  */
-public class SmtpMessageDispatcherFactory implements UMOMessageDispatcherFactory
-{
+public class SmtpMessageDispatcherFactory implements UMOMessageDispatcherFactory {
     /*
      * (non-Javadoc)
      * 
-     * @see org.mule.umo.provider.UMOConnectorSessionFactory#create(org.mule.umo.provider.UMOConnector)
+     * @see
+     * org.mule.umo.provider.UMOConnectorSessionFactory#create(org.mule.umo.
+     * provider.UMOConnector)
      */
-    public UMOMessageDispatcher create(UMOConnector connector) throws UMOException
-    {
+    public UMOMessageDispatcher create(UMOConnector connector) throws UMOException {
         return new SmtpMessageDispatcher((SmtpConnector) connector);
     }
 }

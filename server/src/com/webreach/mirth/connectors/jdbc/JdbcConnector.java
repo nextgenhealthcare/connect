@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) SymphonySoft Limited. All rights reserved.
+ * http://www.symphonysoft.com
+ *
+ * The software in this package is published under the terms of the BSD
+ * style license a copy of which has been included with this distribution in
+ * the LICENSE-MULE.txt file.
+ */
+
 package com.webreach.mirth.connectors.jdbc;
 
 import java.sql.Connection;
@@ -136,7 +145,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
     public void setScriptId(String scriptId) {
         this.scriptId = scriptId;
     }
-    
+
     public boolean isProcessResultsInOrder() {
         return processResultsInOrder;
     }
@@ -292,9 +301,9 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
      */
     protected synchronized void initFromServiceDescriptor() throws InitialisationException {
         super.initFromServiceDescriptor();
-        
+
         setCreateMultipleTransactedReceivers(false);
-        
+
         Context context = Context.enter();
 
         try {
@@ -353,18 +362,18 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
         script.append("function $r(key, value){");
         script.append("if (arguments.length == 1){return responseMap.get(key); }");
         script.append("else if (arguments.length == 2){responseMap.put(key, value); }}");
-        
+
         try {
-			List<CodeTemplate> templates = ControllerFactory.getFactory().createCodeTemplateController().getCodeTemplate(null);
-			for (CodeTemplate template : templates) {
-				if (template.getType() == CodeSnippetType.FUNCTION) {
-					script.append(template.getCode());
-				}
-			}
-		} catch (ControllerException e) {
-			logger.error("Could not get user functions.", e);
-		}
-		
+            List<CodeTemplate> templates = ControllerFactory.getFactory().createCodeTemplateController().getCodeTemplate(null);
+            for (CodeTemplate template : templates) {
+                if (template.getType() == CodeSnippetType.FUNCTION) {
+                    script.append(template.getCode());
+                }
+            }
+        } catch (ControllerException e) {
+            logger.error("Could not get user functions.", e);
+        }
+
         script.append("function doDatabaseScript() {");
         script.append(databaseScript + "}\n");
         script.append("doDatabaseScript()\n");
@@ -416,7 +425,6 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
         return connection;
     }
 
-
     private void setupDataSource(String address, String driver, String username, String password) {
         BasicDataSource basicDataSource = new BasicDataSource();
         basicDataSource.setDriverClassName(driver);
@@ -430,17 +438,17 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
         BasicDataSource bds = (BasicDataSource) dataSource;
         bds.close();
     }
-    
+
     @Override
     public void doConnect() throws Exception {
         super.doConnect();
-        
+
         // if we don't plan on replacing the values, setup the datasource
         if (!TemplateValueReplacer.hasReplaceableValues(URL) && !TemplateValueReplacer.hasReplaceableValues(username) && !TemplateValueReplacer.hasReplaceableValues(password)) {
             setupDataSource(URL, driver, username, password);
         }
     }
-    
+
     @Override
     public void doDisconnect() throws Exception {
         super.doDisconnect();

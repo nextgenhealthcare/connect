@@ -1,16 +1,12 @@
 /*
- * $Header: /home/projects/mule/scm/mule/providers/jdbc/src/java/org/mule/providers/jdbc/JdbcTransaction.java,v 1.5 2005/06/03 01:20:34 gnt Exp $
- * $Revision: 1.5 $
- * $Date: 2005/06/03 01:20:34 $
- * ------------------------------------------------------------------------------------------------------
- *
  * Copyright (c) SymphonySoft Limited. All rights reserved.
  * http://www.symphonysoft.com
  *
  * The software in this package is published under the terms of the BSD
  * style license a copy of which has been included with this distribution in
- * the LICENSE.txt file.
+ * the LICENSE-MULE.txt file.
  */
+
 package com.webreach.mirth.connectors.jdbc;
 
 import java.sql.Connection;
@@ -26,19 +22,15 @@ import org.mule.umo.TransactionException;
  * @author Guillaume Nodet
  * @version $Revision: 1.5 $
  */
-public class JdbcTransaction extends AbstractSingleResourceTransaction
-{
+public class JdbcTransaction extends AbstractSingleResourceTransaction {
 
-    public JdbcTransaction()
-    {
-    }
-    public Object getResource(Object key)
-    {
+    public JdbcTransaction() {}
+
+    public Object getResource(Object key) {
         return key != null && this.key != null && this.key.equals(key) ? this.resource : null;
     }
 
-    public boolean hasResource(Object key)
-    {
+    public boolean hasResource(Object key) {
         return key != null && this.key != null && this.key.equals(key);
     }
 
@@ -46,16 +38,17 @@ public class JdbcTransaction extends AbstractSingleResourceTransaction
      * (non-Javadoc)
      * 
      * @see org.mule.umo.UMOTransaction#bindResource(java.lang.Object,
-     *      java.lang.Object)
+     * java.lang.Object)
      */
-    public void bindResource(Object key, Object resource) throws TransactionException
-    {
-       // if (((key != null)&&!(key instanceof DataSource)) || !(resource instanceof Connection)) {
-       //     throw new IllegalTransactionStateException(new Message(Messages.TX_CAN_ONLY_BIND_TO_X_TYPE_RESOURCES,
-       //                                                            "javax.sql.DataSource/java.sql.Connection"));
-       // }
+    public void bindResource(Object key, Object resource) throws TransactionException {
+        // if (((key != null)&&!(key instanceof DataSource)) || !(resource
+        // instanceof Connection)) {
+        // throw new IllegalTransactionStateException(new
+        // Message(Messages.TX_CAN_ONLY_BIND_TO_X_TYPE_RESOURCES,
+        // "javax.sql.DataSource/java.sql.Connection"));
+        // }
         Connection con = (Connection) resource;
-        
+
         try {
             if (con.getAutoCommit()) {
                 con.setAutoCommit(false);
@@ -71,9 +64,8 @@ public class JdbcTransaction extends AbstractSingleResourceTransaction
      * 
      * @see org.mule.transaction.AbstractSingleResourceTransaction#doBegin()
      */
-    protected void doBegin() throws TransactionException
-    {
-        // Do nothing
+    protected void doBegin() throws TransactionException {
+    // Do nothing
     }
 
     /*
@@ -81,8 +73,7 @@ public class JdbcTransaction extends AbstractSingleResourceTransaction
      * 
      * @see org.mule.transaction.AbstractSingleResourceTransaction#doCommit()
      */
-    protected void doCommit() throws TransactionException
-    {
+    protected void doCommit() throws TransactionException {
         try {
             ((Connection) resource).commit();
             ((Connection) resource).close();
@@ -96,8 +87,7 @@ public class JdbcTransaction extends AbstractSingleResourceTransaction
      * 
      * @see org.mule.transaction.AbstractSingleResourceTransaction#doRollback()
      */
-    protected void doRollback() throws TransactionException
-    {
+    protected void doRollback() throws TransactionException {
         try {
             ((Connection) resource).rollback();
             ((Connection) resource).close();

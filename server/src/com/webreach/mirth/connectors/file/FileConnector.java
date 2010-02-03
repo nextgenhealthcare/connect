@@ -385,7 +385,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
         String username = replace(getUsername(), messageObject);
         String password = replace(getPassword(), messageObject);
         URI uri;
-        
+
         try {
             uri = new URI(replace(endpointUri.toString(), messageObject));
         } catch (URISyntaxException e) {

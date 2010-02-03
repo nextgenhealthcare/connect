@@ -39,11 +39,10 @@ import org.mule.umo.provider.UMOMessageReceiver;
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @version $Revision: 1.11 $
  */
-public class SmtpConnector extends AbstractServiceEnabledConnector implements MailConnector
-{
+public class SmtpConnector extends AbstractServiceEnabledConnector implements MailConnector {
     public static final String DEFAULT_SMTP_PORT = "25";
     public static final String DEFAULT_CONTENT_TYPE = "text/plain";
-    
+
     private String body;
     /**
      * Holds value of to addresses.
@@ -78,7 +77,7 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
      * Holds value of the from address.
      */
     private String from;
-    
+
     /**
      * Holds value of emailSecure ("tls", "ssl", "none")
      */
@@ -110,30 +109,30 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
     private Properties customHeaders = new Properties();
 
     /**
-     * A custom authenticator to bew used on any mail sessions created with this connector
-     * This will only be used if user name credendtials are set on the endpoint
+     * A custom authenticator to bew used on any mail sessions created with this
+     * connector This will only be used if user name credendtials are set on the
+     * endpoint
      */
     private Authenticator authenticator = null;
 
     private String contentType = DEFAULT_CONTENT_TYPE;
-    
+
     private List attachmentNames = null;
     private List attachmentContents = null;
     private List attachmentTypes = null;
     private boolean useAuthentication;
     private boolean useServerSettings;
 
-    public SmtpConnector() throws InitialisationException
-    {
+    public SmtpConnector() throws InitialisationException {
         initFromServiceDescriptor();
     }
+
     /*
      * (non-Javadoc)
      * 
      * @see org.mule.providers.UMOConnector#createMessage(java.lang.Object)
      */
-    public Object createMessage(Object message, Session session) throws Exception
-    {
+    public Object createMessage(Object message, Session session) throws Exception {
         if (message instanceof Message) {
             return message;
         }
@@ -145,14 +144,7 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
         return msg;
     }
 
-    protected Message createMessage(String from,
-                                    String to,
-                                    String cc,
-                                    String bcc,
-                                    String subject,
-                                    String body,
-                                    Session session) throws MuleException
-    {
+    protected Message createMessage(String from, String to, String cc, String bcc, String subject, String body, Session session) throws MuleException {
         Message msg = new MimeMessage(session);
         try {
             // to
@@ -202,16 +194,14 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
         } catch (MuleException e) {
             throw e;
         } catch (MessagingException e) {
-            throw new MuleException(new org.mule.config.i18n.Message(Messages.FAILED_TO_SET_PROPERTIES_ON_X,
-                                                                     "Email message"), e);
+            throw new MuleException(new org.mule.config.i18n.Message(Messages.FAILED_TO_SET_PROPERTIES_ON_X, "Email message"), e);
         }
     }
 
     /**
      * @return
      */
-    public String getFromAddress()
-    {
+    public String getFromAddress() {
         return from;
     }
 
@@ -220,32 +210,29 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
      * 
      * @see org.mule.providers.UMOConnector#getProtocol()
      */
-    public String getProtocol()
-    {
+    public String getProtocol() {
         return "smtp";
     }
 
-    public boolean isConnected()
-    {
+    public boolean isConnected() {
         return this.connected;
     }
 
     /*
      * (non-Javadoc)
      * 
-     * @see org.mule.providers.UMOConnector#registerListener(javax.jms.MessageListener,
-     *      java.lang.String)
+     * @see
+     * org.mule.providers.UMOConnector#registerListener(javax.jms.MessageListener
+     * , java.lang.String)
      */
-    public UMOMessageReceiver createReceiver(UMOComponent component, UMOEndpoint endpoint) throws Exception
-    {
+    public UMOMessageReceiver createReceiver(UMOComponent component, UMOEndpoint endpoint) throws Exception {
         throw new UnsupportedOperationException("Listeners cannot be registered on a SMTP endpoint");
     }
 
     /*
      * @see org.mule.providers.UMOConnector#start()
      */
-    public void doStart() throws UMOException
-    {
+    public void doStart() throws UMOException {
         // force connection to server
         dispatcherFactory.create(this);
     }
@@ -255,8 +242,7 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
      * 
      * @see org.mule.providers.UMOConnector#stop()
      */
-    public void doStop() throws UMOException
-    {
+    public void doStop() throws UMOException {
         connected = false;
     }
 
@@ -265,8 +251,7 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
      * 
      * @see org.mule.providers.AbstractConnector#doDispose()
      */
-    protected void doDispose()
-    {
+    protected void doDispose() {
         try {
             doStop();
         } catch (UMOException e) {
@@ -277,114 +262,99 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
     /**
      * @return
      */
-    public String getBccAddresses()
-    {
+    public String getBccAddresses() {
         return bcc;
     }
 
     /**
      * @return
      */
-    public String getCcAddresses()
-    {
+    public String getCcAddresses() {
         return cc;
     }
 
     /**
      * @return
      */
-    public String getSubject()
-    {
+    public String getSubject() {
         return defaultSubject;
     }
 
     /**
      * @return
      */
-    public String getHostname()
-    {
+    public String getHostname() {
         return hostname;
     }
 
     /**
      * @return
      */
-    public String getPassword()
-    {
+    public String getPassword() {
         return password;
     }
 
     /**
      * @return
      */
-    public String getUsername()
-    {
+    public String getUsername() {
         return username;
     }
 
     /**
      * @param string
      */
-    public void setBccAddresses(String string)
-    {
+    public void setBccAddresses(String string) {
         bcc = string;
     }
 
     /**
      * @param string
      */
-    public void setCcAddresses(String string)
-    {
+    public void setCcAddresses(String string) {
         cc = string;
     }
 
     /**
      * @param string
      */
-    public void setSubject(String string)
-    {
+    public void setSubject(String string) {
         defaultSubject = string;
     }
 
     /**
      * @param string
      */
-    public void setFromAddress(String string)
-    {
+    public void setFromAddress(String string) {
         from = string;
     }
 
     /**
      * @param string
      */
-    public void setHostname(String string)
-    {
+    public void setHostname(String string) {
         hostname = string;
     }
 
     /**
      * @param string
      */
-    public void setPassword(String string)
-    {
+    public void setPassword(String string) {
         password = string;
     }
 
     /**
      * @param string
      */
-    public void setUsername(String string)
-    {
+    public void setUsername(String string) {
         username = string;
     }
 
-    public String getPort()
-    {
+    public String getPort() {
         return smtpPort;
     }
 
-    public void setPort(String port)
-    {
+    public void setPort(String port) {
         this.smtpPort = port;
     }
 
@@ -419,57 +389,75 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
     public void setContentType(String contentType) {
         this.contentType = contentType;
     }
-	public String getToAddresses() {
-		return to;
-	}
-	public void setToAddresses(String to) {
-		this.to = to;
-	}
-	public String getBody() {
-		return body;
-	}
-	public void setBody(String body) {
-		this.body = body;
-	}
-	public String getSmtpPort() {
-		return smtpPort;
-	}
-	public void setSmtpPort(String smtpPort) {
-		this.smtpPort = smtpPort;
-	}
+
+    public String getToAddresses() {
+        return to;
+    }
+
+    public void setToAddresses(String to) {
+        this.to = to;
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
+    }
+
+    public String getSmtpPort() {
+        return smtpPort;
+    }
+
+    public void setSmtpPort(String smtpPort) {
+        this.smtpPort = smtpPort;
+    }
+
     public List getAttachmentNames() {
         return attachmentNames;
     }
+
     public void setAttachmentNames(List attachmentNames) {
         this.attachmentNames = attachmentNames;
     }
+
     public List getAttachmentContents() {
         return attachmentContents;
     }
+
     public void setAttachmentContents(List attachmentContents) {
         this.attachmentContents = attachmentContents;
     }
+
     public List getAttachmentTypes() {
         return attachmentTypes;
     }
+
     public void setAttachmentTypes(List attachmentTypes) {
         this.attachmentTypes = attachmentTypes;
     }
-	public void setEmailSecure(String emailSecure) {
-		this.emailSecure = emailSecure;
-	}
-	public String getEmailSecure() {
-		return emailSecure;
-	}
+
+    public void setEmailSecure(String emailSecure) {
+        this.emailSecure = emailSecure;
+    }
+
+    public String getEmailSecure() {
+        return emailSecure;
+    }
+
     public boolean isUseAuthentication() {
         return useAuthentication;
     }
+
     public void setUseAuthentication(boolean useAuthentication) {
         this.useAuthentication = useAuthentication;
     }
+
     public boolean isUseServerSettings() {
         return useServerSettings;
     }
+
     public void setUseServerSettings(boolean useServerSettings) {
         this.useServerSettings = useServerSettings;
     }

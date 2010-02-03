@@ -13,7 +13,7 @@ import org.mule.umo.lifecycle.InitialisationException;
 
 /**
  * Creates a Pop3s secured connection to a pop3 mailbox
- *
+ * 
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @version $Revision: 1.1 $
  */
@@ -32,8 +32,7 @@ public class Pop3sConnector extends Pop3Connector {
         setPort(DEFAULT_POP3S_PORT);
     }
 
-    public String getProtocol()
-    {
+    public String getProtocol() {
         return "pop3s";
     }
 
@@ -43,9 +42,9 @@ public class Pop3sConnector extends Pop3Connector {
         System.setProperty("mail." + getProtocol() + ".socketFactory.class", getSocketFactory());
         System.setProperty("mail." + getProtocol() + ".socketFactory.fallback", getSocketFactoryFallback());
 
-        if(getTrustStore()!=null) {
+        if (getTrustStore() != null) {
             System.setProperty("javax.net.ssl.trustStore", getTrustStore());
-            if(getTrustStorePassword()!=null) {
+            if (getTrustStorePassword() != null) {
                 System.setProperty("javax.net.ssl.trustStorePassword", getTrustStorePassword());
             }
         }

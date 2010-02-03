@@ -9,22 +9,21 @@
 
 package com.webreach.mirth.connectors.file;
 
-import com.webreach.mirth.model.ComponentProperties;
-
 import java.util.Properties;
 
-public class FileReaderProperties implements ComponentProperties
-{
+import com.webreach.mirth.model.ComponentProperties;
+
+public class FileReaderProperties implements ComponentProperties {
     public static final String name = "File Reader";
-	
+
     public static final String DATATYPE = "DataType";
     public static final String FILE_HOST = "host";
     public static final String FILE_DIRECTORY = "directory";
     public static final String FILE_ANONYMOUS = "FTPAnonymous";
     public static final String FILE_USERNAME = "username";
     public static final String FILE_PASSWORD = "password";
-	public static final String FILE_SECURE_MODE = "secure";
-	public static final String FILE_REGEX = "regex";
+    public static final String FILE_SECURE_MODE = "secure";
+    public static final String FILE_REGEX = "regex";
     public static final String FILE_PASSIVE_MODE = "passive";
     public static final String FILE_VALIDATE_CONNECTION = "validateConnections";
     public static final String FILE_POLLING_TYPE = "pollingType";
@@ -44,16 +43,15 @@ public class FileReaderProperties implements ComponentProperties
     public static final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
     public static final String FILE_FILTER = "fileFilter";
     public static final String FILE_TYPE = "binary";
-	public static final String FILE_SCHEME = "scheme";
-	
-	public static final String SCHEME_FILE = "file";
-	public static final String SCHEME_FTP = "ftp";
-	public static final String SCHEME_SFTP = "sftp";
-	public static final String SCHEME_SMB = "smb";
-	public static final String SCHEME_WEBDAV = "webdav";
+    public static final String FILE_SCHEME = "scheme";
 
-    public Properties getDefaults()
-    {
+    public static final String SCHEME_FILE = "file";
+    public static final String SCHEME_FTP = "ftp";
+    public static final String SCHEME_SFTP = "sftp";
+    public static final String SCHEME_SMB = "smb";
+    public static final String SCHEME_WEBDAV = "webdav";
+
+    public Properties getDefaults() {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
         properties.put(FILE_SCHEME, SCHEME_FILE);
@@ -62,8 +60,8 @@ public class FileReaderProperties implements ComponentProperties
         properties.put(FILE_ANONYMOUS, "1");
         properties.put(FILE_USERNAME, "anonymous");
         properties.put(FILE_PASSWORD, "anonymous");
-	    properties.put(FILE_SECURE_MODE, "1");
-	    properties.put(FILE_REGEX, "0");
+        properties.put(FILE_SECURE_MODE, "1");
+        properties.put(FILE_REGEX, "0");
         properties.put(FILE_PASSIVE_MODE, "1");
         properties.put(FILE_VALIDATE_CONNECTION, "1");
         properties.put(FILE_POLLING_TYPE, "interval");

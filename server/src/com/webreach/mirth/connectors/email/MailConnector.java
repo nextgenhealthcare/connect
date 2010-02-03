@@ -14,18 +14,18 @@ import javax.mail.Authenticator;
 import org.mule.umo.provider.UMOConnector;
 
 /**
- * Implemented by  mail connectors to provide Mule with a Mail authenticator object
- *
+ * Implemented by mail connectors to provide Mule with a Mail authenticator
+ * object
+ * 
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @version $Revision: 1.7 $
  */
-public interface MailConnector extends UMOConnector
- {
+public interface MailConnector extends UMOConnector {
     public Authenticator getAuthenticator();
 
     public String getPort();
-    
+
     public String getEmailSecure();
-    
+
     public boolean isUseAuthentication();
 }

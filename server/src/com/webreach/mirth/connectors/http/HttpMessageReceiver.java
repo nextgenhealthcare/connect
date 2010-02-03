@@ -61,19 +61,19 @@ import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
 
 /**
- * <code>HttpMessageReceiver</code> is a simple http server that can be used
- * to listen for http requests on a particular port
- *
+ * <code>HttpMessageReceiver</code> is a simple http server that can be used to
+ * listen for http requests on a particular port
+ * 
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @version $Revision: 1.46 $
  */
 public class HttpMessageReceiver extends TcpMessageReceiver {
-    //private ExpiryMonitor keepAliveMonitor;
+    // private ExpiryMonitor keepAliveMonitor;
     private AlertController alertController = ControllerFactory.getFactory().createAlertController();
-	private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
-	private ConnectorType connectorType = ConnectorType.LISTENER;
-    public HttpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint)
-            throws InitialisationException {
+    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
+    private ConnectorType connectorType = ConnectorType.LISTENER;
+
+    public HttpMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
         super(connector, component, endpoint);
     }
 
@@ -82,8 +82,8 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
     }
 
     public void doConnect() throws ConnectException {
-        //If we already have an endpoint listening on this socket don't try and
-        //start another serversocket
+        // If we already have an endpoint listening on this socket don't try and
+        // start another serversocket
         if (shouldConnect()) {
             super.doConnect();
             monitoringController.updateStatus(this.getConnector(), connectorType, Event.INITIALIZED);
@@ -107,15 +107,16 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
     }
 
     public void doDispose() {
-//        if (keepAliveMonitor != null) {
-//            keepAliveMonitor.dispose();
-//        }
-    	monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED);
+        // if (keepAliveMonitor != null) {
+        // keepAliveMonitor.dispose();
+        // }
+        monitoringController.updateStatus(connector, connectorType, Event.DISCONNECTED);
         super.doDispose();
     }
 
     private class HttpWorker extends TcpWorker implements Expirable {
-    	HttpConnector httpConnector = ((HttpConnector) connector);
+        HttpConnector httpConnector = ((HttpConnector) connector);
+
         public HttpWorker(Socket socket) throws SocketException {
             super(socket);
             boolean keepAlive = httpConnector.isKeepAlive();
@@ -127,23 +128,23 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
         }
 
         public void run() {
-        	
-        	boolean keepAlive = httpConnector.isKeepAlive();
+
+            boolean keepAlive = httpConnector.isKeepAlive();
             try {
-            	monitoringController.updateStatus(httpConnector, connectorType, Event.BUSY, socket);
+                monitoringController.updateStatus(httpConnector, connectorType, Event.BUSY, socket);
                 dataIn = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
                 dataOut = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-                
+
                 do {
                     Properties headers = new Properties();
                     Object payload = null;
                     payload = parseRequest(dataIn, dataOut, headers, httpConnector.isExtendedPayload());
-                    
+
                     if (payload == null) {
                         break;
                     }
-                    
-                    UMOMessageAdapter adapter = connector.getMessageAdapter(new Object[]{payload, headers});
+
+                    UMOMessageAdapter adapter = connector.getMessageAdapter(new Object[] { payload, headers });
                     adapter.setProperty("receiverSocket", socket);
                     UMOMessage message = new MuleMessage(adapter);
 
@@ -152,23 +153,25 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
                     }
                     OutputStream os = new ResponseOutputStream(dataOut, socket);
 
-                    //determine if the request path on this request denotes a different receiver
+                    // determine if the request path on this request denotes a
+                    // different receiver
                     AbstractMessageReceiver receiver = getTargetReceiver(message, endpoint);
 
                     UMOMessage returnMessage = null;
-                    //the respone only needs to be transformed explicitly if A) the request was not served or a null result was returned
+                    // the respone only needs to be transformed explicitly if A)
+                    // the request was not served or a null result was returned
                     boolean transformResponse = false;
                     if (receiver != null) {
-                    	
-                		try{
-                			returnMessage = receiver.routeMessage(message, endpoint.isSynchronous(), os);
-                		}catch (Exception e){
-                			logger.error(e);
-                			transformResponse = true;
-                			returnMessage = new MuleMessage(new Message(Messages.ROUTING_ERROR).toString());
+
+                        try {
+                            returnMessage = receiver.routeMessage(message, endpoint.isSynchronous(), os);
+                        } catch (Exception e) {
+                            logger.error(e);
+                            transformResponse = true;
+                            returnMessage = new MuleMessage(new Message(Messages.ROUTING_ERROR).toString());
                             returnMessage.setIntProperty(HttpConnector.HTTP_STATUS_PROPERTY, HttpConstants.SC_INTERNAL_SERVER_ERROR);
                             RequestContext.setEvent(new MuleEvent(returnMessage, endpoint, new MuleSession(), true));
-                		}
+                        }
                         if (returnMessage == null) {
                             returnMessage = new MuleMessage("");
                             transformResponse = true;
@@ -176,9 +179,7 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
                         }
                     } else {
                         transformResponse = true;
-                        String failedPath = endpoint.getEndpointURI().getScheme() + "://" +
-                                endpoint.getEndpointURI().getHost() + ":" + endpoint.getEndpointURI().getPort() +
-                                getRequestPath(message);
+                        String failedPath = endpoint.getEndpointURI().getScheme() + "://" + endpoint.getEndpointURI().getHost() + ":" + endpoint.getEndpointURI().getPort() + getRequestPath(message);
 
                         logger.debug("Failed to bind to " + failedPath);
                         returnMessage = new MuleMessage(new Message(Messages.CANNOT_BIND_TO_ADDRESS_X, failedPath).toString());
@@ -186,8 +187,8 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
                         RequestContext.setEvent(new MuleEvent(returnMessage, endpoint, new MuleSession(), true));
                     }
                     Object response = returnMessage.getPayload();
-                    
-                    if(transformResponse) {
+
+                    if (transformResponse) {
                         response = connector.getDefaultResponseTransformer().transform(response);
                     }
 
@@ -203,7 +204,7 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
                     logger.debug("Peer closed connection");
                 }
             } catch (Exception e) {
-            	alertController.sendAlerts(((HttpConnector) connector).getChannelId(), Constants.ERROR_404, null, e);
+                alertController.sendAlerts(((HttpConnector) connector).getChannelId(), Constants.ERROR_404, null, e);
                 handleException(e);
             } finally {
                 dispose();
@@ -214,37 +215,39 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
             logger.debug("Keep alive timed out");
             dispose();
         }
-        
-        public void dispose(){
-        	monitoringController.updateStatus(httpConnector, connectorType, Event.DISCONNECTED, socket);
-        	super.dispose();
+
+        public void dispose() {
+            monitoringController.updateStatus(httpConnector, connectorType, Event.DISCONNECTED, socket);
+            super.dispose();
         }
     }
 
     protected String getRequestPath(UMOMessage message) {
         String path = (String) message.getProperty(HttpConnector.HTTP_REQUEST_PROPERTY);
         int i = path.indexOf("?");
-        if (i > -1) path = path.substring(0, i);
+        if (i > -1)
+            path = path.substring(0, i);
         return path;
     }
-
 
     protected AbstractMessageReceiver getTargetReceiver(UMOMessage message, UMOEndpoint endpoint) throws ConnectException {
 
         String path = (String) message.getProperty(HttpConnector.HTTP_REQUEST_PROPERTY);
         int i = path.indexOf("?");
-        if (i > -1) path = path.substring(0, i);
+        if (i > -1)
+            path = path.substring(0, i);
 
         StringBuffer requestUri = new StringBuffer();
         requestUri.append(endpoint.getProtocol()).append("://");
         requestUri.append(endpoint.getEndpointURI().getHost());
         requestUri.append(":").append(endpoint.getEndpointURI().getPort());
-        //first check there is a receive on the root address
+        // first check there is a receive on the root address
         AbstractMessageReceiver receiver = connector.getReceiver(requestUri.toString());
-        //If no receiver on the root and there is a request path, look up the received based on the
-        //root plus request path
+        // If no receiver on the root and there is a request path, look up the
+        // received based on the
+        // root plus request path
         if (receiver == null && !"/".equals(path)) {
-            //remove anything after the last '/'
+            // remove anything after the last '/'
             int x = path.lastIndexOf("/");
             if (x > 1 && path.indexOf(".") > x) {
                 requestUri.append(path.substring(0, x));
@@ -258,7 +261,7 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
 
     protected Object parseRequest(InputStream is, DataOutputStream dataOut, Properties p, boolean includeHTTPElements) throws IOException {
         RequestInputStream req = new RequestInputStream(is);
-        HttpConnector httpConnector = (HttpConnector)connector;
+        HttpConnector httpConnector = (HttpConnector) connector;
         Object payload = null;
         String startLine = null;
         do {
@@ -267,7 +270,8 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
             } catch (IOException e) {
                 logger.error(e.getMessage());
             }
-            if (startLine == null) return null;
+            if (startLine == null)
+                return null;
         } while (startLine.trim().length() == 0);
 
         StringTokenizer tokenizer = new StringTokenizer(startLine);
@@ -282,26 +286,26 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
         // Read headers from the request as set them as properties on the event
         readHeaders(req, p);
         StringBuilder propertyString = new StringBuilder();
-        for (Iterator<Entry<Object,Object>> iter = p.entrySet().iterator(); iter.hasNext();) {
-			Entry<Object,Object> element = iter.next();
-			propertyString.append(element.getKey().toString());
-			propertyString.append("=");
-			propertyString.append(element.getValue());
-			if (iter.hasNext()){
-				propertyString.append("&");
-			}
-		}
+        for (Iterator<Entry<Object, Object>> iter = p.entrySet().iterator(); iter.hasNext();) {
+            Entry<Object, Object> element = iter.next();
+            propertyString.append(element.getKey().toString());
+            propertyString.append("=");
+            propertyString.append(element.getValue());
+            if (iter.hasNext()) {
+                propertyString.append("&");
+            }
+        }
         if (method.equals(HttpConstants.METHOD_GET)) {
-        	if (includeHTTPElements){
-        		return propertyString.toString().getBytes();
-        	}else{
-        		payload = request.getBytes();
-        	}
+            if (includeHTTPElements) {
+                return propertyString.toString().getBytes();
+            } else {
+                payload = request.getBytes();
+            }
         } else {
-        	//Handle HTTP/1.1 100 Continue requirement
-        	if (p.get("Expect") != null && p.get("Expect").equals("100-continue")){
-            	dataOut.write(("HTTP/1.1 100 Continue\r\n\r\n").getBytes());
-            	dataOut.flush();
+            // Handle HTTP/1.1 100 Continue requirement
+            if (p.get("Expect") != null && p.get("Expect").equals("100-continue")) {
+                dataOut.write(("HTTP/1.1 100 Continue\r\n\r\n").getBytes());
+                dataOut.flush();
             }
             boolean multipart = p.getProperty(HttpConstants.HEADER_CONTENT_TYPE, "").indexOf("multipart/related") > -1;
             String contentLengthHeader = p.getProperty(HttpConstants.HEADER_CONTENT_LENGTH, null);
@@ -317,7 +321,8 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
                 int length = 0;
                 ChunkedInputStream cis = new ChunkedInputStream(req);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                //ast: change the chunked method to avoid original mule limitation of 32768 bytes
+                // ast: change the chunked method to avoid original mule
+                // limitation of 32768 bytes
                 do {
                     length = cis.read(buffer, 0, buffer.length);
                     if (length >= 0) {
@@ -325,12 +330,12 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
                         totalLength += length;
                     }
                 } while (length >= 0);
-                
+
                 if ((length == -1) && (totalLength == 0)) {
                     return null;
                 }
-                
-                payload = baos.toByteArray(); 
+
+                payload = baos.toByteArray();
             } else {
                 int contentLength = Integer.parseInt(contentLengthHeader);
 
@@ -353,7 +358,7 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
                     }
                     os.close();
                 } else {
-                	
+
                     byte[] buffer = new byte[contentLength];
 
                     int length = -1;
@@ -369,23 +374,23 @@ public class HttpMessageReceiver extends TcpMessageReceiver {
                 }
             }
         }
-        
-        if (payload != null && payload instanceof byte[] && includeHTTPElements){
-        	if (httpConnector.isAppendPayload()){
-        		propertyString.append("&payload=");
-        	}else{
-        		propertyString.append("&");
-        	}
-        	String payloadEncoding = httpConnector.getPayloadEncoding();
-        	if (payloadEncoding == null || payloadEncoding.equalsIgnoreCase(HTTPListenerProperties.PAYLOAD_ENCODING_NONE)){
-        		propertyString.append(new String((byte[])payload));
-        	}else if (payloadEncoding.equalsIgnoreCase(HTTPListenerProperties.PAYLOAD_ENCODING_ENCODE)){
-        		propertyString.append(URLEncoder.encode(new String((byte[])payload)));
-        	}else if (payloadEncoding.equalsIgnoreCase(HTTPListenerProperties.PAYLOAD_ENCODING_DECODE)){
-        		propertyString.append(URLDecoder.decode(new String((byte[])payload)));
-        	}
-        	
-        	payload = propertyString.toString().getBytes();
+
+        if (payload != null && payload instanceof byte[] && includeHTTPElements) {
+            if (httpConnector.isAppendPayload()) {
+                propertyString.append("&payload=");
+            } else {
+                propertyString.append("&");
+            }
+            String payloadEncoding = httpConnector.getPayloadEncoding();
+            if (payloadEncoding == null || payloadEncoding.equalsIgnoreCase(HTTPListenerProperties.PAYLOAD_ENCODING_NONE)) {
+                propertyString.append(new String((byte[]) payload));
+            } else if (payloadEncoding.equalsIgnoreCase(HTTPListenerProperties.PAYLOAD_ENCODING_ENCODE)) {
+                propertyString.append(URLEncoder.encode(new String((byte[]) payload)));
+            } else if (payloadEncoding.equalsIgnoreCase(HTTPListenerProperties.PAYLOAD_ENCODING_DECODE)) {
+                propertyString.append(URLDecoder.decode(new String((byte[]) payload)));
+            }
+
+            payload = propertyString.toString().getBytes();
         }
         return payload;
     }

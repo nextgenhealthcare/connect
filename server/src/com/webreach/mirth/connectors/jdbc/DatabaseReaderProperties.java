@@ -1,27 +1,11 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1
+/*
+ * Copyright (c) Mirth Corporation. All rights reserved.
+ * http://www.mirthcorp.com
  *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Mirth.
- *
- * The Initial Developer of the Original Code is
- * WebReach, Inc.
- * Portions created by the Initial Developer are Copyright (C) 2006
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *   Gerald Bortis <geraldb@webreachinc.com>
- *
- * ***** END LICENSE BLOCK ***** */
+ * The software in this package is published under the terms of the MPL
+ * license a copy of which has been included with this distribution in
+ * the LICENSE.txt file.
+ */
 
 package com.webreach.mirth.connectors.jdbc;
 
@@ -29,10 +13,9 @@ import java.util.Properties;
 
 import com.webreach.mirth.model.ComponentProperties;
 
-public class DatabaseReaderProperties implements ComponentProperties
-{
-	public static final String name = "Database Reader";
-	
+public class DatabaseReaderProperties implements ComponentProperties {
+    public static final String name = "Database Reader";
+
     public static final String DATATYPE = "DataType";
     public static final String DATABASE_HOST = "host";
     public static final String DATABASE_HOST_VALUE = "query";
@@ -50,9 +33,8 @@ public class DatabaseReaderProperties implements ComponentProperties
     public static final String DATABASE_USE_ACK = "useAck";
     public static final String DATABASE_ACK = "ack";
     public static final String DATABASE_JS_ACK = "ackScript";
- 
-    public Properties getDefaults()
-    {
+
+    public Properties getDefaults() {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
         properties.put(DATABASE_HOST, DATABASE_HOST_VALUE);

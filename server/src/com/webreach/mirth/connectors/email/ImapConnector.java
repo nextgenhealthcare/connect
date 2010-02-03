@@ -11,7 +11,7 @@ package com.webreach.mirth.connectors.email;
 
 /**
  * Receives messages from an Imap mailbox
- *
+ * 
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @version $Revision: 1.2 $
  */
@@ -23,8 +23,7 @@ public class ImapConnector extends Pop3Connector {
         setPort(DEFAULT_IMAP_PORT);
     }
 
-    public String getProtocol()
-    {
+    public String getProtocol() {
         return "imap";
     }
 }

@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) SymphonySoft Limited. All rights reserved.
+ * http://www.symphonysoft.com
+ *
+ * The software in this package is published under the terms of the BSD
+ * style license a copy of which has been included with this distribution in
+ * the LICENSE-MULE.txt file.
+ */
+
 package com.webreach.mirth.connectors.jdbc;
 
 import java.sql.Connection;
@@ -84,14 +93,14 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
                 } else {
                     compiledScript.exec(context, scope);
                     String response = "Database write success";
-                    
+
                     // the user could write Javascript that sets the response
                     // for this connector
                     // if that's the case, then let's save it
                     if (messageObject.getResponseMap().containsKey(messageObject.getConnectorName())) {
                         response = (String) messageObject.getResponseMap().get(messageObject.getConnectorName());
                     }
-                    
+
                     messageObjectController.setSuccess(messageObject, response, null);
                 }
             } else {
@@ -115,13 +124,14 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
                 writeStmt = JdbcUtils.parseStatement(writeStmt, paramNames);
                 Object[] paramValues = JdbcUtils.getParams(endpointURI, paramNames, messageObject);
                 connection = connector.getConnection(messageObject);
-                
+
                 int numRows = -1;
                 try {
                     numRows = new QueryRunner().update(connection, writeStmt, paramValues);
                 } catch (SQLException e) {
-                    // If the connection was closed, get a new connection and try again
-                    if (connection.isClosed()) { 
+                    // If the connection was closed, get a new connection and
+                    // try again
+                    if (connection.isClosed()) {
                         connection = connector.getConnection(messageObject);
                         numRows = new QueryRunner().update(connection, writeStmt, paramValues);
                     } else {
@@ -191,7 +201,7 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
                     if (logger.isDebugEnabled()) {
                         logger.debug("No results, sleeping for " + sleep);
                     }
-                    
+
                     Thread.sleep(sleep);
                 } else {
                     logger.debug("Timeout");

@@ -31,124 +31,125 @@ import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
 import com.webreach.mirth.server.controllers.MonitoringController.Event;
 
 public class FileMessageDispatcher extends AbstractMessageDispatcher {
-	private FileConnector connector;
+    private FileConnector connector;
 
-	private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
-	private AlertController alertController = ControllerFactory.getFactory().createAlertController();
-	private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
-	private ConnectorType connectorType = ConnectorType.WRITER;
-	public FileMessageDispatcher(FileConnector connector) {
-		super(connector);
-		this.connector = connector;
-		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
-	}
+    private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
+    private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
+    private ConnectorType connectorType = ConnectorType.WRITER;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.mule.umo.provider.UMOConnectorSession#dispatch(org.mule.umo.UMOEvent)
-	 */
-	public void doDispatch(UMOEvent event) throws Exception {
-		
-		monitoringController.updateStatus(connector, connectorType, Event.BUSY);
-		TemplateValueReplacer replacer = new TemplateValueReplacer();
-		
-		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
-		if (messageObject == null) {
-			return;
-		}
+    public FileMessageDispatcher(FileConnector connector) {
+        super(connector);
+        this.connector = connector;
+        monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
+    }
 
-		Object data = null;
-		FileSystemConnection con = null;
-		UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
-		try {
-			String filename = (String) event.getProperty(FileConnector.PROPERTY_FILENAME);
-			if (filename == null) {
-				String pattern = (String) event.getProperty(FileConnector.PROPERTY_OUTPUT_PATTERN);
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.mule.umo.provider.UMOConnectorSession#dispatch(org.mule.umo.UMOEvent)
+     */
+    public void doDispatch(UMOEvent event) throws Exception {
 
-				if (pattern == null) {
-					pattern = connector.getOutputPattern();
-				}
+        monitoringController.updateStatus(connector, connectorType, Event.BUSY);
+        TemplateValueReplacer replacer = new TemplateValueReplacer();
 
-				filename = generateFilename(event, pattern, messageObject);
-			}
+        MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
+        if (messageObject == null) {
+            return;
+        }
 
-			if (filename == null) {
-				messageObjectController.setError(messageObject, Constants.ERROR_403, "Filename is null", null, null);
-				throw new IOException("Filename is null");
-			}
+        Object data = null;
+        FileSystemConnection con = null;
+        UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
+        try {
+            String filename = (String) event.getProperty(FileConnector.PROPERTY_FILENAME);
+            if (filename == null) {
+                String pattern = (String) event.getProperty(FileConnector.PROPERTY_OUTPUT_PATTERN);
 
-			String path = generateFilename(event, connector.getPathPart(uri), messageObject);
-			String template = replacer.replaceValues(connector.getTemplate(), messageObject);
+                if (pattern == null) {
+                    pattern = connector.getOutputPattern();
+                }
 
-			// ast: change the output method to allow encoding election
-			// if (connector.isOutputAppend())
-			// template+=System.getProperty("line.separator");
-			// don't automatically include line break
-			byte[] buffer = null;
-			if (connector.isBinary()) {
-				buffer = new Base64().decode(template.getBytes());
-			} else {
-				buffer = template.getBytes(connector.getCharsetEncoding());
-			}
-			//logger.info("Writing file to: " + file.getAbsolutePath());
-			con = connector.getConnection(uri, messageObject);
-			con.writeFile(filename, path, connector.isOutputAppend(), buffer);
+                filename = generateFilename(event, pattern, messageObject);
+            }
 
-			// update the message status to sent
-			messageObjectController.setSuccess(messageObject, "File successfully written: " + filename, null);
-		} catch (Exception e) {
-			alertController.sendAlerts(((FileConnector) connector).getChannelId(), Constants.ERROR_403, "Error writing file", e);
-			messageObjectController.setError(messageObject, Constants.ERROR_403, "Error writing file", e, null);
-			connector.handleException(e);
-		} finally {
-			if (con != null) {
-				connector.releaseConnection(uri, con, messageObject);
-			}
-			monitoringController.updateStatus(connector, connectorType, Event.DONE);
-		}
-	}
+            if (filename == null) {
+                messageObjectController.setError(messageObject, Constants.ERROR_403, "Filename is null", null, null);
+                throw new IOException("Filename is null");
+            }
 
-	/**
-	 * Will attempt to do a receive from a directory, if the endpointUri
-	 * resolves to a file name the file will be returned, otherwise the first
-	 * file in the directory according to the filename filter configured on the
-	 * connector.
-	 * 
-	 * TODO: This method is not implemented by the FTP or SFTP message
-	 * dispatchers. Is it actually used?
-	 * 
-	 * @param endpointUri
-	 *            a path to a file or directory
-	 * @param timeout
-	 *            this is ignored when doing a receive on this dispatcher
-	 * @return a message containing file contents or null if there was nothing
-	 *         to receive
-	 * @throws Exception
-	 */
-	public UMOMessage receive(UMOEndpointURI endpointUri, long timeout) throws Exception {
-		return null;
-	}
+            String path = generateFilename(event, connector.getPathPart(uri), messageObject);
+            String template = replacer.replaceValues(connector.getTemplate(), messageObject);
 
-	public UMOMessage doSend(UMOEvent event) throws Exception {
-		doDispatch(event);
-		return event.getMessage();
-	}
+            // ast: change the output method to allow encoding election
+            // if (connector.isOutputAppend())
+            // template+=System.getProperty("line.separator");
+            // don't automatically include line break
+            byte[] buffer = null;
+            if (connector.isBinary()) {
+                buffer = new Base64().decode(template.getBytes());
+            } else {
+                buffer = template.getBytes(connector.getCharsetEncoding());
+            }
+            // logger.info("Writing file to: " + file.getAbsolutePath());
+            con = connector.getConnection(uri, messageObject);
+            con.writeFile(filename, path, connector.isOutputAppend(), buffer);
 
-	public Object getDelegateSession() throws UMOException {
-		return null;
-	}
+            // update the message status to sent
+            messageObjectController.setSuccess(messageObject, "File successfully written: " + filename, null);
+        } catch (Exception e) {
+            alertController.sendAlerts(((FileConnector) connector).getChannelId(), Constants.ERROR_403, "Error writing file", e);
+            messageObjectController.setError(messageObject, Constants.ERROR_403, "Error writing file", e, null);
+            connector.handleException(e);
+        } finally {
+            if (con != null) {
+                connector.releaseConnection(uri, con, messageObject);
+            }
+            monitoringController.updateStatus(connector, connectorType, Event.DONE);
+        }
+    }
 
-	public void doDispose() {
-	}
+    /**
+     * Will attempt to do a receive from a directory, if the endpointUri
+     * resolves to a file name the file will be returned, otherwise the first
+     * file in the directory according to the filename filter configured on the
+     * connector.
+     * 
+     * TODO: This method is not implemented by the FTP or SFTP message
+     * dispatchers. Is it actually used?
+     * 
+     * @param endpointUri
+     *            a path to a file or directory
+     * @param timeout
+     *            this is ignored when doing a receive on this dispatcher
+     * @return a message containing file contents or null if there was nothing
+     *         to receive
+     * @throws Exception
+     */
+    public UMOMessage receive(UMOEndpointURI endpointUri, long timeout) throws Exception {
+        return null;
+    }
 
-	private String generateFilename(UMOEvent event, String pattern, MessageObject messageObject) {
-		if (connector.getFilenameParser() instanceof VariableFilenameParser) {
-			VariableFilenameParser filenameParser = (VariableFilenameParser) connector.getFilenameParser();
-			filenameParser.setMessageObject(messageObject);
-			return filenameParser.getFilename(event.getMessage(), pattern);
-		} else {
-			return connector.getFilenameParser().getFilename(event.getMessage(), pattern);
-		}
-	}
+    public UMOMessage doSend(UMOEvent event) throws Exception {
+        doDispatch(event);
+        return event.getMessage();
+    }
+
+    public Object getDelegateSession() throws UMOException {
+        return null;
+    }
+
+    public void doDispose() {}
+
+    private String generateFilename(UMOEvent event, String pattern, MessageObject messageObject) {
+        if (connector.getFilenameParser() instanceof VariableFilenameParser) {
+            VariableFilenameParser filenameParser = (VariableFilenameParser) connector.getFilenameParser();
+            filenameParser.setMessageObject(messageObject);
+            return filenameParser.getFilename(event.getMessage(), pattern);
+        } else {
+            return connector.getFilenameParser().getFilename(event.getMessage(), pattern);
+        }
+    }
 }

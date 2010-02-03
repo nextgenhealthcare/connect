@@ -19,15 +19,15 @@ import org.mule.umo.provider.UMOMessageDispatcherFactory;
  * 
  * @author Ross Mason
  */
-public class HttpClientMessageDispatcherFactory implements UMOMessageDispatcherFactory
-{
+public class HttpClientMessageDispatcherFactory implements UMOMessageDispatcherFactory {
     /*
      * (non-Javadoc)
      * 
-     * @see org.mule.umo.provider.UMOConnectorSessionFactory#create(org.mule.umo.provider.UMOConnector)
+     * @see
+     * org.mule.umo.provider.UMOConnectorSessionFactory#create(org.mule.umo.
+     * provider.UMOConnector)
      */
-    public UMOMessageDispatcher create(UMOConnector connector) throws UMOException
-    {
+    public UMOMessageDispatcher create(UMOConnector connector) throws UMOException {
         return new HttpClientMessageDispatcher((HttpConnector) connector);
     }
 }

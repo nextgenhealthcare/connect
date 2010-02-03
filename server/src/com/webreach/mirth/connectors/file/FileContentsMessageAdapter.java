@@ -27,7 +27,7 @@ public class FileContentsMessageAdapter extends AbstractMessageAdapter {
         } else if (message instanceof byte[]) {
             setMessage((byte[]) message);
         } else if (message instanceof String) {
-        	 setMessage(StringMessageHelper.getBytes((String)message)); 
+            setMessage(StringMessageHelper.getBytes((String) message));
         } else {
             throw new MessageTypeNotSupportedException(message, getClass());
         }

@@ -54,223 +54,229 @@ import com.webreach.mirth.server.controllers.ControllerFactory;
  */
 
 public class Pop3MessageReceiver extends PollingMessageReceiver implements MessageCountListener, Startable, Stoppable {
-	private Folder folder = null;
-	private String backupFolder = null;
-	protected Session session;
-	private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+    private Folder folder = null;
+    private String backupFolder = null;
+    protected Session session;
+    private AlertController alertController = ControllerFactory.getFactory().createAlertController();
 
-	public Pop3MessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, Long checkFrequency, String backupFolder) throws InitialisationException {
-		super(connector, component, endpoint, checkFrequency);
+    public Pop3MessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, Long checkFrequency, String backupFolder) throws InitialisationException {
+        super(connector, component, endpoint, checkFrequency);
 
-		if ("".equals(backupFolder)) {
-			this.backupFolder = MuleManager.getConfiguration().getWorkingDirectory() + "/mail/" + folder.getName();
-		} else {
-			this.backupFolder = backupFolder;
-		}
-		if (backupFolder != null && !this.backupFolder.endsWith(File.separator)) {
-			this.backupFolder += File.separator;
-		}
-	}
+        if ("".equals(backupFolder)) {
+            this.backupFolder = MuleManager.getConfiguration().getWorkingDirectory() + "/mail/" + folder.getName();
+        } else {
+            this.backupFolder = backupFolder;
+        }
+        if (backupFolder != null && !this.backupFolder.endsWith(File.separator)) {
+            this.backupFolder += File.separator;
+        }
+    }
 
-	public void doConnect() throws Exception {
-		String inbox = null;
-		if (connector.getProtocol().equalsIgnoreCase("imap")) {
-			inbox = endpoint.getEndpointURI().getPath();
-			if (inbox.length() == 0) {
-				inbox = Pop3Connector.MAILBOX;
-			} else {
-				inbox = inbox.substring(1);
-			}
-		} else {
-			inbox = Pop3Connector.MAILBOX;
-		}
+    public void doConnect() throws Exception {
+        String inbox = null;
+        if (connector.getProtocol().equalsIgnoreCase("imap")) {
+            inbox = endpoint.getEndpointURI().getPath();
+            if (inbox.length() == 0) {
+                inbox = Pop3Connector.MAILBOX;
+            } else {
+                inbox = inbox.substring(1);
+            }
+        } else {
+            inbox = Pop3Connector.MAILBOX;
+        }
 
-		URLName url = new URLName(endpoint.getEndpointURI().getScheme(), endpoint.getEndpointURI().getHost(), endpoint.getEndpointURI().getPort(), inbox, endpoint.getEndpointURI().getUsername(), endpoint.getEndpointURI().getPassword());
+        URLName url = new URLName(endpoint.getEndpointURI().getScheme(), endpoint.getEndpointURI().getHost(), endpoint.getEndpointURI().getPort(), inbox, endpoint.getEndpointURI().getUsername(), endpoint.getEndpointURI().getPassword());
 
-		session = MailUtils.createMailSession(url, (MailConnector) connector);
-		session.setDebug(logger.isDebugEnabled());
+        session = MailUtils.createMailSession(url, (MailConnector) connector);
+        session.setDebug(logger.isDebugEnabled());
 
-		Store store = session.getStore(url);
-		store.connect();
-		folder = store.getFolder(inbox);
-	}
+        Store store = session.getStore(url);
+        store.connect();
+        folder = store.getFolder(inbox);
+    }
 
-	public void doDisconnect() throws Exception {
-		if (folder != null)
-			folder.close(true);
-	}
+    public void doDisconnect() throws Exception {
+        if (folder != null)
+            folder.close(true);
+    }
 
-	public void doStop() {
-		folder.removeMessageCountListener(this);
-	}
+    public void doStop() {
+        folder.removeMessageCountListener(this);
+    }
 
-	public void doStart() throws UMOException {
-		super.doStart();
-		folder.addMessageCountListener(this);
-	}
+    public void doStart() throws UMOException {
+        super.doStart();
+        folder.addMessageCountListener(this);
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.mail.event.MessageCountListener#messagesAdded(javax.mail.event.MessageCountEvent)
-	 */
-	public void messagesAdded(MessageCountEvent event) {
-		Message messages[] = event.getMessages();
-		UMOMessage message = null;
-		for (int i = 0; i < messages.length; i++) {
-			try {
-				if (!messages[i].getFlags().contains(Flags.Flag.DELETED)) {
-					MimeMessage mimeMessage = new MimeMessage((MimeMessage) messages[i]);
-					storeMessage(mimeMessage);
-					message = new MuleMessage(connector.getMessageAdapter(mimeMessage));
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * javax.mail.event.MessageCountListener#messagesAdded(javax.mail.event.
+     * MessageCountEvent)
+     */
+    public void messagesAdded(MessageCountEvent event) {
+        Message messages[] = event.getMessages();
+        UMOMessage message = null;
+        for (int i = 0; i < messages.length; i++) {
+            try {
+                if (!messages[i].getFlags().contains(Flags.Flag.DELETED)) {
+                    MimeMessage mimeMessage = new MimeMessage((MimeMessage) messages[i]);
+                    storeMessage(mimeMessage);
+                    message = new MuleMessage(connector.getMessageAdapter(mimeMessage));
 
-					// Mark as deleted
-					messages[i].setFlag(Flags.Flag.DELETED, true);
-					routeMessage(message, endpoint.isSynchronous());
-				}
-			} catch (UMOException e) {
-				handleException(e);
-			} catch (Exception e) {
-				handleException(new RoutingException(new org.mule.config.i18n.Message(Messages.ROUTING_ERROR), message, endpoint, e));
-			}
-		}
-	}
+                    // Mark as deleted
+                    messages[i].setFlag(Flags.Flag.DELETED, true);
+                    routeMessage(message, endpoint.isSynchronous());
+                }
+            } catch (UMOException e) {
+                handleException(e);
+            } catch (Exception e) {
+                handleException(new RoutingException(new org.mule.config.i18n.Message(Messages.ROUTING_ERROR), message, endpoint, e));
+            }
+        }
+    }
 
-	protected UMOMessage handleUnacceptedFilter(UMOMessage message) {
-		super.handleUnacceptedFilter(message);
-		if (message.getPayload() instanceof Message) {
-			Message msg = (Message) message.getPayload();
-			try {
-				msg.setFlag(Flags.Flag.DELETED, endpoint.isDeleteUnacceptedMessages());
-			} catch (MessagingException e) {
-				logger.error("failled to set message deleted: " + e.getMessage(), e);
-			}
-		}
-		return null;
-	}
+    protected UMOMessage handleUnacceptedFilter(UMOMessage message) {
+        super.handleUnacceptedFilter(message);
+        if (message.getPayload() instanceof Message) {
+            Message msg = (Message) message.getPayload();
+            try {
+                msg.setFlag(Flags.Flag.DELETED, endpoint.isDeleteUnacceptedMessages());
+            } catch (MessagingException e) {
+                logger.error("failled to set message deleted: " + e.getMessage(), e);
+            }
+        }
+        return null;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see javax.mail.event.MessageCountListener#messagesRemoved(javax.mail.event.MessageCountEvent)
-	 */
-	public void messagesRemoved(MessageCountEvent event) {
-		if (logger.isDebugEnabled()) {
-			Message messages[] = event.getMessages();
-			for (int i = 0; i < messages.length; i++) {
-				try {
-					logger.debug("Message removed: " + messages[i].getSubject());
-				} catch (MessagingException ignore) {
-				}
-			}
-		}
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * javax.mail.event.MessageCountListener#messagesRemoved(javax.mail.event
+     * .MessageCountEvent)
+     */
+    public void messagesRemoved(MessageCountEvent event) {
+        if (logger.isDebugEnabled()) {
+            Message messages[] = event.getMessages();
+            for (int i = 0; i < messages.length; i++) {
+                try {
+                    logger.debug("Message removed: " + messages[i].getSubject());
+                } catch (MessagingException ignore) {
+                }
+            }
+        }
+    }
 
-	/**
-	 * @return
-	 */
-	public Folder getFolder() {
-		return folder;
-	}
+    /**
+     * @return
+     */
+    public Folder getFolder() {
+        return folder;
+    }
 
-	/**
-	 * @param folder
-	 */
-	public synchronized void setFolder(Folder folder) {
-		if (folder == null)
-			throw new IllegalArgumentException("Mail folder cannot be null");
-		this.folder = folder;
-		synchronized (this.folder) {
-			if (!this.folder.isOpen()) {
-				try {
-					// Depending on Server implementation it's not always
-					// necessary
-					// to open the folder to check it
-					// Opening folders can be exprensive!
-					// folder.open(Folder.READ_ONLY);
-					this.folder.open(Folder.READ_WRITE);
-				} catch (MessagingException e) {
-					logger.warn("Failed to open folder: " + folder.getFullName(), e);
-				}
-				// try
-				// {
-				// folder.close(true);
-				// }
-				// catch (MessagingException me)
-				// {
-				// logger.warn("Failed to close folder: " +
-				// folder.getFullName(), me);
-				// }
-			}
-		}
-	}
+    /**
+     * @param folder
+     */
+    public synchronized void setFolder(Folder folder) {
+        if (folder == null)
+            throw new IllegalArgumentException("Mail folder cannot be null");
+        this.folder = folder;
+        synchronized (this.folder) {
+            if (!this.folder.isOpen()) {
+                try {
+                    // Depending on Server implementation it's not always
+                    // necessary
+                    // to open the folder to check it
+                    // Opening folders can be exprensive!
+                    // folder.open(Folder.READ_ONLY);
+                    this.folder.open(Folder.READ_WRITE);
+                } catch (MessagingException e) {
+                    logger.warn("Failed to open folder: " + folder.getFullName(), e);
+                }
+                // try
+                // {
+                // folder.close(true);
+                // }
+                // catch (MessagingException me)
+                // {
+                // logger.warn("Failed to close folder: " +
+                // folder.getFullName(), me);
+                // }
+            }
+        }
+    }
 
-	/**
-	 * Helper method for testing which stores a copy of the message locally as
-	 * the POP3 <p/> message will be deleted from the server
-	 * 
-	 * @param msg
-	 *            the message to store
-	 * @throws IOException
-	 *             If a failiure happens writing the message
-	 * @throws MessagingException
-	 *             If a failiure happens reading the message
-	 */
-	private void storeMessage(Message msg) throws IOException, MessagingException {
-		if (backupFolder != null) {
-			String filename = msg.getFileName();
-			if (filename == null) {
-				filename = msg.getFrom()[0].toString() + "[" + new UUID().getUUID() + "]";
-			}
-			filename = Utility.prepareWinFilename(filename);
-			filename = backupFolder + filename + ".msg";
-			logger.debug("Writing message to: " + filename);
-			File f = Utility.createFile(filename);
-			FileWriter fw = new FileWriter(f);
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			msg.writeTo(baos);
-			fw.write(new String(baos.toByteArray()));
-			baos.close();
-			fw.close();
-		}
-	}
+    /**
+     * Helper method for testing which stores a copy of the message locally as
+     * the POP3
+     * <p/>
+     * message will be deleted from the server
+     * 
+     * @param msg
+     *            the message to store
+     * @throws IOException
+     *             If a failiure happens writing the message
+     * @throws MessagingException
+     *             If a failiure happens reading the message
+     */
+    private void storeMessage(Message msg) throws IOException, MessagingException {
+        if (backupFolder != null) {
+            String filename = msg.getFileName();
+            if (filename == null) {
+                filename = msg.getFrom()[0].toString() + "[" + new UUID().getUUID() + "]";
+            }
+            filename = Utility.prepareWinFilename(filename);
+            filename = backupFolder + filename + ".msg";
+            logger.debug("Writing message to: " + filename);
+            File f = Utility.createFile(filename);
+            FileWriter fw = new FileWriter(f);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            msg.writeTo(baos);
+            fw.write(new String(baos.toByteArray()));
+            baos.close();
+            fw.close();
+        }
+    }
 
-	public void poll() {
-		try {
-			try {
-				if (!folder.isOpen()) {
-					folder.open(Folder.READ_WRITE);
-				}
-			} catch (Exception e) {
-				// ignore
-			}
+    public void poll() {
+        try {
+            try {
+                if (!folder.isOpen()) {
+                    folder.open(Folder.READ_WRITE);
+                }
+            } catch (Exception e) {
+                // ignore
+            }
 
-			int count = folder.getMessageCount();
-			if (count > 0) {
-				Message[] messages = folder.getMessages();
-				MessageCountEvent event = new MessageCountEvent(folder, MessageCountEvent.ADDED, true, messages);
-				messagesAdded(event);
-			} else if (count == -1) {
-				throw new MessagingException("Cannot monitor folder: " + folder.getFullName() + " as folder is closed");
-			}
-			folder.close(true); // close and expunge deleted messages
-		} catch (MessagingException e) {
-			alertController.sendAlerts(((Pop3Connector) connector).getChannelId(), Constants.ERROR_413, null, e);
-			handleException(e);
-		}
-	}
+            int count = folder.getMessageCount();
+            if (count > 0) {
+                Message[] messages = folder.getMessages();
+                MessageCountEvent event = new MessageCountEvent(folder, MessageCountEvent.ADDED, true, messages);
+                messagesAdded(event);
+            } else if (count == -1) {
+                throw new MessagingException("Cannot monitor folder: " + folder.getFullName() + " as folder is closed");
+            }
+            folder.close(true); // close and expunge deleted messages
+        } catch (MessagingException e) {
+            alertController.sendAlerts(((Pop3Connector) connector).getChannelId(), Constants.ERROR_413, null, e);
+            handleException(e);
+        }
+    }
 
-	protected void doDispose() {
-		super.doDispose();
-		if (folder != null)
-			folder.removeMessageCountListener(this);
+    protected void doDispose() {
+        super.doDispose();
+        if (folder != null)
+            folder.removeMessageCountListener(this);
 
-		try {
-			if (folder != null)
-				folder.close(false);
-		} catch (Exception e) {
-			logger.error("Failed to close pop3  inbox: " + e.getMessage());
-		}
-	}
+        try {
+            if (folder != null)
+                folder.close(false);
+        } catch (Exception e) {
+            logger.error("Failed to close pop3  inbox: " + e.getMessage());
+        }
+    }
 
 }

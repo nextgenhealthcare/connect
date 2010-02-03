@@ -45,28 +45,29 @@ import com.webreach.mirth.util.PropertyLoader;
  * @author Ross Mason
  */
 public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
-	private Session session;
-	private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
-	private AlertController alertController = ControllerFactory.getFactory().createAlertController();
-	private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
-	private TemplateValueReplacer replacer = new TemplateValueReplacer();
-	private SmtpConnector connector;
-	private ConnectorType connectorType = ConnectorType.SENDER;
-	/**
-	 * @param connector
-	 */
-	public SmtpMessageDispatcher(SmtpConnector connector) {
-		super(connector);
-		this.connector = connector;
-		monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
-		
-		String host = null;
-		int port = -1;
+    private Session session;
+    private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
+    private AlertController alertController = ControllerFactory.getFactory().createAlertController();
+    private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
+    private TemplateValueReplacer replacer = new TemplateValueReplacer();
+    private SmtpConnector connector;
+    private ConnectorType connectorType = ConnectorType.SENDER;
+
+    /**
+     * @param connector
+     */
+    public SmtpMessageDispatcher(SmtpConnector connector) {
+        super(connector);
+        this.connector = connector;
+        monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
+
+        String host = null;
+        int port = -1;
         String username = null;
         String password = null;
         boolean auth = false;
         String secureType = null;
-        
+
         if (connector.isUseServerSettings()) {
             try {
                 Properties properties = ControllerFactory.getFactory().createConfigurationController().getServerProperties();
@@ -83,144 +84,146 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
             if (connector.getUsername() != null) {
                 username = replacer.replaceValues(connector.getUsername());
             }
-            
+
             if (connector.getPassword() != null) {
                 password = replacer.replaceValues(connector.getPassword());
             }
-            
+
             if (connector.getHostname() != null) {
-                host = replacer.replaceValues(connector.getHostname());    
+                host = replacer.replaceValues(connector.getHostname());
             }
-            
+
             if (connector.getSmtpPort() != null) {
-                port = Integer.parseInt(replacer.replaceValues(connector.getSmtpPort()));    
+                port = Integer.parseInt(replacer.replaceValues(connector.getSmtpPort()));
             }
-            
+
             if (connector.getEmailSecure() != null) {
-                secureType = connector.getEmailSecure(); 
+                secureType = connector.getEmailSecure();
             }
         }
-		
-        // NOTE: This is a hack. The first parameter should be the protocol (SMTP, POP, etc.),
-        // but since we need a way to pass in the secure type (SSL or TLS) we will overload
-        // the parameter since in the actual method it just gets the actual protocol from the
+
+        // NOTE: This is a hack. The first parameter should be the protocol
+        // (SMTP, POP, etc.),
+        // but since we need a way to pass in the secure type (SSL or TLS) we
+        // will overload
+        // the parameter since in the actual method it just gets the actual
+        // protocol from the
         // connector again.
-		URLName url = new URLName(secureType, host, port, null, username, password);
-		session = MailUtils.createMailSession(url, connector);
-		session.setDebug(logger.isDebugEnabled());
-	}
-	private Session createSession(String hostname, String username, String password, String port, MessageObject messageObject){
-		hostname = replacer.replaceValues(hostname, messageObject);
-		username = replacer.replaceURLValues(username, messageObject);
-		password = replacer.replaceURLValues(password, messageObject);
-		port = replacer.replaceURLValues(port, messageObject);
-		URLName url = new URLName(connector.getProtocol(), hostname, Integer.parseInt(port), null, username, password);
-		Session session = MailUtils.createMailSession(url, connector);
-		session.setDebug(logger.isDebugEnabled());
-		return session;
-	}
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.mule.providers.UMOConnector#dispatch(java.lang.Object,
-	 *      org.mule.providers.MuleEndpoint)
-	 */
-	public void doDispatch(UMOEvent event) throws Exception {
-		monitoringController.updateStatus(connector, connectorType, Event.BUSY);
-		Message msg = null;
-		
-		MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
-		if (messageObject == null) {
-			return;
-		}
-		try{
-			if ((connector.getUsername() != null && connector.getUsername().indexOf('$') > -1) ||
-				(connector.getHostname() != null && connector.getHostname().indexOf('$') > -1) ||
-				(connector.getPassword() != null && connector.getPassword().indexOf('$') > -1 )||
-				(connector.getPort() != null && connector.getPort().indexOf('$') > -1)){
-				//recreate session
-				session = createSession(connector.getHostname(), connector.getUsername(), connector.getPassword(), connector.getPort(), messageObject);
-			}
-			MessageObjectToEmailMessage motoEmail = new MessageObjectToEmailMessage();
-			motoEmail.setEndpoint(event.getEndpoint());
-			
-			Object data = motoEmail.transform(messageObject);
+        URLName url = new URLName(secureType, host, port, null, username, password);
+        session = MailUtils.createMailSession(url, connector);
+        session.setDebug(logger.isDebugEnabled());
+    }
 
-			if (!(data instanceof Message)) {
-				throw new DispatchException(new org.mule.config.i18n.Message(Messages.TRANSFORM_X_UNEXPECTED_TYPE_X, data.getClass().getName(), Message.class.getName()), event.getMessage(), event.getEndpoint());
-			} else {
-				// Check the message for any unset data and use defaults
-				msg = (Message) data;
-			}
+    private Session createSession(String hostname, String username, String password, String port, MessageObject messageObject) {
+        hostname = replacer.replaceValues(hostname, messageObject);
+        username = replacer.replaceURLValues(username, messageObject);
+        password = replacer.replaceURLValues(password, messageObject);
+        port = replacer.replaceURLValues(port, messageObject);
+        URLName url = new URLName(connector.getProtocol(), hostname, Integer.parseInt(port), null, username, password);
+        Session session = MailUtils.createMailSession(url, connector);
+        session.setDebug(logger.isDebugEnabled());
+        return session;
+    }
 
-			sendMailMessage(msg);
-			messageObjectController.setSuccess(messageObject, "Email successfully sent: " + connector.getToAddresses(), null);
-		} catch (Exception e) {
-			alertController.sendAlerts(messageObject.getChannelId(),  Constants.ERROR_402, "Error sending email", e);
-			messageObjectController.setError(messageObject, Constants.ERROR_402, "Error sending email", e, null);
-			connector.handleException(e);
-		}finally{
-			monitoringController.updateStatus(connector, connectorType, Event.DONE);
-		}
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.mule.providers.UMOConnector#dispatch(java.lang.Object,
+     * org.mule.providers.MuleEndpoint)
+     */
+    public void doDispatch(UMOEvent event) throws Exception {
+        monitoringController.updateStatus(connector, connectorType, Event.BUSY);
+        Message msg = null;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.mule.umo.provider.UMOConnectorSession#getDelegateSession()
-	 */
-	public Object getDelegateSession() throws UMOException {
-		return session;
-	}
+        MessageObject messageObject = messageObjectController.getMessageObjectFromEvent(event);
+        if (messageObject == null) {
+            return;
+        }
+        try {
+            if ((connector.getUsername() != null && connector.getUsername().indexOf('$') > -1) || (connector.getHostname() != null && connector.getHostname().indexOf('$') > -1) || (connector.getPassword() != null && connector.getPassword().indexOf('$') > -1) || (connector.getPort() != null && connector.getPort().indexOf('$') > -1)) {
+                // recreate session
+                session = createSession(connector.getHostname(), connector.getUsername(), connector.getPassword(), connector.getPort(), messageObject);
+            }
+            MessageObjectToEmailMessage motoEmail = new MessageObjectToEmailMessage();
+            motoEmail.setEndpoint(event.getEndpoint());
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.mule.umo.provider.UMOConnectorSession#receive(java.lang.String,
-	 *      org.mule.umo.UMOEvent)
-	 */
-	public UMOMessage receive(UMOEndpointURI endpointUri, long timeout) throws Exception {
-		throw new UnsupportedOperationException("Cannot do a receive on an SmtpConnector");
-	}
+            Object data = motoEmail.transform(messageObject);
 
-	public UMOMessage doSend(UMOEvent event) throws Exception {
-		doDispatch(event);
-		return event.getMessage();
-	}
+            if (!(data instanceof Message)) {
+                throw new DispatchException(new org.mule.config.i18n.Message(Messages.TRANSFORM_X_UNEXPECTED_TYPE_X, data.getClass().getName(), Message.class.getName()), event.getMessage(), event.getEndpoint());
+            } else {
+                // Check the message for any unset data and use defaults
+                msg = (Message) data;
+            }
 
-	protected void sendMailMessage(String to, String cc, String bcc, String subject, String body) throws MuleException, MessagingException {
-		Message message = connector.createMessage(connector.getFromAddress(), to, cc, bcc, subject, body, session);
-		sendMailMessage(message);
-	}
+            sendMailMessage(msg);
+            messageObjectController.setSuccess(messageObject, "Email successfully sent: " + connector.getToAddresses(), null);
+        } catch (Exception e) {
+            alertController.sendAlerts(messageObject.getChannelId(), Constants.ERROR_402, "Error sending email", e);
+            messageObjectController.setError(messageObject, Constants.ERROR_402, "Error sending email", e, null);
+            connector.handleException(e);
+        } finally {
+            monitoringController.updateStatus(connector, connectorType, Event.DONE);
+        }
+    }
 
-	protected void sendMailMessage(Message message) throws MessagingException {
-		// sent date
-		message.setSentDate(Calendar.getInstance().getTime());
-		Transport.send(message);
-		if (logger.isDebugEnabled()) {
-			StringBuffer msg = new StringBuffer();
-			msg.append("Email message sent with subject'").append(message.getSubject()).append("' sent- ");
-			msg.append("From: ").append(MailUtils.mailAddressesToString(message.getFrom())).append(" ");
-			msg.append("To: ").append(MailUtils.mailAddressesToString(message.getRecipients(Message.RecipientType.TO))).append(" ");
-			msg.append("Cc: ").append(MailUtils.mailAddressesToString(message.getRecipients(Message.RecipientType.CC))).append(" ");
-			msg.append("Bcc: ").append(MailUtils.mailAddressesToString(message.getRecipients(Message.RecipientType.BCC))).append(" ");
-			msg.append("ReplyTo: ").append(MailUtils.mailAddressesToString(message.getReplyTo()));
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.mule.umo.provider.UMOConnectorSession#getDelegateSession()
+     */
+    public Object getDelegateSession() throws UMOException {
+        return session;
+    }
 
-			logger.debug(msg.toString());
-		}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.mule.umo.provider.UMOConnectorSession#receive(java.lang.String,
+     * org.mule.umo.UMOEvent)
+     */
+    public UMOMessage receive(UMOEndpointURI endpointUri, long timeout) throws Exception {
+        throw new UnsupportedOperationException("Cannot do a receive on an SmtpConnector");
+    }
 
-	}
+    public UMOMessage doSend(UMOEvent event) throws Exception {
+        doDispatch(event);
+        return event.getMessage();
+    }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.mule.umo.provider.UMOConnectorSession#getConnector()
-	 */
-	public UMOConnector getConnector() {
-		return connector;
-	}
+    protected void sendMailMessage(String to, String cc, String bcc, String subject, String body) throws MuleException, MessagingException {
+        Message message = connector.createMessage(connector.getFromAddress(), to, cc, bcc, subject, body, session);
+        sendMailMessage(message);
+    }
 
-	public void doDispose() {
-		session = null;
-	}
+    protected void sendMailMessage(Message message) throws MessagingException {
+        // sent date
+        message.setSentDate(Calendar.getInstance().getTime());
+        Transport.send(message);
+        if (logger.isDebugEnabled()) {
+            StringBuffer msg = new StringBuffer();
+            msg.append("Email message sent with subject'").append(message.getSubject()).append("' sent- ");
+            msg.append("From: ").append(MailUtils.mailAddressesToString(message.getFrom())).append(" ");
+            msg.append("To: ").append(MailUtils.mailAddressesToString(message.getRecipients(Message.RecipientType.TO))).append(" ");
+            msg.append("Cc: ").append(MailUtils.mailAddressesToString(message.getRecipients(Message.RecipientType.CC))).append(" ");
+            msg.append("Bcc: ").append(MailUtils.mailAddressesToString(message.getRecipients(Message.RecipientType.BCC))).append(" ");
+            msg.append("ReplyTo: ").append(MailUtils.mailAddressesToString(message.getReplyTo()));
+
+            logger.debug(msg.toString());
+        }
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.mule.umo.provider.UMOConnectorSession#getConnector()
+     */
+    public UMOConnector getConnector() {
+        return connector;
+    }
+
+    public void doDispose() {
+        session = null;
+    }
 }

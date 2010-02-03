@@ -36,8 +36,7 @@ import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
  * @version $Revision: 1.8 $
  */
 
-public class Pop3MessageDispatcher extends AbstractMessageDispatcher
-{
+public class Pop3MessageDispatcher extends AbstractMessageDispatcher {
     private Pop3Connector connector;
 
     private Folder folder;
@@ -46,14 +45,12 @@ public class Pop3MessageDispatcher extends AbstractMessageDispatcher
 
     private AtomicBoolean initialised = new AtomicBoolean(false);
 
-    public Pop3MessageDispatcher(Pop3Connector connector)
-    {
+    public Pop3MessageDispatcher(Pop3Connector connector) {
         super(connector);
         this.connector = connector;
     }
 
-    protected void initialise(UMOEndpointURI endpoint) throws MessagingException
-    {
+    protected void initialise(UMOEndpointURI endpoint) throws MessagingException {
         if (!initialised.get()) {
             String inbox = null;
             if (connector.getProtocol().equals("imap") && endpoint.getParams().get("folder") != null) {
@@ -62,12 +59,7 @@ public class Pop3MessageDispatcher extends AbstractMessageDispatcher
                 inbox = Pop3Connector.MAILBOX;
             }
 
-            URLName url = new URLName(endpoint.getScheme(),
-                                      endpoint.getHost(),
-                                      endpoint.getPort(),
-                                      inbox,
-                                      endpoint.getUsername(),
-                                      endpoint.getPassword());
+            URLName url = new URLName(endpoint.getScheme(), endpoint.getHost(), endpoint.getPort(), inbox, endpoint.getUsername(), endpoint.getPassword());
 
             session = MailUtils.createMailSession(url, connector);
             session.setDebug(logger.isDebugEnabled());
@@ -95,8 +87,7 @@ public class Pop3MessageDispatcher extends AbstractMessageDispatcher
      * @param event
      * @throws UnsupportedOperationException
      */
-    public void doDispatch(UMOEvent event) throws Exception
-    {
+    public void doDispatch(UMOEvent event) throws Exception {
         throw new UnsupportedOperationException("Cannot dispatch from a Pop3 connection");
     }
 
@@ -106,8 +97,7 @@ public class Pop3MessageDispatcher extends AbstractMessageDispatcher
      * @return
      * @throws UnsupportedOperationException
      */
-    public UMOMessage doSend(UMOEvent event) throws Exception
-    {
+    public UMOMessage doSend(UMOEvent event) throws Exception {
         throw new UnsupportedOperationException("Cannot send from a Pop3 connection");
     }
 
@@ -119,8 +109,7 @@ public class Pop3MessageDispatcher extends AbstractMessageDispatcher
      * @return
      * @throws Exception
      */
-    public UMOMessage receive(UMOEndpointURI endpointUri, long timeout) throws Exception
-    {
+    public UMOMessage receive(UMOEndpointURI endpointUri, long timeout) throws Exception {
         initialise(endpointUri);
 
         long t0 = System.currentTimeMillis();
@@ -150,18 +139,15 @@ public class Pop3MessageDispatcher extends AbstractMessageDispatcher
         } while (true);
     }
 
-    public Object getDelegateSession() throws UMOException
-    {
+    public Object getDelegateSession() throws UMOException {
         return session;
     }
 
-    public UMOConnector getConnector()
-    {
+    public UMOConnector getConnector() {
         return connector;
     }
 
-    public void doDispose()
-    {
+    public void doDispose() {
         initialised.set(false);
         // close and expunge deleted messages
         try {

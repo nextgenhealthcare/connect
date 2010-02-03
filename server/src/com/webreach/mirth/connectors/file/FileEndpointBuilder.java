@@ -24,10 +24,8 @@ import org.mule.umo.endpoint.MalformedEndpointException;
  * @version $Revision: 1.4 $
  */
 
-public class FileEndpointBuilder extends AbstractEndpointBuilder
-{
-    protected void setEndpoint(URI uri, Properties props) throws MalformedEndpointException
-    {
+public class FileEndpointBuilder extends AbstractEndpointBuilder {
+    protected void setEndpoint(URI uri, Properties props) throws MalformedEndpointException {
         address = uri.getSchemeSpecificPart();
         if (address.startsWith("//")) {
             address = address.substring(2);

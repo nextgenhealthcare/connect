@@ -11,7 +11,7 @@ package com.webreach.mirth.connectors.email;
 
 /**
  * Creates a Secure Imap connection
- *
+ * 
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @version $Revision: 1.1 $
  */
@@ -23,8 +23,7 @@ public class ImapsConnector extends Pop3sConnector {
         setPort(DEFAULT_IMAPS_PORT);
     }
 
-    public String getProtocol()
-    {
+    public String getProtocol() {
         return "imaps";
     }
 }

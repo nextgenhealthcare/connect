@@ -1,16 +1,12 @@
 /*
- * $Header: /home/projects/mule/scm/mule/providers/jdbc/src/java/org/mule/providers/jdbc/JdbcEndpointBuilder.java,v 1.3 2005/06/03 01:20:33 gnt Exp $
- * $Revision: 1.3 $
- * $Date: 2005/06/03 01:20:33 $
- * ------------------------------------------------------------------------------------------------------
- *
  * Copyright (c) SymphonySoft Limited. All rights reserved.
  * http://www.symphonysoft.com
  *
  * The software in this package is published under the terms of the BSD
  * style license a copy of which has been included with this distribution in
- * the LICENSE.txt file.
+ * the LICENSE-MULE.txt file.
  */
+
 package com.webreach.mirth.connectors.jdbc;
 
 import java.net.URI;
@@ -23,10 +19,8 @@ import org.mule.umo.endpoint.MalformedEndpointException;
  * @author Guillaume Nodet
  * @version $Revision: 1.3 $
  */
-public class JdbcEndpointBuilder extends AbstractEndpointBuilder
-{
-    protected void setEndpoint(URI uri, Properties props) throws MalformedEndpointException
-    {
+public class JdbcEndpointBuilder extends AbstractEndpointBuilder {
+    protected void setEndpoint(URI uri, Properties props) throws MalformedEndpointException {
         if (uri.getHost() != null && !"localhost".equals(uri.getHost())) {
             endpointName = uri.getHost();
         }

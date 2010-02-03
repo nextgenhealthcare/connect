@@ -1,3 +1,12 @@
+/*
+ * Copyright (c) SymphonySoft Limited. All rights reserved.
+ * http://www.symphonysoft.com
+ *
+ * The software in this package is published under the terms of the BSD
+ * style license a copy of which has been included with this distribution in
+ * the LICENSE-MULE.txt file.
+ */
+
 package com.webreach.mirth.connectors.jdbc;
 
 import java.sql.Connection;
@@ -81,13 +90,13 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
 
         this.receiveMessagesInTransaction = ((JdbcConnector) connector).isProcessResultsInOrder();
         this.connector = (JdbcConnector) connector;
-        
+
         // handle read and ack params
         this.readParams = new ArrayList();
         this.readStmt = JdbcUtils.parseStatement(readStmt, this.readParams);
         this.ackParams = new ArrayList();
         this.ackStmt = JdbcUtils.parseStatement(ackStmt, this.ackParams);
-        
+
         monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
     }
 
@@ -250,7 +259,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
                         logger.error(e);
                     }
                 }
-                
+
                 if (validConnection) {
                     return (List) new QueryRunner().query(connection, readStmt, JdbcUtils.getParams(getEndpointURI(), readParams, null), new MapListHandler());
                 } else {

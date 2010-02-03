@@ -13,25 +13,24 @@ import java.util.Properties;
 
 import com.webreach.mirth.model.ComponentProperties;
 
-public class HTTPListenerProperties implements ComponentProperties
-{
+public class HTTPListenerProperties implements ComponentProperties {
     public static final String name = "HTTP Listener";
-	
+
     public static final String DATATYPE = "DataType";
     public static final String HTTP_ADDRESS = "host";
     public static final String HTTP_PORT = "port";
     public static final String HTTP_RECEIVE_TIMEOUT = "keepAliveTimeout";
     public static final String HTTP_BUFFER_SIZE = "bufferSize";
     public static final String HTTP_KEEP_CONNECTION_OPEN = "keepAlive";
-    public static final String HTTP_RESPONSE_VALUE = "responseValue";   
+    public static final String HTTP_RESPONSE_VALUE = "responseValue";
     public static final String HTTP_EXTENDED_PAYLOAD = "extendedPayload";
     public static final String HTTP_PAYLOAD_ENCODING = "payloadEncoding";
     public static final String PAYLOAD_ENCODING_NONE = "None";
     public static final String PAYLOAD_ENCODING_ENCODE = "Encode";
     public static final String PAYLOAD_ENCODING_DECODE = "Decode";
     public static final String HTTP_APPEND_PAYLOAD = "appendPayload";
-    public Properties getDefaults()
-    {
+
+    public Properties getDefaults() {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
         properties.put(HTTP_ADDRESS, "127.0.0.1");

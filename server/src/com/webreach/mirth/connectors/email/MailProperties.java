@@ -10,9 +10,9 @@
 package com.webreach.mirth.connectors.email;
 
 /**
- * Mail properties that are sent on the MuleMessage when recieing a Mail Message or
- * can be set on the endpoint or event to be added to outgoing mail
- *
+ * Mail properties that are sent on the MuleMessage when recieing a Mail Message
+ * or can be set on the endpoint or event to be added to outgoing mail
+ * 
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @version $Revision: 1.1 $
  */

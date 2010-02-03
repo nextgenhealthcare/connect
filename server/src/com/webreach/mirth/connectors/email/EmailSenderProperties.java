@@ -15,8 +15,7 @@ import java.util.Properties;
 import com.webreach.mirth.model.ComponentProperties;
 import com.webreach.mirth.model.converters.ObjectXMLSerializer;
 
-public class EmailSenderProperties implements ComponentProperties
-{
+public class EmailSenderProperties implements ComponentProperties {
     public static final String name = "Email Sender";
 
     public static final String DATATYPE = "DataType";
@@ -37,9 +36,8 @@ public class EmailSenderProperties implements ComponentProperties
     public static final String EMAIL_ATTACHMENT_CONTENTS = "attachmentContents";
     public static final String EMAIL_ATTACHMENT_TYPES = "attachmentTypes";
 
-    public Properties getDefaults()
-    {
-    	Properties properties = new Properties();
+    public Properties getDefaults() {
+        Properties properties = new Properties();
         properties.put(DATATYPE, name);
         properties.put(EMAIL_ADDRESS, "");
         properties.put(EMAIL_PORT, "");
@@ -61,8 +59,6 @@ public class EmailSenderProperties implements ComponentProperties
     }
 
     public static String getInformation(Properties properties) {
-        return "From: " + properties.getProperty(EMAIL_FROM) +
-               "   To: " + properties.getProperty(EMAIL_TO) +
-               "   SMTP Info: " + properties.getProperty(EMAIL_ADDRESS) + ":" + properties.getProperty(EMAIL_PORT);
+        return "From: " + properties.getProperty(EMAIL_FROM) + "   To: " + properties.getProperty(EMAIL_TO) + "   SMTP Info: " + properties.getProperty(EMAIL_ADDRESS) + ":" + properties.getProperty(EMAIL_PORT);
     }
 }

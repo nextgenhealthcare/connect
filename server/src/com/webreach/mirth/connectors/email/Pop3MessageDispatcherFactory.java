@@ -15,19 +15,17 @@ import org.mule.umo.provider.UMOMessageDispatcher;
 import org.mule.umo.provider.UMOMessageDispatcherFactory;
 
 /**
- * <code>Pop3MessageDispatcherFactory</code> creates a Pop3 Message
- * dispatcher. For Pop3 connections the dispatcher can only be used to receive
- * message (as apposed to listening for them). Trying to send or dispatch will
- * throw an UnsupportedOperationException.
+ * <code>Pop3MessageDispatcherFactory</code> creates a Pop3 Message dispatcher.
+ * For Pop3 connections the dispatcher can only be used to receive message (as
+ * apposed to listening for them). Trying to send or dispatch will throw an
+ * UnsupportedOperationException.
  * 
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
  * @version $Revision: 1.3 $
  */
 
-public class Pop3MessageDispatcherFactory implements UMOMessageDispatcherFactory
-{
-    public UMOMessageDispatcher create(UMOConnector connector) throws UMOException
-    {
+public class Pop3MessageDispatcherFactory implements UMOMessageDispatcherFactory {
+    public UMOMessageDispatcher create(UMOConnector connector) throws UMOException {
         return new Pop3MessageDispatcher((Pop3Connector) connector);
     }
 }
