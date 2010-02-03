@@ -1,4 +1,5 @@
 <project name="mirth" basedir="." default="create-setup">
+	
 	<target name="init">
 		<property file="mirth-build.properties" />
 	</target>
@@ -60,4 +61,34 @@
 			<property name="version" value="${version}" />
 		</ant>
 	</target>
+	
+	<target name="append-license" depends="init">
+		
+		<path id="header.classpath">
+			<fileset dir="${server}/lib">
+				<include name="**/*.jar" />
+			</fileset>
+		</path>
+
+		<taskdef name="header" classname="com.mirth.tools.header.HeaderTask">
+			<classpath refid="header.classpath" />
+		</taskdef>
+		
+		<header headerFile="${server}/license-header.txt" removeHeader="true" startOfHeader="/*" endOfHeader="*/" removeBlankLines="true">
+			<fileset dir="${server}" includes="**/*.java" 
+				excludes="src/org/**/*.java src/com/thoughtworks/**/*.java src/com/webreach/mirth/connectors/**/*.java"/>
+		</header>
+		
+		<header headerFile="${server}/license-header.txt" removeHeader="true" startOfHeader="/*" endOfHeader="*/" removeBlankLines="true">
+			<fileset dir="${client}" includes="**/*.java" 
+				excludes="src/com/webreach/mirth/client/ui/BareBonesBrowserLaunch.java src/com/webreach/mirth/client/ui/BeanBinder.java src/org/**/*.java"/>
+		</header>
+		
+		<header headerFile="${server}/license-header.txt" removeHeader="true" startOfHeader="/*" endOfHeader="*/" removeBlankLines="true">
+			<fileset dir="${manager}" includes="**/*.java" 
+				excludes="src/com/webreach/mirth/manager/BareBonesBrowserLaunch.java"/>
+		</header>
+		
+	</target>
+
 </project>

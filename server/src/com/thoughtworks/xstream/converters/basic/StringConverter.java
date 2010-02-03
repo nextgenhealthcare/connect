@@ -9,6 +9,7 @@
  *
  * Created on 26. September 2003 by Joe Walnes
  */
+
 package com.thoughtworks.xstream.converters.basic;
 
 import java.lang.ref.WeakReference;
