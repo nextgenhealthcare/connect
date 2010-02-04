@@ -130,7 +130,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 				DATE_CREATED <![CDATA[ <= ]]> CONVERT(DATETIME,'$endDate$',120)
 			</isNotNull>
 			<isNotNull  prepend="AND" property="quickSearch">
-				(UPPER(SUBSTRING(RAW_DATA,1,DATALENGTH(RAW_DATA))) LIKE UPPER('%$quickSearch$%') OR UPPER(SUBSTRING(ENCODED_DATA,1,DATALENGTH(ENCODED_DATA))) LIKE UPPER('%$quickSearch$%') OR UPPER(SUBSTRING(TRANSFORMED_DATA,1,DATALENGTH(TRANSFORMED_DATA))) LIKE UPPER('%$quickSearch$%'))
+				(UPPER(SUBSTRING(RAW_DATA,1,DATALENGTH(RAW_DATA))) LIKE UPPER('%$quickSearch$%') OR UPPER(SUBSTRING(ENCODED_DATA,1,DATALENGTH(ENCODED_DATA))) LIKE UPPER('%$quickSearch$%') OR UPPER(SUBSTRING(TRANSFORMED_DATA,1,DATALENGTH(TRANSFORMED_DATA))) LIKE UPPER('%$quickSearch$%') OR UPPER(SUBSTRING(ERRORS,1,DATALENGTH(ERRORS))) LIKE UPPER('%$quickSearch$%'))
 			</isNotNull>
 			<isNotNull prepend="AND" removeFirstPrepend="true" open="(" close=")" property="searchCriteria">
 				<isEqual prepend="OR" compareValue="true" property="searchRawData">
@@ -141,6 +141,9 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 				</isEqual>
 				<isEqual prepend="OR" compareValue="true" property="searchTransformedData">
 					UPPER(SUBSTRING(TRANSFORMED_DATA,1,DATALENGTH(TRANSFORMED_DATA))) LIKE UPPER('%$searchCriteria$%')
+				</isEqual>
+				<isEqual prepend="OR" compareValue="true" property="searchErrors">
+					UPPER(SUBSTRING(ERRORS,1,DATALENGTH(ERRORS))) LIKE UPPER('%$searchCriteria$%')
 				</isEqual>
 			</isNotNull>
 		</dynamic>
@@ -251,7 +254,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
             ATTACHMENT = ?
 		WHERE ID = ?
 	</update>
-	
+
 	<update id="updateMessageStatus" parameterClass="java.util.Map">
 		UPDATE MESSAGE
 		SET STATUS = #status#

@@ -653,6 +653,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
         parameterMap.put("searchRawData", filter.isSearchRawData());
         parameterMap.put("searchTransformedData", filter.isSearchTransformedData());
         parameterMap.put("searchEncodedData", filter.isSearchEncodedData());
+		parameterMap.put("searchErrors", filter.isSearchErrors());
         parameterMap.put("quickSearch", filter.getQuickSearch());
         parameterMap.put("ignoreQueued", filter.isIgnoreQueued());
         parameterMap.put("channelIdList", filter.getChannelIdList());

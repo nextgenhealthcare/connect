@@ -27,9 +27,9 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<parameter property="connectorMap" jdbcType="CLOB" />
 		<parameter property="channelMap" jdbcType="CLOB" />
 		<parameter property="responseMap" jdbcType="CLOB" />
-		<parameter property="attachment" jdbcType="SMALLINT" />        
+		<parameter property="attachment" jdbcType="SMALLINT" />
     </parameterMap>
-    
+
     <parameterMap class="com.webreach.mirth.model.Attachment" id="insert-attachment-param">
         <parameter property="attachmentId" jdbcType="VARCHAR" />
         <parameter property="messageId" jdbcType="VARCHAR" />
@@ -47,7 +47,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<parameter property="correlationId" jdbcType="VARCHAR" />
 		<parameter property="connectorMap" jdbcType="CLOB" />
 		<parameter property="channelMap" jdbcType="CLOB" />
-		<parameter property="responseMap" jdbcType="CLOB" />		
+		<parameter property="responseMap" jdbcType="CLOB" />
 		<parameter property="attachment" jdbcType="SMALLINT" />
 		<parameter property="id" jdbcType="VARCHAR" />
 	</parameterMap>
@@ -74,7 +74,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<result property="connectorMap" column="CONNECTOR_MAP" />
 		<result property="channelMap" column="CHANNEL_MAP" />
 		<result property="responseMap" column="RESPONSE_MAP" />
-        <result property="attachment" column="ATTACHMENT" />        
+        <result property="attachment" column="ATTACHMENT" />
     </resultMap>
 
     <resultMap class="com.webreach.mirth.model.Attachment" id="get-attachment-result">
@@ -82,16 +82,16 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
         <result property="messageId" column="MESSAGE_ID" />
         <result property="data" column="ATTACHMENT_DATA" />
         <result property="size" column="ATTACHMENT_SIZE" />
-        <result property="type" column="ATTACHMENT_TYPE" />        
+        <result property="type" column="ATTACHMENT_TYPE" />
 	</resultMap>
 
     <resultMap class="com.webreach.mirth.model.Attachment" id="get-attachment-result2">
         <result property="attachmentId" column="ID" />
         <result property="messageId" column="MESSAGE_ID" />
         <result property="size" column="ATTACHMENT_SIZE" />
-        <result property="type" column="ATTACHMENT_TYPE" />        
+        <result property="type" column="ATTACHMENT_TYPE" />
     </resultMap>
-    
+
     <sql id="messageFilterCriteria">
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="id">
@@ -119,7 +119,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			</isEqual>
 			<isNotNull prepend="AND" property="protocol">
 				RAW_DATA_PROTOCOL = '$protocol$'
-			</isNotNull>			
+			</isNotNull>
 			<isNotNull prepend="AND" property="connectorName">
 				CONNECTOR_NAME LIKE '%$connectorName$%'
 			</isNotNull>
@@ -130,8 +130,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 				DATE_CREATED <![CDATA[ <= ]]> '$endDate$'
 			</isNotNull>
 			<isNotNull  prepend="AND" property="quickSearch">
-				(RAW_DATA ILIKE '%$quickSearch$%' OR ENCODED_DATA ILIKE '%$quickSearch$%' OR TRANSFORMED_DATA ILIKE '%$quickSearch$%')
-			</isNotNull>		
+				(RAW_DATA ILIKE '%$quickSearch$%' OR ENCODED_DATA ILIKE '%$quickSearch$%' OR TRANSFORMED_DATA ILIKE '%$quickSearch$%' OR ERRORS ILIKE '%$quickSearch$%')
+			</isNotNull>
 			<isNotNull prepend="AND" open="(" close=")" removeFirstPrepend="true" property="searchCriteria">
 				<isEqual prepend="OR" compareValue="true" property="searchRawData">
 					RAW_DATA ILIKE '%$searchCriteria$%'
@@ -142,16 +142,19 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 				<isEqual prepend="OR" compareValue="true" property="searchTransformedData">
 					TRANSFORMED_DATA ILIKE '%$searchCriteria$%'
 				</isEqual>
+				<isEqual prepend="OR" compareValue="true" property="searchErrors">
+					ERRORS ILIKE '%$searchCriteria$%'
+				</isEqual>
 			</isNotNull>
 		</dynamic>
 	</sql>
-	
+
 	<select id="getMessageCount" parameterClass="java.lang.String" resultClass="java.lang.Integer">
 		SELECT COUNT(*) AS VALUE
 		FROM MESSAGE
-		WHERE ID = #id#	
+		WHERE ID = #id#
 	</select>
-	
+
     <select id="getAttachmentsByMessageId" parameterClass="java.lang.String" resultMap="get-attachment-result">
         SELECT ID,MESSAGE_ID, ATTACHMENT_DATA, ATTACHMENT_SIZE, ATTACHMENT_TYPE
         FROM ATTACHMENT
@@ -162,14 +165,14 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
         SELECT ID,MESSAGE_ID, ATTACHMENT_SIZE, ATTACHMENT_TYPE
         FROM ATTACHMENT
         WHERE MESSAGE_ID = #messageId#
-    </select> 
-    
+    </select>
+
     <select id="getAttachment" parameterClass="java.lang.String" resultMap="get-attachment-result">
         SELECT ID,MESSAGE_ID, ATTACHMENT_DATA, ATTACHMENT_SIZE, ATTACHMENT_TYPE
         FROM ATTACHMENT
         WHERE ID = #attachmentId#
-    </select>    
-    	
+    </select>
+
 	<select id="getMessageByPage" parameterClass="java.util.Map" resultMap="get-message-result">
 		SELECT
 			MESSAGE.*
@@ -187,7 +190,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			</dynamic>
 		ORDER BY TEMP_TABLE.DATE_CREATED $order$
 	</select>
-	
+
 	<select id="getMessageByPageLimit" parameterClass="java.util.Map" resultMap="get-message-result">
 		SELECT
 			MESSAGE.*
@@ -211,7 +214,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		CREATE SEQUENCE SEQ_MSG_TMP_$uid$ START WITH 1
 	</statement>
 
-	<statement id="createTempMessageTable" parameterClass="java.lang.String">	
+	<statement id="createTempMessageTable" parameterClass="java.lang.String">
 		CREATE TABLE MSG_TMP_$uid$ (ID INTEGER, SEQUENCE_ORDER INTEGER DEFAULT NEXTVAL('SEQ_MSG_TMP_$uid$'), DATE_CREATED TIMESTAMP)
 	</statement>
 
@@ -226,7 +229,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			FROM MESSAGE
 			<include refid="messageFilterCriteria" />)
 	</insert>
-	
+
 	<insert id="insertMessage" parameterMap="insert-message-param">
 		INSERT INTO
 		MESSAGE (ID, SERVER_ID, CHANNEL_ID, SOURCE, TYPE, DATE_CREATED, VERSION, IS_ENCRYPTED, STATUS, RAW_DATA, RAW_DATA_PROTOCOL, TRANSFORMED_DATA, TRANSFORMED_DATA_PROTOCOL, ENCODED_DATA, ENCODED_DATA_PROTOCOL, CONNECTOR_NAME, ERRORS, CORRELATION_ID, CONNECTOR_MAP, CHANNEL_MAP, RESPONSE_MAP, ATTACHMENT)
@@ -238,7 +241,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
         ATTACHMENT (ID, MESSAGE_ID, ATTACHMENT_DATA, ATTACHMENT_SIZE, ATTACHMENT_TYPE)
         VALUES (?, ?, ?, ?, ?)
 	</insert>
-	
+
 	<update id="updateMessage" parameterMap="update-message-param">
 		UPDATE MESSAGE
 		SET STATUS = ?,
@@ -250,21 +253,21 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			CONNECTOR_MAP = ?,
 			CHANNEL_MAP = ?,
 			RESPONSE_MAP = ?,
-            ATTACHMENT = ?        
+            ATTACHMENT = ?
 		WHERE ID = ?
 	</update>
-	
+
 	<update id="updateMessageStatus" parameterClass="java.util.Map">
 		UPDATE MESSAGE
 		SET STATUS = #status#
 		WHERE ID = #id#
 	</update>
-	
+
 	<delete id="deleteMessage" parameterClass="java.util.Map">
 		DELETE FROM MESSAGE
 		<include refid="messageFilterCriteria" />
 	</delete>
-	
+
 	<delete id="deleteTempMessageTable" parameterClass="java.lang.String">
 		DROP TABLE MSG_TMP_$uid$
 	</delete>
@@ -274,33 +277,33 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	</delete>
 
     <delete id="deleteAttachments" parameterClass="com.webreach.mirth.model.MessageObject">
-        DELETE FROM ATTACHMENT 
+        DELETE FROM ATTACHMENT
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="id">
 				MESSAGE_ID=#id#
 			</isNotNull>
-		</dynamic>        
+		</dynamic>
     </delete>
-    
+
     <delete id="deleteUnusedAttachments">
         DELETE FROM ATTACHMENT WHERE MESSAGE_ID NOT IN (SELECT ID FROM MESSAGE WHERE ATTACHMENT=TRUE UNION SELECT CORRELATION_ID FROM MESSAGE WHERE CORRELATION_ID IS NOT NULL AND ATTACHMENT=TRUE)
     </delete>
-    
+
 	<select id="lookupMessageId" parameterClass="java.util.Map" resultClass="java.lang.String">
 		SELECT ID
 		FROM MESSAGE
 		WHERE CORRELATION_ID = #correlationId# AND CONNECTOR_NAME = #connectorName#
-    </select>    
+    </select>
 
 	<select id="lookupMessageStatus" parameterClass="java.lang.String" resultClass="java.lang.String">
 		SELECT STATUS
 		FROM MESSAGE
 		WHERE ID = '$id$'
-    </select>    
-    
+    </select>
+
     <delete id="pruneMessages" parameterClass="java.util.Map">
-		DELETE FROM MESSAGE WHERE ID IN 
-		(	
+		DELETE FROM MESSAGE WHERE ID IN
+		(
 			SELECT ID FROM MESSAGE
 			<include refid="messageFilterCriteria" />
 			LIMIT $limit$

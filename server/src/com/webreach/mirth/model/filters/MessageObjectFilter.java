@@ -33,6 +33,7 @@ public class MessageObjectFilter implements Serializable {
 	private boolean searchRawData;
 	private boolean searchTransformedData;
 	private boolean searchEncodedData;
+	private boolean searchErrors;
 	private String quickSearch;
 	private String searchCriteria;
 	private String type;
@@ -135,6 +136,14 @@ public class MessageObjectFilter implements Serializable {
 	public void setSearchTransformedData(boolean searchTransformedData) {
 		this.searchTransformedData = searchTransformedData;
 	}
+
+	public boolean isSearchErrors() {
+		return searchErrors;
+	}
+
+	public void setSearchErrors(boolean searchErrors) {
+		this.searchErrors = searchErrors;
+	}
 	
 	public String getSource() {
 		return source;
@@ -167,6 +176,7 @@ public class MessageObjectFilter implements Serializable {
 		builder.append("searchEncodedData=" + isSearchEncodedData() + ", ");
 		builder.append("searchRawData=" + isSearchRawData() + ", ");
 		builder.append("searchTransformedData=" + isSearchTransformedData() + ", ");
+		builder.append("searchErrors=" + isSearchErrors() + ", ");
 		builder.append("ignoreQueued=" + isIgnoreQueued() + ", ");
 		builder.append("connectorName=" + getConnectorName() + ", ");
 		builder.append("channelIdList=" + getChannelIdList() + ", ");
