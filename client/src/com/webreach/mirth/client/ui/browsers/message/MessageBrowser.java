@@ -1434,10 +1434,11 @@ public class MessageBrowser extends javax.swing.JPanel {
         boolean includeRawMessage = advSearchFilterPopup.isIncludeRawMessage();
         boolean includeTransformedMessage = advSearchFilterPopup.isIncludeTransformedMessage();
         boolean includeEncodedMessage = advSearchFilterPopup.isIncludeEncodedMessage();
+        boolean includeErrors = advSearchFilterPopup.isIncludeErrors();
         String protocol = advSearchFilterPopup.getProtocol();
 
         advSearchFilterPopup = new MessageBrowserAdvancedFilter(parent, "Advanced Search Filter", true);
-        advSearchFilterPopup.setFieldValues(connector, messageSource, messageType, containingKeyword, includeRawMessage, includeTransformedMessage, includeEncodedMessage, protocol);
+        advSearchFilterPopup.setFieldValues(connector, messageSource, messageType, containingKeyword, includeRawMessage, includeTransformedMessage, includeEncodedMessage, includeErrors, protocol);
 
         advSearchFilterPopup.setVisible(true);
 
@@ -1574,6 +1575,9 @@ public class MessageBrowser extends javax.swing.JPanel {
         }
         if (advSearchFilterPopup.isIncludeEncodedMessage()) {
             messageObjectFilter.setSearchEncodedData(true);
+        }
+        if (advSearchFilterPopup.isIncludeErrors()) {
+            messageObjectFilter.setSearchErrors(true);
         }
 
         if (!quickSearch.getText().equals("")) {
