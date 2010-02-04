@@ -15,10 +15,7 @@
 	<library path="pdfviewer-client.jar">
 		<type>CLIENT</type>	
 	</library>
-	<library path="lib/acrobat.jar">
-		<type>CLIENT</type>	
-	</library>
-	<library path="lib/MRJToolkitStubs.jar">
+	<library path="lib/PDFRenderer.jar">
 		<type>CLIENT</type>	
 	</library>
 </pluginMetaData>
