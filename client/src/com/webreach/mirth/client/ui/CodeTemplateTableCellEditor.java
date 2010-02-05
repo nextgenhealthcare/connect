@@ -81,6 +81,13 @@ public class CodeTemplateTableCellEditor extends AbstractCellEditor implements T
      * Checks whether or not the value change is valid.
      */
     private boolean valueChanged(String s) {
+
+        // make sure the name is not longer than 40 characters
+        if (s.length() > 40) {
+            parent.alertWarning(parent, "Code Template name cannot be longer than 40 characters.");
+            return false;
+        }
+
         List<CodeTemplate> codeTemplates = parent.codeTemplates;
 
         // make sure the name doesn't already exist
