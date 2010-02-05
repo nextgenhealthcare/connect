@@ -14,12 +14,12 @@ import java.io.IOException;
 import java.util.Stack;
 
 import org.apache.log4j.Logger;
+import org.apache.xerces.parsers.SAXParser;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
-import com.sun.org.apache.xerces.internal.parsers.SAXParser;
 import com.webreach.mirth.model.ncpdp.NCPDPReference;
 
 public class NCPDPReader extends SAXParser {

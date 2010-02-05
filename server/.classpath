@@ -79,6 +79,7 @@
 	<classpathentry kind="lib" path="lib/extensions/ws/xsom.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/file/webdavclient4j-core-0.92.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/pdfviewer/PDFRenderer.jar"/>
+	<classpathentry kind="lib" path="lib/xercesImpl-2.9.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre6"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
