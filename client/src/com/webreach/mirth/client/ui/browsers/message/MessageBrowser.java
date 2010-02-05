@@ -347,37 +347,56 @@ public class MessageBrowser extends javax.swing.JPanel {
             BufferedReader br = null;
 
             try {
+                String startOfMessage = "<com.webreach.mirth.model.MessageObject>";
                 String endOfMessage = "</com.webreach.mirth.model.MessageObject>";
                 br = new BufferedReader(new InputStreamReader(new FileInputStream(importFile), FileUtil.CHARSET));
                 StringBuffer buffer = new StringBuffer();
                 String line;
 
+                boolean messageImported = false;
+                boolean foundStart = false;
+                
                 while ((line = br.readLine()) != null) {
-                    buffer.append(line);
-
-                    if (line.equals(endOfMessage)) {
-                        messageXML = ImportConverter.convertMessage(buffer.toString());
-
-                        ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-                        MessageObject importMessage;
-                        importMessage = (MessageObject) serializer.fromXML(messageXML);
-                        importMessage.setChannelId(channelId);
-
-                        try {
-                            importMessage.setId(parent.mirthClient.getGuid());
-                            parent.mirthClient.importMessage(importMessage);
-                        } catch (Exception e) {
-                            parent.alertException(this, e.getStackTrace(), "Unable to connect to server. Stopping import. " + e.getMessage());
-                            br.close();
-                            return;
-                        }
-
-                        buffer.delete(0, buffer.length());
+                    if (line.equals(startOfMessage)) {
+                        foundStart = true;
                     }
-
+                    
+                    if (foundStart) {
+                        buffer.append(line);
+    
+                        if (line.equals(endOfMessage)) {
+                            messageXML = ImportConverter.convertMessage(buffer.toString());
+    
+                            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+                            MessageObject importMessage;
+                            importMessage = (MessageObject) serializer.fromXML(messageXML);
+                            importMessage.setChannelId(channelId);
+    
+                            try {
+                                importMessage.setId(parent.mirthClient.getGuid());
+                                parent.mirthClient.importMessage(importMessage);
+                                messageImported = true;
+                            } catch (Exception e) {
+                                parent.alertException(this, e.getStackTrace(), "Unable to connect to server. Stopping import. " + e.getMessage());
+                                br.close();
+                                return;
+                            }
+    
+                            buffer.delete(0, buffer.length());
+                            
+                            foundStart = false;
+                        }
+                    }
                 }
-                parent.alertInformation(this, "All messages have been successfully imported.");
+                
                 br.close();
+                
+                if (!messageImported) {
+                    parent.alertError(this, "No messages were found in the file.");
+                    return;
+                }
+                
+                parent.alertInformation(this, "All messages have been successfully imported.");
             } catch (Exception e) {
                 if (br != null) {
                     try {
