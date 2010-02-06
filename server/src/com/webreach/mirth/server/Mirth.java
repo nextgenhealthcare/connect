@@ -208,7 +208,7 @@ public class Mirth extends Thread {
             }
 
             // TODO: delete old scripts from script table
-
+            
             // update the manager with the new classes
             managerBuilder.deployChannels(channels, extensionController.getConnectorMetaData());
             configurationController.executeChannelDeployScripts(channelController.getChannel(null));
@@ -220,17 +220,18 @@ public class Mirth extends Thread {
     private void undeployChannels(List<String> channelIds) {
         try {
             for (String channelId : channelIds) {
-                channelController.getChannelCache().remove(channelController.getChannelCache().get(channelId));
-                managerBuilder.unregisterChannel(channelId);
+                if (managerBuilder.isChannelRegistered(channelId)) {
+                    channelController.getChannelCache().remove(channelController.getChannelCache().get(channelId));
+                    managerBuilder.unregisterChannel(channelId);
+                }
             }
-
-            // TODO: delete old scripts from script table
         } catch (Exception e) {
             logger.error("Error un-deploying channels.", e);
         }
     }
     
     private void redeployChannels() {
+        logger.debug("reseting global variable store");
         resetGlobalVariableStore();
         
         try {

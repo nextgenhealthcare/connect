@@ -55,7 +55,7 @@ public class JavaScriptConnector extends AbstractServiceEnabledConnector {
 
         try {
             if (scriptId != null) {
-                String databaseScript = scriptController.getScript(scriptId);
+                String databaseScript = scriptController.getScript(channelId, scriptId);
 
                 if (databaseScript != null) {
                     String generatedScript = generateScript(databaseScript);

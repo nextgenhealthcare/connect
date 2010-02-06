@@ -19,20 +19,24 @@ public abstract class TemplateController extends Controller {
      * Adds a template with the specified id to the database. If a template with
      * the id already exists it will be overwritten.
      * 
+     * @param groupId
      * @param id
      * @param template
      * @throws ControllerException
      */
-    public abstract void putTemplate(String id, String template) throws ControllerException;
+    public abstract void putTemplate(String groupId, String id, String template) throws ControllerException;
 
     /**
      * Returns the template with the specified id, null otherwise.
      * 
+     * @param groupId
      * @param id
      * @return
      * @throws ControllerException
      */
-    public abstract String getTemplate(String id) throws ControllerException;
+    public abstract String getTemplate(String groupId, String id) throws ControllerException;
 
-    public abstract void clearTemplates() throws ControllerException;
+    public abstract void removeTemplates(String groupId) throws ControllerException;
+    
+    public abstract void removeAllTemplates() throws ControllerException;
 }

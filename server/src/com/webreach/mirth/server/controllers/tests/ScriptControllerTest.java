@@ -21,7 +21,8 @@ import com.webreach.mirth.server.tools.ScriptRunner;
 public class ScriptControllerTest extends TestCase {
 	private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
 	private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-
+	private static final String groupId = "TEST";
+	
 	protected void setUp() throws Exception {
 		super.setUp();
 		// clear all database tables
@@ -33,28 +34,29 @@ public class ScriptControllerTest extends TestCase {
 	}
 
 	public void testPutScript() throws ControllerException {
+	    
 		String id = configurationController.getGuid();
 		String script = "return true;";
-		scriptController.putScript(id, script);
+		scriptController.putScript(groupId, id, script);
 
-		Assert.assertEquals(script, scriptController.getScript(id));
+		Assert.assertEquals(script, scriptController.getScript(groupId, id));
 	}
 
 	public void testGetScript() throws ControllerException {
 		String id = configurationController.getGuid();
 		String script = "return true;";
-		scriptController.putScript(id, script);
+		scriptController.putScript(groupId, id, script);
 
-		Assert.assertEquals(script, scriptController.getScript(id));
+		Assert.assertEquals(script, scriptController.getScript(groupId, id));
 	}
 	
 	public void testClearScripts() throws ControllerException {
 		String id = configurationController.getGuid();
 		String script = "return true;";
-		scriptController.putScript(id, script);
-		scriptController.clearScripts();
+		scriptController.putScript(groupId, id, script);
+		scriptController.removeAllScripts();
 		
-		Assert.assertNull(scriptController.getScript(id));
+		Assert.assertNull(scriptController.getScript(groupId, id));
 	}
 
 }

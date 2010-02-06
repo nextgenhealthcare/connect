@@ -25,6 +25,7 @@ import com.webreach.mirth.model.ServerConfiguration;
  * 
  */
 public abstract class ConfigurationController extends Controller {
+    public static final String GLOBAL_KEY = "GLOBAL";
     public static final String GLOBAL_POSTPROCESSOR_KEY = "Postprocessor";
     public static final String GLOBAL_PREPROCESSOR_KEY = "Preprocessor";
     public static final String GLOBAL_SHUTDOWN_KEY = "Shutdown";

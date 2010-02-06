@@ -134,7 +134,7 @@ public class JavaScriptUtil {
                 }
                 
                 ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
-                String script = scriptController.getScript(scriptId);
+                String script = scriptController.getScript(channelId, scriptId);
                 String sourceCode = JavaScriptUtil.getSourceCode(script, ((RhinoException) e).lineNumber(), 0);
                 e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 1, scriptType, sourceCode);
             }

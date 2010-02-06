@@ -57,9 +57,11 @@ public class DelimitedAdaptor extends Adaptor implements BatchAdaptor {
 	{
 		try {
 			String batchScriptId = (String) properties.get("batchScriptId");
+			// TODO: This should be "batch" or something
+			String channelId = batchScriptId;
 			StringBuilder batchScript = new StringBuilder();
 			batchScript.append("function doBatchScript() {\n");
-			batchScript.append(ControllerFactory.getFactory().createScriptController().getScript(batchScriptId));
+			batchScript.append(ControllerFactory.getFactory().createScriptController().getScript(channelId, batchScriptId));
 			batchScript.append("\n}\n");
 			batchScript.append("return doBatchScript();\n");
 			JavaScriptUtil.getInstance().compileAndAddScript(batchScriptId, batchScript.toString(), null, true);

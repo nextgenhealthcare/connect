@@ -308,7 +308,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
 
         try {
             if (scriptId != null) {
-                String databaseScript = scriptController.getScript(scriptId);
+                String databaseScript = scriptController.getScript(channelId, scriptId);
 
                 if (databaseScript != null) {
                     String generatedDatabaseScript = generateDatabaseScript(databaseScript, false);
@@ -319,7 +319,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
             }
 
             if (ackScriptId != null) {
-                String ackScript = scriptController.getScript(ackScriptId);
+                String ackScript = scriptController.getScript(channelId, ackScriptId);
 
                 if (ackScript != null) {
                     String generatedDatabaseScript = generateDatabaseScript(ackScript, true);

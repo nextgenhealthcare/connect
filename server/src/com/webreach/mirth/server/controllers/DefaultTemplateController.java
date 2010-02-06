@@ -41,19 +41,21 @@ public class DefaultTemplateController extends TemplateController {
      * Adds a template with the specified id to the database. If a template with
      * the id already exists it will be overwritten.
      * 
+     * @param groupId
      * @param id
      * @param template
      * @throws ControllerException
      */
-    public void putTemplate(String id, String template) throws ControllerException {
-        logger.debug("adding template: id=" + id);
+    public void putTemplate(String groupId, String id, String template) throws ControllerException {
+        logger.debug("adding template: groupId=" + groupId + ", id=" + id);
 
         try {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
+            parameterMap.put("groupId", groupId);
             parameterMap.put("id", id);
             parameterMap.put("template", template);
 
-            if (getTemplate(id) == null) {
+            if (getTemplate(groupId, id) == null) {
                 SqlConfig.getSqlMapClient().insert("Template.insertTemplate", parameterMap);
             } else {
                 SqlConfig.getSqlMapClient().update("Template.updateTemplate", parameterMap);
@@ -70,26 +72,39 @@ public class DefaultTemplateController extends TemplateController {
      * @return
      * @throws ControllerException
      */
-    public String getTemplate(String id) throws ControllerException {
-        logger.debug("retrieving template: id=" + id);
+    public String getTemplate(String groupId, String id) throws ControllerException {
+        logger.debug("retrieving template: groupId=" + groupId + ", id=" + id);
 
         try {
-            return (String) SqlConfig.getSqlMapClient().queryForObject("Template.getTemplate", id);
+            Map<String, Object> parameterMap = new HashMap<String, Object>();
+            parameterMap.put("groupId", groupId);
+            parameterMap.put("id", id);
+
+            return (String) SqlConfig.getSqlMapClient().queryForObject("Template.getTemplate", parameterMap);
         } catch (SQLException e) {
             throw new ControllerException(e);
         }
     }
 
-    public void clearTemplates() throws ControllerException {
+    public void removeTemplates(String groupId) throws ControllerException {
+        logger.debug("removing templates: groupId=" + groupId);
+
+        try {
+            SqlConfig.getSqlMapClient().delete("Template.deleteTemplate", groupId);
+        } catch (SQLException e) {
+            throw new ControllerException("error clearing templates", e);
+        }
+    }
+
+    public void removeAllTemplates() throws ControllerException {
         logger.debug("clearing templates table");
 
         try {
-            SqlConfig.getSqlMapClient().delete("Template.deleteTemplate", null);
+            SqlConfig.getSqlMapClient().delete("Template.deleteTemplate");
             
             if (DatabaseUtil.statementExists("Template.vacuumTemplateTable")) {
                 SqlConfig.getSqlMapClient().update("Template.vacuumTemplateTable");
             }
-            
         } catch (SQLException e) {
             throw new ControllerException("error clearing templates", e);
         }

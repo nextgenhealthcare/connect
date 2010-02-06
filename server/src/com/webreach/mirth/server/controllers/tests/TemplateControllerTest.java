@@ -21,6 +21,7 @@ import com.webreach.mirth.server.tools.ScriptRunner;
 public class TemplateControllerTest extends TestCase {
 	private TemplateController templateController = ControllerFactory.getFactory().createTemplateController();
 	private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+	private static final String GROUP_ID = "TEST";
 
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -35,26 +36,26 @@ public class TemplateControllerTest extends TestCase {
 	public void testPutTemplate() throws ControllerException {
 		String id = configurationController.getGuid();
 		String template = "<sample><test>hello world</test></sample>";
-		templateController.putTemplate(id, template);
+		templateController.putTemplate(GROUP_ID, id, template);
 
-		Assert.assertEquals(template, templateController.getTemplate(id));
+		Assert.assertEquals(template, templateController.getTemplate(GROUP_ID, id));
 	}
 
 	public void testGetTemplate() throws ControllerException {
 		String id = configurationController.getGuid();
 		String template = "<sample><test>hello world</test></sample>";
-		templateController.putTemplate(id, template);
+		templateController.putTemplate(GROUP_ID, id, template);
 
-		Assert.assertEquals(template, templateController.getTemplate(id));
+		Assert.assertEquals(template, templateController.getTemplate(GROUP_ID, id));
 	}
 	
 	public void testClearTemplates() throws ControllerException {
 		String id = configurationController.getGuid();
 		String template = "<sample><test>hello world</test></sample>";
-		templateController.putTemplate(id, template);
-		templateController.clearTemplates();
+		templateController.putTemplate(GROUP_ID, id, template);
+		templateController.removeAllTemplates();
 		
-		Assert.assertNull(templateController.getTemplate(id));
+		Assert.assertNull(templateController.getTemplate(GROUP_ID, id));
 	}
 
 }

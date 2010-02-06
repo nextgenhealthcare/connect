@@ -16,23 +16,27 @@ public abstract class ScriptController extends Controller {
     }
     
     /**
-     * Adds a script with the specified id to the database. If a script with the
+     * Adds a script with the specified groupId and id to the database. If a script with the
      * id already exists it will be overwritten.
      * 
+     * @param groupId
      * @param id
      * @param script
      * @throws ControllerException
      */
-    public abstract void putScript(String id, String script) throws ControllerException;
+    public abstract void putScript(String groupId, String id, String script) throws ControllerException;
 
     /**
      * Returns the script with the specified id, null otherwise.
      * 
+     * @param groupId
      * @param id
      * @return
      * @throws ControllerException
      */
-    public abstract String getScript(String id) throws ControllerException;
+    public abstract String getScript(String groupId, String id) throws ControllerException;
 
-    public abstract void clearScripts() throws ControllerException;
+    public abstract void removeScripts(String groupId) throws ControllerException;
+    
+    public abstract void removeAllScripts() throws ControllerException;
 }

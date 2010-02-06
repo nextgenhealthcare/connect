@@ -71,6 +71,7 @@ public class MuleEngineController implements EngineController {
     private Map<String, ConnectorMetaData> transports = null;
     private JavaScriptBuilder scriptBuilder = new JavaScriptBuilder();
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
+    private TemplateController templateController = ControllerFactory.getFactory().createTemplateController();
     private ObjectXMLSerializer objectSerializer = new ObjectXMLSerializer();
     private UMOManager muleManager = MuleManager.getInstance();
     private JmxAgent jmxAgent = null;
@@ -373,9 +374,9 @@ public class MuleEngineController implements EngineController {
 
             if (transformer.getOutboundTemplate().length() > 0) {
                 if (transformer.getOutboundProtocol().equals(MessageObject.Protocol.DICOM)) {
-                    templateController.putTemplate(templateId, transformer.getOutboundTemplate());
+                    templateController.putTemplate(channel.getId(), templateId, transformer.getOutboundTemplate());
                 } else {
-                    templateController.putTemplate(templateId, serializer.toXML(transformer.getOutboundTemplate()));
+                    templateController.putTemplate(channel.getId(), templateId, serializer.toXML(transformer.getOutboundTemplate()));
                 }
             }
 
@@ -384,7 +385,7 @@ public class MuleEngineController implements EngineController {
 
         // put the script in the scripts table
         String scriptId = UUIDGenerator.getUUID();
-        scriptController.putScript(scriptId, scriptBuilder.getScript(channel, connector.getFilter(), transformer));
+        scriptController.putScript(channel.getId(), scriptId, scriptBuilder.getScript(channel, connector.getFilter(), transformer));
         beanProperties.put("scriptId", scriptId);
         beanProperties.put("connectorName", connector.getName());
 
@@ -397,10 +398,9 @@ public class MuleEngineController implements EngineController {
         }
 
         // Add the "batchScript" property to the script table
-        ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
-
+        // TODO: Make the second ID param be "batch" or something like that
         if (transformer.getInboundProperties() != null && transformer.getInboundProperties().getProperty("batchScript") != null) {
-            scriptController.putScript(channel.getId(), transformer.getInboundProperties().getProperty("batchScript"));
+            scriptController.putScript(channel.getId(), channel.getId(), transformer.getInboundProperties().getProperty("batchScript"));
         }
 
         BeanUtils.populate(umoTransformer, beanProperties);
@@ -430,7 +430,7 @@ public class MuleEngineController implements EngineController {
                     beanProperties.put(property.getKey(), objectSerializer.fromXML(property.getValue().toString()));
                 } else if (property.getKey().equals("script") || property.getKey().equals("ackScript")) {
                     String databaseScriptId = UUIDGenerator.getUUID();
-                    scriptController.putScript(databaseScriptId, property.getValue().toString());
+                    scriptController.putScript(channelId, databaseScriptId, property.getValue().toString());
                     beanProperties.put(property.getKey() + "Id", databaseScriptId);
                 } else {
                     beanProperties.put(property.getKey(), property.getValue());
@@ -450,7 +450,8 @@ public class MuleEngineController implements EngineController {
         UMOTransformer umoTransformer = (UMOTransformer) Class.forName("com.webreach.mirth.server.mule.transformers.JavaScriptPreprocessor").newInstance();
         umoTransformer.setName(name);
         String preprocessingScriptId = UUIDGenerator.getUUID();
-        scriptController.putScript(preprocessingScriptId, channel.getPreprocessingScript());
+        scriptController.putScript(channel.getId(), preprocessingScriptId, channel.getPreprocessingScript());
+        PropertyUtils.setSimpleProperty(umoTransformer, "channelId", channel.getId());
         PropertyUtils.setSimpleProperty(umoTransformer, "preprocessingScriptId", preprocessingScriptId);
 
         // add the transformer to the manager
@@ -520,6 +521,10 @@ public class MuleEngineController implements EngineController {
         UMOOutboundRouter outboundRouter = (UMOOutboundRouter) descriptor.getOutboundRouter().getRouters().iterator().next();
         unregisterConnectors(outboundRouter.getEndpoints());
 
+        // remove the scripts associated with the channel
+        scriptController.removeScripts(channelId);
+        templateController.removeTemplates(channelId);
+        
         // unregister its mbean
         jmxAgent.unregsiterComponentService(channelId);
     }
@@ -529,7 +534,6 @@ public class MuleEngineController implements EngineController {
             if (!endpoint.getEndpointURI().getUri().toString().equals("vm://sink")) {
                 logger.debug("unregistering endpoint: " + endpoint.getName());
                 muleManager.unregisterEndpoint(endpoint.getName());
-                // muleManager.unregisterConnector(endpoint.getConnector().getName());
             }
 
             unregisterTransformer(endpoint.getTransformer());
@@ -552,7 +556,10 @@ public class MuleEngineController implements EngineController {
 
         for (Iterator<String> iterator = muleManager.getModel().getComponentNames(); iterator.hasNext();) {
             String channelId = iterator.next();
-            channelIds.add(channelId);
+            
+            if (!channelId.equals("MessageSink")) {
+                channelIds.add(channelId);    
+            }
         }
 
         return channelIds;

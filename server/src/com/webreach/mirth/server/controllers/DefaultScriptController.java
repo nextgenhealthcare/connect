@@ -44,15 +44,16 @@ public class DefaultScriptController extends ScriptController {
      * @param script
      * @throws ControllerException
      */
-    public void putScript(String id, String script) throws ControllerException {
-        logger.debug("adding script: id=" + id);
+    public void putScript(String groupId, String id, String script) throws ControllerException {
+        logger.debug("adding script: groupId=" + groupId + ", id=" + id);
 
         try {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
+            parameterMap.put("groupId", groupId);
             parameterMap.put("id", id);
             parameterMap.put("script", script);
 
-            if (getScript(id) == null) {
+            if (getScript(groupId, id) == null) {
                 SqlConfig.getSqlMapClient().insert("Script.insertScript", parameterMap);
             } else {
                 SqlConfig.getSqlMapClient().update("Script.updateScript", parameterMap);
@@ -69,32 +70,40 @@ public class DefaultScriptController extends ScriptController {
      * @return
      * @throws ControllerException
      */
-    public String getScript(String id) throws ControllerException {
-        logger.debug("retrieving script: id=" + id);
+    public String getScript(String groupId, String id) throws ControllerException {
+        logger.debug("retrieving script: groupId=" + groupId + ", id=" + id);
 
         try {
-            Object script = SqlConfig.getSqlMapClient().queryForObject("Script.getScript", id);
-            if (script != null)
-                return (String) script;
-            else
-                return null;
+            Map<String, Object> parameterMap = new HashMap<String, Object>();
+            parameterMap.put("groupId", groupId);
+            parameterMap.put("id", id);
+            return (String) SqlConfig.getSqlMapClient().queryForObject("Script.getScript", parameterMap);
         } catch (SQLException e) {
             throw new ControllerException(e);
         }
     }
 
-    public void clearScripts() throws ControllerException {
+    public void removeScripts(String groupId) throws ControllerException {
+        logger.debug("deleting scripts: groupId=" + groupId);
+
+        try {
+            SqlConfig.getSqlMapClient().delete("Script.deleteScript", groupId);
+        } catch (SQLException e) {
+            throw new ControllerException("Error deleting scripts", e);
+        }
+    }
+    
+    public void removeAllScripts() throws ControllerException {
         logger.debug("clearing scripts table");
 
         try {
-            SqlConfig.getSqlMapClient().delete("Script.deleteScript", null);
-            
+            SqlConfig.getSqlMapClient().delete("Script.deleteScript");
+
             if (DatabaseUtil.statementExists("Script.vacuumScriptTable")) {
                 SqlConfig.getSqlMapClient().update("Script.vacuumScriptTable");
             }
-            
         } catch (SQLException e) {
-            throw new ControllerException("error clearing scripts", e);
+            throw new ControllerException("Error clearing scripts", e);
         }
     }
 }

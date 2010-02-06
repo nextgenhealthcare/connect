@@ -38,13 +38,22 @@ import com.webreach.mirth.server.util.GlobalVariableStore;
 import com.webreach.mirth.server.util.VMRouter;
 
 public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
+    private String channelId;
 	private String preprocessingScriptId;
 	private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
 	private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
 	private CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
 	private static String LOCAL_DEFAULT_SCRIPT = "return message;";
+	
+	public String getChannelId() {
+        return channelId;
+    }
 
-	public String getPreprocessingScriptId() {
+    public void setChannelId(String channelId) {
+        this.channelId = channelId;
+    }
+
+    public String getPreprocessingScriptId() {
 		return this.preprocessingScriptId;
 	}
 
@@ -57,7 +66,7 @@ public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 		boolean createdContext = false;
 		
 		try {
-			String preprocessingScript = scriptController.getScript(preprocessingScriptId);
+			String preprocessingScript = scriptController.getScript(channelId, preprocessingScriptId);
 
 			if ((preprocessingScript != null) && (preprocessingScript.length() > 0)) {
 				Context context = Context.enter();

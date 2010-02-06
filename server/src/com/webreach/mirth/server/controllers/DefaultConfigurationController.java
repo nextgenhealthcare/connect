@@ -191,6 +191,10 @@ public class DefaultConfigurationController extends ConfigurationController {
     public void redeployAllChannels() throws ControllerException {
         logger.debug("redeploying all channels");
         
+        // remove all scripts and templates
+        scriptController.removeAllScripts();
+        ControllerFactory.getFactory().createTemplateController().removeAllTemplates();
+        
         // undeploy all running channels
         CommandQueue.getInstance().addCommand(new Command(Command.Operation.REDEPLOY));
         // deploy all enabled channels
@@ -201,8 +205,6 @@ public class DefaultConfigurationController extends ConfigurationController {
         logger.debug("deploying channels");
 
         try {
-            scriptController.clearScripts();
-            ControllerFactory.getFactory().createTemplateController().clearTemplates();
             ControllerFactory.getFactory().createChannelController().loadChannelCache();
             ControllerFactory.getFactory().createChannelController().refreshChannelCache(channels);
             ControllerFactory.getFactory().createExtensionController().triggerDeploy();
@@ -303,10 +305,10 @@ public class DefaultConfigurationController extends ConfigurationController {
     public Map<String, String> getGlobalScripts() throws ControllerException {
         Map<String, String> scripts = new HashMap<String, String>();
 
-        String deployScript = scriptController.getScript(GLOBAL_DEPLOY_KEY);
-        String shutdownScript = scriptController.getScript(GLOBAL_SHUTDOWN_KEY);
-        String preprocessorScript = scriptController.getScript(GLOBAL_PREPROCESSOR_KEY);
-        String postprocessorScript = scriptController.getScript(GLOBAL_POSTPROCESSOR_KEY);
+        String deployScript = scriptController.getScript(GLOBAL_KEY, GLOBAL_DEPLOY_KEY);
+        String shutdownScript = scriptController.getScript(GLOBAL_KEY, GLOBAL_SHUTDOWN_KEY);
+        String preprocessorScript = scriptController.getScript(GLOBAL_KEY, GLOBAL_PREPROCESSOR_KEY);
+        String postprocessorScript = scriptController.getScript(GLOBAL_KEY, GLOBAL_POSTPROCESSOR_KEY);
 
         if (deployScript == null || deployScript.equals("")) {
             deployScript = GLOBAL_DEPLOY_DEFAULT_SCRIPT;
@@ -334,7 +336,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     public void setGlobalScripts(Map<String, String> scripts) throws ControllerException {
         for (Entry<String, String> entry : scripts.entrySet()) {
-            scriptController.putScript(entry.getKey().toString(), scripts.get(entry.getKey()));
+            scriptController.putScript(GLOBAL_KEY, entry.getKey().toString(), scripts.get(entry.getKey()));
         }
     }
 
