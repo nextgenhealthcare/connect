@@ -141,7 +141,7 @@ public class LlpProtocol implements TcpProtocol {
 		
 		if (c == -1) {  // End of stream reached without start of message character.
 			String message = myReader.toString();
-			logger.info("Bytes received violate the MLLP: no start of message indicator received.\r\n" + message);
+			logger.error("Bytes received violate the MLLP: no start of message indicator received.\r\n" + message);
 			return null;
 		}
 		
@@ -151,7 +151,7 @@ public class LlpProtocol implements TcpProtocol {
 			c = myReader.read();
 
 			if (c == -1) {
-				logger.info("Message violates the " + "minimal lower protocol: message terminated without " + "a terminating character.");
+				logger.error("Message violates the " + "minimal lower protocol: message terminated without " + "a terminating character.");
 				return null;
 			}
 			myReader.append((char) c);
@@ -162,7 +162,7 @@ public class LlpProtocol implements TcpProtocol {
 					try {
 						c = myReader.read();
 						if (END_OF_RECORD != 0 && c != END_OF_RECORD) {
-							logger.info("Message terminator was: " + c + "  Expected terminator: " + END_OF_RECORD);
+							logger.error("Message terminator was: " + c + "  Expected terminator: " + END_OF_RECORD);
 							return null;
 						}
 						myReader.append((char) c);
