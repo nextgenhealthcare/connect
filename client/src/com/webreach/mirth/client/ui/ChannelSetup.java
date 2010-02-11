@@ -189,7 +189,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             name = "Source";
             transformerPaneLoaded = transformerPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getTransformer(), changed);
         } else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX) {
-            int destination = getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)));
+            int destination = getDestinationConnectorIndex((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME)));
             transformerPaneLoaded = transformerPane.load(currentChannel.getDestinationConnectors().get(destination), currentChannel.getDestinationConnectors().get(destination).getTransformer(), changed);
             name = currentChannel.getDestinationConnectors().get(destination).getName();
         }
@@ -213,7 +213,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             name = "Source";
             filterPaneLoaded = filterPane.load(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getFilter(), currentChannel.getSourceConnector().getTransformer(), changed);
         } else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX) {
-            Connector destination = currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME))));
+            Connector destination = currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME))));
             filterPaneLoaded = filterPane.load(destination, destination.getFilter(), destination.getTransformer(), changed);
             name = destination.getName();
         }
@@ -317,13 +317,13 @@ public class ChannelSetup extends javax.swing.JPanel {
                 if (!evt.getValueIsAdjusting()) {
                     // if it's currently editing, make sure to reset the last index to the new value
                     if (destinationTable.isEditing()) {
-                        lastIndex = (String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME));
+                        lastIndex = (String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME));
                     }
 
                     int last = getDestinationIndex(lastIndex);
 
                     if (last != -1 && last != destinationTable.getRowCount() && !isDeleting) {
-                        int connectorIndex = getDestinationConnectorIndex((String) destinationTable.getValueAt(last, getColumnNumber(DESTINATION_COLUMN_NAME)));
+                        int connectorIndex = getDestinationConnectorIndex((String) destinationTable.getModel().getValueAt(last, destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME)));
                         Connector destinationConnector = currentChannel.getDestinationConnectors().get(connectorIndex);
                         destinationConnector.setProperties(destinationConnectorClass.getProperties());
                     }
@@ -335,7 +335,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                             destinationTable.setRowSelectionInterval(last, last);
                         }
                     } else {
-                        lastIndex = ((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)));
+                        lastIndex = ((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME)));
                     }
 
                     checkVisibleDestinationTasks();
@@ -402,8 +402,8 @@ public class ChannelSetup extends javax.swing.JPanel {
 
     /** Get the index of a destination by being passed its name. */
     private int getDestinationIndex(String destinationName) {
-        for (int i = 0; i < destinationTable.getRowCount(); i++) {
-            if (((String) destinationTable.getValueAt(i, getColumnNumber(DESTINATION_COLUMN_NAME))).equalsIgnoreCase(destinationName)) {
+        for (int i = 0; i < destinationTable.getModel().getRowCount(); i++) {
+            if (((String) destinationTable.getModel().getValueAt(i, destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME))).equalsIgnoreCase(destinationName)) {
                 return i;
             }
         }
@@ -420,7 +420,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         for (int i = 1; i <= size; i++) {
             boolean exists = false;
             for (int j = 0; j < size - 1; j++) {
-                if (((String) destinationTable.getValueAt(j, getColumnNumber(DESTINATION_COLUMN_NAME))).equalsIgnoreCase(temp + i)) {
+                if (((String) destinationTable.getModel().getValueAt(j, destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME))).equalsIgnoreCase(temp + i)) {
                     exists = true;
                 }
             }
@@ -429,25 +429,6 @@ public class ChannelSetup extends javax.swing.JPanel {
             }
         }
         return "";
-    }
-
-    /** Get the column index number based on its name. */
-    private int getColumnNumber(String name) {
-        for (int i = 0; i < destinationTable.getColumnCount(); i++) {
-            if (destinationTable.getColumnName(i).equalsIgnoreCase(name)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    /** Get the currently selected destination index */
-    public int getSelectedDestinationIndex() {
-        if (destinationTable.isEditing()) {
-            return destinationTable.getEditingRow();
-        } else {
-            return destinationTable.getSelectedRow();
-        }
     }
 
     /** Get a destination connector index by passing in its name */
@@ -466,8 +447,8 @@ public class ChannelSetup extends javax.swing.JPanel {
         List<Connector> destinationConnectors;
         String destinationName;
 
-        if (getSelectedDestinationIndex() != -1) {
-            destinationName = (String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME));
+        if (destinationTable.getSelectedModelIndex() != -1) {
+            destinationName = (String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME));
         } else {
             return false;
         }
@@ -712,7 +693,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         Connector temp;
 
-        temp = currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME))));
+        temp = currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME))));
         temp.setProperties(destinationConnectorClass.getProperties());
 
         currentChannel.setName(summaryNameField.getText());
@@ -804,7 +785,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             // validation on the current form to display any errors.
             if (channelView.getSelectedComponent() == destination) {
                 // If the destination is enabled...
-                if (currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)))).isEnabled()) {
+                if (currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME)))).isEnabled()) {
                     destinationConnectorClass.checkProperties(destinationConnectorClass.getProperties(), true);
                 }
             } else if (channelView.getSelectedComponent() == source) {
@@ -834,7 +815,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                     if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX) {
                         transformerPane.reload(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getTransformer());
                     } else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX) {
-                        int destination = getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)));
+                        int destination = getDestinationConnectorIndex((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME)));
                         transformerPane.reload(currentChannel.getDestinationConnectors().get(destination), currentChannel.getDestinationConnectors().get(destination).getTransformer());
                     }
                 }
@@ -842,7 +823,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                     if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX) {
                         filterPane.reload(currentChannel.getSourceConnector(), currentChannel.getSourceConnector().getFilter());
                     } else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX) {
-                        Connector destination = currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME))));
+                        Connector destination = currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME))));
                         filterPane.reload(destination, destination.getFilter());
                     }
                 }
@@ -874,7 +855,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             }
         }
         List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
-        String destinationName = (String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME));
+        String destinationName = (String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME));
 
         Connector destination = null;
         try {
@@ -892,7 +873,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
     public void enableDestination() {
         List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
-        Connector destination = destinationConnectors.get(getSelectedDestinationIndex());
+        Connector destination = destinationConnectors.get(destinationTable.getSelectedModelIndex());
         destination.setEnabled(true);
         makeDestinationTable(false);
         parent.enableSave();
@@ -918,7 +899,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             return;
         }
 
-        Connector destination = destinationConnectors.get(getSelectedDestinationIndex());
+        Connector destination = destinationConnectors.get(destinationTable.getSelectedModelIndex());
         destination.setEnabled(false);
         makeDestinationTable(false);
         parent.enableSave();
@@ -942,7 +923,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         boolean enabledDestination = false;
         // if there is an enabled destination besides the one being deleted, set enabledDestination to true.
         for (int i = 0; i < destinationConnectors.size(); i++) {
-            if (destinationConnectors.get(i).isEnabled() && (i != getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME))))) {
+            if (destinationConnectors.get(i).isEnabled() && (i != getDestinationConnectorIndex((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME))))) {
                 enabledDestination = true;
             }
         }
@@ -952,7 +933,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             return;
         }
 
-        destinationConnectors.remove(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME))));
+        destinationConnectors.remove(getDestinationConnectorIndex((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME))));
 
         makeDestinationTable(false);
         parent.enableSave();
@@ -968,7 +949,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         if (channelView.getSelectedComponent() == destination) {
             // enable and disable
             List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
-            Connector destination = destinationConnectors.get(getSelectedDestinationIndex());
+            Connector destination = destinationConnectors.get(destinationTable.getSelectedModelIndex());
             if (destination.isEnabled()) {
                 parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 5, 5, false);
                 parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 6, 6, true);
@@ -978,13 +959,13 @@ public class ChannelSetup extends javax.swing.JPanel {
             }
 
             // move up and move down
-            if (getSelectedDestinationIndex() == 0) {
+            if (destinationTable.getSelectedModelIndex() == 0) {
                 parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 7, 7, false);
             } else {
                 parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 7, 7, true);
             }
 
-            if (getSelectedDestinationIndex() == destinationTable.getRowCount() - 1) {
+            if (destinationTable.getSelectedModelIndex() == destinationTable.getRowCount() - 1) {
                 parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 8, 8, false);
             } else {
                 parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 8, 8, true);
@@ -1001,7 +982,7 @@ public class ChannelSetup extends javax.swing.JPanel {
      */
     public void moveDestinationUp() {
         List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
-        int destinationIndex = getSelectedDestinationIndex();
+        int destinationIndex = destinationTable.getSelectedModelIndex();
 
         destinationConnectors.add(destinationIndex - 1, destinationConnectors.get(destinationIndex));
         destinationConnectors.remove(destinationIndex + 1);
@@ -1016,7 +997,7 @@ public class ChannelSetup extends javax.swing.JPanel {
      */
     public void moveDestinationDown() {
         List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
-        int destinationIndex = getSelectedDestinationIndex();
+        int destinationIndex = destinationTable.getSelectedModelIndex();
 
         destinationConnectors.add(destinationIndex + 2, destinationConnectors.get(destinationIndex));
         destinationConnectors.remove(destinationIndex);
@@ -1721,7 +1702,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         parent.updateTransformerTaskName(currentChannel.getSourceConnector().getTransformer().getSteps().size());
 
 
-        int connectorIndex = getDestinationConnectorIndex((String) destinationTable.getValueAt(destinationTable.getSelectedRow(), getColumnNumber(DESTINATION_COLUMN_NAME)));
+        int connectorIndex = getDestinationConnectorIndex((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME)));
         Connector destinationConnector = currentChannel.getDestinationConnectors().get(connectorIndex);
         destinationConnector.setProperties(destinationConnectorClass.getProperties());
         updateScripts();
@@ -1744,7 +1725,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         checkVisibleDestinationTasks();
 
         // If validation has failed and this destination is enabled, then highlight any errors on this form.
-        if (channelValidationFailed && currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)))).isEnabled()) {
+        if (channelValidationFailed && currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME)))).isEnabled()) {
             destinationConnectorClass.checkProperties(destinationConnectorClass.getProperties(), true);
         }
     }
@@ -1832,7 +1813,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         // that
         // changing the connector type will lose all current connector data.
         if (!loadingChannel) {
-            if (destinationConnectorClass.getName() != null && destinationConnectorClass.getName().equals((String) destinationSourceDropdown.getSelectedItem()) && lastIndex.equals((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)))) {
+            if (destinationConnectorClass.getName() != null && destinationConnectorClass.getName().equals((String) destinationSourceDropdown.getSelectedItem()) && lastIndex.equals((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME)))) {
                 return;
             }
 
@@ -1840,7 +1821,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             // properties/transformer/filter have
             // not been changed from defaults then ask if the user would
             // like to really change connector type.
-            if (lastIndex.equals((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME))) && (!PropertyVerifier.compareProps(destinationConnectorClass.getProperties(), destinationConnectorClass.getDefaults()) || currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)))).getFilter().getRules().size() > 0 || currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)))).getTransformer().getSteps().size() > 0)) {
+            if (lastIndex.equals((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME))) && (!PropertyVerifier.compareProps(destinationConnectorClass.getProperties(), destinationConnectorClass.getDefaults()) || currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME)))).getFilter().getRules().size() > 0 || currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME)))).getTransformer().getSteps().size() > 0)) {
                 boolean changeType = parent.alertOption(this.parent, "Are you sure you would like to change this connector type and lose all of the current connector data?");
                 if (!changeType) {
                     destinationSourceDropdown.setSelectedItem(destinationConnectorClass.getProperties().get(DATA_TYPE_KEY));
@@ -1851,7 +1832,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         generateMultipleDestinationPage();
 
         // If validation has failed and this destination is enabled, then highlight any errors on this form.
-        if (channelValidationFailed && currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)))).isEnabled()) {
+        if (channelValidationFailed && currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME)))).isEnabled()) {
             destinationConnectorClass.checkProperties(destinationConnectorClass.getProperties(), true);
         }
     }
@@ -1866,7 +1847,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         // Get the currently selected destination connector.
         List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
-        int connectorIndex = getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)));
+        int connectorIndex = getDestinationConnectorIndex((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME)));
         Connector destinationConnector = destinationConnectors.get(connectorIndex);
 
         String dataType = destinationConnector.getProperties().getProperty(DATA_TYPE_KEY);
@@ -1897,8 +1878,8 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         // If the connector type has changed then set the new value in the
         // destination table.
-        if (destinationConnector.getTransportName() != null && !((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(CONNECTOR_TYPE_COLUMN_NAME))).equals(destinationConnector.getTransportName()) && getSelectedDestinationIndex() != -1) {
-            destinationTable.setValueAt((String) destinationSourceDropdown.getSelectedItem(), getSelectedDestinationIndex(), getColumnNumber(CONNECTOR_TYPE_COLUMN_NAME));
+        if (destinationConnector.getTransportName() != null && !((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(CONNECTOR_TYPE_COLUMN_NAME))).equals(destinationConnector.getTransportName()) && destinationTable.getSelectedModelIndex() != -1) {
+            destinationTable.getModel().setValueAt((String) destinationSourceDropdown.getSelectedItem(), destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(CONNECTOR_TYPE_COLUMN_NAME));
         }
 
         // Debug with:
@@ -1959,7 +1940,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
     /** Sets the destination variable list from the transformer steps */
     public void setDestinationVariableList() {
-        int destination = getDestinationConnectorIndex((String) destinationTable.getValueAt(getSelectedDestinationIndex(), getColumnNumber(DESTINATION_COLUMN_NAME)));
+        int destination = getDestinationConnectorIndex((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME)));
         Set<String> concatenatedRuleVariables = getMultipleDestinationRules(currentChannel.getDestinationConnectors().get(destination));
         Set<String> concatenatedStepVariables = getMultipleDestinationStepVariables(currentChannel.getDestinationConnectors().get(destination));
         concatenatedRuleVariables.addAll(concatenatedStepVariables);
@@ -2037,7 +2018,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX) {
             return currentChannel.getSourceConnector();
         } else if (channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX) {
-            return currentChannel.getDestinationConnectors().get(getSelectedDestinationIndex());
+            return currentChannel.getDestinationConnectors().get(destinationTable.getSelectedModelIndex());
         } else {
             return null;
         }
