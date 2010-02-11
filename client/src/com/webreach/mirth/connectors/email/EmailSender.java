@@ -177,18 +177,22 @@ public class EmailSender extends ConnectorClass {
         resetInvalidProperties();
         boolean valid = true;
 
-        if (((String) props.get(EmailSenderProperties.EMAIL_ADDRESS)).length() == 0) {
-            valid = false;
-            if (highlight) {
-                SMTPServerHostField.setBackground(UIConstants.INVALID_COLOR);
+        // Only verify the adrees and port are defined if user server settings is set to no
+        if (((String) props.get(EmailSenderProperties.EMAIL_USE_SERVER_SETTINGS)).equals(UIConstants.NO_OPTION)) {
+            if (((String) props.get(EmailSenderProperties.EMAIL_ADDRESS)).length() == 0) {
+                valid = false;
+                if (highlight) {
+                    SMTPServerHostField.setBackground(UIConstants.INVALID_COLOR);
+                }
+            }
+            if (((String) props.get(EmailSenderProperties.EMAIL_PORT)).length() == 0) {
+                valid = false;
+                if (highlight) {
+                    SMTPServerPortField.setBackground(UIConstants.INVALID_COLOR);
+                }
             }
         }
-        if (((String) props.get(EmailSenderProperties.EMAIL_PORT)).length() == 0) {
-            valid = false;
-            if (highlight) {
-                SMTPServerPortField.setBackground(UIConstants.INVALID_COLOR);
-            }
-        }
+        
         if (((String) props.get(EmailSenderProperties.EMAIL_TO)).length() == 0) {
             valid = false;
             if (highlight) {
