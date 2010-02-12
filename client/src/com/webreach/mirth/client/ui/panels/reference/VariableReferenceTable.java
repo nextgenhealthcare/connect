@@ -17,7 +17,6 @@ import java.util.Set;
 
 import javax.swing.table.DefaultTableModel;
 
-import com.webreach.mirth.client.ui.PlatformUI;
 import com.webreach.mirth.model.CodeTemplate;
 
 public class VariableReferenceTable extends ReferenceTable {

@@ -25,8 +25,8 @@ public class VariableListUtil {
 
     final static String COMMENT_SIMPLE_PATTERN = "//.*";
     final static String COMMENT_BLOCK_PATTERN = "/\\*(?:.|[\\n\\r])*?\\*/";
-    final static String GLOBAL_AND_CHANNEL_VARIABLE_PATTERN = "(?<![A-Za-z0-9_$])(?:(?:(?:channel|global|response)(?:M|m)ap.put)|\\$(?:g|c|r))\\(\\s*['|\"]([^'|^\"|^\\s]*)[\"|']*";
-    final static String LOCAL_VARIABLE_PATTERN = "(?<![A-Za-z0-9_$])(?:(?:(?:channel|global|response|connector)(?:M|m)ap.put)|\\$(?:g|c|r|co))\\(\\s*['|\"]([^'|^\"|^\\s]*)[\"|']*";
+    final static String GLOBAL_AND_CHANNEL_VARIABLE_PATTERN = "(?<![A-Za-z0-9_$])(?:(?:(?:channel|global|globalChannel|response)(?:M|m)ap.put)|\\$(?:g|gc|c|r))\\(\\s*['|\"]([^'|^\"|^\\s]*)[\"|']*";
+    final static String LOCAL_VARIABLE_PATTERN = "(?<![A-Za-z0-9_$])(?:(?:(?:channel|global|globalChannel|response|connector)(?:M|m)ap.put)|\\$(?:g|gc|c|r|co))\\(\\s*['|\"]([^'|^\"|^\\s]*)[\"|']*";
     final static int MATCHER_INDEX = 1;
 
     public static void getStepVariables(Set<String> targetSet, Connector connector, boolean includeLocalVars) {

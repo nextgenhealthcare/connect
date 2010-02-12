@@ -558,13 +558,13 @@ public class ChannelSetup extends javax.swing.JPanel {
         if (currentChannel.getDeployScript() != null) {
             scriptMap.put(ScriptPanel.DEPLOY_SCRIPT, currentChannel.getDeployScript());
         } else {
-            scriptMap.put(ScriptPanel.DEPLOY_SCRIPT, "// This script executes once when the mule engine is started\n// You only have access to the globalMap here to persist data\nreturn;");
+            scriptMap.put(ScriptPanel.DEPLOY_SCRIPT, "// This script executes once when the channel is deployed\n// You only have access to the globalMap and globalChannelMap here to persist data\nreturn;");
         }
 
         if (currentChannel.getShutdownScript() != null) {
             scriptMap.put(ScriptPanel.SHUTDOWN_SCRIPT, currentChannel.getShutdownScript());
         } else {
-            scriptMap.put(ScriptPanel.SHUTDOWN_SCRIPT, "// This script executes once when the mule engine is stopped\n// You only have access to the globalMap here to persist data\nreturn;");
+            scriptMap.put(ScriptPanel.SHUTDOWN_SCRIPT, "// This script executes once when the channel is undeployed\n// You only have access to the globalMap and globalChannelMap here to persist data\nreturn;");
         }
 
         if (currentChannel.getPostprocessingScript() != null) {
@@ -587,6 +587,12 @@ public class ChannelSetup extends javax.swing.JPanel {
             synchronousCheckBox.setSelected(false);
         } else {
             synchronousCheckBox.setSelected(true);
+        }
+        
+        if (((String) currentChannel.getProperties().get("clearGlobalChannelMap")).equalsIgnoreCase("false")) {
+            clearGlobalChannelMapCheckBox.setSelected(false);
+        } else {
+            clearGlobalChannelMapCheckBox.setSelected(true);
         }
 
         if (((String) currentChannel.getProperties().get("encryptData")).equalsIgnoreCase("true")) {
@@ -739,6 +745,12 @@ public class ChannelSetup extends javax.swing.JPanel {
             currentChannel.getProperties().put("synchronous", "true");
         } else {
             currentChannel.getProperties().put("synchronous", "false");
+        }
+        
+        if (clearGlobalChannelMapCheckBox.isSelected()) {
+            currentChannel.getProperties().put("clearGlobalChannelMap", "true");
+        } else {
+            currentChannel.getProperties().put("clearGlobalChannelMap", "false");
         }
 
         if (encryptMessagesCheckBox.isSelected()) {
@@ -1184,6 +1196,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         summaryEnabledCheckbox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
         transactionalCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
         synchronousCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
+        clearGlobalChannelMapCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
         summaryRevision = new javax.swing.JLabel();
         lastModified = new javax.swing.JLabel();
         source = new javax.swing.JPanel();
@@ -1319,6 +1332,12 @@ public class ChannelSetup extends javax.swing.JPanel {
             }
         });
 
+        clearGlobalChannelMapCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        clearGlobalChannelMapCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        clearGlobalChannelMapCheckBox.setText("Clear global channel map on deploy");
+        clearGlobalChannelMapCheckBox.setToolTipText("This will clear the global channel map on both single channel deploy and a full redeploy.");
+        clearGlobalChannelMapCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -1328,11 +1347,15 @@ public class ChannelSetup extends javax.swing.JPanel {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(summaryEnabledCheckbox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(transactionalCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(20, 20, 20))
+                .addGap(92, 92, 92))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(synchronousCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(56, Short.MAX_VALUE))
+                .addContainerGap(128, Short.MAX_VALUE))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(clearGlobalChannelMapCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1342,7 +1365,9 @@ public class ChannelSetup extends javax.swing.JPanel {
                 .addComponent(transactionalCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(synchronousCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(43, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(clearGlobalChannelMapCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(22, Short.MAX_VALUE))
         );
 
         summaryRevision.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
@@ -1373,11 +1398,11 @@ public class ChannelSetup extends javax.swing.JPanel {
                             .addComponent(summaryNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(encryptMessagesCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(summaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(summaryRevision, javax.swing.GroupLayout.DEFAULT_SIZE, 188, Short.MAX_VALUE)
-                            .addComponent(lastModified, javax.swing.GroupLayout.DEFAULT_SIZE, 188, Short.MAX_VALUE)))
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(summaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(summaryRevision, javax.swing.GroupLayout.DEFAULT_SIZE, 155, Short.MAX_VALUE)
+                            .addComponent(lastModified, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 155, Short.MAX_VALUE)))
                     .addComponent(storeMessages, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(summaryLayout.createSequentialGroup()
                         .addGap(35, 35, 35)
@@ -2063,6 +2088,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JTabbedPane channelView;
+    public com.webreach.mirth.client.ui.components.MirthCheckBox clearGlobalChannelMapCheckBox;
     private javax.swing.JLabel days;
     private javax.swing.JPanel destination;
     private com.webreach.mirth.connectors.ConnectorClass destinationConnectorClass;
