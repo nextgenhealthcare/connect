@@ -55,16 +55,17 @@ public class DelimitedAdaptor extends Adaptor implements BatchAdaptor {
 	public void processBatch(Reader src, Map properties, BatchMessageProcessor dest)
 		throws MessagingException, UMOException, IOException
 	{
+	    String channelId = null;
 		try {
 			String batchScriptId = (String) properties.get("batchScriptId");
 			// TODO: This should be "batch" or something
-			String channelId = batchScriptId;
+			channelId = batchScriptId;
 			StringBuilder batchScript = new StringBuilder();
 			batchScript.append("function doBatchScript() {\n");
 			batchScript.append(ControllerFactory.getFactory().createScriptController().getScript(channelId, batchScriptId));
 			batchScript.append("\n}\n");
 			batchScript.append("return doBatchScript();\n");
-			JavaScriptUtil.getInstance().compileAndAddScript(batchScriptId, batchScript.toString(), null, true);
+			JavaScriptUtil.getInstance().compileAndAddScript(batchScriptId, batchScript.toString(), null, false, true);
 		} catch (Exception e) {
 			logger.error(e);
 		}
@@ -73,7 +74,7 @@ public class DelimitedAdaptor extends Adaptor implements BatchAdaptor {
 		BufferedReader in = new BufferedReader(src);
 		String message;
 		boolean skipHeader = true;
-		while ((message = serializer.getMessage(in, skipHeader)) != null) {
+		while ((message = serializer.getMessage(in, skipHeader, channelId)) != null) {
 			dest.processBatchMessage(message);
 			skipHeader = false;
 		}

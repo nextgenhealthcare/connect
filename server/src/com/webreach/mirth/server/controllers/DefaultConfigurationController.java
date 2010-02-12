@@ -61,8 +61,8 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static final String CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT = "// This script executes once after a message has been processed\nreturn;";
     private static final String GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT = "// Modify the message variable below to pre process data\n// This script applies across all channels\nreturn message;";
     private static final String GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT = "// This script executes once after a message has been processed\n// This script applies across all channels\nreturn;";
-    private static final String GLOBAL_DEPLOY_DEFAULT_SCRIPT = "// This script executes once when the mule engine is started\n// You only have access to the globalMap here to persist data\nreturn;";
-    private static final String GLOBAL_SHUTDOWN_DEFAULT_SCRIPT = "// This script executes once when the mule engine is stopped\n// You only have access to the globalMap here to persist data\nreturn;";
+    private static final String GLOBAL_DEPLOY_DEFAULT_SCRIPT = "// This script executes once when all channels start up from a redeploy\n// You only have access to the globalMap here to persist data\nreturn;";
+    private static final String GLOBAL_SHUTDOWN_DEFAULT_SCRIPT = "// This script executes once when all channels shut down from a redeploy\n// You only have access to the globalMap here to persist data\nreturn;";
 
     private Logger logger = Logger.getLogger(this.getClass());
     private EventController systemLogger = ControllerFactory.getFactory().createEventController();
@@ -238,19 +238,19 @@ public class DefaultConfigurationController extends ConfigurationController {
             String value = entry.getValue();
 
             if (key.equals(GLOBAL_PREPROCESSOR_KEY)) {
-                if (!javaScriptUtil.compileAndAddScript(key, value, GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT, false)) {
+                if (!javaScriptUtil.compileAndAddScript(key, value, GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT, false, false)) {
                     logger.debug("removing global preprocessor");
                     javaScriptUtil.removeScriptFromCache(GLOBAL_PREPROCESSOR_KEY);
                 }
             } else if (key.equals(GLOBAL_POSTPROCESSOR_KEY)) {
-                if (!javaScriptUtil.compileAndAddScript(key, value, GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT, false)) {
+                if (!javaScriptUtil.compileAndAddScript(key, value, GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT, false, false)) {
                     logger.debug("removing global postprocessor");
                     javaScriptUtil.removeScriptFromCache(GLOBAL_POSTPROCESSOR_KEY);
                 }
             } else {
                 // add the DEPLOY and SHUTDOWN scripts,
                 // which do not have defaults
-                if (!javaScriptUtil.compileAndAddScript(key, value, "", false)) {
+                if (!javaScriptUtil.compileAndAddScript(key, value, "", false, false)) {
                     logger.debug("remvoing " + key);
                     javaScriptUtil.removeScriptFromCache(key);
                 }
@@ -259,11 +259,11 @@ public class DefaultConfigurationController extends ConfigurationController {
 
         for (Channel channel : channels) {
             if (channel.isEnabled()) {
-                javaScriptUtil.compileAndAddScript(channel.getId() + "_Deploy", channel.getDeployScript(), null, false);
-                javaScriptUtil.compileAndAddScript(channel.getId() + "_Shutdown", channel.getShutdownScript(), null, false);
+                javaScriptUtil.compileAndAddScript(channel.getId() + "_Deploy", channel.getDeployScript(), null, false, true);
+                javaScriptUtil.compileAndAddScript(channel.getId() + "_Shutdown", channel.getShutdownScript(), null, false, true);
 
                 // only compile and run post processor if its not the default
-                if (!javaScriptUtil.compileAndAddScript(channel.getId() + "_Postprocessor", channel.getPostprocessingScript(), CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT, true)) {
+                if (!javaScriptUtil.compileAndAddScript(channel.getId() + "_Postprocessor", channel.getPostprocessingScript(), CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT, true, true)) {
                     logger.debug("removing " + channel.getId() + "_Postprocessor");
                     javaScriptUtil.removeScriptFromCache(channel.getId() + "_Postprocessor");
                 }

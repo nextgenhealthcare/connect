@@ -173,7 +173,7 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
                     // replace connection factory property values
                     for (Iterator<Entry<String, String>> iterator = connectionFactoryProperties.entrySet().iterator(); iterator.hasNext();) {
                         Entry<String, String> entry = iterator.next();
-                        entry.setValue(replacer.replaceValues(entry.getValue()));
+                        entry.setValue(replacer.replaceValues(entry.getValue(), channelId));
                     }
 
                     // apply connection factory properties

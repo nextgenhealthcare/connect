@@ -45,6 +45,7 @@ import com.webreach.mirth.server.controllers.MigrationController;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MuleEngineController;
 import com.webreach.mirth.server.controllers.UserController;
+import com.webreach.mirth.server.util.GlobalChannelVariableStoreFactory;
 import com.webreach.mirth.server.util.GlobalVariableStore;
 import com.webreach.mirth.server.util.StackTracePrinter;
 import com.webreach.mirth.server.util.VMRegistry;
@@ -207,7 +208,7 @@ public class Mirth extends Thread {
                 }
             }
 
-            // TODO: delete old scripts from script table
+            resetGlobalChannelVariableStore(channels);
             
             // update the manager with the new classes
             managerBuilder.deployChannels(channels, extensionController.getConnectorMetaData());
@@ -280,13 +281,25 @@ public class Mirth extends Thread {
 
     private void resetGlobalVariableStore() {
         try {
-            // clear global map and do channel deploy scripts if the user
-            // specified to
+            // clear global map
             if (configurationController.getServerProperties().getProperty("server.resetglobalvariables") == null || configurationController.getServerProperties().getProperty("server.resetglobalvariables").equals("1")) {
                 GlobalVariableStore.getInstance().globalVariableMap.clear();
             }
         } catch (Exception e) {
             logger.error("Could not clear the global map.", e);
+        }
+    }
+    
+    private void resetGlobalChannelVariableStore(List<Channel> channels) {
+        // clear global channel map
+        for (Channel channel : channels) {
+            try {
+                if (channel.getProperties().getProperty("clearGlobalChannelMap") == null || channel.getProperties().getProperty("clearGlobalChannelMap").equalsIgnoreCase("true")) {
+                    GlobalChannelVariableStoreFactory.getInstance().get(channel.getId()).globalChannelVariableMap.clear();
+                }
+            } catch (Exception e) {
+                logger.error("Could not clear the global channel map: " + channel.getId(), e);
+            }
         }
     }
     

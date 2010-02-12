@@ -113,8 +113,12 @@ public class MuleEndpointURI implements UMOEndpointURI
         initialise(endpointUri);
         this.filterAddress = filterAddress;
     }
+    
+    public MuleEndpointURI(String uri) throws MalformedEndpointException {
+        this(uri, null);
+    }
 
-    public MuleEndpointURI(String uri) throws MalformedEndpointException
+    public MuleEndpointURI(String uri, String channelId) throws MalformedEndpointException
     {
         String uriIdentifier = MuleManager.getInstance().lookupEndpointIdentifier(uri, uri);
         if (!uriIdentifier.equals(uri)) {
@@ -123,8 +127,14 @@ public class MuleEndpointURI implements UMOEndpointURI
         }
         
        	TemplateValueReplacer replacer = new TemplateValueReplacer();
-       	uri = replacer.replaceValues(uri);
-        uri = uri.trim().replaceAll("%","%25").replaceAll(" ", "%20").replaceAll("\\$", "%24").replaceAll("\\{", "%7B").replaceAll("\\}", "%7D").replaceAll("\\(", "%28").replaceAll("\\)", "%29").replaceAll("#", "%23");
+       	
+       	if (channelId != null) {
+       	    uri = replacer.replaceValues(uri, channelId);
+       	} else {
+       	    uri = replacer.replaceValues(uri);
+       	}
+        
+       	uri = uri.trim().replaceAll("%","%25").replaceAll(" ", "%20").replaceAll("\\$", "%24").replaceAll("\\{", "%7B").replaceAll("\\}", "%7D").replaceAll("\\(", "%28").replaceAll("\\)", "%29").replaceAll("#", "%23");
         
         if (!validateUrl(uri)) {
             throw new MalformedEndpointException(uri);

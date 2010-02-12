@@ -26,6 +26,7 @@ import org.mule.util.Utility;
 
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.util.DICOMUtil;
+import com.webreach.mirth.server.util.GlobalChannelVariableStoreFactory;
 import com.webreach.mirth.server.util.GlobalVariableStore;
 import com.webreach.mirth.util.Entities;
 
@@ -34,7 +35,7 @@ public class TemplateValueReplacer {
     private long count = 1;
 
     public TemplateValueReplacer() {
-        
+
     }
 
     protected synchronized long getCount() {
@@ -43,10 +44,6 @@ public class TemplateValueReplacer {
 
     public static boolean hasReplaceableValues(String str) {
         return ((str != null) && (str.indexOf("$") > -1));
-    }
-
-    public String replaceValues(String template, String originalFilename) {
-        return replaceValues(template, null, originalFilename);
     }
 
     public String replaceValues(String template, Map map) {
@@ -67,6 +64,17 @@ public class TemplateValueReplacer {
         if (hasReplaceableValues(template)) {
             VelocityContext context = new VelocityContext();
             loadContextFromMessageObject(context, messageObject, originalFilename);
+            return evaluate(context, template);
+        } else {
+            return template;
+        }
+    }
+
+    public String replaceValues(String template, String channelId) {        
+        if (hasReplaceableValues(template)) {
+            VelocityContext context = new VelocityContext();
+            loadContextFromMap(context, GlobalChannelVariableStoreFactory.getInstance().get(channelId).getVariables());
+            loadContextFromMap(context, GlobalVariableStore.getInstance().getVariables());
             return evaluate(context, template);
         } else {
             return template;
@@ -136,6 +144,9 @@ public class TemplateValueReplacer {
             loadContextFromMap(context, messageObject.getConnectorMap());
             loadContextFromMap(context, messageObject.getChannelMap());
         }
+
+        // load global channel map variables
+        loadContextFromMap(context, GlobalChannelVariableStoreFactory.getInstance().get(messageObject.getChannelId()).getVariables());
 
         // load global map variables
         loadContextFromMap(context, GlobalVariableStore.getInstance().getVariables());

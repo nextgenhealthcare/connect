@@ -107,6 +107,8 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
      * Any custom headers to be set on messages sent using this connector
      */
     private Properties customHeaders = new Properties();
+    
+    private String channelId;
 
     /**
      * A custom authenticator to bew used on any mail sessions created with this
@@ -460,5 +462,13 @@ public class SmtpConnector extends AbstractServiceEnabledConnector implements Ma
 
     public void setUseServerSettings(boolean useServerSettings) {
         this.useServerSettings = useServerSettings;
+    }
+
+    public String getChannelId() {
+        return channelId;
+    }
+
+    public void setChannelId(String channelId) {
+        this.channelId = channelId;
     }
 }

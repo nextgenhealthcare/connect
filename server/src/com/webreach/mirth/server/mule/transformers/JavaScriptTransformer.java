@@ -475,6 +475,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
         newScript.append("function $(string) { ");
         newScript.append("if (connectorMap.containsKey(string)) { return connectorMap.get(string); }");
         newScript.append("else if (channelMap.containsKey(string)) { return channelMap.get(string); }");
+        newScript.append("else if (globalChannelMap.containsKey(string)) { return globalChannelMap.get(string); }");
         newScript.append("else if (globalMap.containsKey(string)) { return globalMap.get(string); }");
         newScript.append("else { return ''; }");
         newScript.append("}");
@@ -483,6 +484,12 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
         newScript.append("function $g(key, value) {");
         newScript.append("if (arguments.length == 1) { return globalMap.get(key); }");
         newScript.append("else if (arguments.length == 2) { globalMap.put(key, value); }");
+        newScript.append("}");
+        
+        // Helper function to access globalChannelMap
+        newScript.append("function $gc(key, value) {");
+        newScript.append("if (arguments.length == 1) { return globalChannelMap.get(key); }");
+        newScript.append("else if (arguments.length == 2) { globalChannelMap.put(key, value); }");
         newScript.append("}");
 
         // Helper function to access channelMap

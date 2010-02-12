@@ -116,12 +116,12 @@ public class DelimitedSerializer implements IXMLSerializer<String> {
      * @return The next message, or null if there are no more messages.
      * @throws IOException
      */
-    public String getMessage(BufferedReader in, boolean skipHeader) throws IOException {
+    public String getMessage(BufferedReader in, boolean skipHeader, String channelId) throws IOException {
 
         // Allocate a batch reader if not already allocated
         if (delimitedBatchReader == null) {
             delimitedBatchReader = new DelimitedReader(props);
         }
-        return delimitedBatchReader.getMessage(in, skipHeader);
+        return delimitedBatchReader.getMessage(in, skipHeader, channelId);
     }
 }

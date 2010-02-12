@@ -261,7 +261,7 @@ public class MuleEngineController implements EngineController {
         // don't to add it since there already exists a VM connector for
         // every channel
         if (!channel.getSourceConnector().getTransportName().equals("Channel Reader")) {
-            endpoint.setEndpointURI(new MuleEndpointURI(new URI(getEndpointUri(channel.getSourceConnector())).toString()));
+            endpoint.setEndpointURI(new MuleEndpointURI(new URI(getEndpointUri(channel.getSourceConnector())).toString(), channel.getId()));
             inboundRouter.addEndpoint(endpoint);
         }
 
@@ -278,7 +278,7 @@ public class MuleEngineController implements EngineController {
 
             if (connector.isEnabled()) {
                 MuleEndpoint endpoint = new MuleEndpoint();
-                endpoint.setEndpointURI(new MuleEndpointURI(new URI(getEndpointUri(connector)).toString()));
+                endpoint.setEndpointURI(new MuleEndpointURI(new URI(getEndpointUri(connector)).toString(), channel.getId()));
 
                 // if there are multiple endpoints, make them all
                 // synchronous to

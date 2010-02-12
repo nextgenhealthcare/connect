@@ -359,7 +359,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 
     private String replace(String src, MessageObject messageObject) {
         if (messageObject == null) {
-            return replacer.replaceValues(src);
+            return replacer.replaceValues(src, channelId);
         } else if (src.indexOf('$') > -1) {
             return replacer.replaceValues(src, messageObject);
         } else {

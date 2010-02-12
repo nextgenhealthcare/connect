@@ -34,6 +34,7 @@ import com.webreach.mirth.server.controllers.ControllerException;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.ScriptController;
 import com.webreach.mirth.server.util.CompiledScriptCache;
+import com.webreach.mirth.server.util.GlobalChannelVariableStoreFactory;
 import com.webreach.mirth.server.util.GlobalVariableStore;
 import com.webreach.mirth.server.util.VMRouter;
 
@@ -129,6 +130,7 @@ public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 				scope.put("message", scope, message);
 				scope.put("logger", scope, scriptLogger);
 				scope.put("globalMap", scope, GlobalVariableStore.getInstance());
+				scope.put("globalChannelMap", scope, GlobalChannelVariableStoreFactory.getInstance().get(channelId));
 				scope.put("router", scope, new VMRouter());
 				scope.put("muleContext", scope, muleContext);
 				// Add the contextMap, it contains MuleContext properties

@@ -153,7 +153,7 @@ public class DelimitedReader extends SAXParser {
      * @return The next message, or null if there are no more messages.
      * @throws IOException
      */
-    public String getMessage(BufferedReader in, boolean skipHeader) throws IOException {
+    public String getMessage(BufferedReader in, boolean skipHeader, String channelId) throws IOException {
         char recDelim = props.getRecordDelimiter().charAt(0);
         int ch;
 
@@ -238,7 +238,14 @@ public class DelimitedReader extends SAXParser {
             try {
                 Context context = Context.enter();
                 Scriptable scope = new ImporterTopLevel(context);
-                JavaScriptScopeUtil.buildScope(scope, logger);
+                
+                // If there was a problem creating the batch script in
+                // DelimitedAdaptor the channelId could be null
+                if (channelId != null) {
+                    JavaScriptScopeUtil.buildScope(scope, channelId, logger);
+                } else {
+                    JavaScriptScopeUtil.buildScope(scope, logger);
+                }
 
                 // Provide the reader in the scope
                 scope.put("reader", scope, in);

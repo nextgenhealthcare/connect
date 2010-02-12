@@ -81,11 +81,15 @@ public class JavaScriptConnector extends AbstractServiceEnabledConnector {
         script.append("function $(string) { ");
         script.append("if (connectorMap.containsKey(string)) { return connectorMap.get(string);} else ");
         script.append("if (channelMap.containsKey(string)) { return channelMap.get(string);} else ");
+        script.append("if (globalChannelMap.containsKey(string)) { return globalChannelMap.get(string);} else ");
         script.append("if (globalMap.containsKey(string)) { return globalMap.get(string);} else ");
         script.append("{ return ''; }}");
         script.append("function $g(key, value){");
         script.append("if (arguments.length == 1){return globalMap.get(key); }");
         script.append("else if (arguments.length == 2){globalMap.put(key, value); }}");
+        script.append("function $gc(key, value){");
+        script.append("if (arguments.length == 1){return globalChannelMap.get(key); }");
+        script.append("else if (arguments.length == 2){globalChannelMap.put(key, value); }}");
         script.append("function $c(key, value){");
         script.append("if (arguments.length == 1){return channelMap.get(key); }");
         script.append("else if (arguments.length == 2){channelMap.put(key, value); }}");

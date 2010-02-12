@@ -82,19 +82,19 @@ public class SmtpMessageDispatcher extends AbstractMessageDispatcher {
             }
         } else {
             if (connector.getUsername() != null) {
-                username = replacer.replaceValues(connector.getUsername());
+                username = replacer.replaceValues(connector.getUsername(), connector.getChannelId());
             }
 
             if (connector.getPassword() != null) {
-                password = replacer.replaceValues(connector.getPassword());
+                password = replacer.replaceValues(connector.getPassword(), connector.getChannelId());
             }
 
             if (connector.getHostname() != null) {
-                host = replacer.replaceValues(connector.getHostname());
+                host = replacer.replaceValues(connector.getHostname(), connector.getChannelId());
             }
 
             if (connector.getSmtpPort() != null) {
-                port = Integer.parseInt(replacer.replaceValues(connector.getSmtpPort()));
+                port = Integer.parseInt(replacer.replaceValues(connector.getSmtpPort(), connector.getChannelId()));
             }
 
             if (connector.getEmailSecure() != null) {

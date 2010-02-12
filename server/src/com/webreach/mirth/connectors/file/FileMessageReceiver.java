@@ -78,10 +78,10 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
 
     public FileMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint, String readDir, String moveDir, String moveToPattern, String errorDir, Long frequency) throws InitialisationException {
         super(connector, component, endpoint, frequency);
-        this.readDir = replacer.replaceValues(readDir);
-        this.moveDir = replacer.replaceValues(moveDir);
-        this.moveToPattern = replacer.replaceValues(moveToPattern);
-        this.errorDir = replacer.replaceValues(errorDir);
+        this.readDir = replacer.replaceValues(readDir, fileConnector.getChannelId());
+        this.moveDir = replacer.replaceValues(moveDir, fileConnector.getChannelId());
+        this.moveToPattern = replacer.replaceValues(moveToPattern, fileConnector.getChannelId());
+        this.errorDir = replacer.replaceValues(errorDir, fileConnector.getChannelId());
         this.fileConnector = (FileConnector) connector;
 
         if (fileConnector.getPollingType().equals(FileConnector.POLLING_TYPE_TIME))
@@ -89,7 +89,7 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
         else
             setFrequency(fileConnector.getPollingFrequency());
 
-        filenamePattern = replacer.replaceValues(fileConnector.getFileFilter());
+        filenamePattern = replacer.replaceValues(fileConnector.getFileFilter(), fileConnector.getChannelId());
         monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
     }
 

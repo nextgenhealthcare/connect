@@ -145,7 +145,7 @@ public class JavaScriptUtil {
         }
     }
 
-    public boolean compileAndAddScript(String scriptId, String script, String defaultScript, boolean includeChannelMap) throws Exception {
+    public boolean compileAndAddScript(String scriptId, String script, String defaultScript, boolean includeChannelMap, boolean includeGlobalChannelMap) throws Exception {
         // Note: If the defaultScript is NULL, this means that the script should
         // always be inserted without being compared.
 
@@ -154,14 +154,14 @@ public class JavaScriptUtil {
 
         try {
             logger.debug("compiling script " + scriptId);
-            String generatedScript = generateScript(script, includeChannelMap);
+            String generatedScript = generateScript(script, includeChannelMap, includeGlobalChannelMap);
             Script compiledScript = context.compileString(generatedScript, scriptId, 1, null);
             String decompiledScript = context.decompileScript(compiledScript, 0);
 
             String decompiledDefaultScript = null;
 
             if (defaultScript != null) {
-                Script compiledDefaultScript = context.compileString(generateScript(defaultScript, includeChannelMap), scriptId, 1, null);
+                Script compiledDefaultScript = context.compileString(generateScript(defaultScript, includeChannelMap, includeGlobalChannelMap), scriptId, 1, null);
                 decompiledDefaultScript = context.decompileScript(compiledDefaultScript, 0);
             }
 
@@ -184,13 +184,17 @@ public class JavaScriptUtil {
         return scriptInserted;
     }
 
-    public String generateScript(String script, boolean includeChannelMap) {
+    public String generateScript(String script, boolean includeChannelMap, boolean includeGlobalChannelMap) {
         StringBuilder builtScript = new StringBuilder();
         builtScript.append("String.prototype.trim = function() { return this.replace(/^\\s+|\\s+$/g,\"\").replace(/^\\t+|\\t+$/g,\"\"); };");
         builtScript.append("function $(string) { ");
         
         if (includeChannelMap) {
             builtScript.append("if (channelMap.containsKey(string)) { return channelMap.get(string);} else ");
+        }
+        
+        if (includeGlobalChannelMap) {
+            builtScript.append("if (globalChannelMap.containsKey(string)) { return globalChannelMap.get(string);} else ");
         }
         
         builtScript.append("if (globalMap.containsKey(string)) { return globalMap.get(string);} else ");
@@ -217,6 +221,12 @@ public class JavaScriptUtil {
             builtScript.append("var attachment = Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().createAttachment(data, type, messageObject);");
             builtScript.append("Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().insertAttachment(attachment); \n");
             builtScript.append("return attachment; }\n");
+        }
+        
+        if (includeGlobalChannelMap) {
+            builtScript.append("function $gc(key, value){");
+            builtScript.append("if (arguments.length == 1){return globalChannelMap.get(key); }");
+            builtScript.append("else if (arguments.length == 2){globalChannelMap.put(key, value); }}");
         }
         
         builtScript.append("function $g(key, value){");

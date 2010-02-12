@@ -14,13 +14,14 @@ import java.util.Properties;
 public class ChannelProperties implements ComponentProperties
 {
     public static final String SYNCHRONOUS = "synchronous";
-    public static final String TRANSACTIONAL= "transactional";
+    public static final String TRANSACTIONAL = "transactional";
     public static final String INITIAL_STATE = "initialState";
     public static final String DONT_STORE_FILTERED = "dont_store_filtered";
     public static final String ERROR_MESSAGES_ONLY = "error_messages_only";
     public static final String MAX_MESSAGE_AGE = "max_message_age";
     public static final String STORE_MESSAGES = "store_messages";
     public static final String ENCRYPT_DATA = "encryptData";
+    public static final String CLEAR_GLOBAL_CHANNEL_MAP = "clearGlobalChannelMap";
     
     public Properties getDefaults()
     {
@@ -33,6 +34,7 @@ public class ChannelProperties implements ComponentProperties
         properties.put(MAX_MESSAGE_AGE, "-1");
         properties.put(STORE_MESSAGES, "true");
         properties.put(ENCRYPT_DATA, "false");
+        properties.put(CLEAR_GLOBAL_CHANNEL_MAP, "true");
         return properties;
     }
 }

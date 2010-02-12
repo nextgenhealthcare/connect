@@ -55,6 +55,7 @@ public class JavaScriptScopeUtil {
 	public static void addChannel(Scriptable scope, String channelId) {
 		scope.put("alerts", scope, new AlertSender(channelId));
 		scope.put("channelId", scope, channelId);
+		scope.put("globalChannelMap", scope, GlobalChannelVariableStoreFactory.getInstance().get(channelId));
 	}
 
 	// Logger builder
