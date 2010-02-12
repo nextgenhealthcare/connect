@@ -9,7 +9,6 @@
 
 package com.webreach.mirth.connectors.ws;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,8 +22,6 @@ import javax.wsdl.Service;
 import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
-
-import org.apache.commons.io.FileUtils;
 
 import com.webreach.mirth.connectors.ConnectorService;
 
@@ -40,17 +37,6 @@ public class WebServiceConnectorService implements ConnectorService {
             String password = params.get("password");
 
             definitionCache.put(id, getDefinition(wsdlUrl, username, password));
-        } else if (method.equals("cacheWsdlFromFile")) {
-            Map<String, String> params = (Map<String, String>) object;
-            String id = params.get("id");
-            String wsdlContents = params.get("wsdlContents");
-
-            File tempFile = File.createTempFile(id, ".wsdl");
-            tempFile.deleteOnExit();
-
-            FileUtils.writeStringToFile(tempFile, wsdlContents);
-
-            definitionCache.put(id, getDefinition(tempFile.toURI().toString(), null, null));
         } else if (method.equals("isWsdlCached")) {
             String id = (String) object;
             return (definitionCache.get(id) != null);

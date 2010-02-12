@@ -56,10 +56,6 @@ public class WebServiceUtil {
             baseUri = uri;
         }
 
-        if (baseUri.getScheme() != null && baseUri.getScheme().equalsIgnoreCase("file")) {
-            return new FileInputStream(new File(baseUri));
-        }
-
         HttpClient client = new HttpClient();
         HttpMethod method = new GetMethod(baseUri.toString());
 
