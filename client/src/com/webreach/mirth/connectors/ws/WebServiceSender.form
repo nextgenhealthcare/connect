@@ -52,7 +52,7 @@
                   <Component id="authenticationLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="portLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="serviceLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="URL" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="wsdlUrlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -62,9 +62,7 @@
                       <Component id="authenticationNoRadio" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="wsdlUrl" pref="206" max="32767" attributes="2"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="browseWSDLfileButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="wsdlUrlField" pref="291" max="32767" attributes="2"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="getOperationsButton" min="-2" max="-2" attributes="0"/>
                   </Group>
@@ -119,10 +117,9 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="URL" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="wsdlUrlLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="getOperationsButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="browseWSDLfileButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="wsdlUrl" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="wsdlUrlField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -206,20 +203,20 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JLabel" name="URL">
+    <Component class="javax.swing.JLabel" name="wsdlUrlLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="WSDL Path:"/>
+        <Property name="text" type="java.lang.String" value="WSDL URL:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="wsdlUrl">
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="wsdlUrlField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="Enter the full URL to the WSDL file describing the web service method to be called, and then click the Get Methods button."/>
+        <Property name="toolTipText" type="java.lang.String" value="Enter the full URL to the WSDL describing the web service method to be called, and then click the Get Operations button."/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="getOperationsButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="Get Operations"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Clicking this button fetches the WSDL file from the specified URL&lt;br&gt; and parses it to obtain a description of the data types and methods used by the web service to be called.&lt;br&gt;It replaces the values of all of the controls below by values taken from the WSDL file.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Clicking this button fetches the WSDL from the specified URL&lt;br&gt; and parses it to obtain a description of the data types and methods used by the web service to be called.&lt;br&gt;It replaces the values of all of the controls below by values taken from the WSDL.&lt;/html&gt;"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="getOperationsButtonActionPerformed"/>
@@ -248,8 +245,7 @@
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="de" green="de" red="de" type="rgb"/>
         </Property>
-        <Property name="editable" type="boolean" value="false"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The port name for the WSDL defined above.&lt;br&gt;This field is  filled in automatically when the Get Operations button is clicked and does not need to be changed.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The port name for the WSDL defined above.&lt;br&gt;This field is filled in automatically when the Get Operations button is clicked and does not need to be changed.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="soapEnvelope">
@@ -274,7 +270,6 @@
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="de" green="de" red="de" type="rgb"/>
         </Property>
-        <Property name="editable" type="boolean" value="false"/>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The service name for the WSDL defined above.&lt;br&gt;This field is filled in automatically when the Get Operations button is clicked and does not need to be changed.&lt;/html&gt;"/>
       </Properties>
     </Component>
@@ -380,14 +375,6 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Use Persistent Queues:"/>
       </Properties>
-    </Component>
-    <Component class="javax.swing.JButton" name="browseWSDLfileButton">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Browse..."/>
-      </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="browseWSDLfileButtonActionPerformed"/>
-      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="attachmentsLabel">
       <Properties>

@@ -15,8 +15,6 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.HashMap;
@@ -46,7 +44,6 @@ import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.client.ui.Mirth;
 import com.webreach.mirth.client.ui.UIConstants;
 import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.client.ui.util.FileUtil;
 import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.model.Channel;
 import com.webreach.mirth.model.QueuedSenderProperties;
@@ -99,7 +96,7 @@ public class WebServiceSender extends ConnectorClass {
         }
         // End of queue properties
 
-        properties.put(WebServiceSenderProperties.WEBSERVICE_WSDL_URL, wsdlUrl.getText());
+        properties.put(WebServiceSenderProperties.WEBSERVICE_WSDL_URL, wsdlUrlField.getText());
         properties.put(WebServiceSenderProperties.WEBSERVICE_SERVICE, serviceField.getText());
         properties.put(WebServiceSenderProperties.WEBSERVICE_PORT, portField.getText());
 
@@ -154,7 +151,7 @@ public class WebServiceSender extends ConnectorClass {
 
         wsdlCacheId = props.getProperty(WebServiceSenderProperties.WEBSERVICE_WSDL_URL);
 
-        wsdlUrl.setText((String) props.get(WebServiceSenderProperties.WEBSERVICE_WSDL_URL));
+        wsdlUrlField.setText((String) props.get(WebServiceSenderProperties.WEBSERVICE_WSDL_URL));
         serviceField.setText((String) props.get(WebServiceSenderProperties.WEBSERVICE_SERVICE));
         portField.setText((String) props.get(WebServiceSenderProperties.WEBSERVICE_PORT));
 
@@ -265,7 +262,7 @@ public class WebServiceSender extends ConnectorClass {
         if (((String) props.getProperty(WebServiceSenderProperties.WEBSERVICE_WSDL_URL)).length() == 0) {
             valid = false;
             if (highlight) {
-                wsdlUrl.setBackground(UIConstants.INVALID_COLOR);
+                wsdlUrlField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
 
@@ -301,7 +298,7 @@ public class WebServiceSender extends ConnectorClass {
     }
 
     private void resetInvalidProperties() {
-        wsdlUrl.setBackground(null);
+        wsdlUrlField.setBackground(null);
         serviceField.setBackground(new java.awt.Color(222, 222, 222));
         portField.setBackground(new java.awt.Color(222, 222, 222));
         soapEnvelope.setBackground(null);
@@ -344,36 +341,24 @@ public class WebServiceSender extends ConnectorClass {
 
     private boolean cacheWsdl() {
         try {
-            // if it's a local wsdl file, send over the file content.
-            String wsdlPath = wsdlUrl.getText().trim();
-            File wsdlFile = new File(wsdlPath);
+            String wsdlUrl = wsdlUrlField.getText().trim();
             Map<String, String> cacheWsdlMap = new HashMap<String, String>();
 
             wsdlCacheId = UUID.randomUUID().toString();
             cacheWsdlMap.put("id", wsdlCacheId);
 
-            if (wsdlFile.exists()) {
-                try {
-                    cacheWsdlMap.put("wsdlContents", FileUtil.read(wsdlFile));
-                    parent.mirthClient.invokeConnectorService(name, "cacheWsdlFromFile", cacheWsdlMap);
-                } catch (IOException e) {
-                    // error reading in the file.
-                    parent.alertError(parent, "Error reading in the WSDL file.");
-                }
-            } else {
-                cacheWsdlMap.put("wsdlUrl", wsdlPath);
+            cacheWsdlMap.put("wsdlUrl", wsdlUrl);
 
-                if (authenticationYesRadio.isSelected()) {
-                    cacheWsdlMap.put("username", usernameField.getText());
-                    cacheWsdlMap.put("password", new String(passwordField.getPassword()));
-                }
-
-                parent.mirthClient.invokeConnectorService(name, "cacheWsdlFromUrl", cacheWsdlMap);
+            if (authenticationYesRadio.isSelected()) {
+                cacheWsdlMap.put("username", usernameField.getText());
+                cacheWsdlMap.put("password", new String(passwordField.getPassword()));
             }
+
+            parent.mirthClient.invokeConnectorService(name, "cacheWsdlFromUrl", cacheWsdlMap);
 
             return true;
         } catch (ClientException e) {
-            parent.alertError(parent, "Error caching WSDL. Please check the WSDL file or URL and authentication settings.\nIf the WSDL is a file, schemas referenced inside the WSDL must still be reachable.");
+            parent.alertError(parent, "Error caching WSDL. Please check the WSDL URL and authentication settings.");
             return false;
         }
     }
@@ -406,10 +391,10 @@ public class WebServiceSender extends ConnectorClass {
     }
 
     public String buildHost() {
-        if (wsdlUrl.getText().startsWith("http://")) {
-            return wsdlUrl.getText().substring(7);
+        if (wsdlUrlField.getText().startsWith("http://")) {
+            return wsdlUrlField.getText().substring(7);
         } else {
-            return wsdlUrl.getText();
+            return wsdlUrlField.getText();
         }
     }
 
@@ -636,8 +621,8 @@ public class WebServiceSender extends ConnectorClass {
         authenticationButtonGroup = new javax.swing.ButtonGroup();
         invocationButtonGroup = new javax.swing.ButtonGroup();
         useMtomButtonGroup = new javax.swing.ButtonGroup();
-        URL = new javax.swing.JLabel();
-        wsdlUrl = new com.webreach.mirth.client.ui.components.MirthTextField();
+        wsdlUrlLabel = new javax.swing.JLabel();
+        wsdlUrlField = new com.webreach.mirth.client.ui.components.MirthTextField();
         getOperationsButton = new javax.swing.JButton();
         operationComboBox = new com.webreach.mirth.client.ui.components.MirthComboBox();
         jLabel1 = new javax.swing.JLabel();
@@ -656,7 +641,6 @@ public class WebServiceSender extends ConnectorClass {
         reconnectInterval = new com.webreach.mirth.client.ui.components.MirthTextField();
         reconnectIntervalLabel = new javax.swing.JLabel();
         jLabel36 = new javax.swing.JLabel();
-        browseWSDLfileButton = new javax.swing.JButton();
         attachmentsLabel = new javax.swing.JLabel();
         attachmentsPane = new javax.swing.JScrollPane();
         attachmentsTable = new com.webreach.mirth.client.ui.components.MirthTable();
@@ -679,12 +663,12 @@ public class WebServiceSender extends ConnectorClass {
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
-        URL.setText("WSDL Path:");
+        wsdlUrlLabel.setText("WSDL URL:");
 
-        wsdlUrl.setToolTipText("Enter the full URL to the WSDL file describing the web service method to be called, and then click the Get Methods button.");
+        wsdlUrlField.setToolTipText("Enter the full URL to the WSDL describing the web service method to be called, and then click the Get Operations button.");
 
         getOperationsButton.setText("Get Operations");
-        getOperationsButton.setToolTipText("<html>Clicking this button fetches the WSDL file from the specified URL<br> and parses it to obtain a description of the data types and methods used by the web service to be called.<br>It replaces the values of all of the controls below by values taken from the WSDL file.</html>");
+        getOperationsButton.setToolTipText("<html>Clicking this button fetches the WSDL from the specified URL<br> and parses it to obtain a description of the data types and methods used by the web service to be called.<br>It replaces the values of all of the controls below by values taken from the WSDL.</html>");
         getOperationsButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 getOperationsButtonActionPerformed(evt);
@@ -698,15 +682,13 @@ public class WebServiceSender extends ConnectorClass {
         serviceLabel.setText("Service:");
 
         portField.setBackground(new java.awt.Color(222, 222, 222));
-        portField.setEditable(false);
-        portField.setToolTipText("<html>The port name for the WSDL defined above.<br>This field is  filled in automatically when the Get Operations button is clicked and does not need to be changed.</html>");
+        portField.setToolTipText("<html>The port name for the WSDL defined above.<br>This field is filled in automatically when the Get Operations button is clicked and does not need to be changed.</html>");
 
         soapEnvelope.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         portLabel.setText("Port:");
 
         serviceField.setBackground(new java.awt.Color(222, 222, 222));
-        serviceField.setEditable(false);
         serviceField.setToolTipText("<html>The service name for the WSDL defined above.<br>This field is filled in automatically when the Get Operations button is clicked and does not need to be changed.</html>");
 
         jLabel4.setText("SOAP Envelope:");
@@ -758,13 +740,6 @@ public class WebServiceSender extends ConnectorClass {
         reconnectIntervalLabel.setText("Reconnect Interval (ms):");
 
         jLabel36.setText("Use Persistent Queues:");
-
-        browseWSDLfileButton.setText("Browse...");
-        browseWSDLfileButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                browseWSDLfileButtonActionPerformed(evt);
-            }
-        });
 
         attachmentsLabel.setText("Attachments:");
 
@@ -898,7 +873,7 @@ public class WebServiceSender extends ConnectorClass {
                     .addComponent(authenticationLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(portLabel, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(serviceLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(URL, javax.swing.GroupLayout.Alignment.TRAILING))
+                    .addComponent(wsdlUrlLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -906,9 +881,7 @@ public class WebServiceSender extends ConnectorClass {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(authenticationNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(wsdlUrl, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(browseWSDLfileButton)
+                        .addComponent(wsdlUrlField, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(getOperationsButton))
                     .addComponent(serviceField, javax.swing.GroupLayout.DEFAULT_SIZE, 402, Short.MAX_VALUE)
@@ -951,10 +924,9 @@ public class WebServiceSender extends ConnectorClass {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(URL)
+                    .addComponent(wsdlUrlLabel)
                     .addComponent(getOperationsButton)
-                    .addComponent(browseWSDLfileButton)
-                    .addComponent(wsdlUrl, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(wsdlUrlField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(serviceLabel)
@@ -1032,14 +1004,6 @@ private void usePersistentQueuesYesRadioActionPerformed(java.awt.event.ActionEve
     reconnectInterval.setEnabled(true);
     reconnectIntervalLabel.setEnabled(true);
 }//GEN-LAST:event_usePersistentQueuesYesRadioActionPerformed
-
-private void browseWSDLfileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseWSDLfileButtonActionPerformed
-    File wsdlXMLfile = parent.importFile("WSDL");
-
-    if (wsdlXMLfile != null) {
-        wsdlUrl.setText(wsdlXMLfile.getPath());
-    }
-}//GEN-LAST:event_browseWSDLfileButtonActionPerformed
 
 private void newButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newButtonActionPerformed
     stopCellEditing();
@@ -1201,7 +1165,6 @@ private void useMtomNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GE
     attachmentsTable.clearSelection();
 }//GEN-LAST:event_useMtomNoRadioActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel URL;
     private javax.swing.JLabel URL1;
     private javax.swing.JLabel attachmentsLabel;
     private javax.swing.JScrollPane attachmentsPane;
@@ -1210,7 +1173,6 @@ private void useMtomNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GE
     private javax.swing.JLabel authenticationLabel;
     private com.webreach.mirth.client.ui.components.MirthRadioButton authenticationNoRadio;
     private com.webreach.mirth.client.ui.components.MirthRadioButton authenticationYesRadio;
-    private javax.swing.JButton browseWSDLfileButton;
     private com.webreach.mirth.client.ui.components.MirthComboBox channelNames;
     private javax.swing.JButton deleteButton;
     private javax.swing.JButton generateEnvelope;
@@ -1243,6 +1205,7 @@ private void useMtomNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GE
     private javax.swing.ButtonGroup userPersistentQueuesButtonGroup;
     private com.webreach.mirth.client.ui.components.MirthTextField usernameField;
     private javax.swing.JLabel usernameLabel;
-    private com.webreach.mirth.client.ui.components.MirthTextField wsdlUrl;
+    private com.webreach.mirth.client.ui.components.MirthTextField wsdlUrlField;
+    private javax.swing.JLabel wsdlUrlLabel;
     // End of variables declaration//GEN-END:variables
 }
