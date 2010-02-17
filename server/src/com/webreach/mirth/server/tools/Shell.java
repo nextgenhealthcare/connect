@@ -216,14 +216,6 @@ public class Shell {
                     } else if (arg2 == Token.CHANGEPW) {
                         commandUserChangePassword(arguments);
                     }
-                } else if (arg1 == Token.START) {
-                    commandStartAll(arguments);
-                } else if (arg1 == Token.STOP) {
-                    commandStopAll(arguments);
-                } else if (arg1 == Token.PAUSE) {
-                    commandPauseAll(arguments);
-                } else if (arg1 == Token.RESUME) {
-                    commandResumeAll(arguments);
                 } else if (arg1 == Token.DEPLOY) {
                     commandDeploy(arguments);
                 } else if (arg1 == Token.EXPORTCFG) {
@@ -388,10 +380,6 @@ public class Shell {
     private void commandHelp(Token[] arguments) {
         out.println("Available Commands:");
         out.println("status\n\tReturns status of deployed channels\n");
-        out.println("start\n\tStarts all Channels\n");
-        out.println("stop\n\tStops all Channels\n");
-        out.println("pause\n\tPauses all Channels\n");
-        out.println("resume\n\tResumes all Channels\n");
         out.println("deploy [timeout]\n\tDeploys all Channels with optional timeout (in seconds)\n");
         out.println("import \"path\" [force]\n\tImports channel specified by <path>.  Optional 'force' overwrites existing channels.\n");
         out.println("export id|\"name\"|* \"path\"\n\tExports the specified channel to <path>\n");
@@ -501,51 +489,6 @@ public class Shell {
                 client.updateUser(user, newPassword);
                 out.println("User \"" + user.getUsername() + "\" password updated.");
                 return;
-            }
-        }
-    }
-
-    // XXX isn't this the same as "channel start *"?
-    private void commandStartAll(Token[] arguments) throws ClientException {
-        for (ChannelStatus channel : client.getChannelStatusList()) {
-            if (channel.getState().equals(State.STOPPED) || channel.getState().equals(State.PAUSED)) {
-                if (channel.getState().equals(State.PAUSED)) {
-                    client.resumeChannel(channel.getChannelId());
-                    out.println("Channel " + channel.getName() + " Resumed");
-                } else {
-                    client.startChannel(channel.getChannelId());
-                    out.println("Channel " + channel.getName() + " Started");
-                }
-            }
-        }
-    }
-
-    // XXX isn't this the same as "channel stop *"?
-    private void commandStopAll(Token[] arguments) throws ClientException {
-        for (ChannelStatus channel : client.getChannelStatusList()) {
-            if (channel.getState().equals(State.STARTED) || channel.getState().equals(State.PAUSED)) {
-                client.stopChannel(channel.getChannelId());
-                out.println("Channel " + channel.getName() + " Stopped");
-            }
-        }
-    }
-
-    // XXX isn't this the same as "channel pause *"?
-    private void commandPauseAll(Token[] arguments) throws ClientException {
-        for (ChannelStatus channel : client.getChannelStatusList()) {
-            if (channel.getState().equals(State.STARTED)) {
-                client.pauseChannel(channel.getChannelId());
-                out.println("Channel " + channel.getName() + " Paused");
-            }
-        }
-    }
-
-    // XXX isn't this the same as "channel resume *"?
-    private void commandResumeAll(Token[] arguments) throws ClientException {
-        for (ChannelStatus channel : client.getChannelStatusList()) {
-            if (channel.getState().equals(State.PAUSED)) {
-                client.resumeChannel(channel.getChannelId());
-                out.println("Channel " + channel.getName() + " Resumed");
             }
         }
     }
