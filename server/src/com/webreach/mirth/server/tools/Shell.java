@@ -307,6 +307,15 @@ public class Shell {
             e.printStackTrace(err);
         }
     }
+    
+    private boolean hasInvalidNumberOfArguments(Token[] arguments, int expected) {
+        if ((arguments.length - 1) < expected) {
+            error("invalid number of arguments.", null);
+            return true;
+        }
+        
+        return false;
+    }
 
     /** Split <code>command</code> into an array of tokens. */
     private Token[] tokenizeCommand(String command) {
@@ -621,6 +630,10 @@ public class Shell {
     }
 
     private void commandExportScripts(Token[] arguments) throws ClientException {
+        if (hasInvalidNumberOfArguments(arguments, 1)) {
+            return;
+        }
+        
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         String path = arguments[1].getText();
         File fXml = new File(path);
@@ -637,6 +650,10 @@ public class Shell {
     }
 
     private void commandImportScripts(Token[] arguments) throws ClientException {
+        if (hasInvalidNumberOfArguments(arguments, 1)) {
+            return;
+        }
+
         String path = arguments[1].getText();
         File fXml = new File(path);
         doImportScript(fXml);
@@ -644,6 +661,10 @@ public class Shell {
     }
 
     private void commandExportCodeTemplates(Token[] arguments) throws ClientException {
+        if (hasInvalidNumberOfArguments(arguments, 1)) {
+            return;
+        }
+
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         String path = arguments[1].getText();
 
@@ -661,6 +682,10 @@ public class Shell {
     }
 
     private void commandImportCodeTemplates(Token[] arguments) throws ClientException {
+        if (hasInvalidNumberOfArguments(arguments, 1)) {
+            return;
+        }
+
         String path = arguments[1].getText();
         File fXml = new File(path);
 
