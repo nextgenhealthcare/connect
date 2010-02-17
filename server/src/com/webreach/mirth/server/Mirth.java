@@ -283,7 +283,8 @@ public class Mirth extends Thread {
         try {
             // clear global map
             if (configurationController.getServerProperties().getProperty("server.resetglobalvariables") == null || configurationController.getServerProperties().getProperty("server.resetglobalvariables").equals("1")) {
-                GlobalVariableStore.getInstance().globalVariableMap.clear();
+                GlobalVariableStore.getInstance().clear();
+                GlobalVariableStore.getInstance().clearSync();
             }
         } catch (Exception e) {
             logger.error("Could not clear the global map.", e);
@@ -295,7 +296,8 @@ public class Mirth extends Thread {
         for (Channel channel : channels) {
             try {
                 if (channel.getProperties().getProperty("clearGlobalChannelMap") == null || channel.getProperties().getProperty("clearGlobalChannelMap").equalsIgnoreCase("true")) {
-                    GlobalChannelVariableStoreFactory.getInstance().get(channel.getId()).globalChannelVariableMap.clear();
+                    GlobalChannelVariableStoreFactory.getInstance().get(channel.getId()).clear();
+                    GlobalChannelVariableStoreFactory.getInstance().get(channel.getId()).clearSync();
                 }
             } catch (Exception e) {
                 logger.error("Could not clear the global channel map: " + channel.getId(), e);
