@@ -211,7 +211,7 @@ public class MuleEngineController implements EngineController {
         vmEndpoint.setEndpointURI(new MuleEndpointURI(new URI("vm://" + channel.getId()).toString()));
         MuleEndpoint endpoint = new MuleEndpoint();
 
-        String connectorReference = channel.getId() + "_source";
+        String connectorReference = getConnectorReferenceForInboundRouter(channel);
 
         // add the source connector
         UMOConnector connector = registerConnector(channel.getSourceConnector(), connectorReference + "_connector", channel.getId());
@@ -293,11 +293,11 @@ public class MuleEngineController implements EngineController {
                 // String connectorReference = channel.getId() +
                 // "_destination_"
                 // + String.valueOf(iterator.nextIndex());
-                String connectorReference = getConnectorReferenceForOutputRouter(channel, String.valueOf(iterator.nextIndex()));
+                String connectorReference = getConnectorReferenceForOutboundRouter(channel, iterator.nextIndex());
 
                 // add the destination connector
                 // ast: changes to get the same name for the connector and
-                String connectorName = getConnectorNameForOutputRouter(connectorReference);
+                String connectorName = getConnectorNameForOutboundRouter(connectorReference);
                 endpoint.setConnector(registerConnector(connector, connectorName, channel.getId()));
 
                 // 1. append the JavaScriptTransformer that does the
@@ -345,12 +345,16 @@ public class MuleEngineController implements EngineController {
 
     // ast: to sincronize the name of the connector for the output router and
     // the response router
-    private String getConnectorNameForOutputRouter(String connectorReference) {
-        return connectorReference + "_connector";
+    private String getConnectorNameForOutboundRouter(String connectorId) {
+        return connectorId + "_connector";
     }
 
-    private String getConnectorReferenceForOutputRouter(Channel channel, String value) {
-        return channel.getId() + "_destination_" + value;
+    private String getConnectorReferenceForInboundRouter(Channel channel) {
+        return channel.getId() + "_source";
+    }
+
+    private String getConnectorReferenceForOutboundRouter(Channel channel, int index) {
+        return channel.getId() + "_destination_" + index;
     }
 
     private UMOTransformer registerTransformer(Channel channel, Connector connector, String name) throws Exception {
@@ -520,11 +524,11 @@ public class MuleEngineController implements EngineController {
         unregisterConnectors(descriptor.getInboundRouter().getEndpoints());
         UMOOutboundRouter outboundRouter = (UMOOutboundRouter) descriptor.getOutboundRouter().getRouters().iterator().next();
         unregisterConnectors(outboundRouter.getEndpoints());
-
+        
         // remove the scripts associated with the channel
         scriptController.removeScripts(channelId);
         templateController.removeTemplates(channelId);
-        
+
         // unregister its mbean
         jmxAgent.unregsiterComponentService(channelId);
     }
@@ -556,9 +560,9 @@ public class MuleEngineController implements EngineController {
 
         for (Iterator<String> iterator = muleManager.getModel().getComponentNames(); iterator.hasNext();) {
             String channelId = iterator.next();
-            
+
             if (!channelId.equals("MessageSink")) {
-                channelIds.add(channelId);    
+                channelIds.add(channelId);
             }
         }
 
