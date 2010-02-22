@@ -99,7 +99,7 @@ public class JavaScriptUtil {
             event.setLevel(SystemEvent.Level.NORMAL);
             event.setDescription(StackTracePrinter.stackTraceToString(e));
             systemLogger.logSystemEvent(event);
-            logger.error("Error executing " + scriptType + " script.", e);
+            logger.error("Error executing " + scriptType + " script from channel: " + channelId, e);
         }
     }
 
@@ -123,7 +123,7 @@ public class JavaScriptUtil {
                 JavaScriptScopeUtil.buildScope(scope, scriptLogger);
             }
 
-            logger.debug("executing " + scriptType + " script. id=" + scriptId);
+            logger.debug("executing " + scriptType + " script. id=" + scriptId + ", channelId=" + channelId);
             compiledScript.exec(context, scope);
         } catch (Exception e) {
             if (e instanceof RhinoException) {
@@ -236,7 +236,7 @@ public class JavaScriptUtil {
         try {
             for (CodeTemplate template : ControllerFactory.getFactory().createCodeTemplateController().getCodeTemplate(null)) {
                 if (template.getType() == CodeSnippetType.FUNCTION) {
-                    if (template.getScope() == CodeTemplate.ContextType.GLOBAL_CONTEXT.getContext()) {
+                    if (template.getScope() == CodeTemplate.ContextType.GLOBAL_CONTEXT.getContext() || template.getScope() == CodeTemplate.ContextType.GLOBAL_CHANNEL_CONTEXT.getContext()) {
                         builtScript.append(template.getCode());
                     } else if (includeChannelMap && template.getScope() == CodeTemplate.ContextType.CHANNEL_CONTEXT.getContext()) {
                         builtScript.append(template.getCode());
