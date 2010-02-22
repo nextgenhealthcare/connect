@@ -59,6 +59,7 @@ public class MapperPanel extends BasePanel {
         variableTypes = new LinkedHashMap<String, String>();
         variableTypes.put("connector", "Connector Map");
         variableTypes.put("channel", "Channel Map");
+        variableTypes.put("globalChannel", "Global Channel Map");
         variableTypes.put("global", "Global Map");
         variableTypes.put("response", "Response Map");
 

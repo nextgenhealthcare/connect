@@ -3889,6 +3889,7 @@ public class Frame extends JXFrame {
         if (importFile != null) {
             try {
                 String codeTemplatesXML = FileUtil.read(importFile);
+                codeTemplatesXML = ImportConverter.convertCodeTemplates(codeTemplatesXML);
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
                 boolean append = false;
