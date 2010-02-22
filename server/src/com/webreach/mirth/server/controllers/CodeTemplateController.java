@@ -17,7 +17,7 @@ public abstract class CodeTemplateController extends Controller {
     public static CodeTemplateController getInstance() {
         return ControllerFactory.getFactory().createCodeTemplateController();
     }
-    
+
     public abstract List<CodeTemplate> getCodeTemplate(CodeTemplate codeTemplate) throws ControllerException;
 
     public abstract void updateCodeTemplates(List<CodeTemplate> codeTemplates) throws ControllerException;

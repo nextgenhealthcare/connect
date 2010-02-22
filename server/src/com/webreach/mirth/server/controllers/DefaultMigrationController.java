@@ -32,6 +32,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import com.webreach.mirth.model.PluginMetaData;
+import com.webreach.mirth.model.util.ImportConverter;
 import com.webreach.mirth.server.tools.ClassPathResource;
 import com.webreach.mirth.server.util.DatabaseUtil;
 import com.webreach.mirth.server.util.FileUtil;
@@ -129,6 +130,7 @@ public class DefaultMigrationController extends MigrationController {
                 return;
             else {
                 migrate(oldSchemaVersion, newSchemaVersion);
+                migrateContents(oldSchemaVersion, newSchemaVersion);
 
                 if (result == null)
                     SqlConfig.getSqlMapClient().update("Configuration.setInitialSchemaVersion", newSchemaVersion);
@@ -254,6 +256,17 @@ public class DefaultMigrationController extends MigrationController {
             // gets the correct migration script based on dbtype and versions
             File migrationFile = new File(deltaPath + databaseType + "-" + oldVersion + "-" + ++oldVersion + ".sql");
             DatabaseUtil.executeScript(migrationFile, true);
+        }
+    }
+    
+    private void migrateContents(int oldVersion, int newVersion) throws Exception {
+        if ((oldVersion == 6) && (newVersion == 7)) {
+            CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
+            try {
+                codeTemplateController.updateCodeTemplates(ImportConverter.convertCodeTemplates(codeTemplateController.getCodeTemplate(null)));
+            } catch (Exception e) {
+                logger.error("Error migrating code templates.", e);
+            }
         }
     }
 }

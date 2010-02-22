@@ -236,7 +236,7 @@ public class JavaScriptUtil {
         try {
             for (CodeTemplate template : ControllerFactory.getFactory().createCodeTemplateController().getCodeTemplate(null)) {
                 if (template.getType() == CodeSnippetType.FUNCTION) {
-                    if (template.getScope() == CodeTemplate.ContextType.GLOBAL_CONTEXT.getContext()) {
+                    if (template.getScope() == CodeTemplate.ContextType.GLOBAL_CONTEXT.getContext() || template.getScope() == CodeTemplate.ContextType.GLOBAL_CHANNEL_CONTEXT.getContext()) {
                         builtScript.append(template.getCode());
                     } else if (includeChannelMap && template.getScope() == CodeTemplate.ContextType.CHANNEL_CONTEXT.getContext()) {
                         builtScript.append(template.getCode());

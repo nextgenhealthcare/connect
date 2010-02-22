@@ -184,7 +184,7 @@ public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 			List<CodeTemplate> templates = codeTemplateController.getCodeTemplate(null);
 			for (CodeTemplate template : templates) {
 				if (template.getType() == CodeSnippetType.FUNCTION) {
-					if (template.getScope() == CodeTemplate.ContextType.GLOBAL_CONTEXT.getContext() || template.getScope() == CodeTemplate.ContextType.CHANNEL_CONTEXT.getContext()) {
+					if (template.getScope() == CodeTemplate.ContextType.GLOBAL_CONTEXT.getContext() || template.getScope() == CodeTemplate.ContextType.GLOBAL_CHANNEL_CONTEXT.getContext() || template.getScope() == CodeTemplate.ContextType.CHANNEL_CONTEXT.getContext()) {
 						script.append(template.getCode());
 					}
 				}

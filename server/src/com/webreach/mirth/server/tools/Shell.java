@@ -691,7 +691,13 @@ public class Shell {
 
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         try {
-            client.updateCodeTemplates((List<CodeTemplate>) serializer.fromXML(readFile(fXml)));
+            String codeTemplatesXml = readFile(fXml);
+            try {
+                codeTemplatesXml = ImportConverter.convertCodeTemplates(codeTemplatesXml);
+            } catch (Exception e) {
+                error("error migrating code templates", e);
+            }
+            client.updateCodeTemplates((List<CodeTemplate>) serializer.fromXML(codeTemplatesXml));
         } catch (IOException e) {
             error("cannot read " + path, e);
             return;

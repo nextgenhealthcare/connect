@@ -39,6 +39,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.webreach.mirth.model.Channel;
+import com.webreach.mirth.model.CodeTemplate;
 import com.webreach.mirth.model.Connector;
 import com.webreach.mirth.model.ServerConfiguration;
 import com.webreach.mirth.model.MessageObject.Protocol;
@@ -100,9 +101,48 @@ public class ImportConverter {
         DocumentSerializer docSerializer = new DocumentSerializer();
         serverConfiguration = docSerializer.toXML(document);
 
+        serverConfiguration = convertCodeTemplates(serverConfiguration);
+        
         ServerConfiguration config = (ServerConfiguration) serializer.fromXML(serverConfiguration);
         config.setChannels(channelList);
         return config;
+    }
+
+    public static String convertCodeTemplates(String codeTemplatesXML) throws Exception {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        Document document;
+        DocumentBuilder builder;
+
+        builder = factory.newDocumentBuilder();
+        document = builder.parse(new InputSource(new StringReader(codeTemplatesXML)));
+
+        NodeList codeTemplates = document.getElementsByTagName("com.webreach.mirth.model.CodeTemplate");
+        int length = codeTemplates.getLength();
+
+        for (int i = 0; i < length; i++) {
+            Element codeTemplate = (Element) codeTemplates.item(i);
+            NodeList versions = codeTemplate.getElementsByTagName("version");
+
+            // If there is no version, then this is a migration to 2.0 and the
+            // scope should be incremented by 1 if its value is not currently 0
+            // (global map). Global Channel Map was added in position 1 for 2.0.
+            if (versions.getLength() == 0) {
+                Element scope = (Element) codeTemplate.getElementsByTagName("scope").item(0);
+                int scopeValue = Integer.parseInt(scope.getTextContent());
+                if (scopeValue != 0) {
+                    scopeValue++;
+                    scope.setTextContent(Integer.toString(scopeValue));
+                }
+            }
+        }
+
+        DocumentSerializer docSerializer = new DocumentSerializer();
+
+        return docSerializer.toXML(document);
+    }
+
+    public static List<CodeTemplate> convertCodeTemplates(List<CodeTemplate> codeTemplates) throws Exception {
+        return (List<CodeTemplate>) serializer.fromXML(convertCodeTemplates(serializer.toXML(codeTemplates)));
     }
 
     public static Channel convertChannelObject(Channel channel) throws Exception {

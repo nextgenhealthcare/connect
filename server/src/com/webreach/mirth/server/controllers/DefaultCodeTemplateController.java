@@ -21,6 +21,7 @@ import com.webreach.mirth.server.util.SqlConfig;
 public class DefaultCodeTemplateController extends CodeTemplateController {
     private Logger logger = Logger.getLogger(this.getClass());
     private static CodeTemplateController instance = null;
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
     private DefaultCodeTemplateController() {
 
@@ -40,7 +41,13 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
         logger.debug("getting codeTemplate: " + codeTemplate);
 
         try {
-            return SqlConfig.getSqlMapClient().queryForList("CodeTemplate.getCodeTemplate", codeTemplate);
+            List<CodeTemplate> codeTemplates = SqlConfig.getSqlMapClient().queryForList("CodeTemplate.getCodeTemplate", codeTemplate);
+
+            for (CodeTemplate singleCodeTemplate : codeTemplates) {
+                singleCodeTemplate.setVersion(configurationController.getServerVersion());
+            }
+
+            return codeTemplates;
         } catch (SQLException e) {
             throw new ControllerException(e);
         }
@@ -81,11 +88,11 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
 
         try {
             SqlConfig.getSqlMapClient().delete("CodeTemplate.deleteCodeTemplate", codeTemplate);
-            
+
             if (DatabaseUtil.statementExists("CodeTemplate.vacuumCodeTemplateTable")) {
                 SqlConfig.getSqlMapClient().update("CodeTemplate.vacuumCodeTemplateTable");
             }
-            
+
         } catch (SQLException e) {
             throw new ControllerException(e);
         }
