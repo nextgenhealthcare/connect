@@ -19,233 +19,313 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-
-/*
- * Converts EDI message to XML
- */
 public class ER7Reader extends SAXParser {
     private Logger logger = Logger.getLogger(this.getClass());
     private boolean handleRepetitions = false;
     private boolean convertLFtoCR = false;
+
+    private static final char[] EMPTY_CHAR_ARRAY = "".toCharArray();
+    private static final String DEFAULT_SEGMENT_TERMINATOR = "\r";
+    private static final String DEFAULT_FIELD_SEPARATOR = "|";
+    private static final String DEFAULT_COMPONENT_SEPARATOR = "^";
+    private static final String DEFAULT_REPETITION_SEPARATOR = "~";
+    private static final String DEFAULT_ESCAPE_CHARACTER = "\\";
+    private static final String DEFAULT_SUBCOMPONENT_TERMINATOR = "&";
+    private static final String MESSAGE_ROOT_ID = "HL7Message";
 
     public ER7Reader(boolean handleRepetitions, boolean convertLFtoCR) {
         this.handleRepetitions = handleRepetitions;
         this.convertLFtoCR = convertLFtoCR;
     }
 
-    public void parse(InputSource input) throws SAXException, IOException {
-        // Read the data from the InputSource
-        BufferedReader in = new BufferedReader(input.getCharacterStream());
-        String nextLine = "";
-        StringBuffer sb = new StringBuffer();
+    private String getMessageFromSource(InputSource source) throws IOException {
+        BufferedReader reader = new BufferedReader(source.getCharacterStream());
+        StringBuilder builder = new StringBuilder();
+        String line = "";
+
         if (convertLFtoCR) {
-            while ((nextLine = in.readLine()) != null) {
-                sb.append(nextLine);
-                sb.append("\r"); // TODO: This should be configurable
+            while ((line = reader.readLine()) != null) {
+                builder.append(line);
+                // TODO: This should be configurable
+                builder.append("\r");
             }
         } else {
             int c;
-            while ((c = in.read()) != -1) {
-                sb.append((char) c);
+
+            while ((c = reader.read()) != -1) {
+                builder.append((char) c);
             }
         }
-        String message = sb.toString();
-        message = message.trim();
-        // fire SAX events
-        String documentHead = "";
+
+        return builder.toString().trim();
+    }
+
+    public void parse(InputSource source) throws SAXException, IOException {
+        String message = getMessageFromSource(source);
         ContentHandler contentHandler = getContentHandler();
         contentHandler.startDocument();
-        // First tokenize the segments
-        if (message == null || message.length() < 3) {
-            logger.error("Unable to parse, message is null or too short: " + message);
-            throw new SAXException("Unable to parse, message is null or too short: " + message);
-        }
-        String segmentDelim = "\r";
-        String fieldDelim = new String(new char[] { message.charAt(3) }); // Usually
-        // |
-        int nextFieldDelim = message.indexOf(message.charAt(3), 4);
-        String componentDelim = "^";
-        String repetitionSep = "~";
-        String escapeChar = "\\";
-        String subcomponentDelim = "&";
-        if (nextFieldDelim > 4) {
-            // Usually ^
-            componentDelim = new String(new char[] { message.charAt(4) });
-        }
-        if (nextFieldDelim > 5) {
-            // Usually ~
-            repetitionSep = new String(new char[] { message.charAt(5) });
-        }
-        if (nextFieldDelim > 6) {
-            // Usually \
-            escapeChar = new String(new char[] { message.charAt(6) });
-        }
-        if (nextFieldDelim > 7) {
-            // Usually &
-            subcomponentDelim = new String(new char[] { message.charAt(7) });
+
+        // first tokenize the segments
+        if ((message == null) || (message.length() < 3)) {
+            throw new SAXException("Unable to parse message. It is NULL or too short. " + message);
         }
 
-        // Tokenize the segments first
-        StringTokenizer segmentTokenizer = new StringTokenizer(message, segmentDelim);
+        // usually |
+        String segmentTerminator = DEFAULT_SEGMENT_TERMINATOR;
+        String fieldSeparator = DEFAULT_FIELD_SEPARATOR;
+        String componentSeparator = DEFAULT_COMPONENT_SEPARATOR;
+        String repetitionSeparator = DEFAULT_REPETITION_SEPARATOR;
+        String escapeCharacter = DEFAULT_ESCAPE_CHARACTER;
+        String subcomponentSeparator = DEFAULT_SUBCOMPONENT_TERMINATOR;
 
-        documentHead = handleSegment(documentHead, contentHandler, fieldDelim, componentDelim, subcomponentDelim, repetitionSep, escapeChar, segmentTokenizer);
+        // grab the actual separators from the message
 
+        fieldSeparator = new String(new char[] { message.charAt(3) });
+
+        int nextDelimeter = message.indexOf(message.charAt(3), 4);
+
+        if (nextDelimeter > 4) {
+            // usually ^
+            componentSeparator = new String(new char[] { message.charAt(4) });
+        }
+
+        if (nextDelimeter > 5) {
+            // usually ~
+            repetitionSeparator = new String(new char[] { message.charAt(5) });
+        }
+
+        if (nextDelimeter > 6) {
+            // usually \
+            escapeCharacter = new String(new char[] { message.charAt(6) });
+        }
+
+        if (nextDelimeter > 7) {
+            // usually &
+            subcomponentSeparator = new String(new char[] { message.charAt(7) });
+        }
+
+        // tokenize the segments first
+        StringTokenizer segmentTokenizer = new StringTokenizer(message, segmentTerminator);
+        String documentHead = handleSegments("", contentHandler, fieldSeparator, componentSeparator, subcomponentSeparator, repetitionSeparator, escapeCharacter, segmentTokenizer);
         contentHandler.endElement("", documentHead, "");
         contentHandler.endDocument();
     }
 
-    private String handleSegment(String documentHead, ContentHandler contentHandler, String fieldDelim, String componentDelim, String subcomponentDelim, String repetitionSep, String escapeChar, StringTokenizer segmentTokenizer) throws SAXException {
-        int segmentCounter = 0;
+    private String handleSegments(String documentHead, ContentHandler contentHandler, String fieldSeparator, String componentSeparator, String subcomponentSeparator, String repetitionSeparator, String escapeCharacter, StringTokenizer segmentTokenizer) throws SAXException {
+        int segmentCount = 0;
+
         while (segmentTokenizer.hasMoreTokens()) {
             String segment = segmentTokenizer.nextToken();
-            // loop through each segment and pull out the elements
-            StringTokenizer elementTokenizer = new StringTokenizer(segment, fieldDelim, true);
-            if (elementTokenizer.hasMoreTokens()) {
-                // Our XML element is named after the first element
-                String segmentID = elementTokenizer.nextToken().trim();
-                if (segmentCounter == 0) {
-                    documentHead = "HL7Message";
+            logger.trace("handling segment: " + segment);
+            // loop through each segment and pull out the fields
+            StringTokenizer fieldTokenizer = new StringTokenizer(segment, fieldSeparator, true);
+
+            if (fieldTokenizer.hasMoreTokens()) {
+                // the XML element is named after the first field
+                String segmentId = fieldTokenizer.nextToken().trim();
+
+                if (segmentCount == 0) {
+                    documentHead = MESSAGE_ROOT_ID;
                     contentHandler.startElement("", documentHead, "", null);
                 }
-                contentHandler.startElement("", segmentID, "", null);
-                handleElement(contentHandler, fieldDelim, componentDelim, subcomponentDelim, repetitionSep, escapeChar, elementTokenizer, segmentID);
-                contentHandler.endElement("", segmentID, "");
 
+                contentHandler.startElement("", segmentId, "", null);
+                handleFieldOrRepetitions(contentHandler, fieldSeparator, componentSeparator, subcomponentSeparator, repetitionSeparator, escapeCharacter, fieldTokenizer, segmentId);
+                contentHandler.endElement("", segmentId, "");
             } else {
-                throw new SAXException("Could not find elements in segment: " + segment);
+                throw new SAXException("Could not find fields in segment: " + segment);
             }
-            segmentCounter++;
+
+            segmentCount++;
         }
+
         return documentHead;
     }
 
-    private void handleElement(ContentHandler contentHandler, String fieldDelim, String componentDelim, String subcomponentDelim, String repetitionSep, String escapeChar, StringTokenizer elementTokenizer, String segmentID) throws SAXException {
-        int fieldID = 0;
-        boolean lastsegElement = false;
-        boolean inMSH = false;
-        while (elementTokenizer.hasMoreTokens()) {
-            inMSH = false;
+    private void handleFieldOrRepetitions(ContentHandler contentHandler, String fieldSeparator, String componentSeparator, String subcomponentSeparator, String repetitionSeparator, String escapeCharacter, StringTokenizer fieldTokenizer, String segmentId) throws SAXException {
+        int fieldId = 0;
+        boolean atLastField = false;
 
-            // Go through each element and add as new child under
-            // the segment element
-            String element = elementTokenizer.nextToken();
+        while (fieldTokenizer.hasMoreTokens()) {
+            boolean enteredHeader = false;
 
-            // System.out.println("EL:" + element);
-            // The naming is SEG.<field number>
-            if (element.equals(fieldDelim)) {
+            /*
+             * Go through each element and add as new child under the segment
+             * element
+             */
+            String field = fieldTokenizer.nextToken();
 
-                if (lastsegElement) {
-                    contentHandler.startElement("", segmentID + "." + fieldID, "", null);
-                    contentHandler.endElement("", segmentID + "." + fieldID, "");
+            // the naming is SEG.<field#>
+            if (field.equals(fieldSeparator)) {
+                if (atLastField) {
+                    contentHandler.startElement("", segmentId + "." + fieldId, "", null);
+                    contentHandler.endElement("", segmentId + "." + fieldId, "");
                 }
-                fieldID++;
-                lastsegElement = true;
+
+                fieldId++;
+                atLastField = true;
             } else {
-                lastsegElement = false;
-                // batch supports
-                if (segmentID.equals("MSH") || segmentID.equals("FHS") || segmentID.equals("BHS")) {
-                    inMSH = true;
-                }
-                if (inMSH && fieldID == 1) {
-                    contentHandler.startElement("", segmentID + "." + fieldID, "", null);
-                    contentHandler.characters(fieldDelim.toCharArray(), 0, 1);
-                    contentHandler.endElement("", segmentID + "." + (fieldID), null);
-                    fieldID++;
-                    contentHandler.startElement("", segmentID + "." + fieldID, "", null);
-                    String specialChars = (componentDelim + repetitionSep + escapeChar + subcomponentDelim);
-                    contentHandler.characters(specialChars.toCharArray(), 0, specialChars.length());
-                    contentHandler.endElement("", segmentID + "." + (fieldID), null);
-                } else if (inMSH && fieldID == 2) {
+                logger.trace("handling field or repetition: " + field);
+                atLastField = false;
 
+                // batch support
+                if (segmentId.equals("MSH") || segmentId.equals("FHS") || segmentId.equals("BHS")) {
+                    enteredHeader = true;
+                }
+
+                if (enteredHeader && (fieldId == 1)) {
+                    contentHandler.startElement("", segmentId + "." + fieldId, "", null);
+                    contentHandler.characters(fieldSeparator.toCharArray(), 0, 1);
+                    contentHandler.endElement("", segmentId + "." + (fieldId), null);
+                    fieldId++;
+                    contentHandler.startElement("", segmentId + "." + fieldId, "", null);
+                    char[] specialCharacters = new char[] { componentSeparator.charAt(0), repetitionSeparator.charAt(0), escapeCharacter.charAt(0), subcomponentSeparator.charAt(0) };
+                    contentHandler.characters(specialCharacters, 0, specialCharacters.length);
+                    contentHandler.endElement("", segmentId + "." + (fieldId), null);
+                } else if (enteredHeader && (fieldId == 2)) {
+                    // do nothing
                 } else {
                     if (handleRepetitions) {
-                        handleRepetitions(contentHandler, componentDelim, repetitionSep, segmentID, fieldID, element);
+                        handleFieldRepetitions(contentHandler, componentSeparator, repetitionSeparator, subcomponentSeparator, segmentId, fieldId, field);
                     } else {
-                        handleElementsInternal(contentHandler, componentDelim, segmentID, fieldID, element);
+                        handleField(contentHandler, componentSeparator, subcomponentSeparator, segmentId, fieldId, field);
                     }
                 }
             }
         }
-        if (lastsegElement) {
-            contentHandler.startElement("", segmentID + "." + fieldID, "", null);
-            contentHandler.endElement("", segmentID + "." + fieldID, "");
+
+        if (atLastField) {
+            contentHandler.startElement("", segmentId + "." + fieldId, "", null);
+            contentHandler.endElement("", segmentId + "." + fieldId, "");
         }
     }
 
-    private void handleRepetitions(ContentHandler contentHandler, String componentDelim, String repetitionSep, String segmentID, int fieldID, String element) throws SAXException {
-        StringTokenizer repTokenizer = new StringTokenizer(element, repetitionSep, true);
-        boolean lastrepElement = true;
-        while (repTokenizer.hasMoreTokens()) {
-            element = repTokenizer.nextToken();
-            if (element.equals(repetitionSep)) {
+    private void handleFieldRepetitions(ContentHandler contentHandler, String componentSeparator, String repetitionSeparator, String subcomponentSeparator, String segmentId, int fieldId, String field) throws SAXException {
+        StringTokenizer fieldRepetitionTokenizer = new StringTokenizer(field, repetitionSeparator, true);
+        boolean atLastRepetition = true;
+
+        while (fieldRepetitionTokenizer.hasMoreTokens()) {
+            field = fieldRepetitionTokenizer.nextToken();
+
+            if (field.equals(repetitionSeparator)) {
                 // check for ~~
-                if (lastrepElement) {
-                    contentHandler.startElement("", segmentID + "." + fieldID, "", null);
-                    contentHandler.characters("".toCharArray(), 0, 0);
-                    contentHandler.endElement("", segmentID + "." + fieldID, "");
+                if (atLastRepetition) {
+                    contentHandler.startElement("", segmentId + "." + fieldId, "", null);
+                    contentHandler.characters(EMPTY_CHAR_ARRAY, 0, 0);
+                    contentHandler.endElement("", segmentId + "." + fieldId, "");
                 }
-                lastrepElement = true;
-            } else {
-                lastrepElement = false;
 
-                handleElementsInternal(contentHandler, componentDelim, segmentID, fieldID, element);
+                atLastRepetition = true;
+            } else {
+                logger.trace("handling repetition: " + field);
+                atLastRepetition = false;
+                handleField(contentHandler, componentSeparator, subcomponentSeparator, segmentId, fieldId, field);
             }
         }
-        if (lastrepElement) {
-            contentHandler.startElement("", segmentID + "." + (fieldID), "", null);
-            contentHandler.characters("".toCharArray(), 0, 0);
-            contentHandler.endElement("", segmentID + "." + (fieldID), "");
+
+        if (atLastRepetition) {
+            contentHandler.startElement("", segmentId + "." + fieldId, "", null);
+            contentHandler.characters(EMPTY_CHAR_ARRAY, 0, 0);
+            contentHandler.endElement("", segmentId + "." + fieldId, "");
         }
     }
 
-    private void handleElementsInternal(ContentHandler contentHandler, String componentDelim, String segmentID, int fieldID, String element) throws SAXException {
-        int subelementID;
-        if (element.indexOf(componentDelim) > -1) {
-            contentHandler.startElement("", segmentID + "." + fieldID, "", null);
-            // check if we have sub-elements, if so add them
-            StringTokenizer subelementTokenizer = new StringTokenizer(element, componentDelim, true);
-            subelementID = 1;
-            handleSubElement(contentHandler, componentDelim, segmentID, fieldID, subelementID, subelementTokenizer);
-            contentHandler.endElement("", segmentID + "." + (fieldID), null);
+    private void handleField(ContentHandler contentHandler, String componentSeparator, String subcomponentSeparator, String segmentId, int fieldId, String field) throws SAXException {
+        int componentId;
+
+        if (field.indexOf(componentSeparator) > -1) {
+            contentHandler.startElement("", segmentId + "." + fieldId, "", null);
+            // check if we have components, if so add them
+            StringTokenizer componentTokenizer = new StringTokenizer(field, componentSeparator, true);
+            componentId = 1;
+            handleComponents(contentHandler, componentSeparator, subcomponentSeparator, segmentId, fieldId, componentId, componentTokenizer);
+            contentHandler.endElement("", segmentId + "." + fieldId, null);
         } else {
-            contentHandler.startElement("", segmentID + "." + fieldID, "", null);
-            contentHandler.startElement("", segmentID + "." + fieldID + ".1", "", null);
-            // Set the text contents to the value
-            contentHandler.characters(element.toCharArray(), 0, element.length());
-            contentHandler.endElement("", segmentID + "." + (fieldID) + ".1", null);
-            contentHandler.endElement("", segmentID + "." + (fieldID), null);
+            logger.trace("handling field: " + field);
+            contentHandler.startElement("", segmentId + "." + fieldId, "", null);
+            contentHandler.startElement("", segmentId + "." + fieldId + ".1", "", null);
+            contentHandler.characters(field.toCharArray(), 0, field.length());
+            contentHandler.endElement("", segmentId + "." + fieldId + ".1", null);
+            contentHandler.endElement("", segmentId + "." + fieldId, null);
         }
     }
 
-    private void handleSubElement(ContentHandler contentHandler, String componentDelim, String segmentID, int fieldID, int subelementID, StringTokenizer subelementTokenizer) throws SAXException {
-        boolean lastsegSubelement = true;
-        while (subelementTokenizer.hasMoreTokens()) {
-            String subelement = subelementTokenizer.nextToken();
-            if (subelement.equals(componentDelim)) {
-                String subelementName = segmentID + "." + fieldID + "." + subelementID;
-                if (lastsegSubelement) {
-                    contentHandler.startElement("", subelementName, "", null);
-                    contentHandler.characters("".toCharArray(), 0, 0);
-                    contentHandler.endElement("", subelementName, "");
+    private void handleComponents(ContentHandler contentHandler, String componentSeparator, String subcomponentSeparator, String segmentId, int fieldId, int componentId, StringTokenizer componentTokenizer) throws SAXException {
+        boolean atLastComponent = true;
+
+        while (componentTokenizer.hasMoreTokens()) {
+            String component = componentTokenizer.nextToken();
+
+            if (component.equals(componentSeparator)) {
+                if (atLastComponent) {
+                    contentHandler.startElement("", segmentId + "." + fieldId + "." + componentId, "", null);
+                    contentHandler.characters(EMPTY_CHAR_ARRAY, 0, 0);
+                    contentHandler.endElement("", segmentId + "." + fieldId + "." + componentId, "");
                 }
-                subelementID++;
-                lastsegSubelement = true;
+
+                componentId++;
+                atLastComponent = true;
             } else {
-                String subelementName = segmentID + "." + fieldID + "." + subelementID;
-                lastsegSubelement = false;
-                // The naming is SEG.<field
-                // number>.<element number>
-                contentHandler.startElement("", subelementName, "", null);
-                contentHandler.characters(subelement.toCharArray(), 0, subelement.length());
-                contentHandler.endElement("", subelementName, "");
+                atLastComponent = false;
+                handleComponent(contentHandler, subcomponentSeparator, segmentId, fieldId, componentId, component);
             }
         }
-        String subelementName = segmentID + "." + (fieldID) + "." + subelementID;
-        if (lastsegSubelement) {
-            contentHandler.startElement("", subelementName, "", null);
-            contentHandler.characters("".toCharArray(), 0, 0);
-            contentHandler.endElement("", subelementName, "");
+
+        if (atLastComponent) {
+            contentHandler.startElement("", segmentId + "." + fieldId + "." + componentId, "", null);
+            contentHandler.characters(EMPTY_CHAR_ARRAY, 0, 0);
+            contentHandler.endElement("", segmentId + "." + fieldId + "." + componentId, "");
         }
     }
 
+    private void handleComponent(ContentHandler contentHandler, String subcomponentSeparator, String segmentId, int fieldId, int componentId, String component) throws SAXException {
+        int subcomponentId;
+
+        if (component.indexOf(subcomponentSeparator) > -1) {
+            contentHandler.startElement("", segmentId + "." + fieldId + "." + componentId, "", null);
+            // check if we have subcomponents, if so add them
+            StringTokenizer subcomponentTokenizer = new StringTokenizer(component, subcomponentSeparator, true);
+            subcomponentId = 1;
+            handleSubcomponents(contentHandler, subcomponentSeparator, segmentId, fieldId, componentId, subcomponentId, subcomponentTokenizer);
+            contentHandler.endElement("", segmentId + "." + fieldId + "." + componentId, null);
+        } else {
+            logger.trace("handling component: " + component);
+            // the naming is SEG.<field#>.<component#>
+            contentHandler.startElement("", segmentId + "." + fieldId + "." + componentId, "", null);
+            contentHandler.characters(component.toCharArray(), 0, component.length());
+            contentHandler.endElement("", segmentId + "." + fieldId + "." + componentId, "");
+        }
+    }
+
+    private void handleSubcomponents(ContentHandler contentHandler, String subcomponentSeparator, String segmentId, int fieldId, int componentId, int subcomponentId, StringTokenizer subcomponentTokenizer) throws SAXException {
+        boolean atLastSubcomponent = true;
+
+        while (subcomponentTokenizer.hasMoreTokens()) {
+            String subcomponent = subcomponentTokenizer.nextToken();
+
+            if (subcomponent.equals(subcomponentSeparator)) {
+                if (atLastSubcomponent) {
+                    contentHandler.startElement("", segmentId + "." + fieldId + "." + componentId + "." + subcomponentId, "", null);
+                    contentHandler.characters(EMPTY_CHAR_ARRAY, 0, 0);
+                    contentHandler.endElement("", segmentId + "." + fieldId + "." + componentId + "." + subcomponentId, "");
+                }
+
+                subcomponentId++;
+                atLastSubcomponent = true;
+            } else {
+                logger.trace("handling subcomponent: " + subcomponentId);
+                atLastSubcomponent = false;
+                // the naming is SEG.<field#>.<component#>.<subcomponent#>
+                contentHandler.startElement("", segmentId + "." + fieldId + "." + componentId + "." + subcomponentId, "", null);
+                contentHandler.characters(subcomponent.toCharArray(), 0, subcomponent.length());
+                contentHandler.endElement("", segmentId + "." + fieldId + "." + componentId + "." + subcomponentId, "");
+            }
+        }
+
+        if (atLastSubcomponent) {
+            contentHandler.startElement("", segmentId + "." + fieldId + "." + componentId + "." + subcomponentId, "", null);
+            contentHandler.characters(EMPTY_CHAR_ARRAY, 0, 0);
+            contentHandler.endElement("", segmentId + "." + fieldId + "." + componentId + "." + subcomponentId, "");
+        }
+    }
 }
