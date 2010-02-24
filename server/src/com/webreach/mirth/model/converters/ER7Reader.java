@@ -21,8 +21,8 @@ import org.xml.sax.SAXException;
 
 public class ER7Reader extends SAXParser {
     private Logger logger = Logger.getLogger(this.getClass());
-    private boolean handleSubcomponents = false;
     private boolean handleRepetitions = false;
+    private boolean handleSubcomponents = false;
     private boolean convertLFtoCR = false;
 
     private static final char[] EMPTY_CHAR_ARRAY = "".toCharArray();
@@ -36,6 +36,7 @@ public class ER7Reader extends SAXParser {
 
     public ER7Reader(boolean handleRepetitions, boolean handleSubcomponents, boolean convertLFtoCR) {
         this.handleRepetitions = handleRepetitions;
+        this.handleSubcomponents = handleSubcomponents;
         this.convertLFtoCR = convertLFtoCR;
     }
 
@@ -131,7 +132,7 @@ public class ER7Reader extends SAXParser {
                 }
 
                 contentHandler.startElement("", segmentId, "", null);
-                handleFieldOrRepetitions(contentHandler, fieldSeparator, componentSeparator, subcomponentSeparator, repetitionSeparator, escapeCharacter, fieldTokenizer, segmentId);
+                handleFieldOrRepetitions(contentHandler, fieldSeparator, componentSeparator, subcomponentSeparator, repetitionSeparator, escapeCharacter, segmentId, fieldTokenizer);
                 contentHandler.endElement("", segmentId, "");
             } else {
                 throw new SAXException("Could not find fields in segment: " + segment);
@@ -143,7 +144,7 @@ public class ER7Reader extends SAXParser {
         return documentHead;
     }
 
-    private void handleFieldOrRepetitions(ContentHandler contentHandler, String fieldSeparator, String componentSeparator, String subcomponentSeparator, String repetitionSeparator, String escapeCharacter, StringTokenizer fieldTokenizer, String segmentId) throws SAXException {
+    private void handleFieldOrRepetitions(ContentHandler contentHandler, String fieldSeparator, String componentSeparator, String subcomponentSeparator, String repetitionSeparator, String escapeCharacter, String segmentId, StringTokenizer fieldTokenizer) throws SAXException {
         int fieldId = 0;
         boolean atLastField = false;
 
@@ -232,14 +233,10 @@ public class ER7Reader extends SAXParser {
     }
 
     private void handleField(ContentHandler contentHandler, String componentSeparator, String subcomponentSeparator, String segmentId, int fieldId, String field) throws SAXException {
-        int componentId;
-
         if (field.indexOf(componentSeparator) > -1) {
             contentHandler.startElement("", segmentId + "." + fieldId, "", null);
-            // check if we have components, if so add them
             StringTokenizer componentTokenizer = new StringTokenizer(field, componentSeparator, true);
-            componentId = 1;
-            handleComponents(contentHandler, componentSeparator, subcomponentSeparator, segmentId, fieldId, componentId, componentTokenizer);
+            handleComponents(contentHandler, componentSeparator, subcomponentSeparator, segmentId, fieldId, 1, componentTokenizer);
             contentHandler.endElement("", segmentId + "." + fieldId, null);
         } else {
             logger.trace("handling field: " + field);
@@ -280,14 +277,11 @@ public class ER7Reader extends SAXParser {
     }
 
     private void handleComponent(ContentHandler contentHandler, String subcomponentSeparator, String segmentId, int fieldId, int componentId, String component) throws SAXException {
-        int subcomponentId;
-
         if (handleSubcomponents && (component.indexOf(subcomponentSeparator) > -1)) {
             contentHandler.startElement("", segmentId + "." + fieldId + "." + componentId, "", null);
             // check if we have subcomponents, if so add them
             StringTokenizer subcomponentTokenizer = new StringTokenizer(component, subcomponentSeparator, true);
-            subcomponentId = 1;
-            handleSubcomponents(contentHandler, subcomponentSeparator, segmentId, fieldId, componentId, subcomponentId, subcomponentTokenizer);
+            handleSubcomponents(contentHandler, subcomponentSeparator, segmentId, fieldId, componentId, 1, subcomponentTokenizer);
             contentHandler.endElement("", segmentId + "." + fieldId + "." + componentId, null);
         } else {
             logger.trace("handling component: " + component);

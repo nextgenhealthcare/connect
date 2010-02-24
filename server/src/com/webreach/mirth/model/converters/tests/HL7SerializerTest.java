@@ -26,16 +26,17 @@ public class HL7SerializerTest {
     public static final String XML_TEST_FILE = "xmlTest.xml";
     private String er7Message;
     private String xmlMessage;
-    private Properties properties;
+    private Properties properties = null;
     
     @Before
     public void setUp() throws Exception {
         er7Message = FileUtils.readFileToString(new File(ER7_TEST_FILE));
         xmlMessage = FileUtils.readFileToString(new File(XML_TEST_FILE));
 
-        Properties properties = new Properties();
+        properties = new Properties();
         properties.put("useStrictParser", "false");
-        properties.put("handleRepetitions", "true");
+        properties.put("handleRepetitions", "false");
+        properties.put("handleSubcomponents", "true");
         properties.put("convertLFtoCR", "false");
     }
 
