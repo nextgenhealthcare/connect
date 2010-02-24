@@ -21,6 +21,7 @@ import org.xml.sax.SAXException;
 
 public class ER7Reader extends SAXParser {
     private Logger logger = Logger.getLogger(this.getClass());
+    private boolean handleSubcomponents = false;
     private boolean handleRepetitions = false;
     private boolean convertLFtoCR = false;
 
@@ -33,7 +34,7 @@ public class ER7Reader extends SAXParser {
     private static final String DEFAULT_SUBCOMPONENT_TERMINATOR = "&";
     private static final String MESSAGE_ROOT_ID = "HL7Message";
 
-    public ER7Reader(boolean handleRepetitions, boolean convertLFtoCR) {
+    public ER7Reader(boolean handleRepetitions, boolean handleSubcomponents, boolean convertLFtoCR) {
         this.handleRepetitions = handleRepetitions;
         this.convertLFtoCR = convertLFtoCR;
     }
@@ -281,7 +282,7 @@ public class ER7Reader extends SAXParser {
     private void handleComponent(ContentHandler contentHandler, String subcomponentSeparator, String segmentId, int fieldId, int componentId, String component) throws SAXException {
         int subcomponentId;
 
-        if (component.indexOf(subcomponentSeparator) > -1) {
+        if (handleSubcomponents && (component.indexOf(subcomponentSeparator) > -1)) {
             contentHandler.startElement("", segmentId + "." + fieldId + "." + componentId, "", null);
             // check if we have subcomponents, if so add them
             StringTokenizer subcomponentTokenizer = new StringTokenizer(component, subcomponentSeparator, true);

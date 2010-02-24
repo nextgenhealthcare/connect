@@ -39,6 +39,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
     private boolean useStrictValidation = false;
     private boolean stripNamespaces = true;
     private boolean handleRepetitions = false;
+    private boolean handleSubcomponents = false;
     private boolean convertLFtoCR = true;
 
     public ER7Serializer() {
@@ -63,6 +64,10 @@ public class ER7Serializer implements IXMLSerializer<String> {
                 this.handleRepetitions = Boolean.parseBoolean((String) properties.get("handleRepetitions"));
             }
 
+            if (properties.get("handleSubcomponents") != null) {
+                this.handleSubcomponents = Boolean.parseBoolean((String) properties.get("handleSubcomponents"));
+            }
+
             if (properties.get("convertLFtoCR") != null) {
                 this.convertLFtoCR = Boolean.parseBoolean((String) properties.get("convertLFtoCR"));
             }
@@ -80,6 +85,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
         properties.put("stripNamespaces", "true");
         properties.put("handleRepetitions", "false");
         properties.put("convertLFtoCR", "true");
+        properties.put("handleSubcomponents", "false");
         return properties;
     }
 
@@ -114,7 +120,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
             }
         } else {
             try {
-                ER7Reader er7Reader = new ER7Reader(handleRepetitions, convertLFtoCR);
+                ER7Reader er7Reader = new ER7Reader(handleRepetitions, handleSubcomponents, convertLFtoCR);
                 StringWriter stringWriter = new StringWriter();
                 XMLPrettyPrinter serializer = new XMLPrettyPrinter(stringWriter);
                 serializer.setEncodeEntities(true);
