@@ -260,7 +260,7 @@ public class ER7Serializer implements IXMLSerializer<String> {
         } else {
             // XXX: This had a replaceAll("\n", "\r") before 1.7
             source = source.trim();
-            
+
             if ((source == null) || (source.length() < 3)) {
                 logger.error("Unable to parse, message is null or too short: " + source);
                 throw new SerializerException("Unable to parse, message is null or too short: " + source);
@@ -271,36 +271,37 @@ public class ER7Serializer implements IXMLSerializer<String> {
             String elementDelimeter = String.valueOf(source.charAt(4));
             String mshFields[] = source.split(segmentDelimeter)[0].split(Pattern.quote(fieldDelimeter));
             Pattern elementPattern = Pattern.compile(Pattern.quote(elementDelimeter));
-            String event = "";
 
             if (mshFields.length > 8) {
-                String[] msh9 = elementPattern.split(mshFields[8]); // MSH.9
-                event = msh9[0]; // MSH.9.1
+                // MSH.9
+                String[] msh9 = elementPattern.split(mshFields[8]);
+                // MSH.9.1
+                String type = msh9[0];
 
                 if (msh9.length > 1) {
-                    event = event + "-" + msh9[1]; // MSH.9.2
+                    // MSH.9.2
+                    type += "-" + msh9[1];
                 }
+                
+                metadata.put("type", type);
+            } else {
+                metadata.put("type", "Unknown");    
             }
-
-            if (event.equals("")) {
-                event = "Unknown";
-            }
-
-            String sendingFacility = "";
 
             if (mshFields.length > 3) {
-                sendingFacility = elementPattern.split(mshFields[3])[0]; // MSH.4.1
+                // MSH.4.1
+                metadata.put("source", elementPattern.split(mshFields[3])[0]);
+            } else {
+                metadata.put("source", "");
             }
-
-            String version = "";
 
             if (mshFields.length > 11) {
-                version = elementPattern.split(mshFields[11])[0]; // MSH.12.1
+                // MSH.12.1
+                metadata.put("version", elementPattern.split(mshFields[11])[0]);
+            } else {
+                metadata.put("version", "");
             }
 
-            metadata.put("version", version);
-            metadata.put("type", event);
-            metadata.put("source", sendingFacility);
             return metadata;
         }
     }
@@ -325,58 +326,56 @@ public class ER7Serializer implements IXMLSerializer<String> {
                 return metadata;
             }
         } else {
-            String sendingFacility = "";
-            
             if (document.getElementsByTagName("MSH.4.1").getLength() > 0) {
-                Node sender = document.getElementsByTagName("MSH.4.1").item(0);
-                
-                if (sender != null && sender.getFirstChild() != null) {
-                    sendingFacility = sender.getFirstChild().getTextContent();
+                Node senderNode = document.getElementsByTagName("MSH.4.1").item(0);
+
+                if ((senderNode != null) && (senderNode.getFirstChild() != null)) {
+                    metadata.put("source", senderNode.getFirstChild().getTextContent());
+                } else {
+                    metadata.put("source", "");
                 }
             }
-            
-            String event = "Unknown";
-            
+
             if (document.getElementsByTagName("MSH.9").getLength() > 0) {
                 if (document.getElementsByTagName("MSH.9.1").getLength() > 0) {
-                    Node type = document.getElementsByTagName("MSH.9.1").item(0);
-                    
-                    if (type != null) {
-                        event = type.getFirstChild().getNodeValue();
-                        
+                    Node typeNode = document.getElementsByTagName("MSH.9.1").item(0);
+
+                    if (typeNode != null) {
+                        String type = typeNode.getFirstChild().getNodeValue();
+
                         if (document.getElementsByTagName("MSH.9.2").getLength() > 0) {
-                            Node subtype = document.getElementsByTagName("MSH.9.2").item(0);
-                            event += "-" + subtype.getFirstChild().getTextContent();
+                            Node subTypeNode = document.getElementsByTagName("MSH.9.2").item(0);
+                            type += "-" + subTypeNode.getFirstChild().getTextContent();
                         }
+
+                        metadata.put("type", type);
+                    } else {
+                        metadata.put("type", "Unknown");
                     }
                 }
             }
-            
-            String version = "";
-            
+
             if (document.getElementsByTagName("MSH.12.1").getLength() > 0) {
                 Node versionNode = document.getElementsByTagName("MSH.12.1").item(0);
-                
+
                 if (versionNode != null) {
-                    version = versionNode.getFirstChild().getTextContent();
+                    metadata.put("version", versionNode.getFirstChild().getTextContent());
+                } else {
+                    metadata.put("version", "");
                 }
             }
-            
-            metadata.put("version", version);
-            metadata.put("type", event);
-            metadata.put("source", sendingFacility);
+
             return metadata;
         }
     }
 
     private String getNodeValue(String source, String startTag, String endTag) {
-        String value = "";
         int startIndex = -1;
 
         if ((startIndex = source.indexOf(startTag)) != -1) {
-            value = source.substring(startIndex + startTag.length(), source.indexOf(endTag, startIndex));
+            return source.substring(startIndex + startTag.length(), source.indexOf(endTag, startIndex));
+        } else {
+            return "";
         }
-
-        return value;
     }
 }
