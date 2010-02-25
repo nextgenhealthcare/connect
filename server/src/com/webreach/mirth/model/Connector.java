@@ -19,7 +19,6 @@ import com.webreach.mirth.util.EqualsUtil;
  * Connector has an associated Filter and Transformer. A connector is also of a
  * specific Transport type (TCP, HTTP, etc.).
  * 
- * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  * 
  */
 public class Connector implements Serializable {
@@ -34,6 +33,7 @@ public class Connector implements Serializable {
 	private String transportName;
 	private Mode mode;
 	private boolean enabled;
+	private String version;
 
 	public Connector() {
 		this.properties = new Properties();
@@ -100,7 +100,15 @@ public class Connector implements Serializable {
 		this.enabled = enabled;
 	}
 	
-	public boolean equals(Object that) {
+	public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public boolean equals(Object that) {
 		if (this == that) {
 			return true;
 		}

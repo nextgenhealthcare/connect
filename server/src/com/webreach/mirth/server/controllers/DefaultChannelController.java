@@ -229,7 +229,15 @@ public class DefaultChannelController extends ChannelController {
 
         ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
         channel.setVersion(configurationController.getServerVersion());
-
+        
+        String sourceVersion = extensionController.getConnectorMetaDataByTransportName(channel.getSourceConnector().getTransportName()).getPluginVersion();
+        channel.getSourceConnector().setVersion(sourceVersion);
+        
+        for (Connector connector : channel.getDestinationConnectors()) {
+            String destinationVersion = extensionController.getConnectorMetaDataByTransportName(connector.getTransportName()).getPluginVersion();
+            connector.setVersion(destinationVersion);
+        }
+        
         try {
 
             updateChannelInCache(channel);

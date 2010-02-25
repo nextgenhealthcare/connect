@@ -687,6 +687,7 @@ public class ImportConverter {
         Node transportNode = getConnectorTransportNode(connectorRoot);
         String transportNameText = transportNode.getTextContent();
 
+        // SOAP connectors only existed before 2.0, so convert it for 2.0
         if (transportNameText.equals("SOAP Sender") || transportNameText.equals("SOAP Listener")) {
             convertSoapConnectorFor2_0(document, connectorRoot);
         }

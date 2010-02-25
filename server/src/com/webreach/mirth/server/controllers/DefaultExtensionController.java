@@ -330,6 +330,10 @@ public class DefaultExtensionController extends ExtensionController {
     public ConnectorMetaData getConnectorMetaDataByProtocol(String protocol) {
         return protocols.get(protocol);
     }
+    
+    public ConnectorMetaData getConnectorMetaDataByTransportName(String transportName) {
+        return connectors.get(transportName);
+    }
 
     public Map<String, ServerPlugin> getLoadedPlugins() {
         return loadedPlugins;

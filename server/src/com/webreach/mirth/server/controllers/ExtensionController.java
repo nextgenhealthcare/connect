@@ -121,6 +121,8 @@ public abstract class ExtensionController extends Controller {
 
     public abstract ConnectorMetaData getConnectorMetaDataByProtocol(String protocol);
     
+    public abstract ConnectorMetaData getConnectorMetaDataByTransportName(String transportName);
+    
     // installation and uinstallation
     
     public abstract void installExtension(FileItem fileItem) throws ControllerException;
