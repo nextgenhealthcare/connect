@@ -21,6 +21,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import ca.uhn.hl7v2.HL7Exception;
@@ -161,30 +162,32 @@ public class ER7Serializer implements IXMLSerializer<String> {
                  * elements from the XML
                  */
 
+                String segmentSeparator = "\r";
                 // usually |
-                String segmentDelimiter = getNodeValue(source, "<MSH.1>", "</MSH.1>");
-                String fieldDelimiter = "^";
-                String repetitionDelimiter = "~";
-                String escapeSequence = "\\";
-                String subcomponentDelimiter = "&";
+                String fieldSeparator = getNodeValue(source, "<MSH.1>", "</MSH.1>");
+                String componentSeparator = "^";
+                String repetitionSeparator = "~";
+                String subcomponentSeparator = "&";
+                String escapeCharacter = "\\";
 
-                // Our delimiters usually look like this:
-                // <MSH.2>^~\&amp;</MSH.2>
-                // We need to decode XML entities
-                String delimiters = getNodeValue(source, "<MSH.2>", "</MSH.2>").replaceAll("&amp;", "&");
+                /*
+                 * Our delimiters usually look like this:
+                 * <MSH.2>^~\&amp;</MSH.2> We need to decode XML entities
+                 */
+                String separators = getNodeValue(source, "<MSH.2>", "</MSH.2>").replaceAll("&amp;", "&");
 
-                if (delimiters.length() == 4) {
+                if (separators.length() == 4) {
                     // usually ^
-                    fieldDelimiter = delimiters.substring(0, 1);
+                    componentSeparator = separators.substring(0, 1);
                     // usually ~
-                    repetitionDelimiter = delimiters.substring(1, 2);
+                    repetitionSeparator = separators.substring(1, 2);
                     // usually \
-                    escapeSequence = delimiters.substring(2, 3);
+                    escapeCharacter = separators.substring(2, 3);
                     // usually &
-                    subcomponentDelimiter = delimiters.substring(3, 4);
+                    subcomponentSeparator = separators.substring(3, 4);
                 }
 
-                ER7XMLHandler handler = new ER7XMLHandler("\r", segmentDelimiter, fieldDelimiter, subcomponentDelimiter, repetitionDelimiter, escapeSequence, true);
+                XMLEncodedHL7Handler handler = new XMLEncodedHL7Handler(segmentSeparator, fieldSeparator, componentSeparator, repetitionSeparator, escapeCharacter, subcomponentSeparator, true);
                 XMLReader reader = XMLReaderFactory.createXMLReader();
                 reader.setContentHandler(handler);
                 reader.setErrorHandler(handler);
@@ -282,10 +285,10 @@ public class ER7Serializer implements IXMLSerializer<String> {
                     // MSH.9.2
                     type += "-" + msh9[1];
                 }
-                
+
                 metadata.put("type", type);
             } else {
-                metadata.put("type", "Unknown");    
+                metadata.put("type", "Unknown");
             }
 
             if (mshFields.length > 3) {

@@ -32,7 +32,7 @@ public class ER7Reader extends SAXParser {
     private static final String DEFAULT_REPETITION_SEPARATOR = "~";
     private static final String DEFAULT_ESCAPE_CHARACTER = "\\";
     private static final String DEFAULT_SUBCOMPONENT_TERMINATOR = "&";
-    private static final String MESSAGE_ROOT_ID = "HL7Message";
+    public static final String MESSAGE_ROOT_ID = "HL7Message";
 
     public ER7Reader(boolean handleRepetitions, boolean handleSubcomponents, boolean convertLFtoCR) {
         this.handleRepetitions = handleRepetitions;

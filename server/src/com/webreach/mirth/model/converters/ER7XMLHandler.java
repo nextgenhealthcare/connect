@@ -9,153 +9,171 @@
 
 package com.webreach.mirth.model.converters;
 
+import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class ER7XMLHandler extends DefaultHandler {
     private enum Location {
-        DOCUMENT, SEGMENT, ELEMENT, SUBELEMENT
+        MESSAGE, SEGMENT, FIELD, COMPONENT, SUBCOMPONENT
     };
 
-    private String segmentDelimeter;
-    private String fieldDelimeter;
-    private String componentDelimeter;
+    private Logger logger = Logger.getLogger(this.getClass());
+    private static final String ID_DELIMETER = "\\.";
+    private String segmentSeparator;
+    private String fieldSeparator;
     private String repetitionSeparator;
-    private Location currentLocation = Location.DOCUMENT;
-    private boolean sawHeader = false;
-    private boolean lastInSubelement = false;
-    private boolean enteredMSH1 = false;
-    private boolean enteredMSH2 = false;
-    private boolean foundMSH1 = false;
-    private boolean foundMSH2 = false;
+    private String componentSeparator;
+    private String subcomponentSeparator;
+    private Location currentLocation = Location.MESSAGE;
+    private boolean lastComponentInField = false;
+    private boolean enteredHeader1 = false;
+    private boolean enteredHeader2 = false;
+    private boolean foundHeader1 = false;
+    private boolean foundHeader2 = false;
     private String lastSegment = new String();
-    private String lastElement = new String();
+    private String lastField = new String();
     private StringBuilder output = new StringBuilder();
     private boolean encodeEntities = false;
 
-    public ER7XMLHandler(String segmentDelimeter, String fieldDelimeter, String componentDelimeter, String subcomponentDelimeter, String repetitionSeparator, String escapeCharacter, boolean encodeEntities) {
+    public ER7XMLHandler(String segmentSeparator, String fieldSeparator, String componentSeparator, String repetitionSeparator, String escapeCharacter, String subcomponentSeparator, boolean encodeEntities) {
         super();
-        this.segmentDelimeter = segmentDelimeter;
-        this.fieldDelimeter = fieldDelimeter;
-        this.componentDelimeter = componentDelimeter;
+        this.segmentSeparator = segmentSeparator;
+        this.fieldSeparator = fieldSeparator;
+        this.componentSeparator = componentSeparator;
         this.repetitionSeparator = repetitionSeparator;
+        this.subcomponentSeparator = subcomponentSeparator;
         this.encodeEntities = encodeEntities;
+        logger.trace("initialized ER7-to-XML handler: fieldSeparator=" + fieldSeparator + ", componentSeparator=" + componentSeparator + ", repetitionSeparator=" + repetitionSeparator + ", escapeCharacter=" + escapeCharacter + ", subcomponentSeparator=" + subcomponentSeparator);
     }
 
     public StringBuilder getOutput() {
         return output;
     }
 
+    @Override
     public void startDocument() {
-        currentLocation = Location.DOCUMENT;
+        currentLocation = Location.MESSAGE;
     }
 
+    @Override
     public void endDocument() {
-        currentLocation = Location.DOCUMENT;
+        currentLocation = Location.MESSAGE;
     }
 
-    public void startElement(String uri, String name, String qName, Attributes attributes) {
-        if (sawHeader == false) {
-            sawHeader = true;
-        } else {
-            if (!foundMSH2 && (name.equals("MSH.2") || name.equals("BHS.2") || name.equals("FHS.2"))) {
-                enteredMSH2 = true;
-                foundMSH2 = true;
-            }
-            
-            if (!foundMSH1 && (name.equals("MSH.1") || name.equals("BHS.1") || name.equals("FHS.1"))) {
-                lastInSubelement = false;
-                enteredMSH1 = true;
-                foundMSH1 = true;
-            } else if (currentLocation.equals(Location.DOCUMENT)) {
-                output.append(name);
-                currentLocation = Location.SEGMENT;
-                lastInSubelement = false;
-            } else if (currentLocation.equals(Location.SEGMENT)) {
-                if (lastSegment.equals(name)) {
-                    output.append(repetitionSeparator);
-                } else {
-                    // handle any missing fields
-                    if (!enteredMSH2) {
-                        int lastFieldId = 0;
-                        if (lastSegment.length() > 0) {
-                            lastFieldId = Integer.parseInt(lastSegment.split("\\.")[1]);
-                        }
+    @Override
+    public void startElement(String uri, String elementName, String qName, Attributes attributes) {
+        logger.trace("starting element: " + elementName);
 
-                        // get the second part, the id
-                        int currentFieldId = Integer.parseInt(name.split("\\.")[1]);
-                        int difference = currentFieldId - lastFieldId;
+        // skip the root element
+        if (elementName.equals(ER7Reader.MESSAGE_ROOT_ID)) {
+            return;
+        }
 
-                        for (int i = 1; i < difference; i++) {
-                            output.append(fieldDelimeter);
-                        }
+        if (!foundHeader2 && (elementName.equals("MSH.2") || elementName.equals("BHS.2") || elementName.equals("FHS.2"))) {
+            enteredHeader2 = true;
+            foundHeader2 = true;
+        }
+        
+        if (!foundHeader1 && (elementName.equals("MSH.1") || elementName.equals("BHS.1") || elementName.equals("FHS.1"))) {
+            enteredHeader1 = true;
+            foundHeader1 = true;
+            lastComponentInField = false;
+        } else if (currentLocation.equals(Location.MESSAGE)) {
+            output.append(elementName);
+            currentLocation = Location.SEGMENT;
+            lastComponentInField = false;
+        } else if (currentLocation.equals(Location.SEGMENT)) {
+            if (lastSegment.equals(elementName)) {
+                output.append(repetitionSeparator);
+            } else {
+                // add any missing fields
+                if (!enteredHeader2) {
+                    int lastFieldId = 0;
+
+                    if (lastSegment.length() > 0) {
+                        lastFieldId = Integer.parseInt(lastSegment.split(ID_DELIMETER)[1]);
                     }
 
-                    output.append(fieldDelimeter);
-                    lastSegment = name;
+                    // get the second part, the id
+                    int currentFieldId = Integer.parseInt(elementName.split(ID_DELIMETER)[1]);
+                    int difference = currentFieldId - lastFieldId;
+
+                    for (int i = 1; i < difference; i++) {
+                        output.append(fieldSeparator);
+                    }
                 }
 
-                currentLocation = Location.ELEMENT;
-                lastInSubelement = false;
-            } else if (currentLocation.equals(Location.ELEMENT)) {
-                if (lastInSubelement) {
-                    output.append(componentDelimeter);
-                }
-
-                // handle any missing elements
-                int lastFieldId = 0;
-
-                if (lastElement.length() > 0) {
-                    lastFieldId = Integer.parseInt(lastElement.split("\\.")[2]);
-                }
-
-                int currentFieldId = Integer.parseInt(name.split("\\.")[2]);
-                int difference = currentFieldId - lastFieldId;
-
-                for (int i = 1; i < difference; i++) {
-                    output.append(componentDelimeter);
-                }
-
-                lastElement = name;
-                currentLocation = Location.SUBELEMENT;
-                lastInSubelement = true;
+                output.append(fieldSeparator);
+                lastSegment = elementName;
             }
+
+            currentLocation = Location.FIELD;
+            lastComponentInField = false;
+        } else if (currentLocation.equals(Location.FIELD)) {
+            if (lastComponentInField) {
+                output.append(componentSeparator);
+            }
+
+            // add any missing components
+            int lastFieldId = 0;
+
+            if (lastField.length() > 0) {
+                lastFieldId = Integer.parseInt(lastField.split(ID_DELIMETER)[2]);
+            }
+
+            int currentFieldId = Integer.parseInt(elementName.split(ID_DELIMETER)[2]);
+            int difference = currentFieldId - lastFieldId;
+
+            for (int i = 1; i < difference; i++) {
+                output.append(componentSeparator);
+            }
+
+            lastField = elementName;
+            currentLocation = Location.COMPONENT;
+            lastComponentInField = true;
+        } else if (currentLocation.equals(Location.COMPONENT)) {
+
         }
     }
+    
+    @Override
+    public void endElement(String uri, String elementName, String qName) {
+        logger.trace("ending element: " + elementName);
 
-    public void endElement(String uri, String name, String qName) {
-        if (foundMSH2 && (name.equals("MSH.2") || name.equals("BHS.2") || name.equals("FHS.2"))) {
-            enteredMSH2 = false;
-            foundMSH2 = false;
+        if (foundHeader2 && (elementName.equals("MSH.2") || elementName.equals("BHS.2") || elementName.equals("FHS.2"))) {
+            enteredHeader2 = false;
+            foundHeader2 = false;
         }
 
-        if (foundMSH1 && (name.equals("MSH.1") || name.equals("BHS.1") || name.equals("FHS.1"))) {
-            enteredMSH1 = false;
-            foundMSH1 = false;
+        if (foundHeader1 && (elementName.equals("MSH.1") || elementName.equals("BHS.1") || elementName.equals("FHS.1"))) {
+            enteredHeader1 = false;
+            foundHeader1 = false;
             output.deleteCharAt(output.length() - 1);
         } else if (currentLocation.equals(Location.SEGMENT)) {
-            output.append(segmentDelimeter);
-            currentLocation = Location.DOCUMENT;
+            output.append(segmentSeparator);
+            currentLocation = Location.MESSAGE;
             lastSegment = "";
-        } else if (currentLocation.equals(Location.ELEMENT)) {
-            lastElement = "";
+        } else if (currentLocation.equals(Location.FIELD)) {
             currentLocation = Location.SEGMENT;
-        } else if (currentLocation.equals(Location.SUBELEMENT)) {
-            currentLocation = Location.ELEMENT;
-        } else if (currentLocation.equals(Location.DOCUMENT)) {
-            // do nothing
+            lastField = "";
+        } else if (currentLocation.equals(Location.COMPONENT)) {
+            currentLocation = Location.FIELD;
         }
     }
 
+    @Override
     public void characters(char ch[], int start, int length) {
-        if (enteredMSH1) {
-            fieldDelimeter = ch[start] + "";
-            enteredMSH1 = false;
-        } else if (enteredMSH2) {
-            componentDelimeter = ch[start] + "";
-            enteredMSH2 = false;
+        if (enteredHeader1) {
+            fieldSeparator = String.valueOf(ch[start]);
+            enteredHeader1 = false;
+        } else if (enteredHeader2) {
+            componentSeparator = String.valueOf(ch[start]);
+            repetitionSeparator = String.valueOf(ch[start + 1]);
+            enteredHeader2 = false;
         }
 
         output.append(ch, start, length);
+        logger.trace("characters: " + new String(ch, start, length));
     }
 }
