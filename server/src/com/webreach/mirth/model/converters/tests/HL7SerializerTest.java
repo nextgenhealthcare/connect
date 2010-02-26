@@ -24,14 +24,14 @@ import com.webreach.mirth.model.converters.ER7Serializer;
 public class HL7SerializerTest {
     public static final String ER7_TEST_FILE = "er7test.hl7";
     public static final String XML_TEST_FILE = "xmlTest.xml";
-    private String er7Message;
-    private String xmlMessage;
+    private String expectedEr7Message;
+    private String expectedXmlMessage;
     private Properties properties = null;
     
     @Before
     public void setUp() throws Exception {
-        er7Message = FileUtils.readFileToString(new File(ER7_TEST_FILE));
-        xmlMessage = FileUtils.readFileToString(new File(XML_TEST_FILE));
+        expectedEr7Message = FileUtils.readFileToString(new File(ER7_TEST_FILE));
+        expectedXmlMessage = FileUtils.readFileToString(new File(XML_TEST_FILE));
 
         properties = new Properties();
         properties.put("useStrictParser", "false");
@@ -43,15 +43,16 @@ public class HL7SerializerTest {
     @Test
     public void testToXml() throws Exception {
         ER7Serializer serializer = new ER7Serializer(properties);
-        String result = serializer.toXML(er7Message);
+        String result = serializer.toXML(expectedEr7Message);
         DocumentSerializer docSerializer = new DocumentSerializer();
-        String prettyResult = docSerializer.toXML(docSerializer.fromXML(result));
-        Assert.assertEquals(xmlMessage, prettyResult);
+        String actualXmlMessage = docSerializer.toXML(docSerializer.fromXML(result));
+        Assert.assertEquals(expectedXmlMessage, actualXmlMessage);
     }
     
     @Test
     public void testFromXml() throws Exception {
         ER7Serializer serializer = new ER7Serializer(properties);
-        Assert.assertEquals(er7Message, serializer.fromXML(xmlMessage));
+        String actualEr7Message = serializer.fromXML(expectedXmlMessage);
+        Assert.assertEquals(expectedEr7Message, actualEr7Message);
     }
 }

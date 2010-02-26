@@ -26,6 +26,7 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
     private boolean encodeEntities = false;
 
     private int previousDelimeterCount = -1;
+    private String previousLocalName;
 
     private StringBuilder output = new StringBuilder();
 
@@ -57,6 +58,19 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
             return;
         } else if (localName.equals("MSH.1") || localName.equals("MSH.2")) {
             return;
+        }
+
+        /*
+         * If the element that we've found is the same as the last, then we have
+         * a reptition, so we append to repetition separator.
+         */
+        if (previousLocalName == null) {
+            previousLocalName = localName;
+        } else {
+            if (localName.equals(previousLocalName)) {
+                output.append(repetitionSeparator);
+                return;
+            }
         }
 
         int currentDelimeterCount = StringUtils.countMatches(localName, ID_DELIMETER);
