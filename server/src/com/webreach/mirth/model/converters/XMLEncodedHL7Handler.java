@@ -12,6 +12,7 @@ package com.webreach.mirth.model.converters;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class XMLEncodedHL7Handler extends DefaultHandler {
@@ -47,7 +48,7 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
     }
 
     @Override
-    public void startElement(String uri, String localName, String qName, Attributes attributes) {
+    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         logger.trace("starting element: " + localName);
 
         /*
@@ -87,7 +88,7 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
     }
 
     @Override
-    public void endElement(String uri, String localName, String qName) {
+    public void endElement(String uri, String localName, String qName) throws SAXException {
         logger.trace("ending element: " + localName);
 
         /*
@@ -146,7 +147,7 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
     }
 
     @Override
-    public void characters(char ch[], int start, int length) {
+    public void characters(char ch[], int start, int length) throws SAXException {
         String str = new String(ch, start, length);
 
         /*
@@ -157,5 +158,11 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
             logger.trace("writing output: " + str);
             output.append(str);
         }
+    }
+
+    @Override
+    public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
+        // Receive notification of ignorable whitespace in element content.
+        logger.trace("found ignorable whitespace: length=" + length);
     }
 }
