@@ -39,7 +39,7 @@
 		<property name="plugins.rtfviewer" value="${extensions}/rtfviewer" />
 		<property name="plugins.rulebuilder" value="${extensions}/rulebuilder" />
 		<property name="plugins.serverlog" value="${extensions}/serverlog" />
-        <property name="plugins.scriptfilerule" value="${extensions}/scriptfilerule" />
+		<property name="plugins.scriptfilerule" value="${extensions}/scriptfilerule" />
 		<property name="plugins.scriptfilestep" value="${extensions}/scriptfilestep" />
 		<property name="plugins.xsltstep" value="${extensions}/xsltstep" />
 
@@ -51,7 +51,7 @@
 
 		<delete dir="${client.lib}" />
 		<mkdir dir="${client.lib}" />
-		
+
 		<delete dir="${manager.lib}" />
 		<mkdir dir="${manager.lib}" />
 
@@ -575,14 +575,9 @@
 		<mkdir dir="${setup.lib}" />
 		<mkdir dir="${setup.client.lib}" />
 		<mkdir dir="${setup.manager.lib}" />
-		<mkdir dir="${setup.source}" />
 		<mkdir dir="${setup.logs}" />
 		<mkdir dir="${setup.licenses}" />
-
-		<!-- copy source files -->
-		<copy todir="${setup.source}">
-			<fileset dir="${src}" />
-		</copy>
+		<mkdir dir="${setup.docs}" />
 
 		<!-- copy lib -->
 		<copy todir="${setup.lib}">
@@ -593,7 +588,7 @@
 		<copy todir="${setup.client.lib}">
 			<fileset dir="${client.lib}" />
 		</copy>
-		
+
 		<!-- copy manager-lib -->
 		<copy todir="${setup.manager.lib}">
 			<fileset dir="${manager.lib}" />
@@ -612,7 +607,7 @@
 				<exclude name="Thumbs.db" />
 			</fileset>
 		</copy>
-		
+
 		<replace dir="${setup.public_html}" token="@mirthversion" value="${version}">
 			<include name="*.html" />
 		</replace>
@@ -620,6 +615,11 @@
 		<!-- copy extensions files -->
 		<copy todir="${setup.extensions}">
 			<fileset dir="${extensions}" />
+		</copy>
+
+		<!-- copy docs files -->
+		<copy todir="${setup.docs}">
+			<fileset dir="${docs}" />
 		</copy>
 
 		<!-- create version.properties file -->
@@ -630,6 +630,13 @@
 
 		<!-- copy misc files -->
 		<copy todir="${setup}">
+			<fileset file="${basedir}/mirth-client-core.jar" />
+			<fileset file="${basedir}/mirth-manager.jar" />
+			<fileset file="${basedir}/mirth-launcher.xml" />
+			<fileset file="${basedir}/shell-launcher.xml" />
+			<fileset file="${basedir}/mirth-client.jnlp" />
+			<fileset file="${basedir}/keystore" />
+
 			<!-- database creation scripts -->
 			<fileset file="${basedir}/derby-database.sql" />
 			<fileset file="${basedir}/postgres-database.sql" />
@@ -638,35 +645,9 @@
 			<fileset file="${basedir}/oracle-database.sql" />
 			<fileset file="${basedir}/sqlserver2005-database.sql" />
 
-			<!-- launcher configurations -->
-			<fileset file="${basedir}/mirth-launcher.xml" />
-			<fileset file="${basedir}/shell-launcher.xml" />
-			<fileset file="${basedir}/mirth-client.jnlp" />
-			<fileset file="${basedir}/keystore" />
-
-			<!-- windows service files -->
-			<fileset file="${basedir}/InstallMirthWrapper-NT.bat" />
-			<fileset file="${basedir}/UninstallMirthWrapper-NT.bat" />
-			<fileset file="${basedir}/StartMirthWrapper-NT.bat" />
-			<fileset file="${basedir}/StopMirthWrapper-NT.bat" />
-
-			<!-- executables -->
-			<fileset file="${basedir}/wrapper-windows-x86-32.exe" />
-			<fileset file="${basedir}/mirth-daemon" />
-			<fileset file="${basedir}/wrapper-linux-x86-32" />
-			<fileset file="${basedir}/wrapper-linux-x86-64" />
-			<fileset file="${basedir}/mirth-client-core.jar" />
-			<fileset file="${basedir}/mirth-manager.jar" />
-
-			<!-- batch scripts and icons -->
-			<fileset file="${basedir}/MirthServerManager.exe" />
-			<fileset file="${basedir}/Mirth.exe" />
-			<fileset file="${basedir}/Mirth.l4j.ini" />
+			<!-- are these still neeeded? -->
 			<fileset file="${basedir}/mirth.sh" />
-			<fileset file="${basedir}/Mirth.ico" />
-			<fileset file="${basedir}/Shell.bat" />
 			<fileset file="${basedir}/shell.sh" />
-			<fileset file="${docs}/README.txt" />
 		</copy>
 
 		<!-- create the server jar -->
@@ -750,12 +731,6 @@
 			<fileset dir="${basedir}/mirthdb" />
 		</copy>
 
-		<!-- zip the source code -->
-		<!-- zip basedir="${setup.source}" destfile="${setup}/mirth-server-src.zip" / -->
-
-		<!-- remove the source code -->
-		<delete dir="${setup.source}" />
-
 		<!-- copy license files -->
 		<copy todir="${setup.licenses}">
 			<fileset dir="${licenses}" />
@@ -795,59 +770,6 @@
 	</target>
 
 	<target name="create-dist" depends="create-extension-zips">
-		<!-- create the dist directory -->
 		<mkdir dir="${dist}" />
-
-		<!-- create the zip -->
-		<zip basedir="${setup}" destfile="${dist}/mirth-${version}.zip" excludes="META-INF/**" />
-
-		<!-- create the tar.gz -->
-		<tar basedir="${setup}" tarfile="${dist}/mirth-${version}.tar" />
-		<gzip src="${dist}/mirth-${version}.tar" zipfile="${dist}/mirth-${version}.tar.gz" />
-		<delete file="${dist}/mirth-${version}.tar" />
-
-		<!-- create the JBoss service archive -->
-		<mkdir dir="${dist}/mirth.sar" />
-		<copy todir="${dist}/mirth.sar">
-			<fileset dir="${setup}">
-				<exclude name="InstallMirth-NT.bat" />
-				<exclude name="MirthServerManager.exe" />
-				<exclude name="Mirth.bat" />
-				<exclude name="Mirth.exe" />
-				<exclude name="Mirth.ico" />
-				<exclude name="mirth.sh" />
-				<exclude name="mirth-daemon" />
-				<exclude name="mirth-launcher.jar" />
-				<exclude name="mirth-launcher.xml" />
-				<exclude name="mirth-manager.jar" />
-				<exclude name="StartMirth-NT.bat" />
-				<exclude name="StopMirth-NT.bat" />
-				<exclude name="uninstall.ico" />
-				<exclude name="UninstallMirth-NT.bat" />
-				<exclude name="upgrade.xml" />
-				<exclude name="wrapper-windows-x86-32.exe" />
-				<exclude name="wrapper-linux-x86-32" />
-				<exclude name="wrapper-linux-x86-64" />
-				<exclude name="source/**" />
-				<exclude name="conf/wrapper.conf" />
-			</fileset>
-		</copy>
-		<mkdir dir="${dist}/mirth.sar/META-INF" />
-		<copy todir="${dist}/mirth.sar/META-INF">
-			<fileset file="${basedir}/jboss-service.xml" />
-		</copy>
-		<copy todir="${dist}/mirth.sar">
-			<fileset file="${docs}/JBOSS-README.txt" />
-		</copy>
-
-		<!-- create the mbeans jar with classpath manifest -->
-		<jar destfile="${dist}/mirth.sar/mirth-jboss.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/server/mbeans/**" />
-			<manifest>
-				<attribute name="Class-Path" value="conf/" />
-			</manifest>
-		</jar>
-		<zip basedir="${dist}" destfile="${dist}/mirth-${version}-jboss-sar.zip" includes="mirth.sar/**" />
-		<delete dir="${dist}/mirth.sar" />
 	</target>
 </project>
