@@ -45,16 +45,16 @@ public class FileContentsMessageAdapter extends AbstractMessageAdapter {
         return new String(getPayloadAsBytes());
     }
 
-    private void setMessage(FileInfo message) throws MessagingException {
+    private void setMessage(FileInfo message) {
         this.file = message;
         this.message = "".getBytes();
         properties.put(FileConnector.PROPERTY_ORIGINAL_FILENAME, this.file.getName());
         properties.put(FileConnector.PROPERTY_DIRECTORY, this.file.getParent());
     }
 
-    private void setMessage(byte[] message) throws MessagingException {
+    private void setMessage(byte[] message) {
         this.file = null;
-        this.message = (byte[]) message;
+        this.message = message;
     }
 
     public String getUniqueId() throws UniqueIdNotSupportedException {

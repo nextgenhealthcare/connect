@@ -263,14 +263,10 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
                 } else if (fileConnector.isAutoDelete()) {
                     // adapter.getPayloadAsBytes();
 
-                    // no moveTo directory
-                    if (destinationDir == null) {
+                    resultOfFileMoveOperation = deleteFile(file.getName(), readDir, false);
 
-                        resultOfFileMoveOperation = deleteFile(file.getName(), readDir, false);
-
-                        if (!resultOfFileMoveOperation) {
-                            throw new MuleException(new Message("file", 3, pathname(file.getName(), readDir)));
-                        }
+                    if (!resultOfFileMoveOperation) {
+                        throw new MuleException(new Message("file", 3, pathname(file.getName(), readDir)));
                     }
                 }
 
@@ -308,7 +304,7 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
             Reader in = null;
             try {
                 in = new InputStreamReader(con.readFile(file.getName(), readDir), fileConnector.getCharsetEncoding());
-                Map protocolProperties = fileConnector.getProtocolProperties();
+                Map<String, String> protocolProperties = fileConnector.getProtocolProperties();
                 protocolProperties.put("batchScriptId", fileConnector.getChannelId());
                 batchAdaptor.processBatch(in, fileConnector.getProtocolProperties(), this);
             } finally {
