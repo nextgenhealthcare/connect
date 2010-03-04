@@ -479,16 +479,26 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
         while ((page * interval) < size) {
             for (MessageObject message : getMessagesByPage(page, interval, size, uid, true)) {
-            	String queueName = message.getConnectorMap().get(QueueUtil.QUEUE_NAME).toString();
-            	String messageId = message.getConnectorMap().get(QueueUtil.MESSAGE_ID).toString();
+                String queueName = null;
+                String messageId = null;
+                
+                if (message.getConnectorMap().get(QueueUtil.QUEUE_NAME) != null) {
+                    queueName = message.getConnectorMap().get(QueueUtil.QUEUE_NAME).toString();    
+                }
+            	
+                if (message.getConnectorMap().get(QueueUtil.MESSAGE_ID) != null) {
+                    messageId = message.getConnectorMap().get(QueueUtil.MESSAGE_ID).toString();    
+                }
 
             	if ((queueName == null) || (queueName.length() == 0)) {
 	                String connectorId = ControllerFactory.getFactory().createChannelController().getConnectorId(message.getChannelId(), message.getConnectorName());
 	                queueName = QueueUtil.getInstance().getQueueName(message.getChannelId(), connectorId);
             	}
+            	
             	if ((messageId == null) || (messageId.length() == 0)) {
             	    messageId = message.getId();
             	}
+            	
 	            QueueUtil.getInstance().removeMessageFromQueue(queueName, messageId );
                 ControllerFactory.getFactory().createChannelStatisticsController().decrementQueuedCount(message.getChannelId());
             }
