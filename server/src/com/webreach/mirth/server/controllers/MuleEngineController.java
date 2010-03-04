@@ -426,6 +426,7 @@ public class MuleEngineController implements EngineController {
         // The connector needs it's channel id (so it doesn't have to parse
         // the name) for alerts
         Map<Object, Object> beanProperties = new HashMap<Object, Object>();
+        Map<Object, Object> queriesMap = new HashMap<Object, Object>();
         beanProperties.put("channelId", channelId);
 
         for (Entry<Object, Object> property : connector.getProperties().entrySet()) {
@@ -436,6 +437,8 @@ public class MuleEngineController implements EngineController {
                     String databaseScriptId = UUIDGenerator.getUUID();
                     scriptController.putScript(channelId, databaseScriptId, property.getValue().toString());
                     beanProperties.put(property.getKey() + "Id", databaseScriptId);
+                } else if (property.getKey().equals("query") || property.getKey().equals("statement") || property.getKey().equals("ack")) {
+                    queriesMap.put(property.getKey(), property.getValue());
                 } else {
                     beanProperties.put(property.getKey(), property.getValue());
                 }
@@ -443,6 +446,7 @@ public class MuleEngineController implements EngineController {
         }
 
         // populate the bean properties
+        beanProperties.put("queries", queriesMap);
         BeanUtils.populate(umoConnector, beanProperties);
 
         // add the connector to the manager
@@ -524,7 +528,7 @@ public class MuleEngineController implements EngineController {
         unregisterConnectors(descriptor.getInboundRouter().getEndpoints());
         UMOOutboundRouter outboundRouter = (UMOOutboundRouter) descriptor.getOutboundRouter().getRouters().iterator().next();
         unregisterConnectors(outboundRouter.getEndpoints());
-        
+
         // remove the scripts associated with the channel
         scriptController.removeScripts(channelId);
         templateController.removeTemplates(channelId);
