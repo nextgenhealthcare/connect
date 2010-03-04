@@ -182,7 +182,7 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" max="-2" attributes="0">
+                  <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
                           <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
@@ -191,27 +191,27 @@
                           <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Group type="102" alignment="0" attributes="1">
-                              <Component id="mirthDatePicker1" min="-2" pref="125" max="-2" attributes="1"/>
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Group type="102" attributes="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="statusComboBox" alignment="0" min="-2" pref="125" max="-2" attributes="0"/>
+                                  <Component id="mirthDatePicker2" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
+                                  <Component id="mirthDatePicker1" alignment="0" min="-2" pref="125" max="-2" attributes="1"/>
+                              </Group>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="mirthTimePicker1" linkSize="2" min="-2" pref="93" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="mirthTimePicker2" linkSize="2" alignment="1" min="-2" pref="93" max="-2" attributes="0"/>
+                                      <Component id="mirthTimePicker1" linkSize="2" alignment="1" min="-2" pref="93" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Component id="advSearchButton" linkSize="2" alignment="0" min="-2" pref="93" max="-2" attributes="0"/>
+                              </Group>
                           </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="statusComboBox" min="-2" pref="125" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="advSearchButton" linkSize="2" min="-2" pref="93" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="mirthDatePicker2" min="-2" pref="125" max="-2" attributes="1"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="mirthTimePicker2" linkSize="2" min="-2" pref="93" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="quickSearch" alignment="0" max="32767" attributes="1"/>
+                          <Component id="quickSearch" min="-2" pref="224" max="-2" attributes="1"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="filterButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
+                      <EmptySpace pref="27" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
