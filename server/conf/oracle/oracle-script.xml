@@ -5,29 +5,28 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 "conf/sql-map-2.dtd">
 
 <sqlMap namespace="Script">
-	<select id="getScript" parameterClass="java.lang.String" resultClass="java.lang.String">
+	<select id="getScript" parameterClass="java.util.Map" resultClass="java.lang.String">
 		SELECT SCRIPT
 		FROM SCRIPT
-		WHERE ID = #id#
+		WHERE GROUP_ID = #groupId# AND ID = #id#
 	</select>
 
 	<insert id="insertScript" parameterClass="java.util.Map">
 		INSERT INTO
-		SCRIPT (ID, SCRIPT)
-		VALUES (#id#, #script#)
+		SCRIPT (GROUP_ID, ID, SCRIPT)
+		VALUES (#groupId#, #id#, #script#)
 	</insert>
 
 	<update id="updateScript" parameterClass="java.util.Map">
 		UPDATE SCRIPT
 		SET SCRIPT = #script#
-		WHERE ID = #id#
+		WHERE GROUP_ID = #groupId# AND ID = #id#
 	</update>
 
 	<delete id="deleteScript" parameterClass="java.lang.String">
 		DELETE FROM SCRIPT
-		WHERE ID != 'Deploy' AND ID != 'Shutdown' AND ID != 'Preprocessor'	AND ID != 'Postprocessor'	
-		<isNotNull prepend="AND" property="id">
-			ID=#id#
-		</isNotNull>
+		<isPropertyAvailable prepend="AND" property="groupId">
+			GROUP_ID = #groupId#
+		</isPropertyAvailable>
 	</delete>
 </sqlMap>
