@@ -114,13 +114,15 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
                     writeStmt = str;
                 }
 
+                writeStmt = JdbcUtils.stripSqlComments(writeStmt);
+                
                 if (writeStmt == null) {
                     throw new IllegalArgumentException("Write statement should not be NULL");
                 } else if (!writeStmt.toLowerCase().startsWith("insert") && !writeStmt.toLowerCase().startsWith("update") && !writeStmt.toLowerCase().startsWith("delete")) {
                     throw new IllegalArgumentException("Write statement should be an INSERT, UPDATE, or DELETE SQL statement.");
                 }
 
-                List paramNames = new ArrayList();
+                List<String> paramNames = new ArrayList<String>();
                 writeStmt = JdbcUtils.parseStatement(writeStmt, paramNames);
                 Object[] paramValues = JdbcUtils.getParams(endpointURI, paramNames, messageObject);
                 connection = connector.getConnection(messageObject);
@@ -146,7 +148,7 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
         } catch (Exception e) {
             logger.debug("Error dispatching event", e);
             JdbcUtils.rollbackAndClose(connection);
-            alertController.sendAlerts(((JdbcConnector) connector).getChannelId(), Constants.ERROR_406, "Error writing to database", e);
+            alertController.sendAlerts(connector.getChannelId(), Constants.ERROR_406, "Error writing to database", e);
             messageObjectController.setError(messageObject, Constants.ERROR_406, "Error writing to database: ", e, null);
             connector.handleException(e);
         } finally {
@@ -167,8 +169,8 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
         String[] stmts = this.connector.getReadAndAckStatements(endpointUri, null);
         String readStmt = stmts[0];
         String ackStmt = stmts[1];
-        List readParams = new ArrayList();
-        List ackParams = new ArrayList();
+        List<String> readParams = new ArrayList<String>();
+        List<String> ackParams = new ArrayList<String>();
         readStmt = JdbcUtils.parseStatement(readStmt, readParams);
         ackStmt = JdbcUtils.parseStatement(ackStmt, ackParams);
 
@@ -185,7 +187,7 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
             Object result = null;
 
             do {
-                result = new QueryRunner().query(connection, readStmt, JdbcUtils.getParams(endpointUri, readParams, null), new MapHandler());
+                result = new QueryRunner().query(connection, readStmt, new MapHandler(), JdbcUtils.getParams(endpointUri, readParams, null));
 
                 if (result != null) {
                     if (logger.isDebugEnabled()) {

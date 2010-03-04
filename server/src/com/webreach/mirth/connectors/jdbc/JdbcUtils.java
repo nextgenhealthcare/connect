@@ -26,6 +26,8 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 
 import com.webreach.mirth.model.MessageObject;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
+
 public abstract class JdbcUtils {
     public static void close(Connection con) throws SQLException {
         if (con != null && !con.isClosed()) {
@@ -61,7 +63,7 @@ public abstract class JdbcUtils {
      * @param params
      * @return
      */
-    public static String parseStatement(String statement, List params) {
+    public static String parseStatement(String statement, List<String> params) {
         if (statement != null) {
             Pattern p = Pattern.compile("\\$\\{[^\\}]*\\}");
             Matcher m = p.matcher(statement);
@@ -81,11 +83,42 @@ public abstract class JdbcUtils {
         }
     }
 
-    public static Object[] getParams(UMOEndpointURI uri, List paramNames, Object root) throws Exception {
+    /*
+     * Takes a multi-line SQL statement and removes comments based on the following rule:
+     * - If the line starts with a comment marker, remove it
+     * - If the line contains a comment marker, remove everything after the comment marker
+     */
+    public static String stripSqlComments(String statement) {
+        if (statement != null) {
+            List<String> lines = Arrays.asList(statement.split("\n"));
+            StringBuilder result = new StringBuilder();
+            
+            for (String line : lines) {
+                String subStatement = null;
+                
+                if (line.trim().startsWith("--")) {
+                    subStatement = "";
+                } else if (line.contains("--")) {
+                    subStatement = line.substring(0, line.indexOf("--")).trim();
+                } else {
+                    subStatement = line;
+                }
+                
+                result.append(subStatement);
+                result.append("\n");
+            }
+            
+            return result.toString();
+        } else {
+            return statement;
+        }
+    }
+
+    public static Object[] getParams(UMOEndpointURI uri, List<String> paramNames, Object root) throws Exception {
         Object[] params = new Object[paramNames.size()];
 
         for (int i = 0; i < paramNames.size(); i++) {
-            String param = (String) paramNames.get(i);
+            String param = paramNames.get(i);
             String name = param.substring(2, param.length() - 1);
             Object value = null;
 
