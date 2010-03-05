@@ -59,7 +59,9 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
          */
         if (localName.equals(ER7Reader.MESSAGE_ROOT_ID)) {
             return;
-        } else if (localName.equals("MSH.1") || localName.equals("MSH.2")) {
+        } else if (localName.equals("MSH.1") || localName.equals("BHS.1") || localName.equals("FHS.1")) {
+            return;
+        } else if (localName.equals("MSH.2") || localName.equals("BHS.2") || localName.equals("FHS.2")) {
             return;
         }
 
@@ -101,10 +103,10 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
          */
         if (localName.equals(ER7Reader.MESSAGE_ROOT_ID)) {
             return;
-        } else if (localName.equals("MSH.1")) {
+        } else if (localName.equals("MSH.1") || localName.equals("BHS.1") || localName.equals("FHS.1")) {
             fieldSeparator = String.valueOf(output.charAt(output.length() - 1));
             return;
-        } else if (localName.equals("MSH.2")) {
+        } else if (localName.equals("MSH.2") || localName.equals("BHS.2") || localName.equals("FHS.2")) {
             CharSequence separators = output.subSequence(output.length() - 4, output.length());
             componentSeparator = String.valueOf(separators.charAt(0));
             repetitionSeparator = String.valueOf(separators.charAt(1));
