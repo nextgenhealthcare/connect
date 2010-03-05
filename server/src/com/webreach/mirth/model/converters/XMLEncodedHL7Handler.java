@@ -25,6 +25,7 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
     private String componentSeparator;
     private String subcomponentSeparator;
     private boolean encodeEntities = false;
+    private boolean inElement = false;
 
     private int previousDelimeterCount = -1;
     private String previousLocalName;
@@ -50,6 +51,7 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         logger.trace("starting element: " + localName);
+        inElement = true;
 
         /*
          * Skip the root element, MSH.1, and MSH.2 since those have any data
@@ -90,6 +92,7 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         logger.trace("ending element: " + localName);
+        inElement = false;
 
         /*
          * Once we see the closing of MSH.1 or MSH.2 tags, we know that the
@@ -149,12 +152,12 @@ public class XMLEncodedHL7Handler extends DefaultHandler {
     @Override
     public void characters(char ch[], int start, int length) throws SAXException {
         String str = new String(ch, start, length);
-
+        
         /*
-         * Write the substring to the output buffer, unless its blank or it is
-         * the field separators (to avoid MSH.1. being written out).
+         * Write the substring to the output buffer, unless it is the field
+         * separators (to avoid MSH.1. being written out).
          */
-        if (!StringUtils.isBlank(str) && !str.equals(fieldSeparator)) {
+        if (inElement && !str.equals(fieldSeparator)) {
             logger.trace("writing output: " + str);
             output.append(str);
         }
