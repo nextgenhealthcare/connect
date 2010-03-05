@@ -199,7 +199,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
         try {
             // Load the template (if there is one)
             if (templateId != null) {
-                template = templateController.getTemplate(channelId, templateId);    
+                template = templateController.getTemplate(channelId, templateId);
             }
 
             // Scripts are not compiled if they are blank or do not exist in the
@@ -485,7 +485,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
         newScript.append("if (arguments.length == 1) { return globalMap.get(key); }");
         newScript.append("else if (arguments.length == 2) { globalMap.put(key, value); }");
         newScript.append("}");
-        
+
         // Helper function to access globalChannelMap
         newScript.append("function $gc(key, value) {");
         newScript.append("if (arguments.length == 1) { return globalChannelMap.get(key); }");
@@ -538,9 +538,11 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
         newScript.append("return attachment;\n");
         newScript.append("}\n");
 
-        // Format the transformed XML so that line breaks are removed when those
-        // nodes are removed and indenting is cleaned up with two spaces.
-        newScript.append("XML.ignoreWhitespace=true;");
+        /*
+         * Don't ignore whitespace so that spaces arent removed from within
+         * fields.
+         */
+        newScript.append("XML.ignoreWhitespace=false;");
         // Setting prettyPrinting to true causes HL7 to break when converting
         // back from HL7.
         newScript.append("XML.prettyPrinting=false;");
