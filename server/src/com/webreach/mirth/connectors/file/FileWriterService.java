@@ -66,7 +66,7 @@ public class FileWriterService implements ConnectorService {
                 FileSystemConnection connection = (FileSystemConnection) factory.makeObject();
 
                 if (connection.canWrite(dir)) {
-                    return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Sucessfully connected to: " + fileHost);
+                    return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Successfully connected to: " + fileHost);
                 } else {
                     return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, "Unable to connect to: " + fileHost);
                 }

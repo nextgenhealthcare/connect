@@ -28,7 +28,7 @@ public class DocumentWriterService implements ConnectorService {
 
             try {
                 if (connection.canWrite(directory)) {
-                    return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Sucessfully connected to: " + directory);
+                    return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Successfully connected to: " + directory);
                 } else {
                     return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, "Unable to connect to: " + directory);
                 }

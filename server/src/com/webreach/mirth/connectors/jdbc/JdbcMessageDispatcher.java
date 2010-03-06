@@ -142,7 +142,7 @@ public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
                 }
 
                 JdbcUtils.commitAndClose(connection);
-                messageObjectController.setSuccess(messageObject, "Database write sucess, " + numRows + " rows updated", null);
+                messageObjectController.setSuccess(messageObject, "Database write success, " + numRows + " rows updated", null);
                 logger.debug("Event dispatched succesfuly");
             }
         } catch (Exception e) {

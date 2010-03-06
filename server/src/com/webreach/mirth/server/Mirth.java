@@ -133,10 +133,10 @@ public class Mirth extends Thread {
 
     /**
      * Returns true if the resources required by the server have been
-     * sucessfully loaded
+     * successfully loaded
      * 
      * @return true if the resources required by the server have been
-     *         sucessfully loaded
+     *         successfully loaded
      */
     public boolean initResources() {
         mirthProperties = PropertyLoader.loadProperties("mirth");

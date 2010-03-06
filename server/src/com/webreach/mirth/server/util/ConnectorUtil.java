@@ -29,7 +29,7 @@ public class ConnectorUtil {
         try {
             socket = new Socket();
             socket.connect(address, timeout);
-            return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Sucessfully connected to host: " + address.getAddress().getHostAddress() + ":" + address.getPort());
+            return new ConnectionTestResponse(ConnectionTestResponse.Type.SUCCESS, "Successfully connected to host: " + address.getAddress().getHostAddress() + ":" + address.getPort());
         } catch (SocketTimeoutException ste) {
             return new ConnectionTestResponse(ConnectionTestResponse.Type.TIME_OUT, "Timed out connecting to host: " + address.getAddress().getHostAddress() + ":" + address.getPort());
         } catch (Exception e) {
