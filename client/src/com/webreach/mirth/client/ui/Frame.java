@@ -3778,7 +3778,7 @@ public class Frame extends JXFrame {
                     alerts = newAlerts;
                 }
 
-                alertInformation(this, "All alerts imported sucessfully.");
+                alertInformation(this, "All alerts imported successfully.");
 
                 enableSave();
                 alertPanel.loadAlert();
@@ -3933,7 +3933,7 @@ public class Frame extends JXFrame {
                     codeTemplates = newCodeTemplates;
                 }
 
-                alertInformation(this, "All code templates imported sucessfully.");
+                alertInformation(this, "All code templates imported successfully.");
 
                 enableSave();
                 codeTemplatePanel.loadCodeTemplate();
