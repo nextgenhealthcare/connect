@@ -11,6 +11,7 @@ package com.webreach.mirth.server;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.nio.charset.Charset;
 import java.sql.DriverManager;
@@ -64,7 +65,7 @@ public class Mirth extends Thread {
     private HttpServer httpServer = null;
     private HttpServer servletContainer = null;
     private CommandQueue commandQueue = CommandQueue.getInstance();
-    
+
     private EngineController managerBuilder = new MuleEngineController();
 
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
@@ -81,6 +82,14 @@ public class Mirth extends Thread {
         Mirth mirth = new Mirth();
         mirth.run();
         System.exit(0);
+    }
+
+    public static OutputStream getNullOutputStream() {
+        return new OutputStream() {
+            public void write(int b) throws IOException {
+                // ignore output
+            }
+        };
     }
 
     public void run() {
@@ -209,7 +218,7 @@ public class Mirth extends Thread {
             }
 
             resetGlobalChannelVariableStore(channels);
-            
+
             // update the manager with the new classes
             managerBuilder.deployChannels(channels, extensionController.getConnectorMetaData());
             configurationController.executeChannelDeployScripts(channelController.getChannel(null));
@@ -230,18 +239,18 @@ public class Mirth extends Thread {
             logger.error("Error un-deploying channels.", e);
         }
     }
-    
+
     private void redeployChannels() {
         logger.debug("reseting global variable store");
         resetGlobalVariableStore();
-        
+
         try {
             List<String> channelIds = new ArrayList<String>();
-            
+
             for (String channelId : managerBuilder.getDeployedChannelIds()) {
                 channelIds.add(channelId);
             }
-            
+
             undeployChannels(channelIds);
             deployChannels(channelController.getChannel(null));
         } catch (Exception e) {
@@ -290,7 +299,7 @@ public class Mirth extends Thread {
             logger.error("Could not clear the global map.", e);
         }
     }
-    
+
     private void resetGlobalChannelVariableStore(List<Channel> channels) {
         // clear global channel map
         for (Channel channel : channels) {
@@ -304,7 +313,7 @@ public class Mirth extends Thread {
             }
         }
     }
-    
+
     /**
      * Stops the Mule server.
      * 
@@ -343,14 +352,9 @@ public class Mirth extends Thread {
 
             // add HTTPS listener
             SslListener sslListener = new SslListener();
-
-            String ciphers = PropertyLoader.getProperty(mirthProperties, "https.ciphers");
-            if (ciphers != null && !ciphers.equals("")) {
-                sslListener.setCipherSuites(ciphers.split(","));
-            }
-
+            sslListener.setCipherSuites(new String[] { "SSL_RSA_WITH_RC4_128_MD5", "SSL_RSA_WITH_RC4_128_SHA", "TLS_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_RSA_WITH_AES_128_CBC_SHA", "TLS_DHE_DSS_WITH_AES_128_CBC_SHA", "SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA", "SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA" });
             sslListener.setPort(Integer.valueOf(PropertyLoader.getProperty(mirthProperties, "https.port")).intValue());
-            sslListener.setKeystore(ControllerFactory.getFactory().createConfigurationController().getBaseDir() + System.getProperty("file.separator") + PropertyLoader.getProperty(mirthProperties, "https.keystore"));
+            sslListener.setKeystore(ControllerFactory.getFactory().createConfigurationController().getBaseDir() + File.separator + PropertyLoader.getProperty(mirthProperties, "https.keystore"));
             sslListener.setPassword(PropertyLoader.getProperty(mirthProperties, "https.password"));
             sslListener.setKeyPassword(PropertyLoader.getProperty(mirthProperties, "https.keypassword"));
             sslListener.setAlgorithm(PropertyLoader.getProperty(mirthProperties, "https.algorithm"));
@@ -365,6 +369,7 @@ public class Mirth extends Thread {
             // Load the context path property and remove the last char if it is
             // a '/'.
             String contextPath = PropertyLoader.getProperty(mirthProperties, "context.path");
+
             if (contextPath.endsWith("/")) {
                 contextPath = contextPath.substring(0, contextPath.length() - 1);
             }
@@ -376,7 +381,7 @@ public class Mirth extends Thread {
 
             // Serve static content from the lib context
             File extensions = new File(ExtensionController.getExtensionsPath());
-            String libPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + System.getProperty("file.separator") + "client-lib";
+            String libPath = ControllerFactory.getFactory().createConfigurationController().getApplicationDataDir() + File.separator + "client-lib";
 
             libContext.setResourceBase(libPath);
             libContext.addHandler(new ResourceHandler());
@@ -396,7 +401,7 @@ public class Mirth extends Thread {
             publicContext.setContextPath(contextPath + "/");
             httpServer.addContext(publicContext);
 
-            String publicPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + System.getProperty("file.separator") + "public_html";
+            String publicPath = ControllerFactory.getFactory().createConfigurationController().getApplicationDataDir() + File.separator + "public_html";
             publicContext.setResourceBase(publicPath);
             publicContext.addHandler(new ResourceHandler());
 
@@ -416,7 +421,7 @@ public class Mirth extends Thread {
             secureServletContext.setContextPath(contextPath + "/");
             secureServletContext.addHandler(secureServlets);
             servletContainer.addContext(secureServletContext);
-            
+
             // Map a servlet onto the container
             secureServlets.addServlet("Alerts", "/alerts", "com.webreach.mirth.server.servlets.AlertServlet");
             secureServlets.addServlet("Channels", "/channels", "com.webreach.mirth.server.servlets.ChannelServlet");
@@ -504,7 +509,7 @@ public class Mirth extends Thread {
      */
     private boolean testPort(String port, String name) {
         ServerSocket socket = null;
-        
+
         try {
             socket = new ServerSocket(Integer.parseInt(port));
         } catch (NumberFormatException ex) {
@@ -523,7 +528,7 @@ public class Mirth extends Thread {
                 }
             }
         }
-        
+
         return true;
     }
 

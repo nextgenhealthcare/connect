@@ -51,7 +51,7 @@ public class ExtensionServlet extends MirthServlet {
 					// we need to load properties from the multipart data
 					DiskFileItemFactory factory = new DiskFileItemFactory();
 					
-					String location = ExtensionController.getExtensionsPath() + "install_temp" + System.getProperty("file.separator");
+					String location = ExtensionController.getExtensionsPath() + "install_temp" + File.separator;
 					File locationFile = new File(location);
 					if (!locationFile.exists()){
 						locationFile.mkdir();

@@ -34,7 +34,7 @@ public class TemplateControllerTest extends TestCase {
 	}
 
 	public void testPutTemplate() throws ControllerException {
-		String id = configurationController.getGuid();
+		String id = configurationController.generateGuid();
 		String template = "<sample><test>hello world</test></sample>";
 		templateController.putTemplate(GROUP_ID, id, template);
 
@@ -42,7 +42,7 @@ public class TemplateControllerTest extends TestCase {
 	}
 
 	public void testGetTemplate() throws ControllerException {
-		String id = configurationController.getGuid();
+		String id = configurationController.generateGuid();
 		String template = "<sample><test>hello world</test></sample>";
 		templateController.putTemplate(GROUP_ID, id, template);
 
@@ -50,7 +50,7 @@ public class TemplateControllerTest extends TestCase {
 	}
 	
 	public void testClearTemplates() throws ControllerException {
-		String id = configurationController.getGuid();
+		String id = configurationController.generateGuid();
 		String template = "<sample><test>hello world</test></sample>";
 		templateController.putTemplate(GROUP_ID, id, template);
 		templateController.removeAllTemplates();

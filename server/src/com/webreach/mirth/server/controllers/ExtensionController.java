@@ -9,6 +9,7 @@
 
 package com.webreach.mirth.server.controllers;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -67,9 +68,9 @@ public abstract class ExtensionController extends Controller {
      */
 	public static String getExtensionsPath() {
 	    if (ClassPathResource.getResourceURI("extensions") != null) {
-	        return ClassPathResource.getResourceURI("extensions").getPath() + System.getProperty("file.separator");
+	        return ClassPathResource.getResourceURI("extensions").getPath() + File.separator;
 	    } else {
-	        return ControllerFactory.getFactory().createConfigurationController().getBaseDir() + System.getProperty("file.separator") + "extensions" + System.getProperty("file.separator");
+	        return ControllerFactory.getFactory().createConfigurationController().getBaseDir() + File.separator + "extensions" + File.separator;
 	    }
 	}
 	

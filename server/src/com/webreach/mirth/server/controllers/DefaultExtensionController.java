@@ -185,7 +185,7 @@ public class DefaultExtensionController extends ExtensionController {
 			
 			for (PluginMetaData plugin : plugins.values()) {
 				if (plugin.getPath().equals(packageName) && plugin.getSqlScript() != null) {
-					String contents = FileUtil.read(ExtensionController.getExtensionsPath() + plugin.getPath() + System.getProperty("file.separator") + plugin.getSqlScript());
+					String contents = FileUtil.read(ExtensionController.getExtensionsPath() + plugin.getPath() + File.separator + plugin.getSqlScript());
                     Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(contents)));
                     
                     String script = getUninstallScript(document);
@@ -233,7 +233,6 @@ public class DefaultExtensionController extends ExtensionController {
     	String script = null;
         Element uninstallElement = (Element) document.getElementsByTagName("uninstall").item(0);
         String databaseType = ControllerFactory.getFactory().createConfigurationController().getDatabaseType();
-
         NodeList scriptNodes = uninstallElement.getElementsByTagName("script");
 
         for (int i = 0; i < scriptNodes.getLength(); i++) {
@@ -247,6 +246,7 @@ public class DefaultExtensionController extends ExtensionController {
                 }
             }
         }
+        
         return script;
     }
 
@@ -262,13 +262,13 @@ public class DefaultExtensionController extends ExtensionController {
     
     public Map<String, ConnectorMetaData> getConnectorMetaData() throws ControllerException {
         logger.debug("retrieving connector metadata");
-        return this.connectors;
+        return connectors;
     }
 
     private void loadConnectorMetaData() throws ControllerException {
         logger.debug("loading connector metadata");
-        this.connectors = (Map<String, ConnectorMetaData>) ExtensionUtil.loadExtensionMetaData(ExtensionType.CONNECTOR);
-        this.protocols = new HashMap<String, ConnectorMetaData>();
+        connectors = (Map<String, ConnectorMetaData>) ExtensionUtil.loadExtensionMetaData(ExtensionType.CONNECTOR);
+        protocols = new HashMap<String, ConnectorMetaData>();
 
         for (ConnectorMetaData connectorMetaData : this.connectors.values()) {
             String protocol = connectorMetaData.getProtocol();
@@ -287,13 +287,13 @@ public class DefaultExtensionController extends ExtensionController {
 
     public void saveConnectorMetaData(Map<String, ConnectorMetaData> metaData) throws ControllerException {
         logger.debug("saving connector metadata");
-        this.connectors = metaData;
+        connectors = metaData;
         ExtensionUtil.saveExtensionMetaData(metaData);
     }
 
     public List<String> getClientLibraries() throws ControllerException {
         logger.debug("retrieving client libraries");
-        return this.clientLibraries;
+        return clientLibraries;
     }
 
     private void loadClientLibraries() {
@@ -303,28 +303,28 @@ public class DefaultExtensionController extends ExtensionController {
         extensionMetaData.addAll(plugins.values());
         extensionMetaData.addAll(connectors.values());
 
-        this.clientLibraries = ExtensionUtil.loadClientLibraries(extensionMetaData);
+        clientLibraries = ExtensionUtil.loadClientLibraries(extensionMetaData);
     }
 
     public Map<String, PluginMetaData> getPluginMetaData() throws ControllerException {
         logger.debug("retrieving plugin metadata");
-        return this.plugins;
+        return plugins;
     }
 
     public void savePluginMetaData(Map<String, PluginMetaData> metaData) throws ControllerException {
         logger.debug("saving plugin metadata");
-        this.plugins = metaData;
+        plugins = metaData;
         ExtensionUtil.saveExtensionMetaData(metaData);
     }
 
     private void loadPluginMetaData() throws ControllerException {
         logger.debug("loading plugin metadata");
-        this.plugins = (Map<String, PluginMetaData>) ExtensionUtil.loadExtensionMetaData(ExtensionType.PLUGIN);
+        plugins = (Map<String, PluginMetaData>) ExtensionUtil.loadExtensionMetaData(ExtensionType.PLUGIN);
     }
 
     public Map<String, ConnectorMetaData> getProtocols() {
         logger.debug("retrieving plugin protocols");
-        return this.protocols;
+        return protocols;
     }
 
     public ConnectorMetaData getConnectorMetaDataByProtocol(String protocol) {
@@ -378,6 +378,7 @@ public class DefaultExtensionController extends ExtensionController {
     
     public void deleteUninstallScripts() {
     	File uninstallScriptsFile = new File(getExtensionsPath() + EXTENSIONS_UNINSTALL_SCRIPTS_FILE);
+    	
     	if (uninstallScriptsFile.exists()) {
     		uninstallScriptsFile.delete();
     	}

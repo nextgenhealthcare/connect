@@ -28,7 +28,6 @@ import javax.crypto.SecretKey;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -66,17 +65,20 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     private Logger logger = Logger.getLogger(this.getClass());
     private EventController systemLogger = ControllerFactory.getFactory().createEventController();
-    private String baseDir = new File(ClassPathResource.getResourceURI("mirth.properties")).getParentFile().getParent();
+    private String appDataDir = null;
+    private String baseDir = null;
     private static SecretKey encryptionKey = null;
     private static String serverId = null;
-    private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
-    private static final String TEMP_DIR = "mirthTempDir";
     private boolean isEngineStarting = true;
     private JavaScriptUtil javaScriptUtil = JavaScriptUtil.getInstance();
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private PasswordRequirements passwordRequirements;
     private static PropertiesConfiguration versionConfig;
     private static PropertiesConfiguration mirthConfig;
+
+    private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
+    private static final String PROPERTY_TEMP_DIR = "TempDataDir";
+    private static final String PROPERTY_APP_DATA_DIR = "ApplicationDataDir";
 
     // singleton pattern
     private static DefaultConfigurationController instance = null;
@@ -100,39 +102,61 @@ public class DefaultConfigurationController extends ConfigurationController {
         try {
             mirthConfig = new PropertiesConfiguration("mirth.properties");
             versionConfig = new PropertiesConfiguration("version.properties");
-            
-            if (mirthConfig.getString(TEMP_DIR) != null) {
-                File tempDir = new File(StringUtils.replace(mirthConfig.getString(TEMP_DIR), "${mirthHomeDir}", baseDir));
 
-                if (!tempDir.exists()) {
-                    if (tempDir.mkdirs()) {
-                        logger.debug("Created temp dir: " + tempDir.getAbsolutePath());    
+            if (mirthConfig.getString(PROPERTY_TEMP_DIR) != null) {
+                File tempDataDirFile = new File(mirthConfig.getString(PROPERTY_TEMP_DIR));
+
+                if (!tempDataDirFile.exists()) {
+                    if (tempDataDirFile.mkdirs()) {
+                        logger.debug("created tempdir: " + tempDataDirFile.getAbsolutePath());
                     } else {
-                        logger.debug("Could not creat temp dir: " + tempDir.getAbsolutePath());
+                        logger.error("error creating tempdir: " + tempDataDirFile.getAbsolutePath());
                     }
                 }
 
-                System.setProperty("java.io.tmpdir", tempDir.getAbsolutePath());
-                logger.debug("Set tmpdir to: " + tempDir.getAbsolutePath());
+                System.setProperty("java.io.tmpdir", tempDataDirFile.getAbsolutePath());
+                logger.debug("set temp data dir: " + tempDataDirFile.getAbsolutePath());
             }
 
+            File appDataDirFile = null;
+            
+            if (mirthConfig.getString(PROPERTY_APP_DATA_DIR) != null) {
+                appDataDirFile = new File(mirthConfig.getString(PROPERTY_APP_DATA_DIR));
+                
+                if (!appDataDirFile.exists()) {
+                    if (appDataDirFile.mkdir()) {
+                        logger.debug("created app data dir: " + appDataDirFile.getAbsolutePath());
+                    } else {
+                        logger.error("error creating app data dir: " + appDataDirFile.getAbsolutePath());
+                    }
+                }
+            } else {
+                appDataDirFile = new File(".");
+            }
+
+            appDataDir = appDataDirFile.getAbsolutePath();
+            logger.debug("set app data dir: " + appDataDir);
+            
+            baseDir = new File(ClassPathResource.getResourceURI("mirth.properties")).getParentFile().getParent();
+            logger.debug("set base dir: " + baseDir);
+            
             if (mirthConfig.getString(CHARSET) != null) {
                 System.setProperty(CHARSET, mirthConfig.getString(CHARSET));
             }
 
             // Check for server GUID and generate a new one if it doesn't exist
-            PropertiesConfiguration serverIdConfig = new PropertiesConfiguration(new File(baseDir + System.getProperty("file.separator") + "server.id"));
+            PropertiesConfiguration serverIdConfig = new PropertiesConfiguration(new File(getApplicationDataDir() + File.separator + "server.id"));
 
             if ((serverIdConfig.getString("server.id") != null) && (serverIdConfig.getString("server.id").length() > 0)) {
                 serverId = serverIdConfig.getString("server.id");
             } else {
-                logger.debug("generating unique server id");
-                serverId = getGuid();
+                serverId = generateGuid();
+                logger.debug("generated new server id: " + serverId);
                 serverIdConfig.setProperty("server.id", serverId);
                 serverIdConfig.save();
             }
 
-            this.passwordRequirements = PasswordRequirementsChecker.getInstance().loadPasswordRequirements(mirthConfig);
+            passwordRequirements = PasswordRequirementsChecker.getInstance().loadPasswordRequirements(mirthConfig);
         } catch (Exception e) {
             logger.warn(e);
         }
@@ -151,7 +175,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
         try {
             SortedMap<String, Charset> avaiablesCharsets = Charset.availableCharsets();
-            List<String> simpleAvaiablesCharset = new ArrayList<String>();
+            List<String> simpleAvaiableCharsets = new ArrayList<String>();
 
             for (Charset charset : avaiablesCharsets.values()) {
                 String charsetName = charset.name();
@@ -164,13 +188,12 @@ public class DefaultConfigurationController extends ConfigurationController {
                     charsetName = "UNKNOWN";
                 }
 
-                simpleAvaiablesCharset.add(charsetName);
+                simpleAvaiableCharsets.add(charsetName);
             }
 
-            return simpleAvaiablesCharset;
+            return simpleAvaiableCharsets;
         } catch (Exception e) {
-            logger.error("Error at getAvaiableCharsetEncodings", e);
-            throw new ControllerException(e);
+            throw new ControllerException("Error retrieving charset encodings.", e);
         }
     }
 
@@ -180,20 +203,20 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     public void setServerProperties(Properties properties) throws ControllerException {
         for (Object name : properties.keySet()) {
-            saveProperty(PROPERTIES_CORE, (String) name, (String) properties.get(name));    
+            saveProperty(PROPERTIES_CORE, (String) name, (String) properties.get(name));
         }
     }
 
-    public String getGuid() throws ControllerException {
+    public String generateGuid() throws ControllerException {
         return UUID.randomUUID().toString();
     }
-    
+
     public void redeployAllChannels() throws ControllerException {
         logger.debug("redeploying all channels");
-        
+
         // remove all scripts and templates
         ControllerFactory.getFactory().createTemplateController().removeAllTemplates();
-        
+
         // undeploy all running channels
         CommandQueue.getInstance().addCommand(new Command(Command.Operation.REDEPLOY));
         // deploy all enabled channels
@@ -266,7 +289,6 @@ public class DefaultConfigurationController extends ConfigurationController {
                     logger.debug("removing " + channel.getId() + "_Postprocessor");
                     javaScriptUtil.removeScriptFromCache(channel.getId() + "_Postprocessor");
                 }
-
             } else {
                 javaScriptUtil.removeScriptFromCache(channel.getId() + "_Deploy");
                 javaScriptUtil.removeScriptFromCache(channel.getId() + "_Shutdown");
@@ -309,19 +331,19 @@ public class DefaultConfigurationController extends ConfigurationController {
         String preprocessorScript = scriptController.getScript(GLOBAL_KEY, GLOBAL_PREPROCESSOR_KEY);
         String postprocessorScript = scriptController.getScript(GLOBAL_KEY, GLOBAL_POSTPROCESSOR_KEY);
 
-        if (deployScript == null || deployScript.equals("")) {
+        if ((deployScript == null) || deployScript.equals("")) {
             deployScript = GLOBAL_DEPLOY_DEFAULT_SCRIPT;
         }
 
-        if (shutdownScript == null || shutdownScript.equals("")) {
+        if ((shutdownScript == null) || shutdownScript.equals("")) {
             shutdownScript = GLOBAL_SHUTDOWN_DEFAULT_SCRIPT;
         }
 
-        if (preprocessorScript == null || preprocessorScript.equals("")) {
+        if ((preprocessorScript == null) || preprocessorScript.equals("")) {
             preprocessorScript = GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT;
         }
 
-        if (postprocessorScript == null || postprocessorScript.equals("")) {
+        if ((postprocessorScript == null) || postprocessorScript.equals("")) {
             postprocessorScript = GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT;
         }
 
@@ -349,7 +371,6 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     public void loadEncryptionKey() {
         logger.debug("loading encryption key");
-
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
         try {
@@ -452,6 +473,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         boolean isDatabaseRunning = false;
         Statement statement = null;
         Connection connection = null;
+        
         try {
             connection = SqlConfig.getSqlMapClient().getDataSource().getConnection();
             statement = connection.createStatement();
@@ -500,7 +522,6 @@ public class DefaultConfigurationController extends ConfigurationController {
         setServerProperties(serverConfiguration.getProperties());
 
         if (serverConfiguration.getChannels() != null) {
-
             for (Channel channel : channelController.getChannel(null)) {
                 boolean found = false;
 
@@ -549,15 +570,12 @@ public class DefaultConfigurationController extends ConfigurationController {
         CommandQueue.getInstance().addCommand(new Command(Command.Operation.SHUTDOWN_SERVER));
     }
 
-    public String getQueuestorePath() {
-        String muleQueue = getPropertiesForGroup(PROPERTIES_CORE).getProperty("mule.queue");
-        String queuestorePath = StringUtils.replace(muleQueue, "${mirthHomeDir}", baseDir);
-        queuestorePath += File.separator + "queuestore";
-        return queuestorePath;
-    }
-
     public String getBaseDir() {
         return baseDir;
+    }
+    
+    public String getApplicationDataDir() {
+        return appDataDir;
     }
 
     public PasswordRequirements getPasswordRequirements() {
@@ -569,7 +587,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
         try {
             Map<String, String> result = SqlConfig.getSqlMapClient().queryForMap("Configuration.selectPropertiesForCategory", category, "name", "value");
-            
+
             if (!result.isEmpty()) {
                 Properties properties = new Properties();
                 properties.putAll(result);
@@ -611,7 +629,7 @@ public class DefaultConfigurationController extends ConfigurationController {
             } else {
                 SqlConfig.getSqlMapClient().insert("Configuration.updateProperty", parameterMap);
             }
-            
+
             if (DatabaseUtil.statementExists("Configuration.vacuumConfigurationTable")) {
                 SqlConfig.getSqlMapClient().update("Configuration.vacuumConfigurationTable");
             }

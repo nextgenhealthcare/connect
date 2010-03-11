@@ -19,7 +19,6 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
-import org.apache.velocity.app.tools.VelocityFormatter;
 import org.apache.velocity.tools.generic.DateTool;
 import org.mule.util.UUID;
 import org.mule.util.Utility;
@@ -34,10 +33,6 @@ public class TemplateValueReplacer {
     private Logger logger = Logger.getLogger(this.getClass());
     private long count = 1;
 
-    public TemplateValueReplacer() {
-
-    }
-
     protected synchronized long getCount() {
         return count++;
     }
@@ -46,7 +41,7 @@ public class TemplateValueReplacer {
         return ((str != null) && (str.indexOf("$") > -1));
     }
 
-    public String replaceValues(String template, Map map) {
+    public String replaceValues(String template, Map<String, Object> map) {
         if (hasReplaceableValues(template)) {
             VelocityContext context = new VelocityContext();
             loadContextFromMap(context, map);
@@ -106,17 +101,16 @@ public class TemplateValueReplacer {
     }
 
     public String replaceURLValues(String url, MessageObject messageObject) {
-        URLDecoder decoder = new URLDecoder();
         String host = new String();
 
         if ((url != null) && (url.length() > 0)) {
             try {
-                host = decoder.decode(url, "utf-8");
+                host = URLDecoder.decode(url, "utf-8");
             } catch (UnsupportedEncodingException e) {
                 try {
-                    host = decoder.decode(url, "default");
+                    host = URLDecoder.decode(url, "default");
                 } catch (UnsupportedEncodingException e1) {
-                    host = decoder.decode(url);
+                    // should not get here
                 }
             }
 
@@ -128,9 +122,9 @@ public class TemplateValueReplacer {
         return host;
     }
 
-    private void loadContextFromMap(VelocityContext context, Map map) {
-        for (Iterator iter = map.entrySet().iterator(); iter.hasNext();) {
-            Entry entry = (Entry) iter.next();
+    private void loadContextFromMap(VelocityContext context, Map<String, Object> map) {
+        for (Iterator<Entry<String, Object>> iter = map.entrySet().iterator(); iter.hasNext();) {
+            Entry<String, Object> entry = iter.next();
             context.put(entry.getKey().toString(), entry.getValue());
         }
     }
@@ -161,7 +155,6 @@ public class TemplateValueReplacer {
         // system variables
         context.put("date", new DateTool());
         context.put("DATE", Utility.getTimeStamp("dd-MM-yy_HH-mm-ss.SS"));
-        context.put("FORMATTER", new VelocityFormatter(context));
         context.put("COUNT", String.valueOf(getCount()));
         context.put("UUID", (new UUID()).getUUID());
         context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));

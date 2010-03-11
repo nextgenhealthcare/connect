@@ -151,7 +151,7 @@ public class DefaultMigrationController extends MigrationController {
                     int baseSchemaVersion = Integer.parseInt(pluginProperties.getProperty("schema", "-1"));
 
                     if (plugin.getSqlScript() != null) {
-                        String contents = FileUtil.read(ExtensionController.getExtensionsPath() + plugin.getPath() + System.getProperty("file.separator") + plugin.getSqlScript());
+                        String contents = FileUtil.read(ExtensionController.getExtensionsPath() + plugin.getPath() + File.separator + plugin.getSqlScript());
                         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(contents)));
                         TreeMap<Integer, String> scripts = getDiffsForVersion(baseSchemaVersion, document);
                         List<String> scriptList = new LinkedList<String>();
@@ -241,15 +241,13 @@ public class DefaultMigrationController extends MigrationController {
     }
 
     private void createSchema(Connection conn) throws Exception {
-        File baseDir = new File(configurationController.getBaseDir());
-        File creationScript = new File(baseDir.getPath() + System.getProperty("file.separator") + configurationController.getDatabaseType() + "-database.sql");
-
+        File creationScript = new File(new File(configurationController.getBaseDir()), configurationController.getDatabaseType() + "-database.sql");
         DatabaseUtil.executeScript(creationScript, true);
     }
 
     private void migrate(int oldVersion, int newVersion) throws Exception {
         File deltaFolder = new File(ClassPathResource.getResourceURI(DELTA_FOLDER));
-        String deltaPath = deltaFolder.getPath() + System.getProperty("file.separator");
+        String deltaPath = deltaFolder.getPath() + File.separator;
         String databaseType = configurationController.getDatabaseType();
 
         while (oldVersion < newVersion) {

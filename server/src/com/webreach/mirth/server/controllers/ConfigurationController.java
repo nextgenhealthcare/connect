@@ -69,7 +69,7 @@ public abstract class ConfigurationController extends Controller {
 
     public abstract void executeGlobalScript(String scriptType);
 
-    // config parameters
+    // configuration
     
     public abstract String getDatabaseType();
 
@@ -80,12 +80,14 @@ public abstract class ConfigurationController extends Controller {
     public abstract SecretKey getEncryptionKey();
 
     public abstract String getBaseDir();
+    
+    public abstract String getApplicationDataDir();
 
     public abstract Properties getServerProperties() throws ControllerException;
 
     public abstract void setServerProperties(Properties properties) throws ControllerException;
 
-    public abstract String getGuid() throws ControllerException;
+    public abstract String generateGuid() throws ControllerException;
 
     public abstract List<DriverInfo> getDatabaseDrivers() throws ControllerException;
 
@@ -94,8 +96,6 @@ public abstract class ConfigurationController extends Controller {
     public abstract int getSchemaVersion();
 
     public abstract String getBuildDate();
-
-    public abstract String getQueuestorePath();
 
     public abstract ServerConfiguration getServerConfiguration() throws ControllerException;
 

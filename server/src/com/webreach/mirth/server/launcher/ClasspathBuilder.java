@@ -106,7 +106,7 @@ public class ClasspathBuilder {
 						Element element = (Element)libraries.item(i);
 						String type = element.getElementsByTagName("type").item(0).getTextContent();
 						if (type.equalsIgnoreCase("server") || type.equalsIgnoreCase("shared")) {
-							File file = new File(directory.getAbsolutePath() + System.getProperty("file.separator") + element.getAttribute("path"));
+							File file = new File(directory.getAbsolutePath() + File.separator + element.getAttribute("path"));
 							if (file.exists()) {
 								urls.add(file.toURI().toURL());
 							} else {

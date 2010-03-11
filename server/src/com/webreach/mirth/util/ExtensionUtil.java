@@ -78,7 +78,7 @@ public class ExtensionUtil {
 					}
 				}
 				
-				FileUtil.write(ExtensionController.getExtensionsPath() + extensionMetaData.getPath() + System.getProperty("file.separator") + fileName, false, serializer.toXML(metaData.get(entry.getKey())));
+				FileUtil.write(ExtensionController.getExtensionsPath() + extensionMetaData.getPath() + File.pathSeparator + fileName, false, serializer.toXML(metaData.get(entry.getKey())));
 			}
 		} catch (IOException ioe) {
 			throw new ControllerException(ioe);

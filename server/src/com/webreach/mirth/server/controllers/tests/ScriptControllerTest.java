@@ -35,7 +35,7 @@ public class ScriptControllerTest extends TestCase {
 
 	public void testPutScript() throws ControllerException {
 	    
-		String id = configurationController.getGuid();
+		String id = configurationController.generateGuid();
 		String script = "return true;";
 		scriptController.putScript(groupId, id, script);
 
@@ -43,7 +43,7 @@ public class ScriptControllerTest extends TestCase {
 	}
 
 	public void testGetScript() throws ControllerException {
-		String id = configurationController.getGuid();
+		String id = configurationController.generateGuid();
 		String script = "return true;";
 		scriptController.putScript(groupId, id, script);
 
@@ -51,7 +51,7 @@ public class ScriptControllerTest extends TestCase {
 	}
 	
 	public void testClearScripts() throws ControllerException {
-		String id = configurationController.getGuid();
+		String id = configurationController.generateGuid();
 		String script = "return true;";
 		scriptController.putScript(groupId, id, script);
 		scriptController.removeAllScripts();

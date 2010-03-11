@@ -18,20 +18,14 @@ import javax.management.remote.JMXConnector;
 import com.webreach.mirth.util.PropertyLoader;
 
 public class JMXConnectionFactory {
-	public static JMXConnection createJMXConnection() throws Exception {
-		Properties properties = PropertyLoader.loadProperties("mirth");
-		return createJMXConnection(PropertyLoader.getProperty(properties, "configuration.id"));
-	}
-
-	public static JMXConnection createJMXConnection(String domain) throws Exception {
-		Properties properties = PropertyLoader.loadProperties("mirth");
-		String port = PropertyLoader.getProperty(properties, "jmx.port");
-		String jmxUrl = "service:jmx:rmi:///jndi/rmi://localhost:" + port + "/server";
-
-		String password = PropertyLoader.getProperty(properties, "jmx.password");
-		Map<String, String[]> environment = new HashMap<String, String[]>();
-		String[] credentials = { "admin", password };
-		environment.put(JMXConnector.CREDENTIALS, credentials);
-		return new JMXConnection(jmxUrl, domain, environment);
-	}
+    public static JMXConnection createJMXConnection() throws Exception {
+        Properties properties = PropertyLoader.loadProperties("mirth");
+        String port = PropertyLoader.getProperty(properties, "jmx.port");
+        String jmxUrl = "service:jmx:rmi:///jndi/rmi://localhost:" + port + "/server";
+        String password = PropertyLoader.getProperty(properties, "jmx.password");
+        Map<String, String[]> environment = new HashMap<String, String[]>();
+        String[] credentials = { "admin", password };
+        environment.put(JMXConnector.CREDENTIALS, credentials);
+        return new JMXConnection(jmxUrl, "MirthConfiguration", environment);
+    }
 }

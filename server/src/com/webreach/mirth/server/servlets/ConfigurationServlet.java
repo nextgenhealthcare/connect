@@ -51,7 +51,7 @@ public class ConfigurationServlet extends MirthServlet {
                     configurationController.setServerProperties((Properties) serializer.fromXML(properties));
                 } else if (operation.equals("getGuid")) {
                     response.setContentType("text/plain");
-                    out.print(configurationController.getGuid());
+                    out.print(configurationController.generateGuid());
                 } else if (operation.equals("redeployAllChannels")) {
                     configurationController.redeployAllChannels();
                 } else if (operation.equals("deployChannels")) {

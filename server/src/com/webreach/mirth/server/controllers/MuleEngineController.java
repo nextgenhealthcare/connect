@@ -22,7 +22,6 @@ import java.util.Map.Entry;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.mule.MuleManager;
 import org.mule.components.simple.PassThroughComponent;
@@ -105,10 +104,7 @@ public class MuleEngineController implements EngineController {
         MuleManager.getConfiguration().setEmbedded(true);
         MuleManager.getConfiguration().setRecoverableMode(true);
         MuleManager.getConfiguration().setClientMode(false);
-        // set the Mule working directory
-        String muleQueue = PropertyLoader.getProperty(properties, "mule.queue");
-        muleQueue = StringUtils.replace(muleQueue, "${mirthHomeDir}", ControllerFactory.getFactory().createConfigurationController().getBaseDir());
-        MuleManager.getConfiguration().setWorkingDirectory(muleQueue);
+        MuleManager.getConfiguration().setWorkingDirectory(ControllerFactory.getFactory().createConfigurationController().getApplicationDataDir());
 
         for (String transformerName : defaultTransformers.keySet()) {
             UMOTransformer umoTransformer = (UMOTransformer) Class.forName(defaultTransformers.get(transformerName)).newInstance();

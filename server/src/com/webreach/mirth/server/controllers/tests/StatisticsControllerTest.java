@@ -34,7 +34,7 @@ public class StatisticsControllerTest extends TestCase {
 
 		// create a sample channel
 		sampleChannel = new Channel();
-		sampleChannel.setId(configurationController.getGuid());
+		sampleChannel.setId(configurationController.generateGuid());
 		sampleChannel.setName("Sample Channel");
 		sampleChannel.setDescription("This is a sample channel");
 		sampleChannel.setEnabled(true);

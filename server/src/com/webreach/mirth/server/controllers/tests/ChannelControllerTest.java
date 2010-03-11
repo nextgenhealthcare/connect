@@ -38,7 +38,7 @@ public class ChannelControllerTest extends TestCase {
 		
 		for (int i = 0; i < 10; i++) {
 			Channel sampleChannel = new Channel();
-			sampleChannel.setId(configurationController.getGuid());
+			sampleChannel.setId(configurationController.generateGuid());
 			sampleChannel.setName("Channel" + i);
 			sampleChannel.setDescription("This is a sample channel");
 			sampleChannel.setEnabled(true);

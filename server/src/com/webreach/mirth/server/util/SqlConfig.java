@@ -51,9 +51,10 @@ public class SqlConfig {
             if (sqlMapClient == null) {
                 try {
                     LogFactory.selectLog4JLogging();
+                    System.setProperty("derby.stream.error.method", "com.webreach.mirth.server.Mirth.getNullOutputStream");
                     Map<String, PluginMetaData> plugins = ControllerFactory.getFactory().createExtensionController().getPluginMetaData();
                     String database = PropertyLoader.getProperty(PropertyLoader.loadProperties("mirth"), "database");
-                    BufferedReader br = new BufferedReader(Resources.getResourceAsReader(database + System.getProperty("file.separator") + database + "-SqlMapConfig.xml"));
+                    BufferedReader br = new BufferedReader(Resources.getResourceAsReader(database + File.separator + database + "-SqlMapConfig.xml"));
                     Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(br));
                     Element sqlMapConfigElement = document.getDocumentElement();
 
@@ -62,7 +63,7 @@ public class SqlConfig {
 
                         if (pmd.getSqlMapConfigs() != null) {
                             if (pmd.getSqlMapConfigs().get(database) != null) {
-                                String sqlMapConfigPath = ExtensionController.getExtensionsPath() + pmd.getPath() + System.getProperty("file.separator") + pmd.getSqlMapConfigs().get(database);
+                                String sqlMapConfigPath = ExtensionController.getExtensionsPath() + pmd.getPath() + File.separator + pmd.getSqlMapConfigs().get(database);
                                 Element sqlMapElement = document.createElement("sqlMap");
                                 sqlMapElement.setAttribute("url", new File(sqlMapConfigPath).toURI().toURL().toString());
                                 sqlMapConfigElement.appendChild(sqlMapElement);
