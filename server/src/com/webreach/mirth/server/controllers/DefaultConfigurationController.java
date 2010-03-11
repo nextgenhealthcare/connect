@@ -77,8 +77,8 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static PropertiesConfiguration mirthConfig;
 
     private static final String CHARSET = "ca.uhn.hl7v2.llp.charset";
-    private static final String PROPERTY_TEMP_DIR = "TempDataDir";
-    private static final String PROPERTY_APP_DATA_DIR = "ApplicationDataDir";
+    private static final String PROPERTY_TEMP_DIR = "dir.tempdata";
+    private static final String PROPERTY_APP_DATA_DIR = "dir.appdata";
 
     // singleton pattern
     private static DefaultConfigurationController instance = null;
