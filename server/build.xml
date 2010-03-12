@@ -636,10 +636,6 @@
 			<fileset file="${basedir}/shell-launcher.xml" />
 			<fileset file="${basedir}/mirth-client.jnlp" />
 			<fileset file="${basedir}/keystore" />
-
-			<!-- are these still neeeded? -->
-			<fileset file="${basedir}/mirth.sh" />
-			<fileset file="${basedir}/shell.sh" />
 		</copy>
 
 		<!-- create the server jar -->
