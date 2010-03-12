@@ -1,13 +1,13 @@
 <launcher>
 	<classpath base=".">
-		<lib path="shell.jar" />
+		<lib path="mirth-shell.jar" />
 		<lib path="mirth-server.jar" />
 		<lib path="mirth-client-core.jar" />
 		<lib path="conf/" />
 		<lib path="lib/" />
 		<lib path="lib/commons" />
 		<lib path="lib/mule" />
-		<lib path="lib/custom" />
+		<lib path="custom-lib" />
 		<lib path="extensions/connectors" />
 	</classpath>
 </launcher>

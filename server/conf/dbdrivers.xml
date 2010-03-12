@@ -1,4 +1,4 @@
-<drivers >
+<drivers>
 	<driver class="sun.jdbc.odbc.JdbcOdbcDriver" name="Sun JDBC-ODBC Bridge" template="jdbc:odbc:DSN" />
 	<driver class="com.mysql.jdbc.Driver" name="MySQL" template="jdbc:mysql://host:port/dbname" />
 	<driver class="oracle.jdbc.driver.OracleDriver" name="Oracle 10g Release 2" template="jdbc:oracle:thin:@host:port:dbname" />
