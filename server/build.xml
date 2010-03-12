@@ -637,14 +637,6 @@
 			<fileset file="${basedir}/mirth-client.jnlp" />
 			<fileset file="${basedir}/keystore" />
 
-			<!-- database creation scripts -->
-			<fileset file="${basedir}/derby-database.sql" />
-			<fileset file="${basedir}/postgres-database.sql" />
-			<fileset file="${basedir}/mysql-database.sql" />
-			<fileset file="${basedir}/sqlserver-database.sql" />
-			<fileset file="${basedir}/oracle-database.sql" />
-			<fileset file="${basedir}/sqlserver2005-database.sql" />
-
 			<!-- are these still neeeded? -->
 			<fileset file="${basedir}/mirth.sh" />
 			<fileset file="${basedir}/shell.sh" />
@@ -723,7 +715,7 @@
 					<include name="derbytools-10.5.3.0.jar" />
 				</fileset>
 			</classpath>
-			<arg value="derby-database.sql" />
+			<arg value="conf/derby/derby-database.sql" />
 		</java>
 
 		<!-- copy the newly created database over -->
