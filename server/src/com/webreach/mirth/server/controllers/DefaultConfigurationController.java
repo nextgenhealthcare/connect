@@ -395,7 +395,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     public List<DriverInfo> getDatabaseDrivers() throws ControllerException {
         logger.debug("retrieving database driver list");
-        File driversFile = new File(ClassPathResource.getResourceURI("/custom/dbdrivers.xml"));
+        File driversFile = new File(ClassPathResource.getResourceURI("dbdrivers.xml"));
 
         if (driversFile.exists()) {
             try {

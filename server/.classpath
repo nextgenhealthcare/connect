@@ -3,8 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="conf"/>
 	<classpathentry kind="src" path="build"/>
-	<classpathentry kind="lib" path="lib/custom/jtds-1.2.jar"/>
-	<classpathentry kind="lib" path="lib/custom/ojdbc14.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
 	<classpathentry kind="lib" path="lib/wrapper.jar"/>
 	<classpathentry kind="lib" path="lib/mule/activeio-2.1.jar"/>
@@ -24,7 +22,6 @@
 	<classpathentry kind="lib" path="lib/ibmpkcs.jar"/>
 	<classpathentry kind="lib" path="lib/ant.jar"/>
 	<classpathentry kind="lib" path="lib/ant-contrib.jar"/>
-	<classpathentry kind="lib" path="lib/custom/postgresql-8.3-603.jdbc3.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-core-2.0.15.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-net-2.0.15.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/dcm4che-tool-dcmrcv-2.0.15.jar"/>
@@ -35,7 +32,6 @@
 	<classpathentry kind="lib" path="lib/extensions/dimse/slf4j-api-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/dimse/slf4j-log4j12-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/doc/iText-2.0.8.jar"/>
-	<classpathentry kind="lib" path="lib/custom/mysql-connector-java-5.0.8-bin.jar"/>
 	<classpathentry kind="lib" path="lib/velocity-tools-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/hapi-0.6.jar"/>
 	<classpathentry kind="lib" path="lib/mule/axis14-commons-discovery-0.2.jar"/>
@@ -81,5 +77,9 @@
 	<classpathentry kind="lib" path="lib/extensions/pdfviewer/PDFRenderer.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl-2.9.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre6"/>
+	<classpathentry kind="lib" path="lib/database/postgresql-8.3-603.jdbc3.jar"/>
+	<classpathentry kind="lib" path="lib/database/jtds-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/database/mysql-connector-java-5.0.8-bin.jar"/>
+	<classpathentry kind="lib" path="lib/database/ojdbc14.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

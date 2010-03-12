@@ -77,7 +77,7 @@ public class SqlConfig {
                     Reader reader = new StringReader(docSerializer.toXML(document));
 
                     if (database.equalsIgnoreCase("derby")) {
-                        Properties props = PropertyLoader.loadProperties(database + "-SqlMapConfig");
+                        Properties props = PropertyLoader.loadProperties(database + File.separator + database + "-SqlMapConfig");
                         props.setProperty("mirthHomeDir", ControllerFactory.getFactory().createConfigurationController().getBaseDir());
                         sqlMapClient = SqlMapClientBuilder.buildSqlMapClient(reader, props);
                     } else {

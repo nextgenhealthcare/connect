@@ -5,6 +5,6 @@
 		<lib path="lib/" />
 		<lib path="lib/commons" />
 		<lib path="lib/mule" />
-		<lib path="lib/custom" />
+		<lib path="custom-lib" />
 	</classpath>
 </launcher>
