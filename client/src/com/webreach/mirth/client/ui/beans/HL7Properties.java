@@ -120,4 +120,25 @@ public class HL7Properties implements Serializable {
     public void setConvertLFtoCR(boolean convertLFtoCR) {
         this.convertLFtoCR = convertLFtoCR;
     }
+    /**
+     * Holds value of property handleSubcomponents.
+     */
+    private boolean handleSubcomponents = false;
+
+    /**
+     * Getter for property handleSubcomponents.
+     * @return Value of property handleSubcomponents.
+     */
+    public boolean isHandleSubcomponents() {
+        return this.handleSubcomponents;
+    }
+
+    /**
+     * Setter for property handleSubcomponents.
+     * @param handleSubcomponents New value of property handleSubcomponents.
+     */
+    public void setHandleSubcomponents(boolean handleSubcomponents) {
+        this.handleSubcomponents = handleSubcomponents;
+    }
+
 }

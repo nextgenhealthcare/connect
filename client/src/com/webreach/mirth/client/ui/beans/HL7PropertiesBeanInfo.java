@@ -28,20 +28,25 @@ public class HL7PropertiesBeanInfo extends SimpleBeanInfo {
         return beanDescriptor;     }//GEN-LAST:BeanDescriptor
     // Property identifiers//GEN-FIRST:Properties
     private static final int PROPERTY_handleRepetitions = 0;
-    private static final int PROPERTY_useStrictParser = 1;
-    private static final int PROPERTY_useStrictValidation = 2;
-    private static final int PROPERTY_stripNamespaces = 3;
-    private static final int PROPERTY_convertLFtoCR = 4;
+    private static final int PROPERTY_handleSubcomponents = 1;
+    private static final int PROPERTY_useStrictParser = 2;
+    private static final int PROPERTY_useStrictValidation = 3;
+    private static final int PROPERTY_stripNamespaces = 4;
+    private static final int PROPERTY_convertLFtoCR = 5;
     // Property array 
     /*lazy PropertyDescriptor*/
     private static PropertyDescriptor[] getPdescriptor(){
-        PropertyDescriptor[] properties = new PropertyDescriptor[5];
+        PropertyDescriptor[] properties = new PropertyDescriptor[6];
     
         try {
             properties[PROPERTY_handleRepetitions] = new PropertyDescriptor ( "handleRepetitions", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isHandleRepetitions", "setHandleRepetitions" ); // NOI18N
-            properties[PROPERTY_handleRepetitions].setDisplayName ( "Handle Repetitions" );
-            properties[PROPERTY_handleRepetitions].setShortDescription ( "Handle repetition characters (applies to Non-Strict Parser only)." );
+            properties[PROPERTY_handleRepetitions].setDisplayName ( "Parse Field Repetitions" );
+            properties[PROPERTY_handleRepetitions].setShortDescription ( "Parse field repetitions (applies to Non-Strict Parser only)." );
             properties[PROPERTY_handleRepetitions].setBound ( true );
+            properties[PROPERTY_handleSubcomponents] = new PropertyDescriptor ( "handleSubcomponents", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isHandleSubcomponents", "setHandleSubcomponents" ); // NOI18N
+            properties[PROPERTY_handleSubcomponents].setDisplayName ( "Parse Subcomponents" );
+            properties[PROPERTY_handleSubcomponents].setShortDescription ( "Parse subcomponents (applies to Non-Strict Parser only)." );
+            properties[PROPERTY_handleSubcomponents].setBound ( true );
             properties[PROPERTY_useStrictParser] = new PropertyDescriptor ( "useStrictParser", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isUseStrictParser", "setUseStrictParser" ); // NOI18N
             properties[PROPERTY_useStrictParser].setDisplayName ( "Use Strict Parser" );
             properties[PROPERTY_useStrictParser].setShortDescription ( "Parse messages based upon strict HL7 specifications." );
