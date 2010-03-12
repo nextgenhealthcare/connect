@@ -10,7 +10,6 @@
 package com.webreach.mirth.connectors.ws;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;

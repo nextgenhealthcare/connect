@@ -37,7 +37,6 @@ import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.ConnectorException;
-import org.mule.umo.provider.UMOMessageDispatcher;
 import org.mule.umo.provider.UMOMessageReceiver;
 import org.mule.util.Utility;
 
@@ -117,7 +116,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
     private String outputPattern = null;
     private String template = null;
     public FilenameParser filenameParser = new VariableFilenameParser();
-    private Map pools = new HashMap();
+    private Map<String, ObjectPool> pools = new HashMap<String, ObjectPool>();
     private String username;
     private String password;
     private boolean binary = false;
@@ -257,8 +256,8 @@ public class FileConnector extends AbstractServiceEnabledConnector {
             }
         }
         try {
-            for (Iterator it = pools.values().iterator(); it.hasNext();) {
-                ObjectPool pool = (ObjectPool) it.next();
+            for (Iterator<ObjectPool> it = pools.values().iterator(); it.hasNext();) {
+                ObjectPool pool = it.next();
                 pool.close();
             }
             pools.clear();
@@ -329,7 +328,6 @@ public class FileConnector extends AbstractServiceEnabledConnector {
     protected void releaseConnection(UMOEndpointURI uri, FileSystemConnection connection, MessageObject messageObject) throws Exception {
         if (isCreateDispatcherPerRequest()) {
             destroyConnection(uri, connection, messageObject);
-            UMOMessageDispatcher dispatcher = getDispatcher(uri.toString());
         } else {
             if (connection != null && connection.isConnected()) {
                 ObjectPool pool = getConnectionPool(uri, messageObject);
@@ -394,7 +392,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
         }
 
         String key = FileSystemConnectionFactory.getPoolKey(getScheme(), username, password, uri.getHost(), uri.getPort(), isSecure());
-        ObjectPool pool = (ObjectPool) pools.get(key);
+        ObjectPool pool = pools.get(key);
         if (pool == null) {
             GenericObjectPool.Config config = new GenericObjectPool.Config();
             if (isValidateConnections()) {
@@ -439,7 +437,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
      * @param dir
      *            The moveToDirectoryName to set.
      */
-    public void setMoveToDirectory(String dir) throws IOException {
+    public void setMoveToDirectory(String dir) {
         this.moveToDirectory = dir;
     }
 
@@ -620,12 +618,13 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 
     // ast: set the charset Encoding
     public void setCharsetEncoding(String charsetEncoding) {
-        if ((charsetEncoding == null) || (charsetEncoding.equals("")) || (charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING")))
+        if ((charsetEncoding == null) || (charsetEncoding.equals("")) || (charsetEncoding.equalsIgnoreCase("DEFAULT_ENCODING"))) {
             charsetEncoding = DEFAULT_CHARSET_ENCODING;
+        }
+        
         logger.debug("FileConnector: trying to set the encoding to " + charsetEncoding);
+        
         try {
-            byte b[] = { 20, 21, 22, 23 };
-            String k = new String(b, charsetEncoding);
             this.charsetEncoding = charsetEncoding;
         } catch (Exception e) {
             // set the encoding to the default one: this charset can't launch an

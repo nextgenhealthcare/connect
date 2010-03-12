@@ -60,7 +60,6 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
             return;
         }
 
-        Object data = null;
         FileSystemConnection con = null;
         UMOEndpointURI uri = event.getEndpoint().getEndpointURI();
         try {
@@ -100,7 +99,7 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
             // update the message status to sent
             messageObjectController.setSuccess(messageObject, "File successfully written: " + filename, null);
         } catch (Exception e) {
-            alertController.sendAlerts(((FileConnector) connector).getChannelId(), Constants.ERROR_403, "Error writing file", e);
+            alertController.sendAlerts(connector.getChannelId(), Constants.ERROR_403, "Error writing file", e);
             messageObjectController.setError(messageObject, Constants.ERROR_403, "Error writing file", e, null);
             connector.handleException(e);
         } finally {

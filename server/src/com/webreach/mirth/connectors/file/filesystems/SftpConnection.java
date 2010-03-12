@@ -130,11 +130,11 @@ public class SftpConnection implements FileSystemConnection {
         }
 	    
 		client.cd(fromDir);
-		Vector entries = client.ls(".");
+		Vector<ChannelSftp.LsEntry> entries = client.ls(".");
 		List<FileInfo> files = new ArrayList<FileInfo>(entries.size());
 
-		for (Iterator iter = entries.iterator(); iter.hasNext();) {
-			ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) iter.next();
+		for (Iterator<ChannelSftp.LsEntry> iter = entries.iterator(); iter.hasNext();) {
+			ChannelSftp.LsEntry entry = iter.next();
 
 			if (!entry.getAttrs().isDir() && !entry.getAttrs().isLink()) {
 				if ((filenameFilter == null) || (filenameFilter.accept(null, entry.getFilename()))) {
