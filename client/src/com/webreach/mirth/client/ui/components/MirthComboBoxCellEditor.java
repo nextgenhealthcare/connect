@@ -9,32 +9,43 @@
 
 package com.webreach.mirth.client.ui.components;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.EventObject;
 
 import javax.swing.DefaultCellEditor;
-
 import javax.swing.JComboBox;
+import javax.swing.JTable;
 
-import com.webreach.mirth.client.ui.editors.MirthEditorPane;
+public class MirthComboBoxCellEditor extends DefaultCellEditor implements ActionListener {
 
-public class MirthComboBoxCellEditor extends DefaultCellEditor {
+    JTable table;
+    int clickCount;
 
-    MirthEditorPane parent;
-
-    public MirthComboBoxCellEditor(String[] items, MirthEditorPane pane) {
+    public MirthComboBoxCellEditor(JTable table, String[] items, int clickCount, boolean focusable) {
         super(new JComboBox(items));
-        parent = pane;
+        this.table = table;
+        this.clickCount = clickCount;
+        super.getComponent().setFocusable(focusable);
+        ((JComboBox)super.getComponent()).addActionListener(this);
     }
 
     /**
-     * Enables the editor only for double-clicks.
+     * Enables the editor only for clickCount.
      */
-    public boolean isCellEditable(EventObject evt) {
-        if (evt instanceof MouseEvent) {
-            return ((MouseEvent) evt).getClickCount() >= 2;
+    @Override
+    public boolean isCellEditable(EventObject anEvent) {
+        if (anEvent instanceof MouseEvent) {
+            return ((MouseEvent) anEvent).getClickCount() >= clickCount;
         }
 
         return false;
     }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {        
+    }
+    
+    
 }

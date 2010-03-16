@@ -51,6 +51,26 @@ public class TabbedTemplatePanel extends javax.swing.JPanel {
         messageTreePanel.getInboundTreePanel().setTransformerView();
         messageTreePanel.getOutboundTreePanel().setTransformerView();
     }
+    
+    /**
+     * Sets the the inbound and outbound data types and properties to be 
+     * enabled.  The inbound data type may be disabled if XML is required.
+     */
+    public void setSourceView() {
+        boolean inboundEnabled = true;
+        if (parent.parent.channelEditPanel.requiresXmlDataType()) {
+            inboundEnabled = false;
+        }
+        messageTemplatePanel.setDataTypeEnabled(inboundEnabled, true, true, true);
+    }
+    
+    /**
+     * Sets the inbound data type and properties to be disabled and
+     * the outbound data type and proeprties to be enabled.
+     */
+    public void setDestinationView() {
+        messageTemplatePanel.setDataTypeEnabled(false, false, true, true);
+    }
 
     public void resizePanes() {
         variableSplitPane.setDividerLocation(.5);

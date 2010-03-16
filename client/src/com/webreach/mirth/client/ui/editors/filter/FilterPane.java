@@ -219,12 +219,14 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         }
 
         if (connector.getMode() == Connector.Mode.SOURCE) {
-            tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.channelEditPanel.getSourceDatatype());
+            tabTemplatePanel.setSourceView();
+            tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.protocols.get(channel.getSourceConnector().getTransformer().getInboundProtocol()));
         } else if (connector.getMode() == Connector.Mode.DESTINATION) {
+            tabTemplatePanel.setDestinationView();
             if (channel.getSourceConnector().getTransformer().getOutboundProtocol() != null) {
                 tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.protocols.get(channel.getSourceConnector().getTransformer().getOutboundProtocol()));
             } else {
-                tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.channelEditPanel.getSourceDatatype());
+                tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.protocols.get(channel.getSourceConnector().getTransformer().getInboundProtocol()));
             }
         }
 
@@ -477,7 +479,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
         // Set the combobox editor on the operator column, and add action
         // listener
-        MirthComboBoxCellEditor comboBoxOp = new MirthComboBoxCellEditor(comboBoxValues, this);
+        MirthComboBoxCellEditor comboBoxOp = new MirthComboBoxCellEditor(filterTable, comboBoxValues, 2, true);
         ((JComboBox) comboBoxOp.getComponent()).addItemListener(new ItemListener() {
 
             public void itemStateChanged(ItemEvent evt) {
@@ -493,7 +495,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             defaultComboBoxValues[i] = pluginArray[i].getDisplayName();
         }
 
-        MirthComboBoxCellEditor comboBoxType = new MirthComboBoxCellEditor(defaultComboBoxValues, this);
+        MirthComboBoxCellEditor comboBoxType = new MirthComboBoxCellEditor(filterTable, defaultComboBoxValues, 2, true);
 
         ((JComboBox) comboBoxType.getComponent()).addItemListener(new ItemListener() {
 

@@ -16,23 +16,25 @@ import javax.swing.table.TableCellRenderer;
 
 import javax.swing.JComboBox;
 
-public class MirthComboBoxCellRenderer extends JComboBox implements TableCellRenderer {
+public class MirthComboBoxCellRenderer implements TableCellRenderer {
+
+    JComboBox comboBox;
 
     public MirthComboBoxCellRenderer(String[] items) {
-        super(items);
+        comboBox = new JComboBox(items);
     }
 
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+
         if (isSelected) {
-            setForeground(table.getSelectionForeground());
-            super.setBackground(table.getSelectionBackground());
+            comboBox.setForeground(table.getSelectionForeground());
+            comboBox.setBackground(table.getSelectionBackground());
         } else {
-            setForeground(table.getForeground());
-            setBackground(table.getBackground());
+            comboBox.setForeground(table.getForeground());
+            comboBox.setBackground(table.getBackground());
         }
 
-        // Select the current value
-        setSelectedItem(value);
-        return this;
+        comboBox.setSelectedItem(value);
+        return comboBox;
     }
 }

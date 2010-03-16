@@ -218,12 +218,14 @@ public class TransformerPane extends MirthEditorPane implements
         }
 
         if (connector.getMode() == Connector.Mode.SOURCE) {
-            tabTemplatePanel.setIncomingDataType(PlatformUI.MIRTH_FRAME.channelEditPanel.getSourceDatatype());
+            tabTemplatePanel.setSourceView();
+            tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.protocols.get(channel.getSourceConnector().getTransformer().getInboundProtocol()));
         } else if (connector.getMode() == Connector.Mode.DESTINATION) {
+            tabTemplatePanel.setDestinationView();
             if (channel.getSourceConnector().getTransformer().getOutboundProtocol() != null) {
                 tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.protocols.get(channel.getSourceConnector().getTransformer().getOutboundProtocol()));
             } else {
-                tabTemplatePanel.setIncomingDataType(PlatformUI.MIRTH_FRAME.channelEditPanel.getSourceDatatype());
+                tabTemplatePanel.setIncomingDataType((String) PlatformUI.MIRTH_FRAME.protocols.get(channel.getSourceConnector().getTransformer().getInboundProtocol()));
             }
         }
 
@@ -519,8 +521,7 @@ public class TransformerPane extends MirthEditorPane implements
         for (int i = 0; i < pluginArray.length; i++) {
             defaultComboBoxValues[i] = pluginArray[i].getDisplayName();
         }
-        MirthComboBoxCellEditor comboBox = new MirthComboBoxCellEditor(
-                defaultComboBoxValues, this);
+        MirthComboBoxCellEditor comboBox = new MirthComboBoxCellEditor(transformerTable, defaultComboBoxValues, 2, true);
 
         ((JComboBox) comboBox.getComponent()).addItemListener(new ItemListener() {
 

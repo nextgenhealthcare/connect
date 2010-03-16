@@ -43,6 +43,7 @@ import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
 import com.webreach.mirth.client.ui.components.MirthTable;
 import com.webreach.mirth.client.ui.editors.filter.FilterPane;
 import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
+import com.webreach.mirth.client.ui.util.PropertiesUtil;
 import com.webreach.mirth.client.ui.util.VariableListUtil;
 import com.webreach.mirth.connectors.ConnectorClass;
 import com.webreach.mirth.model.Channel;
@@ -56,6 +57,7 @@ import com.webreach.mirth.model.Transformer;
 import com.webreach.mirth.model.CodeTemplate.ContextType;
 import com.webreach.mirth.model.Connector.Mode;
 import com.webreach.mirth.model.MessageObject.Protocol;
+import com.webreach.mirth.model.converters.DefaultSerializerPropertiesFactory;
 import com.webreach.mirth.model.converters.ObjectCloner;
 import com.webreach.mirth.model.converters.ObjectClonerException;
 import com.webreach.mirth.util.PropertyVerifier;
@@ -96,8 +98,6 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         numDays.setDocument(new MirthFieldConstraints(3, false, false, true));
         summaryNameField.setDocument(new MirthFieldConstraints(40, false, true, true));
-
-        incomingProtocol.setModel(new javax.swing.DefaultComboBoxModel(parent.protocols.values().toArray()));
 
         channelView.addMouseListener(new java.awt.event.MouseAdapter() {
 
@@ -246,8 +246,16 @@ public class ChannelSetup extends javax.swing.JPanel {
         for (int i = 0; i < tableSize; i++) {
             if (tableSize - 1 == i && addNew) {
                 Connector connector = makeNewConnector(true);
-                connector.getTransformer().setInboundProtocol(null);
-                connector.getTransformer().setOutboundProtocol(null);
+                
+                // Set the default inbound and outbound protocol and properties
+                Protocol protocol = currentChannel.getSourceConnector().getTransformer().getOutboundProtocol();
+                Properties defaultProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(protocol));
+                
+                connector.getTransformer().setInboundProtocol(protocol);
+                connector.getTransformer().setInboundProperties(defaultProperties);
+                connector.getTransformer().setOutboundProtocol(protocol);
+                connector.getTransformer().setOutboundProperties(defaultProperties);
+                
                 connector.setName(getNewDestinationName(tableSize));
                 connector.setTransportName(DESTINATION_DEFAULT);
 
@@ -503,8 +511,16 @@ public class ChannelSetup extends javax.swing.JPanel {
         sourceConnector.setName("sourceConnector");
         sourceConnector.setTransportName(SOURCE_DEFAULT);
         Transformer sourceTransformer = new Transformer();
-        sourceTransformer.setInboundProtocol(Protocol.HL7V2);
-        sourceTransformer.setOutboundProtocol(null);
+        
+        // Set the default inbound and outbound protocol and properties
+        Protocol defaultProtocol = Protocol.HL7V2;
+        Properties defaultProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(defaultProtocol));
+        
+        sourceTransformer.setInboundProtocol(defaultProtocol);
+        sourceTransformer.setInboundProperties(defaultProperties);
+        sourceTransformer.setOutboundProtocol(defaultProtocol);
+        sourceTransformer.setOutboundProperties(defaultProperties);
+        
         sourceConnector.setTransformer(sourceTransformer);
 
         currentChannel.setSourceConnector(sourceConnector);
@@ -542,10 +558,6 @@ public class ChannelSetup extends javax.swing.JPanel {
             summaryEnabledCheckbox.setSelected(true);
         } else {
             summaryEnabledCheckbox.setSelected(false);
-        }
-
-        if (currentChannel.getSourceConnector().getTransformer().getInboundProtocol() != null) {
-            incomingProtocol.setSelectedItem(parent.protocols.get(currentChannel.getSourceConnector().getTransformer().getInboundProtocol()));
         }
 
         LinkedHashMap<String, String> scriptMap = new LinkedHashMap<String, String>();
@@ -600,10 +612,9 @@ public class ChannelSetup extends javax.swing.JPanel {
         } else {
             encryptMessagesCheckBox.setSelected(false);
         }
-
-        if (currentChannel.getSourceConnector().getTransformer().getInboundProtocol() == null) {
-            currentChannel.getSourceConnector().getTransformer().setInboundProtocol(MessageObject.Protocol.HL7V2);
-        }
+        
+        // Fix protocols and properties not set by previous versions of Mirth Connect
+        fixNullProtocolsAndProperties();
 
         if (((String) currentChannel.getProperties().get("store_messages")).equalsIgnoreCase("false")) {
             storeMessages.setSelected(false);
@@ -646,7 +657,6 @@ public class ChannelSetup extends javax.swing.JPanel {
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
 
         sourceSourceDropdown.setSelectedItem(currentChannel.getSourceConnector().getTransportName());
-        checkSourceDataType();
 
         if (((String) currentChannel.getProperties().get("initialState")).equalsIgnoreCase("started")) {
             initialState.setSelectedItem("Started");
@@ -708,32 +718,6 @@ public class ChannelSetup extends javax.swing.JPanel {
         updateScripts();
 
         setLastModified();
-
-        // Set the default protocols if transformers have never been visited
-
-        Transformer sourceTransformer = currentChannel.getSourceConnector().getTransformer();
-
-        for (MessageObject.Protocol protocol : MessageObject.Protocol.values()) {
-            if (parent.protocols.get(protocol).equals((String) incomingProtocol.getSelectedItem())) {
-                sourceTransformer.setInboundProtocol(protocol);
-            }
-        }
-
-        if (sourceTransformer.getOutboundProtocol() == null) {
-            sourceTransformer.setOutboundProtocol(sourceTransformer.getInboundProtocol());
-        }
-
-        for (Connector c : currentChannel.getDestinationConnectors()) {
-            Transformer destinationTransformer = c.getTransformer();
-
-            if (destinationTransformer.getInboundProtocol() == null) {
-                destinationTransformer.setInboundProtocol(sourceTransformer.getOutboundProtocol());
-            }
-
-            if (destinationTransformer.getOutboundProtocol() == null) {
-                destinationTransformer.setOutboundProtocol(destinationTransformer.getInboundProtocol());
-            }
-        }
 
         if (transactionalCheckBox.isSelected()) {
             currentChannel.getProperties().put("transactional", "true");
@@ -849,6 +833,55 @@ public class ChannelSetup extends javax.swing.JPanel {
         }
 
         return updated;
+    }
+    
+    /**
+     * Set all the protocols and properties to proper values if they are null.
+     * This is only necessary for channels from before version 2.0
+     */
+    public void fixNullProtocolsAndProperties() {
+        Transformer sourceTransformer = currentChannel.getSourceConnector().getTransformer();
+        
+        Protocol defaultProtocol = Protocol.HL7V2;
+        
+        if (sourceTransformer.getInboundProtocol() == null) {
+            sourceTransformer.setInboundProtocol(defaultProtocol);
+        }
+        
+        if (sourceTransformer.getInboundProperties() == null) {
+            Properties defaultProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(sourceTransformer.getInboundProtocol()));
+            sourceTransformer.setInboundProperties(defaultProperties);
+        }
+        
+        if (sourceTransformer.getOutboundProtocol() == null) {
+            sourceTransformer.setOutboundProtocol(sourceTransformer.getInboundProtocol());
+        }
+        
+        if (sourceTransformer.getOutboundProperties() == null) {
+            Properties defaultProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(sourceTransformer.getOutboundProtocol()));
+            sourceTransformer.setOutboundProperties(defaultProperties);
+        }
+        
+        for (Connector c : currentChannel.getDestinationConnectors()) {
+            Transformer destinationTransformer = c.getTransformer();
+        
+            if (destinationTransformer.getInboundProtocol() == null) {
+                destinationTransformer.setInboundProtocol(sourceTransformer.getOutboundProtocol());
+            }
+            
+            if (destinationTransformer.getInboundProperties() == null) {
+                destinationTransformer.setInboundProperties(sourceTransformer.getOutboundProperties());
+            }
+        
+            if (destinationTransformer.getOutboundProtocol() == null) {
+                destinationTransformer.setOutboundProtocol(destinationTransformer.getInboundProtocol());
+            }
+            
+            if (destinationTransformer.getOutboundProperties() == null) {
+                Properties defaultProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(destinationTransformer.getOutboundProtocol()));
+                destinationTransformer.setOutboundProperties(defaultProperties);
+            }
+        }
     }
 
     /** Adds a new destination. */
@@ -1169,8 +1202,6 @@ public class ChannelSetup extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        filterButtonGroup = new javax.swing.ButtonGroup();
-        validationButtonGroup = new javax.swing.ButtonGroup();
         buttonGroup1 = new javax.swing.ButtonGroup();
         channelView = new javax.swing.JTabbedPane();
         summary = new javax.swing.JPanel();
@@ -1190,7 +1221,6 @@ public class ChannelSetup extends javax.swing.JPanel {
         numDays = new com.webreach.mirth.client.ui.components.MirthTextField();
         jLabel3 = new javax.swing.JLabel();
         storeMessagesErrors = new com.webreach.mirth.client.ui.components.MirthCheckBox();
-        incomingProtocol = new com.webreach.mirth.client.ui.components.MirthComboBox();
         storeFiltered = new com.webreach.mirth.client.ui.components.MirthCheckBox();
         jPanel1 = new javax.swing.JPanel();
         summaryEnabledCheckbox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
@@ -1199,6 +1229,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         clearGlobalChannelMapCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
         summaryRevision = new javax.swing.JLabel();
         lastModified = new javax.swing.JLabel();
+        changeDataTypesButton = new javax.swing.JButton();
         source = new javax.swing.JPanel();
         sourceSourceDropdown = new com.webreach.mirth.client.ui.components.MirthComboBox();
         sourceSourceLabel = new javax.swing.JLabel();
@@ -1238,7 +1269,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             }
         });
 
-        summaryPatternLabel1.setText("Incoming Data:");
+        summaryPatternLabel1.setText("Data Types:");
 
         jScrollPane1.setViewportView(summaryDescriptionText);
 
@@ -1294,13 +1325,6 @@ public class ChannelSetup extends javax.swing.JPanel {
         storeMessagesErrors.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 storeMessagesErrorsActionPerformed(evt);
-            }
-        });
-
-        incomingProtocol.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-        incomingProtocol.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                incomingProtocolActionPerformed(evt);
             }
         });
 
@@ -1376,6 +1400,13 @@ public class ChannelSetup extends javax.swing.JPanel {
         lastModified.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         lastModified.setText("Last Modified: ");
 
+        changeDataTypesButton.setText("Set Data Types");
+        changeDataTypesButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                changeDataTypesButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout summaryLayout = new javax.swing.GroupLayout(summary);
         summary.setLayout(summaryLayout);
         summaryLayout.setHorizontalGroup(
@@ -1392,11 +1423,10 @@ public class ChannelSetup extends javax.swing.JPanel {
                 .addGroup(summaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(summaryLayout.createSequentialGroup()
                         .addGroup(summaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(summaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(incomingProtocol, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(initialState, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(initialState, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(summaryNameField, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(encryptMessagesCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(encryptMessagesCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(changeDataTypesButton))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -1434,7 +1464,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(summaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(summaryPatternLabel1)
-                                    .addComponent(incomingProtocol, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(changeDataTypesButton))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(summaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(jLabel1)
@@ -1463,7 +1493,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(summaryLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(summaryDescriptionLabel)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 247, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 244, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -1637,14 +1667,6 @@ public class ChannelSetup extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void incomingProtocolActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_incomingProtocolActionPerformed
-    {//GEN-HEADEREND:event_incomingProtocolActionPerformed
-        // If a new protocol is being selected for the current channel, reset the inbound properties.
-        if (!PlatformUI.MIRTH_FRAME.protocols.get(currentChannel.getSourceConnector().getTransformer().getInboundProtocol()).equals((String) incomingProtocol.getSelectedItem())) {
-            currentChannel.getSourceConnector().getTransformer().setInboundProperties(null);
-        }
-    }//GEN-LAST:event_incomingProtocolActionPerformed
-
     private void synchronousCheckBoxActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_synchronousCheckBoxActionPerformed
     {//GEN-HEADEREND:event_synchronousCheckBoxActionPerformed
         if (!synchronousCheckBox.isSelected()) {
@@ -1668,6 +1690,10 @@ public class ChannelSetup extends javax.swing.JPanel {
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 1, 12, false);
         parent.setVisibleTasks(parent.channelEditTasks, parent.channelEditPopupMenu, 14, 14, true);
     }//GEN-LAST:event_scriptsComponentShown
+
+    private void changeDataTypesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_changeDataTypesButtonActionPerformed
+        new DataTypesDialog();
+    }//GEN-LAST:event_changeDataTypesButtonActionPerformed
 
     private void summaryNameFieldKeyReleased(java.awt.event.KeyEvent evt)// GEN-FIRST:event_summaryNameFieldKeyReleased
     {// GEN-HEADEREND:event_summaryNameFieldKeyReleased
@@ -1815,8 +1841,9 @@ public class ChannelSetup extends javax.swing.JPanel {
             currentChannel.setSourceConnector(sourceConnector);
             sourceConnectorClass.setProperties(sourceConnector.getProperties());
         }
-
-        checkSourceDataType();
+        
+        // Set the source data type to XML if necessary
+        checkAndSetXmlDataType();
 
         sourceConnectorPane.setViewportView(sourceConnectorClass);
         ((TitledBorder) sourceConnectorPane.getBorder()).setTitle(sourceConnectorClass.getName());
@@ -2018,15 +2045,32 @@ public class ChannelSetup extends javax.swing.JPanel {
         return destinationConnectorClass;
     }
 
-    public void checkSourceDataType() {
+    /**
+     * Returns true if this channel requires XML as a source data type,
+     * and false if it does not.
+     */
+    public boolean requiresXmlDataType() {
         if (((String) sourceSourceDropdown.getSelectedItem()).equals(DATABASE_READER) || ((String) sourceSourceDropdown.getSelectedItem()).equals(HTTP_LISTENER)) {
-            incomingProtocol.setSelectedItem((String) parent.protocols.get(MessageObject.Protocol.XML));
-            incomingProtocol.setEnabled(false);
+            return true;
         } else {
-            incomingProtocol.setEnabled(true);
+            return false;
         }
     }
-
+    
+    /**
+     * Check if the source data type is required to be XML, and set it
+     * if necessary.
+     */
+    public void checkAndSetXmlDataType() {
+        Protocol xml = Protocol.XML;
+        if (requiresXmlDataType() && !currentChannel.getSourceConnector().getTransformer().getInboundProtocol().equals(xml)) {
+            Properties defaultProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(xml));
+            
+            currentChannel.getSourceConnector().getTransformer().setInboundProtocol(xml);
+            currentChannel.getSourceConnector().getTransformer().setInboundProperties(defaultProperties);
+        }
+    }
+    
     public void updateComponentShown() {
         if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX) {
             sourceComponentShown(null);
@@ -2034,11 +2078,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             destinationComponentShown(null);
         }
     }
-
-    public String getSourceDatatype() {
-        return (String) incomingProtocol.getSelectedItem();
-    }
-
+    
     public Connector exportSelectedConnector() {
         if (channelView.getSelectedIndex() == SOURCE_TAB_INDEX) {
             return currentChannel.getSourceConnector();
@@ -2056,9 +2096,6 @@ public class ChannelSetup extends javax.swing.JPanel {
         if ((channelView.getSelectedIndex() == SOURCE_TAB_INDEX) && (connector.getMode().equals(Mode.SOURCE))) {
             currentChannel.setSourceConnector(connector);
             sourceSourceDropdown.setSelectedItem(currentChannel.getSourceConnector().getTransportName());
-            if (currentChannel.getSourceConnector().getTransformer().getInboundProtocol() != null) {
-                incomingProtocol.setSelectedItem(parent.protocols.get(currentChannel.getSourceConnector().getTransformer().getInboundProtocol()));
-            }
         } // If the connector is a destination, then check/generate its name, add it, and re-make the destination table.
         else if ((channelView.getSelectedIndex() == DESTINATIONS_TAB_INDEX) && (connector.getMode().equals(Mode.DESTINATION))) {
             List<Connector> destinationConnectors = currentChannel.getDestinationConnectors();
@@ -2087,6 +2124,7 @@ public class ChannelSetup extends javax.swing.JPanel {
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JButton changeDataTypesButton;
     private javax.swing.JTabbedPane channelView;
     public com.webreach.mirth.client.ui.components.MirthCheckBox clearGlobalChannelMapCheckBox;
     private javax.swing.JLabel days;
@@ -2099,8 +2137,6 @@ public class ChannelSetup extends javax.swing.JPanel {
     private javax.swing.JScrollPane destinationTablePane;
     public com.webreach.mirth.client.ui.VariableList destinationVariableList;
     private com.webreach.mirth.client.ui.components.MirthCheckBox encryptMessagesCheckBox;
-    private javax.swing.ButtonGroup filterButtonGroup;
-    private com.webreach.mirth.client.ui.components.MirthComboBox incomingProtocol;
     private com.webreach.mirth.client.ui.components.MirthComboBox initialState;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
@@ -2129,6 +2165,5 @@ public class ChannelSetup extends javax.swing.JPanel {
     private javax.swing.JLabel summaryRevision;
     public com.webreach.mirth.client.ui.components.MirthCheckBox synchronousCheckBox;
     private com.webreach.mirth.client.ui.components.MirthCheckBox transactionalCheckBox;
-    private javax.swing.ButtonGroup validationButtonGroup;
     // End of variables declaration//GEN-END:variables
 }

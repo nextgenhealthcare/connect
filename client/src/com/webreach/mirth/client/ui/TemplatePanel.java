@@ -44,8 +44,10 @@ import com.webreach.mirth.client.ui.beans.XMLProperties;
 import com.webreach.mirth.client.ui.editors.BoundPropertiesSheetDialog;
 import com.webreach.mirth.client.ui.editors.MirthEditorPane;
 import com.webreach.mirth.client.ui.util.FileUtil;
+import com.webreach.mirth.client.ui.util.PropertiesUtil;
 import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.model.converters.DICOMSerializer;
+import com.webreach.mirth.model.converters.DefaultSerializerPropertiesFactory;
 
 public class TemplatePanel extends javax.swing.JPanel implements DropTargetListener {
 
@@ -54,7 +56,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
     private SyntaxDocument HL7Doc;
     private TreePanel treePanel;
     private String currentMessage = "";
-    private String data;
+    private String currentDataType;
     private Properties dataProperties;
     private Timer timer;
 
@@ -183,8 +185,9 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         }
     }
 
-    public void setDataTypeEnabled(boolean enabled) {
-        dataType.setEnabled(enabled);
+    public void setDataTypeEnabled(boolean dataTypeEnabled, boolean propertiesEnabled) {
+        dataType.setEnabled(dataTypeEnabled);
+        properties.setEnabled(propertiesEnabled);
     }
 
     public void setTreePanel(TreePanel tree) {
@@ -244,6 +247,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
     }
 
     public void setProtocol(String protocol) {
+        currentDataType = protocol;
         dataType.setSelectedItem(protocol);
 
         setDocType(protocol);
@@ -425,18 +429,32 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
     {//GEN-HEADEREND:event_dataTypeActionPerformed
         PlatformUI.MIRTH_FRAME.enableSave();
         currentMessage = "";
-        if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12))
-                || ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI))
-                || ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2))
-                || ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V3))
-                || ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.NCPDP))
-                || ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DELIMITED))
-                || ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.XML))) {
-            properties.setEnabled(true);
-        } else {
-            properties.setEnabled(false);
+        
+        // Only conditionally enable the properties if the data type is enabled.
+        if (dataType.isEnabled()) {
+            if (((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.X12))
+                    || ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.EDI))
+                    || ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2))
+                    || ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V3))
+                    || ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.NCPDP))
+                    || ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DELIMITED))
+                    || ((String) dataType.getSelectedItem()).equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.XML))) {
+                properties.setEnabled(true);
+            } else {
+                properties.setEnabled(false);
+            }
         }
-        dataProperties = new Properties();
+        
+        // Only set the default properties if the data type is changing
+        if (!currentDataType.equals((String)dataType.getSelectedItem())) {
+            // Set the default properties for the data type selected
+            for (MessageObject.Protocol protocol : MessageObject.Protocol.values()) {
+                if (PlatformUI.MIRTH_FRAME.protocols.get(protocol).equals((String) dataType.getSelectedItem())) {
+                    dataProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(protocol));
+                }
+            }
+        }
+        
         setDocType((String) dataType.getSelectedItem());
         updateText();
     }//GEN-LAST:event_dataTypeActionPerformed

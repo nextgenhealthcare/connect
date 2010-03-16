@@ -36,7 +36,7 @@ public class MessageTemplatePanel extends javax.swing.JPanel {
 
                 public void hierarchyChanged(HierarchyEvent e) {
                     if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0) {
-                        split.setDividerLocation(.5); //There we set the initial divider locatino
+                        split.setDividerLocation(.5); //There we set the initial divider location
                         //split.removeHierarchyListener(this);
                     }
                 }
@@ -47,9 +47,11 @@ public class MessageTemplatePanel extends javax.swing.JPanel {
 
         ((TitledBorder) templatePanelInbound.getBorder()).setTitle("Inbound Message Template");
         ((TitledBorder) templatePanelOutbound.getBorder()).setTitle("Outbound Message Template");
-
-        templatePanelInbound.setDataTypeEnabled(false);
-        templatePanelOutbound.setDataTypeEnabled(true);
+    }
+    
+    public void setDataTypeEnabled(boolean inboundDataType, boolean inboundProperties, boolean outboundDataType, boolean outboundProperties) {
+        templatePanelInbound.setDataTypeEnabled(inboundDataType, inboundProperties);
+        templatePanelOutbound.setDataTypeEnabled(outboundDataType, outboundProperties);
     }
 
     public void hideOutbound() {
