@@ -683,7 +683,7 @@ private void launchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 }//GEN-LAST:event_launchButtonActionPerformed
 
 private void viewFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewFileButtonActionPerformed
-    ManagerController.getInstance().openLogFile(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SERVER_LOGS + (String) serverLogFiles.getSelectedValue());
+    ManagerController.getInstance().openLogFile(PlatformUI.MIRTH_PATH + PlatformUI.PATH_LOGS + (String) serverLogFiles.getSelectedValue());
 }//GEN-LAST:event_viewFileButtonActionPerformed
 
 private void restartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_restartButtonActionPerformed
@@ -700,9 +700,19 @@ private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
 
     private void loadServerProperties() {
         serverProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SERVER_PROPERTIES, true);
+        
+        if (serverProperties.getProperty(ManagerConstants.DIR_APPDATA) != null) {
+            PlatformUI.PATH_APPDATA = serverProperties.getProperty(ManagerConstants.DIR_APPDATA);
+        }
+
         log4jProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_LOG4J_PROPERTIES, true);
+
+        if (log4jProperties.getProperty(ManagerConstants.DIR_LOGS) != null) {
+            PlatformUI.PATH_LOGS = log4jProperties.getProperty(ManagerConstants.DIR_LOGS);
+        }
+
         versionProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_VERSION_FILE, true);
-        serverIdProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SERVER_ID_FILE, false);
+        serverIdProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + PlatformUI.PATH_APPDATA + "\\" + ManagerConstants.PATH_SERVER_ID_FILE, false);
 
         if (serverIdProperties != null && (serverIdProperties.getProperty("server.id") != null) && (serverIdProperties.getProperty("server.id").length() > 0)) {
             serverId.setText(serverIdProperties.getProperty("server.id"));
@@ -866,7 +876,7 @@ private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     }
 
     private void refreshLogs() {
-        serverLogFiles.setListData(ManagerController.getInstance().getLogFiles(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SERVER_LOGS).toArray());
+        serverLogFiles.setListData(ManagerController.getInstance().getLogFiles(PlatformUI.MIRTH_PATH + PlatformUI.PATH_LOGS).toArray());
     }
 
     public void setStartButtonActive(boolean active) {

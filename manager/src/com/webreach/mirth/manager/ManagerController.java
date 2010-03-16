@@ -188,7 +188,7 @@ public class ManagerController {
             updating = true;
 
             if (execCmd(ManagerConstants.CMD_START + ManagerConstants.SERVICE_NAME + "\"", true) != 0) {
-                PlatformUI.MANAGER_TRAY.alertError("The Mirth service could not be started.  Please verify that it is installed and not already started.");
+                PlatformUI.MANAGER_TRAY.alertError("The Mirth Connect Service could not be started.  Please verify that it is installed and not already started.");
             } else {
                 // Load the context path property and remove the last char
                 // if it is a '/'.
@@ -215,9 +215,9 @@ public class ManagerController {
                 }
 
                 if (!started) {
-                    PlatformUI.MANAGER_TRAY.alertError("The Mirth service could not be started.");
+                    PlatformUI.MANAGER_TRAY.alertError("The Mirth Connect Service could not be started.");
                 } else {
-                    PlatformUI.MANAGER_TRAY.alertInfo("The Mirth service was started successfully.");
+                    PlatformUI.MANAGER_TRAY.alertInfo("The Mirth Connect Service was started successfully.");
                     updating = false;
                     updateMirthServiceStatus();
                     return true;
@@ -255,9 +255,9 @@ public class ManagerController {
         try {
             updating = true;
             if (execCmd(ManagerConstants.CMD_STOP + ManagerConstants.SERVICE_NAME + "\"", true) != 0) {
-                PlatformUI.MANAGER_TRAY.alertError("The Mirth service could not be stopped.  Please verify that it is installed and started.");
+                PlatformUI.MANAGER_TRAY.alertError("The Mirth Connect Service could not be stopped.  Please verify that it is installed and started.");
             } else {
-                PlatformUI.MANAGER_TRAY.alertInfo("The Mirth service was stopped successfully.");
+                PlatformUI.MANAGER_TRAY.alertInfo("The Mirth Connect Service was stopped successfully.");
                 updating = false;
                 updateMirthServiceStatus();
                 return true;
@@ -294,7 +294,7 @@ public class ManagerController {
     private void restartMirth() {
         if (stopMirth()) {
             if (startMirth()) {
-                PlatformUI.MANAGER_TRAY.alertInfo("The Mirth service was restarted successfully.");
+                PlatformUI.MANAGER_TRAY.alertInfo("The Mirth Connect Service was restarted successfully.");
                 updating = false;
                 updateMirthServiceStatus();
             }
@@ -306,7 +306,7 @@ public class ManagerController {
         String port = serverProperties.getProperty(ManagerConstants.SERVER_WEBSTART_PORT);
         try {
             if (execCmd(ManagerConstants.CMD_WEBSTART_PREFIX + port + ManagerConstants.CMD_WEBSTART_SUFFIX + "?time=" + new Date().getTime(), false) != 0) {
-                PlatformUI.MANAGER_TRAY.alertError("The Mirth Administator could not be launched.");
+                PlatformUI.MANAGER_TRAY.alertError("The Mirth Connect Administator could not be launched.");
             }
         } catch (Exception e) {
             e.printStackTrace();
