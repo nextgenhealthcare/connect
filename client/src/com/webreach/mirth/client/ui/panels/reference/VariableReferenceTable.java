@@ -89,8 +89,17 @@ public class VariableReferenceTable extends ReferenceTable {
 
     public String getToolTipText(MouseEvent event) {
         Point p = event.getPoint();
-        int col = convertColumnIndexToModel(columnAtPoint(p));
-        int row = convertRowIndexToModel(rowAtPoint(p));
+        
+        int col = columnAtPoint(p);
+        if (col != -1) {
+            col = convertColumnIndexToModel(col);
+        }
+        
+        int row = rowAtPoint(p);
+        if (row != -1) {
+            row = convertRowIndexToModel(row);
+        }
+        
         if (col >= 0 && row >= 0 && tooltip != null) {
             Object o = getValueAt(row, col);
             if (o != null) {
