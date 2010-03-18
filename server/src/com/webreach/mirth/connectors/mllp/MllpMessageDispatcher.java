@@ -310,9 +310,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 
     public boolean manageResponseAck(Socket socket, String endpointUri, MessageObject messageObject) {
         int maxTime = connector.getAckTimeout();
-        if (maxTime <= 0) { // TODO: Either make a UI setting to "not check for
-            // ACK" or document this
-            // We aren't waiting for an ACK
+        if (maxTime <= 0) {
             messageObjectController.setSuccess(messageObject, "Message successfully sent", null);
 
             return true;
@@ -323,7 +321,9 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
             // NACK
             messageObjectController.setError(messageObject, Constants.ERROR_408, "Timeout waiting for ACK", null, null);
             alertController.sendAlerts(((MllpConnector) connector).getChannelId(), Constants.ERROR_408, "Timeout waiting for ACK", null);
-            return false;
+            
+            // return false to queue, true to error out
+            return !connector.isQueueAckTimeout(); 
         }
         String initialAckString = null;
         try {

@@ -120,6 +120,7 @@ public class MllpConnector extends QueueEnabledConnector {
     private boolean keepAlive = true;
     private boolean processBatchFiles = true;
     private boolean processHl7AckResponse = true;
+    private boolean queueAckTimeout = true;
 
     public String getChannelId() {
         return this.channelId;
@@ -596,6 +597,14 @@ public class MllpConnector extends QueueEnabledConnector {
 
     public void setProcessHl7AckResponse(boolean processHl7AckResponse) {
         this.processHl7AckResponse = processHl7AckResponse;
+    }
+
+    public void setQueueAckTimeout(boolean queueAckTimeout) {
+        this.queueAckTimeout = queueAckTimeout;
+    }
+
+    public boolean isQueueAckTimeout() {
+        return queueAckTimeout;
     }
 
     public long getFrequency() {

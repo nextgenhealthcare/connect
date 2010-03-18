@@ -32,6 +32,7 @@ public class LLPSenderProperties extends QueuedSenderProperties {
     public static final String LLP_SEGMENT_END = "segmentEnd";
     public static final String LLP_TEMPLATE = "template";
     public static final String LLP_ACK_TIMEOUT = "ackTimeout";
+    public static final String LLP_QUEUE_ACK_TIMEOUT = "queueAckTimeout";
     public static final String LLP_HL7_ACK_RESPONSE = "processHl7AckResponse";
     public static final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
     public static final String CHANNEL_ID = "replyChannelId";
@@ -52,6 +53,7 @@ public class LLPSenderProperties extends QueuedSenderProperties {
         properties.put(LLP_RECORD_SEPARATOR, "0x0D");
         properties.put(LLP_SEGMENT_END, "0x0D");
         properties.put(LLP_ACK_TIMEOUT, "5000");
+        properties.put(LLP_QUEUE_ACK_TIMEOUT, "1");
         properties.put(LLP_HL7_ACK_RESPONSE, "1");
         properties.put(CONNECTOR_CHARSET_ENCODING, "DEFAULT_ENCODING");
         properties.put(LLP_TEMPLATE, "${message.encodedData}");
