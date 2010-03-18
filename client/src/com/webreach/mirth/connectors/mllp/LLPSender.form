@@ -4,11 +4,13 @@
   <NonVisualComponents>
     <Component class="javax.swing.ButtonGroup" name="keepConnectionOpenGroup">
     </Component>
-    <Component class="javax.swing.ButtonGroup" name="buttonGroup1">
+    <Component class="javax.swing.ButtonGroup" name="llpFrameEncodingGroup">
     </Component>
     <Component class="javax.swing.ButtonGroup" name="usePersistenceQueuesGroup">
     </Component>
     <Component class="javax.swing.ButtonGroup" name="processHL7AckGroup">
+    </Component>
+    <Component class="javax.swing.ButtonGroup" name="queueOnAckTimeoutGroup">
     </Component>
   </NonVisualComponents>
   <Properties>
@@ -38,6 +40,7 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
+                  <Component id="queueOnAckTimeoutLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel2" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel18" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel17" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -113,6 +116,11 @@
                       <Component id="segmentEnd" min="-2" pref="50" max="-2" attributes="0"/>
                   </Group>
                   <Component id="template" pref="317" max="32767" attributes="0"/>
+                  <Group type="102" attributes="0">
+                      <Component id="queueOnAckTimeoutYesRadio" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="queueOnAckTimeoutNoRadio" min="-2" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -188,7 +196,13 @@
                   <Component id="usePersistentQueuesNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="rotateMessages" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="queueOnAckTimeoutLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="queueOnAckTimeoutYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="queueOnAckTimeoutNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel19" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="ackTimeoutField" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -213,7 +227,7 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
-                  <Component id="template" pref="79" max="32767" attributes="0"/>
+                  <Component id="template" pref="58" max="32767" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -362,7 +376,7 @@
           </Border>
         </Property>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup1"/>
+          <ComponentRef name="llpFrameEncodingGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="ASCII"/>
         <Property name="toolTipText" type="java.lang.String" value="Select ASCII to send messages unencoded."/>
@@ -382,7 +396,7 @@
           </Border>
         </Property>
         <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup1"/>
+          <ComponentRef name="llpFrameEncodingGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Hex"/>
         <Property name="toolTipText" type="java.lang.String" value="Select Hex to sends messages encoded in hexadecimal."/>
@@ -609,6 +623,51 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="testConnectionActionPerformed"/>
       </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="queueOnAckTimeoutLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Queue on ACK Timeout:"/>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="queueOnAckTimeoutYesRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="queueOnAckTimeoutGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Yes"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;This setting configures the behavior of Mirth&apos;s ACK processing when queuing is enabled.&lt;br&gt;When this setting is on and there is a timeout waiting for an ACK, the message is queued.&lt;br&gt;When this setting is off and there is a timeout waiting for an ACK, the message is set to errored.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="queueOnAckTimeoutNoRadio">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="ff" green="ff" red="ff" type="rgb"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="queueOnAckTimeoutGroup"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="No"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;This setting configures the behavior of Mirth&apos;s ACK processing.&lt;br&gt;When this setting is on, only successful ACK codes will allow a message to be marked as processed.&lt;br&gt;When this setting is turned off, Mirth will not attempt to parse the ACK response.&lt;/html&gt;"/>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>

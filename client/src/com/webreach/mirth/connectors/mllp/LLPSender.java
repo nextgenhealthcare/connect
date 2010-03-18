@@ -82,6 +82,12 @@ public class LLPSender extends ConnectorClass {
             properties.put(QueuedSenderProperties.USE_PERSISTENT_QUEUES, UIConstants.NO_OPTION);
         }
 
+        if (queueOnAckTimeoutYesRadio.isSelected()) {
+            properties.put(LLPSenderProperties.LLP_QUEUE_ACK_TIMEOUT, UIConstants.YES_OPTION);
+        } else {
+            properties.put(LLPSenderProperties.LLP_QUEUE_ACK_TIMEOUT, UIConstants.NO_OPTION);
+        }
+
         if (rotateMessages.isSelected()) {
             properties.put(QueuedSenderProperties.ROTATE_QUEUE, UIConstants.YES_OPTION);
         } else {
@@ -138,6 +144,12 @@ public class LLPSender extends ConnectorClass {
         } else {
             usePersistentQueuesNoRadio.setSelected(true);
             usePersistentQueuesNoRadioActionPerformed(null);
+        }
+
+        if (((String) props.get(LLPSenderProperties.LLP_QUEUE_ACK_TIMEOUT)).equals(UIConstants.YES_OPTION)) {
+            queueOnAckTimeoutYesRadio.setSelected(true);
+        } else {
+            queueOnAckTimeoutNoRadio.setSelected(true);
         }
 
         if (((String) props.get(QueuedSenderProperties.ROTATE_QUEUE)).equals(UIConstants.YES_OPTION)) {
@@ -308,9 +320,10 @@ public class LLPSender extends ConnectorClass {
     private void initComponents() {
 
         keepConnectionOpenGroup = new javax.swing.ButtonGroup();
-        buttonGroup1 = new javax.swing.ButtonGroup();
+        llpFrameEncodingGroup = new javax.swing.ButtonGroup();
         usePersistenceQueuesGroup = new javax.swing.ButtonGroup();
         processHL7AckGroup = new javax.swing.ButtonGroup();
+        queueOnAckTimeoutGroup = new javax.swing.ButtonGroup();
         jLabel13 = new javax.swing.JLabel();
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
@@ -354,6 +367,9 @@ public class LLPSender extends ConnectorClass {
         processHL7AckNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         rotateMessages = new com.webreach.mirth.client.ui.components.MirthCheckBox();
         testConnection = new javax.swing.JButton();
+        queueOnAckTimeoutLabel = new javax.swing.JLabel();
+        queueOnAckTimeoutYesRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        queueOnAckTimeoutNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -410,14 +426,14 @@ public class LLPSender extends ConnectorClass {
 
         ascii.setBackground(new java.awt.Color(255, 255, 255));
         ascii.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup1.add(ascii);
+        llpFrameEncodingGroup.add(ascii);
         ascii.setText("ASCII");
         ascii.setToolTipText("Select ASCII to send messages unencoded.");
         ascii.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         hex.setBackground(new java.awt.Color(255, 255, 255));
         hex.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        buttonGroup1.add(hex);
+        llpFrameEncodingGroup.add(hex);
         hex.setText("Hex");
         hex.setToolTipText("Select Hex to sends messages encoded in hexadecimal.");
         hex.setMargin(new java.awt.Insets(0, 0, 0, 0));
@@ -517,6 +533,22 @@ public class LLPSender extends ConnectorClass {
             }
         });
 
+        queueOnAckTimeoutLabel.setText("Queue on ACK Timeout:");
+
+        queueOnAckTimeoutYesRadio.setBackground(new java.awt.Color(255, 255, 255));
+        queueOnAckTimeoutYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        queueOnAckTimeoutGroup.add(queueOnAckTimeoutYesRadio);
+        queueOnAckTimeoutYesRadio.setText("Yes");
+        queueOnAckTimeoutYesRadio.setToolTipText("<html>This setting configures the behavior of Mirth's ACK processing when queuing is enabled.<br>When this setting is on and there is a timeout waiting for an ACK, the message is queued.<br>When this setting is off and there is a timeout waiting for an ACK, the message is set to errored.</html>");
+        queueOnAckTimeoutYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        queueOnAckTimeoutNoRadio.setBackground(new java.awt.Color(255, 255, 255));
+        queueOnAckTimeoutNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        queueOnAckTimeoutGroup.add(queueOnAckTimeoutNoRadio);
+        queueOnAckTimeoutNoRadio.setText("No");
+        queueOnAckTimeoutNoRadio.setToolTipText("<html>This setting configures the behavior of Mirth's ACK processing.<br>When this setting is on, only successful ACK codes will allow a message to be marked as processed.<br>When this setting is turned off, Mirth will not attempt to parse the ACK response.</html>");
+        queueOnAckTimeoutNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -524,6 +556,7 @@ public class LLPSender extends ConnectorClass {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(queueOnAckTimeoutLabel)
                     .addComponent(jLabel2)
                     .addComponent(jLabel18)
                     .addComponent(jLabel17)
@@ -588,7 +621,11 @@ public class LLPSender extends ConnectorClass {
                         .addComponent(jLabel37)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(segmentEnd, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(template, javax.swing.GroupLayout.DEFAULT_SIZE, 317, Short.MAX_VALUE))
+                    .addComponent(template, javax.swing.GroupLayout.DEFAULT_SIZE, 317, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(queueOnAckTimeoutYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(queueOnAckTimeoutNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -650,6 +687,11 @@ public class LLPSender extends ConnectorClass {
                     .addComponent(rotateMessages, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(queueOnAckTimeoutLabel)
+                    .addComponent(queueOnAckTimeoutYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(queueOnAckTimeoutNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel19)
                     .addComponent(ackTimeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(ignoreACKCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -669,7 +711,7 @@ public class LLPSender extends ConnectorClass {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel7)
-                    .addComponent(template, javax.swing.GroupLayout.DEFAULT_SIZE, 79, Short.MAX_VALUE))
+                    .addComponent(template, javax.swing.GroupLayout.DEFAULT_SIZE, 58, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -686,10 +728,16 @@ public class LLPSender extends ConnectorClass {
 
 private void usePersistentQueuesYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usePersistentQueuesYesRadioActionPerformed
     rotateMessages.setEnabled(true);
+    queueOnAckTimeoutLabel.setEnabled(true);
+    queueOnAckTimeoutYesRadio.setEnabled(true);
+    queueOnAckTimeoutNoRadio.setEnabled(true);
 }//GEN-LAST:event_usePersistentQueuesYesRadioActionPerformed
 
 private void usePersistentQueuesNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usePersistentQueuesNoRadioActionPerformed
     rotateMessages.setEnabled(false);
+    queueOnAckTimeoutLabel.setEnabled(false);
+    queueOnAckTimeoutYesRadio.setEnabled(false);
+    queueOnAckTimeoutNoRadio.setEnabled(false);
 }//GEN-LAST:event_usePersistentQueuesNoRadioActionPerformed
 
 private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
@@ -733,7 +781,6 @@ private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GE
     private com.webreach.mirth.client.ui.components.MirthTextField ackTimeoutField;
     private com.webreach.mirth.client.ui.components.MirthRadioButton ascii;
     private com.webreach.mirth.client.ui.components.MirthTextField bufferSizeField;
-    private javax.swing.ButtonGroup buttonGroup1;
     private com.webreach.mirth.client.ui.components.MirthComboBox channelNames;
     private com.webreach.mirth.client.ui.components.MirthComboBox charsetEncodingCombobox;
     private com.webreach.mirth.client.ui.components.MirthTextField endOfMessageCharacterField;
@@ -761,10 +808,15 @@ private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GE
     private javax.swing.ButtonGroup keepConnectionOpenGroup;
     private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenNoRadio;
     private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenYesRadio;
+    private javax.swing.ButtonGroup llpFrameEncodingGroup;
     private com.webreach.mirth.client.ui.components.MirthTextField maximumRetryCountField;
     private javax.swing.ButtonGroup processHL7AckGroup;
     private com.webreach.mirth.client.ui.components.MirthRadioButton processHL7AckNoRadio;
     private com.webreach.mirth.client.ui.components.MirthRadioButton processHL7AckYesRadio;
+    private javax.swing.ButtonGroup queueOnAckTimeoutGroup;
+    private javax.swing.JLabel queueOnAckTimeoutLabel;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton queueOnAckTimeoutNoRadio;
+    private com.webreach.mirth.client.ui.components.MirthRadioButton queueOnAckTimeoutYesRadio;
     private com.webreach.mirth.client.ui.components.MirthTextField reconnectInterval;
     private com.webreach.mirth.client.ui.components.MirthTextField recordSeparatorField;
     private com.webreach.mirth.client.ui.components.MirthCheckBox rotateMessages;
