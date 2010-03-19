@@ -19,11 +19,10 @@ import com.webreach.mirth.model.MessageObject.Status;
 /**
  * A MessageObjectFilter is used to search the message store.
  * 
- * @author geraldb
- * 
  */
 public class MessageObjectFilter implements Serializable {
 	private String id;
+	private String correlationId;
 	private String channelId;
 	private Calendar startDate;
 	private Calendar endDate;
@@ -57,7 +56,15 @@ public class MessageObjectFilter implements Serializable {
 		this.id = id;
 	}
 
-	public Calendar getEndDate() {
+	public void setCorrelationId(String correlationId) {
+        this.correlationId = correlationId;
+    }
+
+    public String getCorrelationId() {
+        return correlationId;
+    }
+
+    public Calendar getEndDate() {
 		return this.endDate;
 	}
 

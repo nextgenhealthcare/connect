@@ -652,6 +652,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
         }
 
         parameterMap.put("id", filter.getId());
+        parameterMap.put("correlationId", filter.getCorrelationId());
         parameterMap.put("channelId", filter.getChannelId());
         parameterMap.put("status", filter.getStatus());
         parameterMap.put("type", filter.getType());

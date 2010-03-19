@@ -97,6 +97,9 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 			<isNotNull prepend="AND" property="id">
 				ID = '$id$'
 			</isNotNull>
+			<isNotNull prepend="AND" property="correlationId">
+				(CORRELATION_ID = '$correlationId$' OR ID = '$correlationId$')
+			</isNotNull>
 			<isNotNull prepend="AND" property="channelId">
 				CHANNEL_ID = '$channelId$'
 			</isNotNull>
