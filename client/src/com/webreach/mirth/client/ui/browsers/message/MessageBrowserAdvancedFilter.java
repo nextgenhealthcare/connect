@@ -19,6 +19,8 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
     private String messageSource = "";
     private String messageType = "";
     private String containingKeyword = "";
+    private String messageId = "";
+    private String correlationId = "";
     private boolean includeRawMessage = false;
     private boolean includeTransformedMessage = false;
     private boolean includeEncodedMessage = false;
@@ -61,6 +63,8 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         messageSource = "";
         messageType = "";
         containingKeyword = "";
+        messageId = "";
+        correlationId = "";
         includeRawMessage = false;
         includeTransformedMessage = false;
         includeEncodedMessage = false;
@@ -71,6 +75,8 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         messageSourceField.setText(messageSource);
         messageTypeField.setText(messageType);
         containing.setText(containingKeyword);
+        messageIdField.setText(messageId);
+        correlationIdField.setText(correlationId);
         rawMessageCheckBox.setSelected(includeRawMessage);
         transformedMessageCheckBox.setSelected(includeTransformedMessage);
         encodedMessageCheckBox.setSelected(includeEncodedMessage);
@@ -78,7 +84,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         protocolComboBox.setSelectedIndex(0);
     }
 
-    public void setFieldValues(String connector, String messageSource, String messageType, String containingKeyword,
+    public void setFieldValues(String connector, String messageSource, String messageType, String containingKeyword, String messageId, String correlationId,
             boolean includeRawMessage, boolean includeTransformedMessage, boolean includeEncodedMessage, boolean includeErrors,
             String protocol) {
 
@@ -86,6 +92,8 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         this.messageSource = messageSource;
         this.messageType = messageType;
         this.containingKeyword = containingKeyword;
+        this.messageId = messageId;
+        this.correlationId = correlationId;
         this.includeRawMessage = includeRawMessage;
         this.includeTransformedMessage = includeTransformedMessage;
         this.includeEncodedMessage = includeEncodedMessage;
@@ -96,6 +104,8 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         messageSourceField.setText(this.messageSource);
         messageTypeField.setText(this.messageType);
         containing.setText(this.containingKeyword);
+        messageIdField.setText(this.messageId);
+        correlationIdField.setText(this.correlationId);
         rawMessageCheckBox.setSelected(this.includeRawMessage);
         transformedMessageCheckBox.setSelected(this.includeTransformedMessage);
         encodedMessageCheckBox.setSelected(this.includeEncodedMessage);
@@ -137,6 +147,14 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         return containingKeyword;
     }
 
+    public String getMessageId() {
+        return messageId;
+    }
+    
+    public String getCorrelationId() {
+        return correlationId;
+    }
+    
     public boolean isIncludeRawMessage() {
         return includeRawMessage;
     }
@@ -182,6 +200,10 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         advSearchOKButton = new javax.swing.JButton();
         advSearchCancelButton = new javax.swing.JButton();
         errorsCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
+        messageIdLabel = new javax.swing.JLabel();
+        messageIdField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        correlationIdField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        correlationIdLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -236,18 +258,35 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         errorsCheckBox.setText("Errors");
         errorsCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
+        messageIdLabel.setText("Message ID:");
+
+        messageIdField.setToolTipText("<html>The GUID of the message in the Mirth Connect database.<br>This can be retrieved from the Meta Data tab in the Message Browser.</html>");
+
+        correlationIdField.setToolTipText("<html>The correlation GUID of the group of messages in the Mirth Connect database.<br>This can be retrieved from the Meta Data tab in the Message Browser.</html>");
+
+        correlationIdLabel.setText("Correlation ID:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(342, Short.MAX_VALUE)
+                .addComponent(advSearchOKButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(advSearchCancelButton)
+                .addContainerGap())
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel1)
                     .addComponent(jLabel4)
-                    .addComponent(jLabel10))
+                    .addComponent(jLabel10)
+                    .addComponent(messageIdLabel)
+                    .addComponent(correlationIdLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(correlationIdField, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(messageTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(connectorField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -273,11 +312,8 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
                         .addComponent(encodedMessageCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(6, 6, 6)
                         .addComponent(errorsCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(advSearchOKButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(advSearchCancelButton)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(messageIdField, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(12, 12, 12))
         );
 
         layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {advSearchCancelButton, advSearchOKButton});
@@ -306,11 +342,19 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
                     .addComponent(transformedMessageCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(encodedMessageCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(errorsCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(4, 4, 4)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(messageIdField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(messageIdLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(correlationIdField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(correlationIdLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(advSearchCancelButton)
                     .addComponent(advSearchOKButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {advSearchCancelButton, advSearchOKButton});
@@ -325,6 +369,8 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         messageSource = messageSourceField.getText();
         messageType = messageTypeField.getText();
         containingKeyword = containing.getText();
+        messageId = messageIdField.getText();
+        correlationId = correlationIdField.getText();
         includeRawMessage = rawMessageCheckBox.isSelected();
         includeTransformedMessage = transformedMessageCheckBox.isSelected();
         includeEncodedMessage = encodedMessageCheckBox.isSelected();
@@ -346,6 +392,8 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
     private javax.swing.JButton advSearchOKButton;
     private com.webreach.mirth.client.ui.components.MirthTextField connectorField;
     private com.webreach.mirth.client.ui.components.MirthTextField containing;
+    private com.webreach.mirth.client.ui.components.MirthTextField correlationIdField;
+    private javax.swing.JLabel correlationIdLabel;
     private com.webreach.mirth.client.ui.components.MirthCheckBox encodedMessageCheckBox;
     private com.webreach.mirth.client.ui.components.MirthCheckBox errorsCheckBox;
     private javax.swing.JLabel jLabel1;
@@ -354,6 +402,8 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private com.webreach.mirth.client.ui.components.MirthTextField messageIdField;
+    private javax.swing.JLabel messageIdLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField messageSourceField;
     private com.webreach.mirth.client.ui.components.MirthTextField messageTypeField;
     private javax.swing.JComboBox protocolComboBox;

@@ -932,6 +932,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         EncodedMessageTextPane.setText("Select a message to view the encoded message.");
         ErrorsTextPane.setDocument(new SyntaxDocument());
         ErrorsTextPane.setText("Select a message to view any errors.");
+        messageIdField.setText("");
+        correlationIdField.setText("");
         updateMappingsTable(new String[0][0], true);
         updateAttachmentsTable(null, true);
         descriptionTabbedPane.remove(attachmentsPane);
@@ -962,6 +964,14 @@ public class MessageBrowser extends javax.swing.JPanel {
                 setCorrectDocument(TransformedMessageTextPane, currentMessage.getTransformedData(), currentMessage.getTransformedDataProtocol());
                 setCorrectDocument(EncodedMessageTextPane, currentMessage.getEncodedData(), currentMessage.getEncodedDataProtocol());
                 setCorrectDocument(ErrorsTextPane, currentMessage.getErrors(), null);
+                messageIdField.setText(currentMessage.getId());
+                
+                if (currentMessage.getCorrelationId() == null) {
+                    correlationIdField.setText(currentMessage.getId());
+                } else {
+                    correlationIdField.setText(currentMessage.getCorrelationId());
+                }
+                
                 if (currentMessage.isAttachment()) {
                     if (descriptionTabbedPane.indexOfTab("Attachments") == -1) {
                         descriptionTabbedPane.addTab("Attachments", attachmentsPane);
@@ -1102,6 +1112,12 @@ public class MessageBrowser extends javax.swing.JPanel {
         mappingsTable = null;
         ErrorsPanel = new javax.swing.JPanel();
         ErrorsTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
+        metaDataPane = new javax.swing.JScrollPane();
+        metaDataPanel = new javax.swing.JPanel();
+        messageIdField = new javax.swing.JTextField();
+        messageIdLabel1 = new javax.swing.JLabel();
+        correlationIdField = new javax.swing.JTextField();
+        correlationIdLabel = new javax.swing.JLabel();
         attachmentsPane = new javax.swing.JScrollPane();
         attachmentTable = null;
         messagePane = new javax.swing.JScrollPane();
@@ -1381,6 +1397,51 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         descriptionTabbedPane.addTab("Errors", ErrorsPanel);
 
+        metaDataPanel.setBackground(new java.awt.Color(255, 255, 255));
+
+        messageIdField.setEditable(false);
+        messageIdField.setToolTipText("The GUID of the message in the Mirth Connect database.");
+
+        messageIdLabel1.setText("Message ID:");
+
+        correlationIdField.setEditable(false);
+        correlationIdField.setToolTipText("The correlation GUID of the group of messages in the Mirth Connect database");
+
+        correlationIdLabel.setText("Correlation ID:");
+
+        javax.swing.GroupLayout metaDataPanelLayout = new javax.swing.GroupLayout(metaDataPanel);
+        metaDataPanel.setLayout(metaDataPanelLayout);
+        metaDataPanelLayout.setHorizontalGroup(
+            metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(metaDataPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(messageIdLabel1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(correlationIdLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(correlationIdField, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(messageIdField, javax.swing.GroupLayout.PREFERRED_SIZE, 225, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(461, Short.MAX_VALUE))
+        );
+        metaDataPanelLayout.setVerticalGroup(
+            metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(metaDataPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(messageIdLabel1)
+                    .addComponent(messageIdField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(metaDataPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(correlationIdField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(correlationIdLabel))
+                .addContainerGap(106, Short.MAX_VALUE))
+        );
+
+        metaDataPane.setViewportView(metaDataPanel);
+
+        descriptionTabbedPane.addTab("Meta Data", metaDataPane);
+
         attachmentsPane.setViewportView(attachmentTable);
 
         descriptionTabbedPane.addTab("Attachments", attachmentsPane);
@@ -1449,6 +1510,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         String messageSource = advSearchFilterPopup.getMessageSource();
         String messageType = advSearchFilterPopup.getMessageType();
         String containingKeyword = advSearchFilterPopup.getContainingKeyword();
+        String messageId = advSearchFilterPopup.getMessageId();
+        String correlationId = advSearchFilterPopup.getCorrelationId();
         boolean includeRawMessage = advSearchFilterPopup.isIncludeRawMessage();
         boolean includeTransformedMessage = advSearchFilterPopup.isIncludeTransformedMessage();
         boolean includeEncodedMessage = advSearchFilterPopup.isIncludeEncodedMessage();
@@ -1456,7 +1519,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         String protocol = advSearchFilterPopup.getProtocol();
 
         advSearchFilterPopup = new MessageBrowserAdvancedFilter(parent, "Advanced Search Filter", true);
-        advSearchFilterPopup.setFieldValues(connector, messageSource, messageType, containingKeyword, includeRawMessage, includeTransformedMessage, includeEncodedMessage, includeErrors, protocol);
+        advSearchFilterPopup.setFieldValues(connector, messageSource, messageType, containingKeyword, messageId, correlationId, includeRawMessage, includeTransformedMessage, includeEncodedMessage, includeErrors, protocol);
 
         advSearchFilterPopup.setVisible(true);
 
@@ -1585,6 +1648,12 @@ public class MessageBrowser extends javax.swing.JPanel {
         if (!advSearchFilterPopup.getContainingKeyword().equals("")) {
             messageObjectFilter.setSearchCriteria(advSearchFilterPopup.getContainingKeyword());
         }
+        if (!advSearchFilterPopup.getMessageId().equals("")) {
+            messageObjectFilter.setId(advSearchFilterPopup.getMessageId());
+        }
+        if (!advSearchFilterPopup.getCorrelationId().equals("")) {
+            messageObjectFilter.setCorrelationId(advSearchFilterPopup.getCorrelationId());
+        }
         if (advSearchFilterPopup.isIncludeRawMessage()) {
             messageObjectFilter.setSearchRawData(true);
         }
@@ -1658,6 +1727,8 @@ public class MessageBrowser extends javax.swing.JPanel {
     private javax.swing.JButton advSearchButton;
     private com.webreach.mirth.client.ui.components.MirthTable attachmentTable;
     private javax.swing.JScrollPane attachmentsPane;
+    private javax.swing.JTextField correlationIdField;
+    private javax.swing.JLabel correlationIdLabel;
     private javax.swing.JTabbedPane descriptionTabbedPane;
     private javax.swing.JButton filterButton;
     private javax.swing.JPanel filterPanel;
@@ -1671,8 +1742,12 @@ public class MessageBrowser extends javax.swing.JPanel {
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JScrollPane mappingsPane;
     private com.webreach.mirth.client.ui.components.MirthTable mappingsTable;
+    private javax.swing.JTextField messageIdField;
+    private javax.swing.JLabel messageIdLabel1;
     private javax.swing.JScrollPane messagePane;
     private com.webreach.mirth.client.ui.components.MirthTable messageTable;
+    private javax.swing.JScrollPane metaDataPane;
+    private javax.swing.JPanel metaDataPanel;
     private com.webreach.mirth.client.ui.components.MirthDatePicker mirthDatePicker1;
     private com.webreach.mirth.client.ui.components.MirthDatePicker mirthDatePicker2;
     private com.webreach.mirth.client.ui.components.MirthTimePicker mirthTimePicker1;
