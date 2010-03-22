@@ -137,10 +137,9 @@ public class TemplateValueReplacer {
             context.put("MESSAGEATTACH", DICOMUtil.reAttachMessage(messageObject));
             loadContextFromMap(context, messageObject.getConnectorMap());
             loadContextFromMap(context, messageObject.getChannelMap());
+            // load global channel map variables
+            loadContextFromMap(context, GlobalChannelVariableStoreFactory.getInstance().get(messageObject.getChannelId()).getVariables());
         }
-
-        // load global channel map variables
-        loadContextFromMap(context, GlobalChannelVariableStoreFactory.getInstance().get(messageObject.getChannelId()).getVariables());
 
         // load global map variables
         loadContextFromMap(context, GlobalVariableStore.getInstance().getVariables());
