@@ -27,6 +27,7 @@ import org.mule.util.queue.Queue;
 import org.mule.util.queue.QueueSession;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.Response;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.MonitoringController;
 import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
@@ -134,10 +135,28 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
         monitoringController.updateStatus(componentName, connectorType, Event.BUSY, null);
         try {
             UMOMessage umoMessage = routeMessage(new MuleMessage(event.getMessage(), event.getProperties(), event.getMessage()), event.isSynchronous());
+            VMResponse vmResponse = null;
             if (umoMessage != null) {
+                vmResponse = new VMResponse();
+                
+                if (umoMessage.getExceptionPayload() != null) {
+                    vmResponse.setException(umoMessage.getExceptionPayload().getException());
+                } else {
+                    String respondFrom = vmConnector.getResponseValue();
+                    
+                    if (respondFrom != null && !respondFrom.equalsIgnoreCase("None")) {
+                        MessageObject messageObjectResponse = (MessageObject) umoMessage.getPayload();
+                        Response response = (Response) messageObjectResponse.getResponseMap().get(respondFrom);
+
+                        if (response != null) {
+                            vmResponse.setMessage(response.getMessage());
+                        }
+                    }
+                }
+                
                 postProcessor.doPostProcess(umoMessage.getPayload());
             }
-            return umoMessage;
+            return vmResponse;
         } catch (UMOException e) {
             throw e;
         } finally {

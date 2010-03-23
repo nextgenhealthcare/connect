@@ -21,7 +21,6 @@ import org.mule.providers.AbstractMessageDispatcher;
 import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.UMOEvent;
 import org.mule.umo.UMOException;
-import org.mule.umo.UMOExceptionPayload;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.EndpointException;
 import org.mule.umo.endpoint.UMOEndpoint;
@@ -237,12 +236,14 @@ public class VMMessageDispatcher extends AbstractMessageDispatcher {
             }
         }
 
-        if ((response != null) && (response instanceof MuleMessage)) {
-            MuleMessage muleResponse = (MuleMessage) response;
-            UMOExceptionPayload payload = muleResponse.getExceptionPayload();
-            if (payload != null) {
-                alertController.sendAlerts(connector.getChannelId(), Constants.ERROR_412, "Error routing message", payload.getException());
-                messageObjectController.setError(messageObject, Constants.ERROR_412, "Error routing message", payload.getException(), null);
+        if ((response != null) && (response instanceof VMResponse)) {
+            VMResponse vmResponse = (VMResponse) response;
+            
+            if (vmResponse.getException() != null) {
+                alertController.sendAlerts(connector.getChannelId(), Constants.ERROR_412, "Error routing message", vmResponse.getException());
+                messageObjectController.setError(messageObject, Constants.ERROR_412, "Error routing message", vmResponse.getException(), null);
+            } else if (vmResponse.getMessage() != null) {
+                messageObjectController.setSuccess(messageObject, vmResponse.getMessage(), null);
             } else {
                 messageObjectController.setSuccess(messageObject, "Message routed successfully", null);
             }

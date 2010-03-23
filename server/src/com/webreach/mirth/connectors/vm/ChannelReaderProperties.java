@@ -17,10 +17,12 @@ public class ChannelReaderProperties implements ComponentProperties {
     public static final String name = "Channel Reader";
 
     public static final String DATATYPE = "DataType";
+    public static final String CHANNEL_RESPONSE_VALUE = "responseValue";
 
     public Properties getDefaults() {
         Properties properties = new Properties();
         properties.put(DATATYPE, name);
+        properties.put(CHANNEL_RESPONSE_VALUE, "None");
         return properties;
     }
 }

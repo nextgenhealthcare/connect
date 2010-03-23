@@ -61,6 +61,7 @@ public class VMConnector extends AbstractServiceEnabledConnector {
     private String channelId;
     private boolean synchronised = false;
     private String template;
+    private String responseValue;
 
     public String getChannelId() {
         return this.channelId;
@@ -244,5 +245,13 @@ public class VMConnector extends AbstractServiceEnabledConnector {
 
     public void setTemplate(String template) {
         this.template = template;
+    }
+
+    public void setResponseValue(String responseValue) {
+        this.responseValue = responseValue;
+    }
+
+    public String getResponseValue() {
+        return responseValue;
     }
 }
