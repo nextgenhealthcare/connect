@@ -249,7 +249,7 @@ public class Frame extends JXFrame {
             this.availableCharsetEncodings = new ArrayList<CharsetEncodingInformation>();
             this.availableCharsetEncodings.add(new CharsetEncodingInformation(UIConstants.DEFAULT_ENCODING_OPTION, "Default"));
             for (int i = 0; i < charsetEncodings.size(); i++) {
-                String canonical = (String) charsetEncodings.get(i);
+                String canonical = charsetEncodings.get(i);
                 this.availableCharsetEncodings.add(new CharsetEncodingInformation(canonical, canonical));
             }
         } catch (Exception e) {
@@ -1197,7 +1197,7 @@ public class Frame extends JXFrame {
     public void updateUser(final Component parentComponent, final User curr, final String password) {
         setWorking("Saving user...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 try {
@@ -1278,7 +1278,7 @@ public class Frame extends JXFrame {
     public void registerUser(final User user) {
         setWorking("Registering user...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 try {
@@ -1301,7 +1301,7 @@ public class Frame extends JXFrame {
     public void checkForUpdates() {
         setWorking("Checking for updates...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 Properties serverProperties = null;
@@ -1376,7 +1376,7 @@ public class Frame extends JXFrame {
     public void sendUsageStatistics() {
         setWorking("Sending usage statistics...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 Properties serverProperties = null;
@@ -1566,7 +1566,7 @@ public class Frame extends JXFrame {
         setPanelName("Users");
         setCurrentContentPage(userPanel);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 refreshUser();
@@ -1593,7 +1593,7 @@ public class Frame extends JXFrame {
 
         setWorking("Loading settings...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 settingsPane.getSettingsPanel().loadSettings();
@@ -1623,7 +1623,7 @@ public class Frame extends JXFrame {
 
         setWorking("Loading alerts...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 retrieveChannels();
@@ -1653,7 +1653,7 @@ public class Frame extends JXFrame {
 
         setWorking("Loading plugins...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 return null;
@@ -1815,7 +1815,7 @@ public class Frame extends JXFrame {
 
         setWorking("Loading global scripts...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 globalScriptsPanel.edit();
@@ -1839,7 +1839,7 @@ public class Frame extends JXFrame {
 
         setWorking("Loading code templates...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 refreshCodeTemplates();
@@ -1907,7 +1907,7 @@ public class Frame extends JXFrame {
     public void doSaveGlobalScripts() {
         setWorking("Saving global scripts...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 globalScriptsPanel.save();
@@ -1930,7 +1930,7 @@ public class Frame extends JXFrame {
 
         setWorking("Deleting channel...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 try {
@@ -1995,7 +1995,7 @@ public class Frame extends JXFrame {
             selectedChannelIds.add(channel.getId());
         }
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 retrieveChannels();
@@ -2118,7 +2118,7 @@ public class Frame extends JXFrame {
         // background only when the 'status' object is done assessed in the
         // background.
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             Object[][] tableData = null;
 
@@ -2200,7 +2200,7 @@ public class Frame extends JXFrame {
     public void doStartAll() {
         setWorking("Starting all channels...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 try {
@@ -2229,7 +2229,7 @@ public class Frame extends JXFrame {
     public void doStopAll() {
         setWorking("Stopping all channels...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 try {
@@ -2263,7 +2263,7 @@ public class Frame extends JXFrame {
         for (final ChannelStatus channelStatus : selectedChannelStatuses) {
             setWorking("Starting channel...", true);
 
-            SwingWorker worker = new SwingWorker<Void, Void>() {
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
                 public Void doInBackground() {
                     try {
@@ -2298,7 +2298,7 @@ public class Frame extends JXFrame {
         for (final ChannelStatus channelStatus : selectedChannelStatuses) {
             setWorking("Stopping channel...", true);
 
-            SwingWorker worker = new SwingWorker<Void, Void>() {
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
                 public Void doInBackground() {
                     try {
@@ -2329,7 +2329,7 @@ public class Frame extends JXFrame {
         for (final ChannelStatus channelStatus : selectedChannelStatuses) {
             setWorking("Pausing channel...", true);
 
-            SwingWorker worker = new SwingWorker<Void, Void>() {
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
                 public Void doInBackground() {
                     try {
@@ -2391,7 +2391,7 @@ public class Frame extends JXFrame {
 
             setWorking("Enabling channel...", true);
 
-            SwingWorker worker = new SwingWorker<Void, Void>() {
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
                 public Void doInBackground() {
 
@@ -2421,7 +2421,7 @@ public class Frame extends JXFrame {
         for (final Channel channel : selectedChannels) {
             setWorking("Disabling channel...", true);
 
-            SwingWorker worker = new SwingWorker<Void, Void>() {
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
                 public Void doInBackground() {
                     channel.setEnabled(false);
@@ -2460,7 +2460,7 @@ public class Frame extends JXFrame {
 
         setWorking("Deleting user...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 if (users.size() == 1) {
@@ -2499,7 +2499,7 @@ public class Frame extends JXFrame {
     public void doRefreshUser() {
         setWorking("Loading users...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 refreshUser();
@@ -2548,7 +2548,7 @@ public class Frame extends JXFrame {
         setWorking("Deploying channels...", true);
         dashboardPanel.deselectRows();
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 try {
@@ -2572,7 +2572,7 @@ public class Frame extends JXFrame {
         setWorking("Deploying enabled channels...", true);
         dashboardPanel.deselectRows();
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 try {
@@ -2615,7 +2615,7 @@ public class Frame extends JXFrame {
 
             dashboardPanel.deselectRows();
 
-            SwingWorker worker = new SwingWorker<Void, Void>() {
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
                 public Void doInBackground() {
                     try {
@@ -2651,7 +2651,7 @@ public class Frame extends JXFrame {
 
             setWorking("Undeploying channel...", true);
 
-            SwingWorker worker = new SwingWorker<Void, Void>() {
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
                 public Void doInBackground() {
                     try {
@@ -2677,7 +2677,7 @@ public class Frame extends JXFrame {
     public void doSaveChannel() {
         setWorking("Saving channel...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 if (changesHaveBeenMade() || currentContentPage == channelEditPanel.transformerPane || currentContentPage == channelEditPanel.filterPane) {
@@ -2791,7 +2791,7 @@ public class Frame extends JXFrame {
     public void doSaveSettings() {
         setWorking("Saving settings...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 settingsPane.getSettingsPanel().saveSettings();
@@ -3157,7 +3157,7 @@ public class Frame extends JXFrame {
     public void doRefreshMessages() {
         setWorking("Loading messages...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 messageBrowser.refresh();
@@ -3213,7 +3213,7 @@ public class Frame extends JXFrame {
     public void doImportMessages() {
         setWorking("Importing messages...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 messageBrowser.importMessages();
@@ -3231,7 +3231,7 @@ public class Frame extends JXFrame {
     public void doExportMessages() {
         setWorking("Exporting messages...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 messageBrowser.exportMessages();
@@ -3250,7 +3250,7 @@ public class Frame extends JXFrame {
         if (alertOption(this, "Are you sure you would like to remove all messages and all statistics for all channels?")) {
             setWorking("Removing messages...", true);
 
-            SwingWorker worker = new SwingWorker<Void, Void>() {
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
                 public Void doInBackground() {
                     for (int i = 0; i < status.size(); i++) {
@@ -3290,7 +3290,7 @@ public class Frame extends JXFrame {
 
                 setWorking("Removing messages...", true);
 
-                SwingWorker worker = new SwingWorker<Void, Void>() {
+                SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
                     public Void doInBackground() {
                         try {
@@ -3334,7 +3334,7 @@ public class Frame extends JXFrame {
     public void clearStats(final List<ChannelStatus> statusesToClear, final boolean deleteReceived, final boolean deleteFiltered, final boolean deleteQueued, final boolean deleteSent, final boolean deleteErrored, final boolean deleteAlerted) {
         setWorking("Clearing statistics...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 try {
@@ -3360,7 +3360,7 @@ public class Frame extends JXFrame {
         if (alertOption(this, "Are you sure you would like to remove all currently filtered messages in this channel?")) {
             setWorking("Removing messages...", true);
 
-            SwingWorker worker = new SwingWorker<Void, Void>() {
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
                 public Void doInBackground() {
                     try {
@@ -3389,7 +3389,7 @@ public class Frame extends JXFrame {
         if (alertOption(this, "Are you sure you would like to remove the selected message?")) {
             setWorking("Removing message...", true);
 
-            SwingWorker worker = new SwingWorker<Void, Void>() {
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
                 public Void doInBackground() {
                     try {
@@ -3419,7 +3419,7 @@ public class Frame extends JXFrame {
     public void doReprocessFilteredMessages() {
         setWorking("Retrieving Channels...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 if (channels == null || channels.values().size() == 0) {
@@ -3440,7 +3440,7 @@ public class Frame extends JXFrame {
     public void doReprocessMessage() {
         setWorking("Retrieving Channels...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 if (channels == null || channels.values().size() == 0) {
@@ -3464,7 +3464,7 @@ public class Frame extends JXFrame {
     public void reprocessMessage(final MessageObjectFilter filter, final boolean replace, final List<String> destinations) {
         setWorking("Reprocessing messages...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 try {
@@ -3487,7 +3487,7 @@ public class Frame extends JXFrame {
     public void viewImage() {
         setWorking("Opening attachment...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 messageBrowser.viewAttachment();
@@ -3505,7 +3505,7 @@ public class Frame extends JXFrame {
     public void processMessage(final MessageObject message) {
         setWorking("Processing message...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 try {
@@ -3533,7 +3533,7 @@ public class Frame extends JXFrame {
         if (alertOption(this, "Are you sure you would like to clear all system events?")) {
             setWorking("Clearing events...", true);
 
-            SwingWorker worker = new SwingWorker<Void, Void>() {
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
                 public Void doInBackground() {
                     try {
@@ -3558,7 +3558,7 @@ public class Frame extends JXFrame {
         if (alertOption(this, "Are you sure you would like to remove all currently filtered system events?")) {
             setWorking("Removing events...", true);
 
-            SwingWorker worker = new SwingWorker<Void, Void>() {
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
                 public Void doInBackground() {
                     try {
@@ -3585,7 +3585,7 @@ public class Frame extends JXFrame {
         if (alertOption(this, "Are you sure you would like to remove the selected system event?")) {
             setWorking("Removing event...", true);
 
-            SwingWorker worker = new SwingWorker<Void, Void>() {
+            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
                 public Void doInBackground() {
                     try {
@@ -3621,7 +3621,7 @@ public class Frame extends JXFrame {
 
         setWorking("Loading settings...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 settingsPane.getSettingsPanel().loadSettings();
@@ -3639,7 +3639,7 @@ public class Frame extends JXFrame {
     public void doRefreshAlerts() {
         setWorking("Loading alerts...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 refreshAlerts();
@@ -3666,7 +3666,7 @@ public class Frame extends JXFrame {
     public void doSaveAlerts() {
         setWorking("Saving alerts...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 saveAlerts();
@@ -3684,7 +3684,7 @@ public class Frame extends JXFrame {
     public boolean saveAlerts() {
         try {
             Properties serverProperties = mirthClient.getServerProperties();
-            if (!(serverProperties.getProperty("smtp.host") != null && ((String) serverProperties.getProperty("smtp.host")).length() > 0) || !(serverProperties.getProperty("smtp.port") != null && ((String) serverProperties.getProperty("smtp.port")).length() > 0)) {
+            if (!(serverProperties.getProperty("smtp.host") != null && (serverProperties.getProperty("smtp.host")).length() > 0) || !(serverProperties.getProperty("smtp.port") != null && (serverProperties.getProperty("smtp.port")).length() > 0)) {
                 alertWarning(PlatformUI.MIRTH_FRAME, "The SMTP server on the settings page is not specified or is incomplete.  An SMTP server is required to send alerts.");
             }
 
@@ -3793,7 +3793,7 @@ public class Frame extends JXFrame {
     public void doRefreshCodeTemplates() {
         setWorking("Loading code templates...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 refreshCodeTemplates();
@@ -3820,7 +3820,7 @@ public class Frame extends JXFrame {
     public void doSaveCodeTemplates() {
         setWorking("Saving codeTemplates...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 saveCodeTemplates();

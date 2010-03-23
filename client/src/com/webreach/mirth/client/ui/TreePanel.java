@@ -69,7 +69,6 @@ public class TreePanel extends javax.swing.JPanel {
     private String messageName;
     private MessageVocabulary vocabulary;
     private Timer timer;
-    private MessageVocabularyFactory vocabFactory;
     private JPopupMenu popupMenu;
 
     /**

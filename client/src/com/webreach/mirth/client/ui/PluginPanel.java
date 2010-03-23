@@ -85,10 +85,10 @@ public class PluginPanel extends javax.swing.JPanel {
                     for (ExtensionPoint extensionPoint : metaData.getExtensionPoints()) {
                         if (extensionPoint.getMode() == ExtensionPoint.Mode.CLIENT && extensionPoint.getType() == ExtensionPoint.Type.CLIENT_PANEL && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0) {
                             String pluginName = extensionPoint.getName();
-                            Class clazz = Class.forName(extensionPoint.getClassName());
-                            Constructor[] constructors = clazz.getDeclaredConstructors();
+                            Class<?> clazz = Class.forName(extensionPoint.getClassName());
+                            Constructor<?>[] constructors = clazz.getDeclaredConstructors();
                             for (int i = 0; i < constructors.length; i++) {
-                                Class parameters[];
+                                Class<?> parameters[];
                                 parameters = constructors[i].getParameterTypes();
                                 // load plugin if the number of parameters is 1.
                                 if (parameters.length == 1) {

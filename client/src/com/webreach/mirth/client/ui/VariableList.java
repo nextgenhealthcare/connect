@@ -32,7 +32,6 @@ public class VariableList extends javax.swing.JPanel {
      */
     public void setVariableListInbound(Set<String> additionalVariables) {
         LinkedHashSet<String> variables = new LinkedHashSet<String>();
-        int i = 0;
         variables.add("Message ID");
         variables.add("Raw Data");
         variables.add("Transformed Data");

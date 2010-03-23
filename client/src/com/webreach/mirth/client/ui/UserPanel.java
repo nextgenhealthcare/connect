@@ -217,7 +217,7 @@ public class UserPanel extends javax.swing.JPanel {
     public boolean setSelectedUser(String userName) {
         int columnNumber = usersTable.getColumnViewIndex(USERNAME_COLUMN_NAME);
         for (int i = 0; i < parent.users.size(); i++) {
-            if (userName.equals((String) (((CellData) usersTable.getValueAt(i, columnNumber)).getText()))) {
+            if (userName.equals(((CellData) usersTable.getValueAt(i, columnNumber)).getText())) {
                 usersTable.setRowSelectionInterval(i, i);
                 return true;
             }

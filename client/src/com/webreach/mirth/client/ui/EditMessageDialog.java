@@ -22,6 +22,7 @@ import java.awt.dnd.DropTargetListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.EDITokenMarker;
@@ -71,8 +72,8 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
 
                 dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
 
-                java.util.List fileList = (java.util.List) tr.getTransferData(DataFlavor.javaFileListFlavor);
-                Iterator iterator = fileList.iterator();
+                List<File> fileList = (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
+                Iterator<File> iterator = fileList.iterator();
                 while (iterator.hasNext()) {
                     iterator.next();
                 }
@@ -100,11 +101,10 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
 
                 dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
 
-                java.util.List fileList = (java.util.List) tr.getTransferData(DataFlavor.javaFileListFlavor);
-                Iterator iterator = fileList.iterator();
+                List<File> fileList = (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
+                Iterator<File> iterator = fileList.iterator();
                 while (iterator.hasNext()) {
-                    File file = (File) iterator.next();
-
+                    File file = iterator.next();
                     messageContent.setText(messageContent.getText() + FileUtil.read(file));
                 }
             }

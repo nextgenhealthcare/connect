@@ -35,25 +35,16 @@ public class RefreshTableModel extends DefaultTableModel {
         super(columnNames, numRows);
     }
 
-    public RefreshTableModel(Vector columnNames, int numRows) {
+    public RefreshTableModel(Vector<Object> columnNames, int numRows) {
         super(columnNames, numRows);
     }
 
-    public RefreshTableModel(Vector data, Vector columnNames) {
+    public RefreshTableModel(Vector<Object> data, Vector<?> columnNames) {
         super(data, columnNames);
     }
 
-    public void refreshDataVector(Vector data) {
-        /*if (dataVector != null && dataVector.size() > 0)
-        fireTableRowsDeleted(0, dataVector.size() - 1);
-        
+    public void refreshDataVector(Vector<Object> data) {
         dataVector = data;
-        
-        if (data.size() > 0)
-        fireTableRowsInserted(0, data.size() - 1);
-         */
-        dataVector = data;
-
         fireTableDataChanged();
     }
 

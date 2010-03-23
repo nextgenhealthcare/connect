@@ -352,7 +352,7 @@ public class LoginPanel extends javax.swing.JFrame {
 
         final LoginPanel thisPanel = this;
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 try {

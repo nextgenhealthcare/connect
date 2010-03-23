@@ -43,12 +43,12 @@ public class FunctionList extends javax.swing.JPanel {
         ReferenceListFactory builder = ReferenceListFactory.getInstance();
 
         LinkedHashMap<String, ArrayList<CodeTemplate>> references = builder.getReferences();
-        Iterator i = references.entrySet().iterator();
+        Iterator<Entry<String, ArrayList<CodeTemplate>>> i = references.entrySet().iterator();
         addPanel(new ReferenceListPanel(ListType.ALL.getValue(), builder.getVariableListItems(ListType.ALL.getValue(), context)), "All");
 
         while (i.hasNext()) {
-            Entry entry = (Entry) i.next();
-            String key = (String) entry.getKey();
+            Entry<String, ArrayList<CodeTemplate>> entry = i.next();
+            String key = entry.getKey();
             references.get(entry.getKey());
             ArrayList<CodeTemplate> items = builder.getVariableListItems(key, context);
 
@@ -165,7 +165,7 @@ public class FunctionList extends javax.swing.JPanel {
 
     private void variableReferenceDropDownActionPerformed(java.awt.event.ActionEvent evt) {
         updateUserTemplates();
-        variableScrollPane.setViewportView((panels.get((String) variableReferenceDropDown.getSelectedItem())));
+        variableScrollPane.setViewportView((panels.get(variableReferenceDropDown.getSelectedItem())));
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;

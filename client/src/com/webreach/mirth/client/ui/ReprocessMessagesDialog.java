@@ -130,8 +130,6 @@ public class ReprocessMessagesDialog extends javax.swing.JDialog {
         Object[][] tableData = null;
         int tableSize = 0;
 
-        List<Connector> enabledDestinations = new LinkedList<Connector>();
-
         if (channel != null) {
             tableSize = channel.getEnabledDestinationConnectors().size();
             tableData = new Object[tableSize][3];

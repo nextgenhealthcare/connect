@@ -18,7 +18,6 @@ import java.util.prefs.Preferences;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.plaf.InsetsUIResource;
@@ -59,7 +58,7 @@ public class Mirth {
         int width = UIConstants.MIRTH_WIDTH;
         int height = UIConstants.MIRTH_HEIGHT;
 
-        if (userPreferences.getInt("maximizedState", PlatformUI.MIRTH_FRAME.MAXIMIZED_BOTH) != PlatformUI.MIRTH_FRAME.MAXIMIZED_BOTH) {
+        if (userPreferences.getInt("maximizedState", Frame.MAXIMIZED_BOTH) != Frame.MAXIMIZED_BOTH) {
             width = userPreferences.getInt("width", UIConstants.MIRTH_WIDTH);
             height = userPreferences.getInt("height", UIConstants.MIRTH_HEIGHT);
         }
@@ -67,8 +66,8 @@ public class Mirth {
         PlatformUI.MIRTH_FRAME.setSize(width, height);
         PlatformUI.MIRTH_FRAME.setLocationRelativeTo(null);
 
-        if (userPreferences.getInt("maximizedState", PlatformUI.MIRTH_FRAME.MAXIMIZED_BOTH) == PlatformUI.MIRTH_FRAME.MAXIMIZED_BOTH) {
-            PlatformUI.MIRTH_FRAME.setExtendedState(PlatformUI.MIRTH_FRAME.MAXIMIZED_BOTH);
+        if (userPreferences.getInt("maximizedState", Frame.MAXIMIZED_BOTH) == Frame.MAXIMIZED_BOTH) {
+            PlatformUI.MIRTH_FRAME.setExtendedState(Frame.MAXIMIZED_BOTH);
         }
 
         PlatformUI.MIRTH_FRAME.setVisible(true);

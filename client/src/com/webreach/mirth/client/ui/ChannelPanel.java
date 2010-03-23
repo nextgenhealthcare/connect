@@ -254,13 +254,11 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
     /** Sets a channel to be selected by taking it's id */
     public void setSelectedChannels(List<String> channelIds) {
         for (String channelId : channelIds) {
-            int i = 0;
-            for (Channel channel : parent.channels.values()) {
+            for (int i = 0; i < parent.channels.values().size(); i++) {
                 if (channelId.equals(channelTable.getModel().getValueAt(i, channelTable.getColumnModelIndex(ID_COLUMN_NAME)))) {
                     int row = channelTable.convertRowIndexToView(i);
                     channelTable.addRowSelectionInterval(row, row);
                 }
-                i++;
             }
         }
     }
@@ -278,10 +276,10 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
 
                 dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
 
-                List fileList = (List) tr.getTransferData(DataFlavor.javaFileListFlavor);
-                Iterator iterator = fileList.iterator();
+                List<File> fileList = (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
+                Iterator<File> iterator = fileList.iterator();
                 while (iterator.hasNext()) {
-                    String fileName = ((File) iterator.next()).getName();
+                    String fileName = (iterator.next()).getName();
                     if (!fileName.substring(fileName.lastIndexOf(".")).equalsIgnoreCase(".xml")) {
                         dtde.rejectDrag();
                         return;
@@ -311,15 +309,15 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
 
                 dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
 
-                List fileList = (List) tr.getTransferData(DataFlavor.javaFileListFlavor);
-                Iterator iterator = fileList.iterator();
+                List<File> fileList = (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
+                Iterator<File> iterator = fileList.iterator();
 
                 if (fileList.size() == 1) {
-                    File file = (File) iterator.next();
+                    File file = iterator.next();
                     parent.importChannel(file, true);
                 } else {
                     while (iterator.hasNext()) {
-                        File file = (File) iterator.next();
+                        File file = iterator.next();
                         parent.importChannel(file, false);
                     }
                 }

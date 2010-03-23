@@ -91,10 +91,10 @@ public class DashboardPanel extends javax.swing.JPanel {
                         try {
                             if (extensionPoint.getMode().equals(ExtensionPoint.Mode.CLIENT) && extensionPoint.getType().equals(ExtensionPoint.Type.CLIENT_DASHBOARD_COLUMN) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0) {
                                 String pluginName = extensionPoint.getName();
-                                Class clazz = Class.forName(extensionPoint.getClassName());
-                                Constructor[] constructors = clazz.getDeclaredConstructors();
+                                Class<?> clazz = Class.forName(extensionPoint.getClassName());
+                                Constructor<?>[] constructors = clazz.getDeclaredConstructors();
                                 for (int i = 0; i < constructors.length; i++) {
-                                    Class parameters[];
+                                    Class<?> parameters[];
                                     parameters = constructors[i].getParameterTypes();
                                     // load plugin if the number of parameters is 2.
                                     if (parameters.length == 2) {
@@ -132,10 +132,10 @@ public class DashboardPanel extends javax.swing.JPanel {
                         try {
                             if (extensionPoint.getMode().equals(ExtensionPoint.Mode.CLIENT) && extensionPoint.getType().equals(ExtensionPoint.Type.CLIENT_DASHBOARD_PANE) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0) {
                                 String pluginName = extensionPoint.getName();
-                                Class clazz = Class.forName(extensionPoint.getClassName());
-                                Constructor[] constructors = clazz.getDeclaredConstructors();
+                                Class<?> clazz = Class.forName(extensionPoint.getClassName());
+                                Constructor<?>[] constructors = clazz.getDeclaredConstructors();
                                 for (int i = 0; i < constructors.length; i++) {
-                                    Class parameters[];
+                                    Class<?> parameters[];
                                     parameters = constructors[i].getParameterTypes();
                                     // load plugin if the number of parameters is 1.
                                     if (parameters.length == 1) {
@@ -163,7 +163,7 @@ public class DashboardPanel extends javax.swing.JPanel {
 
                 split.setBottomComponent(tabs);
                 split.setDividerSize(6);
-                split.setDividerLocation((int) (3 * Preferences.userNodeForPackage(Mirth.class).getInt("height", UIConstants.MIRTH_HEIGHT) / 5));
+                split.setDividerLocation(3 * Preferences.userNodeForPackage(Mirth.class).getInt("height", UIConstants.MIRTH_HEIGHT) / 5);
                 split.setResizeWeight(0.5);
             }
         } catch (Exception e) {

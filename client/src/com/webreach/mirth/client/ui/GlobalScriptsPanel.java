@@ -11,6 +11,7 @@ package com.webreach.mirth.client.ui;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.webreach.mirth.client.core.ClientException;
 import com.webreach.mirth.model.CodeTemplate.ContextType;
@@ -40,14 +41,13 @@ public class GlobalScriptsPanel extends javax.swing.JPanel {
     }
 
     public String validateAllScripts() {
-        Map<String, String> scripts = scriptPanel.getScripts();
         String errors = "";
 
-        Iterator it = scriptPanel.getScripts().entrySet().iterator();
+        Iterator<Entry<String, String>> it = scriptPanel.getScripts().entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry entry = (Map.Entry) it.next();
-            String key = (String) entry.getKey();
-            String value = (String) entry.getValue();
+            Entry<String, String> entry = it.next();
+            String key = entry.getKey();
+            String value = entry.getValue();
 
             String validationMessage = scriptPanel.validateScript(value);
             if (validationMessage != null) {

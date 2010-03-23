@@ -114,9 +114,9 @@ public class ChannelSetup extends javax.swing.JPanel {
         transports = this.parent.getConnectorMetaData();
         sourceConnectors = new ArrayList<String>();
         destinationConnectors = new ArrayList<String>();
-        Iterator i = transports.entrySet().iterator();
+        Iterator<Entry<String, ConnectorMetaData>> i = transports.entrySet().iterator();
         while (i.hasNext()) {
-            Entry entry = (Entry) i.next();
+            Entry<String, ConnectorMetaData> entry = i.next();
             try {
 
                 ConnectorMetaData metaData = transports.get(entry.getKey());
@@ -1787,7 +1787,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         // that
         // changing the connector type will lose all current connector data.
         if (!loadingChannel) {
-            if (sourceConnectorClass.getName() != null && sourceConnectorClass.getName().equals((String) sourceSourceDropdown.getSelectedItem())) {
+            if (sourceConnectorClass.getName() != null && sourceConnectorClass.getName().equals(sourceSourceDropdown.getSelectedItem())) {
                 return;
             }
 
@@ -1829,7 +1829,7 @@ public class ChannelSetup extends javax.swing.JPanel {
                 dataType = "";
             }
 
-            if (sourceConnector.getProperties().size() == 0 || !dataType.equals((String) sourceSourceDropdown.getSelectedItem())) {
+            if (sourceConnector.getProperties().size() == 0 || !dataType.equals(sourceSourceDropdown.getSelectedItem())) {
                 String name = sourceConnector.getName();
                 changeConnectorType(sourceConnector, false);
                 sourceConnector.setName(name);
@@ -1865,7 +1865,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         // that
         // changing the connector type will lose all current connector data.
         if (!loadingChannel) {
-            if (destinationConnectorClass.getName() != null && destinationConnectorClass.getName().equals((String) destinationSourceDropdown.getSelectedItem()) && lastIndex.equals((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME)))) {
+            if (destinationConnectorClass.getName() != null && destinationConnectorClass.getName().equals(destinationSourceDropdown.getSelectedItem()) && lastIndex.equals(destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME)))) {
                 return;
             }
 
@@ -1873,7 +1873,7 @@ public class ChannelSetup extends javax.swing.JPanel {
             // properties/transformer/filter have
             // not been changed from defaults then ask if the user would
             // like to really change connector type.
-            if (lastIndex.equals((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME))) && (!PropertyVerifier.compareProps(destinationConnectorClass.getProperties(), destinationConnectorClass.getDefaults()) || currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME)))).getFilter().getRules().size() > 0 || currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME)))).getTransformer().getSteps().size() > 0)) {
+            if (lastIndex.equals(destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME))) && (!PropertyVerifier.compareProps(destinationConnectorClass.getProperties(), destinationConnectorClass.getDefaults()) || currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME)))).getFilter().getRules().size() > 0 || currentChannel.getDestinationConnectors().get(getDestinationConnectorIndex((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(DESTINATION_COLUMN_NAME)))).getTransformer().getSteps().size() > 0)) {
                 boolean changeType = parent.alertOption(this.parent, "Are you sure you would like to change this connector type and lose all of the current connector data?");
                 if (!changeType) {
                     destinationSourceDropdown.setSelectedItem(destinationConnectorClass.getProperties().get(DATA_TYPE_KEY));
@@ -1913,7 +1913,7 @@ public class ChannelSetup extends javax.swing.JPanel {
 
         // Set to defaults on first load of connector or if it has changed
         // types.
-        if (destinationConnector.getProperties().size() == 0 || !dataType.equals((String) destinationSourceDropdown.getSelectedItem())) {
+        if (destinationConnector.getProperties().size() == 0 || !dataType.equals(destinationSourceDropdown.getSelectedItem())) {
             String name = destinationConnector.getName();
             changeConnectorType(destinationConnector, true);
             destinationConnector.setName(name);
@@ -1931,7 +1931,7 @@ public class ChannelSetup extends javax.swing.JPanel {
         // If the connector type has changed then set the new value in the
         // destination table.
         if (destinationConnector.getTransportName() != null && !((String) destinationTable.getModel().getValueAt(destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(CONNECTOR_TYPE_COLUMN_NAME))).equals(destinationConnector.getTransportName()) && destinationTable.getSelectedModelIndex() != -1) {
-            destinationTable.getModel().setValueAt((String) destinationSourceDropdown.getSelectedItem(), destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(CONNECTOR_TYPE_COLUMN_NAME));
+            destinationTable.getModel().setValueAt(destinationSourceDropdown.getSelectedItem(), destinationTable.getSelectedModelIndex(), destinationTable.getColumnModelIndex(CONNECTOR_TYPE_COLUMN_NAME));
         }
 
         // Debug with:

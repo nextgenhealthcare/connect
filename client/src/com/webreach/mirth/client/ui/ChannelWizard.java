@@ -92,10 +92,10 @@ public class ChannelWizard extends javax.swing.JDialog {
                         try {
                             if (extensionPoint.getMode().equals(ExtensionPoint.Mode.CLIENT) && extensionPoint.getType().equals(ExtensionPoint.Type.CLIENT_CHANNEL_WIZARD) && extensionPoint.getClassName() != null && extensionPoint.getClassName().length() > 0) {
                                 String pluginName = extensionPoint.getName();
-                                Class clazz = Class.forName(extensionPoint.getClassName());
-                                Constructor[] constructors = clazz.getDeclaredConstructors();
+                                Class<?> clazz = Class.forName(extensionPoint.getClassName());
+                                Constructor<?>[] constructors = clazz.getDeclaredConstructors();
                                 for (int i = 0; i < constructors.length; i++) {
-                                    Class parameters[];
+                                    Class<?> parameters[];
                                     parameters = constructors[i].getParameterTypes();
                                     // load plugin if the number of parameters is 1.
                                     if (parameters.length == 1) {
@@ -291,7 +291,7 @@ public class ChannelWizard extends javax.swing.JDialog {
             descriptionTextPane.setText("Select a channel wizard or press \"Skip Wizard\" to continue...");
         } else {
             runWizardButton.setEnabled(true);
-            descriptionTextPane.setText(parent.getPluginMetaData().get((String) wizardComboBox.getSelectedItem()).getDescription());
+            descriptionTextPane.setText(parent.getPluginMetaData().get(wizardComboBox.getSelectedItem()).getDescription());
         }
     }//GEN-LAST:event_wizardComboBoxActionPerformed
 
@@ -306,7 +306,7 @@ public class ChannelWizard extends javax.swing.JDialog {
         final String wizard = (String) wizardComboBox.getSelectedItem();
         parent.setWorking("Running " + wizard + " wizard...", true);
 
-        SwingWorker worker = new SwingWorker<Void, Void>() {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             Channel channel = null;
 

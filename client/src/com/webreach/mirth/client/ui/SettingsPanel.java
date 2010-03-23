@@ -623,7 +623,6 @@ public class SettingsPanel extends javax.swing.JPanel {
                 return;
             }
             try {
-                ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 ServerConfiguration configuration = ImportConverter.convertServerConfiguration(backupXML);
 
                 if (parent.alertOption(this, "Import configuration from " + configuration.getDate() + "?\nWARNING: This will overwrite all current channels, alerts, and server properties.")) {
@@ -753,24 +752,24 @@ private void secureConnectionSSLActionPerformed(java.awt.event.ActionEvent evt) 
             serverProperties = parent.mirthClient.getServerProperties();
 
             if (serverProperties.getProperty("smtp.host") != null) {
-                smtpHost.setText((String) serverProperties.getProperty("smtp.host"));
+                smtpHost.setText(serverProperties.getProperty("smtp.host"));
             } else {
                 smtpHost.setText("");
             }
 
             if (serverProperties.getProperty("smtp.port") != null) {
-                smtpPort.setText((String) serverProperties.getProperty("smtp.port"));
+                smtpPort.setText(serverProperties.getProperty("smtp.port"));
             } else {
                 smtpPort.setText("");
             }
 
             if (serverProperties.getProperty("smtp.from") != null) {
-                defaultFrom.setText((String) serverProperties.getProperty("smtp.from"));
+                defaultFrom.setText(serverProperties.getProperty("smtp.from"));
             } else {
                 defaultFrom.setText("");
             }
 
-            String smtpSecure = (String) serverProperties.getProperty("smtp.secure");
+            String smtpSecure = serverProperties.getProperty("smtp.secure");
             if (smtpSecure != null && smtpSecure.equalsIgnoreCase("tls")) {
                 secureConnectionTLS.setSelected(true);
             } else if (smtpSecure != null && smtpSecure.equalsIgnoreCase("ssl")) {
@@ -823,19 +822,19 @@ private void secureConnectionSSLActionPerformed(java.awt.event.ActionEvent evt) 
             }
 
             if (serverProperties.getProperty("update.url") != null) {
-                updateUrl.setText((String) serverProperties.getProperty("update.url"));
+                updateUrl.setText(serverProperties.getProperty("update.url"));
             } else {
                 updateUrl.setText("");
             }
 
             if (serverProperties.getProperty("smtp.username") != null) {
-                smtpUsername.setText((String) serverProperties.getProperty("smtp.username"));
+                smtpUsername.setText(serverProperties.getProperty("smtp.username"));
             } else {
                 smtpUsername.setText("");
             }
 
             if (serverProperties.getProperty("smtp.password") != null) {
-                smtpPassword.setText((String) serverProperties.getProperty("smtp.password"));
+                smtpPassword.setText(serverProperties.getProperty("smtp.password"));
             } else {
                 smtpPassword.setText("");
             }

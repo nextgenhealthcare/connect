@@ -592,7 +592,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
         }
 
         if (templateTable.getSelectedModelIndex() != UIConstants.ERROR_CONSTANT) {
-            templateTable.getModel().setValueAt((String) type.getSelectedItem(), templateTable.getSelectedModelIndex(), templateTable.getColumnModelIndex(TEMPLATE_TYPE_COLUMN_NAME));
+            templateTable.getModel().setValueAt(type.getSelectedItem(), templateTable.getSelectedModelIndex(), templateTable.getColumnModelIndex(TEMPLATE_TYPE_COLUMN_NAME));
         }
         updating = false;
     }//GEN-LAST:event_typeActionPerformed
@@ -605,7 +605,7 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
 
         updating = true;
         if (templateTable.getSelectedModelIndex() != UIConstants.ERROR_CONSTANT) {
-            templateTable.getModel().setValueAt((String) context.getSelectedItem(), templateTable.getSelectedModelIndex(), templateTable.getColumnModelIndex(TEMPLATE_CONTEXT_COLUMN_NAME));
+            templateTable.getModel().setValueAt(context.getSelectedItem(), templateTable.getSelectedModelIndex(), templateTable.getColumnModelIndex(TEMPLATE_CONTEXT_COLUMN_NAME));
         }
         updating = false;
     }//GEN-LAST:event_contextActionPerformed
