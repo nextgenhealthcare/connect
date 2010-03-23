@@ -21,6 +21,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -50,10 +51,9 @@ import com.webreach.mirth.model.converters.DICOMSerializer;
 import com.webreach.mirth.model.converters.DefaultSerializerPropertiesFactory;
 
 public class TemplatePanel extends javax.swing.JPanel implements DropTargetListener {
-
     public final String DEFAULT_TEXT = "Paste a sample message here.";
     protected MirthEditorPane parent;
-    private SyntaxDocument HL7Doc;
+    private SyntaxDocument hl7Document;
     private TreePanel treePanel;
     private String currentMessage = "";
     private String currentDataType;
@@ -74,15 +74,12 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             dataType.setModel(new javax.swing.DefaultComboBoxModel(PlatformUI.MIRTH_FRAME.protocols.values().toArray()));
         }
 
-        HL7Doc = new SyntaxDocument();
-        HL7Doc.setTokenMarker(new HL7TokenMarker());
-        pasteBox.setDocument(HL7Doc);
-        //  pasteBox.setPreferredSize(new Dimension(100,100));
-        //  pasteBox.setFont(EditorConstants.DEFAULT_FONT);
+        hl7Document = new SyntaxDocument();
+        hl7Document.setTokenMarker(new HL7TokenMarker());
+        pasteBox.setDocument(hl7Document);
 
         // handles updating the tree
         pasteBox.getDocument().addDocumentListener(new DocumentListener() {
-
             public void changedUpdate(DocumentEvent e) {
                 updateText();
             }
@@ -96,9 +93,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             }
         });
         pasteBox.addMouseListener(new MouseListener() {
-
             public void mouseClicked(MouseEvent e) {
-                // TODO Auto-generated method stub
                 if (e.getButton() == MouseEvent.BUTTON2) {
                     if (pasteBox.getText().equals(DEFAULT_TEXT)) {
                         pasteBox.setText("");
@@ -107,19 +102,15 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
             }
 
             public void mouseEntered(MouseEvent e) {
-                // TODO Auto-generated method stub
             }
 
             public void mouseExited(MouseEvent e) {
-                // TODO Auto-generated method stub
             }
 
             public void mousePressed(MouseEvent e) {
-                // TODO Auto-generated method stub
             }
 
             public void mouseReleased(MouseEvent e) {
-                // TODO Auto-generated method stub
                 if (e.getButton() == MouseEvent.BUTTON2) {
                     if (pasteBox.getText().length() == 0) {
                         pasteBox.setText(DEFAULT_TEXT);
@@ -134,12 +125,12 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
     public void dragEnter(DropTargetDragEvent dtde) {
         try {
             Transferable tr = dtde.getTransferable();
+
             if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-
                 dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
-
-                java.util.List fileList = (java.util.List) tr.getTransferData(DataFlavor.javaFileListFlavor);
-                Iterator iterator = fileList.iterator();
+                List<File> fileList = (List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor);
+                Iterator<File> iterator = fileList.iterator();
+                
                 while (iterator.hasNext()) {
                     iterator.next();
                 }
@@ -163,16 +154,12 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
     public void drop(DropTargetDropEvent dtde) {
         try {
             Transferable tr = dtde.getTransferable();
+            
             if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-
                 dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
-
-                java.util.List fileList = (java.util.List) tr.getTransferData(DataFlavor.javaFileListFlavor);
-
-                File file = (File) fileList.get(0);
+                File file = ((List<File>) tr.getTransferData(DataFlavor.javaFileListFlavor)).get(0);
 
                 if (getProtocol().equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DICOM))) {
-                    //pasteBox.setText(file.getPath());
                     pasteBox.setText(new DICOMSerializer().toXML(file));
                 } else {
                     pasteBox.setText(FileUtil.read(file));
@@ -196,22 +183,20 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
 
     private void updateText() {
         class UpdateTimer extends TimerTask {
-
             @Override
             public void run() {
                 if (!currentMessage.equals(pasteBox.getText())) {
                     PlatformUI.MIRTH_FRAME.setWorking("Parsing...", true);
-
                     String message = pasteBox.getText();
                     currentMessage = message;
                     treePanel.setMessage(dataProperties, (String) dataType.getSelectedItem(), message, DEFAULT_TEXT, dataProperties);
                     PlatformUI.MIRTH_FRAME.setWorking("", false);
-
                 } else {
                     treePanel.clearMessage();
                 }
             }
         }
+        
         if (timer == null) {
             timer = new Timer();
             timer.schedule(new UpdateTimer(), 1000);
@@ -227,14 +212,11 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         if (pasteBox.getText().equals(DEFAULT_TEXT)) {
             return "";
         }
-//        else
-//            return pasteBox.getText().replace('\n', '\r');  // Not required with current text area
+
         return pasteBox.getText();
     }
 
     public void setMessage(String msg) {
-//        if (msg != null)
-//            msg = msg.replace('\r', '\n');  // Not required with current text area
         pasteBox.setText(msg);
         pasteBoxFocusLost(null);
         updateText();
@@ -249,21 +231,21 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
     public void setProtocol(String protocol) {
         currentDataType = protocol;
         dataType.setSelectedItem(protocol);
-
         setDocType(protocol);
     }
 
     private void setDocType(String protocol) {
         if (protocol.equals("HL7 v2.x")) {
-            HL7Doc.setTokenMarker(new HL7TokenMarker());
+            hl7Document.setTokenMarker(new HL7TokenMarker());
         } else if (protocol.equals("EDI")) {
-            HL7Doc.setTokenMarker(new EDITokenMarker());
+            hl7Document.setTokenMarker(new EDITokenMarker());
         } else if (protocol.equals("X12")) {
-            HL7Doc.setTokenMarker(new X12TokenMarker());
+            hl7Document.setTokenMarker(new X12TokenMarker());
         } else if (protocol.equals("HL7 v3.0") || protocol.equals("XML")) {
-            HL7Doc.setTokenMarker(new XMLTokenMarker());
+            hl7Document.setTokenMarker(new XMLTokenMarker());
         }
-        pasteBox.setDocument(HL7Doc);
+        
+        pasteBox.setDocument(hl7Document);
     }
 
     public String getProtocol() {
@@ -446,10 +428,10 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         }
         
         // Only set the default properties if the data type is changing
-        if (!currentDataType.equals((String)dataType.getSelectedItem())) {
+        if (!currentDataType.equals(dataType.getSelectedItem())) {
             // Set the default properties for the data type selected
             for (MessageObject.Protocol protocol : MessageObject.Protocol.values()) {
-                if (PlatformUI.MIRTH_FRAME.protocols.get(protocol).equals((String) dataType.getSelectedItem())) {
+                if (PlatformUI.MIRTH_FRAME.protocols.get(protocol).equals(dataType.getSelectedItem())) {
                     dataProperties = PropertiesUtil.convertMapToProperties(DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(protocol));
                 }
             }

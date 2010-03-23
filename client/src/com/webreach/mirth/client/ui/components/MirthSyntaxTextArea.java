@@ -47,7 +47,6 @@ import com.webreach.mirth.model.CodeTemplate.ContextType;
 public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInterface {
 
     private Frame parent;
-    // private JPopupMenu menu;
     private CutAction cutAction;
     private CopyAction copyAction;
     private PasteAction pasteAction;
@@ -58,7 +57,6 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
     private FindAndReplaceAction findReplaceAction;
     private ShowLineEndingsAction showLineEndingsAction;
     private JMenu varlist;
-    private JMenu hl7list;
     private JMenu funclist;
     protected boolean showSnippets;
 
@@ -99,7 +97,6 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
 
         if (showSnippets) {
             varlist = new JMenu("Built-in Variables");
-            hl7list = new JMenu("HL7 Helpers");
             funclist = new JMenu("Built-in Functions");
             ReferenceListFactory functionBuilder = ReferenceListFactory.getInstance();
             ArrayList<CodeTemplate> jshelpers = functionBuilder.getVariableListItems(ListType.ALL.getValue(), context);
@@ -122,7 +119,6 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
             popup.addSeparator();
             popup.add(varlist);
             popup.add(funclist);
-            // popup.add(hl7list);
         }
 
         this.popupHandler = new PopUpHandler() {
@@ -145,7 +141,6 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
                 if (showSnippets) {
                     menu.getComponent(12).setEnabled(varlist.isEnabled());
                     menu.getComponent(13).setEnabled(funclist.isEnabled());
-                    // menu.getComponent(14).setEnabled(hl7list.isEnabled());
                 }
                 menu.show(evt.getComponent(), evt.getX(), evt.getY());
             }
@@ -192,7 +187,6 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
      * to the current document to listen for changes.
      */
     public void setDocument(SyntaxDocument doc) {
-
         super.setDocument(doc);
         this.getDocument().addDocumentListener(new DocumentListener() {
 
@@ -208,7 +202,6 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
                 parent.enableSave();
             }
         });
-
     }
 
     /**
@@ -217,9 +210,6 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
      */
     public void setText(String t) {
         boolean visible = parent.changesHaveBeenMade();
-
-        // if (t != null)
-        // t = t.replaceAll("\r", "\n");
         super.setText(t);
 
         if (visible) {
@@ -231,25 +221,9 @@ public class MirthSyntaxTextArea extends JEditTextArea implements MirthTextInter
 
     public String getText() {
         return super.getText();
-        /*
-         * StringBuffer sb = new StringBuffer(); // Get paragraph element
-         * Element paragraph = getDocument().getDefaultRootElement(); // Get
-         * number of content elements int contentCount =
-         * paragraph.getElementCount(); // Get index ranges for each content
-         * element. // Each content element represents one line. // Each line
-         * includes the terminating newline. for (int i = 0; i < contentCount;
-         * i++) { Element e = paragraph.getElement(i); int rangeStart =
-         * e.getStartOffset(); int rangeEnd = e.getEndOffset(); try { String
-         * text = getText(rangeStart, rangeEnd - rangeStart);
-         * sb.append(text.replaceAll("\\n", "").replaceAll("\\r", ""));
-         * sb.append(System.getProperty("line.separator")); } catch (Exception
-         * ex) { } } String retval = sb.toString(); if (retval.length() > 0) {
-         * retval = retval.substring(0, retval.length() - 1); } return retval;
-         */
     }
 
     public void replaceSelection(String text) {
         setSelectedText(text);
-
     }
 }

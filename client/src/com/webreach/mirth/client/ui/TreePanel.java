@@ -301,7 +301,6 @@ public class TreePanel extends javax.swing.JPanel {
     }
 
     public void setMessage(Properties protocolProperties, String messageType, String source, String ignoreText, Properties dataProperties) {
-
         Document xmlDoc = null;
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder;
@@ -315,7 +314,7 @@ public class TreePanel extends javax.swing.JPanel {
             IXMLSerializer<String> serializer;
             if (PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.HL7V2).equals(messageType)) {
                 protocol = Protocol.HL7V2;
-                //The \n to \r conversion is ONLY valid for HL7
+                // The \n to \r conversion is ONLY valid for HL7
                 boolean convertLFtoCR = true;
                 if (protocolProperties != null && protocolProperties.get("convertLFtoCR") != null) {
                     convertLFtoCR = Boolean.parseBoolean((String) protocolProperties.get("convertLFtoCR"));
@@ -347,11 +346,13 @@ public class TreePanel extends javax.swing.JPanel {
                 docBuilder = docFactory.newDocumentBuilder();
 
                 String message;
+                
                 if (protocol.equals(Protocol.DICOM)) {
                     message = source;
                 } else {
                     message = serializer.toXML(source);
                 }
+                
                 xmlDoc = docBuilder.parse(new InputSource(new StringReader(message)));
 
                 if (xmlDoc != null) {
@@ -359,14 +360,12 @@ public class TreePanel extends javax.swing.JPanel {
                     version = metadata.get("version").trim();
                     type = metadata.get("type").trim();
                     messageName = type + " (" + version + ")";
-                    vocabulary = vocabFactory.getInstance(PlatformUI.MIRTH_FRAME.mirthClient).getVocabulary(protocol, version, type);
+                    vocabulary = MessageVocabularyFactory.getInstance(PlatformUI.MIRTH_FRAME.mirthClient).getVocabulary(protocol, version, type);
                     messageDescription = vocabulary.getDescription(type.replaceAll("-", ""));
 
                 }
             } catch (Exception e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
-
             }
 
             if (xmlDoc != null) {
@@ -395,28 +394,26 @@ public class TreePanel extends javax.swing.JPanel {
     /**
      * Updates the panel with a new Message.
      */
-    private void createTree(Protocol protocol, Document xmlDoc, String messageName, String messageDescription) {
-        Element el = xmlDoc.getDocumentElement();
+    private void createTree(Protocol protocol, Document document, String messageName, String messageDescription) {
+        Element element = document.getDocumentElement();
         MirthTreeNode top;
+        
         if (messageDescription.length() > 0) {
             top = new MirthTreeNode(messageName + " (" + messageDescription + ")");
         } else {
             top = new MirthTreeNode(messageName);
         }
 
-        NodeList children = el.getChildNodes();
+        NodeList children = element.getChildNodes();
+        
         for (int i = 0; i < children.getLength(); i++) {
             processElement(protocol, children.item(i), top);
         }
-        // processElement(xmlDoc.getDocumentElement(), top);
-        // addChildren(message, top);
 
         tree = new MirthTree(top, _dropPrefix, _dropSuffix);
-
         tree.setDragEnabled(true);
         tree.setTransferHandler(new TreeTransferHandler());
         tree.addMouseMotionListener(new MouseMotionAdapter() {
-
             public void mouseDragged(MouseEvent evt) {
                 if (tree.getSelectionPath() != null) {
                     TreePath tp = tree.getSelectionPath();
@@ -432,7 +429,6 @@ public class TreePanel extends javax.swing.JPanel {
             }
         });
         tree.addMouseListener(new MouseListener() {
-
             public void mouseClicked(MouseEvent e) {
                 // TODO Auto-generated method stub
             }
@@ -455,6 +451,7 @@ public class TreePanel extends javax.swing.JPanel {
                 showTreePopupMenu(e);
             }
         });
+        
         try {
             tree.setScrollsOnExpand(true);
             treePane.setViewportView(tree);
@@ -462,6 +459,7 @@ public class TreePanel extends javax.swing.JPanel {
         } catch (Exception e) {
             logger.error(e);
         }
+        
         PlatformUI.MIRTH_FRAME.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
 
