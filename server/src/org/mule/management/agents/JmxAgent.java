@@ -11,10 +11,12 @@ package org.mule.management.agents;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
@@ -23,6 +25,7 @@ import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
+import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.remote.JMXAuthenticator;
 import javax.management.remote.JMXConnectorServer;
@@ -353,6 +356,23 @@ public class JmxAgent implements UMOAgent {
 
 		}
 	}
+	
+	public void unregisterEndpointService(String name) throws MalformedObjectNameException, InstanceNotFoundException, MBeanRegistrationException {
+	    Hashtable<String, String> properties = new Hashtable<String, String>();
+	    properties.put("type", "control");
+	    properties.put("name", "*" + name + "* EndpointService");
+        Set<ObjectName> objectNameSet = mBeanServer.queryNames(ObjectName.getInstance(getDomainName(), properties), null);
+        
+        for (ObjectName on : objectNameSet) {
+            logger.debug("Unregistering endpoint service with name: " + on);
+            mBeanServer.unregisterMBean(on);
+            registeredMBeans.remove(on);
+        }
+	}
+
+    //***********************************
+    // CONNECTORS SERVICES    
+    //***********************************
 
 	protected void registerConnectorServices() throws MalformedObjectNameException, NotCompliantMBeanException, MBeanRegistrationException, InstanceAlreadyExistsException {
 		Iterator iter = MuleManager.getInstance().getConnectors().values().iterator();
@@ -369,6 +389,19 @@ public class JmxAgent implements UMOAgent {
 			logger.info("Registered Connector Service with name " + oName);
 		}
 	}
+	
+    public void unregisterConnectorService(String name) throws MalformedObjectNameException, InstanceNotFoundException, MBeanRegistrationException {
+        Hashtable<String, String> properties = new Hashtable<String, String>();
+        properties.put("type", "control");
+        properties.put("name", name + "Service");
+        Set<ObjectName> objectNameSet = mBeanServer.queryNames(ObjectName.getInstance(getDomainName(), properties), null);
+        
+        for (ObjectName on : objectNameSet) {
+            logger.debug("Unregistering connector service with name: " + on);
+            mBeanServer.unregisterMBean(on);
+            registeredMBeans.remove(on);
+        }
+    }
 
 	/**
 	 * @return Returns the createServer.
