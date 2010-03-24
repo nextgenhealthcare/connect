@@ -374,7 +374,7 @@ public class JmxAgent implements UMOAgent {
     // CONNECTORS SERVICES    
     //***********************************
 
-	protected void registerConnectorServices() throws MalformedObjectNameException, NotCompliantMBeanException, MBeanRegistrationException, InstanceAlreadyExistsException {
+	public void registerConnectorServices() throws MalformedObjectNameException, NotCompliantMBeanException, MBeanRegistrationException, InstanceAlreadyExistsException {
 		Iterator iter = MuleManager.getInstance().getConnectors().values().iterator();
 		while (iter.hasNext()) {
 			UMOConnector connector = (UMOConnector) iter.next();
