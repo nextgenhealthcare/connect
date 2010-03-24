@@ -351,7 +351,7 @@ public class TreePanel extends javax.swing.JPanel {
                 } else {
                     message = serializer.toXML(source);
                 }
-                
+
                 xmlDoc = docBuilder.parse(new InputSource(new StringReader(message)));
 
                 if (xmlDoc != null) {
@@ -429,21 +429,17 @@ public class TreePanel extends javax.swing.JPanel {
         });
         tree.addMouseListener(new MouseListener() {
             public void mouseClicked(MouseEvent e) {
-                // TODO Auto-generated method stub
             }
 
             public void mouseEntered(MouseEvent e) {
-                // TODO Auto-generated method stub
             }
 
             public void mouseExited(MouseEvent e) {
                 refTableMouseExited(e);
-
             }
 
             public void mousePressed(MouseEvent e) {
                 showTreePopupMenu(e);
-
             }
 
             public void mouseReleased(MouseEvent e) {
@@ -481,39 +477,38 @@ public class TreePanel extends javax.swing.JPanel {
 
     private void processElement(Protocol protocol, Object elo, MirthTreeNode mtn) {
         if (elo instanceof Element) {
-            Element el = (Element) elo;
+            Element element = (Element) elo;
             String description;
             if (vocabulary instanceof DICOMVocabulary) {
-                description = vocabulary.getDescription(el.getAttribute("tag"));
+                description = vocabulary.getDescription(element.getAttribute("tag"));
                 if (description.equals("?")) {
                     description = "";
                 }
             } else {
-                description = vocabulary.getDescription(el.getNodeName());
+                description = vocabulary.getDescription(element.getNodeName());
             }
             MirthTreeNode currentNode;
             if (description != null && description.length() > 0) {
                 if (vocabulary instanceof DICOMVocabulary) {
-                    //currentNode = new MirthTreeNode(vocabulary.getDescription(el.getAttribute("tag").replaceAll(" ", "")) + " (" + description + ")");
-                    currentNode = new MirthTreeNode("tag" + el.getAttribute("tag") + " (" + description + ")");
+                    currentNode = new MirthTreeNode("tag" + element.getAttribute("tag") + " (" + description + ")");
                 } else {
-                    currentNode = new MirthTreeNode(el.getNodeName() + " (" + description + ")");
+                    currentNode = new MirthTreeNode(element.getNodeName() + " (" + description + ")");
                 }
             } else {
-                currentNode = new MirthTreeNode(el.getNodeName());
+                currentNode = new MirthTreeNode(element.getNodeName());
             }
 
             String text = "";
-            if (el.hasChildNodes()) {
-                text = el.getFirstChild().getNodeValue();
+            if (element.hasChildNodes()) {
+                text = element.getFirstChild().getNodeValue();
                 if ((text == null) || (text.equals("") || text.trim().length() == 0)) {
-                    currentNode.add(new MirthTreeNode(el.getNodeName()));
+                    currentNode.add(new MirthTreeNode(element.getNodeName()));
                 } else {
                     currentNode.add(new MirthTreeNode(text));
                 }
             } else {
-                // Check if we are in the format SEG.1.1
-                if (protocol.equals(Protocol.HL7V3) || protocol.equals(Protocol.XML) || el.getNodeName().matches(".*\\..*\\..") || protocol.equals(Protocol.DICOM)) {
+                // Check if we are in the format SEG.N.N
+                if (protocol.equals(Protocol.HL7V3) || protocol.equals(Protocol.XML) || element.getNodeName().matches(".*\\..*\\..*") || protocol.equals(Protocol.DICOM)) {
                     // We already at the last possible child segment, so just
                     // add empty node
                     currentNode.add(new MirthTreeNode(EMPTY));
@@ -523,9 +518,9 @@ public class TreePanel extends javax.swing.JPanel {
                 } else {
                     // We have empty node and possibly empty children
                     // Add the sub-node handler (SEG.1)
-                    currentNode.add(new MirthTreeNode(el.getNodeName()));
+                    currentNode.add(new MirthTreeNode(element.getNodeName()));
                     // Add a sub node (SEG.1.1)
-                    String newNodeName = el.getNodeName() + ".1";
+                    String newNodeName = element.getNodeName() + ".1";
                     description = vocabulary.getDescription(newNodeName);
                     MirthTreeNode parentNode;
                     if (description != null && description.length() > 0) {
@@ -539,9 +534,9 @@ public class TreePanel extends javax.swing.JPanel {
 
             }
 
-            processAttributes(el, currentNode);
+            processAttributes(element, currentNode);
 
-            NodeList children = el.getChildNodes();
+            NodeList children = element.getChildNodes();
             for (int i = 0; i < children.getLength(); i++) {
                 processElement(protocol, children.item(i), currentNode);
             }
