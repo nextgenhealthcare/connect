@@ -361,18 +361,6 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
         script.append("if (arguments.length == 1) { return globalChannelMap.get(key); }");
         script.append("else if (arguments.length == 2) { globalChannelMap.put(key, value); } }");
         
-        script.append("function $c(key, value) {");
-        script.append("if (arguments.length == 1) { return channelMap.get(key); }");
-        script.append("else if (arguments.length == 2) { channelMap.put(key, value); } }");
-        
-        script.append("function $co(key, value) {");
-        script.append("if (arguments.length == 1) { return connectorMap.get(key); }");
-        script.append("else if (arguments.length == 2) { connectorMap.put(key, value); } }");
-        
-        script.append("function $r(key, value) {");
-        script.append("if (arguments.length == 1) {return responseMap.get(key); }");
-        script.append("else if (arguments.length == 2) { responseMap.put(key, value); } }");
-
         try {
             for (CodeTemplate template : ControllerFactory.getFactory().createCodeTemplateController().getCodeTemplate(null)) {
                 if (template.getType() == CodeSnippetType.FUNCTION) {
