@@ -379,8 +379,9 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
         }
 
         script.append("function doDatabaseScript() {");
-        script.append(databaseScript + "}\n");
-        script.append("doDatabaseScript()\n");
+        script.append(databaseScript + "\n");
+        script.append("}\n");
+        script.append("doDatabaseScript();\n");
         return script.toString();
     }
 
