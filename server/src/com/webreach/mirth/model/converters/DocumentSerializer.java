@@ -42,7 +42,14 @@ public class DocumentSerializer implements IXMLSerializer<Document> {
 
         try {
             TransformerFactory factory = TransformerFactory.newInstance();
-            factory.setAttribute("indent-number", new Integer(4));
+            
+            // When Saxon-B is on the classpath setting this attribute throws an
+            // IllegalArgumentException.
+            try {
+                factory.setAttribute("indent-number", new Integer(4));
+            } catch (IllegalArgumentException ex) {
+                logger.warn("Could not set Document Serializer attribute: indent-number");
+            }
             Transformer transformer = factory.newTransformer();
             transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
