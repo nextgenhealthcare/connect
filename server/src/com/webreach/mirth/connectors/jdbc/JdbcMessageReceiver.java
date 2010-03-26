@@ -51,7 +51,7 @@ import com.webreach.mirth.server.util.CompiledScriptCache;
 import com.webreach.mirth.server.util.JavaScriptScopeUtil;
 
 public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
-    Logger scriptLogger = Logger.getLogger("jdbc-receiver");
+    private Logger scriptLogger = Logger.getLogger("jdbc-receiver");
     private JdbcConnector connector;
     private String readStmt;
     private String ackStmt;
@@ -185,11 +185,11 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
                         throw ackException;
                     }
                 } catch (ConnectException ce) {
-                    throw new Exception(((ConnectException) ce).getCause());
+                    throw new Exception(ce.getCause());
                 }
             }
         } catch (Exception e) {
-            alertController.sendAlerts(((JdbcConnector) connector).getChannelId(), Constants.ERROR_406, null, e);
+            alertController.sendAlerts(connector.getChannelId(), Constants.ERROR_406, null, e);
             throw e;
         } finally {
             monitoringController.updateStatus(connector, connectorType, Event.DONE);
@@ -223,7 +223,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
                         result = compiledScript.exec(context, scope);
                     } catch (Exception e) {
                         logger.error(e);
-                        alertController.sendAlerts(((JdbcConnector) connector).getChannelId(), Constants.ERROR_406, null, e);
+                        alertController.sendAlerts(connector.getChannelId(), Constants.ERROR_406, null, e);
                         return null;
                     }
 
@@ -267,7 +267,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
                 }
             }
         } catch (Exception e) {
-            alertController.sendAlerts(((JdbcConnector) connector).getChannelId(), Constants.ERROR_406, null, e);
+            alertController.sendAlerts(connector.getChannelId(), Constants.ERROR_406, null, e);
             throw e;
         } finally {
             monitoringController.updateStatus(connector, connectorType, Event.DONE);
