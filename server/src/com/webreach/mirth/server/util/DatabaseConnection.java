@@ -28,8 +28,6 @@ import com.sun.rowset.CachedRowSetImpl;
 /**
  * A DatabaseConnection provides a connection to the internal Mirth database.
  * 
- * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
- * 
  */
 public class DatabaseConnection {
     private Logger logger = Logger.getLogger(this.getClass());
