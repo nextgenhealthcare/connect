@@ -20,6 +20,7 @@ import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpointURI;
 
 import com.webreach.mirth.model.MessageObject;
+import com.webreach.mirth.model.Response;
 import com.webreach.mirth.server.Constants;
 import com.webreach.mirth.server.controllers.AlertController;
 import com.webreach.mirth.server.controllers.ControllerFactory;
@@ -70,25 +71,30 @@ public class JavaScriptMessageDispatcher extends AbstractMessageDispatcher {
                 messageObjectController.setError(messageObject, Constants.ERROR_414, "Script not found in cache", null, null);
             } else {
                 compiledScript.exec(context, scope);
-                String response = "Script execution successful";
-
+                Response response = new Response("Script execution successful");
+                response.setStatus(Response.Status.SUCCESS);
+                
                 if (messageObject.getResponseMap().containsKey(messageObject.getConnectorName())) {
-                    response = (String) messageObject.getResponseMap().get(messageObject.getConnectorName());
+                    Object responseObj = messageObject.getResponseMap().get(messageObject.getConnectorName());
+                    
+                    if (responseObj instanceof String) {
+                        response.setMessage((String) responseObj);
+                    } else if (responseObj instanceof Response) {
+                        response = (Response) responseObj;
+                    }
                 }
 
-                messageObjectController.setSuccess(messageObject, response, null);
+                messageObjectController.setSuccess(messageObject, response.getMessage(), null);
             }
-
         } catch (Throwable e) {
             logger.debug("Error dispatching event: " + e.getMessage(), e);
 
-            alertController.sendAlerts(((JavaScriptConnector) connector).getChannelId(), Constants.ERROR_414, "Error executing script", e);
+            alertController.sendAlerts(connector.getChannelId(), Constants.ERROR_414, "Error executing script", e);
             messageObjectController.setError(messageObject, Constants.ERROR_414, "Error executing script: ", e, null);
             connector.handleException(new Exception(e));
         } finally {
             monitoringController.updateStatus(connector, connectorType, Event.DONE);
         }
-
     }
 
     public UMOMessage doSend(UMOEvent event) throws Exception {

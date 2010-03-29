@@ -73,6 +73,7 @@ public class JavaScriptConnector extends AbstractServiceEnabledConnector {
     }
 
     // Generates the JavaScript based on the script which the user enters
+    // TODO: This code is exactly the same as the code in the DB Reader. They should be made into a method.
     private String generateScript(String scriptString) {
         logger.debug("generating database script");
         StringBuilder script = new StringBuilder();
@@ -112,16 +113,12 @@ public class JavaScriptConnector extends AbstractServiceEnabledConnector {
         }
 
         script.append("function doScript() {\n");
-        script.append(scriptString + "\n}\n");
-        script.append("doScript()\n");
+        script.append(scriptString + "\n");
+        script.append("}\n");
+        script.append("doScript();\n");
         return script.toString();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mule.umo.provider.UMOConnector#getProtocol()
-     */
     public String getProtocol() {
         return "js";
     }
@@ -155,11 +152,6 @@ public class JavaScriptConnector extends AbstractServiceEnabledConnector {
         return getServiceDescriptor().createMessageReceiver(this, component, endpoint, params);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mule.providers.UMOConnector#create(java.util.HashMap)
-     */
     public void doInitialise() throws InitialisationException {
         super.doInitialise();
     }
@@ -194,14 +186,6 @@ public class JavaScriptConnector extends AbstractServiceEnabledConnector {
     public void setChannelId(String channelId) {
         this.channelId = channelId;
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.mule.providers.TransactionEnabledConnector#getSessionFactory(org.
-     * mule.umo.endpoint.UMOEndpoint)
-     */
 
     public String getPollingTime() {
         return pollingTime;
