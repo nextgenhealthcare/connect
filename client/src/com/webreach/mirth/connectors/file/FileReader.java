@@ -6,7 +6,6 @@
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
  */
-
 package com.webreach.mirth.connectors.file;
 
 import java.util.Properties;
@@ -78,6 +77,8 @@ public class FileReader extends ConnectorClass {
 
         properties.put(FileReaderProperties.FILE_USERNAME, usernameField.getText());
         properties.put(FileReaderProperties.FILE_PASSWORD, new String(passwordField.getPassword()));
+
+        properties.put(FileReaderProperties.FILE_TIMEOUT, timeoutField.getText());
 
         if (secureModeYes.isSelected()) {
             properties.put(FileReaderProperties.FILE_SECURE_MODE, UIConstants.YES_OPTION);
@@ -254,6 +255,8 @@ public class FileReader extends ConnectorClass {
             passwordField.setText((String) props.get(FileReaderProperties.FILE_PASSWORD));
         }
 
+        timeoutField.setText((String) props.get(FileReaderProperties.FILE_TIMEOUT));
+
         if (((String) props.get(FileReaderProperties.FILE_SECURE_MODE)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             secureModeYes.setSelected(true);
             secureModeNo.setSelected(false);
@@ -404,6 +407,17 @@ public class FileReader extends ConnectorClass {
                 }
             }
         }
+
+        String scheme = (String) schemeComboBox.getSelectedItem();
+        if (scheme.equals(FileReaderProperties.SCHEME_FTP) || scheme.equals(FileReaderProperties.SCHEME_SFTP)) {
+            if (((String) props.get(FileReaderProperties.FILE_TIMEOUT)).length() == 0) {
+                valid = false;
+                if (highlight) {
+                    timeoutField.setBackground(UIConstants.INVALID_COLOR);
+                }
+            }
+        }
+        
         if (((String) props.get(FileReaderProperties.FILE_CHECK_FILE_AGE)).equals(UIConstants.YES_OPTION)) {
             if (((String) props.get(FileReaderProperties.FILE_FILE_AGE)).length() == 0) {
                 valid = false;
@@ -427,6 +441,7 @@ public class FileReader extends ConnectorClass {
         fileAge.setBackground(null);
         usernameField.setBackground(null);
         passwordField.setBackground(null);
+        timeoutField.setBackground(null);
     }
 
     public String doValidate(Properties props, boolean highlight) {
@@ -517,6 +532,8 @@ public class FileReader extends ConnectorClass {
         passiveModeYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         passiveModeNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         filenameFilterRegexCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
+        timeoutField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        timeoutLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -834,42 +851,44 @@ public class FileReader extends ConnectorClass {
         filenameFilterRegexCheckBox.setText("Regular Expression");
         filenameFilterRegexCheckBox.setToolTipText("<html>If Regex is checked, the pattern is treated as a regular expression.<br>If Regex is not checked, it is treated as a pattern that supports wildcards and a comma separated list.</html>");
 
+        timeoutField.setToolTipText("The socket timeout (in ms) for connecting to the server.");
+
+        timeoutLabel.setText("Timeout (ms):");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(anonymousLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(filenameFilterLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(directoryLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(hostLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(schemeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(secureModeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(validateConnectionLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(pollingTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(pollingFrequencyLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(moveToFileLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(moveToDirectoryLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(errorMoveToDirectoryLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(pollingTimeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(passiveModeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(deleteAfterReadLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(processBatchFilesLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(checkFileAgeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(fileAgeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(sortFilesByLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(fileTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(encodingLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(anonymousLabel)
+                    .addComponent(filenameFilterLabel)
+                    .addComponent(directoryLabel)
+                    .addComponent(hostLabel)
+                    .addComponent(schemeLabel)
+                    .addComponent(secureModeLabel)
+                    .addComponent(passwordLabel)
+                    .addComponent(validateConnectionLabel)
+                    .addComponent(pollingTypeLabel)
+                    .addComponent(pollingFrequencyLabel)
+                    .addComponent(moveToFileLabel)
+                    .addComponent(moveToDirectoryLabel)
+                    .addComponent(errorMoveToDirectoryLabel)
+                    .addComponent(usernameLabel)
+                    .addComponent(pollingTimeLabel)
+                    .addComponent(passiveModeLabel)
+                    .addComponent(deleteAfterReadLabel)
+                    .addComponent(processBatchFilesLabel)
+                    .addComponent(checkFileAgeLabel)
+                    .addComponent(fileAgeLabel)
+                    .addComponent(sortFilesByLabel)
+                    .addComponent(fileTypeLabel)
+                    .addComponent(encodingLabel)
+                    .addComponent(timeoutLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(checkFileAgeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(checkFileAgeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(timeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(fileAge, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(sortBy, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
@@ -921,6 +940,10 @@ public class FileReader extends ConnectorClass {
                         .addComponent(pollingTimeButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(checkFileAgeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(checkFileAgeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(errorMoveToDirectory, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(moveToPattern, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(moveToDirectory, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -955,55 +978,59 @@ public class FileReader extends ConnectorClass {
                     .addComponent(filenameFilterLabel)
                     .addComponent(fileNameFilter, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(filenameFilterRegexCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(anonymousLabel)
+                    .addComponent(anonymousYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(anonymousNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(usernameLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(passwordLabel)
+                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(timeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(timeoutLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(secureModeLabel)
+                    .addComponent(secureModeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(secureModeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(passiveModeLabel)
+                    .addComponent(passiveModeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(passiveModeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(validateConnectionLabel)
+                    .addComponent(validateConnectionYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(validateConnectionNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(pollingTypeLabel)
+                    .addComponent(pollingIntervalButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(pollingTimeButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(pollingFrequencyLabel)
+                    .addComponent(pollingFrequency, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(pollingTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(pollingTimeLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(deleteAfterReadLabel)
+                    .addComponent(deleteAfterReadYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(deleteAfterReadNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(anonymousLabel)
-                            .addComponent(anonymousYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(anonymousNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(usernameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(usernameLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(passwordLabel)
-                            .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(secureModeLabel)
-                            .addComponent(secureModeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(secureModeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(passiveModeLabel)
-                            .addComponent(passiveModeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(passiveModeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(validateConnectionLabel)
-                            .addComponent(validateConnectionYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(validateConnectionNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(pollingTypeLabel)
-                            .addComponent(pollingIntervalButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(pollingTimeButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(pollingFrequencyLabel)
-                            .addComponent(pollingFrequency, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(pollingTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(pollingTimeLabel))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(deleteAfterReadLabel)
-                            .addComponent(deleteAfterReadYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(deleteAfterReadNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(moveToDirectoryLabel)
                             .addComponent(moveToDirectory, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -1042,9 +1069,7 @@ public class FileReader extends ConnectorClass {
                             .addComponent(processBatchFilesLabel)
                             .addComponent(processBatchFilesYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(processBatchFilesNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(226, 226, 226)
-                        .addComponent(mirthVariableList1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(mirthVariableList1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -1106,6 +1131,8 @@ public class FileReader extends ConnectorClass {
         secureModeLabel.setEnabled(false);
         secureModeYes.setEnabled(false);
         secureModeNo.setEnabled(false);
+        timeoutLabel.setEnabled(false);
+        timeoutField.setEnabled(false);
 
         if (scheme.equals(FileReaderProperties.SCHEME_FTP)) {
 
@@ -1118,6 +1145,13 @@ public class FileReader extends ConnectorClass {
             validateConnectionLabel.setEnabled(true);
             validateConnectionYes.setEnabled(true);
             validateConnectionNo.setEnabled(true);
+            timeoutLabel.setEnabled(true);
+            timeoutField.setEnabled(true);
+
+        } else if (scheme.equals(FileReaderProperties.SCHEME_SFTP)) {
+
+            timeoutLabel.setEnabled(true);
+            timeoutField.setEnabled(true);
 
         } else if (scheme.equals(FileReaderProperties.SCHEME_WEBDAV)) {
 
@@ -1365,6 +1399,8 @@ private void secureModeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private com.webreach.mirth.client.ui.components.MirthComboBox sortBy;
     private javax.swing.JLabel sortFilesByLabel;
     private javax.swing.JButton testConnection;
+    private com.webreach.mirth.client.ui.components.MirthTextField timeoutField;
+    private javax.swing.JLabel timeoutLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField usernameField;
     private javax.swing.JLabel usernameLabel;
     private javax.swing.JLabel validateConnectionLabel;

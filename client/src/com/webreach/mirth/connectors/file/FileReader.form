@@ -45,9 +45,9 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="anonymousLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="filenameFilterLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="directoryLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -71,14 +71,11 @@
                   <Component id="sortFilesByLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="fileTypeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="encodingLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="timeoutLabel" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="checkFileAgeYes" min="-2" max="-2" attributes="1"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="checkFileAgeNo" min="-2" max="-2" attributes="0"/>
-                  </Group>
+                  <Component id="timeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
                   <Component id="fileAge" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
                   <Component id="sortBy" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
                   <Group type="102" alignment="0" attributes="0">
@@ -140,6 +137,11 @@
                   </Group>
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="checkFileAgeYes" min="-2" max="-2" attributes="1"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="checkFileAgeNo" min="-2" max="-2" attributes="0"/>
+                          </Group>
                           <Component id="errorMoveToDirectory" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
                           <Component id="moveToPattern" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
                           <Component id="moveToDirectory" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
@@ -184,65 +186,70 @@
                   <Component id="fileNameFilter" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="filenameFilterRegexCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="anonymousLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="anonymousYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="anonymousNo" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="usernameField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="usernameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="passwordLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="passwordField" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="timeoutField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="timeoutLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="secureModeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="secureModeYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="secureModeNo" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="passiveModeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="passiveModeYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="passiveModeNo" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="validateConnectionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="validateConnectionYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="validateConnectionNo" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="pollingTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="pollingIntervalButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="pollingTimeButton" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="pollingFrequencyLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="pollingFrequency" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="pollingTime" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="pollingTimeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="deleteAfterReadLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="deleteAfterReadYes" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="deleteAfterReadNo" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="anonymousLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="anonymousYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="anonymousNo" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="usernameField" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="usernameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="passwordLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="passwordField" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="secureModeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="secureModeYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="secureModeNo" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="passiveModeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="passiveModeYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="passiveModeNo" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="validateConnectionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="validateConnectionYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="validateConnectionNo" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="pollingTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="pollingIntervalButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="pollingTimeButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="pollingFrequencyLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="pollingFrequency" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="pollingTime" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="pollingTimeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="deleteAfterReadLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="deleteAfterReadYes" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="deleteAfterReadNo" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="moveToDirectoryLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="moveToDirectory" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -291,10 +298,7 @@
                           <Component id="processBatchFilesNo" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="226" max="-2" attributes="0"/>
-                      <Component id="mirthVariableList1" min="-2" max="-2" attributes="0"/>
-                  </Group>
+                  <Component id="mirthVariableList1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
@@ -973,6 +977,16 @@
         </Property>
         <Property name="text" type="java.lang.String" value="Regular Expression"/>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If Regex is checked, the pattern is treated as a regular expression.&lt;br&gt;If Regex is not checked, it is treated as a pattern that supports wildcards and a comma separated list.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="timeoutField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The socket timeout (in ms) for connecting to the server."/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="timeoutLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Timeout (ms):"/>
       </Properties>
     </Component>
   </SubComponents>

@@ -6,7 +6,6 @@
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
  */
-
 package com.webreach.mirth.connectors.file;
 
 import java.util.Properties;
@@ -75,6 +74,8 @@ public class FileWriter extends ConnectorClass {
 
         properties.put(FileWriterProperties.FILE_USERNAME, usernameField.getText());
         properties.put(FileWriterProperties.FILE_PASSWORD, new String(passwordField.getPassword()));
+
+        properties.put(FileWriterProperties.FILE_TIMEOUT, timeoutField.getText());
 
         if (secureModeYes.isSelected()) {
             properties.put(FileWriterProperties.FILE_SECURE_MODE, UIConstants.YES_OPTION);
@@ -212,6 +213,8 @@ public class FileWriter extends ConnectorClass {
             passwordField.setText((String) props.get(FileWriterProperties.FILE_PASSWORD));
         }
 
+        timeoutField.setText((String) props.get(FileWriterProperties.FILE_TIMEOUT));
+
         if (((String) props.get(FileWriterProperties.FILE_SECURE_MODE)).equalsIgnoreCase(UIConstants.YES_OPTION)) {
             secureModeYes.setSelected(true);
             secureModeNo.setSelected(false);
@@ -301,6 +304,16 @@ public class FileWriter extends ConnectorClass {
             }
         }
 
+        String scheme = (String) schemeComboBox.getSelectedItem();
+        if (scheme.equals(FileReaderProperties.SCHEME_FTP) || scheme.equals(FileReaderProperties.SCHEME_SFTP)) {
+            if (((String) props.get(FileWriterProperties.FILE_TIMEOUT)).length() == 0) {
+                valid = false;
+                if (highlight) {
+                    timeoutField.setBackground(UIConstants.INVALID_COLOR);
+                }
+            }
+        }
+
         return valid;
     }
 
@@ -312,6 +325,7 @@ public class FileWriter extends ConnectorClass {
         fileContentsTextPane.setBackground(null);
         usernameField.setBackground(null);
         passwordField.setBackground(null);
+        timeoutField.setBackground(null);
     }
 
     public String doValidate(Properties props, boolean highlight) {
@@ -377,6 +391,8 @@ public class FileWriter extends ConnectorClass {
         passiveModeLabel = new javax.swing.JLabel();
         passiveModeYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
         passiveModeNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        timeoutField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        timeoutLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -553,6 +569,10 @@ public class FileWriter extends ConnectorClass {
         passiveModeNo.setToolTipText("Select Yes to connect to the server in \"normal mode\" as opposed to passive mode.");
         passiveModeNo.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
+        timeoutField.setToolTipText("The socket timeout (in ms) for connecting to the server.");
+
+        timeoutLabel.setText("Timeout (ms):");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -573,9 +593,11 @@ public class FileWriter extends ConnectorClass {
                     .addComponent(validateConnectionLabel)
                     .addComponent(appendToFileLabel)
                     .addComponent(usernameLabel)
-                    .addComponent(passiveModeLabel))
+                    .addComponent(passiveModeLabel)
+                    .addComponent(timeoutLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(timeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(schemeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -654,6 +676,10 @@ public class FileWriter extends ConnectorClass {
                     .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(timeoutField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(timeoutLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(secureModeLabel)
                     .addComponent(secureModeYes, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(secureModeNo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -684,7 +710,7 @@ public class FileWriter extends ConnectorClass {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(templateLabel)
-                    .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE))
+                    .addComponent(fileContentsTextPane, javax.swing.GroupLayout.DEFAULT_SIZE, 72, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -741,6 +767,8 @@ public class FileWriter extends ConnectorClass {
         validateConnectionLabel.setEnabled(false);
         validateConnectionYes.setEnabled(false);
         validateConnectionNo.setEnabled(false);
+        timeoutLabel.setEnabled(false);
+        timeoutField.setEnabled(false);
 
         if (allowAppend) {
 
@@ -770,6 +798,13 @@ public class FileWriter extends ConnectorClass {
             validateConnectionLabel.setEnabled(true);
             validateConnectionYes.setEnabled(true);
             validateConnectionNo.setEnabled(true);
+            timeoutLabel.setEnabled(true);
+            timeoutField.setEnabled(true);
+
+        } else if (scheme.equals(FileWriterProperties.SCHEME_SFTP)) {
+
+            timeoutLabel.setEnabled(true);
+            timeoutField.setEnabled(true);
 
         } else if (scheme.equals(FileWriterProperties.SCHEME_WEBDAV)) {
 
@@ -793,7 +828,7 @@ public class FileWriter extends ConnectorClass {
         // if File is selected
         if (text.equals(FileWriterProperties.SCHEME_FILE)) {
 
-            onSchemeChange(false, true, true, FileWriterProperties.SCHEME_FTP);
+            onSchemeChange(false, true, true, FileWriterProperties.SCHEME_FILE);
         } // else if FTP is selected
         else if (text.equals(FileWriterProperties.SCHEME_FTP)) {
 
@@ -917,6 +952,8 @@ private void secureModeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private com.webreach.mirth.client.ui.components.MirthRadioButton secureModeYes;
     private javax.swing.JLabel templateLabel;
     private javax.swing.JButton testConnection;
+    private com.webreach.mirth.client.ui.components.MirthTextField timeoutField;
+    private javax.swing.JLabel timeoutLabel;
     private com.webreach.mirth.client.ui.components.MirthTextField usernameField;
     private javax.swing.JLabel usernameLabel;
     private javax.swing.JLabel validateConnectionLabel;

@@ -56,9 +56,11 @@
                   <Component id="appendToFileLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="usernameLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="passiveModeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="timeoutLabel" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="timeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
                   <Group type="102" attributes="0">
                       <Component id="schemeComboBox" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -108,7 +110,7 @@
                       <Component id="passiveModeNo" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -155,6 +157,11 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="timeoutField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="timeoutLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="secureModeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="secureModeYes" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="secureModeNo" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -191,7 +198,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="templateLabel" min="-2" max="-2" attributes="0"/>
-                  <Component id="fileContentsTextPane" pref="98" max="32767" attributes="0"/>
+                  <Component id="fileContentsTextPane" pref="72" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
@@ -613,6 +620,16 @@
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
+      </Properties>
+    </Component>
+    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="timeoutField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The socket timeout (in ms) for connecting to the server."/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="timeoutLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Timeout (ms):"/>
       </Properties>
     </Component>
   </SubComponents>
