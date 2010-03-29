@@ -23,7 +23,7 @@ public class DocumentWriterService implements ConnectorService {
             Map<String, String> params = (Map<String, String>) object;
             String directory = params.get(DocumentWriterProperties.FILE_DIRECTORY);
 
-            FileSystemConnectionFactory factory = new FileSystemConnectionFactory(FileConnector.SCHEME_FILE, null, null, directory, 0, false, false);
+            FileSystemConnectionFactory factory = new FileSystemConnectionFactory(FileConnector.SCHEME_FILE, null, null, directory, 0, false, false, 0);
             FileSystemConnection connection = (FileSystemConnection) factory.makeObject();
 
             try {

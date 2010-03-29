@@ -81,28 +81,23 @@ public class WebDavConnection implements FileSystemConnection
 	private String password = null;
 
 	public WebDavConnection(String host, boolean secure, String username, String password) throws Exception {
-
 		this.secure = secure;
 		this.username = username;
 		this.password = password;
 
+		HttpURL hrl = null; 
+		    
 		if (secure) {
-
-			HttpsURL hrl = new HttpsURL("https://" + host);
-			if (!username.equals("null")) {
-				hrl.setUserinfo(username, password);
-			}
-			client = new WebdavResource(hrl);
-
+			hrl = new HttpsURL("https://" + host);
 		} else {
-
-			HttpURL hrl = new HttpURL("http://" + host);
-			if (!username.equals("null")) {
-				hrl.setUserinfo(username, password);
-			}
-			client = new WebdavResource(hrl);
-			
+			hrl = new HttpURL("http://" + host);
 		}
+
+        if (!username.equals("null")) {
+            hrl.setUserinfo(username, password);
+        }
+
+        client = new WebdavResource(hrl);
 	}
 
 

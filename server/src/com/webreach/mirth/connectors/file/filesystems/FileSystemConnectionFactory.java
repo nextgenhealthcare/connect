@@ -31,12 +31,13 @@ public class FileSystemConnectionFactory implements PoolableObjectFactory {
     private int port;
     private boolean passive;
     private boolean secure;
+    private int timeout;
 
     /**
      * Construct a FileSystemConnectionFactory from the endpoint URI and
      * connector properties
      */
-    public FileSystemConnectionFactory(String scheme, String username, String password, String host, int port, boolean passive, boolean secure) {
+    public FileSystemConnectionFactory(String scheme, String username, String password, String host, int port, boolean passive, boolean secure, int timeout) {
         this.scheme = scheme;
         this.username = username;
         this.password = password;
@@ -44,6 +45,7 @@ public class FileSystemConnectionFactory implements PoolableObjectFactory {
         this.port = port;
         this.passive = passive;
         this.secure = secure;
+        this.timeout = timeout;
     }
 
     /**
@@ -90,9 +92,9 @@ public class FileSystemConnectionFactory implements PoolableObjectFactory {
         if (scheme.equals(FileConnector.SCHEME_FILE)) {
             return new FileConnection();
         } else if (scheme.equals(FileConnector.SCHEME_FTP)) {
-            return new FtpConnection(host, port, username, password, passive);
+            return new FtpConnection(host, port, username, password, passive, timeout);
         } else if (scheme.equals(FileConnector.SCHEME_SFTP)) {
-            return new SftpConnection(host, port, username, password);
+            return new SftpConnection(host, port, username, password, timeout);
         } else if (scheme.equals(FileConnector.SCHEME_SMB)) {
             return new SmbFileConnection(host, username, password);
         } else if (scheme.equals(FileConnector.SCHEME_WEBDAV)) {

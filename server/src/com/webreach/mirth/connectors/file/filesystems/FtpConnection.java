@@ -85,9 +85,10 @@ public class FtpConnection implements FileSystemConnection {
 	/** The apache commons FTP client instance */
 	private FTPClient client = null;
 
-	public FtpConnection(String host, int port, String username, String password, boolean passive) throws Exception {
+	public FtpConnection(String host, int port, String username, String password, boolean passive, int timeout) throws Exception {
 		
 		client = new FTPClient();
+		
 		try {
 			if (port > 0) {
 				client.connect(host, port);

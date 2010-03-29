@@ -31,12 +31,14 @@ public class FileReaderService implements ConnectorService {
             String password = params.get(FileReaderProperties.FILE_PASSWORD);
             boolean secure = false;
             boolean passive = false;
+            int timeout = Integer.parseInt(params.get(FileReaderProperties.FILE_TIMEOUT));
 
             if (scheme.equals(FileReaderProperties.SCHEME_FTP) || scheme.equals(FileReaderProperties.SCHEME_SFTP)) {
                 if ((params.get(FileReaderProperties.FILE_PASSIVE_MODE)).equals("1")) {
                     passive = true;
                 }
             }
+            
             if (scheme.equals(FileReaderProperties.SCHEME_FILE)) {
                 fileHost = params.get(FileReaderProperties.FILE_HOST);
                 dir = params.get(FileReaderProperties.FILE_HOST);
@@ -59,7 +61,7 @@ public class FileReaderService implements ConnectorService {
                 dir = address.getPath();
             }
 
-            FileSystemConnectionFactory factory = new FileSystemConnectionFactory(scheme, username, password, host, port, passive, secure);
+            FileSystemConnectionFactory factory = new FileSystemConnectionFactory(scheme, username, password, host, port, passive, secure, timeout);
 
             try {
                 FileSystemConnection connection = (FileSystemConnection) factory.makeObject();

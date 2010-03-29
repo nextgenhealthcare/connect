@@ -44,12 +44,6 @@ public class FileMessageDispatcher extends AbstractMessageDispatcher {
         monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.mule.umo.provider.UMOConnectorSession#dispatch(org.mule.umo.UMOEvent)
-     */
     public void doDispatch(UMOEvent event) throws Exception {
 
         monitoringController.updateStatus(connector, connectorType, Event.BUSY);

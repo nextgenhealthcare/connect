@@ -43,6 +43,7 @@ public class FileReaderProperties implements ComponentProperties {
     public static final String CONNECTOR_CHARSET_ENCODING = "charsetEncoding";
     public static final String FILE_FILTER = "fileFilter";
     public static final String FILE_TYPE = "binary";
+    public static final String FILE_TIMEOUT = "timeout";
     public static final String FILE_SCHEME = "scheme";
 
     public static final String SCHEME_FILE = "file";

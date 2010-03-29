@@ -19,10 +19,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool;
+import org.apache.log4j.Logger;
 import org.mule.config.MuleProperties;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
@@ -47,20 +46,9 @@ import com.webreach.mirth.model.SystemEvent;
 import com.webreach.mirth.server.controllers.ControllerFactory;
 import com.webreach.mirth.server.controllers.EventController;
 
-/**
- * <code>FileConnector</code> is used for setting up listeners on a directory
- * and for writing files to a directory. The connecotry provides support for
- * defining file output patterns and filters for receiving files.
- * 
- * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
- * @version $Revision: 1.14 $
- */
 
 public class FileConnector extends AbstractServiceEnabledConnector {
-    /**
-     * logger used by this class
-     */
-    private static transient Log logger = LogFactory.getLog(FileConnector.class);
+    private Logger logger = Logger.getLogger(this.getClass());
 
     // These are properties that can be overridden on the Receiver by the
     // endpoint
@@ -87,6 +75,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
     public static final String PROPERTY_PASSIVE_MODE = "passive";
     public static final String PROPERTY_SECURE_MODE = "secure";
     public static final String PROPERTY_REGEX = "regex";
+    public static final String PROPERTY_TIMEOUT = "timeout";
 
     public static final String SORT_NAME = "name";
     public static final String SORT_DATE = "date";
@@ -145,24 +134,14 @@ public class FileConnector extends AbstractServiceEnabledConnector {
     private boolean passive = false;
     private boolean secure = false;
     private boolean regex = false;
+    private int timeout;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mule.providers.AbstractConnector#doInitialise()
-     */
     public FileConnector() {
         filenameParser = new VariableFilenameParser();
-        // ast: try to set the default encoding
-        this.setCharsetEncoding(DEFAULT_CHARSET_ENCODING);
+        setCharsetEncoding(DEFAULT_CHARSET_ENCODING);
     }
 
     protected Object getReceiverKey(UMOComponent component, UMOEndpoint endpoint) {
-        // if(endpoint.getFilter()!=null) {
-        // return endpoint.getEndpointURI().getAddress() + "/" +
-        // ((FilenameWildcardFilter)endpoint.getFilter()).getPattern();
-        // }
-        // TODO: Fix later -cl
         return endpoint.getEndpointURI().getAddress();
     }
 
@@ -175,13 +154,10 @@ public class FileConnector extends AbstractServiceEnabledConnector {
      * @return The path (directory, folder) part of the URI.
      */
     protected String getPathPart(UMOEndpointURI uri) {
-
         if (scheme.equals("file")) {
-
             // In //xyz, return xyz.
             return uri.getUri().getSchemeSpecificPart().substring(2);
         } else {
-
             // For the remaining cases, getPath seems to do the right thing.
             return uri.getPath();
         }
@@ -242,11 +218,6 @@ public class FileConnector extends AbstractServiceEnabledConnector {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mule.providers.UMOConnector#stop()
-     */
     protected synchronized void doStop() throws UMOException {
         if (outputStream != null) {
             try {
@@ -266,22 +237,12 @@ public class FileConnector extends AbstractServiceEnabledConnector {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mule.providers.UMOConnector#stop()
-     */
     protected synchronized void doStart() throws UMOException {
         if (receiver != null) {
             ((FileMessageReceiver) receiver).setRoutingError(false);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mule.providers.AbstractConnector#doDispose()
-     */
     protected void doDispose() {
         try {
             doStop();
@@ -399,7 +360,7 @@ public class FileConnector extends AbstractServiceEnabledConnector {
                 config.testOnBorrow = true;
                 config.testOnReturn = true;
             }
-            pool = new GenericObjectPool(new FileSystemConnectionFactory(getScheme(), username, password, uri.getHost(), uri.getPort(), isPassive(), isSecure()), config);
+            pool = new GenericObjectPool(new FileSystemConnectionFactory(getScheme(), username, password, uri.getHost(), uri.getPort(), isPassive(), isSecure(), getTimeout()), config);
 
             pools.put(key, pool);
         }
@@ -409,11 +370,6 @@ public class FileConnector extends AbstractServiceEnabledConnector {
     // ********************************************
     // getters & setters
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.mule.providers.UMOConnector#getProtocol()
-     */
     public String getProtocol() {
         return "FILE";
     }
@@ -765,5 +721,13 @@ public class FileConnector extends AbstractServiceEnabledConnector {
 
     public void setRegex(boolean regex) {
         this.regex = regex;
+    }
+
+    public int getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
     }
 }

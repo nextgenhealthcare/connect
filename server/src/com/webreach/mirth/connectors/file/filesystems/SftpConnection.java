@@ -86,7 +86,7 @@ public class SftpConnection implements FileSystemConnection {
 	private ChannelSftp client = null;
 	private String lastDir = null;
 
-	public SftpConnection(String host, int port, String username, String password) throws Exception {
+	public SftpConnection(String host, int port, String username, String password, int timeout) throws Exception {
 		
 		JSch jsch = new JSch();
 		client = new ChannelSftp();
@@ -99,6 +99,8 @@ public class SftpConnection implements FileSystemConnection {
 			} else {
 				session = jsch.getSession(username, host);
 			}
+			
+			session.setTimeout(timeout);
 
 			UserInfo userInfo = new SftpUserInfo(password);
 			session.setUserInfo(userInfo);

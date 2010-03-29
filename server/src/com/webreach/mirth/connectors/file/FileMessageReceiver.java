@@ -51,14 +51,6 @@ import com.webreach.mirth.server.mule.adaptors.BatchMessageProcessor;
 import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
 import com.webreach.mirth.server.util.StackTracePrinter;
 
-/**
- * <code>FileMessageReceiver</code> is a polling listener that reads files from
- * a directory.
- * 
- * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>
- * @version $Revision: 1.12 $
- */
-
 public class FileMessageReceiver extends PollingMessageReceiver implements BatchMessageProcessor {
     private String readDir = null;
     private String moveDir = null;

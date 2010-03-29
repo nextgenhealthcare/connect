@@ -31,6 +31,7 @@ public class FileWriterService implements ConnectorService {
             String password = params.get(FileWriterProperties.FILE_PASSWORD);
             boolean secure = false;
             boolean passive = false;
+            int timeout = Integer.parseInt(params.get(FileWriterProperties.FILE_TIMEOUT));
 
             if (scheme.equals(FileWriterProperties.SCHEME_FTP) || scheme.equals(FileWriterProperties.SCHEME_SFTP)) {
                 if ((params.get(FileWriterProperties.FILE_PASSIVE_MODE)).equals("1")) {
@@ -60,7 +61,7 @@ public class FileWriterService implements ConnectorService {
                 dir = address.getPath();
             }
 
-            FileSystemConnectionFactory factory = new FileSystemConnectionFactory(scheme, username, password, host, port, passive, secure);
+            FileSystemConnectionFactory factory = new FileSystemConnectionFactory(scheme, username, password, host, port, passive, secure, timeout);
 
             try {
                 FileSystemConnection connection = (FileSystemConnection) factory.makeObject();
