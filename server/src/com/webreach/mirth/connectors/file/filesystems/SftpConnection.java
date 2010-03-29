@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -26,7 +27,6 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.UserInfo;
-import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
 import com.webreach.mirth.connectors.file.filters.RegexFilenameFilter;
 
 public class SftpConnection implements FileSystemConnection {
@@ -128,7 +128,7 @@ public class SftpConnection implements FileSystemConnection {
         if (isRegex) {
             filenameFilter = new RegexFilenameFilter(filenamePattern);    
         } else {
-            filenameFilter = new FilenameWildcardFilter(filenamePattern);
+            filenameFilter = new WildcardFileFilter(filenamePattern);
         }
 	    
 		client.cd(fromDir);

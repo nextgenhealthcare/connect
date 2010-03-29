@@ -17,12 +17,12 @@ import java.util.List;
 
 import org.apache.commons.httpclient.HttpURL;
 import org.apache.commons.httpclient.HttpsURL;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.webdav.lib.WebdavFile;
 import org.apache.webdav.lib.WebdavResource;
 
-import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
 import com.webreach.mirth.connectors.file.filters.RegexFilenameFilter;
 
 public class WebDavConnection implements FileSystemConnection
@@ -107,7 +107,7 @@ public class WebDavConnection implements FileSystemConnection
         if (isRegex) {
             filenameFilter = new RegexFilenameFilter(filenamePattern);    
         } else {
-            filenameFilter = new FilenameWildcardFilter(filenamePattern);
+            filenameFilter = new WildcardFileFilter(filenamePattern);
         }
 		
 		client.setPath(fromDir);

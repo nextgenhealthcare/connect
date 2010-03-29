@@ -20,11 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.mule.MuleException;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
 
-import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
 import com.webreach.mirth.connectors.file.filters.RegexFilenameFilter;
 
 /** The FileSystemConnection class for local files
@@ -102,7 +102,7 @@ public class FileConnection implements FileSystemConnection {
 	    if (isRegex) {
 	        filenameFilter = new RegexFilenameFilter(filenamePattern);    
 	    } else {
-	        filenameFilter = new FilenameWildcardFilter(filenamePattern);
+	        filenameFilter = new WildcardFileFilter(filenamePattern);
 	    }
 	    
 		File readDirectory = null;

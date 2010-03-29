@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.net.ftp.FTP;
@@ -23,7 +24,6 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 
-import com.webreach.mirth.connectors.file.filters.FilenameWildcardFilter;
 import com.webreach.mirth.connectors.file.filters.RegexFilenameFilter;
 
 /**
@@ -126,7 +126,7 @@ public class FtpConnection implements FileSystemConnection {
         if (isRegex) {
             filenameFilter = new RegexFilenameFilter(filenamePattern);    
         } else {
-            filenameFilter = new FilenameWildcardFilter(filenamePattern);
+            filenameFilter = new WildcardFileFilter(filenamePattern);
         }
 	    
 		if (!client.changeWorkingDirectory(fromDir)) {
