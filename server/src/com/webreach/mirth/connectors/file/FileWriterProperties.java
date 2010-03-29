@@ -55,6 +55,7 @@ public class FileWriterProperties implements ComponentProperties {
         properties.put(FILE_APPEND, "1");
         properties.put(FILE_CONTENTS, "");
         properties.put(FILE_TYPE, "0");
+        properties.put(FILE_TIMEOUT, "10000");
         properties.put(CONNECTOR_CHARSET_ENCODING, "DEFAULT_ENCODING");
         return properties;
     }

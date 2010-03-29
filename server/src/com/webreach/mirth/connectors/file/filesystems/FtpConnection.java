@@ -86,7 +86,6 @@ public class FtpConnection implements FileSystemConnection {
 	private FTPClient client = null;
 
 	public FtpConnection(String host, int port, String username, String password, boolean passive, int timeout) throws Exception {
-		
 		client = new FTPClient();
 		
 		try {
@@ -95,6 +94,10 @@ public class FtpConnection implements FileSystemConnection {
 			} else {
 				client.connect(host);
 			}
+			
+			// XXX: As per JavaDoc comments, you should only call this after the connection has been opened by connect()
+			client.setSoTimeout(timeout);
+			
 			if (!FTPReply.isPositiveCompletion(client.getReplyCode())) {
 				throw new IOException("Ftp error: " + client.getReplyCode());
 			}
