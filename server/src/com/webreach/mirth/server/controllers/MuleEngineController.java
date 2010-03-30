@@ -195,6 +195,17 @@ public class MuleEngineController implements EngineController {
         // register its mbean
         if (muleManager.isStarted()) {
             jmxAgent.registerComponentService(descriptor.getName());
+            
+            // Build up a list of all destination connectors in the channel
+            List<String> endpointNames = new ArrayList<String>();
+            for (int i = 1; i <= channel.getDestinationConnectors().size(); i++) {
+                endpointNames.add(getConnectorNameForRouter(getConnectorReferenceForOutboundRouter(channel, i)));
+            }
+            // Add the source connector to the list
+            endpointNames.add(getConnectorNameForRouter(getConnectorReferenceForInboundRouter(channel)));
+            
+            // Register all of the endpoint services for the given connectors
+            jmxAgent.registerEndpointServices(endpointNames);
         }
     }
 
@@ -205,12 +216,23 @@ public class MuleEngineController implements EngineController {
         // add source endpoints
         MuleEndpoint vmEndpoint = new MuleEndpoint();
         vmEndpoint.setEndpointURI(new MuleEndpointURI(new URI("vm://" + channel.getId()).toString()));
+        
+        /* 
+         * Set create connector to true so that channel readers will not use 
+         * an existing connector (one from a different channel). This should 
+         * not be run during startup. If it is, it will create an extra
+         * _vmEndpoint service and _vmConnector service.
+         */
+        if (muleManager.isStarted()) {
+            vmEndpoint.setCreateConnector(1);
+        }
+        
         MuleEndpoint endpoint = new MuleEndpoint();
 
         String connectorReference = getConnectorReferenceForInboundRouter(channel);
 
         // add the source connector
-        UMOConnector connector = registerConnector(channel.getSourceConnector(), connectorReference + "_connector", channel.getId());
+        UMOConnector connector = registerConnector(channel.getSourceConnector(), getConnectorNameForRouter(connectorReference), channel.getId());
         endpoint.setConnector(connector);
 
         // if the channel is snychronous
@@ -252,14 +274,15 @@ public class MuleEngineController implements EngineController {
         SelectiveConsumer selectiveConsumerRouter = new SelectiveConsumer();
         selectiveConsumerRouter.setFilter(new ValidMessageFilter());
         inboundRouter.addRouter(selectiveConsumerRouter);
-
-        // NOTE: If the user selected the Channel Reader connector, then we
-        // don't to add it since there already exists a VM connector for
-        // every channel
-        if (!channel.getSourceConnector().getTransportName().equals("Channel Reader")) {
-            endpoint.setEndpointURI(new MuleEndpointURI(new URI(getEndpointUri(channel.getSourceConnector())).toString(), channel.getId()));
-            inboundRouter.addEndpoint(endpoint);
+        
+        // If a channel reader is being used, add the channel id
+        // to the endpointUri so the endpoint can be deployed
+        String endpointUri = getEndpointUri(channel.getSourceConnector());
+        if (endpointUri.equals("vm://")) {
+            endpointUri += channel.getId();
         }
+        endpoint.setEndpointURI(new MuleEndpointURI(new URI(endpointUri).toString(), channel.getId()));
+        inboundRouter.addEndpoint(endpoint);
 
         descriptor.setInboundRouter(inboundRouter);
     }
@@ -285,15 +308,10 @@ public class MuleEngineController implements EngineController {
                     // "true");
                 }
 
-                // ast: now, a funciont gets the connection reference string
-                // String connectorReference = channel.getId() +
-                // "_destination_"
-                // + String.valueOf(iterator.nextIndex());
                 String connectorReference = getConnectorReferenceForOutboundRouter(channel, iterator.nextIndex());
 
                 // add the destination connector
-                // ast: changes to get the same name for the connector and
-                String connectorName = getConnectorNameForOutboundRouter(connectorReference);
+                String connectorName = getConnectorNameForRouter(connectorReference);
                 endpoint.setConnector(registerConnector(connector, connectorName, channel.getId()));
 
                 // 1. append the JavaScriptTransformer that does the
@@ -339,9 +357,12 @@ public class MuleEngineController implements EngineController {
         descriptor.setOutboundRouter(outboundRouter);
     }
 
-    // ast: to sincronize the name of the connector for the output router and
-    // the response router
-    private String getConnectorNameForOutboundRouter(String connectorId) {
+    /**
+     * Add "_connector" to the connector id
+     * @param connectorId
+     * @return
+     */
+    private String getConnectorNameForRouter(String connectorId) {
         return connectorId + "_connector";
     }
 
@@ -447,6 +468,11 @@ public class MuleEngineController implements EngineController {
 
         // add the connector to the manager
         muleManager.registerConnector(umoConnector);
+        
+        // register the connector service for the connector
+        if (muleManager.isStarted()) {
+            jmxAgent.registerConnectorService(umoConnector);
+        }
         return umoConnector;
     }
 
@@ -530,15 +556,15 @@ public class MuleEngineController implements EngineController {
         templateController.removeTemplates(channelId);
 
         // unregister its mbean
-        jmxAgent.unregsiterComponentService(channelId);
+        jmxAgent.unregisterComponentService(channelId);
     }
 
     private void unregisterConnectors(List<UMOEndpoint> endpoints) throws Exception {
         for (UMOEndpoint endpoint : endpoints) {
-            if (!endpoint.getEndpointURI().getUri().toString().equals("vm://sink")) {
-                logger.debug("unregistering endpoint: " + endpoint.getName());
-                muleManager.unregisterEndpoint(endpoint.getName());
-            }
+            logger.debug("unregistering endpoint: " + endpoint.getName());
+            muleManager.unregisterEndpoint(endpoint.getName());
+            jmxAgent.unregisterEndpointService(endpoint.getName());
+            jmxAgent.unregisterConnectorService(endpoint.getConnector().getName());
 
             unregisterTransformer(endpoint.getTransformer());
         }

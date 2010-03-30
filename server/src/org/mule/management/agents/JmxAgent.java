@@ -25,7 +25,6 @@ import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.MalformedObjectNameException;
 import javax.management.NotCompliantMBeanException;
-import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.remote.JMXAuthenticator;
 import javax.management.remote.JMXConnectorServer;
@@ -319,7 +318,7 @@ public class JmxAgent implements UMOAgent {
 	}
 
 	// added so that we can unregister individual components
-	public void unregsiterComponentService(String name) throws MalformedObjectNameException, InstanceNotFoundException, MBeanRegistrationException {
+	public void unregisterComponentService(String name) throws MalformedObjectNameException, InstanceNotFoundException, MBeanRegistrationException {
         ObjectName on = ObjectName.getInstance(getDomainName() + ":type=control,name=" + name + "ComponentService");
         logger.debug("Unregistering component with name: " + on);
         mBeanServer.unregisterMBean(on);
@@ -330,7 +329,42 @@ public class JmxAgent implements UMOAgent {
     // ENDPOINT SERVICES	
     //***********************************
 	
-	protected void registerEndpointServices() throws NotCompliantMBeanException, MBeanRegistrationException, InstanceAlreadyExistsException, MalformedObjectNameException {
+    protected void registerEndpointServices() throws NotCompliantMBeanException, MBeanRegistrationException, InstanceAlreadyExistsException, MalformedObjectNameException {
+        Iterator iter = MuleManager.getInstance().getConnectors().values().iterator();
+        UMOConnector connector;
+        List endpointMBeans;
+
+        while (iter.hasNext()) {
+            connector = (UMOConnector) iter.next();
+            if (connector instanceof AbstractConnector) {
+                endpointMBeans = ((AbstractConnector) connector).getEndpointMBeans();
+
+                for (ListIterator iterator = endpointMBeans.listIterator(); iterator.hasNext();) {
+                    EndpointServiceMBean mBean = (EndpointServiceMBean) iterator.next();
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Attempting to register service with name: " + getDomainName() + ":type=control,name=" + mBean.getName() + " EndpointService");
+                    }
+                    ObjectName on = ObjectName.getInstance(getDomainName() + ":type=control,name=" + mBean.getName() + "_" + iterator.nextIndex() + " EndpointService");
+                    mBeanServer.registerMBean(mBean, on);
+                    registeredMBeans.add(on);
+                    logger.info("Registered Endpoint Service with name: " + on);
+                }
+            } else {
+                logger.warn("Connector: " + connector + " is not an istance of AbstractConnector, cannot obtain Endpoint MBeans from it");
+            }
+
+        }
+    }
+	
+    /**
+     * Register a list of endpoint services. Registering one endpoint service
+     * at a time does not work, because getEndpointMBeans() returns an empty
+     * list. Instead, this method takes a list of all the endpoints and goes
+     * through the same process as the above method, while only registering 
+     * endpoints contained in the list.
+     * @param names
+     */
+	public void registerEndpointServices(List<String> names) throws NotCompliantMBeanException, MBeanRegistrationException, InstanceAlreadyExistsException, MalformedObjectNameException {
 		Iterator iter = MuleManager.getInstance().getConnectors().values().iterator();
 		UMOConnector connector;
 		List endpointMBeans;
@@ -338,18 +372,20 @@ public class JmxAgent implements UMOAgent {
 		while (iter.hasNext()) {
 			connector = (UMOConnector) iter.next();
 			if (connector instanceof AbstractConnector) {
-				endpointMBeans = ((AbstractConnector) connector).getEndpointMBeans();
-
-				for (ListIterator iterator = endpointMBeans.listIterator(); iterator.hasNext();) {
-					EndpointServiceMBean mBean = (EndpointServiceMBean) iterator.next();
-					if (logger.isDebugEnabled()) {
-						logger.debug("Attempting to register service with name: " + getDomainName() + ":type=control,name=" + mBean.getName() + " EndpointService");
-					}
-					ObjectName on = ObjectName.getInstance(getDomainName() + ":type=control,name=" + mBean.getName() + "_" + iterator.nextIndex() + " EndpointService");
-					mBeanServer.registerMBean(mBean, on);
-					registeredMBeans.add(on);
-					logger.info("Registered Endpoint Service with name: " + on);
-				}
+			    if (names.contains(connector.getName())) {
+    				endpointMBeans = ((AbstractConnector) connector).getEndpointMBeans();
+    
+    				for (ListIterator iterator = endpointMBeans.listIterator(); iterator.hasNext();) {
+    					EndpointServiceMBean mBean = (EndpointServiceMBean) iterator.next();
+    					if (logger.isDebugEnabled()) {
+    						logger.debug("Attempting to register service with name: " + getDomainName() + ":type=control,name=" + mBean.getName() + " EndpointService");
+    					}
+    					ObjectName on = ObjectName.getInstance(getDomainName() + ":type=control,name=" + mBean.getName() + "_" + iterator.nextIndex() + " EndpointService");
+    					mBeanServer.registerMBean(mBean, on);
+    					registeredMBeans.add(on);
+    					logger.info("Registered Endpoint Service with name: " + on);
+    				}
+			    }
 			} else {
 				logger.warn("Connector: " + connector + " is not an istance of AbstractConnector, cannot obtain Endpoint MBeans from it");
 			}
@@ -389,6 +425,18 @@ public class JmxAgent implements UMOAgent {
 			logger.info("Registered Connector Service with name " + oName);
 		}
 	}
+	
+    public void registerConnectorService(UMOConnector connector) throws MalformedObjectNameException, NotCompliantMBeanException, MBeanRegistrationException, InstanceAlreadyExistsException {
+        ConnectorServiceMBean mBean = new ConnectorService(connector);
+        final String stringName = getDomainName() + ":type=control,name=" + mBean.getName() + "Service";
+        if (logger.isDebugEnabled()) {
+            logger.debug("Attempting to register service with name: " + stringName);
+        }
+        ObjectName oName = ObjectName.getInstance(stringName);
+        mBeanServer.registerMBean(mBean, oName);
+        registeredMBeans.add(oName);
+        logger.info("Registered Connector Service with name " + oName);
+    }
 	
     public void unregisterConnectorService(String name) throws MalformedObjectNameException, InstanceNotFoundException, MBeanRegistrationException {
         Hashtable<String, String> properties = new Hashtable<String, String>();
