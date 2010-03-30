@@ -10,7 +10,6 @@
 package com.webreach.mirth.connectors.jdbc;
 
 import java.sql.Connection;
-import java.util.List;
 import java.util.Map;
 
 import javax.sql.DataSource;

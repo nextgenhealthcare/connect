@@ -200,7 +200,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
         monitoringController.updateStatus(connector, connectorType, Event.CONNECTED);
 
         try {
-            if (this.connector.isUseScript()) {
+            if (connector.isUseScript()) {
                 Context context = Context.enter();
                 Scriptable scope = new ImporterTopLevel(context);
 
@@ -261,7 +261,7 @@ public class JdbcMessageReceiver extends TransactedPollingMessageReceiver {
                 }
 
                 if (validConnection) {
-                    return (List) new QueryRunner().query(connection, readStmt, JdbcUtils.getParams(getEndpointURI(), readParams, null), new MapListHandler());
+                    return new QueryRunner().query(connection, readStmt, new MapListHandler(), JdbcUtils.getParams(getEndpointURI(), readParams, null));
                 } else {
                     return new ArrayList();
                 }
