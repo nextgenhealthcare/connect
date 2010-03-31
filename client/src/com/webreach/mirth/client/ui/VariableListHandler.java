@@ -44,7 +44,8 @@ public class VariableListHandler extends TransferHandler {
         staticVelocityReferences.put("DICOM Message Raw Data", "${DICOMMESSAGE}");
         staticVelocityReferences.put("Message with Attachment Data", "${MESSAGEATTACH}");
         staticVelocityReferences.put("Formatted Date", "${date.get('yyyy-M-d H.m.s')}");
-        staticVelocityReferences.put("Entity Encoder", "${encoder.encode()}");
+        staticVelocityReferences.put("XML Entity Encoder", "${XmlUtil.encode()}");
+        staticVelocityReferences.put("XML Pretty Printer", "${XmlUtil.prettyPrint()}");
 
         staticJsReferences = new HashMap<String, String>();
         staticJsReferences.put("Raw Data", "messageObject.getRawData()");
@@ -62,7 +63,8 @@ public class VariableListHandler extends TransferHandler {
         staticJsReferences.put("DICOM Message Raw Data", "var rawData = DICOMUtil.getDICOMRawData(messageObject);");
         staticJsReferences.put("Message with Attachments", "var rawData = AttachmentUtil.reAttachMessage(messageObject)");
         staticJsReferences.put("Formatted Date", "var dateString = DateUtil.getCurrentDate('yyyy-M-d H.m.s');");
-        staticJsReferences.put("Entity Encoder", "var encodedMessage = Entities.getInstance().encode('message');");
+        staticJsReferences.put("XML Entity Encoder", "var encodedMessage = XmlUtil.getInstance().encode('message');");
+        staticJsReferences.put("XML Pretty Printer", "var prettyPrintedMessage = XmlUtil.getInstance().prettyPrint('message');");
     }
 
     protected Transferable createTransferable(JComponent c) {
