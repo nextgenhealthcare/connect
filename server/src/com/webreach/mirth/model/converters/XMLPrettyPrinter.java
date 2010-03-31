@@ -20,14 +20,14 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
-import com.webreach.mirth.util.Entities;
+import com.webreach.mirth.util.XmlUtil;
 
 public class XMLPrettyPrinter implements ContentHandler {
 
 	private Writer out;
 	private int depth = 0; // depth in hierarchy
 	private boolean encodeEntities;
-	private Entities encoder = Entities.getInstance();
+	private XmlUtil encoder = XmlUtil.getInstance();
 
 	// I could allow the user to set a lot more details about
 	// how the XML is indented; e.g. how many spaces, tabs or spaces,

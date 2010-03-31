@@ -78,6 +78,7 @@ public class JavaScriptConnector extends AbstractServiceEnabledConnector {
         logger.debug("generating database script");
         StringBuilder script = new StringBuilder();
         script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
+        script.append("importPackage(Packages.com.webreach.mirth.util);\n");
 
         script.append("function $(string) { ");
         script.append("if (connectorMap.containsKey(string)) { return connectorMap.get(string);} else ");

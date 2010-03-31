@@ -27,7 +27,7 @@ import com.webreach.mirth.model.MessageObject;
 import com.webreach.mirth.server.util.DICOMUtil;
 import com.webreach.mirth.server.util.GlobalChannelVariableStoreFactory;
 import com.webreach.mirth.server.util.GlobalVariableStore;
-import com.webreach.mirth.util.Entities;
+import com.webreach.mirth.util.XmlUtil;
 
 public class TemplateValueReplacer {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -158,6 +158,6 @@ public class TemplateValueReplacer {
         context.put("UUID", (new UUID()).getUUID());
         context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
         context.put("ORIGINALNAME", originalFilename);
-        context.put("encoder", Entities.getInstance());
+        context.put("XmlUtil", XmlUtil.getInstance());
     }
 }
