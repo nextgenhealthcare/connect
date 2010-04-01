@@ -5,7 +5,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 "conf/sql-map-config-2.dtd">
 
 <sqlMapConfig>
-	<properties resource="sqlserver2005-SqlMapConfig.properties" />
+	<properties resource="sqlserver2005/sqlserver2005-SqlMapConfig.properties" />
 
 	<settings cacheModelsEnabled="true" enhancementEnabled="true"
 		lazyLoadingEnabled="true" maxRequests="32" maxSessions="10"

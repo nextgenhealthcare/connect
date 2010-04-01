@@ -241,7 +241,7 @@ public class DefaultMigrationController extends MigrationController {
     }
 
     private void createSchema(Connection conn) throws Exception {
-        File creationScript = new File(new File(configurationController.getBaseDir()), configurationController.getDatabaseType() + "-database.sql");
+        File creationScript = new File(new File(configurationController.getConfigurationDir() + File.separator + configurationController.getDatabaseType()), configurationController.getDatabaseType() + "-database.sql");
         DatabaseUtil.executeScript(creationScript, true);
     }
 

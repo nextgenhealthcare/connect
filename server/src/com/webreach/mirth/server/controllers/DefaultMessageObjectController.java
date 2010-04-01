@@ -112,6 +112,8 @@ public class DefaultMessageObjectController extends MessageObjectController {
             // Sockets are not serializable and we want to retain the socket
             if (messageObject.getChannelMap().containsKey(RECEIVE_SOCKET)) {
                 Object socketObj = messageObject.getChannelMap().get(RECEIVE_SOCKET);
+                
+                // XXX: Aren't these two cases doing the exact same thing??
                 if (socketObj instanceof Socket) {
                     socket = (Socket) socketObj;
                     messageObject.getChannelMap().put(RECEIVE_SOCKET, socket.toString());

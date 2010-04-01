@@ -577,6 +577,10 @@ public class DefaultConfigurationController extends ConfigurationController {
     public String getApplicationDataDir() {
         return appDataDir;
     }
+    
+    public String getConfigurationDir() {
+        return baseDir + File.separator + "conf"; 
+    }
 
     public PasswordRequirements getPasswordRequirements() {
         return passwordRequirements;

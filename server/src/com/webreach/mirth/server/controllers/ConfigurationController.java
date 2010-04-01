@@ -81,6 +81,8 @@ public abstract class ConfigurationController extends Controller {
 
     public abstract String getBaseDir();
     
+    public abstract String getConfigurationDir();
+    
     public abstract String getApplicationDataDir();
 
     public abstract Properties getServerProperties() throws ControllerException;
