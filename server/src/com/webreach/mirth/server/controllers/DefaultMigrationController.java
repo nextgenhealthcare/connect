@@ -256,8 +256,15 @@ public class DefaultMigrationController extends MigrationController {
             DatabaseUtil.executeScript(migrationFile, true);
         }
     }
-    
+
+    /**
+     * When migrating Mirth Connect versions, certain configurations saved to
+     * the database might also need to be updated. This method uses the schema
+     * version migration process to migrate configurations saved in the
+     * database.
+     */
     private void migrateContents(int oldVersion, int newVersion) throws Exception {
+
         if ((oldVersion == 6) && (newVersion == 7)) {
             CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
             try {
