@@ -381,7 +381,7 @@ public class Mirth extends Thread {
 
             // Serve static content from the lib context
             File extensions = new File(ExtensionController.getExtensionsPath());
-            String libPath = ControllerFactory.getFactory().createConfigurationController().getApplicationDataDir() + File.separator + "client-lib";
+            String libPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + File.separator + "client-lib";
 
             libContext.setResourceBase(libPath);
             libContext.addHandler(new ResourceHandler());
@@ -401,7 +401,7 @@ public class Mirth extends Thread {
             publicContext.setContextPath(contextPath + "/");
             httpServer.addContext(publicContext);
 
-            String publicPath = ControllerFactory.getFactory().createConfigurationController().getApplicationDataDir() + File.separator + "public_html";
+            String publicPath = ControllerFactory.getFactory().createConfigurationController().getBaseDir() + File.separator + "public_html";
             publicContext.setResourceBase(publicPath);
             publicContext.addHandler(new ResourceHandler());
 
