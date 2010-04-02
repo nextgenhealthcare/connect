@@ -7,15 +7,15 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 
 import javax.swing.tree.TreeNode;
 
-import com.webreach.mirth.client.ui.components.MirthTree;
-import com.webreach.mirth.client.ui.editors.MessageTreePanel;
+import com.mirth.connect.client.ui.components.MirthTree;
+import com.mirth.connect.client.ui.editors.MessageTreePanel;
 
 /**
  * Package TreeNodes for movement.

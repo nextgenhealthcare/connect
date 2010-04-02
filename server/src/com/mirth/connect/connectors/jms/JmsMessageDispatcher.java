@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.jms;
+package com.mirth.connect.connectors.jms;
 
 import javax.jms.DeliveryMode;
 import javax.jms.Destination;
@@ -32,15 +32,15 @@ import org.mule.umo.provider.UMOConnector;
 import org.mule.util.PropertiesHelper;
 import org.mule.util.concurrent.Latch;
 
-import com.webreach.mirth.connectors.jms.transformers.MessageObjectToJMSMessage;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.controllers.AlertController;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
-import com.webreach.mirth.server.controllers.MonitoringController.Event;
+import com.mirth.connect.connectors.jms.transformers.MessageObjectToJMSMessage;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.controllers.AlertController;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MessageObjectController;
+import com.mirth.connect.server.controllers.MonitoringController;
+import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
+import com.mirth.connect.server.controllers.MonitoringController.Event;
 
 import edu.emory.mathcs.backport.java.util.concurrent.TimeUnit;
 

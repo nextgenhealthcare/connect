@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 public class DefaultControllerFactory extends ControllerFactory {
     public AlertController createAlertController() {

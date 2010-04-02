@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.js;
+package com.mirth.connect.connectors.js;
 
 import java.util.List;
 import java.util.Map;
@@ -19,12 +19,12 @@ import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOMessageReceiver;
 
-import com.webreach.mirth.model.CodeTemplate;
-import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
-import com.webreach.mirth.server.controllers.ControllerException;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.ScriptController;
-import com.webreach.mirth.server.util.CompiledScriptCache;
+import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
+import com.mirth.connect.server.controllers.ControllerException;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.ScriptController;
+import com.mirth.connect.server.util.CompiledScriptCache;
 
 public class JavaScriptConnector extends AbstractServiceEnabledConnector {
 
@@ -77,8 +77,8 @@ public class JavaScriptConnector extends AbstractServiceEnabledConnector {
     private String generateScript(String scriptString) {
         logger.debug("generating database script");
         StringBuilder script = new StringBuilder();
-        script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
-        script.append("importPackage(Packages.com.webreach.mirth.util);\n");
+        script.append("importPackage(Packages.com.mirth.connect.server.util);\n");
+        script.append("importPackage(Packages.com.mirth.connect.util);\n");
 
         script.append("function $(string) { ");
         script.append("if (connectorMap.containsKey(string)) { return connectorMap.get(string);} else ");

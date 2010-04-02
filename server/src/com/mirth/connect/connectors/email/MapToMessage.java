@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.email;
+package com.mirth.connect.connectors.email;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;

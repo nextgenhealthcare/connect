@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.beans;
+package com.mirth.connect.client.ui.beans;
 
 import java.beans.BeanDescriptor;
 import java.beans.EventSetDescriptor;
@@ -21,7 +21,7 @@ public class DICOMPropertiesBeanInfo extends SimpleBeanInfo {
     // Bean descriptor//GEN-FIRST:BeanDescriptor
     /*lazy BeanDescriptor*/
     private static BeanDescriptor getBdescriptor(){
-        BeanDescriptor beanDescriptor = new BeanDescriptor  ( com.webreach.mirth.client.ui.beans.DICOMProperties.class , null ); // NOI18N//GEN-HEADEREND:BeanDescriptor
+        BeanDescriptor beanDescriptor = new BeanDescriptor  ( com.mirth.connect.client.ui.beans.DICOMProperties.class , null ); // NOI18N//GEN-HEADEREND:BeanDescriptor
 
         // Here you can add code for customizing the BeanDescriptor.
 
@@ -35,7 +35,7 @@ public class DICOMPropertiesBeanInfo extends SimpleBeanInfo {
         PropertyDescriptor[] properties = new PropertyDescriptor[1];
 
         try {
-            properties[PROPERTY_includeGroupLength] = new PropertyDescriptor ( "includeGroupLength", com.webreach.mirth.client.ui.beans.DICOMProperties.class, "isIncludeGroupLength", "setIncludeGroupLength" ); // NOI18N
+            properties[PROPERTY_includeGroupLength] = new PropertyDescriptor ( "includeGroupLength", com.mirth.connect.client.ui.beans.DICOMProperties.class, "isIncludeGroupLength", "setIncludeGroupLength" ); // NOI18N
             properties[PROPERTY_includeGroupLength].setDisplayName ( "Include Group Length" );
             properties[PROPERTY_includeGroupLength].setShortDescription ( "Include Group Length in message." );
             properties[PROPERTY_includeGroupLength].setBound ( true );            

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.core;
+package com.mirth.connect.client.core;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -27,17 +27,17 @@ import org.apache.commons.httpclient.SimpleHttpConnectionManager;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.ChannelStatistics;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.ConnectorMetaData;
-import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.model.ServerInfo;
-import com.webreach.mirth.model.UpdateInfo;
-import com.webreach.mirth.model.UsageData;
-import com.webreach.mirth.model.User;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.util.PropertyLoader;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelStatistics;
+import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.ServerInfo;
+import com.mirth.connect.model.UpdateInfo;
+import com.mirth.connect.model.UsageData;
+import com.mirth.connect.model.User;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.util.PropertyLoader;
 
 public class UpdateClient {
     private ObjectXMLSerializer serializer = new ObjectXMLSerializer();

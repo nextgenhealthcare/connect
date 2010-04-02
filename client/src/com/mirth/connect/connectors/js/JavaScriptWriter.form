@@ -57,7 +57,7 @@
         <Property name="text" type="java.lang.String" value="JavaScript:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="javaScriptTextPane">
+    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="javaScriptTextPane">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -66,7 +66,7 @@
         </Property>
       </Properties>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,false);"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);"/>
       </AuxValues>
     </Component>
   </SubComponents>

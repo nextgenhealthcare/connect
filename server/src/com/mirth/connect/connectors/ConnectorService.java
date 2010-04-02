@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors;
+package com.mirth.connect.connectors;
 
 public interface ConnectorService {
     public Object invoke(String method, Object object, String sessionsId) throws Exception;

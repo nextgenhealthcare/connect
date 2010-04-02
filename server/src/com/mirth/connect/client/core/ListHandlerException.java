@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.core;
+package com.mirth.connect.client.core;
 
 public class ListHandlerException extends Exception {
 	public ListHandlerException(Throwable cause) {

@@ -7,9 +7,9 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.core;
+package com.mirth.connect.client.core;
 
-import com.webreach.mirth.util.EqualsUtil;
+import com.mirth.connect.util.EqualsUtil;
 
 public class IgnoredComponent {
     public final static String COMPONENT_NAME_VERSION_SEPARATOR = ":";

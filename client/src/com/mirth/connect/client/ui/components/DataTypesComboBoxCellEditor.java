@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.components;
+package com.mirth.connect.client.ui.components;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
@@ -17,12 +17,12 @@ import java.util.Properties;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
 
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.util.PropertiesUtil;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.converters.DefaultSerializerPropertiesFactory;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.util.PropertiesUtil;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.converters.DefaultSerializerPropertiesFactory;
 
 public class DataTypesComboBoxCellEditor extends MirthComboBoxCellEditor {
 

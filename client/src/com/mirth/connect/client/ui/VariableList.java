@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -86,7 +86,7 @@ public class VariableList extends javax.swing.JPanel {
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        mirthVariableList = new com.webreach.mirth.client.ui.components.MirthVariableList();
+        mirthVariableList = new com.mirth.connect.client.ui.components.MirthVariableList();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createTitledBorder("Variable List"));
@@ -114,6 +114,6 @@ public class VariableList extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
-    private com.webreach.mirth.client.ui.components.MirthVariableList mirthVariableList;
+    private com.mirth.connect.client.ui.components.MirthVariableList mirthVariableList;
     // End of variables declaration//GEN-END:variables
 }

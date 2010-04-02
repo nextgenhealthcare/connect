@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.launcher;
+package com.mirth.connect.server.launcher;
 
 import java.lang.reflect.Constructor;
 import java.net.URLClassLoader;
@@ -18,7 +18,7 @@ public class ShellLauncher {
             try {
                 ClasspathBuilder builder = new ClasspathBuilder(args[0]);
                 URLClassLoader classLoader = new URLClassLoader(builder.getClasspath());
-                Class<?> shellClass = classLoader.loadClass("com.webreach.mirth.server.tools.Shell");
+                Class<?> shellClass = classLoader.loadClass("com.mirth.connect.server.tools.Shell");
 
                 // remove the first arg for the shell
                 String[] newArgs = new String[args.length - 1];

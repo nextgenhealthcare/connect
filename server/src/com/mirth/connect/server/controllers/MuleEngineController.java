@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -48,20 +48,20 @@ import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.routing.UMOOutboundRouter;
 import org.mule.umo.transformer.UMOTransformer;
 
-import com.webreach.mirth.connectors.jdbc.JdbcTransactionFactory;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.ConnectorMetaData;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.Transformer;
-import com.webreach.mirth.model.converters.IXMLSerializer;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.server.builders.JavaScriptBuilder;
-import com.webreach.mirth.server.mule.ExceptionStrategy;
-import com.webreach.mirth.server.mule.adaptors.AdaptorFactory;
-import com.webreach.mirth.server.mule.filters.ValidMessageFilter;
-import com.webreach.mirth.server.util.UUIDGenerator;
-import com.webreach.mirth.util.PropertyLoader;
+import com.mirth.connect.connectors.jdbc.JdbcTransactionFactory;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.Transformer;
+import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.server.builders.JavaScriptBuilder;
+import com.mirth.connect.server.mule.ExceptionStrategy;
+import com.mirth.connect.server.mule.adaptors.AdaptorFactory;
+import com.mirth.connect.server.mule.filters.ValidMessageFilter;
+import com.mirth.connect.server.util.UUIDGenerator;
+import com.mirth.connect.util.PropertyLoader;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 
@@ -87,13 +87,13 @@ public class MuleEngineController implements EngineController {
         // add default transformers
         defaultTransformers = new HashMap<String, String>();
         defaultTransformers.put("ByteArrayToString", "org.mule.transformers.simple.ByteArrayToString");
-        defaultTransformers.put("JMSMessageToObject", "com.webreach.mirth.connectors.jms.transformers.JMSMessageToObject");
+        defaultTransformers.put("JMSMessageToObject", "com.mirth.connect.connectors.jms.transformers.JMSMessageToObject");
         defaultTransformers.put("StringToByteArray", "org.mule.transformers.simple.StringToByteArray");
-        defaultTransformers.put("ResultMapToXML", "com.webreach.mirth.server.mule.transformers.ResultMapToXML");
+        defaultTransformers.put("ResultMapToXML", "com.mirth.connect.server.mule.transformers.ResultMapToXML");
         defaultTransformers.put("ObjectToString", "org.mule.transformers.simple.ObjectToString");
         defaultTransformers.put("NoActionTransformer", "org.mule.transformers.NoActionTransformer");
-        defaultTransformers.put("HttpStringToXML", "com.webreach.mirth.server.mule.transformers.HttpStringToXML");
-        defaultTransformers.put("HttpRequestToString", "com.webreach.mirth.server.mule.transformers.HttpRequestToString");
+        defaultTransformers.put("HttpStringToXML", "com.mirth.connect.server.mule.transformers.HttpStringToXML");
+        defaultTransformers.put("HttpRequestToString", "com.mirth.connect.server.mule.transformers.HttpRequestToString");
     }
 
     public void resetConfiguration() throws Exception {
@@ -176,7 +176,7 @@ public class MuleEngineController implements EngineController {
     private void registerChannel(Channel channel) throws Exception {
         logger.debug("registering descriptor for channel: " + channel.getId());
         UMODescriptor descriptor = new MuleDescriptor();
-        descriptor.setImplementation(Class.forName("com.webreach.mirth.server.mule.components.Channel").newInstance());
+        descriptor.setImplementation(Class.forName("com.mirth.connect.server.mule.components.Channel").newInstance());
         descriptor.setName(channel.getId());
 
         // default initial state is stopped if no state is found
@@ -377,7 +377,7 @@ public class MuleEngineController implements EngineController {
     private UMOTransformer registerTransformer(Channel channel, Connector connector, String name) throws Exception {
         Transformer transformer = connector.getTransformer();
         logger.debug("registering transformer: " + name);
-        UMOTransformer umoTransformer = (UMOTransformer) Class.forName("com.webreach.mirth.server.mule.transformers.JavaScriptTransformer").newInstance();
+        UMOTransformer umoTransformer = (UMOTransformer) Class.forName("com.mirth.connect.server.mule.transformers.JavaScriptTransformer").newInstance();
         umoTransformer.setName(name);
         Map<String, Object> beanProperties = new HashMap<String, Object>();
         beanProperties.put("channelId", channel.getId());
@@ -477,7 +477,7 @@ public class MuleEngineController implements EngineController {
     }
 
     private UMOTransformer registerPreprocessor(Channel channel, String name) throws Exception {
-        UMOTransformer umoTransformer = (UMOTransformer) Class.forName("com.webreach.mirth.server.mule.transformers.JavaScriptPreprocessor").newInstance();
+        UMOTransformer umoTransformer = (UMOTransformer) Class.forName("com.mirth.connect.server.mule.transformers.JavaScriptPreprocessor").newInstance();
         umoTransformer.setName(name);
         String preprocessingScriptId = UUIDGenerator.getUUID();
         scriptController.putScript(channel.getId(), preprocessingScriptId, channel.getPreprocessingScript());

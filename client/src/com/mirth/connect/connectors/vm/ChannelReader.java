@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.vm;
+package com.mirth.connect.connectors.vm;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -21,12 +21,12 @@ import java.util.regex.Pattern;
 
 import javax.swing.DefaultComboBoxModel;
 
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
-import com.webreach.mirth.connectors.ConnectorClass;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.Step;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
+import com.mirth.connect.connectors.ConnectorClass;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.Step;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -177,7 +177,7 @@ public class ChannelReader extends ConnectorClass {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        responseFromTransformer = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        responseFromTransformer = new com.mirth.connect.client.ui.components.MirthComboBox();
         responseFromLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
@@ -210,6 +210,6 @@ public class ChannelReader extends ConnectorClass {
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel responseFromLabel;
-    private com.webreach.mirth.client.ui.components.MirthComboBox responseFromTransformer;
+    private com.mirth.connect.client.ui.components.MirthComboBox responseFromTransformer;
     // End of variables declaration//GEN-END:variables
 }

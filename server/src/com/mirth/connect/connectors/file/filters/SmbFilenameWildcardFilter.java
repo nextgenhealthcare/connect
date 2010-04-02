@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.file.filters;
+package com.mirth.connect.connectors.file.filters;
 
 import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFilenameFilter;
@@ -17,7 +17,7 @@ import org.apache.commons.logging.LogFactory;
 import org.mule.routing.filters.WildcardFilter;
 import org.mule.umo.UMOMessage;
 
-import com.webreach.mirth.connectors.file.FileConnector;
+import com.mirth.connect.connectors.file.FileConnector;
 
 public class SmbFilenameWildcardFilter extends WildcardFilter implements SmbFilenameFilter
 {

@@ -7,15 +7,15 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.serverlog;
+package com.mirth.connect.plugins.serverlog;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.model.ChannelStatus;
-import com.webreach.mirth.plugins.DashboardPanelPlugin;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.model.ChannelStatus;
+import com.mirth.connect.plugins.DashboardPanelPlugin;
 
 public class ServerLogClient extends DashboardPanelPlugin {
 

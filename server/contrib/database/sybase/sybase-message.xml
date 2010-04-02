@@ -9,7 +9,7 @@ Message.insert-message-param
 -->
 
 <sqlMap namespace="Message">
-	<parameterMap class="com.webreach.mirth.model.MessageObject" id="insert-message-param">
+	<parameterMap class="com.mirth.connect.model.MessageObject" id="insert-message-param">
 		<parameter property="id" jdbcType="VARCHAR" />
 		<parameter property="serverId" jdbcType="VARCHAR" />
 		<parameter property="channelId" jdbcType="VARCHAR" />
@@ -34,7 +34,7 @@ Message.insert-message-param
         <parameter property="attachment" jdbcType="SMALLINT" />            
     </parameterMap>
     
-    <parameterMap class="com.webreach.mirth.model.Attachment" id="insert-attachment-param">
+    <parameterMap class="com.mirth.connect.model.Attachment" id="insert-attachment-param">
         <parameter property="attachmentId" jdbcType="VARCHAR" />
         <parameter property="messageId" jdbcType="VARCHAR" />
         <parameter property="data" jdbcType="BLOB" />
@@ -42,7 +42,7 @@ Message.insert-message-param
         <parameter property="type" jdbcType="VARCHAR" />
 	</parameterMap>
 
-	<parameterMap class="com.webreach.mirth.model.MessageObject" id="update-message-param">
+	<parameterMap class="com.mirth.connect.model.MessageObject" id="update-message-param">
 		<parameter property="status" jdbcType="VARCHAR" />
 		<parameter property="rawData" jdbcType="CLOB" />
 		<parameter property="transformedData" jdbcType="CLOB" />
@@ -56,7 +56,7 @@ Message.insert-message-param
 		<parameter property="id" jdbcType="VARCHAR" />			
 	</parameterMap>
 
-	<resultMap class="com.webreach.mirth.model.MessageObject" id="get-message-result">
+	<resultMap class="com.mirth.connect.model.MessageObject" id="get-message-result">
 		<result property="id" column="ID" />
 		<result property="serverId" column="SERVER_ID" />
 		<result property="channelId" column="CHANNEL_ID" />
@@ -81,7 +81,7 @@ Message.insert-message-param
         <result property="attachment" column="ATTACHMENT" />            
     </resultMap>
 
-    <resultMap class="com.webreach.mirth.model.Attachment" id="get-attachment-result">
+    <resultMap class="com.mirth.connect.model.Attachment" id="get-attachment-result">
         <result property="attachmentId" column="ID" />
         <result property="messageId" column="MESSAGE_ID" />
         <result property="data" column="ATTACHMENT_DATA" />
@@ -89,7 +89,7 @@ Message.insert-message-param
         <result property="type" column="ATTACHMENT_TYPE" />        
 	</resultMap>
 
-    <resultMap class="com.webreach.mirth.model.Attachment" id="get-attachment-result2">
+    <resultMap class="com.mirth.connect.model.Attachment" id="get-attachment-result2">
         <result property="attachmentId" column="ID" />
         <result property="messageId" column="MESSAGE_ID" />
         <result property="size" column="ATTACHMENT_SIZE" />
@@ -262,7 +262,7 @@ Message.insert-message-param
 		DROP INDEX IDX_MSG_TMP_$uid$
 	</delete>
 
-    <delete id="deleteAttachments" parameterClass="com.webreach.mirth.model.MessageObject">
+    <delete id="deleteAttachments" parameterClass="com.mirth.connect.model.MessageObject">
         DELETE FROM ATTACHMENT 
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="id">

@@ -7,14 +7,14 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.mllp;
+package com.mirth.connect.connectors.mllp;
 
 import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.webreach.mirth.model.converters.SerializerFactory;
+import com.mirth.connect.model.converters.SerializerFactory;
 
 public class ResponseAck {
     String ackMessageString = "";

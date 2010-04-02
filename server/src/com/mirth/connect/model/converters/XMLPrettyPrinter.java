@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.converters;
+package com.mirth.connect.model.converters;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -20,7 +20,7 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
-import com.webreach.mirth.util.XmlUtil;
+import com.mirth.connect.util.XmlUtil;
 
 public class XMLPrettyPrinter implements ContentHandler {
 

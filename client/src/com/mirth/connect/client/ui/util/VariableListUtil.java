@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.util;
+package com.mirth.connect.client.ui.util;
 
 import java.util.Iterator;
 import java.util.List;
@@ -15,9 +15,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.Rule;
-import com.webreach.mirth.model.Step;
+import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.Rule;
+import com.mirth.connect.model.Step;
 
 public class VariableListUtil {
     // Finds comments, but also incorrectly finds // or /* inside of block elements like strings.

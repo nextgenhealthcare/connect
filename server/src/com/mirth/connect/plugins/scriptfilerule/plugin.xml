@@ -9,7 +9,7 @@
 	<extensionPoint>
 		<name>External Script</name>
 		<type>CLIENT_FILTER_RULE</type>
-		<className>com.webreach.mirth.plugins.scriptfilerule.ExternalScriptRulePlugin</className>
+		<className>com.mirth.connect.plugins.scriptfilerule.ExternalScriptRulePlugin</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
 	<library path="scriptfilerule-client.jar">

@@ -178,7 +178,7 @@
         <Property name="text" type="java.lang.String" value="Specification:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="specDropDown">
+    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="specDropDown">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="4">
@@ -216,7 +216,7 @@
         <Property name="text" type="java.lang.String" value="Destination:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="durableNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="durableNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -240,7 +240,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="durableNoActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="durableYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="durableYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -263,28 +263,28 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="durableYesActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="cliendId">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="cliendId">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="If Durable Yes is selected, enter the unique identifier for the source connector as a client of the topic."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="jmsURL">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="jmsURL">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="If Use JNDI Yes is selected, enter the URL of the JNDI provider here."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="connectionFactoryJndi">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="connectionFactoryJndi">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="If Use JNDI Yes is selected, enter the JNDI name for the connection factory."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="queue">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="queue">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Enter the JMS provider name for the queue or topic here."/>
         <Property name="autoscrolls" type="boolean" value="false"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="jndiInitialFactory">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="jndiInitialFactory">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="If Use JNDI Yes is selected, enter the full Java classname of the JNDI Initial Context Factory class."/>
       </Properties>
@@ -299,12 +299,12 @@
         <Property name="text" type="java.lang.String" value="Username:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="username">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="username">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Enter the login username for access to the queue or topic here."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthPasswordField" name="password">
+    <Component class="com.mirth.connect.client.ui.components.MirthPasswordField" name="password">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Enter the login password for access to the queue or topic here."/>
       </Properties>
@@ -319,7 +319,7 @@
         <Property name="text" type="java.lang.String" value="Selector Expression:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="selector">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="selector">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the selector expression to select which topic or queue messages the source connector is interested in,&lt;br&gt; or leave blank to read all messages.&lt;/html&gt;"/>
       </Properties>
@@ -331,7 +331,7 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="com.webreach.mirth.client.ui.components.MirthTable" name="propertiesTable">
+        <Component class="com.mirth.connect.client.ui.components.MirthTable" name="propertiesTable">
           <Properties>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
               <Table columnCount="2" rowCount="0">
@@ -371,7 +371,7 @@
         <Property name="text" type="java.lang.String" value="Use JNDI:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="useJNDIYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="useJNDIYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -394,7 +394,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useJNDIYesActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="useJNDINo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="useJNDINo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -423,7 +423,7 @@
         <Property name="text" type="java.lang.String" value="Connection Factory Class:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="connectionFactoryClass">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="connectionFactoryClass">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="If Use JNDI No is selected, enter the full Java classname of the JMS connection factory class here."/>
         <Property name="autoscrolls" type="boolean" value="false"/>
@@ -434,7 +434,7 @@
         <Property name="text" type="java.lang.String" value="ACK Mode:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="ackMode">
+    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="ackMode">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="4">

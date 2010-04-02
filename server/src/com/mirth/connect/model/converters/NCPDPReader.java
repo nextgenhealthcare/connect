@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.converters;
+package com.mirth.connect.model.converters;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,7 +20,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
-import com.webreach.mirth.model.ncpdp.NCPDPReference;
+import com.mirth.connect.model.ncpdp.NCPDPReference;
 
 public class NCPDPReader extends SAXParser {
     private Logger logger = Logger.getLogger(this.getClass());

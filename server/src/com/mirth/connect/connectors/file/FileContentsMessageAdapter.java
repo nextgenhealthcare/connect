@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.file;
+package com.mirth.connect.connectors.file;
 
 import org.mule.providers.AbstractMessageAdapter;
 import org.mule.umo.MessagingException;
@@ -15,7 +15,7 @@ import org.mule.umo.provider.MessageTypeNotSupportedException;
 import org.mule.umo.provider.UniqueIdNotSupportedException;
 import org.mule.util.StringMessageHelper;
 
-import com.webreach.mirth.connectors.file.filesystems.FileInfo;
+import com.mirth.connect.connectors.file.filesystems.FileInfo;
 
 public class FileContentsMessageAdapter extends AbstractMessageAdapter {
     private byte[] message = null;

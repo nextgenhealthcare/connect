@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.util;
+package com.mirth.connect.util;
 
 import java.io.InputStream;
 import java.util.Enumeration;

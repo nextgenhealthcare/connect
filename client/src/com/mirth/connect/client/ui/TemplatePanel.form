@@ -99,7 +99,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="propertiesActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="pasteBox">
+    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="pasteBox">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">

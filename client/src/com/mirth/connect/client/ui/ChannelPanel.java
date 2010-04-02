@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
@@ -34,8 +34,8 @@ import javax.swing.event.ListSelectionListener;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.model.Channel;
+import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.model.Channel;
 
 public class ChannelPanel extends javax.swing.JPanel implements DropTargetListener {
 
@@ -144,9 +144,9 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
             int i = 0;
             for (Channel channel : parent.channels.values()) {
                 if (channel.isEnabled()) {
-                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
+                    tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
                 } else {
-                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
+                    tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
                 }
                 tableData[i][1] = parent.protocols.get(channel.getSourceConnector().getTransformer().getInboundProtocol());
                 tableData[i][2] = channel.getName();
@@ -355,6 +355,6 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane channelPane;
-    private com.webreach.mirth.client.ui.components.MirthTable channelTable;
+    private com.mirth.connect.client.ui.components.MirthTable channelTable;
     // End of variables declaration//GEN-END:variables
 }

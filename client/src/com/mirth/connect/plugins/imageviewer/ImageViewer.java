@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.imageviewer;
+package com.mirth.connect.plugins.imageviewer;
 
 import java.awt.Dimension;
 import java.awt.Point;
@@ -26,8 +26,8 @@ import javax.swing.UIManager;
 
 import org.apache.commons.codec.binary.Base64;
 
-import com.webreach.mirth.model.Attachment;
-import com.webreach.mirth.plugins.AttachmentViewer;
+import com.mirth.connect.model.Attachment;
+import com.mirth.connect.plugins.AttachmentViewer;
 
 public class ImageViewer extends AttachmentViewer {
 

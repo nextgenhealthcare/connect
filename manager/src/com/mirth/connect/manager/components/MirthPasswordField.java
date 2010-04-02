@@ -7,10 +7,10 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.manager.components;
+package com.mirth.connect.manager.components;
 
-import com.webreach.mirth.manager.ManagerController;
-import com.webreach.mirth.manager.PlatformUI;
+import com.mirth.connect.manager.ManagerController;
+import com.mirth.connect.manager.PlatformUI;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 

@@ -7,12 +7,12 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.http;
+package com.mirth.connect.connectors.http;
 
 import java.util.Properties;
 
-import com.webreach.mirth.model.QueuedSenderProperties;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.model.QueuedSenderProperties;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class HTTPSenderProperties extends QueuedSenderProperties {
     public static final String name = "HTTP Sender";

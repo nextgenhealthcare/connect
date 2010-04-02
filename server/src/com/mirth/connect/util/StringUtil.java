@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.util;
+package com.mirth.connect.util;
 
 public class StringUtil {
 	public static String convertLFtoCR(String str) {

@@ -102,7 +102,7 @@
         </Component>
         <Component class="javax.swing.JSeparator" name="jSeparator1">
         </Component>
-        <Container class="com.webreach.mirth.client.ui.MirthHeadingPanel" name="mirthHeadingPanel1">
+        <Container class="com.mirth.connect.client.ui.MirthHeadingPanel" name="mirthHeadingPanel1">
 
           <Layout>
             <DimensionLayout dim="0">
@@ -138,7 +138,7 @@
             </Component>
           </SubComponents>
         </Container>
-        <Component class="com.webreach.mirth.client.ui.UserEditPanel" name="userEditPanel">
+        <Component class="com.mirth.connect.client.ui.UserEditPanel" name="userEditPanel">
         </Component>
       </SubComponents>
     </Container>

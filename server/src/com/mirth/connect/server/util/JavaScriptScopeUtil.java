@@ -7,12 +7,12 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.util;
+package com.mirth.connect.server.util;
 
 import org.mozilla.javascript.Scriptable;
 import org.mule.providers.TemplateValueReplacer;
 
-import com.webreach.mirth.model.MessageObject;
+import com.mirth.connect.model.MessageObject;
 
 public class JavaScriptScopeUtil {
 	// Composite scopes

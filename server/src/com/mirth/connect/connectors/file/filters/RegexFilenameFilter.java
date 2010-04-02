@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.file.filters;
+package com.mirth.connect.connectors.file.filters;
 
 import java.io.File;
 import java.io.FilenameFilter;

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins;
+package com.mirth.connect.plugins;
 
 import java.awt.Component;
 import java.util.List;
@@ -16,8 +16,8 @@ import java.util.Properties;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.model.ChannelStatus;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.model.ChannelStatus;
 
 public abstract class DashboardPanelPlugin extends ClientPlugin {
 

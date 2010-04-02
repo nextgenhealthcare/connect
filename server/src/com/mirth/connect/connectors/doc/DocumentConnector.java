@@ -7,12 +7,12 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.doc;
+package com.mirth.connect.connectors.doc;
 
 import org.mule.providers.AbstractServiceEnabledConnector;
 import org.mule.providers.VariableFilenameParser;
 
-import com.webreach.mirth.connectors.file.FilenameParser;
+import com.mirth.connect.connectors.file.FilenameParser;
 
 public class DocumentConnector extends AbstractServiceEnabledConnector {
     public static final String PROPERTY_FILENAME = "filename";

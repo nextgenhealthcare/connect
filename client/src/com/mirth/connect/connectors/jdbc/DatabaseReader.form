@@ -237,7 +237,7 @@
         <Property name="text" type="java.lang.String" value="SQL:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="databaseDriverCombobox">
+    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="databaseDriverCombobox">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="5">
@@ -251,17 +251,17 @@
         <Property name="toolTipText" type="java.lang.String" value="Specifies the type of database driver to use to connect to the database."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="databaseURLField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="databaseURLField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The JDBC URL to connect to the database. This is not used when &quot;Use JavaScript&quot; is checked.&lt;br&gt;However, it is used when the Insert Connection feature is used to generate code.&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="databaseUsernameField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="databaseUsernameField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The user name to connect to the database. This is not used when &quot;Use JavaScript&quot; is checked.&lt;br&gt;However, it is used when the Insert Connection feature is used to generate code.&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthPasswordField" name="databasePasswordField">
+    <Component class="com.mirth.connect.client.ui.components.MirthPasswordField" name="databasePasswordField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The password to connect to the database. This is not used when &quot;Use JavaScript&quot; is checked.&lt;br&gt;However, it is used when the Insert Connection feature is used to generate code.&lt;/html&gt;"/>
       </Properties>
@@ -276,12 +276,12 @@
         <Property name="text" type="java.lang.String" value="Polling Frequency (ms):"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="pollingFrequency">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="pollingFrequency">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If the &quot;Interval&quot; Polling Type is selected, the number of milliseconds between polls must be entered here.&lt;br&gt;Avoid extremely small values because polling can be a somewhat time-consuming operation.&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="readOnUpdateYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="readOnUpdateYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -304,7 +304,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="readOnUpdateYesActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="readOnUpdateNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="readOnUpdateNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -340,7 +340,7 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="com.webreach.mirth.client.ui.components.MirthVariableList" name="dbVarList">
+        <Component class="com.mirth.connect.client.ui.components.MirthVariableList" name="dbVarList">
           <Properties>
             <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
               <StringArray count="0"/>
@@ -350,7 +350,7 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="databaseSQLTextPane">
+    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="databaseSQLTextPane">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -359,10 +359,10 @@
         </Property>
       </Properties>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,false);"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);"/>
       </AuxValues>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="databaseUpdateSQLTextPane">
+    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="databaseUpdateSQLTextPane">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -371,7 +371,7 @@
         </Property>
       </Properties>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,false);"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);"/>
       </AuxValues>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel6">
@@ -379,7 +379,7 @@
         <Property name="text" type="java.lang.String" value="Use JavaScript"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="useJavaScriptYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="useJavaScriptYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -402,7 +402,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useJavaScriptYesActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="useJavaScriptNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="useJavaScriptNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -443,7 +443,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateUpdateConnectionActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="pollingTimeButton">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="pollingTimeButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -466,7 +466,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pollingTimeButtonActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="pollingIntervalButton">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="pollingIntervalButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -499,7 +499,7 @@
         <Property name="text" type="java.lang.String" value="Polling Time (daily):"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTimePicker" name="pollingTime">
+    <Component class="com.mirth.connect.client.ui.components.MirthTimePicker" name="pollingTime">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="If the &quot;Time&quot; Polling Type is selected, the time of day to poll must be entered here."/>
       </Properties>
@@ -530,7 +530,7 @@
         <Property name="text" type="java.lang.String" value="Generate:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="processResultsInOrderNoButton">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="processResultsInOrderNoButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -550,7 +550,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="processResultsInOrderYesButton">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="processResultsInOrderYesButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>

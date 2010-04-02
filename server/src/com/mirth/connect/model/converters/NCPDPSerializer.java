@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.converters;
+package com.mirth.connect.model.converters;
 
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
@@ -23,7 +23,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-import com.webreach.mirth.model.ncpdp.NCPDPReference;
+import com.mirth.connect.model.ncpdp.NCPDPReference;
 
 /**
  * Created by IntelliJ IDEA.

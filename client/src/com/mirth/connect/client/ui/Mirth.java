@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.awt.Color;
 import java.awt.event.InputEvent;
@@ -30,7 +30,7 @@ import org.jdesktop.swingx.plaf.windows.WindowsLookAndFeelAddons;
 
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
-import com.webreach.mirth.client.core.Client;
+import com.mirth.connect.client.core.Client;
 
 /**
  * The main mirth class. Sets up the login and then authenticates the login
@@ -97,9 +97,9 @@ public class Mirth {
         keyMapBindings(new javax.swing.JTextField(), defaultBindings);
         keyMapBindings(new javax.swing.JEditorPane(), defaultBindings);
         keyMapBindings(new javax.swing.JTextArea(), defaultBindings);
-        keyMapBindings(new com.webreach.mirth.client.ui.components.MirthTextArea(), defaultBindings);
-        keyMapBindings(new com.webreach.mirth.client.ui.components.MirthTextField(), defaultBindings);
-        keyMapBindings(new com.webreach.mirth.client.ui.components.MirthTextPane(), defaultBindings);
+        keyMapBindings(new com.mirth.connect.client.ui.components.MirthTextArea(), defaultBindings);
+        keyMapBindings(new com.mirth.connect.client.ui.components.MirthTextField(), defaultBindings);
+        keyMapBindings(new com.mirth.connect.client.ui.components.MirthTextPane(), defaultBindings);
     }
 
     private static void keyMapBindings(JTextComponent comp, KeyBinding[] bindings) {
@@ -208,11 +208,11 @@ public class Mirth {
                 UIManager.put("List.font", UIConstants.TEXTFIELD_PLAIN_FONT);
 
                 try {
-                    UIManager.put("wizard.sidebar.image", ImageIO.read(com.webreach.mirth.client.ui.Frame.class.getResource("images/wizardsidebar.png")));
+                    UIManager.put("wizard.sidebar.image", ImageIO.read(com.mirth.connect.client.ui.Frame.class.getResource("images/wizardsidebar.png")));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                PlatformUI.BACKGROUND_IMAGE = new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/header_nologo.png"));
+                PlatformUI.BACKGROUND_IMAGE = new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/header_nologo.png"));
                 login = new LoginPanel(server, version, username, password);
             }
         });

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.core;
+package com.mirth.connect.client.core;
 
 import java.io.File;
 import java.util.List;
@@ -17,25 +17,25 @@ import java.util.Properties;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.model.Alert;
-import com.webreach.mirth.model.Attachment;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.ChannelStatistics;
-import com.webreach.mirth.model.ChannelStatus;
-import com.webreach.mirth.model.ChannelSummary;
-import com.webreach.mirth.model.CodeTemplate;
-import com.webreach.mirth.model.ConnectorMetaData;
-import com.webreach.mirth.model.DriverInfo;
-import com.webreach.mirth.model.ExtensionLibrary;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.MetaData;
-import com.webreach.mirth.model.PasswordRequirements;
-import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.model.ServerConfiguration;
-import com.webreach.mirth.model.User;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.model.filters.MessageObjectFilter;
-import com.webreach.mirth.model.filters.SystemEventFilter;
+import com.mirth.connect.model.Alert;
+import com.mirth.connect.model.Attachment;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelStatistics;
+import com.mirth.connect.model.ChannelStatus;
+import com.mirth.connect.model.ChannelSummary;
+import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.model.DriverInfo;
+import com.mirth.connect.model.ExtensionLibrary;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.MetaData;
+import com.mirth.connect.model.PasswordRequirements;
+import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.ServerConfiguration;
+import com.mirth.connect.model.User;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.model.filters.MessageObjectFilter;
+import com.mirth.connect.model.filters.SystemEventFilter;
 
 public class Client {
     private Logger logger = Logger.getLogger(this.getClass());

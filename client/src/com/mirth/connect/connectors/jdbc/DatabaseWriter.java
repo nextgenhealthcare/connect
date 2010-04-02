@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.jdbc;
+package com.mirth.connect.connectors.jdbc;
 
 import java.util.List;
 import java.util.Properties;
@@ -19,11 +19,11 @@ import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 import org.syntax.jedit.tokenmarker.TSQLTokenMarker;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.connectors.ConnectorClass;
-import com.webreach.mirth.connectors.jdbc.DatabaseMetadataDialog.STATEMENT_TYPE;
-import com.webreach.mirth.model.DriverInfo;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.connectors.ConnectorClass;
+import com.mirth.connect.connectors.jdbc.DatabaseMetadataDialog.STATEMENT_TYPE;
+import com.mirth.connect.model.DriverInfo;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -209,13 +209,13 @@ public class DatabaseWriter extends ConnectorClass {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         sqlLabel = new javax.swing.JLabel();
-        databaseDriverCombobox = new com.webreach.mirth.client.ui.components.MirthComboBox();
-        databaseURLField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        databaseUsernameField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        databasePasswordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
-        databaseSQLTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,false);
-        useJavaScriptYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        useJavaScriptNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        databaseDriverCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
+        databaseURLField = new com.mirth.connect.client.ui.components.MirthTextField();
+        databaseUsernameField = new com.mirth.connect.client.ui.components.MirthTextField();
+        databasePasswordField = new com.mirth.connect.client.ui.components.MirthPasswordField();
+        databaseSQLTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);
+        useJavaScriptYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        useJavaScriptNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
         jLabel6 = new javax.swing.JLabel();
         generateConnection = new javax.swing.JButton();
         jLabel7 = new javax.swing.JLabel();
@@ -477,11 +477,11 @@ private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent e
     }// GEN-LAST:event_useJavaScriptNoActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
-    private com.webreach.mirth.client.ui.components.MirthComboBox databaseDriverCombobox;
-    private com.webreach.mirth.client.ui.components.MirthPasswordField databasePasswordField;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea databaseSQLTextPane;
-    private com.webreach.mirth.client.ui.components.MirthTextField databaseURLField;
-    private com.webreach.mirth.client.ui.components.MirthTextField databaseUsernameField;
+    private com.mirth.connect.client.ui.components.MirthComboBox databaseDriverCombobox;
+    private com.mirth.connect.client.ui.components.MirthPasswordField databasePasswordField;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea databaseSQLTextPane;
+    private com.mirth.connect.client.ui.components.MirthTextField databaseURLField;
+    private com.mirth.connect.client.ui.components.MirthTextField databaseUsernameField;
     private javax.swing.JButton generateConnection;
     private javax.swing.JButton generateInsert;
     private javax.swing.JButton insertURLTemplateButton;
@@ -492,7 +492,7 @@ private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent e
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel sqlLabel;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton useJavaScriptNo;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton useJavaScriptYes;
+    private com.mirth.connect.client.ui.components.MirthRadioButton useJavaScriptNo;
+    private com.mirth.connect.client.ui.components.MirthRadioButton useJavaScriptYes;
     // End of variables declaration//GEN-END:variables
 }

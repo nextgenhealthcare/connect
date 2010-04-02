@@ -7,13 +7,13 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.util;
+package com.mirth.connect.server.util;
 
-import com.webreach.mirth.model.Attachment;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.converters.SerializerException;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.mirth.connect.model.Attachment;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.converters.SerializerException;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MessageObjectController;
 import org.apache.log4j.Logger;
 
 import java.util.List;

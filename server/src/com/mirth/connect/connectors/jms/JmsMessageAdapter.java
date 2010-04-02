@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.jms;
+package com.mirth.connect.connectors.jms;
 
 import java.util.Enumeration;
 

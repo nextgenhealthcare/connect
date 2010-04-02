@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.util;
+package com.mirth.connect.server.util;
 
 /**
  * Created by IntelliJ IDEA.

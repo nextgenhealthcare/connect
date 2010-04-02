@@ -7,14 +7,14 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.util;
+package com.mirth.connect.server.util;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.webreach.mirth.connectors.vm.VMMessageReceiver;
+import com.mirth.connect.connectors.vm.VMMessageReceiver;
 
 public class VMRegistry {
 	public Map<String, VMMessageReceiver> vmRegistry = new ConcurrentHashMap<String, VMMessageReceiver>();

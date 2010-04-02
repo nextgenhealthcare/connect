@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.mllp;
+package com.mirth.connect.connectors.mllp;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -57,20 +57,20 @@ import org.mule.umo.provider.UMOMessageAdapter;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-import com.webreach.mirth.connectors.mllp.protocols.LlpProtocol;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.Response;
-import com.webreach.mirth.model.MessageObject.Protocol;
-import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.controllers.AlertController;
-import com.webreach.mirth.server.controllers.ChannelController;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
-import com.webreach.mirth.server.controllers.MonitoringController.Event;
-import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
-import com.webreach.mirth.server.util.BatchMessageProcessor;
-import com.webreach.mirth.server.util.StackTracePrinter;
+import com.mirth.connect.connectors.mllp.protocols.LlpProtocol;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.Response;
+import com.mirth.connect.model.MessageObject.Protocol;
+import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.controllers.AlertController;
+import com.mirth.connect.server.controllers.ChannelController;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MonitoringController;
+import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
+import com.mirth.connect.server.controllers.MonitoringController.Event;
+import com.mirth.connect.server.mule.transformers.JavaScriptPostprocessor;
+import com.mirth.connect.server.util.BatchMessageProcessor;
+import com.mirth.connect.server.util.StackTracePrinter;
 
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 

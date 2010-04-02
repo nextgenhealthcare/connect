@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.file;
+package com.mirth.connect.connectors.file;
 
 import java.net.URI;
 import java.util.Properties;

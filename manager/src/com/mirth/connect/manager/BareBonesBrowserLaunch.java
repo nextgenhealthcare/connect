@@ -7,7 +7,7 @@
 // BareBonesBrowserLaunch.openURL(url); // 
 // Public Domain Software -- Free to Use as You Like // 
 ///////////////////////////////////////////////////////// 
-package com.webreach.mirth.manager;
+package com.mirth.connect.manager;
 
 import java.lang.reflect.Method;
 

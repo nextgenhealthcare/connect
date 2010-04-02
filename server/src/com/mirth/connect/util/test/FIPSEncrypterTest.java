@@ -7,11 +7,11 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.util.test;
+package com.mirth.connect.util.test;
 
 import junit.framework.TestCase;
 
-import com.webreach.mirth.util.FIPSEncrypter;
+import com.mirth.connect.util.FIPSEncrypter;
 
 public class FIPSEncrypterTest extends TestCase {
 	private String plainText = "password";

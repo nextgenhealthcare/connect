@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.manager.util;
+package com.mirth.connect.manager.util;
 
 public class ObjectClonerException extends Exception {
 

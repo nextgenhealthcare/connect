@@ -88,7 +88,7 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
-            <Component class="com.webreach.mirth.client.ui.components.MirthTable" name="loadedPluginsTable">
+            <Component class="com.mirth.connect.client.ui.components.MirthTable" name="loadedPluginsTable">
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="null;"/>
               </AuxValues>
@@ -203,7 +203,7 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
-            <Component class="com.webreach.mirth.client.ui.components.MirthTable" name="loadedConnectorsTable">
+            <Component class="com.mirth.connect.client.ui.components.MirthTable" name="loadedConnectorsTable">
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="null;"/>
               </AuxValues>

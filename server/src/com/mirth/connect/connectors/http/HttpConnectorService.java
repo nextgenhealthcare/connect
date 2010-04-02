@@ -7,13 +7,13 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.http;
+package com.mirth.connect.connectors.http;
 
 import java.net.URL;
 import java.util.Map;
 
-import com.webreach.mirth.connectors.ConnectorService;
-import com.webreach.mirth.server.util.ConnectorUtil;
+import com.mirth.connect.connectors.ConnectorService;
+import com.mirth.connect.server.util.ConnectorUtil;
 
 public class HttpConnectorService implements ConnectorService {
     private static final int TIMEOUT = 5000;

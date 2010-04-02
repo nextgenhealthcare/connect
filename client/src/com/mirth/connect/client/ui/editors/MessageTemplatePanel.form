@@ -48,7 +48,7 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout"/>
       <SubComponents>
-        <Component class="com.webreach.mirth.client.ui.TemplatePanel" name="templatePanelInbound">
+        <Component class="com.mirth.connect.client.ui.TemplatePanel" name="templatePanelInbound">
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new TemplatePanel(parent);"/>
           </AuxValues>
@@ -58,7 +58,7 @@
             </Constraint>
           </Constraints>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.TemplatePanel" name="templatePanelOutbound">
+        <Component class="com.mirth.connect.client.ui.TemplatePanel" name="templatePanelOutbound">
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new TemplatePanel(parent);"/>
           </AuxValues>

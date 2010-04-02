@@ -5,9 +5,9 @@
 	<mirthVersion>2.0.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to listen for incoming events from other channels in the same Mirth instance.</description>
-	<clientClassName>com.webreach.mirth.connectors.vm.ChannelReader</clientClassName>
-	<serverClassName>com.webreach.mirth.connectors.vm.VMConnector</serverClassName>
-	<sharedClassName>com.webreach.mirth.connectors.vm.ChannelReaderProperties</sharedClassName>
+	<clientClassName>com.mirth.connect.connectors.vm.ChannelReader</clientClassName>
+	<serverClassName>com.mirth.connect.connectors.vm.VMConnector</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.vm.ChannelReaderProperties</sharedClassName>
 	<library path="vm-client.jar">
 		<type>CLIENT</type>
 	</library>
@@ -22,10 +22,10 @@
 	<type>SOURCE</type>
 	<enabled>true</enabled>
 	<mule-properties>
-		<property name="connector">com.webreach.mirth.connectors.vm.VMConnector</property>
-		<property name="dispatcher.factory">com.webreach.mirth.connectors.vm.VMMessageDispatcherFactory</property>
-		<property name="message.receiver">com.webreach.mirth.connectors.vm.VMMessageReceiver</property>
-		<property name="message.adapter">com.webreach.mirth.connectors.vm.VMMessageAdapter</property>
+		<property name="connector">com.mirth.connect.connectors.vm.VMConnector</property>
+		<property name="dispatcher.factory">com.mirth.connect.connectors.vm.VMMessageDispatcherFactory</property>
+		<property name="message.receiver">com.mirth.connect.connectors.vm.VMMessageReceiver</property>
+		<property name="message.adapter">com.mirth.connect.connectors.vm.VMMessageAdapter</property>
 		<property name="endpoint.builder">org.mule.impl.endpoint.ResourceNameEndpointBuilder</property>
 	</mule-properties>
 </connectorMetaData>

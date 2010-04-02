@@ -62,8 +62,8 @@
 		<copy todir="${classes}" file="${src}/log4j.properties" />
 
 		<!-- copy the image files so they will be included in jar -->
-		<copy todir="${classes}/com/webreach/mirth/client/ui/images">
-			<fileset dir="${src}/com/webreach/mirth/client/ui/images" />
+		<copy todir="${classes}/com/mirth/connect/client/ui/images">
+			<fileset dir="${src}/com/mirth/connect/client/ui/images" />
 		</copy>
 	</target>
 
@@ -73,153 +73,153 @@
 
 		<jar destfile="${dist}/${client.jar}">
 			<fileset dir="${classes}">
-				<exclude name="com/webreach/mirth/connectors/**/**" />
+				<exclude name="com/mirth/connect/connectors/**/**" />
 			</fileset>
 			<fileset dir="${classes}">
-				<include name="com/webreach/mirth/connectors/ConnectorClass.class" />
+				<include name="com/mirth/connect/connectors/ConnectorClass.class" />
 			</fileset>
 		</jar>
 
 		<!-- connectors -->
 		<mkdir dir="${connectors.doc}" />
 		<jar destfile="${connectors.doc}/doc-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/connectors/doc/**" />
+			<include name="com/mirth/connect/connectors/doc/**" />
 		</jar>
 
 		<mkdir dir="${connectors.email}" />
 		<jar destfile="${connectors.email}/email-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/connectors/email/**" />
+			<include name="com/mirth/connect/connectors/email/**" />
 		</jar>
 
 		<mkdir dir="${connectors.file}" />
 		<jar destfile="${connectors.file}/file-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/connectors/file/**" />
+			<include name="com/mirth/connect/connectors/file/**" />
 		</jar>
 
 		<mkdir dir="${connectors.http}" />
 		<jar destfile="${connectors.http}/http-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/connectors/http/**" />
+			<include name="com/mirth/connect/connectors/http/**" />
 		</jar>
 
 		<mkdir dir="${connectors.dicom}" />
 		<jar destfile="${connectors.dicom}/dicom-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/connectors/dimse/**" />
+			<include name="com/mirth/connect/connectors/dimse/**" />
 		</jar>
 
 		<mkdir dir="${connectors.jdbc}" />
 		<jar destfile="${connectors.jdbc}/jdbc-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/connectors/jdbc/**" />
+			<include name="com/mirth/connect/connectors/jdbc/**" />
 		</jar>
 
 		<mkdir dir="${connectors.jms}" />
 		<jar destfile="${connectors.jms}/jms-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/connectors/jms/**" />
+			<include name="com/mirth/connect/connectors/jms/**" />
 		</jar>
 
 		<mkdir dir="${connectors.js}" />
 		<jar destfile="${connectors.js}/js-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/connectors/js/**" />
+			<include name="com/mirth/connect/connectors/js/**" />
 		</jar>
 
 		<mkdir dir="${connectors.mllp}" />
 		<jar destfile="${connectors.mllp}/mllp-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/connectors/mllp/**" />
+			<include name="com/mirth/connect/connectors/mllp/**" />
 		</jar>
 
 		<mkdir dir="${connectors.ws}" />
 		<jar destfile="${connectors.ws}/ws-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/connectors/ws/**" />
+			<include name="com/mirth/connect/connectors/ws/**" />
 		</jar>
 
 		<mkdir dir="${connectors.tcp}" />
 		<jar destfile="${connectors.tcp}/tcp-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/connectors/tcp/**" />
+			<include name="com/mirth/connect/connectors/tcp/**" />
 		</jar>
 
 		<mkdir dir="${connectors.vm}" />
 		<jar destfile="${connectors.vm}/vm-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/connectors/vm/**" />
+			<include name="com/mirth/connect/connectors/vm/**" />
 		</jar>
 
 		<!-- plguins -->
 		<mkdir dir="${plugins.messagepruner}" />
 		<jar destfile="${plugins.messagepruner}/messagepruner-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/plugins/messagepruner/**" />
+			<include name="com/mirth/connect/plugins/messagepruner/**" />
 		</jar>
 
 		<mkdir dir="${plugins.extensionmanager}" />
 		<jar destfile="${plugins.extensionmanager}/extensionmanager-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/plugins/extensionmanager/**" />
+			<include name="com/mirth/connect/plugins/extensionmanager/**" />
 		</jar>
 
 		<mkdir dir="${plugins.javascriptstep}" />
 		<jar destfile="${plugins.javascriptstep}/javascriptstep-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/plugins/javascriptstep/**" />
+			<include name="com/mirth/connect/plugins/javascriptstep/**" />
 		</jar>
 
 		<mkdir dir="${plugins.mapper}" />
 		<jar destfile="${plugins.mapper}/mapper-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/plugins/mapper/**" />
+			<include name="com/mirth/connect/plugins/mapper/**" />
 		</jar>
 
 		<mkdir dir="${plugins.messagebuilder}" />
 		<jar destfile="${plugins.messagebuilder}/messagebuilder-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/plugins/messagebuilder/**" />
+			<include name="com/mirth/connect/plugins/messagebuilder/**" />
 		</jar>
 
 		<mkdir dir="${plugins.javascriptrule}" />
 		<jar destfile="${plugins.javascriptrule}/javascriptrule-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/plugins/javascriptrule/**" />
+			<include name="com/mirth/connect/plugins/javascriptrule/**" />
 		</jar>
 
 		<mkdir dir="${plugins.rulebuilder}" />
 		<jar destfile="${plugins.rulebuilder}/rulebuilder-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/plugins/rulebuilder/**" />
+			<include name="com/mirth/connect/plugins/rulebuilder/**" />
 		</jar>
 
 		<mkdir dir="${plugins.dashboardstatus}" />
 		<jar destfile="${plugins.dashboardstatus}/dashboardstatus-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/plugins/dashboardstatus/**" />
+			<include name="com/mirth/connect/plugins/dashboardstatus/**" />
 		</jar>
 
 		<mkdir dir="${plugins.dicomviewer}" />
 		<jar destfile="${plugins.dicomviewer}/dicomviewer-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/plugins/dicomviewer/**" />
+			<include name="com/mirth/connect/plugins/dicomviewer/**" />
 		</jar>
 
 		<mkdir dir="${plugins.pdfviewer}" />
 		<jar destfile="${plugins.pdfviewer}/pdfviewer-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/plugins/pdfviewer/**" />
+			<include name="com/mirth/connect/plugins/pdfviewer/**" />
 		</jar>
 
 		<mkdir dir="${plugins.rtfviewer}" />
 		<jar destfile="${plugins.rtfviewer}/rtfviewer-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/plugins/rtfviewer/**" />
+			<include name="com/mirth/connect/plugins/rtfviewer/**" />
 		</jar>
 
 		<mkdir dir="${plugins.imageviewer}" />
 		<jar destfile="${plugins.imageviewer}/imageviewer-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/plugins/imageviewer/**" />
+			<include name="com/mirth/connect/plugins/imageviewer/**" />
 		</jar>
 
 		<mkdir dir="${plugins.serverlog}" />
 		<jar destfile="${plugins.serverlog}/serverlog-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/plugins/serverlog/**" />
+			<include name="com/mirth/connect/plugins/serverlog/**" />
 		</jar>
 
 		<mkdir dir="${plugins.scriptfilerule}" />
 		<jar destfile="${plugins.scriptfilerule}/scriptfilerule-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/plugins/scriptfilerule/**" />
+			<include name="com/mirth/connect/plugins/scriptfilerule/**" />
 		</jar>
         
 		<mkdir dir="${plugins.scriptfilestep}" />
 		<jar destfile="${plugins.scriptfilestep}/scriptfilestep-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/plugins/scriptfilestep/**" />
+			<include name="com/mirth/connect/plugins/scriptfilestep/**" />
 		</jar>
 
 		<mkdir dir="${plugins.xsltstep}" />
 		<jar destfile="${plugins.xsltstep}/xsltstep-client.jar" basedir="${classes}">
-			<include name="com/webreach/mirth/plugins/xsltstep/**" />
+			<include name="com/mirth/connect/plugins/xsltstep/**" />
 		</jar>
 
 		<!-- copy source files -->

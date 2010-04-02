@@ -7,9 +7,9 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins;
+package com.mirth.connect.plugins;
 
-import com.webreach.mirth.client.ui.editors.filter.FilterPane;
+import com.mirth.connect.client.ui.editors.filter.FilterPane;
 
 public abstract class FilterRulePlugin extends MirthEditorPanePlugin {
 

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.components;
+package com.mirth.connect.client.ui.components;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 

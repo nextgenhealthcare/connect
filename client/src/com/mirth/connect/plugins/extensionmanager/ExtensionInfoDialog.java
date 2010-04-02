@@ -7,14 +7,14 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.extensionmanager;
+package com.mirth.connect.plugins.extensionmanager;
 
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Point;
 
-import com.webreach.mirth.client.ui.BareBonesBrowserLaunch;
-import com.webreach.mirth.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.BareBonesBrowserLaunch;
+import com.mirth.connect.client.ui.PlatformUI;
 
 public class ExtensionInfoDialog extends javax.swing.JDialog {
 
@@ -114,7 +114,7 @@ public class ExtensionInfoDialog extends javax.swing.JDialog {
 
         urlLabel.setFont(new java.awt.Font("Tahoma", 1, 11));
         urlLabel.setForeground(new java.awt.Color(0, 51, 204));
-        urlLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/webreach/mirth/client/ui/images/world_go.png"))); // NOI18N
+        urlLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/mirth/connect/client/ui/images/world_go.png"))); // NOI18N
         urlLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 urlLabelMouseClicked(evt);

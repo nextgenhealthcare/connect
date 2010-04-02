@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.mllp.protocols;
+package com.mirth.connect.connectors.mllp.protocols;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -20,8 +20,8 @@ import java.net.SocketTimeoutException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.webreach.mirth.connectors.mllp.MllpConnector;
-import com.webreach.mirth.connectors.mllp.TcpProtocol;
+import com.mirth.connect.connectors.mllp.MllpConnector;
+import com.mirth.connect.connectors.mllp.TcpProtocol;
 
 /**
  * The LLP Protocol is suitable for sending and receiving HL7 formatted

@@ -21,7 +21,7 @@ import java.util.Hashtable;
 import javax.swing.JPopupMenu;
 import javax.swing.text.BadLocationException;
 
-import com.webreach.mirth.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.PlatformUI;
 
 /**
  * An input handler converts the user's key strokes into concrete actions. It

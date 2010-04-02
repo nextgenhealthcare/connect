@@ -11,8 +11,8 @@ package org.mule.providers;
 
 import org.mule.umo.provider.UMOMessageAdapter;
 
-import com.webreach.mirth.connectors.file.FilenameParser;
-import com.webreach.mirth.model.MessageObject;
+import com.mirth.connect.connectors.file.FilenameParser;
+import com.mirth.connect.model.MessageObject;
 
 public class VariableFilenameParser implements FilenameParser {
 	public static final String PROPERTY_ORIGINAL_FILENAME = "originalFilename";

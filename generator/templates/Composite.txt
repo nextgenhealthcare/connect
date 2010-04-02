@@ -1,5 +1,5 @@
-package com.webreach.mirth.model.hl7v2.v${version}.composite;
-import com.webreach.mirth.model.hl7v2.*;
+package com.mirth.connect.model.hl7v2.v${version}.composite;
+import com.mirth.connect.model.hl7v2.*;
 
 public class _${name} extends Composite {
 	public _${name}(){

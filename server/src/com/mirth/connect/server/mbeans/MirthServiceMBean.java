@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.mbeans;
+package com.mirth.connect.server.mbeans;
 
 public interface MirthServiceMBean {
    public void start();

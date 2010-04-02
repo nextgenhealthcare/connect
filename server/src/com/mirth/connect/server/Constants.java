@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server;
+package com.mirth.connect.server;
 
 public class Constants {
 	public static final String ERROR_000 = "ERROR-000: Server error";

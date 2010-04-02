@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.editors;
+package com.mirth.connect.client.ui.editors;
 
 import java.awt.BorderLayout;
 import java.awt.Component;

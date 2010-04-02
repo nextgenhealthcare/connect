@@ -7,12 +7,12 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.util;
+package com.mirth.connect.server.util;
 
 import java.util.Properties;
 
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.util.PropertyLoader;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.util.PropertyLoader;
 
 public class SMTPConnectionFactory {
     public static SMTPConnection createSMTPConnection() throws Exception {

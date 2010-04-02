@@ -6,7 +6,7 @@
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
  */
-package com.webreach.mirth.connectors.file;
+package com.mirth.connect.connectors.file;
 
 import java.util.Properties;
 
@@ -14,10 +14,10 @@ import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.connectors.ConnectorClass;
-import com.webreach.mirth.util.ConnectionTestResponse;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.connectors.ConnectorClass;
+import com.mirth.connect.util.ConnectionTestResponse;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -355,43 +355,43 @@ public class FileWriter extends ConnectorClass {
         buttonGroup5 = new javax.swing.ButtonGroup();
         buttonGroup6 = new javax.swing.ButtonGroup();
         schemeLabel = new javax.swing.JLabel();
-        schemeComboBox = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        schemeComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
         directoryLabel = new javax.swing.JLabel();
-        directoryField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        directoryField = new com.mirth.connect.client.ui.components.MirthTextField();
         hostLabel = new javax.swing.JLabel();
-        hostField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        hostField = new com.mirth.connect.client.ui.components.MirthTextField();
         pathLabel = new javax.swing.JLabel();
-        pathField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        pathField = new com.mirth.connect.client.ui.components.MirthTextField();
         fileNameLabel = new javax.swing.JLabel();
-        fileNameField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        fileNameField = new com.mirth.connect.client.ui.components.MirthTextField();
         anonymousLabel = new javax.swing.JLabel();
-        anonymousYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        anonymousNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        anonymousYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        anonymousNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
         usernameLabel = new javax.swing.JLabel();
-        usernameField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        usernameField = new com.mirth.connect.client.ui.components.MirthTextField();
         passwordLabel = new javax.swing.JLabel();
-        passwordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
+        passwordField = new com.mirth.connect.client.ui.components.MirthPasswordField();
         secureModeLabel = new javax.swing.JLabel();
-        secureModeYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        secureModeNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        secureModeYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        secureModeNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
         validateConnectionLabel = new javax.swing.JLabel();
-        validateConnectionYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        validateConnectionNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        validateConnectionYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        validateConnectionNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
         appendToFileLabel = new javax.swing.JLabel();
-        appendToFileYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        appendToFileNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        appendToFileYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        appendToFileNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
         fileTypeLabel = new javax.swing.JLabel();
-        fileTypeBinary = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        fileTypeASCII = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        charsetEncodingCombobox = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        fileTypeBinary = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        fileTypeASCII = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        charsetEncodingCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
         encodingLabel = new javax.swing.JLabel();
         templateLabel = new javax.swing.JLabel();
-        fileContentsTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(false,false);
+        fileContentsTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(false,false);
         testConnection = new javax.swing.JButton();
         passiveModeLabel = new javax.swing.JLabel();
-        passiveModeYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        passiveModeNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        timeoutField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        passiveModeYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        passiveModeNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        timeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
         timeoutLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
@@ -915,49 +915,49 @@ private void secureModeNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     }// GEN-LAST:event_fileTypeBinaryActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel anonymousLabel;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton anonymousNo;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton anonymousYes;
+    private com.mirth.connect.client.ui.components.MirthRadioButton anonymousNo;
+    private com.mirth.connect.client.ui.components.MirthRadioButton anonymousYes;
     private javax.swing.JLabel appendToFileLabel;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton appendToFileNo;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton appendToFileYes;
+    private com.mirth.connect.client.ui.components.MirthRadioButton appendToFileNo;
+    private com.mirth.connect.client.ui.components.MirthRadioButton appendToFileYes;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.ButtonGroup buttonGroup3;
     private javax.swing.ButtonGroup buttonGroup4;
     private javax.swing.ButtonGroup buttonGroup5;
     private javax.swing.ButtonGroup buttonGroup6;
-    private com.webreach.mirth.client.ui.components.MirthComboBox charsetEncodingCombobox;
-    private com.webreach.mirth.client.ui.components.MirthTextField directoryField;
+    private com.mirth.connect.client.ui.components.MirthComboBox charsetEncodingCombobox;
+    private com.mirth.connect.client.ui.components.MirthTextField directoryField;
     private javax.swing.JLabel directoryLabel;
     private javax.swing.JLabel encodingLabel;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea fileContentsTextPane;
-    private com.webreach.mirth.client.ui.components.MirthTextField fileNameField;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea fileContentsTextPane;
+    private com.mirth.connect.client.ui.components.MirthTextField fileNameField;
     private javax.swing.JLabel fileNameLabel;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeASCII;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton fileTypeBinary;
+    private com.mirth.connect.client.ui.components.MirthRadioButton fileTypeASCII;
+    private com.mirth.connect.client.ui.components.MirthRadioButton fileTypeBinary;
     private javax.swing.JLabel fileTypeLabel;
-    private com.webreach.mirth.client.ui.components.MirthTextField hostField;
+    private com.mirth.connect.client.ui.components.MirthTextField hostField;
     private javax.swing.JLabel hostLabel;
     private javax.swing.JLabel passiveModeLabel;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton passiveModeNo;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton passiveModeYes;
-    private com.webreach.mirth.client.ui.components.MirthPasswordField passwordField;
+    private com.mirth.connect.client.ui.components.MirthRadioButton passiveModeNo;
+    private com.mirth.connect.client.ui.components.MirthRadioButton passiveModeYes;
+    private com.mirth.connect.client.ui.components.MirthPasswordField passwordField;
     private javax.swing.JLabel passwordLabel;
-    private com.webreach.mirth.client.ui.components.MirthTextField pathField;
+    private com.mirth.connect.client.ui.components.MirthTextField pathField;
     private javax.swing.JLabel pathLabel;
-    private com.webreach.mirth.client.ui.components.MirthComboBox schemeComboBox;
+    private com.mirth.connect.client.ui.components.MirthComboBox schemeComboBox;
     private javax.swing.JLabel schemeLabel;
     private javax.swing.JLabel secureModeLabel;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton secureModeNo;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton secureModeYes;
+    private com.mirth.connect.client.ui.components.MirthRadioButton secureModeNo;
+    private com.mirth.connect.client.ui.components.MirthRadioButton secureModeYes;
     private javax.swing.JLabel templateLabel;
     private javax.swing.JButton testConnection;
-    private com.webreach.mirth.client.ui.components.MirthTextField timeoutField;
+    private com.mirth.connect.client.ui.components.MirthTextField timeoutField;
     private javax.swing.JLabel timeoutLabel;
-    private com.webreach.mirth.client.ui.components.MirthTextField usernameField;
+    private com.mirth.connect.client.ui.components.MirthTextField usernameField;
     private javax.swing.JLabel usernameLabel;
     private javax.swing.JLabel validateConnectionLabel;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton validateConnectionNo;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton validateConnectionYes;
+    private com.mirth.connect.client.ui.components.MirthRadioButton validateConnectionNo;
+    private com.mirth.connect.client.ui.components.MirthRadioButton validateConnectionYes;
     // End of variables declaration//GEN-END:variables
 }

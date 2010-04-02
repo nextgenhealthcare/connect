@@ -46,7 +46,7 @@ import org.mule.umo.provider.UMOMessageReceiver;
 import org.mule.umo.transformer.UMOTransformer;
 import org.mule.util.concurrent.WaitableBoolean;
 
-import com.webreach.mirth.connectors.vm.VMConnector;
+import com.mirth.connect.connectors.vm.VMConnector;
 
 import edu.emory.mathcs.backport.java.util.concurrent.ConcurrentHashMap;
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;

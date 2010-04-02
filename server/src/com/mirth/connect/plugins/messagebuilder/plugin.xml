@@ -9,7 +9,7 @@
 	<extensionPoint>
 		<name>Message Builder</name>
 		<type>CLIENT_TRANSFORMER_STEP</type>
-		<className>com.webreach.mirth.plugins.messagebuilder.MessageBuilderPlugin</className>
+		<className>com.mirth.connect.plugins.messagebuilder.MessageBuilderPlugin</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
 	<library path="messagebuilder-client.jar">

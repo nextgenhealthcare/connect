@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins;
+package com.mirth.connect.plugins;
 
 import java.util.Properties;
 

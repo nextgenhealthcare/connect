@@ -149,7 +149,7 @@
         <Property name="text" type="java.lang.String" value="SQL:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="databaseDriverCombobox">
+    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="databaseDriverCombobox">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="5">
@@ -163,22 +163,22 @@
         <Property name="toolTipText" type="java.lang.String" value="Specifies the type of database driver to use to connect to the database."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="databaseURLField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="databaseURLField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The JDBC URL to connect to the database.&lt;br&gt;This is not used when &quot;Use JavaScript&quot; is checked.&lt;br&gt;However, it is used when the Insert Connection feature is used to generate code.&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="databaseUsernameField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="databaseUsernameField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The username to connect to the database.&lt;br&gt;This is not used when &quot;Use JavaScript&quot; is checked.&lt;br&gt;However, it is used when the Insert Connection feature is used to generate code.&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthPasswordField" name="databasePasswordField">
+    <Component class="com.mirth.connect.client.ui.components.MirthPasswordField" name="databasePasswordField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The password to connect to the database.&lt;br&gt;This is not used when &quot;Use JavaScript&quot; is checked.&lt;br&gt;However, it is used when the Insert Connection feature is used to generate code.&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="databaseSQLTextPane">
+    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="databaseSQLTextPane">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -187,10 +187,10 @@
         </Property>
       </Properties>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,false);"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);"/>
       </AuxValues>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="useJavaScriptYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="useJavaScriptYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -213,7 +213,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useJavaScriptYesActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="useJavaScriptNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="useJavaScriptNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>

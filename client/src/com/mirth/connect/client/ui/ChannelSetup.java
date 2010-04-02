@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Point;
@@ -38,29 +38,29 @@ import javax.swing.event.ListSelectionListener;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.client.ui.editors.filter.FilterPane;
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
-import com.webreach.mirth.client.ui.util.PropertiesUtil;
-import com.webreach.mirth.client.ui.util.VariableListUtil;
-import com.webreach.mirth.connectors.ConnectorClass;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.ConnectorMetaData;
-import com.webreach.mirth.model.Filter;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.Rule;
-import com.webreach.mirth.model.Step;
-import com.webreach.mirth.model.Transformer;
-import com.webreach.mirth.model.CodeTemplate.ContextType;
-import com.webreach.mirth.model.Connector.Mode;
-import com.webreach.mirth.model.MessageObject.Protocol;
-import com.webreach.mirth.model.converters.DefaultSerializerPropertiesFactory;
-import com.webreach.mirth.model.converters.ObjectCloner;
-import com.webreach.mirth.model.converters.ObjectClonerException;
-import com.webreach.mirth.util.PropertyVerifier;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.client.ui.editors.filter.FilterPane;
+import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
+import com.mirth.connect.client.ui.util.PropertiesUtil;
+import com.mirth.connect.client.ui.util.VariableListUtil;
+import com.mirth.connect.connectors.ConnectorClass;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.model.Filter;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.Rule;
+import com.mirth.connect.model.Step;
+import com.mirth.connect.model.Transformer;
+import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.model.Connector.Mode;
+import com.mirth.connect.model.MessageObject.Protocol;
+import com.mirth.connect.model.converters.DefaultSerializerPropertiesFactory;
+import com.mirth.connect.model.converters.ObjectCloner;
+import com.mirth.connect.model.converters.ObjectClonerException;
+import com.mirth.connect.util.PropertyVerifier;
 
 /** The channel editor panel. Majority of the client application */
 public class ChannelSetup extends javax.swing.JPanel {
@@ -260,9 +260,9 @@ public class ChannelSetup extends javax.swing.JPanel {
                 connector.setTransportName(DESTINATION_DEFAULT);
 
                 if (connector.isEnabled()) {
-                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")), UIConstants.ENABLED_STATUS);
+                    tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), UIConstants.ENABLED_STATUS);
                 } else {
-                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), UIConstants.DISABLED_STATUS);
+                    tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), UIConstants.DISABLED_STATUS);
                 }
                 tableData[i][1] = connector.getName();
                 tableData[i][2] = connector.getTransportName();
@@ -271,9 +271,9 @@ public class ChannelSetup extends javax.swing.JPanel {
             } else {
 
                 if (destinationConnectors.get(i).isEnabled()) {
-                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")), UIConstants.ENABLED_STATUS);
+                    tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), UIConstants.ENABLED_STATUS);
                 } else {
-                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), UIConstants.DISABLED_STATUS);
+                    tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), UIConstants.DISABLED_STATUS);
                 }
                 tableData[i][1] = destinationConnectors.get(i).getName();
                 tableData[i][2] = destinationConnectors.get(i).getTransportName();
@@ -1207,42 +1207,42 @@ public class ChannelSetup extends javax.swing.JPanel {
         summary = new javax.swing.JPanel();
         summaryNameLabel = new javax.swing.JLabel();
         summaryDescriptionLabel = new javax.swing.JLabel();
-        summaryNameField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        summaryNameField = new com.mirth.connect.client.ui.components.MirthTextField();
         summaryPatternLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        summaryDescriptionText = new com.webreach.mirth.client.ui.components.MirthTextPane();
+        summaryDescriptionText = new com.mirth.connect.client.ui.components.MirthTextPane();
         jLabel1 = new javax.swing.JLabel();
-        initialState = new com.webreach.mirth.client.ui.components.MirthComboBox();
-        encryptMessagesCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
-        storeMessages = new com.webreach.mirth.client.ui.components.MirthCheckBox();
-        storeMessagesAll = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        storeMessagesDays = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        initialState = new com.mirth.connect.client.ui.components.MirthComboBox();
+        encryptMessagesCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        storeMessages = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        storeMessagesAll = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        storeMessagesDays = new com.mirth.connect.client.ui.components.MirthRadioButton();
         days = new javax.swing.JLabel();
-        numDays = new com.webreach.mirth.client.ui.components.MirthTextField();
+        numDays = new com.mirth.connect.client.ui.components.MirthTextField();
         jLabel3 = new javax.swing.JLabel();
-        storeMessagesErrors = new com.webreach.mirth.client.ui.components.MirthCheckBox();
-        storeFiltered = new com.webreach.mirth.client.ui.components.MirthCheckBox();
+        storeMessagesErrors = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        storeFiltered = new com.mirth.connect.client.ui.components.MirthCheckBox();
         jPanel1 = new javax.swing.JPanel();
-        summaryEnabledCheckbox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
-        transactionalCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
-        synchronousCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
-        clearGlobalChannelMapCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
+        summaryEnabledCheckbox = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        transactionalCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        synchronousCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        clearGlobalChannelMapCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
         summaryRevision = new javax.swing.JLabel();
         lastModified = new javax.swing.JLabel();
         changeDataTypesButton = new javax.swing.JButton();
         source = new javax.swing.JPanel();
-        sourceSourceDropdown = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        sourceSourceDropdown = new com.mirth.connect.client.ui.components.MirthComboBox();
         sourceSourceLabel = new javax.swing.JLabel();
         sourceConnectorPane = new javax.swing.JScrollPane();
-        sourceConnectorClass = new com.webreach.mirth.connectors.ConnectorClass();
+        sourceConnectorClass = new com.mirth.connect.connectors.ConnectorClass();
         destination = new javax.swing.JPanel();
-        destinationSourceDropdown = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        destinationSourceDropdown = new com.mirth.connect.client.ui.components.MirthComboBox();
         destinationSourceLabel = new javax.swing.JLabel();
-        destinationVariableList = new com.webreach.mirth.client.ui.VariableList();
+        destinationVariableList = new com.mirth.connect.client.ui.VariableList();
         destinationConnectorPane = new javax.swing.JScrollPane();
-        destinationConnectorClass = new com.webreach.mirth.connectors.ConnectorClass();
+        destinationConnectorClass = new com.mirth.connect.connectors.ConnectorClass();
         destinationTablePane = new javax.swing.JScrollPane();
-        destinationTable = new com.webreach.mirth.client.ui.components.MirthTable();
+        destinationTable = new com.mirth.connect.client.ui.components.MirthTable();
         scripts = new ScriptPanel(ContextType.CHANNEL_CONTEXT.getContext());
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -2126,44 +2126,44 @@ public class ChannelSetup extends javax.swing.JPanel {
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton changeDataTypesButton;
     private javax.swing.JTabbedPane channelView;
-    public com.webreach.mirth.client.ui.components.MirthCheckBox clearGlobalChannelMapCheckBox;
+    public com.mirth.connect.client.ui.components.MirthCheckBox clearGlobalChannelMapCheckBox;
     private javax.swing.JLabel days;
     private javax.swing.JPanel destination;
-    private com.webreach.mirth.connectors.ConnectorClass destinationConnectorClass;
+    private com.mirth.connect.connectors.ConnectorClass destinationConnectorClass;
     private javax.swing.JScrollPane destinationConnectorPane;
-    private com.webreach.mirth.client.ui.components.MirthComboBox destinationSourceDropdown;
+    private com.mirth.connect.client.ui.components.MirthComboBox destinationSourceDropdown;
     private javax.swing.JLabel destinationSourceLabel;
-    private com.webreach.mirth.client.ui.components.MirthTable destinationTable;
+    private com.mirth.connect.client.ui.components.MirthTable destinationTable;
     private javax.swing.JScrollPane destinationTablePane;
-    public com.webreach.mirth.client.ui.VariableList destinationVariableList;
-    private com.webreach.mirth.client.ui.components.MirthCheckBox encryptMessagesCheckBox;
-    private com.webreach.mirth.client.ui.components.MirthComboBox initialState;
+    public com.mirth.connect.client.ui.VariableList destinationVariableList;
+    private com.mirth.connect.client.ui.components.MirthCheckBox encryptMessagesCheckBox;
+    private com.mirth.connect.client.ui.components.MirthComboBox initialState;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lastModified;
-    private com.webreach.mirth.client.ui.components.MirthTextField numDays;
-    private com.webreach.mirth.client.ui.ScriptPanel scripts;
+    private com.mirth.connect.client.ui.components.MirthTextField numDays;
+    private com.mirth.connect.client.ui.ScriptPanel scripts;
     private javax.swing.JPanel source;
-    private com.webreach.mirth.connectors.ConnectorClass sourceConnectorClass;
+    private com.mirth.connect.connectors.ConnectorClass sourceConnectorClass;
     private javax.swing.JScrollPane sourceConnectorPane;
-    private com.webreach.mirth.client.ui.components.MirthComboBox sourceSourceDropdown;
+    private com.mirth.connect.client.ui.components.MirthComboBox sourceSourceDropdown;
     private javax.swing.JLabel sourceSourceLabel;
-    private com.webreach.mirth.client.ui.components.MirthCheckBox storeFiltered;
-    private com.webreach.mirth.client.ui.components.MirthCheckBox storeMessages;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton storeMessagesAll;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton storeMessagesDays;
-    private com.webreach.mirth.client.ui.components.MirthCheckBox storeMessagesErrors;
+    private com.mirth.connect.client.ui.components.MirthCheckBox storeFiltered;
+    private com.mirth.connect.client.ui.components.MirthCheckBox storeMessages;
+    private com.mirth.connect.client.ui.components.MirthRadioButton storeMessagesAll;
+    private com.mirth.connect.client.ui.components.MirthRadioButton storeMessagesDays;
+    private com.mirth.connect.client.ui.components.MirthCheckBox storeMessagesErrors;
     private javax.swing.JPanel summary;
     private javax.swing.JLabel summaryDescriptionLabel;
-    private com.webreach.mirth.client.ui.components.MirthTextPane summaryDescriptionText;
-    private com.webreach.mirth.client.ui.components.MirthCheckBox summaryEnabledCheckbox;
-    private com.webreach.mirth.client.ui.components.MirthTextField summaryNameField;
+    private com.mirth.connect.client.ui.components.MirthTextPane summaryDescriptionText;
+    private com.mirth.connect.client.ui.components.MirthCheckBox summaryEnabledCheckbox;
+    private com.mirth.connect.client.ui.components.MirthTextField summaryNameField;
     private javax.swing.JLabel summaryNameLabel;
     private javax.swing.JLabel summaryPatternLabel1;
     private javax.swing.JLabel summaryRevision;
-    public com.webreach.mirth.client.ui.components.MirthCheckBox synchronousCheckBox;
-    private com.webreach.mirth.client.ui.components.MirthCheckBox transactionalCheckBox;
+    public com.mirth.connect.client.ui.components.MirthCheckBox synchronousCheckBox;
+    private com.mirth.connect.client.ui.components.MirthCheckBox transactionalCheckBox;
     // End of variables declaration//GEN-END:variables
 }

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.mule.adaptors;
+package com.mirth.connect.server.mule.adaptors;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -20,7 +20,6 @@ import org.mule.umo.UMOException;
  *  batch processing - i.e., the processing of multiple messages per source
  *  (file).
  *  
- * @author Erik Horstkotte (erikh@webreachinc.com)
  */
 public interface BatchAdaptor {
 

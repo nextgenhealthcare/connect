@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.mule.components;
+package com.mirth.connect.server.mule.components;
 
 import org.mule.umo.UMOEventContext;
 import org.mule.umo.lifecycle.Callable;

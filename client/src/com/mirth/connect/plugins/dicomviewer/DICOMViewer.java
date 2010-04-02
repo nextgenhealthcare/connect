@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.dicomviewer;
+package com.mirth.connect.plugins.dicomviewer;
 
 import ij.plugin.DICOM;
 
@@ -18,8 +18,8 @@ import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
 
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.plugins.AttachmentViewer;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.plugins.AttachmentViewer;
 
 public class DICOMViewer extends AttachmentViewer {
 

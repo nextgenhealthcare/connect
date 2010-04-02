@@ -7,13 +7,13 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.util.List;
 import java.util.Map;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.ConnectorMetaData;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ConnectorMetaData;
 
 public interface EngineController {
 

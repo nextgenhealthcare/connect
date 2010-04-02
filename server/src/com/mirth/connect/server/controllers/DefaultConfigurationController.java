@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -32,23 +32,23 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.DriverInfo;
-import com.webreach.mirth.model.PasswordRequirements;
-import com.webreach.mirth.model.ServerConfiguration;
-import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.model.util.PasswordRequirementsChecker;
-import com.webreach.mirth.server.Command;
-import com.webreach.mirth.server.CommandQueue;
-import com.webreach.mirth.server.tools.ClassPathResource;
-import com.webreach.mirth.server.util.DatabaseUtil;
-import com.webreach.mirth.server.util.JMXConnection;
-import com.webreach.mirth.server.util.JMXConnectionFactory;
-import com.webreach.mirth.server.util.JavaScriptUtil;
-import com.webreach.mirth.server.util.SqlConfig;
-import com.webreach.mirth.util.Encrypter;
-import com.webreach.mirth.util.PropertyVerifier;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.DriverInfo;
+import com.mirth.connect.model.PasswordRequirements;
+import com.mirth.connect.model.ServerConfiguration;
+import com.mirth.connect.model.SystemEvent;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.model.util.PasswordRequirementsChecker;
+import com.mirth.connect.server.Command;
+import com.mirth.connect.server.CommandQueue;
+import com.mirth.connect.server.tools.ClassPathResource;
+import com.mirth.connect.server.util.DatabaseUtil;
+import com.mirth.connect.server.util.JMXConnection;
+import com.mirth.connect.server.util.JMXConnectionFactory;
+import com.mirth.connect.server.util.JavaScriptUtil;
+import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.util.Encrypter;
+import com.mirth.connect.util.PropertyVerifier;
 
 /**
  * The ConfigurationController provides access to the Mirth configuration.

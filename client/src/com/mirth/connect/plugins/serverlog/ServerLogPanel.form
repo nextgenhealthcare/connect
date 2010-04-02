@@ -141,7 +141,7 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="com.webreach.mirth.client.ui.components.MirthTable" name="logTable">
+        <Component class="com.mirth.connect.client.ui.components.MirthTable" name="logTable">
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="null;"/>
           </AuxValues>

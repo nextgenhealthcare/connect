@@ -7,17 +7,17 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.mapper;
+package com.mirth.connect.plugins.mapper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.editors.BasePanel;
-import com.webreach.mirth.client.ui.editors.MapperPanel;
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
-import com.webreach.mirth.plugins.TransformerStepPlugin;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.editors.BasePanel;
+import com.mirth.connect.client.ui.editors.MapperPanel;
+import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
+import com.mirth.connect.plugins.TransformerStepPlugin;
 
 public class MapperStepPlugin extends TransformerStepPlugin {
 

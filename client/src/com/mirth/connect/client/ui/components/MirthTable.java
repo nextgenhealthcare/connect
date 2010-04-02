@@ -7,14 +7,14 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.components;
+package com.mirth.connect.client.ui.components;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import org.jdesktop.swingx.JXTable;
 
-import com.webreach.mirth.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.PlatformUI;
 
 public class MirthTable extends JXTable {
 

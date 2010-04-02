@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.manager;
+package com.mirth.connect.manager;
 
 import java.awt.Dimension;
 import java.awt.Graphics;

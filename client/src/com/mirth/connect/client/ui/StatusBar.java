@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import javax.swing.ImageIcon;
 import javax.swing.border.BevelBorder;
@@ -22,7 +22,7 @@ public class StatusBar extends javax.swing.JPanel {
         initComponents();
         workingText.setText("");
         left.setText("Connected to: " + PlatformUI.SERVER_NAME);
-        left.setIcon(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/server.png")));
+        left.setIcon(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/server.png")));
         progressBar.setEnabled(false);
         progressBar.setForeground(UIConstants.JX_CONTAINER_BACKGROUND_COLOR);
         this.setBorder(new BevelBorder(BevelBorder.LOWERED));

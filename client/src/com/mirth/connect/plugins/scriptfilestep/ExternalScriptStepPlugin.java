@@ -7,12 +7,12 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.scriptfilestep;
+package com.mirth.connect.plugins.scriptfilestep;
 
-import com.webreach.mirth.client.ui.editors.BasePanel;
-import com.webreach.mirth.client.ui.editors.ExternalScriptPanel;
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
-import com.webreach.mirth.plugins.TransformerStepPlugin;
+import com.mirth.connect.client.ui.editors.BasePanel;
+import com.mirth.connect.client.ui.editors.ExternalScriptPanel;
+import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
+import com.mirth.connect.plugins.TransformerStepPlugin;
 
 import java.util.HashMap;
 import java.util.Map;

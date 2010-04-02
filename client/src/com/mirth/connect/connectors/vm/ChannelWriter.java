@@ -7,16 +7,16 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.vm;
+package com.mirth.connect.connectors.vm;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Properties;
 
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.connectors.ConnectorClass;
-import com.webreach.mirth.model.Channel;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.connectors.ConnectorClass;
+import com.mirth.connect.model.Channel;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -122,12 +122,12 @@ public class ChannelWriter extends ConnectorClass {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
         URL = new javax.swing.JLabel();
-        channelNames = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        channelNames = new com.mirth.connect.client.ui.components.MirthComboBox();
         jLabel1 = new javax.swing.JLabel();
-        channelResponseYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        channelResponseNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        channelResponseYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        channelResponseNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
         jLabel7 = new javax.swing.JLabel();
-        template = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
+        template = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -199,11 +199,11 @@ public class ChannelWriter extends ConnectorClass {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel URL;
     private javax.swing.ButtonGroup buttonGroup1;
-    private com.webreach.mirth.client.ui.components.MirthComboBox channelNames;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton channelResponseNo;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton channelResponseYes;
+    private com.mirth.connect.client.ui.components.MirthComboBox channelNames;
+    private com.mirth.connect.client.ui.components.MirthRadioButton channelResponseNo;
+    private com.mirth.connect.client.ui.components.MirthRadioButton channelResponseYes;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel7;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea template;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea template;
     // End of variables declaration//GEN-END:variables
 }

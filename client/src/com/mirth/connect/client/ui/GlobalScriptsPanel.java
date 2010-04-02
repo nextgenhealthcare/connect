@@ -7,14 +7,14 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.model.CodeTemplate.ContextType;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.model.CodeTemplate.ContextType;
 
 public class GlobalScriptsPanel extends javax.swing.JPanel {
 
@@ -106,6 +106,6 @@ public class GlobalScriptsPanel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.webreach.mirth.client.ui.ScriptPanel scriptPanel;
+    private com.mirth.connect.client.ui.ScriptPanel scriptPanel;
     // End of variables declaration//GEN-END:variables
 }

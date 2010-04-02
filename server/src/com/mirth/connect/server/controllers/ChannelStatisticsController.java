@@ -7,9 +7,9 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
-import com.webreach.mirth.model.ChannelStatistics;
+import com.mirth.connect.model.ChannelStatistics;
 
 /**
  * The StatisticsContoller provides access to channel statistics.

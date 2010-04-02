@@ -7,19 +7,19 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers.tests;
+package com.mirth.connect.server.controllers.tests;
 
 import java.util.Properties;
 
 import junit.framework.TestCase;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.server.controllers.ChannelController;
-import com.webreach.mirth.server.controllers.ChannelStatisticsController;
-import com.webreach.mirth.server.controllers.ConfigurationController;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.tools.ScriptRunner;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.Connector;
+import com.mirth.connect.server.controllers.ChannelController;
+import com.mirth.connect.server.controllers.ChannelStatisticsController;
+import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.tools.ScriptRunner;
 
 public class StatisticsControllerTest extends TestCase {
 	private ChannelStatisticsController statisticsController = ControllerFactory.getFactory().createChannelStatisticsController();

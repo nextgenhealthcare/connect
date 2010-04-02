@@ -188,7 +188,7 @@
             <Property name="text" type="java.lang.String" value="Username:"/>
           </Properties>
         </Component>
-        <Container class="com.webreach.mirth.client.ui.MirthHeadingPanel" name="mirthHeadingPanel2">
+        <Container class="com.mirth.connect.client.ui.MirthHeadingPanel" name="mirthHeadingPanel2">
 
           <Layout>
             <DimensionLayout dim="0">
@@ -297,7 +297,7 @@
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Container class="com.webreach.mirth.client.ui.MirthHeadingPanel" name="mirthHeadingPanel1">
+        <Container class="com.mirth.connect.client.ui.MirthHeadingPanel" name="mirthHeadingPanel1">
 
           <Layout>
             <DimensionLayout dim="0">

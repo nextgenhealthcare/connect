@@ -7,16 +7,16 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers.tests;
+package com.mirth.connect.server.controllers.tests;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import com.webreach.mirth.server.controllers.ConfigurationController;
-import com.webreach.mirth.server.controllers.ControllerException;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.TemplateController;
-import com.webreach.mirth.server.tools.ScriptRunner;
+import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ControllerException;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.TemplateController;
+import com.mirth.connect.server.tools.ScriptRunner;
 
 public class TemplateControllerTest extends TestCase {
 	private TemplateController templateController = ControllerFactory.getFactory().createTemplateController();

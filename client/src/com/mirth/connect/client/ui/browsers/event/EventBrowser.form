@@ -138,7 +138,7 @@
                 <Property name="text" type="java.lang.String" value="Results"/>
               </Properties>
             </Component>
-            <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="pageSizeField">
+            <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="pageSizeField">
               <Properties>
                 <Property name="toolTipText" type="java.lang.String" value="After changing the page size, a new search must be performed for the changes to take effect.  The default page size can also be configured on the Settings panel."/>
               </Properties>
@@ -243,16 +243,16 @@
                 <Property name="text" type="java.lang.String" value="Event:"/>
               </Properties>
             </Component>
-            <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="eventField">
+            <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="eventField">
             </Component>
-            <Component class="com.webreach.mirth.client.ui.components.MirthDatePicker" name="mirthDatePicker1">
+            <Component class="com.mirth.connect.client.ui.components.MirthDatePicker" name="mirthDatePicker1">
             </Component>
             <Component class="javax.swing.JLabel" name="jLabel3">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Start Date:"/>
               </Properties>
             </Component>
-            <Component class="com.webreach.mirth.client.ui.components.MirthDatePicker" name="mirthDatePicker2">
+            <Component class="com.mirth.connect.client.ui.components.MirthDatePicker" name="mirthDatePicker2">
             </Component>
             <Component class="javax.swing.JLabel" name="jLabel2">
               <Properties>
@@ -350,7 +350,7 @@
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="descriptionTextPane">
+                <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="descriptionTextPane">
                   <Properties>
                     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                       <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -376,7 +376,7 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
-            <Component class="com.webreach.mirth.client.ui.components.MirthTable" name="eventTable">
+            <Component class="com.mirth.connect.client.ui.components.MirthTable" name="eventTable">
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="null;"/>
               </AuxValues>

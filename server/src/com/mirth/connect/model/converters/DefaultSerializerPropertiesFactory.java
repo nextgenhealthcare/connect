@@ -7,11 +7,11 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.converters;
+package com.mirth.connect.model.converters;
 
 import java.util.Map;
 
-import com.webreach.mirth.model.MessageObject.Protocol;
+import com.mirth.connect.model.MessageObject.Protocol;
 
 public class DefaultSerializerPropertiesFactory {
 	public static Map<String, String> getDefaultSerializerProperties(Protocol protocol) {

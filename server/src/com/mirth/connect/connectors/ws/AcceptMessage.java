@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.ws;
+package com.mirth.connect.connectors.ws;
 
 public abstract class AcceptMessage {
     protected WebServiceMessageReceiver webServiceMessageReceiver;

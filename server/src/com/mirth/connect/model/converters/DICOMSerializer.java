@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.converters;
+package com.mirth.connect.model.converters;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

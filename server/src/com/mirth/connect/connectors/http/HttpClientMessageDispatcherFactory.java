@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.http;
+package com.mirth.connect.connectors.http;
 
 import org.mule.umo.UMOException;
 import org.mule.umo.provider.UMOConnector;

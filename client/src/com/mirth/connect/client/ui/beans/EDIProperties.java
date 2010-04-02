@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.beans;
+package com.mirth.connect.client.ui.beans;
 
 import java.beans.PropertyChangeSupport;
 import java.io.Serializable;

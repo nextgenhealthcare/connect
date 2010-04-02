@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.file;
+package com.mirth.connect.connectors.file;
 
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
@@ -16,7 +16,7 @@ import org.mule.umo.MessagingException;
 import org.mule.umo.provider.MessageTypeNotSupportedException;
 import org.mule.umo.provider.UniqueIdNotSupportedException;
 
-import com.webreach.mirth.connectors.file.filesystems.FileInfo;
+import com.mirth.connect.connectors.file.filesystems.FileInfo;
 
 public class TextLineMessageAdapter extends AbstractMessageAdapter {
     private String message = null;

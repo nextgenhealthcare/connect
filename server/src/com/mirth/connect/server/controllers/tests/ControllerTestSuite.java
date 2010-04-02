@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers.tests;
+package com.mirth.connect.server.controllers.tests;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -19,7 +19,7 @@ public class ControllerTestSuite {
 	}
 
 	public static Test suite() {
-		TestSuite suite = new TestSuite("Test for com.webreach.mirth.server.controllers.tests");
+		TestSuite suite = new TestSuite("Test for com.mirth.connect.server.controllers.tests");
 		//$JUnit-BEGIN$
 		suite.addTestSuite(ScriptControllerTest.class);
 		suite.addTestSuite(UserControllerTest.class);

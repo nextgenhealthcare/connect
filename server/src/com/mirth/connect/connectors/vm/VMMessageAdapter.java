@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.vm;
+package com.mirth.connect.connectors.vm;
 
 import org.mule.providers.AbstractMessageAdapter;
 import org.mule.umo.UMOMessage;

@@ -11,8 +11,8 @@ package org.mule.providers;
 
 import java.util.Map;
 
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.server.util.GlobalVariableStore;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.server.util.GlobalVariableStore;
 
 public class ParameterValueReplacer {
 	public Object getValue(String template, MessageObject messageObject) {

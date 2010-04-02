@@ -15,7 +15,7 @@
 //
 
 
-package com.webreach.mirth.model.x12;
+package com.mirth.connect.model.x12;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

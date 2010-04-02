@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.jms;
+package com.mirth.connect.connectors.jms;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Hashtable;
@@ -49,7 +49,7 @@ import org.mule.umo.manager.UMOServerEvent;
 import org.mule.util.BeanUtils;
 import org.mule.util.ClassHelper;
 
-import com.webreach.mirth.connectors.jms.xa.ConnectionFactoryWrapper;
+import com.mirth.connect.connectors.jms.xa.ConnectionFactoryWrapper;
 
 import edu.emory.mathcs.backport.java.util.concurrent.ConcurrentHashMap;
 

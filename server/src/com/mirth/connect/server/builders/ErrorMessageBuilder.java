@@ -7,11 +7,11 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.builders;
+package com.mirth.connect.server.builders;
 
 import org.mozilla.javascript.RhinoException;
 
-import com.webreach.mirth.server.util.StackTracePrinter;
+import com.mirth.connect.server.util.StackTracePrinter;
 
 public class ErrorMessageBuilder {
     private String lineSeperator = System.getProperty("line.separator");

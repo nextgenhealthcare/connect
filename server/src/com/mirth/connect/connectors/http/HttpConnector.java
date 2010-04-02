@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.http;
+package com.mirth.connect.connectors.http;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,7 +21,7 @@ import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageReceiver;
 
-import com.webreach.mirth.server.Constants;
+import com.mirth.connect.server.Constants;
 
 /**
  * <code>HttpConnector</code> provides a way of receiving and sending http

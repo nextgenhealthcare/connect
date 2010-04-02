@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,11 +19,11 @@ import javax.management.ObjectName;
 
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.ChannelStatus;
-import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.server.util.JMXConnection;
-import com.webreach.mirth.server.util.JMXConnectionFactory;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelStatus;
+import com.mirth.connect.model.SystemEvent;
+import com.mirth.connect.server.util.JMXConnection;
+import com.mirth.connect.server.util.JMXConnectionFactory;
 
 public class DefaultChannelStatusController extends ChannelStatusController {
     private Logger logger = Logger.getLogger(this.getClass());

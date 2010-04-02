@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.mllp;
+package com.mirth.connect.connectors.mllp;
 
 import java.nio.charset.Charset;
 
@@ -21,11 +21,11 @@ import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.ConnectorException;
 import org.mule.umo.provider.UMOMessageReceiver;
 
-import com.webreach.mirth.connectors.mllp.protocols.LlpProtocol;
-import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.EventController;
+import com.mirth.connect.connectors.mllp.protocols.LlpProtocol;
+import com.mirth.connect.model.SystemEvent;
+import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
 
 public class MllpConnector extends QueueEnabledConnector {
     // custom properties

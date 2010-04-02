@@ -5,9 +5,9 @@
 	<mirthVersion>2.0.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to send Email messages via SMTP. The velocity template engine is available to dynamically create messages.</description>
-	<clientClassName>com.webreach.mirth.connectors.email.EmailSender</clientClassName>
-	<serverClassName>com.webreach.mirth.connectors.email.SmtpConnector</serverClassName>
-	<sharedClassName>com.webreach.mirth.connectors.email.EmailSenderProperties</sharedClassName>
+	<clientClassName>com.mirth.connect.connectors.email.EmailSender</clientClassName>
+	<serverClassName>com.mirth.connect.connectors.email.SmtpConnector</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.email.EmailSenderProperties</sharedClassName>
 	<library path="email-client.jar">
 		<type>CLIENT</type>
 	</library>
@@ -22,11 +22,11 @@
 	<type>DESTINATION</type>
 	<enabled>true</enabled>
 	<mule-properties>
-		<property name="connector">com.webreach.mirth.connectors.email.SmtpConnector</property>
-		<property name="dispatcher.factory">com.webreach.mirth.connectors.email.SmtpMessageDispatcherFactory</property>
-		<property name="message.adapter">com.webreach.mirth.connectors.email.MailMessageAdapter</property>
-		<property name="inbound.transformer">com.webreach.mirth.connectors.email.transformers.EmailMessageToString</property>
-		<property name="outbound.transformer">com.webreach.mirth.connectors.email.transformers.MessageObjectToEmailMessage</property>
+		<property name="connector">com.mirth.connect.connectors.email.SmtpConnector</property>
+		<property name="dispatcher.factory">com.mirth.connect.connectors.email.SmtpMessageDispatcherFactory</property>
+		<property name="message.adapter">com.mirth.connect.connectors.email.MailMessageAdapter</property>
+		<property name="inbound.transformer">com.mirth.connect.connectors.email.transformers.EmailMessageToString</property>
+		<property name="outbound.transformer">com.mirth.connect.connectors.email.transformers.MessageObjectToEmailMessage</property>
 		<property name="endpoint.builder">org.mule.impl.endpoint.UrlEndpointBuilder</property>
 	</mule-properties>
 </connectorMetaData>

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -15,8 +15,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.server.util.DatabaseUtil;
-import com.webreach.mirth.server.util.SqlConfig;
+import com.mirth.connect.server.util.DatabaseUtil;
+import com.mirth.connect.server.util.SqlConfig;
 
 public class DefaultScriptController extends ScriptController {
     private Logger logger = Logger.getLogger(this.getClass());

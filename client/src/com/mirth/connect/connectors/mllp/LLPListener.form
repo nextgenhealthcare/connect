@@ -336,37 +336,37 @@
         <Property name="text" type="java.lang.String" value="Record Separator Char:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="bufferSizeField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="bufferSizeField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter at least the size, in bytes, of the largest message expected.&lt;br&gt;Entering too small a value will cause larger messages to be rejected.&lt;br&gt;Entering too large a value wastes memory. Generally, the default value is fine.&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="receiveTimeoutField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="receiveTimeoutField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Enter the time, in milliseconds, to wait without receiving a message before disconnecting."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="listenerPortField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="listenerPortField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Enter the port number to listen for connections on (LLP Mode Server) or to connect to (LLP Mode Client)."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="recordSeparatorField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="recordSeparatorField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Enter the hexadecimal character (byte) value to be received as the record separator character."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="startOfMessageCharacterField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="startOfMessageCharacterField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Enter the hexadecimal character (byte) value to be received as the start of message character."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="endOfMessageCharacterField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="endOfMessageCharacterField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Enter the hexadecimal character (byte) value to be received as the end of message character."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="listenerAddressField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="listenerAddressField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Enter the domain name or IP address to listen for connections on (LLP Mode Server) or to connect to (LLP Mode Client)."/>
       </Properties>
@@ -376,7 +376,7 @@
         <Property name="text" type="java.lang.String" value="LLP Frame Encoding:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="ascii">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="ascii">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -396,7 +396,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="hex">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="hex">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -421,12 +421,12 @@
         <Property name="text" type="java.lang.String" value="End of Segment Char:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="segmentEnd">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="segmentEnd">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Enter the hexadecimal character (byte) value to be received as the end of segment character."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="charsetEncodingCombobox">
+    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="charsetEncodingCombobox">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="7">
@@ -452,7 +452,7 @@
         <Property name="text" type="java.lang.String" value="Send ACK:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="sendACKYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="sendACKYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -475,7 +475,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sendACKYesActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="sendACKNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="sendACKNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -504,16 +504,16 @@
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If Send Ack Yes is selected,&lt;br&gt; these controls specify the contents of the response sent to valid messages.&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="successACKCode">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="successACKCode">
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="successACKMessage">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="successACKMessage">
     </Component>
     <Component class="javax.swing.JLabel" name="successACKMessageLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Message:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="errorACKCode">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="errorACKCode">
     </Component>
     <Component class="javax.swing.JLabel" name="errorACKCodeLabel">
       <Properties>
@@ -521,7 +521,7 @@
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If Send Ack Yes is selected,&lt;br&gt; these controls specify the contents of the response sent to messages which cause processing errors.&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="rejectedACKCode">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="rejectedACKCode">
     </Component>
     <Component class="javax.swing.JLabel" name="rejectedACKCodeLabel">
       <Properties>
@@ -539,16 +539,16 @@
         <Property name="text" type="java.lang.String" value="Message:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="errorACKMessage">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="errorACKMessage">
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="rejectedACKMessage">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="rejectedACKMessage">
     </Component>
     <Component class="javax.swing.JLabel" name="mshAckAcceptLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="MSH-15 ACK Accept:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="mshAckAcceptYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="mshAckAcceptYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -568,7 +568,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="mshAckAcceptNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="mshAckAcceptNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -593,7 +593,7 @@
         <Property name="text" type="java.lang.String" value="ACK on New Connection:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="ackOnNewConnectionYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="ackOnNewConnectionYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -616,7 +616,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ackOnNewConnectionYesActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="ackOnNewConnectionNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="ackOnNewConnectionNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -649,17 +649,17 @@
         <Property name="text" type="java.lang.String" value="ACK Port:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="ackPortField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="ackPortField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="If &quot;Yes&quot; is selected for &quot;ACK on New Connection,&quot; the port to send the ACK message to."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="ackAddressField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="ackAddressField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If &quot;Yes&quot; is selected for &quot;ACK on New Connection,&quot;&lt;br&gt; the DNS domain name or IP address of the server to send the ACK message to.&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="sendACKTransformer">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="sendACKTransformer">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -682,7 +682,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sendACKTransformerActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="responseFromTransformer">
+    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="responseFromTransformer">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="4">
@@ -702,7 +702,7 @@
         <Property name="text" type="java.lang.String" value="Wait for End of Message Char:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="waitForEndOfMessageCharYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="waitForEndOfMessageCharYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -722,7 +722,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="waitForEndOfMessageCharNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="waitForEndOfMessageCharNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -747,7 +747,7 @@
         <Property name="text" type="java.lang.String" value="Use Strict LLP Validation:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="useStrictLLPYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="useStrictLLPYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -770,7 +770,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useStrictLLPYesActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="useStrictLLPNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="useStrictLLPNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -793,7 +793,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useStrictLLPNoActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="serverRadioButton">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="serverRadioButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -816,7 +816,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="serverRadioButtonActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="clientRadioButton">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="clientRadioButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -844,7 +844,7 @@
         <Property name="text" type="java.lang.String" value="LLP Mode:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="reconnectIntervalField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="reconnectIntervalField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If LLP Mode Client is selected, enter the time, in milliseconds,&lt;br&gt; to wait between disconnecting from the LLP server and connecting to it again.&lt;/html&gt;"/>
       </Properties>
@@ -854,7 +854,7 @@
         <Property name="text" type="java.lang.String" value="Reconnect Interval (ms):"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="processBatchYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="processBatchYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -874,7 +874,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="processBatchNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="processBatchNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>

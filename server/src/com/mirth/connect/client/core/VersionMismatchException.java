@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.core;
+package com.mirth.connect.client.core;
 
 public class VersionMismatchException extends ClientException {
 	public VersionMismatchException(String message) {

@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.http.transformers;
+package com.mirth.connect.connectors.http.transformers;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -27,10 +27,10 @@ import org.mule.umo.UMOMessage;
 import org.mule.umo.transformer.TransformerException;
 import org.mule.util.Utility;
 
-import com.webreach.mirth.connectors.http.HttpConnector;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.Response;
-import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
+import com.mirth.connect.connectors.http.HttpConnector;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.Response;
+import com.mirth.connect.server.mule.transformers.JavaScriptPostprocessor;
 
 /**
  * <code>UMOMessageToHttpResponse</code> converts a UMOMEssage into an Http

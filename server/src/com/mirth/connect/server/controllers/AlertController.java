@@ -7,11 +7,11 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.util.List;
 
-import com.webreach.mirth.model.Alert;
+import com.mirth.connect.model.Alert;
 
 public abstract class AlertController extends Controller {
     public static AlertController getInstance() {

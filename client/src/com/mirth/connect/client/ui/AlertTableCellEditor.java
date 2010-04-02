@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.awt.Component;
 import java.awt.event.MouseEvent;
@@ -20,8 +20,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.TableCellEditor;
 
-import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
-import com.webreach.mirth.model.Alert;
+import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.model.Alert;
 
 /**
  * A table cell editor for the destination table.

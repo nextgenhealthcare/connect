@@ -7,22 +7,22 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.util;
+package com.mirth.connect.model.util;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.webreach.mirth.client.core.Client;
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.model.ExtensionPoint;
-import com.webreach.mirth.model.ExtensionPointDefinition;
-import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.model.MessageObject.Protocol;
-import com.webreach.mirth.model.dicom.DICOMVocabulary;
-import com.webreach.mirth.model.hl7v2.HL7v2Vocabulary;
-import com.webreach.mirth.model.ncpdp.NCPDPVocabulary;
-import com.webreach.mirth.model.x12.X12Vocabulary;
+import com.mirth.connect.client.core.Client;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.model.ExtensionPoint;
+import com.mirth.connect.model.ExtensionPointDefinition;
+import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.MessageObject.Protocol;
+import com.mirth.connect.model.dicom.DICOMVocabulary;
+import com.mirth.connect.model.hl7v2.HL7v2Vocabulary;
+import com.mirth.connect.model.ncpdp.NCPDPVocabulary;
+import com.mirth.connect.model.x12.X12Vocabulary;
 
 public class MessageVocabularyFactory {
     private static MessageVocabularyFactory instance = null;

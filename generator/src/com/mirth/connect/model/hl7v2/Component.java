@@ -1,4 +1,4 @@
-package com.webreach.mirth.model.hl7v2;
+package com.mirth.connect.model.hl7v2;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +9,7 @@ public class Component {
 	private static final String COMPOSITE_PREFIX = ".composite._";
 	private static final String MESSAGE_PREFIX = ".message._";
 	private static final String SEGMENT_PREFIX = ".segment._";
-	private static final String MODEL_CLASSPATH = "com.webreach.mirth.model.hl7v2.v";
+	private static final String MODEL_CLASSPATH = "com.mirth.connect.model.hl7v2.v";
 	protected String description = "";
 	protected String name = "";
 	protected static Map<Class, Component> cacheMap = new HashMap<Class, Component>();

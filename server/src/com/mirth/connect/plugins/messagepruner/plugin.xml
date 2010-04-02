@@ -9,13 +9,13 @@
 	<extensionPoint>
 		<name>Message Pruner</name>
 		<type>CLIENT_PANEL</type>
-		<className>com.webreach.mirth.plugins.messagepruner.MessagePrunerClient</className>
+		<className>com.mirth.connect.plugins.messagepruner.MessagePrunerClient</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
 	<extensionPoint>
 		<name>Message Pruner</name>
 		<type>SERVER_PLUGIN</type>
-		<className>com.webreach.mirth.plugins.messagepruner.MessagePrunerService</className>
+		<className>com.mirth.connect.plugins.messagepruner.MessagePrunerService</className>
 		<mode>SERVER</mode>
 	</extensionPoint>
 	<library path="messagepruner-client.jar">

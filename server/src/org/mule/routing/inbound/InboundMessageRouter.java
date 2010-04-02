@@ -29,10 +29,10 @@ import org.mule.umo.routing.UMOInboundRouter;
 import org.mule.umo.transformer.TransformerException;
 import org.mule.util.StringMessageHelper;
 
-import com.webreach.mirth.connectors.vm.VMConnector;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.util.StackTracePrinter;
+import com.mirth.connect.connectors.vm.VMConnector;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.util.StackTracePrinter;
 
 import edu.emory.mathcs.backport.java.util.concurrent.CopyOnWriteArrayList;
 

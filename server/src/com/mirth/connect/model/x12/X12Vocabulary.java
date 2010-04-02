@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.x12;
+package com.mirth.connect.model.x12;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -21,13 +21,13 @@ import javax.xml.bind.Unmarshaller;
 
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.model.MessageObject.Protocol;
-import com.webreach.mirth.model.util.MessageVocabulary;
+import com.mirth.connect.model.MessageObject.Protocol;
+import com.mirth.connect.model.util.MessageVocabulary;
 
 public class X12Vocabulary extends MessageVocabulary {
     private Logger logger = Logger.getLogger(X12Vocabulary.class);
     private Map<String, Object> vocab;
-    private static final String JAXB_CONTEXT = "com.webreach.mirth.model.x12";
+    private static final String JAXB_CONTEXT = "com.mirth.connect.model.x12";
     private static final String XML_PATH = "xml";
     private String version = "";
     private String type = "";

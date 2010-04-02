@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.ws;
+package com.mirth.connect.connectors.ws;
 
 import java.net.URL;
 import java.util.List;
@@ -20,7 +20,7 @@ import javax.xml.ws.Service;
 import org.mule.providers.QueueEnabledConnector;
 import org.mule.umo.lifecycle.InitialisationException;
 
-import com.webreach.mirth.server.Constants;
+import com.mirth.connect.server.Constants;
 
 public class WebServiceConnector extends QueueEnabledConnector {
     private String channelId;

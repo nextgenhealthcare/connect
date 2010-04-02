@@ -5,9 +5,9 @@
 	<mirthVersion>2.0.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to listen for incoming HTTP data. Messages are received as XML and include the full header contents.</description>
-	<clientClassName>com.webreach.mirth.connectors.http.HTTPListener</clientClassName>
-	<serverClassName>com.webreach.mirth.connectors.http.HttpConnector</serverClassName>
-	<sharedClassName>com.webreach.mirth.connectors.http.HTTPListenerProperties</sharedClassName>
+	<clientClassName>com.mirth.connect.connectors.http.HTTPListener</clientClassName>
+	<serverClassName>com.mirth.connect.connectors.http.HttpConnector</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.http.HTTPListenerProperties</sharedClassName>
 	<library path="http-client.jar">
 		<type>CLIENT</type>
 	</library>
@@ -22,11 +22,11 @@
 	<type>SOURCE</type>
 	<enabled>true</enabled>
 	<mule-properties>
-		<property name="connector">com.webreach.mirth.connectors.http.HttpConnector</property>
-		<property name="dispatcher.factory">com.webreach.mirth.connectors.http.HttpClientMessageDispatcherFactory</property>
-		<property name="message.receiver">com.webreach.mirth.connectors.http.HttpMessageReceiver</property>
+		<property name="connector">com.mirth.connect.connectors.http.HttpConnector</property>
+		<property name="dispatcher.factory">com.mirth.connect.connectors.http.HttpClientMessageDispatcherFactory</property>
+		<property name="message.receiver">com.mirth.connect.connectors.http.HttpMessageReceiver</property>
 		<property name="message.adapter">org.mule.providers.http.HttpMessageAdapter</property>
 		<property name="outbound.transformer">org.mule.providers.http.transformers.ObjectToHttpClientMethodRequest</property>
-		<property name="response.transformer">com.webreach.mirth.connectors.http.transformers.UMOMessageToHttpResponse</property>
+		<property name="response.transformer">com.mirth.connect.connectors.http.transformers.UMOMessageToHttpResponse</property>
 	</mule-properties>
 </connectorMetaData>

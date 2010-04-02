@@ -58,12 +58,12 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="com.webreach.mirth.client.ui.FunctionList" name="functionList1">
+    <Component class="com.mirth.connect.client.ui.FunctionList" name="functionList1">
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new FunctionList(this.context);"/>
       </AuxValues>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="script">
+    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="script">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -72,7 +72,7 @@
         </Property>
       </Properties>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,true,this.context);"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,true,this.context);"/>
       </AuxValues>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel5">

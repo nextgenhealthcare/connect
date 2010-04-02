@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.file.filesystems;
+package com.mirth.connect.connectors.file.filesystems;
 
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.webdav.lib.WebdavFile;
 import org.apache.webdav.lib.WebdavResource;
 
-import com.webreach.mirth.connectors.file.filters.RegexFilenameFilter;
+import com.mirth.connect.connectors.file.filters.RegexFilenameFilter;
 
 public class WebDavConnection implements FileSystemConnection
 {

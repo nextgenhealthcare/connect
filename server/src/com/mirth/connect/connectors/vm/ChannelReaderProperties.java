@@ -7,11 +7,11 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.vm;
+package com.mirth.connect.connectors.vm;
 
 import java.util.Properties;
 
-import com.webreach.mirth.model.ComponentProperties;
+import com.mirth.connect.model.ComponentProperties;
 
 public class ChannelReaderProperties implements ComponentProperties {
     public static final String name = "Channel Reader";

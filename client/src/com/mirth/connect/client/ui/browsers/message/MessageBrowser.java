@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.browsers.message;
+package com.mirth.connect.client.ui.browsers.message;
 
 import java.awt.Cursor;
 import java.awt.Point;
@@ -52,32 +52,32 @@ import org.syntax.jedit.tokenmarker.X12TokenMarker;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 import org.w3c.dom.Document;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.core.ListHandlerException;
-import com.webreach.mirth.client.core.MessageListHandler;
-import com.webreach.mirth.client.ui.EditMessageDialog;
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.Mirth;
-import com.webreach.mirth.client.ui.MirthFileFilter;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.RefreshTableModel;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.ViewContentDialog;
-import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
-import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.client.ui.util.FileUtil;
-import com.webreach.mirth.model.Attachment;
-import com.webreach.mirth.model.ExtensionPoint;
-import com.webreach.mirth.model.ExtensionPointDefinition;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.model.MessageObject.Protocol;
-import com.webreach.mirth.model.converters.DocumentSerializer;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.model.filters.MessageObjectFilter;
-import com.webreach.mirth.model.util.ImportConverter;
-import com.webreach.mirth.plugins.AttachmentViewer;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.core.ListHandlerException;
+import com.mirth.connect.client.core.MessageListHandler;
+import com.mirth.connect.client.ui.EditMessageDialog;
+import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.MirthFileFilter;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.RefreshTableModel;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.ViewContentDialog;
+import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.client.ui.components.MirthSyntaxTextArea;
+import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.client.ui.util.FileUtil;
+import com.mirth.connect.model.Attachment;
+import com.mirth.connect.model.ExtensionPoint;
+import com.mirth.connect.model.ExtensionPointDefinition;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.MessageObject.Protocol;
+import com.mirth.connect.model.converters.DocumentSerializer;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.model.filters.MessageObjectFilter;
+import com.mirth.connect.model.util.ImportConverter;
+import com.mirth.connect.plugins.AttachmentViewer;
 
 /**
  * The message browser panel.
@@ -347,8 +347,8 @@ public class MessageBrowser extends javax.swing.JPanel {
             BufferedReader br = null;
 
             try {
-                String startOfMessage = "<com.webreach.mirth.model.MessageObject>";
-                String endOfMessage = "</com.webreach.mirth.model.MessageObject>";
+                String startOfMessage = "<com.mirth.connect.model.MessageObject>";
+                String endOfMessage = "</com.mirth.connect.model.MessageObject>";
                 br = new BufferedReader(new InputStreamReader(new FileInputStream(importFile), FileUtil.CHARSET));
                 StringBuffer buffer = new StringBuffer();
                 String line;
@@ -1084,34 +1084,34 @@ public class MessageBrowser extends javax.swing.JPanel {
         jPanel3 = new javax.swing.JPanel();
         resultsLabel = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        pageSizeField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        pageSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
         previousPageButton = new javax.swing.JButton();
         nextPageButton = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
-        mirthDatePicker1 = new com.webreach.mirth.client.ui.components.MirthDatePicker();
+        mirthDatePicker1 = new com.mirth.connect.client.ui.components.MirthDatePicker();
         jLabel3 = new javax.swing.JLabel();
-        mirthDatePicker2 = new com.webreach.mirth.client.ui.components.MirthDatePicker();
+        mirthDatePicker2 = new com.mirth.connect.client.ui.components.MirthDatePicker();
         jLabel2 = new javax.swing.JLabel();
         filterButton = new javax.swing.JButton();
         advSearchButton = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
         statusComboBox = new javax.swing.JComboBox();
-        mirthTimePicker1 = new com.webreach.mirth.client.ui.components.MirthTimePicker();
-        mirthTimePicker2 = new com.webreach.mirth.client.ui.components.MirthTimePicker();
+        mirthTimePicker1 = new com.mirth.connect.client.ui.components.MirthTimePicker();
+        mirthTimePicker2 = new com.mirth.connect.client.ui.components.MirthTimePicker();
         quickSearch = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jSplitPane1 = new javax.swing.JSplitPane();
         descriptionTabbedPane = new javax.swing.JTabbedPane();
         RawMessagePanel = new javax.swing.JPanel();
-        RawMessageTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
+        RawMessageTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         TransformedMessagePanel = new javax.swing.JPanel();
-        TransformedMessageTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
+        TransformedMessageTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         EncodedMessagePanel = new javax.swing.JPanel();
-        EncodedMessageTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
+        EncodedMessageTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         mappingsPane = new javax.swing.JScrollPane();
         mappingsTable = null;
         ErrorsPanel = new javax.swing.JPanel();
-        ErrorsTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
+        ErrorsTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         metaDataPane = new javax.swing.JScrollPane();
         metaDataPanel = new javax.swing.JPanel();
         messageIdField = new javax.swing.JTextField();
@@ -1717,15 +1717,15 @@ public class MessageBrowser extends javax.swing.JPanel {
     }// GEN-LAST:event_filterButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel EncodedMessagePanel;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea EncodedMessageTextPane;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea EncodedMessageTextPane;
     private javax.swing.JPanel ErrorsPanel;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea ErrorsTextPane;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea ErrorsTextPane;
     private javax.swing.JPanel RawMessagePanel;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea RawMessageTextPane;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea RawMessageTextPane;
     private javax.swing.JPanel TransformedMessagePanel;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea TransformedMessageTextPane;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea TransformedMessageTextPane;
     private javax.swing.JButton advSearchButton;
-    private com.webreach.mirth.client.ui.components.MirthTable attachmentTable;
+    private com.mirth.connect.client.ui.components.MirthTable attachmentTable;
     private javax.swing.JScrollPane attachmentsPane;
     private javax.swing.JTextField correlationIdField;
     private javax.swing.JLabel correlationIdLabel;
@@ -1741,19 +1741,19 @@ public class MessageBrowser extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JScrollPane mappingsPane;
-    private com.webreach.mirth.client.ui.components.MirthTable mappingsTable;
+    private com.mirth.connect.client.ui.components.MirthTable mappingsTable;
     private javax.swing.JTextField messageIdField;
     private javax.swing.JLabel messageIdLabel1;
     private javax.swing.JScrollPane messagePane;
-    private com.webreach.mirth.client.ui.components.MirthTable messageTable;
+    private com.mirth.connect.client.ui.components.MirthTable messageTable;
     private javax.swing.JScrollPane metaDataPane;
     private javax.swing.JPanel metaDataPanel;
-    private com.webreach.mirth.client.ui.components.MirthDatePicker mirthDatePicker1;
-    private com.webreach.mirth.client.ui.components.MirthDatePicker mirthDatePicker2;
-    private com.webreach.mirth.client.ui.components.MirthTimePicker mirthTimePicker1;
-    private com.webreach.mirth.client.ui.components.MirthTimePicker mirthTimePicker2;
+    private com.mirth.connect.client.ui.components.MirthDatePicker mirthDatePicker1;
+    private com.mirth.connect.client.ui.components.MirthDatePicker mirthDatePicker2;
+    private com.mirth.connect.client.ui.components.MirthTimePicker mirthTimePicker1;
+    private com.mirth.connect.client.ui.components.MirthTimePicker mirthTimePicker2;
     private javax.swing.JButton nextPageButton;
-    private com.webreach.mirth.client.ui.components.MirthTextField pageSizeField;
+    private com.mirth.connect.client.ui.components.MirthTextField pageSizeField;
     private javax.swing.JButton previousPageButton;
     private javax.swing.JTextField quickSearch;
     private javax.swing.JLabel resultsLabel;

@@ -7,14 +7,14 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.browsers.message;
+package com.mirth.connect.client.ui.browsers.message;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import com.webreach.mirth.client.ui.util.FileUtil;
-import com.webreach.mirth.model.MessageObject;
+import com.mirth.connect.client.ui.util.FileUtil;
+import com.mirth.connect.model.MessageObject;
 
 public class MessageObjectHtmlSerializer {
 

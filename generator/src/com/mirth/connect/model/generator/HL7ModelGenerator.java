@@ -1,4 +1,4 @@
-package com.webreach.mirth.model.generator;
+package com.mirth.connect.model.generator;
 
 import java.io.File;
 import java.io.StringReader;

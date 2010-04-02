@@ -195,7 +195,7 @@
         <Property name="text" type="java.lang.String" value="URL:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="httpURL">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="httpURL">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Enter the URL of the HTTP server to send each message to."/>
       </Properties>
@@ -223,7 +223,7 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="com.webreach.mirth.client.ui.components.MirthTable" name="propertiesTable">
+        <Component class="com.mirth.connect.client.ui.components.MirthTable" name="propertiesTable">
           <Properties>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
               <Table columnCount="2" rowCount="0">
@@ -246,7 +246,7 @@
         <Property name="text" type="java.lang.String" value="HTTP Method:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="post">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="post">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -269,7 +269,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="postActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="get">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="get">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -292,7 +292,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="getActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="channelNames">
+    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="channelNames">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="4">
@@ -317,7 +317,7 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="com.webreach.mirth.client.ui.components.MirthTable" name="headerVariablesTable">
+        <Component class="com.mirth.connect.client.ui.components.MirthTable" name="headerVariablesTable">
           <Properties>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
               <Table columnCount="2" rowCount="0">
@@ -356,7 +356,7 @@
         <Property name="text" type="java.lang.String" value="Include Response Headers:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="includeResponseHeadersYesButton">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="includeResponseHeadersYesButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -379,7 +379,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="includeResponseHeadersYesButtonActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="includeResponseHeadersNoButton">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="includeResponseHeadersNoButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -399,7 +399,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthCheckBox" name="rotateMessages">
+    <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="rotateMessages">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -408,7 +408,7 @@
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If checked, upon unsuccessful re-try, it will rotate and put the queued message to the back of the queue&lt;br&gt; in order to prevent it from clogging the queue and to let the other subsequent messages in queue be processed.&lt;br&gt;If the order of messages processed is important, this should be unchecked.&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="usePersistentQueuesNoRadio">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="usePersistentQueuesNoRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -431,7 +431,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="usePersistentQueuesNoRadioActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="usePersistentQueuesYesRadio">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="usePersistentQueuesYesRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -464,9 +464,9 @@
         <Property name="text" type="java.lang.String" value="Reconnect Interval (ms):"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="reconnectInterval">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="reconnectInterval">
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="put">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="put">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -489,7 +489,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="putActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="delete">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="delete">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -525,7 +525,7 @@
         <Property name="text" type="java.lang.String" value="Multipart:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="multipartYesButton">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="multipartYesButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -545,7 +545,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="multipartNoButton">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="multipartNoButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>

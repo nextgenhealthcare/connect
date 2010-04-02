@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.email;
+package com.mirth.connect.connectors.email;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;

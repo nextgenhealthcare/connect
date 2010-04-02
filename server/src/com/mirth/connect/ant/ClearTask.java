@@ -7,12 +7,12 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.ant;
+package com.mirth.connect.ant;
 
 import org.apache.tools.ant.BuildException;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.model.Channel;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.model.Channel;
 
 /**
  * an ant task to clear messages from all mirth channels

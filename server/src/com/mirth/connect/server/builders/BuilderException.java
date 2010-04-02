@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.builders;
+package com.mirth.connect.server.builders;
 
 public class BuilderException extends Exception {
 	public BuilderException(Throwable cause) {

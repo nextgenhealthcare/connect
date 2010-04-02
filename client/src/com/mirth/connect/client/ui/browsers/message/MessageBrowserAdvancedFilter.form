@@ -130,35 +130,35 @@
         <Property name="text" type="java.lang.String" value="Connector:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="connectorField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="connectorField">
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel4">
       <Properties>
         <Property name="text" type="java.lang.String" value="Message Type:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="messageTypeField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="messageTypeField">
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel7">
       <Properties>
         <Property name="text" type="java.lang.String" value="Source:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="messageSourceField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="messageSourceField">
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel10">
       <Properties>
         <Property name="text" type="java.lang.String" value="Containing:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="containing">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="containing">
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel9">
       <Properties>
         <Property name="text" type="java.lang.String" value=" in "/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthCheckBox" name="rawMessageCheckBox">
+    <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="rawMessageCheckBox">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -174,7 +174,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthCheckBox" name="transformedMessageCheckBox">
+    <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="transformedMessageCheckBox">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -190,7 +190,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthCheckBox" name="encodedMessageCheckBox">
+    <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="encodedMessageCheckBox">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -248,7 +248,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="advSearchCancelButtonActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthCheckBox" name="errorsCheckBox">
+    <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="errorsCheckBox">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -269,12 +269,12 @@
         <Property name="text" type="java.lang.String" value="Message ID:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="messageIdField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="messageIdField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The GUID of the message in the Mirth Connect database.&lt;br&gt;This can be retrieved from the Meta Data tab in the Message Browser.&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="correlationIdField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="correlationIdField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The correlation GUID of the group of messages in the Mirth Connect database.&lt;br&gt;This can be retrieved from the Meta Data tab in the Message Browser.&lt;/html&gt;"/>
       </Properties>

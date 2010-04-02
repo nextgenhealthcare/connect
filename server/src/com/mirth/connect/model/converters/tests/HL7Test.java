@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.converters.tests;
+package com.mirth.connect.model.converters.tests;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,10 +18,10 @@ import java.util.Properties;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import com.webreach.mirth.model.converters.DocumentSerializer;
-import com.webreach.mirth.model.converters.ER7Serializer;
-import com.webreach.mirth.model.converters.SerializerException;
-import com.webreach.mirth.model.converters.Stopwatch;
+import com.mirth.connect.model.converters.DocumentSerializer;
+import com.mirth.connect.model.converters.ER7Serializer;
+import com.mirth.connect.model.converters.SerializerException;
+import com.mirth.connect.model.converters.Stopwatch;
 
 public class HL7Test {
 

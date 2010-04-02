@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.converters;
+package com.mirth.connect.model.converters;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.util;
+package com.mirth.connect.server.util;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +15,7 @@ import java.util.Properties;
 
 import javax.management.remote.JMXConnector;
 
-import com.webreach.mirth.util.PropertyLoader;
+import com.mirth.connect.util.PropertyLoader;
 
 public class JMXConnectionFactory {
     public static JMXConnection createJMXConnection() throws Exception {

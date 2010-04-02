@@ -9,7 +9,7 @@
 	<extensionPoint>
 		<name>Extension Manager</name>
 		<type>CLIENT_PANEL</type>
-		<className>com.webreach.mirth.plugins.extensionmanager.ExtensionManagerClient</className>
+		<className>com.mirth.connect.plugins.extensionmanager.ExtensionManagerClient</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
 	<library path="extensionmanager-client.jar">

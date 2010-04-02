@@ -160,27 +160,27 @@
         <Property name="text" type="java.lang.String" value="Buffer Size (bytes):"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="bufferSizeField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="bufferSizeField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter at least the size, in bytes, of the largest message expected.&lt;br&gt;Entering too small a value will cause larger messages to be rejected.&lt;br&gt;Entering too large a value will waste memory. Generally, the default value is fine.&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="receiveTimeoutField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="receiveTimeoutField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The amount of time, in milliseconds, to wait without receiving a message before closing a connection."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="listenerPortField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="listenerPortField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The port to listen for connections on."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="listenerAddressField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="listenerAddressField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The DNS domain name or IP address to listen for connections on."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="charsetEncodingCombobox">
+    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="charsetEncodingCombobox">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="7">
@@ -206,7 +206,7 @@
         <Property name="text" type="java.lang.String" value="Response on New Connection:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="ackOnNewConnectionYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="ackOnNewConnectionYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -229,7 +229,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ackOnNewConnectionYesActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="ackOnNewConnectionNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="ackOnNewConnectionNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -262,12 +262,12 @@
         <Property name="text" type="java.lang.String" value="Response Port:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="ackPortField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="ackPortField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Enter the port to send message responses to."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="ackAddressField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="ackAddressField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Enter the DNS domain name or IP address to send message responses to."/>
       </Properties>
@@ -277,7 +277,7 @@
         <Property name="text" type="java.lang.String" value="Respond from:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="responseFromTransformer">
+    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="responseFromTransformer">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="4">
@@ -290,7 +290,7 @@
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select &quot;None&quot; to send no response.&lt;br&gt;Select a destination of this channel that will supply a return value using the Response Map.&lt;br&gt;Select a variable that has been added to the Response Map.&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="dataTypeASCII">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="dataTypeASCII">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -314,7 +314,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="dataTypeASCIIActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="dataTypeBinary">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="dataTypeBinary">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>

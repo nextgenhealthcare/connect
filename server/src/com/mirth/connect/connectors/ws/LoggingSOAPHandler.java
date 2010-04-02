@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.ws;
+package com.mirth.connect.connectors.ws;
 
 import java.util.Set;
 
@@ -18,10 +18,10 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
-import com.webreach.mirth.server.controllers.MonitoringController.Event;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MonitoringController;
+import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
+import com.mirth.connect.server.controllers.MonitoringController.Event;
 
 /*
  * Log the whole SOAP message

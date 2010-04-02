@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.editors;
+package com.mirth.connect.client.ui.editors;
 
 import java.awt.Component;
 import java.awt.event.MouseEvent;
@@ -32,10 +32,10 @@ import javax.swing.table.TableCellEditor;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.webreach.mirth.client.ui.Mirth;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.plugins.rulebuilder.RuleBuilderPlugin;
+import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.plugins.rulebuilder.RuleBuilderPlugin;
 
 public class RuleBuilderPanel extends BasePanel {
 
@@ -359,7 +359,7 @@ public class RuleBuilderPanel extends BasePanel {
         buttonGroup2 = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
         valuesScrollPane = new javax.swing.JScrollPane();
-        valuesTable = new com.webreach.mirth.client.ui.components.MirthTable();
+        valuesTable = new com.mirth.connect.client.ui.components.MirthTable();
         newButton = new javax.swing.JButton();
         deleteButton = new javax.swing.JButton();
         valuesLabel = new javax.swing.JLabel();
@@ -614,6 +614,6 @@ public class RuleBuilderPanel extends BasePanel {
     private javax.swing.JRadioButton reject;
     private javax.swing.JLabel valuesLabel;
     private javax.swing.JScrollPane valuesScrollPane;
-    private com.webreach.mirth.client.ui.components.MirthTable valuesTable;
+    private com.mirth.connect.client.ui.components.MirthTable valuesTable;
     // End of variables declaration//GEN-END:variables
 }

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.editors;
+package com.mirth.connect.client.ui.editors;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -17,9 +17,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.table.DefaultTableModel;
 
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
+import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
 
 public class MirthEditorPane extends JPanel {
     // transformer constants

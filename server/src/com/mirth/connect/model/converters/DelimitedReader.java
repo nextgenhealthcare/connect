@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.converters;
+package com.mirth.connect.model.converters;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,8 +23,8 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.webreach.mirth.server.util.CompiledScriptCache;
-import com.webreach.mirth.server.util.JavaScriptScopeUtil;
+import com.mirth.connect.server.util.CompiledScriptCache;
+import com.mirth.connect.server.util.JavaScriptScopeUtil;
 
 public class DelimitedReader extends SAXParser {
     private Logger logger = Logger.getLogger(this.getClass());

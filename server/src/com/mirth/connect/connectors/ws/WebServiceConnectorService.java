@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.ws;
+package com.mirth.connect.connectors.ws;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +23,7 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
 
-import com.webreach.mirth.connectors.ConnectorService;
+import com.mirth.connect.connectors.ConnectorService;
 
 public class WebServiceConnectorService implements ConnectorService {
     private static Map<String, Definition> definitionCache = new HashMap<String, Definition>();

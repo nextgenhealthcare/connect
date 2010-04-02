@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.jms.filters;
+package com.mirth.connect.connectors.jms.filters;
 
 import org.mule.umo.UMOFilter;
 import org.mule.umo.UMOMessage;

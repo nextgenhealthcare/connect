@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.x12;
+package com.mirth.connect.model.x12;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -27,7 +27,7 @@ public class X12Test {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		try {
-			JAXBContext jc = JAXBContext.newInstance("com.webreach.mirth.model.x12");
+			JAXBContext jc = JAXBContext.newInstance("com.mirth.connect.model.x12");
 			Unmarshaller unmarshaller = jc.createUnmarshaller();
 			// TransactionType collection=
 			// (TransactionType)((JAXBElement<TransactionType>)unmarshaller.unmarshal(X12Test.class.getResourceAsStream("xml/837.4010.X097.xml"))).getValue();

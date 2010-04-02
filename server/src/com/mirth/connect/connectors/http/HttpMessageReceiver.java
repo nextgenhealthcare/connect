@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.http;
+package com.mirth.connect.connectors.http;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -53,12 +53,12 @@ import org.mule.umo.provider.UMOMessageAdapter;
 import org.mule.util.PropertiesHelper;
 import org.mule.util.monitor.Expirable;
 
-import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.controllers.AlertController;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
-import com.webreach.mirth.server.controllers.MonitoringController.Event;
+import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.controllers.AlertController;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MonitoringController;
+import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
+import com.mirth.connect.server.controllers.MonitoringController.Event;
 
 /**
  * <code>HttpMessageReceiver</code> is a simple http server that can be used to

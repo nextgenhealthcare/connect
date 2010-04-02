@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.beans;
+package com.mirth.connect.client.ui.beans;
 
 import java.beans.BeanDescriptor;
 import java.beans.EventSetDescriptor;
@@ -21,7 +21,7 @@ public class HL7PropertiesBeanInfo extends SimpleBeanInfo {
     // Bean descriptor//GEN-FIRST:BeanDescriptor
     /*lazy BeanDescriptor*/
     private static BeanDescriptor getBdescriptor(){
-        BeanDescriptor beanDescriptor = new BeanDescriptor  ( com.webreach.mirth.client.ui.beans.HL7Properties.class , null ); // NOI18N//GEN-HEADEREND:BeanDescriptor
+        BeanDescriptor beanDescriptor = new BeanDescriptor  ( com.mirth.connect.client.ui.beans.HL7Properties.class , null ); // NOI18N//GEN-HEADEREND:BeanDescriptor
 
         // Here you can add code for customizing the BeanDescriptor.
 
@@ -39,27 +39,27 @@ public class HL7PropertiesBeanInfo extends SimpleBeanInfo {
         PropertyDescriptor[] properties = new PropertyDescriptor[6];
     
         try {
-            properties[PROPERTY_handleRepetitions] = new PropertyDescriptor ( "handleRepetitions", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isHandleRepetitions", "setHandleRepetitions" ); // NOI18N
+            properties[PROPERTY_handleRepetitions] = new PropertyDescriptor ( "handleRepetitions", com.mirth.connect.client.ui.beans.HL7Properties.class, "isHandleRepetitions", "setHandleRepetitions" ); // NOI18N
             properties[PROPERTY_handleRepetitions].setDisplayName ( "Parse Field Repetitions" );
             properties[PROPERTY_handleRepetitions].setShortDescription ( "Parse field repetitions (applies to Non-Strict Parser only)." );
             properties[PROPERTY_handleRepetitions].setBound ( true );
-            properties[PROPERTY_handleSubcomponents] = new PropertyDescriptor ( "handleSubcomponents", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isHandleSubcomponents", "setHandleSubcomponents" ); // NOI18N
+            properties[PROPERTY_handleSubcomponents] = new PropertyDescriptor ( "handleSubcomponents", com.mirth.connect.client.ui.beans.HL7Properties.class, "isHandleSubcomponents", "setHandleSubcomponents" ); // NOI18N
             properties[PROPERTY_handleSubcomponents].setDisplayName ( "Parse Subcomponents" );
             properties[PROPERTY_handleSubcomponents].setShortDescription ( "Parse subcomponents (applies to Non-Strict Parser only)." );
             properties[PROPERTY_handleSubcomponents].setBound ( true );
-            properties[PROPERTY_useStrictParser] = new PropertyDescriptor ( "useStrictParser", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isUseStrictParser", "setUseStrictParser" ); // NOI18N
+            properties[PROPERTY_useStrictParser] = new PropertyDescriptor ( "useStrictParser", com.mirth.connect.client.ui.beans.HL7Properties.class, "isUseStrictParser", "setUseStrictParser" ); // NOI18N
             properties[PROPERTY_useStrictParser].setDisplayName ( "Use Strict Parser" );
             properties[PROPERTY_useStrictParser].setShortDescription ( "Parse messages based upon strict HL7 specifications." );
             properties[PROPERTY_useStrictParser].setBound ( true );
-            properties[PROPERTY_useStrictValidation] = new PropertyDescriptor ( "useStrictValidation", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isUseStrictValidation", "setUseStrictValidation" ); // NOI18N
+            properties[PROPERTY_useStrictValidation] = new PropertyDescriptor ( "useStrictValidation", com.mirth.connect.client.ui.beans.HL7Properties.class, "isUseStrictValidation", "setUseStrictValidation" ); // NOI18N
             properties[PROPERTY_useStrictValidation].setDisplayName ( "Validate in Strict Parser" );
             properties[PROPERTY_useStrictValidation].setShortDescription ( "Validate messages using HL7 specifications (applies to Strict Parser only)." );
             properties[PROPERTY_useStrictValidation].setBound ( true );
-            properties[PROPERTY_stripNamespaces] = new PropertyDescriptor ( "stripNamespaces", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isStripNamespaces", "setStripNamespaces" ); // NOI18N
+            properties[PROPERTY_stripNamespaces] = new PropertyDescriptor ( "stripNamespaces", com.mirth.connect.client.ui.beans.HL7Properties.class, "isStripNamespaces", "setStripNamespaces" ); // NOI18N
             properties[PROPERTY_stripNamespaces].setDisplayName ( "Strip Namespaces" );
             properties[PROPERTY_stripNamespaces].setShortDescription ( "Strips namespace definitions from the transformed XML message (applies to Strict Parser only).  Will not remove namespace prefixes.  If you do not strip namespaces your default xml namespace will be set to the incoming data namespace.  If your outbound template namespace is different, you will have to set \"default xml namespace = 'namespace';\" via JavaScript before template mappings." );
             properties[PROPERTY_stripNamespaces].setBound ( true );
-            properties[PROPERTY_convertLFtoCR] = new PropertyDescriptor ( "convertLFtoCR", com.webreach.mirth.client.ui.beans.HL7Properties.class, "isConvertLFtoCR", "setConvertLFtoCR" ); // NOI18N
+            properties[PROPERTY_convertLFtoCR] = new PropertyDescriptor ( "convertLFtoCR", com.mirth.connect.client.ui.beans.HL7Properties.class, "isConvertLFtoCR", "setConvertLFtoCR" ); // NOI18N
             properties[PROPERTY_convertLFtoCR].setDisplayName ( "Convert LF to CR" );
             properties[PROPERTY_convertLFtoCR].setShortDescription ( "Convert linefeeds (\\n) to carriage returns (\\r) automatically (applies to Non-Strict Parser only)." );
             properties[PROPERTY_convertLFtoCR].setBound ( true );

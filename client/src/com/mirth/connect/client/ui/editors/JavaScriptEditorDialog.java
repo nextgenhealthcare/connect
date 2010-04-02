@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.editors;
+package com.mirth.connect.client.ui.editors;
 
 import java.awt.Dialog;
 import java.awt.Dimension;
@@ -33,9 +33,9 @@ import org.mozilla.javascript.EvaluatorException;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.util.FileUtil;
+import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.util.FileUtil;
 
 public class JavaScriptEditorDialog extends javax.swing.JDialog implements DropTargetListener {
 
@@ -161,7 +161,7 @@ public class JavaScriptEditorDialog extends javax.swing.JDialog implements DropT
         jPanel1 = new javax.swing.JPanel();
         cancelButton = new javax.swing.JButton();
         validateScriptButton = new javax.swing.JButton();
-        scriptContent = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
+        scriptContent = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         openFileButton = new javax.swing.JButton();
         okButton = new javax.swing.JButton();
 
@@ -294,7 +294,7 @@ private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     private javax.swing.JPanel jPanel1;
     private javax.swing.JButton okButton;
     private javax.swing.JButton openFileButton;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea scriptContent;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea scriptContent;
     private javax.swing.JButton validateScriptButton;
     // End of variables declaration//GEN-END:variables
 }

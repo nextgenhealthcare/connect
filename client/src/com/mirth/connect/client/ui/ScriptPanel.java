@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.util.Map;
 import java.util.UUID;
@@ -102,7 +102,7 @@ public class ScriptPanel extends javax.swing.JPanel {
     private void initComponents() {
 
         functionList1 = new FunctionList(this.context);
-        script = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,true,this.context);
+        script = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,true,this.context);
         jLabel5 = new javax.swing.JLabel();
         scriptList = new javax.swing.JComboBox();
 
@@ -161,9 +161,9 @@ public class ScriptPanel extends javax.swing.JPanel {
         script.setText(loadedScripts.get(selectedItem));
     }//GEN-LAST:event_scriptListActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.webreach.mirth.client.ui.FunctionList functionList1;
+    private com.mirth.connect.client.ui.FunctionList functionList1;
     private javax.swing.JLabel jLabel5;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea script;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea script;
     private javax.swing.JComboBox scriptList;
     // End of variables declaration//GEN-END:variables
 }

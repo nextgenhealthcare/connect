@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.converters.tests;
+package com.mirth.connect.model.converters.tests;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -20,7 +20,7 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.webreach.mirth.model.converters.DocumentSerializer;
+import com.mirth.connect.model.converters.DocumentSerializer;
 
 public class DocumentSerailizerTest {
 

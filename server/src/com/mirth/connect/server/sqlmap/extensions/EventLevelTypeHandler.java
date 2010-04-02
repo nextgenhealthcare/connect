@@ -7,9 +7,9 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.sqlmap.extensions;
+package com.mirth.connect.server.sqlmap.extensions;
 
-import com.webreach.mirth.model.SystemEvent.Level;
+import com.mirth.connect.model.SystemEvent.Level;
 
 public class EventLevelTypeHandler extends EnumTypeHandler<Level> {
 	public EventLevelTypeHandler() {

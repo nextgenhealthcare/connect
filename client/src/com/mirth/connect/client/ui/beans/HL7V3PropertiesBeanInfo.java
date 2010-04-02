@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.beans;
+package com.mirth.connect.client.ui.beans;
 
 import java.beans.BeanDescriptor;
 import java.beans.EventSetDescriptor;
@@ -21,7 +21,7 @@ public class HL7V3PropertiesBeanInfo extends SimpleBeanInfo {
     // Bean descriptor//GEN-FIRST:BeanDescriptor
     /*lazy BeanDescriptor*/
     private static BeanDescriptor getBdescriptor(){
-        BeanDescriptor beanDescriptor = new BeanDescriptor  ( com.webreach.mirth.client.ui.beans.HL7V3Properties.class , null ); // NOI18N//GEN-HEADEREND:BeanDescriptor
+        BeanDescriptor beanDescriptor = new BeanDescriptor  ( com.mirth.connect.client.ui.beans.HL7V3Properties.class , null ); // NOI18N//GEN-HEADEREND:BeanDescriptor
 
         // Here you can add code for customizing the BeanDescriptor.
 
@@ -35,7 +35,7 @@ public class HL7V3PropertiesBeanInfo extends SimpleBeanInfo {
         PropertyDescriptor[] properties = new PropertyDescriptor[1];
     
         try {
-            properties[PROPERTY_stripNamespaces] = new PropertyDescriptor ( "stripNamespaces", com.webreach.mirth.client.ui.beans.HL7V3Properties.class, "isStripNamespaces", "setStripNamespaces" ); // NOI18N
+            properties[PROPERTY_stripNamespaces] = new PropertyDescriptor ( "stripNamespaces", com.mirth.connect.client.ui.beans.HL7V3Properties.class, "isStripNamespaces", "setStripNamespaces" ); // NOI18N
             properties[PROPERTY_stripNamespaces].setDisplayName ( "Strip Namespaces" );
             properties[PROPERTY_stripNamespaces].setShortDescription ( "Strips namespace definitions from the transformed XML message.  Will not remove namespace prefixes.  If you do not strip namespaces your default xml namespace will be set to the incoming data namespace.  If your outbound template namespace is different, you will have to set \"default xml namespace = 'namespace';\" via JavaScript before template mappings." );
             properties[PROPERTY_stripNamespaces].setBound ( true );

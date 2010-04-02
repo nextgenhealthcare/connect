@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.awt.Component;
 import java.awt.Point;
@@ -33,12 +33,12 @@ import javax.swing.table.TableCellEditor;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.client.ui.components.MirthVariableList;
-import com.webreach.mirth.model.Alert;
-import com.webreach.mirth.model.Channel;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.client.ui.components.MirthVariableList;
+import com.mirth.connect.model.Alert;
+import com.mirth.connect.model.Channel;
 
 /** The alert editor panel. */
 public class AlertPanel extends javax.swing.JPanel {
@@ -171,9 +171,9 @@ public class AlertPanel extends javax.swing.JPanel {
             for (int i = 0; i < tableSize; i++) {
                 Alert alert = parent.alerts.get(i);
                 if (alert.isEnabled()) {
-                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")), ENABLED_TEXT);
+                    tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), ENABLED_TEXT);
                 } else {
-                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), DISABLED_TEXT);
+                    tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), DISABLED_TEXT);
                 }
                 tableData[i][1] = alert.getName();
             }
@@ -494,7 +494,7 @@ public class AlertPanel extends javax.swing.JPanel {
         alert.setEnabled(false);
 
         Object[] rowData = new Object[2];
-        rowData[0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), DISABLED_TEXT);
+        rowData[0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), DISABLED_TEXT);
         rowData[1] = alert.getName();
 
         parent.alerts.add(alert);
@@ -511,7 +511,7 @@ public class AlertPanel extends javax.swing.JPanel {
         stopAlertEditing();
         parent.alerts.get(alertTable.getSelectedModelIndex()).setEnabled(true);
 
-        CellData enabled = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")), ENABLED_TEXT);
+        CellData enabled = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), ENABLED_TEXT);
         alertTable.getModel().setValueAt(enabled, alertTable.getSelectedModelIndex(), alertTable.getColumnModelIndex(ALERT_STATUS_COLUMN_NAME));
 
         parent.enableSave();
@@ -521,7 +521,7 @@ public class AlertPanel extends javax.swing.JPanel {
         stopAlertEditing();
         parent.alerts.get(alertTable.getSelectedModelIndex()).setEnabled(false);
 
-        CellData disabled = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), DISABLED_TEXT);
+        CellData disabled = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), DISABLED_TEXT);
         alertTable.getModel().setValueAt(disabled, alertTable.getSelectedModelIndex(), alertTable.getColumnModelIndex(ALERT_STATUS_COLUMN_NAME));
 
         parent.enableSave();
@@ -724,22 +724,22 @@ public class AlertPanel extends javax.swing.JPanel {
         applyToChannelsScrollPane = new javax.swing.JScrollPane();
         applyToChannelsTable = null;
         errorPane = new javax.swing.JPanel();
-        errorField = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
+        errorField = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         emailsPane = new javax.swing.JPanel();
         emailsScrollPane = new javax.swing.JScrollPane();
         emailsTable = null;
         addButton = new javax.swing.JButton();
         removeButton = new javax.swing.JButton();
         templatePane = new javax.swing.JPanel();
-        template = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
+        template = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         errorPanel = new javax.swing.JPanel();
         errorScrollPane = new javax.swing.JScrollPane();
         errorList = new MirthVariableList("","");
         templateVariablesPanel = new javax.swing.JPanel();
         templateVariablesPane = new javax.swing.JScrollPane();
-        templateVariableList = new com.webreach.mirth.client.ui.components.MirthVariableList();
+        templateVariableList = new com.mirth.connect.client.ui.components.MirthVariableList();
         emailSubjectPanel = new javax.swing.JPanel();
-        emailSubjectField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        emailSubjectField = new com.mirth.connect.client.ui.components.MirthTextField();
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
@@ -990,26 +990,26 @@ public class AlertPanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addButton;
     private javax.swing.JScrollPane alertPane;
-    private com.webreach.mirth.client.ui.components.MirthTable alertTable;
+    private com.mirth.connect.client.ui.components.MirthTable alertTable;
     private javax.swing.JPanel applyToChannelsPanel;
     private javax.swing.JScrollPane applyToChannelsScrollPane;
-    private com.webreach.mirth.client.ui.components.MirthTable applyToChannelsTable;
+    private com.mirth.connect.client.ui.components.MirthTable applyToChannelsTable;
     private javax.swing.JPanel bottomPane;
-    private com.webreach.mirth.client.ui.components.MirthTextField emailSubjectField;
+    private com.mirth.connect.client.ui.components.MirthTextField emailSubjectField;
     private javax.swing.JPanel emailSubjectPanel;
     private javax.swing.JPanel emailsPane;
     private javax.swing.JScrollPane emailsScrollPane;
-    private com.webreach.mirth.client.ui.components.MirthTable emailsTable;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea errorField;
-    private com.webreach.mirth.client.ui.components.MirthVariableList errorList;
+    private com.mirth.connect.client.ui.components.MirthTable emailsTable;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea errorField;
+    private com.mirth.connect.client.ui.components.MirthVariableList errorList;
     private javax.swing.JPanel errorPane;
     private javax.swing.JPanel errorPanel;
     private javax.swing.JScrollPane errorScrollPane;
     private javax.swing.JButton removeButton;
     private javax.swing.JSplitPane split;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea template;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea template;
     private javax.swing.JPanel templatePane;
-    private com.webreach.mirth.client.ui.components.MirthVariableList templateVariableList;
+    private com.mirth.connect.client.ui.components.MirthVariableList templateVariableList;
     private javax.swing.JScrollPane templateVariablesPane;
     private javax.swing.JPanel templateVariablesPanel;
     // End of variables declaration//GEN-END:variables

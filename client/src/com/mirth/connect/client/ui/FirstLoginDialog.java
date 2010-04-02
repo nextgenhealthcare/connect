@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -18,8 +18,8 @@ import java.util.Properties;
 
 import javax.swing.JDialog;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.model.User;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.model.User;
 
 /**
  * A dialog for creating a new user or editing a current user
@@ -87,9 +87,9 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
         channelOverview = new javax.swing.JPanel();
         finishButton = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
-        mirthHeadingPanel1 = new com.webreach.mirth.client.ui.MirthHeadingPanel();
+        mirthHeadingPanel1 = new com.mirth.connect.client.ui.MirthHeadingPanel();
         jLabel2 = new javax.swing.JLabel();
-        userEditPanel = new com.webreach.mirth.client.ui.UserEditPanel();
+        userEditPanel = new com.mirth.connect.client.ui.UserEditPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextPane1 = new javax.swing.JTextPane();
         registerCheckBox = new javax.swing.JCheckBox();
@@ -275,10 +275,10 @@ private void usageStatsMoreInfoLabelMouseClicked(java.awt.event.MouseEvent evt) 
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTextPane jTextPane1;
-    private com.webreach.mirth.client.ui.MirthHeadingPanel mirthHeadingPanel1;
+    private com.mirth.connect.client.ui.MirthHeadingPanel mirthHeadingPanel1;
     private javax.swing.JCheckBox registerCheckBox;
     private javax.swing.JCheckBox usageStatsCheckBox;
     private javax.swing.JLabel usageStatsMoreInfoLabel;
-    private com.webreach.mirth.client.ui.UserEditPanel userEditPanel;
+    private com.mirth.connect.client.ui.UserEditPanel userEditPanel;
     // End of variables declaration//GEN-END:variables
 }

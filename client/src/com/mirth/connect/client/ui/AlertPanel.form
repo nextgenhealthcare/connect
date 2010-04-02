@@ -65,7 +65,7 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
-            <Component class="com.webreach.mirth.client.ui.components.MirthTable" name="alertTable">
+            <Component class="com.mirth.connect.client.ui.components.MirthTable" name="alertTable">
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="null;"/>
               </AuxValues>
@@ -176,7 +176,7 @@
 
                   <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
                   <SubComponents>
-                    <Component class="com.webreach.mirth.client.ui.components.MirthTable" name="applyToChannelsTable">
+                    <Component class="com.mirth.connect.client.ui.components.MirthTable" name="applyToChannelsTable">
                       <AuxValues>
                         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="null;"/>
                       </AuxValues>
@@ -214,7 +214,7 @@
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="errorField">
+                <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="errorField">
                   <Properties>
                     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                       <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -274,7 +274,7 @@
 
                   <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
                   <SubComponents>
-                    <Component class="com.webreach.mirth.client.ui.components.MirthTable" name="emailsTable">
+                    <Component class="com.mirth.connect.client.ui.components.MirthTable" name="emailsTable">
                       <AuxValues>
                         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="null;"/>
                       </AuxValues>
@@ -328,7 +328,7 @@
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="template">
+                <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="template">
                   <Properties>
                     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                       <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -375,7 +375,7 @@
 
                   <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
                   <SubComponents>
-                    <Component class="com.webreach.mirth.client.ui.components.MirthVariableList" name="errorList">
+                    <Component class="com.mirth.connect.client.ui.components.MirthVariableList" name="errorList">
                       <Properties>
                         <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
                           <StringArray count="5">
@@ -431,7 +431,7 @@
 
                   <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
                   <SubComponents>
-                    <Component class="com.webreach.mirth.client.ui.components.MirthVariableList" name="templateVariableList">
+                    <Component class="com.mirth.connect.client.ui.components.MirthVariableList" name="templateVariableList">
                       <Properties>
                         <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
                           <StringArray count="5">
@@ -480,7 +480,7 @@
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="emailSubjectField">
+                <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="emailSubjectField">
                 </Component>
               </SubComponents>
             </Container>

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.extensionmanager;
+package com.mirth.connect.plugins.extensionmanager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,9 +19,9 @@ import java.util.Properties;
 import javax.swing.ImageIcon;
 import javax.swing.SwingWorker;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.plugins.ClientPanelPlugin;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.plugins.ClientPanelPlugin;
 
 public class ExtensionManagerClient extends ClientPanelPlugin {
 
@@ -31,12 +31,12 @@ public class ExtensionManagerClient extends ClientPanelPlugin {
         getTaskPane().setTitle("Manager Tasks");
         setComponent(new ExtensionManagerPanel(this));
 
-        addTask("doCheckForUpdates", "Check for Updates", "Checks all extensions for updates.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/world_link.png")));
+        addTask("doCheckForUpdates", "Check for Updates", "Checks all extensions for updates.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/world_link.png")));
 
-        addTask("doEnable", "Enable Extension", "Enable the currently selected extension.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/control_play_blue.png")));
-        addTask("doDisable", "Disable Extension", "Disable the currently selected extension.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/control_stop_blue.png")));
-        addTask("doShowProperties", "Show Properties", "Display the currently selected extension properties.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/application_view_list.png")));
-        addTask("doUninstall", "Uninstall Extension", "Uninstall the currently selected extension", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/plugin_delete.png")));
+        addTask("doEnable", "Enable Extension", "Enable the currently selected extension.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_play_blue.png")));
+        addTask("doDisable", "Disable Extension", "Disable the currently selected extension.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/control_stop_blue.png")));
+        addTask("doShowProperties", "Show Properties", "Display the currently selected extension properties.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/application_view_list.png")));
+        addTask("doUninstall", "Uninstall Extension", "Uninstall the currently selected extension", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/plugin_delete.png")));
         setVisibleTasks(getRefreshIndex(), getRefreshIndex(), true);
         setVisibleTasks(getSaveIndex(), getSaveIndex(), false);
         setVisibleTasks(2, 2, true);

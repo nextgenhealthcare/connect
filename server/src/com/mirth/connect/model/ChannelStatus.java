@@ -7,16 +7,14 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model;
+package com.mirth.connect.model;
 
 import java.io.Serializable;
 
-import com.webreach.mirth.util.EqualsUtil;
+import com.mirth.connect.util.EqualsUtil;
 
 /**
  * A ChannelStatus represents the status of a deployed Channel.
- * 
- * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  * 
  */
 public class ChannelStatus implements Serializable {

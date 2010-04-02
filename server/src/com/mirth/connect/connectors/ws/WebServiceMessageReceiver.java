@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.ws;
+package com.mirth.connect.connectors.ws;
 
 import java.lang.reflect.Constructor;
 import java.net.InetSocketAddress;
@@ -37,13 +37,13 @@ import org.mule.umo.provider.UMOMessageAdapter;
 import com.sun.net.httpserver.BasicAuthenticator;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.Response;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
-import com.webreach.mirth.server.controllers.MonitoringController.Event;
-import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.Response;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MonitoringController;
+import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
+import com.mirth.connect.server.controllers.MonitoringController.Event;
+import com.mirth.connect.server.mule.transformers.JavaScriptPostprocessor;
 
 public class WebServiceMessageReceiver extends AbstractMessageReceiver {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -89,7 +89,7 @@ public class WebServiceMessageReceiver extends AbstractMessageReceiver {
                     logger.error("Custom web service class must implement the constructor: public AcceptMessage(WebServiceMessageReceiver webServiceMessageReceiver)");
                 }
             } else {
-                logger.error("Custom web service class must extend com.webreach.mirth.connectors.ws.AcceptMessage");
+                logger.error("Custom web service class must extend com.mirth.connect.connectors.ws.AcceptMessage");
             }
         } catch (Exception e) {
             logger.error("Custom web service class initialization failed", e);

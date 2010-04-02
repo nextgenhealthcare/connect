@@ -5,10 +5,10 @@
 	<mirthVersion>2.0.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to write files to a local or network file system. A velocity template is available to dynamically generate files.</description>
-	<clientClassName>com.webreach.mirth.connectors.file.FileWriter</clientClassName>
-	<serverClassName>com.webreach.mirth.connectors.file.FileConnector</serverClassName>
-	<sharedClassName>com.webreach.mirth.connectors.file.FileWriterProperties</sharedClassName>
-	<serviceClassName>com.webreach.mirth.connectors.file.FileWriterService</serviceClassName>
+	<clientClassName>com.mirth.connect.connectors.file.FileWriter</clientClassName>
+	<serverClassName>com.mirth.connect.connectors.file.FileConnector</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.file.FileWriterProperties</sharedClassName>
+	<serviceClassName>com.mirth.connect.connectors.file.FileWriterService</serviceClassName>
 	<library path="file-client.jar">
 		<type>CLIENT</type>
 	</library>
@@ -29,11 +29,11 @@
 	<type>DESTINATION</type>
 	<enabled>true</enabled>
 	<mule-properties>
-		<property name="connector">com.webreach.mirth.connectors.file.FileConnector</property>
-		<property name="dispatcher.factory">com.webreach.mirth.connectors.file.FileMessageDispatcherFactory</property>
-		<property name="message.receiver">com.webreach.mirth.connectors.file.FileMessageReceiver</property>
-		<property name="message.adapter">com.webreach.mirth.connectors.file.FileContentsMessageAdapter</property>
-		<property name="endpoint.builder">com.webreach.mirth.connectors.file.FileEndpointBuilder</property>
-		<property name="inbound.transformer">com.webreach.mirth.connectors.file.transformers.FileToString</property>
+		<property name="connector">com.mirth.connect.connectors.file.FileConnector</property>
+		<property name="dispatcher.factory">com.mirth.connect.connectors.file.FileMessageDispatcherFactory</property>
+		<property name="message.receiver">com.mirth.connect.connectors.file.FileMessageReceiver</property>
+		<property name="message.adapter">com.mirth.connect.connectors.file.FileContentsMessageAdapter</property>
+		<property name="endpoint.builder">com.mirth.connect.connectors.file.FileEndpointBuilder</property>
+		<property name="inbound.transformer">com.mirth.connect.connectors.file.transformers.FileToString</property>
 	</mule-properties>
 </connectorMetaData>

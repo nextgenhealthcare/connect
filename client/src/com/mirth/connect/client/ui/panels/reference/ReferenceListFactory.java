@@ -7,22 +7,22 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.panels.reference;
+package com.mirth.connect.client.ui.panels.reference;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.connectors.ConnectorClass;
-import com.webreach.mirth.model.CodeTemplate;
-import com.webreach.mirth.model.ConnectorMetaData;
-import com.webreach.mirth.model.ExtensionPoint;
-import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
-import com.webreach.mirth.model.CodeTemplate.ContextType;
-import com.webreach.mirth.plugins.ClientPlugin;
+import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.connectors.ConnectorClass;
+import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.model.ExtensionPoint;
+import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
+import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.plugins.ClientPlugin;
 
 public class ReferenceListFactory {
 
@@ -238,7 +238,7 @@ public class ReferenceListFactory {
         variablelistItems.add(new CodeTemplate("Message ID", "The unique id of the message in Mirth", "messageObject.getId()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Message Protocol", "The message protocol", "messageObject.getProtocol().toString()", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Channel ID", "The message channel id", "channelId", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
-        variablelistItems.add(new CodeTemplate("Channel Name", "The message channel name", "var channelName = Packages.com.webreach.mirth.server.controllers.ChannelController.getInstance().getChannelName(channelId);", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
+        variablelistItems.add(new CodeTemplate("Channel Name", "The message channel name", "var channelName = Packages.com.mirth.connect.server.controllers.ChannelController.getInstance().getChannelName(channelId);", CodeSnippetType.VARIABLE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Iterate Over Segment", "Iterates over a segment that repeats in a message.  Replace SEG with your segment name (i.e. OBX)", "for each (seg in msg..SEG) {\n\tvar sample_value = seg['SEG.1']['SEG.1.1'].toString();\n}\n", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Iterate Over All Segments", "Iterates over all segments in a message.  The if-statement checks for only segments named \"SEG\".", "for each (seg in msg.children()) {\n\tif (seg.name().toString() == \"SEG\") {\n\t\tvar sample_value = seg['SEG.1']['SEG.1.1'].toString();\n\t}\n}\n", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));
         variablelistItems.add(new CodeTemplate("Create Segment (individual)", "Create a new segment that can be used in any message", "createSegment('segmentName')", CodeSnippetType.CODE, ContextType.MESSAGE_CONTEXT.getContext()));

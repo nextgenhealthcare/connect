@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.util;
+package com.mirth.connect.util;
 
 /**
  * Collected methods which allow easy implementation of <code>equals</code>.

@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.http;
+package com.mirth.connect.connectors.http;
 
 import java.io.File;
 import java.net.BindException;
@@ -55,17 +55,17 @@ import org.mule.umo.provider.ReceiveException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.transformer.UMOTransformer;
 
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.QueuedMessage;
-import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.controllers.AlertController;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
-import com.webreach.mirth.server.controllers.MonitoringController.Event;
-import com.webreach.mirth.server.util.FileUtil;
-import com.webreach.mirth.server.util.VMRouter;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.QueuedMessage;
+import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.controllers.AlertController;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MessageObjectController;
+import com.mirth.connect.server.controllers.MonitoringController;
+import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
+import com.mirth.connect.server.controllers.MonitoringController.Event;
+import com.mirth.connect.server.util.FileUtil;
+import com.mirth.connect.server.util.VMRouter;
 
 /**
  * <p>

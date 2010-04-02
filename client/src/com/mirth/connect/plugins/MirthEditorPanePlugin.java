@@ -7,12 +7,12 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins;
+package com.mirth.connect.plugins;
 
 import java.util.Map;
 
-import com.webreach.mirth.client.ui.editors.BasePanel;
-import com.webreach.mirth.client.ui.editors.MirthEditorPane;
+import com.mirth.connect.client.ui.editors.BasePanel;
+import com.mirth.connect.client.ui.editors.MirthEditorPane;
 
 public abstract class MirthEditorPanePlugin extends ClientPlugin {
 

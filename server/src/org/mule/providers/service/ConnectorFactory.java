@@ -37,9 +37,9 @@ import org.mule.util.ObjectFactory;
 import org.mule.util.PropertiesHelper;
 import org.mule.util.SpiHelper;
 
-import com.webreach.mirth.model.ConnectorMetaData;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.ExtensionController;
+import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.ExtensionController;
 
 /**
  * <code>ConnectorFactory</code> can be used for generically creating

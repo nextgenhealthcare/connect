@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.file;
+package com.mirth.connect.connectors.file;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,21 +35,21 @@ import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageAdapter;
 import org.mule.umo.routing.RoutingException;
 
-import com.webreach.mirth.connectors.file.filesystems.FileInfo;
-import com.webreach.mirth.connectors.file.filesystems.FileSystemConnection;
-import com.webreach.mirth.model.MessageObject.Protocol;
-import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.controllers.AlertController;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
-import com.webreach.mirth.server.controllers.MonitoringController.Event;
-import com.webreach.mirth.server.mule.adaptors.Adaptor;
-import com.webreach.mirth.server.mule.adaptors.AdaptorFactory;
-import com.webreach.mirth.server.mule.adaptors.BatchAdaptor;
-import com.webreach.mirth.server.mule.adaptors.BatchMessageProcessor;
-import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
-import com.webreach.mirth.server.util.StackTracePrinter;
+import com.mirth.connect.connectors.file.filesystems.FileInfo;
+import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
+import com.mirth.connect.model.MessageObject.Protocol;
+import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.controllers.AlertController;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MonitoringController;
+import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
+import com.mirth.connect.server.controllers.MonitoringController.Event;
+import com.mirth.connect.server.mule.adaptors.Adaptor;
+import com.mirth.connect.server.mule.adaptors.AdaptorFactory;
+import com.mirth.connect.server.mule.adaptors.BatchAdaptor;
+import com.mirth.connect.server.mule.adaptors.BatchMessageProcessor;
+import com.mirth.connect.server.mule.transformers.JavaScriptPostprocessor;
+import com.mirth.connect.server.util.StackTracePrinter;
 
 public class FileMessageReceiver extends PollingMessageReceiver implements BatchMessageProcessor {
     private String readDir = null;

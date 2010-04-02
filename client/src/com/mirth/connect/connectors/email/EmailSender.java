@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.email;
+package com.mirth.connect.connectors.email;
 
 import java.awt.Component;
 import java.awt.event.MouseEvent;
@@ -29,11 +29,11 @@ import javax.swing.table.TableCellEditor;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.webreach.mirth.client.ui.Mirth;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.connectors.ConnectorClass;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.connectors.ConnectorClass;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -422,33 +422,33 @@ public class EmailSender extends ConnectorClass {
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
-        usernameField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        SMTPServerPortField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        SMTPServerHostField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        emailToField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        emailSubjectField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        passwordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
+        usernameField = new com.mirth.connect.client.ui.components.MirthTextField();
+        SMTPServerPortField = new com.mirth.connect.client.ui.components.MirthTextField();
+        SMTPServerHostField = new com.mirth.connect.client.ui.components.MirthTextField();
+        emailToField = new com.mirth.connect.client.ui.components.MirthTextField();
+        emailSubjectField = new com.mirth.connect.client.ui.components.MirthTextField();
+        passwordField = new com.mirth.connect.client.ui.components.MirthPasswordField();
         jLabel8 = new javax.swing.JLabel();
-        emailFromField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        emailBodyTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
+        emailFromField = new com.mirth.connect.client.ui.components.MirthTextField();
+        emailBodyTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         contentTypeLabel = new javax.swing.JLabel();
-        contentTypeHTMLButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        contentTypePlainButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        contentTypeHTMLButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        contentTypePlainButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
         jLabel9 = new javax.swing.JLabel();
         attachmentsPane = new javax.swing.JScrollPane();
-        attachmentsTable = new com.webreach.mirth.client.ui.components.MirthTable();
+        attachmentsTable = new com.mirth.connect.client.ui.components.MirthTable();
         newButton = new javax.swing.JButton();
         deleteButton = new javax.swing.JButton();
         secureConnectionLabel = new javax.swing.JLabel();
-        secureConnectionNone = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        secureConnectionTLS = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        secureConnectionSSL = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        useAuthenticationYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        secureConnectionNone = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        secureConnectionTLS = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        secureConnectionSSL = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        useAuthenticationYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
         useAuthenticationLabel = new javax.swing.JLabel();
-        useAuthenticationNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        useAuthenticationNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
         useServerSettingsLabel = new javax.swing.JLabel();
-        useServerSettingsYesRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        useServerSettingsNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        useServerSettingsYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        useServerSettingsNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -839,43 +839,43 @@ private void useServerSettingsNoRadioActionPerformed(java.awt.event.ActionEvent 
     }
 }//GEN-LAST:event_useServerSettingsNoRadioActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.webreach.mirth.client.ui.components.MirthTextField SMTPServerHostField;
+    private com.mirth.connect.client.ui.components.MirthTextField SMTPServerHostField;
     private javax.swing.JLabel SMTPServerHostLabel;
-    private com.webreach.mirth.client.ui.components.MirthTextField SMTPServerPortField;
+    private com.mirth.connect.client.ui.components.MirthTextField SMTPServerPortField;
     private javax.swing.JLabel SMTPServerPortLabel;
     private javax.swing.JScrollPane attachmentsPane;
-    private com.webreach.mirth.client.ui.components.MirthTable attachmentsTable;
+    private com.mirth.connect.client.ui.components.MirthTable attachmentsTable;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton contentTypeHTMLButton;
+    private com.mirth.connect.client.ui.components.MirthRadioButton contentTypeHTMLButton;
     private javax.swing.JLabel contentTypeLabel;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton contentTypePlainButton;
+    private com.mirth.connect.client.ui.components.MirthRadioButton contentTypePlainButton;
     private javax.swing.JButton deleteButton;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea emailBodyTextPane;
-    private com.webreach.mirth.client.ui.components.MirthTextField emailFromField;
-    private com.webreach.mirth.client.ui.components.MirthTextField emailSubjectField;
-    private com.webreach.mirth.client.ui.components.MirthTextField emailToField;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea emailBodyTextPane;
+    private com.mirth.connect.client.ui.components.MirthTextField emailFromField;
+    private com.mirth.connect.client.ui.components.MirthTextField emailSubjectField;
+    private com.mirth.connect.client.ui.components.MirthTextField emailToField;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JButton newButton;
-    private com.webreach.mirth.client.ui.components.MirthPasswordField passwordField;
+    private com.mirth.connect.client.ui.components.MirthPasswordField passwordField;
     private javax.swing.JLabel passwordLabel;
     private javax.swing.JLabel secureConnectionLabel;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton secureConnectionNone;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton secureConnectionSSL;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton secureConnectionTLS;
+    private com.mirth.connect.client.ui.components.MirthRadioButton secureConnectionNone;
+    private com.mirth.connect.client.ui.components.MirthRadioButton secureConnectionSSL;
+    private com.mirth.connect.client.ui.components.MirthRadioButton secureConnectionTLS;
     private javax.swing.ButtonGroup useAuthenticationButtonGroup;
     private javax.swing.JLabel useAuthenticationLabel;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton useAuthenticationNo;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton useAuthenticationYes;
+    private com.mirth.connect.client.ui.components.MirthRadioButton useAuthenticationNo;
+    private com.mirth.connect.client.ui.components.MirthRadioButton useAuthenticationYes;
     private javax.swing.ButtonGroup useServerSettingsButtonGroup;
     private javax.swing.JLabel useServerSettingsLabel;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton useServerSettingsNoRadio;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton useServerSettingsYesRadio;
-    private com.webreach.mirth.client.ui.components.MirthTextField usernameField;
+    private com.mirth.connect.client.ui.components.MirthRadioButton useServerSettingsNoRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton useServerSettingsYesRadio;
+    private com.mirth.connect.client.ui.components.MirthTextField usernameField;
     private javax.swing.JLabel usernameLabel;
     // End of variables declaration//GEN-END:variables
 }

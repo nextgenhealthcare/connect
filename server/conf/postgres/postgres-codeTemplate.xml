@@ -5,7 +5,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 "conf/sql-map-2.dtd">
 
 <sqlMap namespace="CodeTemplate">
-	<parameterMap class="com.webreach.mirth.model.CodeTemplate" id="insert-code-template-param">
+	<parameterMap class="com.mirth.connect.model.CodeTemplate" id="insert-code-template-param">
 		<parameter property="id" />
 		<parameter property="name" />
 		<parameter property="scope" />
@@ -14,7 +14,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<parameter property="code"/>
 	</parameterMap>
 
-	<resultMap class="com.webreach.mirth.model.CodeTemplate" id="get-code-template-result">
+	<resultMap class="com.mirth.connect.model.CodeTemplate" id="get-code-template-result">
 		<result property="id" column="ID" />
 		<result property="name" column="NAME" />
 		<result property="scope" column="CODE_SCOPE" />		
@@ -23,7 +23,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<result property="code" column="CODE" />
 	</resultMap>
 	
-	<select id="getCodeTemplate" parameterClass="com.webreach.mirth.model.CodeTemplate" resultMap="get-code-template-result">
+	<select id="getCodeTemplate" parameterClass="com.mirth.connect.model.CodeTemplate" resultMap="get-code-template-result">
 		SELECT C.ID, C.NAME, C.CODE_SCOPE, C.CODE_TYPE, C.TOOLTIP, C.CODE
 		FROM CODE_TEMPLATE C
 		<dynamic prepend="WHERE">
@@ -38,7 +38,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		VALUES (?, ?, ?, ?, ?, ?)
 	</insert>
 
-	<delete id="deleteCodeTemplate" parameterClass="com.webreach.mirth.model.CodeTemplate">
+	<delete id="deleteCodeTemplate" parameterClass="com.mirth.connect.model.CodeTemplate">
 		DELETE FROM CODE_TEMPLATE
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="id">

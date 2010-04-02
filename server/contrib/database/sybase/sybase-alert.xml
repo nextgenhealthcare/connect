@@ -5,7 +5,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 "conf/sql-map-2.dtd">
 
 <sqlMap namespace="Alert">
-	<parameterMap class="com.webreach.mirth.model.Alert" id="insert-alert-param">
+	<parameterMap class="com.mirth.connect.model.Alert" id="insert-alert-param">
 		<parameter property="id" />
 		<parameter property="name" />
 		<parameter property="enabled" />
@@ -13,7 +13,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<parameter property="template" jdbcType="CLOB" />
 	</parameterMap>
 
-	<resultMap class="com.webreach.mirth.model.Alert" id="get-alert-result">
+	<resultMap class="com.mirth.connect.model.Alert" id="get-alert-result">
 		<result property="id" column="ID" />
 		<result property="name" column="NAME" />
 		<result property="enabled" column="IS_ENABLED" />		
@@ -21,7 +21,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<result property="template" column="TEMPLATE" />
 	</resultMap>
 	
-	<select id="getAlert" parameterClass="com.webreach.mirth.model.Alert" resultMap="get-alert-result">
+	<select id="getAlert" parameterClass="com.mirth.connect.model.Alert" resultMap="get-alert-result">
 		SELECT A.ID, A.NAME, A.IS_ENABLED, A.EXPRESSION, A.TEMPLATE
 		FROM ALERT A
 		<dynamic prepend="WHERE">
@@ -64,7 +64,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		VALUES (#alertId#, #email#)
 	</insert>
 	
-	<delete id="deleteAlert" parameterClass="com.webreach.mirth.model.Alert">
+	<delete id="deleteAlert" parameterClass="com.mirth.connect.model.Alert">
 		DELETE FROM ALERT
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="id">

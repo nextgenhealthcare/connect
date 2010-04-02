@@ -26,8 +26,8 @@
 		</javac>
 
 		<!-- copy the image files so they will be included in jar -->
-		<copy todir="${classes}/com/webreach/mirth/manager/images">
-			<fileset dir="${src}/com/webreach/mirth/manager/images" />
+		<copy todir="${classes}/com/mirth/connect/manager/images">
+			<fileset dir="${src}/com/mirth/connect/manager/images" />
 		</copy>
 	</target>
 
@@ -38,7 +38,7 @@
 		<jar destfile="${dist}/${manager.jar}" basedir="${classes}">
 			<manifest>
 				<attribute name="Manifest-Version" value="1.0" />
-				<attribute name="Main-Class" value="com.webreach.mirth.manager.Manager" />
+				<attribute name="Main-Class" value="com.mirth.connect.manager.Manager" />
 				<attribute name="Class-Path" value="manager-lib/looks-2.3.1.jar manager-lib/commons-codec-1.4.jar manager-lib/commons-httpclient-3.0.1.jar manager-lib/commons-logging-1.1.1.jar manager-lib/log4j-1.2.15.jar manager-lib/xstream-1.3.jar conf/ mirth-client-core.jar" />
 			</manifest>
 		</jar>

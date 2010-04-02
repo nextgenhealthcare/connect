@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.tools;
+package com.mirth.connect.server.tools;
 
 import java.util.HashMap;
 import java.util.Map;

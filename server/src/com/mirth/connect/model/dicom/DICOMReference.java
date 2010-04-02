@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.dicom;
+package com.mirth.connect.model.dicom;
 
 import org.dcm4che2.data.ElementDictionary;
 

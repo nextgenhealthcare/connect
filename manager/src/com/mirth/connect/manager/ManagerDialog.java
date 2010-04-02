@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.manager;
+package com.mirth.connect.manager;
 
 import java.awt.Cursor;
 import java.awt.event.WindowAdapter;
@@ -97,7 +97,7 @@ public class ManagerDialog extends javax.swing.JDialog {
     private void initComponents() {
 
         jPanel3 = new javax.swing.JPanel();
-        heading = new com.webreach.mirth.manager.MirthHeadingPanel();
+        heading = new com.mirth.connect.manager.MirthHeadingPanel();
         headingLabel = new javax.swing.JLabel();
         tabPanel = new javax.swing.JTabbedPane();
         servicePanel = new javax.swing.JPanel();
@@ -112,8 +112,8 @@ public class ManagerDialog extends javax.swing.JDialog {
         refreshServiceButton = new javax.swing.JButton();
         jLabel20 = new javax.swing.JLabel();
         serverPanel = new javax.swing.JPanel();
-        serverWebstartPort = new com.webreach.mirth.manager.components.MirthTextField();
-        serverAdministratorPort = new com.webreach.mirth.manager.components.MirthTextField();
+        serverWebstartPort = new com.mirth.connect.manager.components.MirthTextField();
+        serverAdministratorPort = new com.mirth.connect.manager.components.MirthTextField();
         jLabel3 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -123,21 +123,21 @@ public class ManagerDialog extends javax.swing.JDialog {
         refreshButton = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        mirthLogLevel = new com.webreach.mirth.manager.components.MirthComboBox();
-        databaseLogLevel = new com.webreach.mirth.manager.components.MirthComboBox();
+        mirthLogLevel = new com.mirth.connect.manager.components.MirthComboBox();
+        databaseLogLevel = new com.mirth.connect.manager.components.MirthComboBox();
         jLabel18 = new javax.swing.JLabel();
-        serverJmxPort = new com.webreach.mirth.manager.components.MirthTextField();
+        serverJmxPort = new com.mirth.connect.manager.components.MirthTextField();
         databasePanel = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
-        databaseUrl = new com.webreach.mirth.manager.components.MirthTextField();
-        databaseType = new com.webreach.mirth.manager.components.MirthComboBox();
+        databaseUrl = new com.mirth.connect.manager.components.MirthTextField();
+        databaseType = new com.mirth.connect.manager.components.MirthComboBox();
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
-        databaseUsername = new com.webreach.mirth.manager.components.MirthTextField();
-        databasePassword = new com.webreach.mirth.manager.components.MirthPasswordField();
+        databaseUsername = new com.mirth.connect.manager.components.MirthTextField();
+        databasePassword = new com.mirth.connect.manager.components.MirthPasswordField();
         jLabel19 = new javax.swing.JLabel();
-        databaseDriver = new com.webreach.mirth.manager.components.MirthTextField();
+        databaseDriver = new com.mirth.connect.manager.components.MirthTextField();
         jPanel1 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         version = new javax.swing.JLabel();
@@ -897,14 +897,14 @@ private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton applyButton;
     private javax.swing.JButton cancelButton;
-    private com.webreach.mirth.manager.components.MirthTextField databaseDriver;
-    private com.webreach.mirth.manager.components.MirthComboBox databaseLogLevel;
+    private com.mirth.connect.manager.components.MirthTextField databaseDriver;
+    private com.mirth.connect.manager.components.MirthComboBox databaseLogLevel;
     private javax.swing.JPanel databasePanel;
-    private com.webreach.mirth.manager.components.MirthPasswordField databasePassword;
-    private com.webreach.mirth.manager.components.MirthComboBox databaseType;
-    private com.webreach.mirth.manager.components.MirthTextField databaseUrl;
-    private com.webreach.mirth.manager.components.MirthTextField databaseUsername;
-    private com.webreach.mirth.manager.MirthHeadingPanel heading;
+    private com.mirth.connect.manager.components.MirthPasswordField databasePassword;
+    private com.mirth.connect.manager.components.MirthComboBox databaseType;
+    private com.mirth.connect.manager.components.MirthTextField databaseUrl;
+    private com.mirth.connect.manager.components.MirthTextField databaseUsername;
+    private com.mirth.connect.manager.MirthHeadingPanel heading;
     private javax.swing.JLabel headingLabel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
@@ -931,18 +931,18 @@ private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel javaVersion;
     private javax.swing.JButton launchButton;
-    private com.webreach.mirth.manager.components.MirthComboBox mirthLogLevel;
+    private com.mirth.connect.manager.components.MirthComboBox mirthLogLevel;
     private javax.swing.JLabel mirthSupportLink;
     private javax.swing.JButton okButton;
     private javax.swing.JButton refreshButton;
     private javax.swing.JButton refreshServiceButton;
     private javax.swing.JButton restartButton;
-    private com.webreach.mirth.manager.components.MirthTextField serverAdministratorPort;
+    private com.mirth.connect.manager.components.MirthTextField serverAdministratorPort;
     private javax.swing.JLabel serverId;
-    private com.webreach.mirth.manager.components.MirthTextField serverJmxPort;
+    private com.mirth.connect.manager.components.MirthTextField serverJmxPort;
     private javax.swing.JList serverLogFiles;
     private javax.swing.JPanel serverPanel;
-    private com.webreach.mirth.manager.components.MirthTextField serverWebstartPort;
+    private com.mirth.connect.manager.components.MirthTextField serverWebstartPort;
     private javax.swing.JPanel serviceButtonContainer;
     private javax.swing.JPanel servicePanel;
     private javax.swing.JButton startButton;

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.tcp;
+package com.mirth.connect.connectors.tcp;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -21,14 +21,14 @@ import java.util.regex.Pattern;
 
 import javax.swing.DefaultComboBoxModel;
 
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
-import com.webreach.mirth.connectors.ConnectorClass;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.Step;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
+import com.mirth.connect.connectors.ConnectorClass;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.Step;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -206,23 +206,23 @@ public class TCPListener extends ConnectorClass {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        bufferSizeField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        receiveTimeoutField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        listenerPortField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        listenerAddressField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        charsetEncodingCombobox = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        bufferSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
+        receiveTimeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
+        listenerPortField = new com.mirth.connect.client.ui.components.MirthTextField();
+        listenerAddressField = new com.mirth.connect.client.ui.components.MirthTextField();
+        charsetEncodingCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
         encodingLabel = new javax.swing.JLabel();
         ackOnNewConnectionLabel = new javax.swing.JLabel();
-        ackOnNewConnectionYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        ackOnNewConnectionNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        ackOnNewConnectionYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        ackOnNewConnectionNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
         ackIPLabel = new javax.swing.JLabel();
         ackPortLabel = new javax.swing.JLabel();
-        ackPortField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        ackAddressField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        ackPortField = new com.mirth.connect.client.ui.components.MirthTextField();
+        ackAddressField = new com.mirth.connect.client.ui.components.MirthTextField();
         responseFromLabel = new javax.swing.JLabel();
-        responseFromTransformer = new com.webreach.mirth.client.ui.components.MirthComboBox();
-        dataTypeASCII = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        dataTypeBinary = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        responseFromTransformer = new com.mirth.connect.client.ui.components.MirthComboBox();
+        dataTypeASCII = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        dataTypeBinary = new com.mirth.connect.client.ui.components.MirthRadioButton();
         dataTypeLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
@@ -515,22 +515,22 @@ public class TCPListener extends ConnectorClass {
         ackPortLabel.setEnabled(true);
     }// GEN-LAST:event_ackOnNewConnectionYesActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.webreach.mirth.client.ui.components.MirthTextField ackAddressField;
+    private com.mirth.connect.client.ui.components.MirthTextField ackAddressField;
     private javax.swing.JLabel ackIPLabel;
     private javax.swing.JLabel ackOnNewConnectionLabel;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton ackOnNewConnectionNo;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton ackOnNewConnectionYes;
-    private com.webreach.mirth.client.ui.components.MirthTextField ackPortField;
+    private com.mirth.connect.client.ui.components.MirthRadioButton ackOnNewConnectionNo;
+    private com.mirth.connect.client.ui.components.MirthRadioButton ackOnNewConnectionYes;
+    private com.mirth.connect.client.ui.components.MirthTextField ackPortField;
     private javax.swing.JLabel ackPortLabel;
-    private com.webreach.mirth.client.ui.components.MirthTextField bufferSizeField;
+    private com.mirth.connect.client.ui.components.MirthTextField bufferSizeField;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.ButtonGroup buttonGroup3;
     private javax.swing.ButtonGroup buttonGroup4;
     private javax.swing.ButtonGroup buttonGroup5;
-    private com.webreach.mirth.client.ui.components.MirthComboBox charsetEncodingCombobox;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton dataTypeASCII;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton dataTypeBinary;
+    private com.mirth.connect.client.ui.components.MirthComboBox charsetEncodingCombobox;
+    private com.mirth.connect.client.ui.components.MirthRadioButton dataTypeASCII;
+    private com.mirth.connect.client.ui.components.MirthRadioButton dataTypeBinary;
     private javax.swing.ButtonGroup dataTypeButtonGroup;
     private javax.swing.JLabel dataTypeLabel;
     private javax.swing.JLabel encodingLabel;
@@ -539,10 +539,10 @@ public class TCPListener extends ConnectorClass {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.ButtonGroup keepConnectionOpenGroup;
-    private com.webreach.mirth.client.ui.components.MirthTextField listenerAddressField;
-    private com.webreach.mirth.client.ui.components.MirthTextField listenerPortField;
-    private com.webreach.mirth.client.ui.components.MirthTextField receiveTimeoutField;
+    private com.mirth.connect.client.ui.components.MirthTextField listenerAddressField;
+    private com.mirth.connect.client.ui.components.MirthTextField listenerPortField;
+    private com.mirth.connect.client.ui.components.MirthTextField receiveTimeoutField;
     private javax.swing.JLabel responseFromLabel;
-    private com.webreach.mirth.client.ui.components.MirthComboBox responseFromTransformer;
+    private com.mirth.connect.client.ui.components.MirthComboBox responseFromTransformer;
     // End of variables declaration//GEN-END:variables
 }

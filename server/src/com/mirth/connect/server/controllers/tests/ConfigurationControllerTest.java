@@ -7,13 +7,13 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers.tests;
+package com.mirth.connect.server.controllers.tests;
 
 import junit.framework.TestCase;
 
-import com.webreach.mirth.server.controllers.ConfigurationController;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.tools.ScriptRunner;
+import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.tools.ScriptRunner;
 
 public class ConfigurationControllerTest extends TestCase {
 	private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();

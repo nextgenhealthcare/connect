@@ -5,7 +5,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 "conf/sql-map-2.dtd">
 
 <sqlMap namespace="Statistic">
-	<parameterMap class="com.webreach.mirth.model.ChannelStatistics" id="update-statistics-param">
+	<parameterMap class="com.mirth.connect.model.ChannelStatistics" id="update-statistics-param">
 		<parameter property="received" jdbcType="NUMERIC" />
 		<parameter property="filtered" jdbcType="NUMERIC" />
 		<parameter property="sent" jdbcType="NUMERIC" />
@@ -15,7 +15,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<parameter property="channelId" jdbcType="VARCHAR" />
 	</parameterMap>
 
-	<resultMap class="com.webreach.mirth.model.ChannelStatistics" id="get-statistics-result">
+	<resultMap class="com.mirth.connect.model.ChannelStatistics" id="get-statistics-result">
 		<result property="serverId" column="SERVER_ID" />
 		<result property="channelId" column="CHANNEL_ID" />
 		<result property="received" column="RECEIVED" />

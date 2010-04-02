@@ -7,13 +7,13 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.util;
+package com.mirth.connect.server.util;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 
-import com.webreach.mirth.util.ConnectionTestResponse;
+import com.mirth.connect.util.ConnectionTestResponse;
 
 public class ConnectorUtil {
     public static ConnectionTestResponse testConnection(String host, int port, int timeout) throws Exception {

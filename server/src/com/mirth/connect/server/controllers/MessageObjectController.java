@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.util.List;
 
@@ -15,9 +15,9 @@ import javax.activation.UnsupportedDataTypeException;
 
 import org.mule.umo.UMOEvent;
 
-import com.webreach.mirth.model.Attachment;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.filters.MessageObjectFilter;
+import com.mirth.connect.model.Attachment;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.filters.MessageObjectFilter;
 
 public abstract class MessageObjectController extends Controller {
     public static MessageObjectController getInstance() {

@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.jdbc;
+package com.mirth.connect.connectors.jdbc;
 
 import java.sql.Connection;
 import java.sql.SQLException;

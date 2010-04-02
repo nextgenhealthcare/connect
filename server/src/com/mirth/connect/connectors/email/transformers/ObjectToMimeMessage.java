@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.email.transformers;
+package com.mirth.connect.connectors.email.transformers;
 
 import java.io.IOException;
 import java.io.Serializable;

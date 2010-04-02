@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.extensionmanager;
+package com.mirth.connect.plugins.extensionmanager;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -25,7 +25,7 @@ import java.util.UUID;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 
-import com.webreach.mirth.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.PlatformUI;
 
 public class ExtensionUtil {
 

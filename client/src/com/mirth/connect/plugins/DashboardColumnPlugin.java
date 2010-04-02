@@ -7,14 +7,14 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins;
+package com.mirth.connect.plugins;
 
 import java.util.List;
 
 import javax.swing.table.TableCellRenderer;
 
-import com.webreach.mirth.client.ui.DashboardPanel;
-import com.webreach.mirth.model.ChannelStatus;
+import com.mirth.connect.client.ui.DashboardPanel;
+import com.mirth.connect.model.ChannelStatus;
 
 public abstract class DashboardColumnPlugin extends ClientPlugin {
 

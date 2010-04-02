@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.net.Socket;
 import java.sql.Connection;
@@ -24,23 +24,23 @@ import javax.activation.UnsupportedDataTypeException;
 import org.apache.log4j.Logger;
 import org.mule.umo.UMOEvent;
 
-import com.webreach.mirth.model.Attachment;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.Response;
-import com.webreach.mirth.model.MessageObject.Status;
-import com.webreach.mirth.model.converters.ObjectCloner;
-import com.webreach.mirth.model.filters.MessageObjectFilter;
-import com.webreach.mirth.server.builders.ErrorMessageBuilder;
-import com.webreach.mirth.server.util.AttachmentUtil;
-import com.webreach.mirth.server.util.DICOMUtil;
-import com.webreach.mirth.server.util.DatabaseUtil;
-import com.webreach.mirth.server.util.SqlConfig;
-import com.webreach.mirth.server.util.UUIDGenerator;
-import com.webreach.mirth.server.util.VMRouter;
-import com.webreach.mirth.util.Encrypter;
-import com.webreach.mirth.util.EncryptionException;
-import com.webreach.mirth.util.QueueUtil;
+import com.mirth.connect.model.Attachment;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.Response;
+import com.mirth.connect.model.MessageObject.Status;
+import com.mirth.connect.model.converters.ObjectCloner;
+import com.mirth.connect.model.filters.MessageObjectFilter;
+import com.mirth.connect.server.builders.ErrorMessageBuilder;
+import com.mirth.connect.server.util.AttachmentUtil;
+import com.mirth.connect.server.util.DICOMUtil;
+import com.mirth.connect.server.util.DatabaseUtil;
+import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.server.util.UUIDGenerator;
+import com.mirth.connect.server.util.VMRouter;
+import com.mirth.connect.util.Encrypter;
+import com.mirth.connect.util.EncryptionException;
+import com.mirth.connect.util.QueueUtil;
 
 public class DefaultMessageObjectController extends MessageObjectController {
     private static final String RECEIVE_SOCKET = "receiverSocket";

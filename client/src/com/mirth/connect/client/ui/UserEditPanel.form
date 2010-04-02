@@ -121,7 +121,7 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="firstName">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="firstName">
       <Events>
         <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="firstNameKeyReleased"/>
       </Events>
@@ -136,12 +136,12 @@
         <Property name="text" type="java.lang.String" value="Last Name:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="lastName">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="lastName">
       <Events>
         <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="lastNameKeyReleased"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="organization">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="organization">
       <Events>
         <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="organizationKeyReleased"/>
       </Events>
@@ -156,12 +156,12 @@
         <Property name="text" type="java.lang.String" value="Email:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="email">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="email">
       <Events>
         <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="emailKeyReleased"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="phone">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="phone">
       <Events>
         <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="phoneKeyReleased"/>
       </Events>

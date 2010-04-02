@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.components;
+package com.mirth.connect.client.ui.components;
 
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
@@ -29,13 +29,13 @@ import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.JXTree;
 
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.MapperDropData;
-import com.webreach.mirth.client.ui.MessageBuilderDropData;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.TreeTransferable;
-import com.webreach.mirth.client.ui.editors.MessageTreePanel;
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
+import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.MapperDropData;
+import com.mirth.connect.client.ui.MessageBuilderDropData;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.TreeTransferable;
+import com.mirth.connect.client.ui.editors.MessageTreePanel;
+import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
 
 public class MirthTree extends JXTree implements DropTargetListener {
 

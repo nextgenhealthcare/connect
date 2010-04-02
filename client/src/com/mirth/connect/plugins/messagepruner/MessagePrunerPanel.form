@@ -184,7 +184,7 @@
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="dayButton">
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="dayButton">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -206,7 +206,7 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="dayButtonActionPerformed"/>
           </Events>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="weekButton">
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="weekButton">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -228,7 +228,7 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="weekButtonActionPerformed"/>
           </Events>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="monthButton">
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="monthButton">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -250,7 +250,7 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="monthButtonActionPerformed"/>
           </Events>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="hourButton">
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="hourButton">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -287,7 +287,7 @@
             <Property name="text" type="java.lang.String" value="Day of Month:"/>
           </Properties>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthTimePicker" name="timeOfDay">
+        <Component class="com.mirth.connect.client.ui.components.MirthTimePicker" name="timeOfDay">
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MirthTimePicker(&quot;hh:mm aa&quot;, Calendar.MINUTE);"/>
           </AuxValues>
@@ -297,7 +297,7 @@
             <Property name="text" type="java.lang.String" value="Time of Day:"/>
           </Properties>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthTimePicker" name="dayOfMonth">
+        <Component class="com.mirth.connect.client.ui.components.MirthTimePicker" name="dayOfMonth">
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MirthTimePicker(&quot;dd&quot;, Calendar.MONTH);"/>
           </AuxValues>
@@ -307,7 +307,7 @@
             <Property name="text" type="java.lang.String" value="Time of Day:"/>
           </Properties>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthTimePicker" name="timeOfDayWeekly">
+        <Component class="com.mirth.connect.client.ui.components.MirthTimePicker" name="timeOfDayWeekly">
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MirthTimePicker(&quot;hh:mm aa&quot;, Calendar.MINUTE);"/>
           </AuxValues>
@@ -317,7 +317,7 @@
             <Property name="text" type="java.lang.String" value="Time of Day:"/>
           </Properties>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthTimePicker" name="timeOfDayMonthly">
+        <Component class="com.mirth.connect.client.ui.components.MirthTimePicker" name="timeOfDayMonthly">
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MirthTimePicker(&quot;hh:mm aa&quot;, Calendar.MINUTE);"/>
           </AuxValues>
@@ -332,12 +332,12 @@
             <Property name="text" type="java.lang.String" value="at"/>
           </Properties>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthTimePicker" name="dayOfWeek">
+        <Component class="com.mirth.connect.client.ui.components.MirthTimePicker" name="dayOfWeek">
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MirthTimePicker(&quot;EEEEEEEE&quot;, Calendar.DAY_OF_WEEK);"/>
           </AuxValues>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="batchYes">
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="batchYes">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -365,7 +365,7 @@
             <Property name="text" type="java.lang.String" value="Enable Batch Pruning:"/>
           </Properties>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="batchNo">
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="batchNo">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -393,7 +393,7 @@
             <Property name="text" type="java.lang.String" value="Pruning Block Size:"/>
           </Properties>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="pruningBlockSizeField">
+        <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="pruningBlockSizeField">
           <Properties>
             <Property name="toolTipText" type="java.lang.String" value="The number of messages to be pruned in each delete block. Increase this size for high performance systems with large message volumes."/>
           </Properties>
@@ -444,7 +444,7 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
-            <Component class="com.webreach.mirth.client.ui.components.MirthTable" name="logTable">
+            <Component class="com.mirth.connect.client.ui.components.MirthTable" name="logTable">
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="null;"/>
               </AuxValues>

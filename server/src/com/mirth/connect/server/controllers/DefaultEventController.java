@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -22,10 +22,10 @@ import org.apache.log4j.Logger;
 import com.ibatis.sqlmap.client.SqlMapException;
 import com.ibatis.sqlmap.engine.impl.SqlMapClientImpl;
 import com.ibatis.sqlmap.engine.impl.SqlMapExecutorDelegate;
-import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.model.filters.SystemEventFilter;
-import com.webreach.mirth.server.util.DatabaseUtil;
-import com.webreach.mirth.server.util.SqlConfig;
+import com.mirth.connect.model.SystemEvent;
+import com.mirth.connect.model.filters.SystemEventFilter;
+import com.mirth.connect.server.util.DatabaseUtil;
+import com.mirth.connect.server.util.SqlConfig;
 
 public class DefaultEventController extends EventController {
 	private Logger logger = Logger.getLogger(this.getClass());

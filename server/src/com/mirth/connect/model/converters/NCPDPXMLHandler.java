@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.converters;
+package com.mirth.connect.model.converters;
 
 import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
@@ -15,7 +15,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.webreach.mirth.model.ncpdp.NCPDPReference;
+import com.mirth.connect.model.ncpdp.NCPDPReference;
 
 /**
  * Created by IntelliJ IDEA.

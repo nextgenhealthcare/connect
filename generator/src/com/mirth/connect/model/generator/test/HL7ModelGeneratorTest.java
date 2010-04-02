@@ -1,10 +1,10 @@
-package com.webreach.mirth.model.generator.test;
+package com.mirth.connect.model.generator.test;
 
 import junit.framework.TestCase;
 
 import org.junit.Assert;
 
-import com.webreach.mirth.model.hl7v2.Component;
+import com.mirth.connect.model.hl7v2.Component;
 
 public class HL7ModelGeneratorTest extends TestCase{
 	

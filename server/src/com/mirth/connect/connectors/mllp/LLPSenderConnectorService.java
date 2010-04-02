@@ -7,12 +7,12 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.mllp;
+package com.mirth.connect.connectors.mllp;
 
 import java.util.Map;
 
-import com.webreach.mirth.connectors.ConnectorService;
-import com.webreach.mirth.server.util.ConnectorUtil;
+import com.mirth.connect.connectors.ConnectorService;
+import com.mirth.connect.server.util.ConnectorUtil;
 
 public class LLPSenderConnectorService implements ConnectorService {
     public Object invoke(String method, Object object, String sessionsId) throws Exception {

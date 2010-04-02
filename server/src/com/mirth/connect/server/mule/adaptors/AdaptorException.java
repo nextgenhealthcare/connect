@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.mule.adaptors;
+package com.mirth.connect.server.mule.adaptors;
 
 public class AdaptorException extends Exception {
 	private static final long serialVersionUID = 1L;

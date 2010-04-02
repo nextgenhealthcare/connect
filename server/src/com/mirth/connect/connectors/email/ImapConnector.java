@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.email;
+package com.mirth.connect.connectors.email;
 
 /**
  * Receives messages from an Imap mailbox

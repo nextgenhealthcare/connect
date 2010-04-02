@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.jdbc;
+package com.mirth.connect.connectors.jdbc;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -32,16 +32,16 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.provider.ConnectorException;
 import org.mule.umo.provider.UMOMessageAdapter;
 
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.controllers.AlertController;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
-import com.webreach.mirth.server.controllers.MonitoringController.Event;
-import com.webreach.mirth.server.util.CompiledScriptCache;
-import com.webreach.mirth.server.util.JavaScriptScopeUtil;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.controllers.AlertController;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MessageObjectController;
+import com.mirth.connect.server.controllers.MonitoringController;
+import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
+import com.mirth.connect.server.controllers.MonitoringController.Event;
+import com.mirth.connect.server.util.CompiledScriptCache;
+import com.mirth.connect.server.util.JavaScriptScopeUtil;
 
 public class JdbcMessageDispatcher extends AbstractMessageDispatcher {
     private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();

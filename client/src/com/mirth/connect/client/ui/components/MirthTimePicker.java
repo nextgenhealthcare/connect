@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.components;
+package com.mirth.connect.client.ui.components;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -25,9 +25,9 @@ import javax.swing.event.ChangeListener;
 import javax.swing.text.DateFormatter;
 import javax.swing.text.DefaultFormatterFactory;
 
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.UIConstants;
+import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.UIConstants;
 
 public class MirthTimePicker extends JSpinner {
 

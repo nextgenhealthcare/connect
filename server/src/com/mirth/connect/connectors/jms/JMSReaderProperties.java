@@ -7,12 +7,12 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.jms;
+package com.mirth.connect.connectors.jms;
 
 import java.util.Properties;
 
-import com.webreach.mirth.model.ComponentProperties;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.model.ComponentProperties;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class JMSReaderProperties implements ComponentProperties {
     public static final String name = "JMS Reader";

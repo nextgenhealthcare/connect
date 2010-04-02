@@ -9,7 +9,7 @@
 	<extensionPoint>
 		<name>External Script</name>
 		<type>CLIENT_TRANSFORMER_STEP</type>
-		<className>com.webreach.mirth.plugins.scriptfilestep.ExternalScriptStepPlugin</className>
+		<className>com.mirth.connect.plugins.scriptfilestep.ExternalScriptStepPlugin</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
 	<library path="scriptfilestep-client.jar">

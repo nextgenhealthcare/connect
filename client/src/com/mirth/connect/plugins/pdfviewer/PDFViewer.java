@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.pdfviewer;
+package com.mirth.connect.plugins.pdfviewer;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,8 +16,8 @@ import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
 
-import com.webreach.mirth.model.Attachment;
-import com.webreach.mirth.plugins.AttachmentViewer;
+import com.mirth.connect.model.Attachment;
+import com.mirth.connect.plugins.AttachmentViewer;
 
 public class PDFViewer extends AttachmentViewer {
 

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.panels.reference;
+package com.mirth.connect.client.ui.panels.reference;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -18,9 +18,9 @@ import java.util.regex.Pattern;
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
-import com.webreach.mirth.client.ui.VariableTransferable;
-import com.webreach.mirth.model.CodeTemplate;
-import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
+import com.mirth.connect.client.ui.VariableTransferable;
+import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
 
 public class ReferenceListHandler extends TransferHandler {
 

@@ -7,11 +7,11 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.util.List;
 
-import com.webreach.mirth.model.ChannelStatus;
+import com.mirth.connect.model.ChannelStatus;
 
 public abstract class ChannelStatusController extends Controller {
     public static ChannelStatusController getInstance() {

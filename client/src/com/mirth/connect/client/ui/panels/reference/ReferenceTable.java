@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.panels.reference;
+package com.mirth.connect.client.ui.panels.reference;
 
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
@@ -21,9 +21,9 @@ import javax.swing.TransferHandler;
 
 import org.jdesktop.swingx.JXTable;
 
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.UIConstants;
+import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.UIConstants;
 
 /**
  * ReferenceTable This class provides some basic properties and drag & drop

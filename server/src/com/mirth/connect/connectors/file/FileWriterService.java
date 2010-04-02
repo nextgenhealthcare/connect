@@ -7,15 +7,15 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.file;
+package com.mirth.connect.connectors.file;
 
 import java.net.URI;
 import java.util.Map;
 
-import com.webreach.mirth.connectors.ConnectorService;
-import com.webreach.mirth.connectors.file.filesystems.FileSystemConnection;
-import com.webreach.mirth.connectors.file.filesystems.FileSystemConnectionFactory;
-import com.webreach.mirth.util.ConnectionTestResponse;
+import com.mirth.connect.connectors.ConnectorService;
+import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
+import com.mirth.connect.connectors.file.filesystems.FileSystemConnectionFactory;
+import com.mirth.connect.util.ConnectionTestResponse;
 
 public class FileWriterService implements ConnectorService {
     public Object invoke(String method, Object object, String sessionsId) throws Exception {

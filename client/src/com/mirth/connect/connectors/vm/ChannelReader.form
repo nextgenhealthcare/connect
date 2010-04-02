@@ -48,7 +48,7 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="responseFromTransformer">
+    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="responseFromTransformer">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="4">

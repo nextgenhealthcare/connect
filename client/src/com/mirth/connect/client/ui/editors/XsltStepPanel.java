@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.editors;
+package com.mirth.connect.client.ui.editors;
 
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
@@ -115,7 +115,7 @@ public class XsltStepPanel extends BasePanel {
         jLabel4 = new javax.swing.JLabel();
         sourceVariableField = new javax.swing.JTextField();
         resultVariableField = new javax.swing.JTextField();
-        xsltTemplateTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(false,false);
+        xsltTemplateTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(false,false);
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -168,6 +168,6 @@ public class XsltStepPanel extends BasePanel {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JTextField resultVariableField;
     private javax.swing.JTextField sourceVariableField;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea xsltTemplateTextPane;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea xsltTemplateTextPane;
     // End of variables declaration//GEN-END:variables
 }

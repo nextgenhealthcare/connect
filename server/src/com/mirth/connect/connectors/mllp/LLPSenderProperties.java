@@ -7,11 +7,11 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.mllp;
+package com.mirth.connect.connectors.mllp;
 
 import java.util.Properties;
 
-import com.webreach.mirth.model.QueuedSenderProperties;
+import com.mirth.connect.model.QueuedSenderProperties;
 
 public class LLPSenderProperties extends QueuedSenderProperties {
     public static final String name = "LLP Sender";

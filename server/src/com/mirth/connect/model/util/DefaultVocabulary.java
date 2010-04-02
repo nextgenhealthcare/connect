@@ -7,9 +7,9 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.util;
+package com.mirth.connect.model.util;
 
-import com.webreach.mirth.model.MessageObject.Protocol;
+import com.mirth.connect.model.MessageObject.Protocol;
 
 public class DefaultVocabulary extends MessageVocabulary {
 

@@ -9,7 +9,7 @@
 	<extensionPoint>
 		<name>Rule Builder</name>
 		<type>CLIENT_FILTER_RULE</type>
-		<className>com.webreach.mirth.plugins.rulebuilder.RuleBuilderPlugin</className>
+		<className>com.mirth.connect.plugins.rulebuilder.RuleBuilderPlugin</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
 	<library path="rulebuilder-client.jar">

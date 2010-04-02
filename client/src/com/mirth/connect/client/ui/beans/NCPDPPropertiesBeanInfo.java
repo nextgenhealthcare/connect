@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.beans;
+package com.mirth.connect.client.ui.beans;
 
 import java.beans.BeanDescriptor;
 import java.beans.EventSetDescriptor;
@@ -21,7 +21,7 @@ public class NCPDPPropertiesBeanInfo extends SimpleBeanInfo {
     // Bean descriptor//GEN-FIRST:BeanDescriptor
     /*lazy BeanDescriptor*/
     private static BeanDescriptor getBdescriptor(){
-        BeanDescriptor beanDescriptor = new BeanDescriptor  ( com.webreach.mirth.client.ui.beans.NCPDPProperties.class , null ); // NOI18N//GEN-HEADEREND:BeanDescriptor
+        BeanDescriptor beanDescriptor = new BeanDescriptor  ( com.mirth.connect.client.ui.beans.NCPDPProperties.class , null ); // NOI18N//GEN-HEADEREND:BeanDescriptor
 
         // Here you can add code for customizing the BeanDescriptor.
 
@@ -38,19 +38,19 @@ public class NCPDPPropertiesBeanInfo extends SimpleBeanInfo {
         PropertyDescriptor[] properties = new PropertyDescriptor[4];
     
         try {
-            properties[PROPERTY_fieldDelimiter] = new PropertyDescriptor ( "fieldDelimiter", com.webreach.mirth.client.ui.beans.NCPDPProperties.class, "getFieldDelimiter", "setFieldDelimiter" ); // NOI18N
+            properties[PROPERTY_fieldDelimiter] = new PropertyDescriptor ( "fieldDelimiter", com.mirth.connect.client.ui.beans.NCPDPProperties.class, "getFieldDelimiter", "setFieldDelimiter" ); // NOI18N
             properties[PROPERTY_fieldDelimiter].setDisplayName ( "Field Delimiter" );
             properties[PROPERTY_fieldDelimiter].setShortDescription ( "Characters that delimit the fields in the message." );
             properties[PROPERTY_fieldDelimiter].setBound ( true );
-            properties[PROPERTY_groupDelimiter] = new PropertyDescriptor ( "groupDelimiter", com.webreach.mirth.client.ui.beans.NCPDPProperties.class, "getGroupDelimiter", "setGroupDelimiter" ); // NOI18N
+            properties[PROPERTY_groupDelimiter] = new PropertyDescriptor ( "groupDelimiter", com.mirth.connect.client.ui.beans.NCPDPProperties.class, "getGroupDelimiter", "setGroupDelimiter" ); // NOI18N
             properties[PROPERTY_groupDelimiter].setDisplayName ( "Group Delimiter" );
             properties[PROPERTY_groupDelimiter].setShortDescription ( "Characters that delimit the groups in the message." );
             properties[PROPERTY_groupDelimiter].setBound ( true );
-            properties[PROPERTY_segmentDelimiter] = new PropertyDescriptor ( "segmentDelimiter", com.webreach.mirth.client.ui.beans.NCPDPProperties.class, "getSegmentDelimiter", "setSegmentDelimiter" ); // NOI18N
+            properties[PROPERTY_segmentDelimiter] = new PropertyDescriptor ( "segmentDelimiter", com.mirth.connect.client.ui.beans.NCPDPProperties.class, "getSegmentDelimiter", "setSegmentDelimiter" ); // NOI18N
             properties[PROPERTY_segmentDelimiter].setDisplayName ( "Segment Delimiter" );
             properties[PROPERTY_segmentDelimiter].setShortDescription ( "Characters that delimit the segments in the message." );
             properties[PROPERTY_segmentDelimiter].setBound ( true );
-            properties[PROPERTY_useStrictValidation] = new PropertyDescriptor ( "useStrictValidation", com.webreach.mirth.client.ui.beans.NCPDPProperties.class, "getUseStrictValidation", "setUseStrictValidation" ); // NOI18N
+            properties[PROPERTY_useStrictValidation] = new PropertyDescriptor ( "useStrictValidation", com.mirth.connect.client.ui.beans.NCPDPProperties.class, "getUseStrictValidation", "setUseStrictValidation" ); // NOI18N
             properties[PROPERTY_useStrictValidation].setDisplayName ( "Use Strict Validation" );
             properties[PROPERTY_useStrictValidation].setShortDescription ( "Validates the NCPDP message against a schema." );
             properties[PROPERTY_useStrictValidation].setBound ( true );

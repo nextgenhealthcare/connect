@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model;
+package com.mirth.connect.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -15,13 +15,11 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
 
-import com.webreach.mirth.util.EqualsUtil;
+import com.mirth.connect.util.EqualsUtil;
 
 /**
  * A Channel is the main element of the Mirth architecture. Channels connect a
  * single source with multiple destinations which are represented by Connectors.
- * 
- * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  * 
  */
 public class Channel implements Serializable {

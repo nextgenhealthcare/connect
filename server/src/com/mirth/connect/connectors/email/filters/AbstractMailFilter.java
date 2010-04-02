@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.email.filters;
+package com.mirth.connect.connectors.email.filters;
 
 import javax.mail.Message;
 

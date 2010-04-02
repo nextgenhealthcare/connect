@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server;
+package com.mirth.connect.server;
 
 import java.util.Iterator;
 import java.util.concurrent.PriorityBlockingQueue;

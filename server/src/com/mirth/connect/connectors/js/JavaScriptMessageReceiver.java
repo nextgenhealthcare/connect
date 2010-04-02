@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.js;
+package com.mirth.connect.connectors.js;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,16 +27,16 @@ import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageAdapter;
 
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.controllers.AlertController;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
-import com.webreach.mirth.server.controllers.MonitoringController.Event;
-import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
-import com.webreach.mirth.server.util.CompiledScriptCache;
-import com.webreach.mirth.server.util.JavaScriptScopeUtil;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.controllers.AlertController;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MonitoringController;
+import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
+import com.mirth.connect.server.controllers.MonitoringController.Event;
+import com.mirth.connect.server.mule.transformers.JavaScriptPostprocessor;
+import com.mirth.connect.server.util.CompiledScriptCache;
+import com.mirth.connect.server.util.JavaScriptScopeUtil;
 
 public class JavaScriptMessageReceiver extends PollingMessageReceiver {
     Logger scriptLogger = Logger.getLogger("js-receiver");

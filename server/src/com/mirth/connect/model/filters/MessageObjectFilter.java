@@ -7,14 +7,14 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.filters;
+package com.mirth.connect.model.filters;
 
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.List;
 
-import com.webreach.mirth.model.MessageObject.Protocol;
-import com.webreach.mirth.model.MessageObject.Status;
+import com.mirth.connect.model.MessageObject.Protocol;
+import com.mirth.connect.model.MessageObject.Status;
 
 /**
  * A MessageObjectFilter is used to search the message store.

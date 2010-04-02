@@ -80,7 +80,7 @@
         <Property name="text" type="java.lang.String" value="Channel Name:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="channelNames">
+    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="channelNames">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="4">
@@ -98,7 +98,7 @@
         <Property name="text" type="java.lang.String" value="Wait for Channel Response:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="channelResponseYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="channelResponseYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -118,7 +118,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="channelResponseNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="channelResponseNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -143,7 +143,7 @@
         <Property name="text" type="java.lang.String" value="Template:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="template">
+    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="template">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">

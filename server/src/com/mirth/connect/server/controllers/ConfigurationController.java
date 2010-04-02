@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.util.List;
 import java.util.Map;
@@ -15,10 +15,10 @@ import java.util.Properties;
 
 import javax.crypto.SecretKey;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.DriverInfo;
-import com.webreach.mirth.model.PasswordRequirements;
-import com.webreach.mirth.model.ServerConfiguration;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.DriverInfo;
+import com.mirth.connect.model.PasswordRequirements;
+import com.mirth.connect.model.ServerConfiguration;
 
 /**
  * The ConfigurationController provides access to the Mirth configuration.

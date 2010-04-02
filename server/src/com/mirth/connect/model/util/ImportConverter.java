@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.util;
+package com.mirth.connect.model.util;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -38,13 +38,13 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.CodeTemplate;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.ServerConfiguration;
-import com.webreach.mirth.model.MessageObject.Protocol;
-import com.webreach.mirth.model.converters.DocumentSerializer;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.ServerConfiguration;
+import com.mirth.connect.model.MessageObject.Protocol;
+import com.mirth.connect.model.converters.DocumentSerializer;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class ImportConverter {
     private static ObjectXMLSerializer serializer = new ObjectXMLSerializer();
@@ -77,7 +77,7 @@ public class ImportConverter {
         }
 
         Element channelsRoot = (Element) document.getElementsByTagName("channels").item(0);
-        NodeList channels = document.getElementsByTagName("com.webreach.mirth.model.Channel");
+        NodeList channels = document.getElementsByTagName("com.mirth.connect.model.Channel");
         List<Channel> channelList = new ArrayList<Channel>();
         int length = channels.getLength();
 
@@ -116,7 +116,7 @@ public class ImportConverter {
         builder = factory.newDocumentBuilder();
         document = builder.parse(new InputSource(new StringReader(codeTemplatesXML)));
 
-        NodeList codeTemplates = document.getElementsByTagName("com.webreach.mirth.model.CodeTemplate");
+        NodeList codeTemplates = document.getElementsByTagName("com.mirth.connect.model.CodeTemplate");
         int length = codeTemplates.getLength();
 
         for (int i = 0; i < length; i++) {
@@ -183,7 +183,7 @@ public class ImportConverter {
                 Direction direction = null;
                 Element sourceConnectorRoot = (Element) document.getDocumentElement().getElementsByTagName("sourceConnector").item(0);
                 Element destinationConnectorRoot = (Element) document.getDocumentElement().getElementsByTagName("destinationConnectors").item(0);
-                NodeList destinationsConnectors = destinationConnectorRoot.getElementsByTagName("com.webreach.mirth.model.Connector");
+                NodeList destinationsConnectors = destinationConnectorRoot.getElementsByTagName("com.mirth.connect.model.Connector");
 
                 Node channelDirection = channelRoot.getElementsByTagName("direction").item(0);
 
@@ -260,7 +260,7 @@ public class ImportConverter {
 
                 Element sourceConnectorRoot = (Element) document.getDocumentElement().getElementsByTagName("sourceConnector").item(0);
                 Element destinationConnectorRoot = (Element) document.getDocumentElement().getElementsByTagName("destinationConnectors").item(0);
-                NodeList destinationsConnectors = destinationConnectorRoot.getElementsByTagName("com.webreach.mirth.model.Connector");
+                NodeList destinationsConnectors = destinationConnectorRoot.getElementsByTagName("com.mirth.connect.model.Connector");
 
                 // Check SOURCE CONNECTOR node for "enabled" element which is
                 // added by migration automatically. Add it if not found.
@@ -357,7 +357,7 @@ public class ImportConverter {
     public static void convertChannelConnectorsFor1_8(Document document, Element channelRoot) throws Exception {
         Element sourceConnectorRoot = (Element) channelRoot.getElementsByTagName("sourceConnector").item(0);
         Element destinationConnectorRoot = (Element) channelRoot.getElementsByTagName("destinationConnectors").item(0);
-        NodeList destinationsConnectors = destinationConnectorRoot.getElementsByTagName("com.webreach.mirth.model.Connector");
+        NodeList destinationsConnectors = destinationConnectorRoot.getElementsByTagName("com.mirth.connect.model.Connector");
 
         // Convert the source connector
         convertOneConnectorFor1_8(document, sourceConnectorRoot);
@@ -500,7 +500,7 @@ public class ImportConverter {
     public static void convertChannelConnectorsFor2_0(Document document, Element channelRoot) throws Exception {
         Element sourceConnectorRoot = (Element) channelRoot.getElementsByTagName("sourceConnector").item(0);
         Element destinationConnectorRoot = (Element) channelRoot.getElementsByTagName("destinationConnectors").item(0);
-        NodeList destinationsConnectors = destinationConnectorRoot.getElementsByTagName("com.webreach.mirth.model.Connector");
+        NodeList destinationsConnectors = destinationConnectorRoot.getElementsByTagName("com.mirth.connect.model.Connector");
 
         // Convert the source connector
         convertSoapConnectorFor2_0(document, sourceConnectorRoot);
@@ -536,7 +536,7 @@ public class ImportConverter {
             propertyDefaults.put("DataType", "Web Service Listener");
             propertyDefaults.put("host", "0.0.0.0");
             propertyDefaults.put("port", "8081");
-            propertyDefaults.put("receiverClassName", "com.webreach.mirth.connectors.ws.DefaultAcceptMessage");
+            propertyDefaults.put("receiverClassName", "com.mirth.connect.connectors.ws.DefaultAcceptMessage");
             propertyDefaults.put("receiverServiceName", "Mirth");
             propertyDefaults.put("receiverResponseValue", "None");
             ObjectXMLSerializer serializer = new ObjectXMLSerializer();
@@ -775,7 +775,7 @@ public class ImportConverter {
             transformerRoot.appendChild(outboundProtocolElement);
 
         // replace HL7 Message builder with Message Builder
-        NodeList steps = transformerRoot.getElementsByTagName("com.webreach.mirth.model.Step");
+        NodeList steps = transformerRoot.getElementsByTagName("com.mirth.connect.model.Step");
 
         for (int i = 0; i < steps.getLength(); i++) {
             Element step = (Element) steps.item(i);
@@ -878,7 +878,7 @@ public class ImportConverter {
 
     private static void updateFilterFor1_7(Document document) {
         // add data element to Rules
-        NodeList rules = document.getElementsByTagName("com.webreach.mirth.model.Rule");
+        NodeList rules = document.getElementsByTagName("com.mirth.connect.model.Rule");
 
         for (int i = 0; i < rules.getLength(); i++) {
             Element rule = (Element) rules.item(i);

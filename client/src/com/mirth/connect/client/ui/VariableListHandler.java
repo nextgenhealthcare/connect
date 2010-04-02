@@ -7,9 +7,9 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
-import com.webreach.mirth.client.ui.panels.reference.ReferenceTable;
+import com.mirth.connect.client.ui.panels.reference.ReferenceTable;
 import org.jdesktop.swingx.JXList;
 
 import javax.swing.*;

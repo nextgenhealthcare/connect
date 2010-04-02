@@ -7,11 +7,11 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.util.Properties;
 
-import com.webreach.mirth.util.PropertyLoader;
+import com.mirth.connect.util.PropertyLoader;
 
 public abstract class ControllerFactory {
     private static ControllerFactory factory;

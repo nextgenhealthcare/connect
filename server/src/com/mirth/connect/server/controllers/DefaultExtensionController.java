@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -31,17 +31,17 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.webreach.mirth.connectors.ConnectorService;
-import com.webreach.mirth.model.ConnectorMetaData;
-import com.webreach.mirth.model.ExtensionPoint;
-import com.webreach.mirth.model.ExtensionPointDefinition;
-import com.webreach.mirth.model.MetaData;
-import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.plugins.ServerPlugin;
-import com.webreach.mirth.server.util.DatabaseUtil;
-import com.webreach.mirth.server.util.FileUtil;
-import com.webreach.mirth.util.ExtensionUtil;
+import com.mirth.connect.connectors.ConnectorService;
+import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.model.ExtensionPoint;
+import com.mirth.connect.model.ExtensionPointDefinition;
+import com.mirth.connect.model.MetaData;
+import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.plugins.ServerPlugin;
+import com.mirth.connect.server.util.DatabaseUtil;
+import com.mirth.connect.server.util.FileUtil;
+import com.mirth.connect.util.ExtensionUtil;
 
 public class DefaultExtensionController extends ExtensionController {
     private Logger logger = Logger.getLogger(this.getClass());

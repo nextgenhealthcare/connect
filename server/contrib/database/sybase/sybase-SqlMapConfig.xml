@@ -11,22 +11,22 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map Config 2.0//EN"
 		lazyLoadingEnabled="true" maxRequests="32" maxSessions="10"
 		maxTransactions="5" useStatementNamespaces="false" />
 
-	<typeHandler javaType="com.webreach.mirth.model.MessageObject$Protocol"
-		callback="com.webreach.mirth.server.sqlmap.extensions.MessageProtocolTypeHandler" />
-	<typeHandler javaType="com.webreach.mirth.model.MessageObject$Status"
-		callback="com.webreach.mirth.server.sqlmap.extensions.MessageStatusTypeHandler" />
-	<typeHandler javaType="com.webreach.mirth.model.SystemEvent$Level"
-		callback="com.webreach.mirth.server.sqlmap.extensions.EventLevelTypeHandler" />
-	<typeHandler javaType="com.webreach.mirth.model.Connector"
-		callback="com.webreach.mirth.server.sqlmap.extensions.ConnectorTypeHandler" />
+	<typeHandler javaType="com.mirth.connect.model.MessageObject$Protocol"
+		callback="com.mirth.connect.server.sqlmap.extensions.MessageProtocolTypeHandler" />
+	<typeHandler javaType="com.mirth.connect.model.MessageObject$Status"
+		callback="com.mirth.connect.server.sqlmap.extensions.MessageStatusTypeHandler" />
+	<typeHandler javaType="com.mirth.connect.model.SystemEvent$Level"
+		callback="com.mirth.connect.server.sqlmap.extensions.EventLevelTypeHandler" />
+	<typeHandler javaType="com.mirth.connect.model.Connector"
+		callback="com.mirth.connect.server.sqlmap.extensions.ConnectorTypeHandler" />
 	<typeHandler javaType="java.util.List"
-		callback="com.webreach.mirth.server.sqlmap.extensions.ListTypeHandler" />
+		callback="com.mirth.connect.server.sqlmap.extensions.ListTypeHandler" />
 	<typeHandler javaType="java.util.Properties"
-		callback="com.webreach.mirth.server.sqlmap.extensions.PropertiesTypeHandler" />
+		callback="com.mirth.connect.server.sqlmap.extensions.PropertiesTypeHandler" />
 	<typeHandler javaType="java.util.Map"
-		callback="com.webreach.mirth.server.sqlmap.extensions.MapTypeHandler" />
+		callback="com.mirth.connect.server.sqlmap.extensions.MapTypeHandler" />
 	<typeHandler javaType="java.util.Calendar"
-		callback="com.webreach.mirth.server.sqlmap.extensions.CalendarTypeHandler" />
+		callback="com.mirth.connect.server.sqlmap.extensions.CalendarTypeHandler" />
 
 	<transactionManager type="JDBC">
 		<dataSource type="SIMPLE">

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.components;
+package com.mirth.connect.client.ui.components;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -17,13 +17,13 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.actions.CopyAction;
-import com.webreach.mirth.client.ui.actions.CutAction;
-import com.webreach.mirth.client.ui.actions.DeleteAction;
-import com.webreach.mirth.client.ui.actions.PasteAction;
-import com.webreach.mirth.client.ui.actions.SelectAllAction;
+import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.actions.CopyAction;
+import com.mirth.connect.client.ui.actions.CutAction;
+import com.mirth.connect.client.ui.actions.DeleteAction;
+import com.mirth.connect.client.ui.actions.PasteAction;
+import com.mirth.connect.client.ui.actions.SelectAllAction;
 
 /**
  * Mirth's implementation of the JTextField. Adds enabling of the save button in

@@ -146,7 +146,7 @@
         <Property name="text" type="java.lang.String" value="Service Name:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="serviceNameField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="serviceNameField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The name to give to the web service."/>
       </Properties>
@@ -154,7 +154,7 @@
         <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="serviceNameFieldKeyReleased"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="portField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="portField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The port on which the web service should listen for connections."/>
       </Properties>
@@ -177,7 +177,7 @@
         <Property name="text" type="java.lang.String" value="WSDL URL:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="listenerAddressField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="listenerAddressField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The DNS domain name or IP address on which the web service should listen for connections."/>
       </Properties>
@@ -203,7 +203,7 @@
         <Property name="text" type="java.lang.String" value="Respond from:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="respondFromComboBox">
+    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="respondFromComboBox">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="4">
@@ -216,7 +216,7 @@
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select &quot;None&quot; to send no response.&lt;br&gt;Select a destination of this channel that will supply a return value using the Response Map.&lt;br&gt;Select a variable that has been added to the Response Map.&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="listenerSpecificRadio">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="listenerSpecificRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -239,7 +239,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="listenerSpecificRadioActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="listenerAllRadio">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="listenerAllRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -267,7 +267,7 @@
         <Property name="text" type="java.lang.String" value="Web Service:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="classNameDefaultRadio">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="classNameDefaultRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -290,7 +290,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="classNameDefaultRadioActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="classNameCustomRadio">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="classNameCustomRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -314,7 +314,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="classNameCustomRadioActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="classNameField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="classNameField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The fully qualified class name of the web service that should be hosted.&lt;br&gt;If this is a custom class, it should be added in a custom jar so it is loaded with Mirth Connect.&lt;/html&gt;"/>
       </Properties>
@@ -326,7 +326,7 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="com.webreach.mirth.client.ui.components.MirthTable" name="credentialsTable">
+        <Component class="com.mirth.connect.client.ui.components.MirthTable" name="credentialsTable">
           <Properties>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
               <Table columnCount="2" rowCount="0">

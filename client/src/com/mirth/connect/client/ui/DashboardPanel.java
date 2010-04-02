@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -32,13 +32,13 @@ import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.model.ChannelStatus;
-import com.webreach.mirth.model.ExtensionPoint;
-import com.webreach.mirth.model.ExtensionPointDefinition;
-import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.plugins.DashboardColumnPlugin;
-import com.webreach.mirth.plugins.DashboardPanelPlugin;
+import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.model.ChannelStatus;
+import com.mirth.connect.model.ExtensionPoint;
+import com.mirth.connect.model.ExtensionPointDefinition;
+import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.plugins.DashboardColumnPlugin;
+import com.mirth.connect.plugins.DashboardPanelPlugin;
 
 public class DashboardPanel extends javax.swing.JPanel {
 
@@ -461,7 +461,7 @@ public class DashboardPanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JSplitPane split;
     private javax.swing.JScrollPane statusPane;
-    private com.webreach.mirth.client.ui.components.MirthTable statusTable;
+    private com.mirth.connect.client.ui.components.MirthTable statusTable;
     private javax.swing.JTabbedPane tabs;
     // End of variables declaration//GEN-END:variables
 }

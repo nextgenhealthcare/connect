@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.mule.adaptors;
+package com.mirth.connect.server.mule.adaptors;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,12 +18,12 @@ import org.apache.log4j.Logger;
 import org.mule.umo.MessagingException;
 import org.mule.umo.UMOException;
 
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.converters.DelimitedSerializer;
-import com.webreach.mirth.model.converters.IXMLSerializer;
-import com.webreach.mirth.model.converters.SerializerFactory;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.util.JavaScriptUtil;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.converters.DelimitedSerializer;
+import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.model.converters.SerializerFactory;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.util.JavaScriptUtil;
 
 public class DelimitedAdaptor extends Adaptor implements BatchAdaptor {
 	private Logger logger = Logger.getLogger(this.getClass());

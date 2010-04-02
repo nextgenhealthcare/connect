@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.jdbc;
+package com.mirth.connect.connectors.jdbc;
 
 import java.util.List;
 import java.util.Properties;
@@ -27,17 +27,17 @@ import org.syntax.jedit.tokenmarker.TSQLTokenMarker;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
-import com.webreach.mirth.client.ui.util.SQLParserUtil;
-import com.webreach.mirth.connectors.ConnectorClass;
-import com.webreach.mirth.connectors.jdbc.DatabaseMetadataDialog.STATEMENT_TYPE;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.DriverInfo;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.converters.DocumentSerializer;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.client.ui.util.SQLParserUtil;
+import com.mirth.connect.connectors.ConnectorClass;
+import com.mirth.connect.connectors.jdbc.DatabaseMetadataDialog.STATEMENT_TYPE;
+import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.DriverInfo;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.converters.DocumentSerializer;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -419,36 +419,36 @@ public class DatabaseReader extends ConnectorClass {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         sqlLabel = new javax.swing.JLabel();
-        databaseDriverCombobox = new com.webreach.mirth.client.ui.components.MirthComboBox();
-        databaseURLField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        databaseUsernameField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        databasePasswordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
+        databaseDriverCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
+        databaseURLField = new com.mirth.connect.client.ui.components.MirthTextField();
+        databaseUsernameField = new com.mirth.connect.client.ui.components.MirthTextField();
+        databasePasswordField = new com.mirth.connect.client.ui.components.MirthPasswordField();
         onUpdateLabel = new javax.swing.JLabel();
         pollingFrequencyLabel = new javax.swing.JLabel();
-        pollingFrequency = new com.webreach.mirth.client.ui.components.MirthTextField();
-        readOnUpdateYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        readOnUpdateNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        pollingFrequency = new com.mirth.connect.client.ui.components.MirthTextField();
+        readOnUpdateYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        readOnUpdateNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
         jLabel8 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        dbVarList = new com.webreach.mirth.client.ui.components.MirthVariableList();
-        databaseSQLTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,false);
-        databaseUpdateSQLTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,false);
+        dbVarList = new com.mirth.connect.client.ui.components.MirthVariableList();
+        databaseSQLTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);
+        databaseUpdateSQLTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);
         jLabel6 = new javax.swing.JLabel();
-        useJavaScriptYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        useJavaScriptNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        useJavaScriptYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        useJavaScriptNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
         generateConnection = new javax.swing.JButton();
         generateUpdateConnection = new javax.swing.JButton();
-        pollingTimeButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        pollingIntervalButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        pollingTimeButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        pollingIntervalButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
         jLabel5 = new javax.swing.JLabel();
         pollingTimeLabel = new javax.swing.JLabel();
-        pollingTime = new com.webreach.mirth.client.ui.components.MirthTimePicker();
+        pollingTime = new com.mirth.connect.client.ui.components.MirthTimePicker();
         generateSelect = new javax.swing.JButton();
         jLabel7 = new javax.swing.JLabel();
         generateUpdateSelect = new javax.swing.JButton();
         jLabel9 = new javax.swing.JLabel();
-        processResultsInOrderNoButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        processResultsInOrderYesButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        processResultsInOrderNoButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        processResultsInOrderYesButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
         jLabel10 = new javax.swing.JLabel();
         insertURLTemplateButton = new javax.swing.JButton();
 
@@ -959,13 +959,13 @@ private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent e
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.ButtonGroup buttonGroup3;
     private javax.swing.ButtonGroup buttonGroup4;
-    private com.webreach.mirth.client.ui.components.MirthComboBox databaseDriverCombobox;
-    private com.webreach.mirth.client.ui.components.MirthPasswordField databasePasswordField;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea databaseSQLTextPane;
-    private com.webreach.mirth.client.ui.components.MirthTextField databaseURLField;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea databaseUpdateSQLTextPane;
-    private com.webreach.mirth.client.ui.components.MirthTextField databaseUsernameField;
-    private com.webreach.mirth.client.ui.components.MirthVariableList dbVarList;
+    private com.mirth.connect.client.ui.components.MirthComboBox databaseDriverCombobox;
+    private com.mirth.connect.client.ui.components.MirthPasswordField databasePasswordField;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea databaseSQLTextPane;
+    private com.mirth.connect.client.ui.components.MirthTextField databaseURLField;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea databaseUpdateSQLTextPane;
+    private com.mirth.connect.client.ui.components.MirthTextField databaseUsernameField;
+    private com.mirth.connect.client.ui.components.MirthVariableList dbVarList;
     private javax.swing.JButton generateConnection;
     private javax.swing.JButton generateSelect;
     private javax.swing.JButton generateUpdateConnection;
@@ -983,18 +983,18 @@ private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent e
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel onUpdateLabel;
-    private com.webreach.mirth.client.ui.components.MirthTextField pollingFrequency;
+    private com.mirth.connect.client.ui.components.MirthTextField pollingFrequency;
     private javax.swing.JLabel pollingFrequencyLabel;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton pollingIntervalButton;
-    private com.webreach.mirth.client.ui.components.MirthTimePicker pollingTime;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton pollingTimeButton;
+    private com.mirth.connect.client.ui.components.MirthRadioButton pollingIntervalButton;
+    private com.mirth.connect.client.ui.components.MirthTimePicker pollingTime;
+    private com.mirth.connect.client.ui.components.MirthRadioButton pollingTimeButton;
     private javax.swing.JLabel pollingTimeLabel;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton processResultsInOrderNoButton;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton processResultsInOrderYesButton;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton readOnUpdateNo;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton readOnUpdateYes;
+    private com.mirth.connect.client.ui.components.MirthRadioButton processResultsInOrderNoButton;
+    private com.mirth.connect.client.ui.components.MirthRadioButton processResultsInOrderYesButton;
+    private com.mirth.connect.client.ui.components.MirthRadioButton readOnUpdateNo;
+    private com.mirth.connect.client.ui.components.MirthRadioButton readOnUpdateYes;
     private javax.swing.JLabel sqlLabel;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton useJavaScriptNo;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton useJavaScriptYes;
+    private com.mirth.connect.client.ui.components.MirthRadioButton useJavaScriptNo;
+    private com.mirth.connect.client.ui.components.MirthRadioButton useJavaScriptYes;
     // End of variables declaration//GEN-END:variables
 }

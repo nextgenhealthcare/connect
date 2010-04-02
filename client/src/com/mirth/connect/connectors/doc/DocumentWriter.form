@@ -123,17 +123,17 @@
         <Property name="text" type="java.lang.String" value="Template:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="directoryField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="directoryField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The directory (folder) where the generated file should be written."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="fileNameField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="fileNameField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The file name to give to the generated file."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="passwordYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="passwordYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -156,7 +156,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="passwordYesActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="passwordNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="passwordNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -184,7 +184,7 @@
         <Property name="text" type="java.lang.String" value="Encrypted:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthPasswordField" name="passwordField">
+    <Component class="com.mirth.connect.client.ui.components.MirthPasswordField" name="passwordField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="If Encrypted Yes is selected, enter the password to be used to later view the document here."/>
       </Properties>
@@ -194,7 +194,7 @@
         <Property name="text" type="java.lang.String" value="Password:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="fileContentsTextPane">
+    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="fileContentsTextPane">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -203,7 +203,7 @@
         </Property>
       </Properties>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(false,false);"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(false,false);"/>
       </AuxValues>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel5">
@@ -211,7 +211,7 @@
         <Property name="text" type="java.lang.String" value="Document Type:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="pdf">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="pdf">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -234,7 +234,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pdfActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="rtf">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="rtf">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>

@@ -7,13 +7,12 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server;
+package com.mirth.connect.server;
 
 /**
  * A command for the Mirth service. Consists of a command, a parameter, and a
  * priority. Default priority of a command is normal.
  * 
- * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  */
 public class Command implements Comparable<Command> {
 	public enum Operation {

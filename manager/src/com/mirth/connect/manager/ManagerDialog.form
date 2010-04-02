@@ -81,7 +81,7 @@
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Container class="com.webreach.mirth.manager.MirthHeadingPanel" name="heading">
+        <Container class="com.mirth.connect.manager.MirthHeadingPanel" name="heading">
 
           <Layout>
             <DimensionLayout dim="0">
@@ -403,9 +403,9 @@
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="com.webreach.mirth.manager.components.MirthTextField" name="serverWebstartPort">
+                <Component class="com.mirth.connect.manager.components.MirthTextField" name="serverWebstartPort">
                 </Component>
-                <Component class="com.webreach.mirth.manager.components.MirthTextField" name="serverAdministratorPort">
+                <Component class="com.mirth.connect.manager.components.MirthTextField" name="serverAdministratorPort">
                 </Component>
                 <Component class="javax.swing.JLabel" name="jLabel3">
                   <Properties>
@@ -467,7 +467,7 @@
                     <Property name="text" type="java.lang.String" value="Database Log Level:"/>
                   </Properties>
                 </Component>
-                <Component class="com.webreach.mirth.manager.components.MirthComboBox" name="mirthLogLevel">
+                <Component class="com.mirth.connect.manager.components.MirthComboBox" name="mirthLogLevel">
                   <Properties>
                     <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                       <StringArray count="4">
@@ -479,7 +479,7 @@
                     </Property>
                   </Properties>
                 </Component>
-                <Component class="com.webreach.mirth.manager.components.MirthComboBox" name="databaseLogLevel">
+                <Component class="com.mirth.connect.manager.components.MirthComboBox" name="databaseLogLevel">
                   <Properties>
                     <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                       <StringArray count="4">
@@ -496,7 +496,7 @@
                     <Property name="text" type="java.lang.String" value="JMX Port:"/>
                   </Properties>
                 </Component>
-                <Component class="com.webreach.mirth.manager.components.MirthTextField" name="serverJmxPort">
+                <Component class="com.mirth.connect.manager.components.MirthTextField" name="serverJmxPort">
                 </Component>
               </SubComponents>
             </Container>
@@ -588,9 +588,9 @@
                     <Property name="text" type="java.lang.String" value=" URL:"/>
                   </Properties>
                 </Component>
-                <Component class="com.webreach.mirth.manager.components.MirthTextField" name="databaseUrl">
+                <Component class="com.mirth.connect.manager.components.MirthTextField" name="databaseUrl">
                 </Component>
-                <Component class="com.webreach.mirth.manager.components.MirthComboBox" name="databaseType">
+                <Component class="com.mirth.connect.manager.components.MirthComboBox" name="databaseType">
                   <Properties>
                     <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                       <StringArray count="6">
@@ -617,16 +617,16 @@
                     <Property name="text" type="java.lang.String" value="Password:"/>
                   </Properties>
                 </Component>
-                <Component class="com.webreach.mirth.manager.components.MirthTextField" name="databaseUsername">
+                <Component class="com.mirth.connect.manager.components.MirthTextField" name="databaseUsername">
                 </Component>
-                <Component class="com.webreach.mirth.manager.components.MirthPasswordField" name="databasePassword">
+                <Component class="com.mirth.connect.manager.components.MirthPasswordField" name="databasePassword">
                 </Component>
                 <Component class="javax.swing.JLabel" name="jLabel19">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Driver:"/>
                   </Properties>
                 </Component>
-                <Component class="com.webreach.mirth.manager.components.MirthTextField" name="databaseDriver">
+                <Component class="com.mirth.connect.manager.components.MirthTextField" name="databaseDriver">
                 </Component>
               </SubComponents>
             </Container>

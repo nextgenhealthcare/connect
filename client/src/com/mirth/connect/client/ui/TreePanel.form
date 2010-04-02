@@ -77,7 +77,7 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="com.webreach.mirth.client.ui.components.MirthTree" name="tree">
+        <Component class="com.mirth.connect.client.ui.components.MirthTree" name="tree">
         </Component>
       </SubComponents>
     </Container>

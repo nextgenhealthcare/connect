@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.actions;
+package com.mirth.connect.client.ui.actions;
 
 import java.awt.Dialog;
 import java.awt.Frame;
@@ -19,7 +19,7 @@ import javax.swing.SwingUtilities;
 
 import org.syntax.jedit.JEditTextArea;
 
-import com.webreach.mirth.client.ui.FindRplDialog;
+import com.mirth.connect.client.ui.FindRplDialog;
 
 public class FindAndReplaceAction extends AbstractAction {
 

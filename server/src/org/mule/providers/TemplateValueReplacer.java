@@ -23,11 +23,11 @@ import org.apache.velocity.tools.generic.DateTool;
 import org.mule.util.UUID;
 import org.mule.util.Utility;
 
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.server.util.DICOMUtil;
-import com.webreach.mirth.server.util.GlobalChannelVariableStoreFactory;
-import com.webreach.mirth.server.util.GlobalVariableStore;
-import com.webreach.mirth.util.XmlUtil;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.server.util.DICOMUtil;
+import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
+import com.mirth.connect.server.util.GlobalVariableStore;
+import com.mirth.connect.util.XmlUtil;
 
 public class TemplateValueReplacer {
     private Logger logger = Logger.getLogger(this.getClass());

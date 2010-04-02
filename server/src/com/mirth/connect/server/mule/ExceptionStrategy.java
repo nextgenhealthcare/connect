@@ -7,17 +7,17 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.mule;
+package com.mirth.connect.server.mule;
 
 import org.mule.impl.DefaultComponentExceptionStrategy;
 import org.mule.providers.AbstractMessageReceiver;
 import org.mule.providers.ConnectException;
 import org.mule.providers.FatalConnectException;
 
-import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.EventController;
-import com.webreach.mirth.server.util.StackTracePrinter;
+import com.mirth.connect.model.SystemEvent;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.util.StackTracePrinter;
 
 public class ExceptionStrategy extends DefaultComponentExceptionStrategy {
 

@@ -195,7 +195,7 @@
                 <Property name="text" type="java.lang.String" value="Description:"/>
               </Properties>
             </Component>
-            <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="summaryNameField">
+            <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="summaryNameField">
               <Events>
                 <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="summaryNameFieldKeyReleased"/>
               </Events>
@@ -212,7 +212,7 @@
 
               <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
               <SubComponents>
-                <Component class="com.webreach.mirth.client.ui.components.MirthTextPane" name="summaryDescriptionText">
+                <Component class="com.mirth.connect.client.ui.components.MirthTextPane" name="summaryDescriptionText">
                 </Component>
               </SubComponents>
             </Container>
@@ -221,7 +221,7 @@
                 <Property name="text" type="java.lang.String" value="Initial State:"/>
               </Properties>
             </Component>
-            <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="initialState">
+            <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="initialState">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                   <StringArray count="2">
@@ -231,7 +231,7 @@
                 </Property>
               </Properties>
             </Component>
-            <Component class="com.webreach.mirth.client.ui.components.MirthCheckBox" name="encryptMessagesCheckBox">
+            <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="encryptMessagesCheckBox">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -247,7 +247,7 @@
                 </Property>
               </Properties>
             </Component>
-            <Component class="com.webreach.mirth.client.ui.components.MirthCheckBox" name="storeMessages">
+            <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="storeMessages">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -266,7 +266,7 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="storeMessagesActionPerformed"/>
               </Events>
             </Component>
-            <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="storeMessagesAll">
+            <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="storeMessagesAll">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -288,7 +288,7 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="storeMessagesAllActionPerformed"/>
               </Events>
             </Component>
-            <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="storeMessagesDays">
+            <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="storeMessagesDays">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -315,14 +315,14 @@
                 <Property name="text" type="java.lang.String" value="day(s)"/>
               </Properties>
             </Component>
-            <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="numDays">
+            <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="numDays">
             </Component>
             <Component class="javax.swing.JLabel" name="jLabel3">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Messages:"/>
               </Properties>
             </Component>
-            <Component class="com.webreach.mirth.client.ui.components.MirthCheckBox" name="storeMessagesErrors">
+            <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="storeMessagesErrors">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -341,7 +341,7 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="storeMessagesErrorsActionPerformed"/>
               </Events>
             </Component>
-            <Component class="com.webreach.mirth.client.ui.components.MirthCheckBox" name="storeFiltered">
+            <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="storeFiltered">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                   <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -403,7 +403,7 @@
                 </DimensionLayout>
               </Layout>
               <SubComponents>
-                <Component class="com.webreach.mirth.client.ui.components.MirthCheckBox" name="summaryEnabledCheckbox">
+                <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="summaryEnabledCheckbox">
                   <Properties>
                     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -420,7 +420,7 @@
                     </Property>
                   </Properties>
                 </Component>
-                <Component class="com.webreach.mirth.client.ui.components.MirthCheckBox" name="transactionalCheckBox">
+                <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="transactionalCheckBox">
                   <Properties>
                     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -436,7 +436,7 @@
                     </Property>
                   </Properties>
                 </Component>
-                <Component class="com.webreach.mirth.client.ui.components.MirthCheckBox" name="synchronousCheckBox">
+                <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="synchronousCheckBox">
                   <Properties>
                     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -458,7 +458,7 @@
                     <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
                   </AuxValues>
                 </Component>
-                <Component class="com.webreach.mirth.client.ui.components.MirthCheckBox" name="clearGlobalChannelMapCheckBox">
+                <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="clearGlobalChannelMapCheckBox">
                   <Properties>
                     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -558,7 +558,7 @@
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="sourceSourceDropdown">
+            <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="sourceSourceDropdown">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                   <StringArray count="3">
@@ -591,7 +591,7 @@
 
               <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
               <SubComponents>
-                <Container class="com.webreach.mirth.connectors.ConnectorClass" name="sourceConnectorClass">
+                <Container class="com.mirth.connect.connectors.ConnectorClass" name="sourceConnectorClass">
                   <Properties>
                     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -681,7 +681,7 @@
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="destinationSourceDropdown">
+            <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="destinationSourceDropdown">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                   <StringArray count="3">
@@ -700,7 +700,7 @@
                 <Property name="text" type="java.lang.String" value="Connector Type:"/>
               </Properties>
             </Component>
-            <Component class="com.webreach.mirth.client.ui.VariableList" name="destinationVariableList">
+            <Component class="com.mirth.connect.client.ui.VariableList" name="destinationVariableList">
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
               </AuxValues>
@@ -719,7 +719,7 @@
 
               <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
               <SubComponents>
-                <Container class="com.webreach.mirth.connectors.ConnectorClass" name="destinationConnectorClass">
+                <Container class="com.mirth.connect.connectors.ConnectorClass" name="destinationConnectorClass">
                   <Properties>
                     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -748,7 +748,7 @@
 
               <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
               <SubComponents>
-                <Component class="com.webreach.mirth.client.ui.components.MirthTable" name="destinationTable">
+                <Component class="com.mirth.connect.client.ui.components.MirthTable" name="destinationTable">
                   <Properties>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                       <Table columnCount="4" rowCount="4">
@@ -764,7 +764,7 @@
             </Container>
           </SubComponents>
         </Container>
-        <Component class="com.webreach.mirth.client.ui.ScriptPanel" name="scripts">
+        <Component class="com.mirth.connect.client.ui.ScriptPanel" name="scripts">
           <Events>
             <EventHandler event="componentShown" listener="java.awt.event.ComponentListener" parameters="java.awt.event.ComponentEvent" handler="scriptsComponentShown"/>
           </Events>

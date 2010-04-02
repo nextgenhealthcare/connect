@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.js;
+package com.mirth.connect.connectors.js;
 
 import java.util.List;
 import java.util.Properties;
@@ -18,9 +18,9 @@ import org.mozilla.javascript.EvaluatorException;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.connectors.ConnectorClass;
-import com.webreach.mirth.model.DriverInfo;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.connectors.ConnectorClass;
+import com.mirth.connect.model.DriverInfo;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -125,7 +125,7 @@ public class JavaScriptWriter extends ConnectorClass {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
         jsLabel = new javax.swing.JLabel();
-        javaScriptTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,false);
+        javaScriptTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -156,7 +156,7 @@ public class JavaScriptWriter extends ConnectorClass {
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea javaScriptTextPane;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea javaScriptTextPane;
     private javax.swing.JLabel jsLabel;
     // End of variables declaration//GEN-END:variables
 }

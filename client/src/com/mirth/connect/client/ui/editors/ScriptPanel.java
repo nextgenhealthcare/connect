@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.editors;
+package com.mirth.connect.client.ui.editors;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -78,7 +78,7 @@ public class ScriptPanel extends BasePanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        scriptTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,true,this.context);
+        scriptTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,true,this.context);
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -96,6 +96,6 @@ public class ScriptPanel extends BasePanel {
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea scriptTextPane;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea scriptTextPane;
     // End of variables declaration//GEN-END:variables
 }

@@ -1,4 +1,4 @@
-package com.webreach.mirth.connectors.vm;
+package com.mirth.connect.connectors.vm;
 
 public class VMResponse {
 

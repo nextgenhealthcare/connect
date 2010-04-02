@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.dimse;
+package com.mirth.connect.connectors.dimse;
 
 import java.util.Map;
 
@@ -22,9 +22,9 @@ import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOMessageReceiver;
 
-import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.EventController;
+import com.mirth.connect.model.SystemEvent;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
 
 public class DICOMConnector extends AbstractServiceEnabledConnector {
     // --------------------------------

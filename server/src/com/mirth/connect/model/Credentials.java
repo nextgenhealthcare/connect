@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model;
+package com.mirth.connect.model;
 
 public class Credentials {
 	private String username;

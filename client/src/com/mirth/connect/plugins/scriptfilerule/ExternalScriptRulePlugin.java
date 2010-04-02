@@ -7,12 +7,12 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.scriptfilerule;
+package com.mirth.connect.plugins.scriptfilerule;
 
-import com.webreach.mirth.client.ui.editors.BasePanel;
-import com.webreach.mirth.client.ui.editors.ExternalScriptPanel;
-import com.webreach.mirth.client.ui.editors.filter.FilterPane;
-import com.webreach.mirth.plugins.FilterRulePlugin;
+import com.mirth.connect.client.ui.editors.BasePanel;
+import com.mirth.connect.client.ui.editors.ExternalScriptPanel;
+import com.mirth.connect.client.ui.editors.filter.FilterPane;
+import com.mirth.connect.plugins.FilterRulePlugin;
 
 import java.util.HashMap;
 import java.util.Map;

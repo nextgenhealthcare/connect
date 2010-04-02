@@ -9,7 +9,7 @@
 	<extensionPoint>
 		<name>PDF Viewer</name>
 		<type>ATTACHMENT_VIEWER</type>
-		<className>com.webreach.mirth.plugins.pdfviewer.PDFViewer</className>
+		<className>com.mirth.connect.plugins.pdfviewer.PDFViewer</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
 	<library path="pdfviewer-client.jar">

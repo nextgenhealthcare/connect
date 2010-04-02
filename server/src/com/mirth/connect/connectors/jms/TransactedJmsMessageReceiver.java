@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.jms;
+package com.mirth.connect.connectors.jms;
 
 import java.util.List;
 
@@ -31,7 +31,7 @@ import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageAdapter;
 import org.mule.util.PropertiesHelper;
 
-import com.webreach.mirth.connectors.jms.filters.JmsSelectorFilter;
+import com.mirth.connect.connectors.jms.filters.JmsSelectorFilter;
 
 /**
  * @author <a href="mailto:ross.mason@symphonysoft.com">Ross Mason</a>

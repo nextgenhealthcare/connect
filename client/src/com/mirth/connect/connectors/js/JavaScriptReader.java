@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.js;
+package com.mirth.connect.connectors.js;
 
 import java.util.Properties;
 import java.util.UUID;
@@ -17,9 +17,9 @@ import org.mozilla.javascript.EvaluatorException;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
-import com.webreach.mirth.connectors.ConnectorClass;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.connectors.ConnectorClass;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -155,13 +155,13 @@ public class JavaScriptReader extends ConnectorClass {
         buttonGroup3 = new javax.swing.ButtonGroup();
         jsLabel = new javax.swing.JLabel();
         pollingFrequencyLabel = new javax.swing.JLabel();
-        pollingFrequency = new com.webreach.mirth.client.ui.components.MirthTextField();
-        javascriptTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,false);
-        pollingTimeButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        pollingIntervalButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        pollingFrequency = new com.mirth.connect.client.ui.components.MirthTextField();
+        javascriptTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);
+        pollingTimeButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        pollingIntervalButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
         jLabel5 = new javax.swing.JLabel();
         pollingTimeLabel = new javax.swing.JLabel();
-        pollingTime = new com.webreach.mirth.client.ui.components.MirthTimePicker();
+        pollingTime = new com.mirth.connect.client.ui.components.MirthTimePicker();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -269,13 +269,13 @@ public class JavaScriptReader extends ConnectorClass {
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.ButtonGroup buttonGroup3;
     private javax.swing.JLabel jLabel5;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea javascriptTextPane;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea javascriptTextPane;
     private javax.swing.JLabel jsLabel;
-    private com.webreach.mirth.client.ui.components.MirthTextField pollingFrequency;
+    private com.mirth.connect.client.ui.components.MirthTextField pollingFrequency;
     private javax.swing.JLabel pollingFrequencyLabel;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton pollingIntervalButton;
-    private com.webreach.mirth.client.ui.components.MirthTimePicker pollingTime;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton pollingTimeButton;
+    private com.mirth.connect.client.ui.components.MirthRadioButton pollingIntervalButton;
+    private com.mirth.connect.client.ui.components.MirthTimePicker pollingTime;
+    private com.mirth.connect.client.ui.components.MirthRadioButton pollingTimeButton;
     private javax.swing.JLabel pollingTimeLabel;
     // End of variables declaration//GEN-END:variables
 }

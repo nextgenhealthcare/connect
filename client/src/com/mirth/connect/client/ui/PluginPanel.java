@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.awt.Color;
 import java.lang.reflect.Constructor;
@@ -20,11 +20,11 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.webreach.mirth.model.ExtensionPoint;
-import com.webreach.mirth.model.ExtensionPointDefinition;
-import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.plugins.ClientPanelPlugin;
-import com.webreach.mirth.plugins.DashboardPanelPlugin;
+import com.mirth.connect.model.ExtensionPoint;
+import com.mirth.connect.model.ExtensionPointDefinition;
+import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.plugins.ClientPanelPlugin;
+import com.mirth.connect.plugins.DashboardPanelPlugin;
 
 public class PluginPanel extends javax.swing.JPanel {
 

@@ -7,11 +7,11 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.mllp;
+package com.mirth.connect.connectors.mllp;
 
 import java.util.Properties;
 
-import com.webreach.mirth.model.ComponentProperties;
+import com.mirth.connect.model.ComponentProperties;
 
 public class LLPListenerProperties implements ComponentProperties {
     public static final String name = "LLP Listener";

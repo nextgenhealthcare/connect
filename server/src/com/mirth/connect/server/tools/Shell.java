@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.tools;
+package com.mirth.connect.server.tools;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -36,24 +36,24 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import com.webreach.mirth.client.core.Client;
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.core.ListHandlerException;
-import com.webreach.mirth.client.core.SystemEventListHandler;
-import com.webreach.mirth.model.Alert;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.ChannelStatistics;
-import com.webreach.mirth.model.ChannelStatus;
-import com.webreach.mirth.model.CodeTemplate;
-import com.webreach.mirth.model.ServerConfiguration;
-import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.model.User;
-import com.webreach.mirth.model.ChannelStatus.State;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.model.filters.SystemEventFilter;
-import com.webreach.mirth.model.util.ImportConverter;
-import com.webreach.mirth.server.util.StackTracePrinter;
-import com.webreach.mirth.util.PropertyVerifier;
+import com.mirth.connect.client.core.Client;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.core.ListHandlerException;
+import com.mirth.connect.client.core.SystemEventListHandler;
+import com.mirth.connect.model.Alert;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelStatistics;
+import com.mirth.connect.model.ChannelStatus;
+import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.ServerConfiguration;
+import com.mirth.connect.model.SystemEvent;
+import com.mirth.connect.model.User;
+import com.mirth.connect.model.ChannelStatus.State;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.model.filters.SystemEventFilter;
+import com.mirth.connect.model.util.ImportConverter;
+import com.mirth.connect.server.util.StackTracePrinter;
+import com.mirth.connect.util.PropertyVerifier;
 
 public class Shell {
     private Client client;

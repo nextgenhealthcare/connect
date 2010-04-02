@@ -7,12 +7,12 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.util.List;
 
-import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.model.filters.SystemEventFilter;
+import com.mirth.connect.model.SystemEvent;
+import com.mirth.connect.model.filters.SystemEventFilter;
 
 public abstract class EventController extends Controller {
     public static EventController getInstance() {

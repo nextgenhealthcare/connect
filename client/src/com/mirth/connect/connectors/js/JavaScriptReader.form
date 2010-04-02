@@ -96,12 +96,12 @@
         <Property name="text" type="java.lang.String" value="Polling Frequency (ms):"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="pollingFrequency">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="pollingFrequency">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If the &quot;Interval&quot; Polling Type is selected, the number of milliseconds between polls must be entered here.&lt;br&gt;Avoid extremely small values because polling can be a somewhat time-consuming operation.&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="javascriptTextPane">
+    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="javascriptTextPane">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -110,10 +110,10 @@
         </Property>
       </Properties>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,false);"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);"/>
       </AuxValues>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="pollingTimeButton">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="pollingTimeButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -136,7 +136,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pollingTimeButtonActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="pollingIntervalButton">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="pollingIntervalButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -169,7 +169,7 @@
         <Property name="text" type="java.lang.String" value="Polling Time (daily):"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTimePicker" name="pollingTime">
+    <Component class="com.mirth.connect.client.ui.components.MirthTimePicker" name="pollingTime">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="If the &quot;Time&quot; Polling Type is selected, the time of day to poll must be entered here."/>
       </Properties>

@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.jdbc;
+package com.mirth.connect.connectors.jdbc;
 
 import java.sql.Connection;
 import java.util.Map;
@@ -28,13 +28,13 @@ import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOMessageReceiver;
 
-import com.webreach.mirth.model.CodeTemplate;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
-import com.webreach.mirth.server.controllers.ControllerException;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.ScriptController;
-import com.webreach.mirth.server.util.CompiledScriptCache;
+import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
+import com.mirth.connect.server.controllers.ControllerException;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.ScriptController;
+import com.mirth.connect.server.util.CompiledScriptCache;
 
 public class JdbcConnector extends AbstractServiceEnabledConnector {
     private CompiledScriptCache compiledScriptCache = CompiledScriptCache.getInstance();
@@ -338,7 +338,7 @@ public class JdbcConnector extends AbstractServiceEnabledConnector {
     private String generateDatabaseScript(String databaseScript, boolean ack) {
         logger.debug("generating database script");
         StringBuilder script = new StringBuilder();
-        script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
+        script.append("importPackage(Packages.com.mirth.connect.server.util);\n");
         
         // start function
         script.append("function $(string) { ");

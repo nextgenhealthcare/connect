@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.file.filesystems;
+package com.mirth.connect.connectors.file.filesystems;
 
 import java.io.IOException;
 
@@ -15,7 +15,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool.PoolableObjectFactory;
 
-import com.webreach.mirth.connectors.file.FileConnector;
+import com.mirth.connect.connectors.file.FileConnector;
 
 /**
  * A factory to create instances of FileSystemConnection based on the endpoint

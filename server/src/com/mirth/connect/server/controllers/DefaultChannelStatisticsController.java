@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -15,9 +15,9 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.model.ChannelStatistics;
-import com.webreach.mirth.server.util.ChannelStatisticsCache;
-import com.webreach.mirth.server.util.SqlConfig;
+import com.mirth.connect.model.ChannelStatistics;
+import com.mirth.connect.server.util.ChannelStatisticsCache;
+import com.mirth.connect.server.util.SqlConfig;
 
 /**
  * The StatisticsContoller provides access to channel statistics.

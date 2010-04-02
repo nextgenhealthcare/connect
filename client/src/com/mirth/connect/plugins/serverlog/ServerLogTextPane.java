@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.serverlog;
+package com.mirth.connect.plugins.serverlog;
 
 import javax.swing.JTextPane;
 import javax.swing.text.StyledDocument;

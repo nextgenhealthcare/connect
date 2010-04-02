@@ -8,7 +8,7 @@
 // BareBonesBrowserLaunch.openURL(url); // 
 // Public Domain Software -- Free to Use as You Like // 
 ///////////////////////////////////////////////////////// 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.lang.reflect.Method;
 

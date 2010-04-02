@@ -42,10 +42,10 @@ import org.mule.umo.model.UMOEntryPointResolver;
 import org.mule.umo.model.UMOModel;
 import org.mule.umo.routing.UMORouter;
 
-import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.EventController;
-import com.webreach.mirth.server.util.StackTracePrinter;
+import com.mirth.connect.model.SystemEvent;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.util.StackTracePrinter;
 
 import edu.emory.mathcs.backport.java.util.concurrent.ConcurrentHashMap;
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;

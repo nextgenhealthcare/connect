@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.servlets;
+package com.mirth.connect.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -19,11 +19,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.ServerConfiguration;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.server.controllers.ConfigurationController;
-import com.webreach.mirth.server.controllers.ControllerFactory;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ServerConfiguration;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ControllerFactory;
 
 public class ConfigurationServlet extends MirthServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

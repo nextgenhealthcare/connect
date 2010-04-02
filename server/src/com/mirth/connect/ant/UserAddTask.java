@@ -7,15 +7,15 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.ant;
+package com.mirth.connect.ant;
 
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.tools.ant.BuildException;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.model.User;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.model.User;
 
 /**
  * an ant task to add a mirth user

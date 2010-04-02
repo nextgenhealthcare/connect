@@ -7,9 +7,9 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins;
+package com.mirth.connect.plugins;
 
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
+import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
 
 public abstract class TransformerStepPlugin extends MirthEditorPanePlugin {
 

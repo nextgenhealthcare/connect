@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.sqlmap.extensions;
+package com.mirth.connect.server.sqlmap.extensions;
 
 import java.sql.SQLException;
 

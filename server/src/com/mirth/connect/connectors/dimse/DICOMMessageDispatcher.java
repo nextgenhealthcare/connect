@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.dimse;
+package com.mirth.connect.connectors.dimse;
 
 import java.io.File;
 
@@ -21,14 +21,14 @@ import org.mule.umo.UMOException;
 import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpointURI;
 
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.controllers.AlertController;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.Event;
-import com.webreach.mirth.server.util.FileUtil;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.controllers.AlertController;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MessageObjectController;
+import com.mirth.connect.server.controllers.MonitoringController;
+import com.mirth.connect.server.controllers.MonitoringController.Event;
+import com.mirth.connect.server.util.FileUtil;
 
 public class DICOMMessageDispatcher extends AbstractMessageDispatcher {
     private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();

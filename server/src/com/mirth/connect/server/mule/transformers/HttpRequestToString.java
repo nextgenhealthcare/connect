@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.mule.transformers;
+package com.mirth.connect.server.mule.transformers;
 
 import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.transformer.TransformerException;
@@ -15,7 +15,6 @@ import org.mule.umo.transformer.TransformerException;
 /**
  * Transforms HTTP request to String object
  * 
- * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  */
 public class HttpRequestToString extends AbstractTransformer {
 	public HttpRequestToString() {

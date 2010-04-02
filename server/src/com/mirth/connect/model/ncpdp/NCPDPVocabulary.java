@@ -7,10 +7,10 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.ncpdp;
+package com.mirth.connect.model.ncpdp;
 
-import com.webreach.mirth.model.MessageObject.Protocol;
-import com.webreach.mirth.model.util.MessageVocabulary;
+import com.mirth.connect.model.MessageObject.Protocol;
+import com.mirth.connect.model.util.MessageVocabulary;
 
 public class NCPDPVocabulary extends MessageVocabulary {
     private NCPDPReference reference = null;

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.servlets;
+package com.mirth.connect.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -24,11 +24,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.webreach.mirth.model.converters.DocumentSerializer;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.ExtensionController;
-import com.webreach.mirth.server.tools.ClassPathResource;
-import com.webreach.mirth.util.PropertyLoader;
+import com.mirth.connect.model.converters.DocumentSerializer;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.ExtensionController;
+import com.mirth.connect.server.tools.ClassPathResource;
+import com.mirth.connect.util.PropertyLoader;
 
 public class WebStartServlet extends HttpServlet {
     

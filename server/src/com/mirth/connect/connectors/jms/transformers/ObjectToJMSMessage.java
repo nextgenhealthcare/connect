@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.jms.transformers;
+package com.mirth.connect.connectors.jms.transformers;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

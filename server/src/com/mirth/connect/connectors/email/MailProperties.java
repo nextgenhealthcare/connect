@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.email;
+package com.mirth.connect.connectors.email;
 
 /**
  * Mail properties that are sent on the MuleMessage when recieing a Mail Message

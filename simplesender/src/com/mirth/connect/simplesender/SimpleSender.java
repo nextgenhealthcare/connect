@@ -1,4 +1,4 @@
-package com.webreach.mirth.simplesender;
+package com.mirth.connect.simplesender;
 
 import java.io.File;
 import java.io.FileNotFoundException;

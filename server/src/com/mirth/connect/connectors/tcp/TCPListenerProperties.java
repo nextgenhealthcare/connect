@@ -7,11 +7,11 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.tcp;
+package com.mirth.connect.connectors.tcp;
 
 import java.util.Properties;
 
-import com.webreach.mirth.model.ComponentProperties;
+import com.mirth.connect.model.ComponentProperties;
 
 public class TCPListenerProperties implements ComponentProperties {
     public static final String name = "TCP Listener";

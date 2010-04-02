@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model;
+package com.mirth.connect.model;
 
 import java.io.Serializable;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.Map;
 
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
-import com.webreach.mirth.util.EqualsUtil;
+import com.mirth.connect.util.EqualsUtil;
 
 @XStreamAlias("pluginMetaData")
 public class PluginMetaData extends MetaData implements Serializable {

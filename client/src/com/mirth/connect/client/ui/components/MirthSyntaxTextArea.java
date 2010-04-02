@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.components;
+package com.mirth.connect.client.ui.components;
 
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -22,22 +22,22 @@ import javax.swing.event.DocumentListener;
 import org.syntax.jedit.JEditTextArea;
 import org.syntax.jedit.SyntaxDocument;
 
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.actions.CopyAction;
-import com.webreach.mirth.client.ui.actions.CutAction;
-import com.webreach.mirth.client.ui.actions.DeleteAction;
-import com.webreach.mirth.client.ui.actions.FindAndReplaceAction;
-import com.webreach.mirth.client.ui.actions.PasteAction;
-import com.webreach.mirth.client.ui.actions.RedoAction;
-import com.webreach.mirth.client.ui.actions.SelectAllAction;
-import com.webreach.mirth.client.ui.actions.ShowLineEndingsAction;
-import com.webreach.mirth.client.ui.actions.SnippetAction;
-import com.webreach.mirth.client.ui.actions.UndoAction;
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ListType;
-import com.webreach.mirth.model.CodeTemplate;
-import com.webreach.mirth.model.CodeTemplate.ContextType;
+import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.actions.CopyAction;
+import com.mirth.connect.client.ui.actions.CutAction;
+import com.mirth.connect.client.ui.actions.DeleteAction;
+import com.mirth.connect.client.ui.actions.FindAndReplaceAction;
+import com.mirth.connect.client.ui.actions.PasteAction;
+import com.mirth.connect.client.ui.actions.RedoAction;
+import com.mirth.connect.client.ui.actions.SelectAllAction;
+import com.mirth.connect.client.ui.actions.ShowLineEndingsAction;
+import com.mirth.connect.client.ui.actions.SnippetAction;
+import com.mirth.connect.client.ui.actions.UndoAction;
+import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
+import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory.ListType;
+import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.CodeTemplate.ContextType;
 
 /**
  * Mirth's implementation of the JTextArea. Adds enabling of the save button in

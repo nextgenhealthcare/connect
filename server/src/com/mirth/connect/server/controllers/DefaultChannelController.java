@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -18,14 +18,14 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.ChannelSummary;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.util.ImportConverter;
-import com.webreach.mirth.server.util.DatabaseUtil;
-import com.webreach.mirth.server.util.SqlConfig;
-import com.webreach.mirth.util.PropertyVerifier;
-import com.webreach.mirth.util.QueueUtil;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelSummary;
+import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.util.ImportConverter;
+import com.mirth.connect.server.util.DatabaseUtil;
+import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.util.PropertyVerifier;
+import com.mirth.connect.util.QueueUtil;
 
 public class DefaultChannelController extends ChannelController {
     private Logger logger = Logger.getLogger(this.getClass());

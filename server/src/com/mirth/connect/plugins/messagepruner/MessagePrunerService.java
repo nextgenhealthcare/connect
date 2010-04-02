@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.messagepruner;
+package com.mirth.connect.plugins.messagepruner;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -33,12 +33,12 @@ import org.quartz.Trigger;
 import org.quartz.TriggerUtils;
 import org.quartz.impl.StdSchedulerFactory;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.filters.MessageObjectFilter;
-import com.webreach.mirth.plugins.ServerPlugin;
-import com.webreach.mirth.server.controllers.ChannelController;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.util.PropertyLoader;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.filters.MessageObjectFilter;
+import com.mirth.connect.plugins.ServerPlugin;
+import com.mirth.connect.server.controllers.ChannelController;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.util.PropertyLoader;
 
 public class MessagePrunerService implements ServerPlugin, Job {
 	private Logger logger = Logger.getLogger(this.getClass());

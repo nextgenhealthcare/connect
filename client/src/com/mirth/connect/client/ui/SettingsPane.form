@@ -41,7 +41,7 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="com.webreach.mirth.client.ui.SettingsPanel" name="settingsPanel">
+        <Component class="com.mirth.connect.client.ui.SettingsPanel" name="settingsPanel">
         </Component>
       </SubComponents>
     </Container>

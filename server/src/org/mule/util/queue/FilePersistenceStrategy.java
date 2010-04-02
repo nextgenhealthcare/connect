@@ -30,7 +30,7 @@ import org.mule.config.MuleConfiguration;
 import org.mule.umo.UMOEvent;
 import org.mule.util.file.DeleteException;
 
-import com.webreach.mirth.model.QueuedMessage;
+import com.mirth.connect.model.QueuedMessage;
 
 /**
  * @author <a href="mailto:gnt@codehaus.org">Guillaume Nodet</a>

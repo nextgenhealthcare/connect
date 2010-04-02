@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.file.filesystems;
+package com.mirth.connect.connectors.file.filesystems;
 
 import com.jcraft.jsch.UserInfo;
 

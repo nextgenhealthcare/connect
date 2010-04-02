@@ -1,4 +1,4 @@
-package com.webreach.mirth.simplereceiver;
+package com.mirth.connect.simplereceiver;
 
 import java.io.File;
 import java.io.FileWriter;

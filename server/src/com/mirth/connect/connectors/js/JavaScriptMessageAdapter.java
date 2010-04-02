@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.js;
+package com.mirth.connect.connectors.js;
 
 import org.mule.providers.AbstractMessageAdapter;
 

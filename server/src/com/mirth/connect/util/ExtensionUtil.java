@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.util;
+package com.mirth.connect.util;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -28,18 +28,18 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.fileupload.FileItem;
 
-import com.webreach.mirth.client.core.VersionMismatchException;
-import com.webreach.mirth.model.ConnectorMetaData;
-import com.webreach.mirth.model.ExtensionLibrary;
-import com.webreach.mirth.model.MetaData;
-import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.server.controllers.ControllerException;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.ExtensionController;
-import com.webreach.mirth.server.controllers.ExtensionController.ExtensionType;
-import com.webreach.mirth.server.util.FileUtil;
-import com.webreach.mirth.server.util.UUIDGenerator;
+import com.mirth.connect.client.core.VersionMismatchException;
+import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.model.ExtensionLibrary;
+import com.mirth.connect.model.MetaData;
+import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.server.controllers.ControllerException;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.ExtensionController;
+import com.mirth.connect.server.controllers.ExtensionController.ExtensionType;
+import com.mirth.connect.server.util.FileUtil;
+import com.mirth.connect.server.util.UUIDGenerator;
 
 public class ExtensionUtil {
 

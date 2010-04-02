@@ -7,11 +7,11 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.util.List;
 
-import com.webreach.mirth.model.CodeTemplate;
+import com.mirth.connect.model.CodeTemplate;
 
 public abstract class CodeTemplateController extends Controller {
     public static CodeTemplateController getInstance() {

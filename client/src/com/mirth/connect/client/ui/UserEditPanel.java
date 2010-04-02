@@ -7,15 +7,15 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.util.Vector;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
-import com.webreach.mirth.model.PasswordRequirements;
-import com.webreach.mirth.model.User;
-import com.webreach.mirth.model.util.PasswordRequirementsChecker;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.model.PasswordRequirements;
+import com.mirth.connect.model.User;
+import com.mirth.connect.model.util.PasswordRequirementsChecker;
 
 public class UserEditPanel extends javax.swing.JPanel {
 
@@ -155,15 +155,15 @@ public class UserEditPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        firstName = new com.webreach.mirth.client.ui.components.MirthTextField();
+        firstName = new com.mirth.connect.client.ui.components.MirthTextField();
         firstNameLabel = new javax.swing.JLabel();
         lastNameLabel = new javax.swing.JLabel();
-        lastName = new com.webreach.mirth.client.ui.components.MirthTextField();
-        organization = new com.webreach.mirth.client.ui.components.MirthTextField();
+        lastName = new com.mirth.connect.client.ui.components.MirthTextField();
+        organization = new com.mirth.connect.client.ui.components.MirthTextField();
         organizationLabel = new javax.swing.JLabel();
         emailLabel = new javax.swing.JLabel();
-        email = new com.webreach.mirth.client.ui.components.MirthTextField();
-        phone = new com.webreach.mirth.client.ui.components.MirthTextField();
+        email = new com.mirth.connect.client.ui.components.MirthTextField();
+        phone = new com.mirth.connect.client.ui.components.MirthTextField();
         phoneLabel = new javax.swing.JLabel();
         usernameAsteriskLabel = new javax.swing.JLabel();
         passwordAsteriskLabel = new javax.swing.JLabel();
@@ -413,23 +413,23 @@ private void descriptionKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:ev
     private javax.swing.JLabel confirmPasswordLabel;
     private javax.swing.JTextArea description;
     private javax.swing.JLabel descriptionLabel;
-    private com.webreach.mirth.client.ui.components.MirthTextField email;
+    private com.mirth.connect.client.ui.components.MirthTextField email;
     private javax.swing.JLabel emailAsteriskLabel;
     private javax.swing.JLabel emailLabel;
-    private com.webreach.mirth.client.ui.components.MirthTextField firstName;
+    private com.mirth.connect.client.ui.components.MirthTextField firstName;
     private javax.swing.JLabel firstNameAsteriskLabel;
     private javax.swing.JLabel firstNameLabel;
     private javax.swing.JScrollPane jScrollPane1;
-    private com.webreach.mirth.client.ui.components.MirthTextField lastName;
+    private com.mirth.connect.client.ui.components.MirthTextField lastName;
     private javax.swing.JLabel lastNameAsteriskLabel;
     private javax.swing.JLabel lastNameLabel;
-    private com.webreach.mirth.client.ui.components.MirthTextField organization;
+    private com.mirth.connect.client.ui.components.MirthTextField organization;
     private javax.swing.JLabel organizationAsteriskLabel;
     private javax.swing.JLabel organizationLabel;
     private javax.swing.JPasswordField password;
     private javax.swing.JLabel passwordAsteriskLabel;
     private javax.swing.JLabel passwordLabel;
-    private com.webreach.mirth.client.ui.components.MirthTextField phone;
+    private com.mirth.connect.client.ui.components.MirthTextField phone;
     private javax.swing.JLabel phoneLabel;
     private javax.swing.JTextField username;
     private javax.swing.JLabel usernameAsteriskLabel;

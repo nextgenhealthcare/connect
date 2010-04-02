@@ -265,7 +265,7 @@
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Component class="com.webreach.mirth.client.ui.components.MirthPasswordField" name="smtpPassword">
+        <Component class="com.mirth.connect.client.ui.components.MirthPasswordField" name="smtpPassword">
           <Properties>
             <Property name="toolTipText" type="java.lang.String" value="Password for global SMTP settings."/>
           </Properties>
@@ -280,12 +280,12 @@
             <Property name="text" type="java.lang.String" value="Username:"/>
           </Properties>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="smtpUsername">
+        <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="smtpUsername">
           <Properties>
             <Property name="toolTipText" type="java.lang.String" value="Username for global SMTP settings."/>
           </Properties>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="requireAuthenticationYes">
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="requireAuthenticationYes">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -309,7 +309,7 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="requireAuthenticationYesActionPerformed"/>
           </Events>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="requireAuthenticationNo">
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="requireAuthenticationNo">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -342,7 +342,7 @@
             <Property name="text" type="java.lang.String" value="Default from Address:"/>
           </Properties>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="defaultFrom">
+        <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="defaultFrom">
           <Properties>
             <Property name="toolTipText" type="java.lang.String" value="Default &quot;from&quot; email address used for global SMTP settings."/>
           </Properties>
@@ -352,12 +352,12 @@
             <Property name="text" type="java.lang.String" value="SMTP Port:"/>
           </Properties>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="smtpPort">
+        <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="smtpPort">
           <Properties>
             <Property name="toolTipText" type="java.lang.String" value="SMTP port used for global SMTP settings."/>
           </Properties>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="smtpHost">
+        <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="smtpHost">
           <Properties>
             <Property name="toolTipText" type="java.lang.String" value="SMTP host used for global SMTP settings."/>
           </Properties>
@@ -372,7 +372,7 @@
             <Property name="text" type="java.lang.String" value="Secure Connection:"/>
           </Properties>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="secureConnectionNone">
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="secureConnectionNone">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -396,7 +396,7 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="secureConnectionNoneActionPerformed"/>
           </Events>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="secureConnectionTLS">
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="secureConnectionTLS">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -419,7 +419,7 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="secureConnectionTLSActionPerformed"/>
           </Events>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="secureConnectionSSL">
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="secureConnectionSSL">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -536,7 +536,7 @@
             <Property name="text" type="java.lang.String" value="Clear global map on redeploy:"/>
           </Properties>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="clearGlobalMapYes">
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="clearGlobalMapYes">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -560,7 +560,7 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="clearGlobalMapYesActionPerformed"/>
           </Events>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="clearGlobalMapNo">
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="clearGlobalMapNo">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -588,7 +588,7 @@
             <Property name="text" type="java.lang.String" value="Check for updates:"/>
           </Properties>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="checkForUpdatesYes">
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="checkForUpdatesYes">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -612,7 +612,7 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="checkForUpdatesYesActionPerformed"/>
           </Events>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="checkForUpdatesNo">
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="checkForUpdatesNo">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -640,7 +640,7 @@
             <Property name="text" type="java.lang.String" value="Provide usage statistics:"/>
           </Properties>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="sendUsageStatsYes">
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="sendUsageStatsYes">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -664,7 +664,7 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sendUsageStatsYesActionPerformed"/>
           </Events>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="sendUsageStatsNo">
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="sendUsageStatsNo">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -687,7 +687,7 @@
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sendUsageStatsNoActionPerformed"/>
           </Events>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="updateUrl">
+        <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="updateUrl">
           <Properties>
             <Property name="toolTipText" type="java.lang.String" value="The URL to use when checking for software updates."/>
           </Properties>
@@ -794,12 +794,12 @@
             <Property name="text" type="java.lang.String" value="Alternate row highlighting in tables:"/>
           </Properties>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="intervalTime">
+        <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="intervalTime">
           <Properties>
             <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Interval in seconds at which to refresh the Dashboard. Decrement this for &lt;br&gt;faster updates, and increment it for slower servers with more channels.&lt;/html&gt;"/>
           </Properties>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="rowHighlightYes">
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="rowHighlightYes">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -820,7 +820,7 @@
             </Property>
           </Properties>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="rowHighlightNo">
+        <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="rowHighlightNo">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
               <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -840,7 +840,7 @@
             </Property>
           </Properties>
         </Component>
-        <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="messageBrowserPageSizeField">
+        <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="messageBrowserPageSizeField">
           <Properties>
             <Property name="toolTipText" type="java.lang.String" value="Sets the default page size for browsers (message, event, etc.)"/>
           </Properties>

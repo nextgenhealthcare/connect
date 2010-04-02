@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Point;
@@ -30,10 +30,10 @@ import org.syntax.jedit.tokenmarker.HL7TokenMarker;
 import org.syntax.jedit.tokenmarker.X12TokenMarker;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
-import com.webreach.mirth.client.ui.components.MirthSyntaxTextArea;
-import com.webreach.mirth.client.ui.util.FileUtil;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.MessageObject.Protocol;
+import com.mirth.connect.client.ui.components.MirthSyntaxTextArea;
+import com.mirth.connect.client.ui.util.FileUtil;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.MessageObject.Protocol;
 
 /** Creates the Edit Message dialog. */
 public class EditMessageDialog extends javax.swing.JDialog implements DropTargetListener {
@@ -157,7 +157,7 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
         jPanel1 = new javax.swing.JPanel();
         closeButton = new javax.swing.JButton();
         processMessageButton = new javax.swing.JButton();
-        messageContent = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
+        messageContent = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         openFileButton = new javax.swing.JButton();
         processBinaryFileButton = new javax.swing.JButton();
 
@@ -288,7 +288,7 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton closeButton;
     private javax.swing.JPanel jPanel1;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea messageContent;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea messageContent;
     private javax.swing.JButton openFileButton;
     private javax.swing.JButton processBinaryFileButton;
     private javax.swing.JButton processMessageButton;

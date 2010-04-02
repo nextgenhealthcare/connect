@@ -1,4 +1,4 @@
-package com.webreach.mirth.model.hl7v2;
+package com.mirth.connect.model.hl7v2;
 
 public class Message extends Component{
 	protected Class[] segments;

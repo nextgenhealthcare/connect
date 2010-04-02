@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.tcp.protocols;
+package com.mirth.connect.connectors.tcp.protocols;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -19,8 +19,8 @@ import java.net.SocketTimeoutException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.webreach.mirth.connectors.tcp.TcpConnector;
-import com.webreach.mirth.connectors.tcp.TcpProtocol;
+import com.mirth.connect.connectors.tcp.TcpConnector;
+import com.mirth.connect.connectors.tcp.TcpProtocol;
 
 /**
  * The DefaultProtocol class is an application level tcp protocol that does

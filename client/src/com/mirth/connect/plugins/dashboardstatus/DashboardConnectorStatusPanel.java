@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.dashboardstatus;
+package com.mirth.connect.plugins.dashboardstatus;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,15 +26,15 @@ import javax.swing.JPopupMenu;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.webreach.mirth.client.ui.CellData;
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.ImageCellRenderer;
-import com.webreach.mirth.client.ui.Mirth;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.RefreshTableModel;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
-import com.webreach.mirth.client.ui.components.MirthTable;
+import com.mirth.connect.client.ui.CellData;
+import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.ImageCellRenderer;
+import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.RefreshTableModel;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.client.ui.components.MirthTable;
 
 public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
 
@@ -528,7 +528,7 @@ public class DashboardConnectorStatusPanel extends javax.swing.JPanel {
     private javax.swing.JButton logSizeChange;
     private javax.swing.JLabel logSizeText;
     private javax.swing.JTextField logSizeTextField;
-    private com.webreach.mirth.client.ui.components.MirthTable logTable;
+    private com.mirth.connect.client.ui.components.MirthTable logTable;
     private javax.swing.JButton pauseResume;
     // End of variables declaration//GEN-END:variables
 }

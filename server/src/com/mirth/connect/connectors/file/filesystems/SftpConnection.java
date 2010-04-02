@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.file.filesystems;
+package com.mirth.connect.connectors.file.filesystems;
 
 import java.io.ByteArrayInputStream;
 import java.io.FilenameFilter;
@@ -27,7 +27,7 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.UserInfo;
-import com.webreach.mirth.connectors.file.filters.RegexFilenameFilter;
+import com.mirth.connect.connectors.file.filters.RegexFilenameFilter;
 
 public class SftpConnection implements FileSystemConnection {
 

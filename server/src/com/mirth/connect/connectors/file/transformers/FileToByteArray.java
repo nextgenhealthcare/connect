@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.file.transformers;
+package com.mirth.connect.connectors.file.transformers;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

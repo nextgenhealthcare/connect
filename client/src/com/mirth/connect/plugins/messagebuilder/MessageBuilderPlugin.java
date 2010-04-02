@@ -7,16 +7,16 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.messagebuilder;
+package com.mirth.connect.plugins.messagebuilder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.webreach.mirth.client.ui.editors.BasePanel;
-import com.webreach.mirth.client.ui.editors.MessageBuilder;
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
-import com.webreach.mirth.plugins.TransformerStepPlugin;
+import com.mirth.connect.client.ui.editors.BasePanel;
+import com.mirth.connect.client.ui.editors.MessageBuilder;
+import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
+import com.mirth.connect.plugins.TransformerStepPlugin;
 
 public class MessageBuilderPlugin extends TransformerStepPlugin {
 

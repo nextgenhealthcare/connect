@@ -5,10 +5,10 @@
 	<mirthVersion>2.0.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to send messages to a TCP server.</description>
-	<clientClassName>com.webreach.mirth.connectors.tcp.TCPSender</clientClassName>
-	<serverClassName>com.webreach.mirth.connectors.tcp.TcpConnector</serverClassName>
-	<sharedClassName>com.webreach.mirth.connectors.tcp.TCPSenderProperties</sharedClassName>
-	<serviceClassName>com.webreach.mirth.connectors.tcp.TcpConnectorService</serviceClassName>
+	<clientClassName>com.mirth.connect.connectors.tcp.TCPSender</clientClassName>
+	<serverClassName>com.mirth.connect.connectors.tcp.TcpConnector</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.tcp.TCPSenderProperties</sharedClassName>
+	<serviceClassName>com.mirth.connect.connectors.tcp.TcpConnectorService</serviceClassName>
 	<library path="tcp-client.jar">
 		<type>CLIENT</type>
 	</library>
@@ -23,10 +23,10 @@
 	<type>DESTINATION</type>
 	<enabled>true</enabled>
 	<mule-properties>
-		<property name="connector">com.webreach.mirth.connectors.tcp.TcpConnector</property>
-		<property name="dispatcher.factory">com.webreach.mirth.connectors.tcp.TcpMessageDispatcherFactory</property>
-		<property name="message.receiver">com.webreach.mirth.connectors.tcp.TcpMessageReceiver</property>
-		<property name="message.adapter">com.webreach.mirth.connectors.tcp.TcpMessageAdapter</property>
+		<property name="connector">com.mirth.connect.connectors.tcp.TcpConnector</property>
+		<property name="dispatcher.factory">com.mirth.connect.connectors.tcp.TcpMessageDispatcherFactory</property>
+		<property name="message.receiver">com.mirth.connect.connectors.tcp.TcpMessageReceiver</property>
+		<property name="message.adapter">com.mirth.connect.connectors.tcp.TcpMessageAdapter</property>
 		<property name="inbound.transformer">org.mule.transformers.simple.ByteArrayToString</property>
 		<property name="outbound.transformer">org.mule.transformers.simple.StringToByteArray</property>
 		<property name="endpoint.builder">org.mule.impl.endpoint.SocketEndpointBuilder</property>

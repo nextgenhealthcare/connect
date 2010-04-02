@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.awt.Point;
 import java.awt.event.KeyEvent;
@@ -23,8 +23,8 @@ import javax.swing.event.ListSelectionListener;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.model.User;
+import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.model.User;
 
 public class UserPanel extends javax.swing.JPanel {
 
@@ -134,7 +134,7 @@ public class UserPanel extends javax.swing.JPanel {
             for (int i = 0; i < parent.users.size(); i++) {
                 User temp = parent.users.get(i);
 
-                tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/user.png")), temp.getUsername());
+                tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/user.png")), temp.getUsername());
                 tableData[i][1] = temp.getFirstName();
                 tableData[i][2] = temp.getLastName();
                 tableData[i][3] = temp.getOrganization();
@@ -277,6 +277,6 @@ public class UserPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane usersPane;
-    public com.webreach.mirth.client.ui.components.MirthTable usersTable;
+    public com.mirth.connect.client.ui.components.MirthTable usersTable;
     // End of variables declaration//GEN-END:variables
 }

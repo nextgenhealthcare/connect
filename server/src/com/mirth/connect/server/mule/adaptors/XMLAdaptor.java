@@ -7,11 +7,11 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.mule.adaptors;
+package com.mirth.connect.server.mule.adaptors;
 
 import java.util.regex.Pattern;
 
-import com.webreach.mirth.model.MessageObject;
+import com.mirth.connect.model.MessageObject;
 
 public class XMLAdaptor extends Adaptor {
 

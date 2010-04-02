@@ -7,11 +7,11 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.panels.reference;
+package com.mirth.connect.client.ui.panels.reference;
 
 import java.util.ArrayList;
 
-import com.webreach.mirth.model.CodeTemplate;
+import com.mirth.connect.model.CodeTemplate;
 
 public class ReferenceListPanel extends javax.swing.JPanel {
 
@@ -36,7 +36,7 @@ public class ReferenceListPanel extends javax.swing.JPanel {
     private void initComponents() {
 
         variableReferenceScrollPane = new javax.swing.JScrollPane();
-        variableReferenceTable = new com.webreach.mirth.client.ui.panels.reference.VariableReferenceTable();
+        variableReferenceTable = new com.mirth.connect.client.ui.panels.reference.VariableReferenceTable();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -57,6 +57,6 @@ public class ReferenceListPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane variableReferenceScrollPane;
-    private com.webreach.mirth.client.ui.panels.reference.VariableReferenceTable variableReferenceTable;
+    private com.mirth.connect.client.ui.panels.reference.VariableReferenceTable variableReferenceTable;
     // End of variables declaration//GEN-END:variables
 }

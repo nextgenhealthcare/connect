@@ -5,10 +5,10 @@
 	<mirthVersion>2.0.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to send messages to MLLP compatabile servers. The connector can automatically retry failed messages and handle ACK responses.</description>
-	<clientClassName>com.webreach.mirth.connectors.mllp.LLPSender</clientClassName>
-	<serverClassName>com.webreach.mirth.connectors.mllp.MllpConnector</serverClassName>
-	<sharedClassName>com.webreach.mirth.connectors.mllp.LLPSenderProperties</sharedClassName>
-	<serviceClassName>com.webreach.mirth.connectors.mllp.LLPSenderConnectorService</serviceClassName>
+	<clientClassName>com.mirth.connect.connectors.mllp.LLPSender</clientClassName>
+	<serverClassName>com.mirth.connect.connectors.mllp.MllpConnector</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.mllp.LLPSenderProperties</sharedClassName>
+	<serviceClassName>com.mirth.connect.connectors.mllp.LLPSenderConnectorService</serviceClassName>
 	<library path="mllp-client.jar">
 		<type>CLIENT</type>
 	</library>
@@ -23,10 +23,10 @@
 	<type>DESTINATION</type>
 	<enabled>true</enabled>
 	<mule-properties>
-		<property name="connector">com.webreach.mirth.connectors.mllp.MllpConnector</property>
-		<property name="dispatcher.factory">com.webreach.mirth.connectors.mllp.MllpMessageDispatcherFactory</property>
-		<property name="message.receiver">com.webreach.mirth.connectors.mllp.MllpMessageReceiver</property>
-		<property name="message.adapter">com.webreach.mirth.connectors.mllp.MllpMessageAdapter</property>
+		<property name="connector">com.mirth.connect.connectors.mllp.MllpConnector</property>
+		<property name="dispatcher.factory">com.mirth.connect.connectors.mllp.MllpMessageDispatcherFactory</property>
+		<property name="message.receiver">com.mirth.connect.connectors.mllp.MllpMessageReceiver</property>
+		<property name="message.adapter">com.mirth.connect.connectors.mllp.MllpMessageAdapter</property>
 		<property name="inbound.transformer">org.mule.transformers.simple.ByteArrayToString</property>
 		<property name="outbound.transformer">org.mule.transformers.simple.StringToByteArray</property>
 		<property name="endpoint.builder">org.mule.impl.endpoint.SocketEndpointBuilder</property>

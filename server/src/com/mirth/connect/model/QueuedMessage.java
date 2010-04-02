@@ -7,13 +7,13 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model;
+package com.mirth.connect.model;
 
 import java.io.Serializable;
 
 import org.mule.umo.endpoint.UMOEndpointURI;
 
-import com.webreach.mirth.util.EqualsUtil;
+import com.mirth.connect.util.EqualsUtil;
 
 public class QueuedMessage implements Serializable {
 	private MessageObject messageObject;

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.ws;
+package com.mirth.connect.connectors.ws;
 
 import java.awt.Component;
 import java.awt.Point;
@@ -38,16 +38,16 @@ import javax.swing.table.TableCellEditor;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.webreach.mirth.client.ui.Mirth;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
-import com.webreach.mirth.connectors.ConnectorClass;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.Step;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
+import com.mirth.connect.connectors.ConnectorClass;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.Step;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -465,25 +465,25 @@ public class WebServiceListener extends ConnectorClass {
         listenerAddressButtonGroup = new javax.swing.ButtonGroup();
         classNameButtonGroup = new javax.swing.ButtonGroup();
         URL = new javax.swing.JLabel();
-        serviceNameField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        portField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        serviceNameField = new com.mirth.connect.client.ui.components.MirthTextField();
+        portField = new com.mirth.connect.client.ui.components.MirthTextField();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         URL1 = new javax.swing.JLabel();
-        listenerAddressField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        listenerAddressField = new com.mirth.connect.client.ui.components.MirthTextField();
         jLabel3 = new javax.swing.JLabel();
         methodField = new javax.swing.JTextField();
         wsdlURLField = new javax.swing.JTextField();
         responseFromLabel = new javax.swing.JLabel();
-        respondFromComboBox = new com.webreach.mirth.client.ui.components.MirthComboBox();
-        listenerSpecificRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        listenerAllRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        respondFromComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
+        listenerSpecificRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        listenerAllRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         webServiceLabel = new javax.swing.JLabel();
-        classNameDefaultRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        classNameCustomRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        classNameField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        classNameDefaultRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        classNameCustomRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        classNameField = new com.mirth.connect.client.ui.components.MirthTextField();
         credentialsPane = new javax.swing.JScrollPane();
-        credentialsTable = new com.webreach.mirth.client.ui.components.MirthTable();
+        credentialsTable = new com.mirth.connect.client.ui.components.MirthTable();
         newButton = new javax.swing.JButton();
         deleteButton = new javax.swing.JButton();
         credentialsLabel = new javax.swing.JLabel();
@@ -776,27 +776,27 @@ public class WebServiceListener extends ConnectorClass {
     private javax.swing.JLabel URL;
     private javax.swing.JLabel URL1;
     private javax.swing.ButtonGroup classNameButtonGroup;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton classNameCustomRadio;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton classNameDefaultRadio;
-    private com.webreach.mirth.client.ui.components.MirthTextField classNameField;
+    private com.mirth.connect.client.ui.components.MirthRadioButton classNameCustomRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton classNameDefaultRadio;
+    private com.mirth.connect.client.ui.components.MirthTextField classNameField;
     private javax.swing.JLabel classNameLabel;
     private javax.swing.JLabel credentialsLabel;
     private javax.swing.JScrollPane credentialsPane;
-    private com.webreach.mirth.client.ui.components.MirthTable credentialsTable;
+    private com.mirth.connect.client.ui.components.MirthTable credentialsTable;
     private javax.swing.JButton deleteButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.ButtonGroup listenerAddressButtonGroup;
-    private com.webreach.mirth.client.ui.components.MirthTextField listenerAddressField;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton listenerAllRadio;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton listenerSpecificRadio;
+    private com.mirth.connect.client.ui.components.MirthTextField listenerAddressField;
+    private com.mirth.connect.client.ui.components.MirthRadioButton listenerAllRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton listenerSpecificRadio;
     private javax.swing.JTextField methodField;
     private javax.swing.JButton newButton;
-    private com.webreach.mirth.client.ui.components.MirthTextField portField;
-    private com.webreach.mirth.client.ui.components.MirthComboBox respondFromComboBox;
+    private com.mirth.connect.client.ui.components.MirthTextField portField;
+    private com.mirth.connect.client.ui.components.MirthComboBox respondFromComboBox;
     private javax.swing.JLabel responseFromLabel;
-    private com.webreach.mirth.client.ui.components.MirthTextField serviceNameField;
+    private com.mirth.connect.client.ui.components.MirthTextField serviceNameField;
     private javax.swing.JLabel webServiceLabel;
     private javax.swing.JTextField wsdlURLField;
     // End of variables declaration//GEN-END:variables

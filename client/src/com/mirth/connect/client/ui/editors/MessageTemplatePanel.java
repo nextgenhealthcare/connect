@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.editors;
+package com.mirth.connect.client.ui.editors;
 
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
@@ -15,8 +15,8 @@ import java.util.Properties;
 
 import javax.swing.border.TitledBorder;
 
-import com.webreach.mirth.client.ui.TemplatePanel;
-import com.webreach.mirth.client.ui.TreePanel;
+import com.mirth.connect.client.ui.TemplatePanel;
+import com.mirth.connect.client.ui.TreePanel;
 
 public class MessageTemplatePanel extends javax.swing.JPanel {
 
@@ -179,7 +179,7 @@ public class MessageTemplatePanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JSplitPane split;
-    private com.webreach.mirth.client.ui.TemplatePanel templatePanelInbound;
-    private com.webreach.mirth.client.ui.TemplatePanel templatePanelOutbound;
+    private com.mirth.connect.client.ui.TemplatePanel templatePanelInbound;
+    private com.mirth.connect.client.ui.TemplatePanel templatePanelOutbound;
     // End of variables declaration//GEN-END:variables
 }

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.ncpdp;
+package com.mirth.connect.model.ncpdp;
 
 import java.util.ArrayList;
 import java.util.HashMap;

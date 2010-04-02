@@ -7,21 +7,19 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model;
+package com.mirth.connect.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import com.webreach.mirth.model.MessageObject.Protocol;
-import com.webreach.mirth.util.EqualsUtil;
+import com.mirth.connect.model.MessageObject.Protocol;
+import com.mirth.connect.util.EqualsUtil;
 
 /**
  * A Transformer represents a script which is executed on each message passing
  * through the Connector with which the transformer is associated.
- * 
- * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  * 
  */
 public class Transformer implements Serializable {

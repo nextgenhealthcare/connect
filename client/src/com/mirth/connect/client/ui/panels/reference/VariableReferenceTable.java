@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.panels.reference;
+package com.mirth.connect.client.ui.panels.reference;
 
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -17,7 +17,7 @@ import java.util.Set;
 
 import javax.swing.table.DefaultTableModel;
 
-import com.webreach.mirth.model.CodeTemplate;
+import com.mirth.connect.model.CodeTemplate;
 
 public class VariableReferenceTable extends ReferenceTable {
 

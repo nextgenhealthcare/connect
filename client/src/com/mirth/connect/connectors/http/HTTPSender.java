@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.http;
+package com.mirth.connect.connectors.http;
 
 import java.awt.Component;
 import java.awt.event.MouseEvent;
@@ -33,15 +33,15 @@ import javax.swing.table.TableCellEditor;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.Mirth;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.connectors.ConnectorClass;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.QueuedSenderProperties;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.util.ConnectionTestResponse;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.connectors.ConnectorClass;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.QueuedSenderProperties;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.util.ConnectionTestResponse;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -589,37 +589,37 @@ public class HTTPSender extends ConnectorClass {
         buttonGroup1 = new javax.swing.ButtonGroup();
         multipartButtonGroup = new javax.swing.ButtonGroup();
         jLabel7 = new javax.swing.JLabel();
-        httpURL = new com.webreach.mirth.client.ui.components.MirthTextField();
+        httpURL = new com.mirth.connect.client.ui.components.MirthTextField();
         newButton = new javax.swing.JButton();
         deleteButton = new javax.swing.JButton();
         propertiesPane = new javax.swing.JScrollPane();
-        propertiesTable = new com.webreach.mirth.client.ui.components.MirthTable();
+        propertiesTable = new com.mirth.connect.client.ui.components.MirthTable();
         jLabel2 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
-        post = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        get = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        channelNames = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        post = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        get = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        channelNames = new com.mirth.connect.client.ui.components.MirthComboBox();
         URL1 = new javax.swing.JLabel();
         headerVariablesPane = new javax.swing.JScrollPane();
-        headerVariablesTable = new com.webreach.mirth.client.ui.components.MirthTable();
+        headerVariablesTable = new com.mirth.connect.client.ui.components.MirthTable();
         jLabel3 = new javax.swing.JLabel();
         headerNewButton = new javax.swing.JButton();
         headerDeleteButton = new javax.swing.JButton();
         responseHeadersLabel = new javax.swing.JLabel();
-        includeResponseHeadersYesButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        includeResponseHeadersNoButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        rotateMessages = new com.webreach.mirth.client.ui.components.MirthCheckBox();
-        usePersistentQueuesNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        usePersistentQueuesYesRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        includeResponseHeadersYesButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        includeResponseHeadersNoButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        rotateMessages = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        usePersistentQueuesNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        usePersistentQueuesYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         jLabel36 = new javax.swing.JLabel();
         reconnectIntervalLabel = new javax.swing.JLabel();
-        reconnectInterval = new com.webreach.mirth.client.ui.components.MirthTextField();
-        put = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        delete = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        reconnectInterval = new com.mirth.connect.client.ui.components.MirthTextField();
+        put = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        delete = new com.mirth.connect.client.ui.components.MirthRadioButton();
         testConnection = new javax.swing.JButton();
         multipartLabel = new javax.swing.JLabel();
-        multipartYesButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        multipartNoButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        multipartYesButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        multipartNoButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -1081,17 +1081,17 @@ private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GE
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel URL1;
     private javax.swing.ButtonGroup buttonGroup1;
-    private com.webreach.mirth.client.ui.components.MirthComboBox channelNames;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton delete;
+    private com.mirth.connect.client.ui.components.MirthComboBox channelNames;
+    private com.mirth.connect.client.ui.components.MirthRadioButton delete;
     private javax.swing.JButton deleteButton;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton get;
+    private com.mirth.connect.client.ui.components.MirthRadioButton get;
     private javax.swing.JButton headerDeleteButton;
     private javax.swing.JButton headerNewButton;
     private javax.swing.JScrollPane headerVariablesPane;
-    private com.webreach.mirth.client.ui.components.MirthTable headerVariablesTable;
-    private com.webreach.mirth.client.ui.components.MirthTextField httpURL;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton includeResponseHeadersNoButton;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton includeResponseHeadersYesButton;
+    private com.mirth.connect.client.ui.components.MirthTable headerVariablesTable;
+    private com.mirth.connect.client.ui.components.MirthTextField httpURL;
+    private com.mirth.connect.client.ui.components.MirthRadioButton includeResponseHeadersNoButton;
+    private com.mirth.connect.client.ui.components.MirthRadioButton includeResponseHeadersYesButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -1100,20 +1100,20 @@ private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GE
     private javax.swing.ButtonGroup methodButtonGroup;
     private javax.swing.ButtonGroup multipartButtonGroup;
     private javax.swing.JLabel multipartLabel;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton multipartNoButton;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton multipartYesButton;
+    private com.mirth.connect.client.ui.components.MirthRadioButton multipartNoButton;
+    private com.mirth.connect.client.ui.components.MirthRadioButton multipartYesButton;
     private javax.swing.JButton newButton;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton post;
+    private com.mirth.connect.client.ui.components.MirthRadioButton post;
     private javax.swing.JScrollPane propertiesPane;
-    private com.webreach.mirth.client.ui.components.MirthTable propertiesTable;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton put;
-    private com.webreach.mirth.client.ui.components.MirthTextField reconnectInterval;
+    private com.mirth.connect.client.ui.components.MirthTable propertiesTable;
+    private com.mirth.connect.client.ui.components.MirthRadioButton put;
+    private com.mirth.connect.client.ui.components.MirthTextField reconnectInterval;
     private javax.swing.JLabel reconnectIntervalLabel;
     private javax.swing.ButtonGroup responseHeadersButtonGroup;
     private javax.swing.JLabel responseHeadersLabel;
-    private com.webreach.mirth.client.ui.components.MirthCheckBox rotateMessages;
+    private com.mirth.connect.client.ui.components.MirthCheckBox rotateMessages;
     private javax.swing.JButton testConnection;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton usePersistentQueuesNoRadio;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton usePersistentQueuesYesRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton usePersistentQueuesNoRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton usePersistentQueuesYesRadio;
     // End of variables declaration//GEN-END:variables
 }

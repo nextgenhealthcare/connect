@@ -25,13 +25,13 @@ import org.mule.util.queue.Queue;
 import org.mule.util.queue.QueueManager;
 import org.mule.util.queue.QueueSession;
 
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.QueuedMessage;
-import com.webreach.mirth.model.filters.MessageObjectFilter;
-import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.controllers.AlertController;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.QueuedMessage;
+import com.mirth.connect.model.filters.MessageObjectFilter;
+import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.controllers.AlertController;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MessageObjectController;
 
 public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 	private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();

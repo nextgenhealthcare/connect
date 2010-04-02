@@ -7,14 +7,14 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.dashboardstatus;
+package com.mirth.connect.plugins.dashboardstatus;
 
 import java.net.Socket;
 
-import com.webreach.mirth.plugins.ConnectorStatusPlugin;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
-import com.webreach.mirth.server.controllers.MonitoringController.Event;
+import com.mirth.connect.plugins.ConnectorStatusPlugin;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
+import com.mirth.connect.server.controllers.MonitoringController.Event;
 
 public class DashboardConnectorStatusMonitorLogger implements ConnectorStatusPlugin {
     private static final String DASHBOARD_STATUS_COLUMN_SERVER = "Dashboard Status Column Server";

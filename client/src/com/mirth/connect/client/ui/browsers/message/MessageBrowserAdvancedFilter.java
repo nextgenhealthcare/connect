@@ -7,11 +7,11 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.browsers.message;
+package com.mirth.connect.client.ui.browsers.message;
 
 import java.awt.*;
 
-import com.webreach.mirth.model.MessageObject;
+import com.mirth.connect.model.MessageObject;
 
 public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
 
@@ -28,7 +28,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
     private String protocol = "ALL";
 
     /** Creates new form MessageBrowserAdvancedFilter */
-    public MessageBrowserAdvancedFilter(com.webreach.mirth.client.ui.Frame parent, String title, boolean modal) {
+    public MessageBrowserAdvancedFilter(com.mirth.connect.client.ui.Frame parent, String title, boolean modal) {
         super(parent, title, modal);
 
         initComponents();
@@ -184,25 +184,25 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        connectorField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        connectorField = new com.mirth.connect.client.ui.components.MirthTextField();
         jLabel4 = new javax.swing.JLabel();
-        messageTypeField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        messageTypeField = new com.mirth.connect.client.ui.components.MirthTextField();
         jLabel7 = new javax.swing.JLabel();
-        messageSourceField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        messageSourceField = new com.mirth.connect.client.ui.components.MirthTextField();
         jLabel10 = new javax.swing.JLabel();
-        containing = new com.webreach.mirth.client.ui.components.MirthTextField();
+        containing = new com.mirth.connect.client.ui.components.MirthTextField();
         jLabel9 = new javax.swing.JLabel();
-        rawMessageCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
-        transformedMessageCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
-        encodedMessageCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
+        rawMessageCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        transformedMessageCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        encodedMessageCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
         jLabel8 = new javax.swing.JLabel();
         protocolComboBox = new javax.swing.JComboBox();
         advSearchOKButton = new javax.swing.JButton();
         advSearchCancelButton = new javax.swing.JButton();
-        errorsCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
+        errorsCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
         messageIdLabel = new javax.swing.JLabel();
-        messageIdField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        correlationIdField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        messageIdField = new com.mirth.connect.client.ui.components.MirthTextField();
+        correlationIdField = new com.mirth.connect.client.ui.components.MirthTextField();
         correlationIdLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -390,24 +390,24 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton advSearchCancelButton;
     private javax.swing.JButton advSearchOKButton;
-    private com.webreach.mirth.client.ui.components.MirthTextField connectorField;
-    private com.webreach.mirth.client.ui.components.MirthTextField containing;
-    private com.webreach.mirth.client.ui.components.MirthTextField correlationIdField;
+    private com.mirth.connect.client.ui.components.MirthTextField connectorField;
+    private com.mirth.connect.client.ui.components.MirthTextField containing;
+    private com.mirth.connect.client.ui.components.MirthTextField correlationIdField;
     private javax.swing.JLabel correlationIdLabel;
-    private com.webreach.mirth.client.ui.components.MirthCheckBox encodedMessageCheckBox;
-    private com.webreach.mirth.client.ui.components.MirthCheckBox errorsCheckBox;
+    private com.mirth.connect.client.ui.components.MirthCheckBox encodedMessageCheckBox;
+    private com.mirth.connect.client.ui.components.MirthCheckBox errorsCheckBox;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
-    private com.webreach.mirth.client.ui.components.MirthTextField messageIdField;
+    private com.mirth.connect.client.ui.components.MirthTextField messageIdField;
     private javax.swing.JLabel messageIdLabel;
-    private com.webreach.mirth.client.ui.components.MirthTextField messageSourceField;
-    private com.webreach.mirth.client.ui.components.MirthTextField messageTypeField;
+    private com.mirth.connect.client.ui.components.MirthTextField messageSourceField;
+    private com.mirth.connect.client.ui.components.MirthTextField messageTypeField;
     private javax.swing.JComboBox protocolComboBox;
-    private com.webreach.mirth.client.ui.components.MirthCheckBox rawMessageCheckBox;
-    private com.webreach.mirth.client.ui.components.MirthCheckBox transformedMessageCheckBox;
+    private com.mirth.connect.client.ui.components.MirthCheckBox rawMessageCheckBox;
+    private com.mirth.connect.client.ui.components.MirthCheckBox transformedMessageCheckBox;
     // End of variables declaration//GEN-END:variables
 }

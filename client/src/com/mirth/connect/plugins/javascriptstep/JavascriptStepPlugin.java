@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.javascriptstep;
+package com.mirth.connect.plugins.javascriptstep;
 
 import java.util.Map;
 
@@ -16,12 +16,12 @@ import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Script;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.editors.BasePanel;
-import com.webreach.mirth.client.ui.editors.ScriptPanel;
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
-import com.webreach.mirth.model.CodeTemplate.ContextType;
-import com.webreach.mirth.plugins.TransformerStepPlugin;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.editors.BasePanel;
+import com.mirth.connect.client.ui.editors.ScriptPanel;
+import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
+import com.mirth.connect.model.CodeTemplate.ContextType;
+import com.mirth.connect.plugins.TransformerStepPlugin;
 
 public class JavascriptStepPlugin extends TransformerStepPlugin {
 

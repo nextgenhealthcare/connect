@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.converters.tests;
+package com.mirth.connect.model.converters.tests;
 
 import java.io.File;
 import java.util.Properties;
@@ -18,8 +18,8 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.webreach.mirth.model.converters.DocumentSerializer;
-import com.webreach.mirth.model.converters.ER7Serializer;
+import com.mirth.connect.model.converters.DocumentSerializer;
+import com.mirth.connect.model.converters.ER7Serializer;
 
 public class HL7SerializerTest {
     public static final String ER7_TEST_FILE = "er7test.hl7";

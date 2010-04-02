@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.messagepruner;
+package com.mirth.connect.plugins.messagepruner;
 
 import java.util.Calendar;
 import java.util.List;
@@ -17,15 +17,15 @@ import java.util.prefs.Preferences;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.webreach.mirth.client.ui.CenterCellRenderer;
-import com.webreach.mirth.client.ui.Mirth;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.RefreshTableModel;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.client.ui.components.MirthTimePicker;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.client.ui.CenterCellRenderer;
+import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.RefreshTableModel;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.client.ui.components.MirthTimePicker;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class MessagePrunerPanel extends javax.swing.JPanel {
 
@@ -178,10 +178,10 @@ public class MessagePrunerPanel extends javax.swing.JPanel {
         buttonGroup1 = new javax.swing.ButtonGroup();
         buttonGroup2 = new javax.swing.ButtonGroup();
         jPanel1 = new javax.swing.JPanel();
-        dayButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        weekButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        monthButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        hourButton = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        dayButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        weekButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        monthButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        hourButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
         jLabel1 = new javax.swing.JLabel();
         dayOfWeekLabel = new javax.swing.JLabel();
         dayOfMonthLabel = new javax.swing.JLabel();
@@ -195,11 +195,11 @@ public class MessagePrunerPanel extends javax.swing.JPanel {
         weeklyAtLabel = new javax.swing.JLabel();
         monthlyAtLabel = new javax.swing.JLabel();
         dayOfWeek = new MirthTimePicker("EEEEEEEE", Calendar.DAY_OF_WEEK);
-        batchYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        batchYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
         jLabel2 = new javax.swing.JLabel();
-        batchNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        batchNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
         pruningBlockSizeLabel = new javax.swing.JLabel();
-        pruningBlockSizeField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        pruningBlockSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
         jPanel2 = new javax.swing.JPanel();
         logPane = new javax.swing.JScrollPane();
         logTable = null;
@@ -513,33 +513,33 @@ private void batchNoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST
         timeOfDayMonthly.setEnabled(true);
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.webreach.mirth.client.ui.components.MirthRadioButton batchNo;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton batchYes;
+    private com.mirth.connect.client.ui.components.MirthRadioButton batchNo;
+    private com.mirth.connect.client.ui.components.MirthRadioButton batchYes;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton dayButton;
-    private com.webreach.mirth.client.ui.components.MirthTimePicker dayOfMonth;
+    private com.mirth.connect.client.ui.components.MirthRadioButton dayButton;
+    private com.mirth.connect.client.ui.components.MirthTimePicker dayOfMonth;
     private javax.swing.JLabel dayOfMonthLabel;
-    private com.webreach.mirth.client.ui.components.MirthTimePicker dayOfWeek;
+    private com.mirth.connect.client.ui.components.MirthTimePicker dayOfWeek;
     private javax.swing.JLabel dayOfWeekLabel;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton hourButton;
+    private com.mirth.connect.client.ui.components.MirthRadioButton hourButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane logPane;
-    private com.webreach.mirth.client.ui.components.MirthTable logTable;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton monthButton;
+    private com.mirth.connect.client.ui.components.MirthTable logTable;
+    private com.mirth.connect.client.ui.components.MirthRadioButton monthButton;
     private javax.swing.JLabel monthlyAtLabel;
-    private com.webreach.mirth.client.ui.components.MirthTextField pruningBlockSizeField;
+    private com.mirth.connect.client.ui.components.MirthTextField pruningBlockSizeField;
     private javax.swing.JLabel pruningBlockSizeLabel;
-    private com.webreach.mirth.client.ui.components.MirthTimePicker timeOfDay;
+    private com.mirth.connect.client.ui.components.MirthTimePicker timeOfDay;
     private javax.swing.JLabel timeOfDayLabel;
-    private com.webreach.mirth.client.ui.components.MirthTimePicker timeOfDayMonthly;
+    private com.mirth.connect.client.ui.components.MirthTimePicker timeOfDayMonthly;
     private javax.swing.JLabel timeOfDayMonthlyLabel;
-    private com.webreach.mirth.client.ui.components.MirthTimePicker timeOfDayWeekly;
+    private com.mirth.connect.client.ui.components.MirthTimePicker timeOfDayWeekly;
     private javax.swing.JLabel timeOfDayWeeklyLabel;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton weekButton;
+    private com.mirth.connect.client.ui.components.MirthRadioButton weekButton;
     private javax.swing.JLabel weeklyAtLabel;
     // End of variables declaration//GEN-END:variables
 }

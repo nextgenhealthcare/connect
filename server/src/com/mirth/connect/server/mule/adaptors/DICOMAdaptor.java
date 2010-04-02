@@ -7,19 +7,19 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.mule.adaptors;
+package com.mirth.connect.server.mule.adaptors;
 
 import java.util.Iterator;
 import java.util.Map;
 
-import com.webreach.mirth.model.Attachment;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.converters.DICOMSerializer;
-import com.webreach.mirth.model.converters.IXMLSerializer;
-import com.webreach.mirth.model.converters.SerializerFactory;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.util.UUIDGenerator;
+import com.mirth.connect.model.Attachment;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.converters.DICOMSerializer;
+import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.model.converters.SerializerFactory;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MessageObjectController;
+import com.mirth.connect.server.util.UUIDGenerator;
 
 public class DICOMAdaptor extends Adaptor {
     protected void populateMessage(boolean emptyFilterAndTransformer) throws AdaptorException {

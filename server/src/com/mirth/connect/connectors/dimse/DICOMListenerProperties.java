@@ -7,11 +7,11 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.dimse;
+package com.mirth.connect.connectors.dimse;
 
 import java.util.Properties;
 
-import com.webreach.mirth.model.ComponentProperties;
+import com.mirth.connect.model.ComponentProperties;
 
 public class DICOMListenerProperties implements ComponentProperties {
     public static final String name = "DICOM Listener";

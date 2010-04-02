@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.mule.transformers;
+package com.mirth.connect.server.mule.transformers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,19 +24,19 @@ import org.mule.umo.UMOEventContext;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.transformer.TransformerException;
 
-import com.webreach.mirth.model.Attachment;
-import com.webreach.mirth.model.CodeTemplate;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
-import com.webreach.mirth.server.controllers.CodeTemplateController;
-import com.webreach.mirth.server.controllers.ConfigurationController;
-import com.webreach.mirth.server.controllers.ControllerException;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.ScriptController;
-import com.webreach.mirth.server.util.CompiledScriptCache;
-import com.webreach.mirth.server.util.GlobalChannelVariableStoreFactory;
-import com.webreach.mirth.server.util.GlobalVariableStore;
-import com.webreach.mirth.server.util.VMRouter;
+import com.mirth.connect.model.Attachment;
+import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
+import com.mirth.connect.server.controllers.CodeTemplateController;
+import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ControllerException;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.ScriptController;
+import com.mirth.connect.server.util.CompiledScriptCache;
+import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
+import com.mirth.connect.server.util.GlobalVariableStore;
+import com.mirth.connect.server.util.VMRouter;
 
 public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
     private String channelId;
@@ -170,13 +170,13 @@ public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 	public String generatePreprocessingScript(String preprocessingScript) {
 		logger.debug("generating preprocessing script");
 		StringBuilder script = new StringBuilder();
-		script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
+		script.append("importPackage(Packages.com.mirth.connect.server.util);\n");
 		// The addAttachment function let's us dynamically put data into
 		// attachment table
 		script.append("String.prototype.trim = function() { return this.replace(/^\\s+|\\s+$/g,\"\").replace(/^\\t+|\\t+$/g,\"\"); };");
 
 		script.append("function addAttachment(data, type) {");
-		script.append("var attachment = Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().createAttachment(data, type);");
+		script.append("var attachment = Packages.com.mirth.connect.server.controllers.MessageObjectController.getInstance().createAttachment(data, type);");
 		script.append("muleContext.getProperties().get('attachments').add(attachment); \n");
 		script.append("return attachment; }\n");
 

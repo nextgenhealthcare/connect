@@ -7,18 +7,16 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model;
+package com.mirth.connect.model;
 
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Properties;
 
-import com.webreach.mirth.util.EqualsUtil;
+import com.mirth.connect.util.EqualsUtil;
 
 /**
  * A SystemEvent represents a system event which can be logged.
- * 
- * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  * 
  */
 public class SystemEvent implements Serializable {

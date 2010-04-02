@@ -7,16 +7,16 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.mule.transformers;
+package com.mirth.connect.server.mule.transformers;
 
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.util.JavaScriptUtil;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.util.JavaScriptUtil;
 
 public class JavaScriptPostprocessor {
 	private Logger logger = Logger.getLogger(this.getClass());

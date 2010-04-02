@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,10 +17,10 @@ import java.util.Map.Entry;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
 
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory;
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListPanel;
-import com.webreach.mirth.client.ui.panels.reference.ReferenceListFactory.ListType;
-import com.webreach.mirth.model.CodeTemplate;
+import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
+import com.mirth.connect.client.ui.panels.reference.ReferenceListPanel;
+import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory.ListType;
+import com.mirth.connect.model.CodeTemplate;
 
 public class FunctionList extends javax.swing.JPanel {
 

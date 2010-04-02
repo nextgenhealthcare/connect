@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.servlets;
+package com.mirth.connect.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -17,14 +17,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.model.User;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.server.controllers.ConfigurationController;
-import com.webreach.mirth.server.controllers.ControllerException;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.EventController;
-import com.webreach.mirth.server.controllers.UserController;
+import com.mirth.connect.model.SystemEvent;
+import com.mirth.connect.model.User;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ControllerException;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.controllers.UserController;
 
 public class UserServlet extends MirthServlet {
 	public static final String SESSION_USER = "user";

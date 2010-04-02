@@ -26,7 +26,7 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="com.webreach.mirth.client.ui.ScriptPanel" name="scriptPanel">
+    <Component class="com.mirth.connect.client.ui.ScriptPanel" name="scriptPanel">
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new ScriptPanel(ContextType.GLOBAL_CONTEXT.getContext());"/>
       </AuxValues>

@@ -65,7 +65,7 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
-            <Component class="com.webreach.mirth.client.ui.TreePanel" name="treePanelOutbound">
+            <Component class="com.mirth.connect.client.ui.TreePanel" name="treePanelOutbound">
             </Component>
           </SubComponents>
         </Container>
@@ -86,7 +86,7 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
-            <Component class="com.webreach.mirth.client.ui.TreePanel" name="treePanelInbound">
+            <Component class="com.mirth.connect.client.ui.TreePanel" name="treePanelInbound">
             </Component>
           </SubComponents>
         </Container>

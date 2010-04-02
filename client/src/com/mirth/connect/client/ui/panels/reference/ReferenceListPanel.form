@@ -48,7 +48,7 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="com.webreach.mirth.client.ui.panels.reference.VariableReferenceTable" name="variableReferenceTable">
+        <Component class="com.mirth.connect.client.ui.panels.reference.VariableReferenceTable" name="variableReferenceTable">
         </Component>
       </SubComponents>
     </Container>

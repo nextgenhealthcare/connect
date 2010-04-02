@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.messagepruner;
+package com.mirth.connect.plugins.messagepruner;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -15,8 +15,8 @@ import java.util.Properties;
 
 import javax.swing.SwingWorker;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.plugins.ClientPanelPlugin;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.plugins.ClientPanelPlugin;
 
 public class MessagePrunerClient extends ClientPanelPlugin {
 

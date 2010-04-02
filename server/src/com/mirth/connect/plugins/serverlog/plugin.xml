@@ -9,13 +9,13 @@
 	<extensionPoint>
 		<name>Server Log</name>
 		<type>SERVER_PLUGIN</type>
-		<className>com.webreach.mirth.plugins.serverlog.ServerLogProvider</className>
+		<className>com.mirth.connect.plugins.serverlog.ServerLogProvider</className>
 		<mode>SERVER</mode>
 	</extensionPoint>
 	<extensionPoint>
 		<name>Server Log</name>
 		<type>CLIENT_DASHBOARD_PANE</type>
-		<className>com.webreach.mirth.plugins.serverlog.ServerLogClient</className>
+		<className>com.mirth.connect.plugins.serverlog.ServerLogClient</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
 	<library path="serverlog-client.jar">

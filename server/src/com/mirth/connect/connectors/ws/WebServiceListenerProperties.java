@@ -7,13 +7,13 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.ws;
+package com.mirth.connect.connectors.ws;
 
 import java.util.ArrayList;
 import java.util.Properties;
 
-import com.webreach.mirth.model.ComponentProperties;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.model.ComponentProperties;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class WebServiceListenerProperties implements ComponentProperties {
     public static final String name = "Web Service Listener";
@@ -31,7 +31,7 @@ public class WebServiceListenerProperties implements ComponentProperties {
         properties.put(DATATYPE, name);
         properties.put(WEBSERVICE_HOST, "0.0.0.0");
         properties.put(WEBSERVICE_PORT, "8081");
-        properties.put(WEBSERVICE_CLASS_NAME, "com.webreach.mirth.connectors.ws.DefaultAcceptMessage");
+        properties.put(WEBSERVICE_CLASS_NAME, "com.mirth.connect.connectors.ws.DefaultAcceptMessage");
         properties.put(WEBSERVICE_SERVICE_NAME, "Mirth");
         properties.put(WEBSERVICE_RESPONSE_VALUE, "None");
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();

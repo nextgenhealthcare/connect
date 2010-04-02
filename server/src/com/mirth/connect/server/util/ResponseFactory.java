@@ -7,10 +7,10 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.util;
+package com.mirth.connect.server.util;
 
-import com.webreach.mirth.model.Response;
-import com.webreach.mirth.model.Response.Status;
+import com.mirth.connect.model.Response;
+import com.mirth.connect.model.Response.Status;
 
 public class ResponseFactory {
 	public static Response getFailureResponse(String message) {

@@ -7,11 +7,11 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.js;
+package com.mirth.connect.connectors.js;
 
 import java.util.Properties;
 
-import com.webreach.mirth.model.ComponentProperties;
+import com.mirth.connect.model.ComponentProperties;
 
 public class JavaScriptReaderProperties implements ComponentProperties {
     public static final String name = "JavaScript Reader";

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.util;
+package com.mirth.connect.model.util;
 
 import java.io.Serializable;
 import java.util.Vector;
@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 
-import com.webreach.mirth.model.PasswordRequirements;
+import com.mirth.connect.model.PasswordRequirements;
 
 public class PasswordRequirementsChecker implements Serializable {
     private static final String CHARACTERS = " characters";

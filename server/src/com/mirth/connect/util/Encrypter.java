@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.util;
+package com.mirth.connect.util;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;

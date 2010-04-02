@@ -7,16 +7,16 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.doc;
+package com.mirth.connect.connectors.doc;
 
 import java.util.Properties;
 
 import javax.swing.SwingWorker;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.connectors.ConnectorClass;
-import com.webreach.mirth.util.ConnectionTestResponse;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.connectors.ConnectorClass;
+import com.mirth.connect.util.ConnectionTestResponse;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -151,17 +151,17 @@ public class DocumentWriter extends ConnectorClass {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        directoryField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        fileNameField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        passwordYes = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        passwordNo = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        directoryField = new com.mirth.connect.client.ui.components.MirthTextField();
+        fileNameField = new com.mirth.connect.client.ui.components.MirthTextField();
+        passwordYes = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        passwordNo = new com.mirth.connect.client.ui.components.MirthRadioButton();
         encryptedLabel = new javax.swing.JLabel();
-        passwordField = new com.webreach.mirth.client.ui.components.MirthPasswordField();
+        passwordField = new com.mirth.connect.client.ui.components.MirthPasswordField();
         passwordLabel = new javax.swing.JLabel();
-        fileContentsTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(false,false);
+        fileContentsTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(false,false);
         jLabel5 = new javax.swing.JLabel();
-        pdf = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        rtf = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        pdf = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        rtf = new com.mirth.connect.client.ui.components.MirthRadioButton();
         testConnection = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
@@ -373,20 +373,20 @@ public class DocumentWriter extends ConnectorClass {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
-    private com.webreach.mirth.client.ui.components.MirthTextField directoryField;
+    private com.mirth.connect.client.ui.components.MirthTextField directoryField;
     private javax.swing.JLabel encryptedLabel;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea fileContentsTextPane;
-    private com.webreach.mirth.client.ui.components.MirthTextField fileNameField;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea fileContentsTextPane;
+    private com.mirth.connect.client.ui.components.MirthTextField fileNameField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
-    private com.webreach.mirth.client.ui.components.MirthPasswordField passwordField;
+    private com.mirth.connect.client.ui.components.MirthPasswordField passwordField;
     private javax.swing.JLabel passwordLabel;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton passwordNo;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton passwordYes;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton pdf;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton rtf;
+    private com.mirth.connect.client.ui.components.MirthRadioButton passwordNo;
+    private com.mirth.connect.client.ui.components.MirthRadioButton passwordYes;
+    private com.mirth.connect.client.ui.components.MirthRadioButton pdf;
+    private com.mirth.connect.client.ui.components.MirthRadioButton rtf;
     private javax.swing.JButton testConnection;
     // End of variables declaration//GEN-END:variables
 }

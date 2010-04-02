@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.mule.transformers;
+package com.mirth.connect.server.mule.transformers;
 
 import java.util.List;
 import java.util.Map;
@@ -24,31 +24,31 @@ import org.mule.umo.UMOEventContext;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.transformer.TransformerException;
 
-import com.webreach.mirth.model.Attachment;
-import com.webreach.mirth.model.CodeTemplate;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
-import com.webreach.mirth.model.Connector.Mode;
-import com.webreach.mirth.model.MessageObject.Protocol;
-import com.webreach.mirth.model.converters.DefaultSerializerPropertiesFactory;
-import com.webreach.mirth.model.converters.IXMLSerializer;
-import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.MirthJavascriptTransformerException;
-import com.webreach.mirth.server.builders.ErrorMessageBuilder;
-import com.webreach.mirth.server.controllers.AlertController;
-import com.webreach.mirth.server.controllers.CodeTemplateController;
-import com.webreach.mirth.server.controllers.ControllerException;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.controllers.ScriptController;
-import com.webreach.mirth.server.controllers.TemplateController;
-import com.webreach.mirth.server.mule.adaptors.Adaptor;
-import com.webreach.mirth.server.mule.adaptors.AdaptorFactory;
-import com.webreach.mirth.server.util.CompiledScriptCache;
-import com.webreach.mirth.server.util.JavaScriptScopeUtil;
-import com.webreach.mirth.server.util.JavaScriptUtil;
-import com.webreach.mirth.server.util.UUIDGenerator;
-import com.webreach.mirth.util.StringUtil;
+import com.mirth.connect.model.Attachment;
+import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
+import com.mirth.connect.model.Connector.Mode;
+import com.mirth.connect.model.MessageObject.Protocol;
+import com.mirth.connect.model.converters.DefaultSerializerPropertiesFactory;
+import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.MirthJavascriptTransformerException;
+import com.mirth.connect.server.builders.ErrorMessageBuilder;
+import com.mirth.connect.server.controllers.AlertController;
+import com.mirth.connect.server.controllers.CodeTemplateController;
+import com.mirth.connect.server.controllers.ControllerException;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MessageObjectController;
+import com.mirth.connect.server.controllers.ScriptController;
+import com.mirth.connect.server.controllers.TemplateController;
+import com.mirth.connect.server.mule.adaptors.Adaptor;
+import com.mirth.connect.server.mule.adaptors.AdaptorFactory;
+import com.mirth.connect.server.util.CompiledScriptCache;
+import com.mirth.connect.server.util.JavaScriptScopeUtil;
+import com.mirth.connect.server.util.JavaScriptUtil;
+import com.mirth.connect.server.util.UUIDGenerator;
+import com.mirth.connect.util.StringUtil;
 
 public class JavaScriptTransformer extends AbstractEventAwareTransformer {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -171,8 +171,8 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
     public static String getJavascriptImportScript() {
         StringBuilder script = new StringBuilder();
-        script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
-        script.append("importPackage(Packages.com.webreach.mirth.model.converters);\n");
+        script.append("importPackage(Packages.com.mirth.connect.server.util);\n");
+        script.append("importPackage(Packages.com.mirth.connect.model.converters);\n");
         script.append("regex = new RegExp('');\n");
         script.append("xml = new XML('');\n");
         script.append("xmllist = new XMLList();\n");
@@ -528,13 +528,13 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
         // Helper function to get attachments
         newScript.append("function getAttachments() {");
-        newScript.append("return Packages.com.webreach.mirth.server.controllers.ControllerFactory.getFactory().createMessageObjectController().getAttachmentsByMessageId(messageObject.getId());");
+        newScript.append("return Packages.com.mirth.connect.server.controllers.ControllerFactory.getFactory().createMessageObjectController().getAttachmentsByMessageId(messageObject.getId());");
         newScript.append("}");
 
         // Helper function to set attachment
         newScript.append("function addAttachment(data, type) {");
-        newScript.append("var attachment = Packages.com.webreach.mirth.server.controllers.ControllerFactory.getFactory().createMessageObjectController().createAttachment(data, type, messageObject);messageObject.setAttachment(true);");
-        newScript.append("Packages.com.webreach.mirth.server.controllers.ControllerFactory.getFactory().createMessageObjectController().insertAttachment(attachment);\n");
+        newScript.append("var attachment = Packages.com.mirth.connect.server.controllers.ControllerFactory.getFactory().createMessageObjectController().createAttachment(data, type, messageObject);messageObject.setAttachment(true);");
+        newScript.append("Packages.com.mirth.connect.server.controllers.ControllerFactory.getFactory().createMessageObjectController().insertAttachment(attachment);\n");
         newScript.append("return attachment;\n");
         newScript.append("}\n");
 
@@ -607,7 +607,7 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
         }
 
         newScript.append(oldScript); // has doFilter() and doTransform()
-        newScript.append("if (doFilter() == true) { doTransform(); } else { messageObject.setStatus(Packages.com.webreach.mirth.model.MessageObject.Status.FILTERED); };");
+        newScript.append("if (doFilter() == true) { doTransform(); } else { messageObject.setStatus(Packages.com.mirth.connect.model.MessageObject.Status.FILTERED); };");
         return newScript.toString();
     }
 

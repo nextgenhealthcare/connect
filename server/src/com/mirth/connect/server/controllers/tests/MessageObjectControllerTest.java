@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers.tests;
+package com.mirth.connect.server.controllers.tests;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -21,18 +21,18 @@ import java.util.UUID;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import com.webreach.mirth.model.Attachment;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.filters.MessageObjectFilter;
-import com.webreach.mirth.server.controllers.ChannelController;
-import com.webreach.mirth.server.controllers.ConfigurationController;
-import com.webreach.mirth.server.controllers.ControllerException;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.tools.ScriptRunner;
-import com.webreach.mirth.server.util.UUIDGenerator;
+import com.mirth.connect.model.Attachment;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.filters.MessageObjectFilter;
+import com.mirth.connect.server.controllers.ChannelController;
+import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ControllerException;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MessageObjectController;
+import com.mirth.connect.server.tools.ScriptRunner;
+import com.mirth.connect.server.util.UUIDGenerator;
 
 public class MessageObjectControllerTest extends TestCase {
     private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();

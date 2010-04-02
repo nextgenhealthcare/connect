@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.mule.adaptors;
+package com.mirth.connect.server.mule.adaptors;
 
 import java.io.StringReader;
 
@@ -17,7 +17,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-import com.webreach.mirth.model.MessageObject;
+import com.mirth.connect.model.MessageObject;
 
 public class HL7v3Adaptor extends Adaptor {
 	protected void populateMessage(boolean emptyFilterAndTransformer) throws AdaptorException {

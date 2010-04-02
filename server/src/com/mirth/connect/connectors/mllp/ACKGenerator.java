@@ -7,15 +7,15 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.mllp;
+package com.mirth.connect.connectors.mllp;
 
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.model.MessageObject.Protocol;
-import com.webreach.mirth.model.converters.SerializerFactory;
-import com.webreach.mirth.server.util.DateUtil;
+import com.mirth.connect.model.MessageObject.Protocol;
+import com.mirth.connect.model.converters.SerializerFactory;
+import com.mirth.connect.server.util.DateUtil;
 
 //Supports ACKS from 2.1-2.4
 //2.5 is supported but the advanced fields in ERR and SFT are not supported

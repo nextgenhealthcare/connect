@@ -84,7 +84,7 @@
             </Component>
           </SubComponents>
         </Container>
-        <Container class="com.webreach.mirth.client.ui.MirthHeadingPanel" name="mirthHeadingPanel1">
+        <Container class="com.mirth.connect.client.ui.MirthHeadingPanel" name="mirthHeadingPanel1">
 
           <Layout>
             <DimensionLayout dim="0">

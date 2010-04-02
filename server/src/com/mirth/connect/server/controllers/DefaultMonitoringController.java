@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.lang.reflect.Constructor;
 import java.net.Socket;
@@ -17,10 +17,10 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.mule.umo.provider.UMOConnector;
 
-import com.webreach.mirth.model.ExtensionPoint;
-import com.webreach.mirth.model.ExtensionPointDefinition;
-import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.plugins.ConnectorStatusPlugin;
+import com.mirth.connect.model.ExtensionPoint;
+import com.mirth.connect.model.ExtensionPointDefinition;
+import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.plugins.ConnectorStatusPlugin;
 
 public class DefaultMonitoringController extends MonitoringController {
     private Logger logger = Logger.getLogger(this.getClass());

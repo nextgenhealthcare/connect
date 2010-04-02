@@ -65,7 +65,7 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
-            <Component class="com.webreach.mirth.client.ui.components.MirthTable" name="templateTable">
+            <Component class="com.mirth.connect.client.ui.components.MirthTable" name="templateTable">
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="null;"/>
               </AuxValues>
@@ -135,7 +135,7 @@
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="template">
+            <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="template">
               <Properties>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -144,7 +144,7 @@
                 </Property>
               </Properties>
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,true,ContextType.MESSAGE_CONTEXT.getContext());"/>
+                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,true,ContextType.MESSAGE_CONTEXT.getContext());"/>
               </AuxValues>
             </Component>
             <Component class="javax.swing.JLabel" name="templateLabel">
@@ -157,7 +157,7 @@
                 <Property name="text" type="java.lang.String" value="Context:"/>
               </Properties>
             </Component>
-            <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="context">
+            <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="context">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                   <StringArray count="4">
@@ -177,7 +177,7 @@
                 <Property name="text" type="java.lang.String" value="Description:"/>
               </Properties>
             </Component>
-            <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="description">
+            <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="description">
               <Events>
                 <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="descriptionKeyReleased"/>
               </Events>
@@ -187,7 +187,7 @@
                 <Property name="text" type="java.lang.String" value="Type:"/>
               </Properties>
             </Component>
-            <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="type">
+            <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="type">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                   <StringArray count="4">

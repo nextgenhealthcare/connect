@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.extensionmanager;
+package com.mirth.connect.plugins.extensionmanager;
 
 import java.awt.Dimension;
 import java.awt.Point;
@@ -32,16 +32,16 @@ import javax.swing.table.TableRowSorter;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.core.IgnoredComponent;
-import com.webreach.mirth.client.ui.BareBonesBrowserLaunch;
-import com.webreach.mirth.client.ui.Mirth;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.RefreshTableModel;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.model.MetaData;
-import com.webreach.mirth.model.UpdateInfo;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.core.IgnoredComponent;
+import com.mirth.connect.client.ui.BareBonesBrowserLaunch;
+import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.RefreshTableModel;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.model.MetaData;
+import com.mirth.connect.model.UpdateInfo;
 
 public class ExtensionUpdateDialog extends javax.swing.JDialog {
 
@@ -430,7 +430,7 @@ public class ExtensionUpdateDialog extends javax.swing.JDialog {
         installSelectedButton = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         loadedExtensionScrollPane = new javax.swing.JScrollPane();
-        loadedExtensionTable = new com.webreach.mirth.client.ui.components.MirthTable();
+        loadedExtensionTable = new com.mirth.connect.client.ui.components.MirthTable();
         progressBar = new javax.swing.JProgressBar();
         ignoredCheckBox = new javax.swing.JCheckBox();
         newCheckBox = new javax.swing.JCheckBox();
@@ -663,7 +663,7 @@ private void optionalCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane loadedExtensionScrollPane;
-    private com.webreach.mirth.client.ui.components.MirthTable loadedExtensionTable;
+    private com.mirth.connect.client.ui.components.MirthTable loadedExtensionTable;
     private javax.swing.JCheckBox newCheckBox;
     private javax.swing.JCheckBox optionalCheckBox;
     private javax.swing.JProgressBar progressBar;

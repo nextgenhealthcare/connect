@@ -7,26 +7,26 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.components;
+package com.mirth.connect.client.ui.components;
 
 import java.awt.event.ActionEvent;
 import java.util.Properties;
 
 import javax.swing.JTable;
 
-import com.webreach.mirth.client.ui.DataTypesDialog;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.beans.DelimitedProperties;
-import com.webreach.mirth.client.ui.beans.EDIProperties;
-import com.webreach.mirth.client.ui.beans.HL7Properties;
-import com.webreach.mirth.client.ui.beans.HL7V3Properties;
-import com.webreach.mirth.client.ui.beans.NCPDPProperties;
-import com.webreach.mirth.client.ui.beans.X12Properties;
-import com.webreach.mirth.client.ui.beans.XMLProperties;
-import com.webreach.mirth.client.ui.editors.BoundPropertiesSheetDialog;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.MessageObject;
+import com.mirth.connect.client.ui.DataTypesDialog;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.beans.DelimitedProperties;
+import com.mirth.connect.client.ui.beans.EDIProperties;
+import com.mirth.connect.client.ui.beans.HL7Properties;
+import com.mirth.connect.client.ui.beans.HL7V3Properties;
+import com.mirth.connect.client.ui.beans.NCPDPProperties;
+import com.mirth.connect.client.ui.beans.X12Properties;
+import com.mirth.connect.client.ui.beans.XMLProperties;
+import com.mirth.connect.client.ui.editors.BoundPropertiesSheetDialog;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.MessageObject;
 
 public class DataTypesButtonCellEditor extends MirthButtonCellEditor {
 

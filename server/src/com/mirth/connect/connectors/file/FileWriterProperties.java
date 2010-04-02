@@ -7,11 +7,11 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.file;
+package com.mirth.connect.connectors.file;
 
 import java.util.Properties;
 
-import com.webreach.mirth.model.ComponentProperties;
+import com.mirth.connect.model.ComponentProperties;
 
 public class FileWriterProperties implements ComponentProperties {
     public static final String name = "File Writer";
@@ -70,7 +70,7 @@ public class FileWriterProperties implements ComponentProperties {
      * connector-specific properties should reside in the connector or the
      * connector-specific properties themselves. Rather than fix it everywhere,
      * since I'm short of time, I've fixed it only for the new merged File
-     * connector. (erikh@webreachinc.com)
+     * connector.
      * 
      * @param properties
      *            The properties to be decided to an information string.

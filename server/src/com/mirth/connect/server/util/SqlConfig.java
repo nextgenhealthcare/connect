@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.util;
+package com.mirth.connect.server.util;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,11 +26,11 @@ import com.ibatis.common.logging.LogFactory;
 import com.ibatis.common.resources.Resources;
 import com.ibatis.sqlmap.client.SqlMapClient;
 import com.ibatis.sqlmap.client.SqlMapClientBuilder;
-import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.model.converters.DocumentSerializer;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.ExtensionController;
-import com.webreach.mirth.util.PropertyLoader;
+import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.converters.DocumentSerializer;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.ExtensionController;
+import com.mirth.connect.util.PropertyLoader;
 
 public class SqlConfig {
     private static SqlMapClient sqlMapClient = null;
@@ -51,7 +51,7 @@ public class SqlConfig {
             if (sqlMapClient == null) {
                 try {
                     LogFactory.selectLog4JLogging();
-                    System.setProperty("derby.stream.error.method", "com.webreach.mirth.server.Mirth.getNullOutputStream");
+                    System.setProperty("derby.stream.error.method", "com.mirth.connect.server.Mirth.getNullOutputStream");
                     Map<String, PluginMetaData> plugins = ControllerFactory.getFactory().createExtensionController().getPluginMetaData();
                     String database = PropertyLoader.getProperty(PropertyLoader.loadProperties("mirth"), "database");
                     BufferedReader br = new BufferedReader(Resources.getResourceAsReader(database + File.separator + database + "-SqlMapConfig.xml"));

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server;
+package com.mirth.connect.server;
 
 public class MirthException extends Exception {
 	public MirthException(Throwable cause) {

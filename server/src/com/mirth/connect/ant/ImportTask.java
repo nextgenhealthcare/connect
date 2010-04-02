@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.ant;
+package com.mirth.connect.ant;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -20,12 +20,12 @@ import java.util.regex.Pattern;
 
 import org.apache.tools.ant.BuildException;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.ServerConfiguration;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.model.util.ImportConverter;
-import com.webreach.mirth.util.PropertyVerifier;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ServerConfiguration;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.model.util.ImportConverter;
+import com.mirth.connect.util.PropertyVerifier;
 
 /**
  * an ant task to import stuff into Mirth

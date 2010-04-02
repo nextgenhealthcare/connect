@@ -7,12 +7,12 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Point;
 
-import com.webreach.mirth.model.User;
+import com.mirth.connect.model.User;
 
 /**
  * A dialog for creating a new user or editing a current user
@@ -83,9 +83,9 @@ public class UserDialog extends javax.swing.JDialog implements UserDialogInterfa
         finishButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
-        mirthHeadingPanel1 = new com.webreach.mirth.client.ui.MirthHeadingPanel();
+        mirthHeadingPanel1 = new com.mirth.connect.client.ui.MirthHeadingPanel();
         jLabel2 = new javax.swing.JLabel();
-        userEditPanel = new com.webreach.mirth.client.ui.UserEditPanel();
+        userEditPanel = new com.mirth.connect.client.ui.UserEditPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("User");
@@ -210,7 +210,7 @@ private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JButton finishButton;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JSeparator jSeparator1;
-    private com.webreach.mirth.client.ui.MirthHeadingPanel mirthHeadingPanel1;
-    private com.webreach.mirth.client.ui.UserEditPanel userEditPanel;
+    private com.mirth.connect.client.ui.MirthHeadingPanel mirthHeadingPanel1;
+    private com.mirth.connect.client.ui.UserEditPanel userEditPanel;
     // End of variables declaration//GEN-END:variables
 }

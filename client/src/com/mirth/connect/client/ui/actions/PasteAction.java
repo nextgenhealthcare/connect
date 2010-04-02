@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.actions;
+package com.mirth.connect.client.ui.actions;
 
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
@@ -16,7 +16,7 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
-import com.webreach.mirth.client.ui.components.MirthTextInterface;
+import com.mirth.connect.client.ui.components.MirthTextInterface;
 
 /** Allows for Pasting in text components. */
 public class PasteAction extends AbstractAction {

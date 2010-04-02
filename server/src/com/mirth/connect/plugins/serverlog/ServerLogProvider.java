@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.serverlog;
+package com.mirth.connect.plugins.serverlog;
 
 import java.util.LinkedList;
 import java.util.Properties;
@@ -18,9 +18,9 @@ import org.apache.log4j.Layout;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
-import com.webreach.mirth.model.converters.ObjectCloner;
-import com.webreach.mirth.model.converters.ObjectClonerException;
-import com.webreach.mirth.plugins.ServerPlugin;
+import com.mirth.connect.model.converters.ObjectCloner;
+import com.mirth.connect.model.converters.ObjectClonerException;
+import com.mirth.connect.plugins.ServerPlugin;
 
 /**
  * Created by IntelliJ IDEA.

@@ -7,11 +7,11 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.util;
+package com.mirth.connect.server.util;
 
 import java.util.Map;
 
-import com.webreach.mirth.model.ChannelStatistics;
+import com.mirth.connect.model.ChannelStatistics;
 
 public class ChannelStatisticsCache {
 	private Map<String, ChannelStatistics> cache;

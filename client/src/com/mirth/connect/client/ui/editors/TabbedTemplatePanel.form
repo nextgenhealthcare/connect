@@ -75,7 +75,7 @@
 
               <Layout class="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout"/>
               <SubComponents>
-                <Component class="com.webreach.mirth.client.ui.FunctionList" name="functionList">
+                <Component class="com.mirth.connect.client.ui.FunctionList" name="functionList">
                   <Properties>
                     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                       <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
@@ -101,7 +101,7 @@
 
                   <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
                   <SubComponents>
-                    <Component class="com.webreach.mirth.client.ui.panels.reference.VariableReferenceTable" name="variableTable">
+                    <Component class="com.mirth.connect.client.ui.panels.reference.VariableReferenceTable" name="variableTable">
                     </Component>
                   </SubComponents>
                 </Container>
@@ -139,7 +139,7 @@
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="com.webreach.mirth.client.ui.editors.MessageTreePanel" name="messageTreePanel">
+            <Component class="com.mirth.connect.client.ui.editors.MessageTreePanel" name="messageTreePanel">
             </Component>
           </SubComponents>
         </Container>
@@ -173,7 +173,7 @@
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="com.webreach.mirth.client.ui.editors.MessageTemplatePanel" name="messageTemplatePanel">
+            <Component class="com.mirth.connect.client.ui.editors.MessageTemplatePanel" name="messageTemplatePanel">
               <AuxValues>
                 <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MessageTemplatePanel(parent);"/>
               </AuxValues>

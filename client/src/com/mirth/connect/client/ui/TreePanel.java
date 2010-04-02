@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.awt.Cursor;
 import java.awt.datatransfer.DataFlavor;
@@ -44,19 +44,19 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.webreach.mirth.client.ui.components.MirthTree;
-import com.webreach.mirth.client.ui.components.MirthTreeNode;
-import com.webreach.mirth.client.ui.components.MirthTree.FilterTreeModel;
-import com.webreach.mirth.client.ui.editors.MessageTreePanel;
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.MessageObject.Protocol;
-import com.webreach.mirth.model.converters.IXMLSerializer;
-import com.webreach.mirth.model.converters.SerializerFactory;
-import com.webreach.mirth.model.dicom.DICOMVocabulary;
-import com.webreach.mirth.model.util.MessageVocabulary;
-import com.webreach.mirth.model.util.MessageVocabularyFactory;
-import com.webreach.mirth.util.StringUtil;
+import com.mirth.connect.client.ui.components.MirthTree;
+import com.mirth.connect.client.ui.components.MirthTreeNode;
+import com.mirth.connect.client.ui.components.MirthTree.FilterTreeModel;
+import com.mirth.connect.client.ui.editors.MessageTreePanel;
+import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.MessageObject.Protocol;
+import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.model.converters.SerializerFactory;
+import com.mirth.connect.model.dicom.DICOMVocabulary;
+import com.mirth.connect.model.util.MessageVocabulary;
+import com.mirth.connect.model.util.MessageVocabularyFactory;
+import com.mirth.connect.util.StringUtil;
 
 public class TreePanel extends javax.swing.JPanel {
 
@@ -619,7 +619,7 @@ public class TreePanel extends javax.swing.JPanel {
         jLabel1 = new javax.swing.JLabel();
         filterTextBox = new javax.swing.JTextField();
         treePane = new javax.swing.JScrollPane();
-        tree = new com.webreach.mirth.client.ui.components.MirthTree();
+        tree = new com.mirth.connect.client.ui.components.MirthTree();
         exact = new javax.swing.JCheckBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
@@ -666,7 +666,7 @@ public class TreePanel extends javax.swing.JPanel {
     private javax.swing.JCheckBox exact;
     private javax.swing.JTextField filterTextBox;
     private javax.swing.JLabel jLabel1;
-    private com.webreach.mirth.client.ui.components.MirthTree tree;
+    private com.mirth.connect.client.ui.components.MirthTree tree;
     private javax.swing.JScrollPane treePane;
     // End of variables declaration//GEN-END:variables
 }

@@ -5,9 +5,9 @@
 	<mirthVersion>2.0.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to send messages using DICOM protocol.</description>
-	<clientClassName>com.webreach.mirth.connectors.dimse.DICOMSender</clientClassName>
-	<serverClassName>com.webreach.mirth.connectors.dimse.DICOMConnector</serverClassName>
-	<sharedClassName>com.webreach.mirth.connectors.dimse.DICOMSenderProperties</sharedClassName>
+	<clientClassName>com.mirth.connect.connectors.dimse.DICOMSender</clientClassName>
+	<serverClassName>com.mirth.connect.connectors.dimse.DICOMConnector</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.dimse.DICOMSenderProperties</sharedClassName>
 	<library path="dicom-client.jar">
 		<type>CLIENT</type>
 	</library>
@@ -43,10 +43,10 @@
 	<type>DESTINATION</type>
 	<enabled>true</enabled>
 	<mule-properties>
-		<property name="connector">com.webreach.mirth.connectors.dimse.DICOMConnector</property>
-		<property name="dispatcher.factory">com.webreach.mirth.connectors.dimse.DICOMMessageDispatcherFactory</property>
-		<property name="message.receiver">com.webreach.mirth.connectors.dimse.DICOMMessageReceiver</property>
-		<property name="message.adapter">com.webreach.mirth.connectors.dimse.DICOMMessageAdapter</property>
-		<property name="endpoint.builder">com.webreach.mirth.connectors.file.FileEndpointBuilder</property>
+		<property name="connector">com.mirth.connect.connectors.dimse.DICOMConnector</property>
+		<property name="dispatcher.factory">com.mirth.connect.connectors.dimse.DICOMMessageDispatcherFactory</property>
+		<property name="message.receiver">com.mirth.connect.connectors.dimse.DICOMMessageReceiver</property>
+		<property name="message.adapter">com.mirth.connect.connectors.dimse.DICOMMessageAdapter</property>
+		<property name="endpoint.builder">com.mirth.connect.connectors.file.FileEndpointBuilder</property>
 	</mule-properties>
 </connectorMetaData>

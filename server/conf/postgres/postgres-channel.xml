@@ -10,7 +10,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<result property="revision" column="REVISION" javaType="java.lang.Integer" />
 	</resultMap>
 
-	<resultMap class="com.webreach.mirth.model.Channel" id="get-channel-result">
+	<resultMap class="com.mirth.connect.model.Channel" id="get-channel-result">
 		<result property="id" column="ID" />
 		<result property="name" column="NAME" />
 		<result property="description" column="DESCRIPTION" />
@@ -27,7 +27,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<result property="shutdownScript" column="SHUTDOWN_SCRIPT" />
 	</resultMap>
 	
-	<select id="getChannel" parameterClass="com.webreach.mirth.model.Channel" resultMap="get-channel-result">
+	<select id="getChannel" parameterClass="com.mirth.connect.model.Channel" resultMap="get-channel-result">
 		SELECT *
 		FROM CHANNEL
 		<dynamic prepend="WHERE">
@@ -44,13 +44,13 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		SELECT ID, REVISION FROM CHANNEL
 	</select>
 
-	<insert id="insertChannel" parameterClass="com.webreach.mirth.model.Channel">
+	<insert id="insertChannel" parameterClass="com.mirth.connect.model.Channel">
 		INSERT INTO
 		CHANNEL (ID, NAME, DESCRIPTION, IS_ENABLED, VERSION, REVISION, LAST_MODIFIED, SOURCE_CONNECTOR, DESTINATION_CONNECTORS, PROPERTIES, PREPROCESSING_SCRIPT, POSTPROCESSING_SCRIPT, DEPLOY_SCRIPT, SHUTDOWN_SCRIPT)
 		VALUES (#id#, #name#, #description#, #enabled#, #version#, #revision#, #lastModified#, #sourceConnector#, #destinationConnectors#, #properties#, #preprocessingScript#, #postprocessingScript#, #deployScript#, #shutdownScript#)
 	</insert>
 	
-	<update id="updateChannel" parameterClass="com.webreach.mirth.model.Channel">
+	<update id="updateChannel" parameterClass="com.mirth.connect.model.Channel">
 		UPDATE CHANNEL
 		SET NAME = #name#,
 			DESCRIPTION = #description#,
@@ -68,7 +68,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		WHERE ID = #id#
 	</update>
 	
-	<delete id="deleteChannel" parameterClass="com.webreach.mirth.model.Channel">
+	<delete id="deleteChannel" parameterClass="com.mirth.connect.model.Channel">
 		DELETE FROM CHANNEL
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="id">

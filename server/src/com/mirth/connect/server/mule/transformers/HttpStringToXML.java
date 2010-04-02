@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.mule.transformers;
+package com.mirth.connect.server.mule.transformers;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -20,12 +20,11 @@ import org.mule.umo.UMOEventContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.webreach.mirth.model.converters.DocumentSerializer;
+import com.mirth.connect.model.converters.DocumentSerializer;
 
 /**
  * Transforms a database result row map into an XML string.
  *  
- * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  */
 public class HttpStringToXML extends AbstractTransformer {
 	private Logger logger = Logger.getLogger(HttpStringToXML.class);

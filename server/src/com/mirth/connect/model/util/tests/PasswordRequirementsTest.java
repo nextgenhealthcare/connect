@@ -7,16 +7,16 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.util.tests;
+package com.mirth.connect.model.util.tests;
 
 import java.util.Vector;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import com.webreach.mirth.model.PasswordRequirements;
-import com.webreach.mirth.model.util.PasswordRequirementsChecker;
-import com.webreach.mirth.server.controllers.ControllerException;
+import com.mirth.connect.model.PasswordRequirements;
+import com.mirth.connect.model.util.PasswordRequirementsChecker;
+import com.mirth.connect.server.controllers.ControllerException;
 
 public class PasswordRequirementsTest extends TestCase {
 	

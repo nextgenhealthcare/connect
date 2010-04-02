@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.http;
+package com.mirth.connect.connectors.http;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -21,12 +21,12 @@ import java.util.regex.Pattern;
 
 import javax.swing.DefaultComboBoxModel;
 
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.editors.transformer.TransformerPane;
-import com.webreach.mirth.connectors.ConnectorClass;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.Step;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.editors.transformer.TransformerPane;
+import com.mirth.connect.connectors.ConnectorClass;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.Step;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -178,18 +178,18 @@ public class HTTPListener extends ConnectorClass {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        bufferSizeField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        receiveTimeoutField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        listenerAddressField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        listenerPortField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        keepConnectionOpenYesRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        keepConnectionOpenNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        bufferSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
+        receiveTimeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
+        listenerAddressField = new com.mirth.connect.client.ui.components.MirthTextField();
+        listenerPortField = new com.mirth.connect.client.ui.components.MirthTextField();
+        keepConnectionOpenYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        keepConnectionOpenNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         responseFromLabel = new javax.swing.JLabel();
-        responseFromTransformer = new com.webreach.mirth.client.ui.components.MirthComboBox();
-        appendPayloadYesRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        appendPayloadNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        responseFromTransformer = new com.mirth.connect.client.ui.components.MirthComboBox();
+        appendPayloadYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        appendPayloadNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         jLabel6 = new javax.swing.JLabel();
-        payloadURLEncodingComboBox = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        payloadURLEncodingComboBox = new com.mirth.connect.client.ui.components.MirthComboBox();
         jLabel7 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
@@ -423,9 +423,9 @@ public class HTTPListener extends ConnectorClass {
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup appendPayloadGroup;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton appendPayloadNoRadio;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton appendPayloadYesRadio;
-    private com.webreach.mirth.client.ui.components.MirthTextField bufferSizeField;
+    private com.mirth.connect.client.ui.components.MirthRadioButton appendPayloadNoRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton appendPayloadYesRadio;
+    private com.mirth.connect.client.ui.components.MirthTextField bufferSizeField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -434,13 +434,13 @@ public class HTTPListener extends ConnectorClass {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.ButtonGroup keepConnectionOpenGroup;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenNoRadio;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenYesRadio;
-    private com.webreach.mirth.client.ui.components.MirthTextField listenerAddressField;
-    private com.webreach.mirth.client.ui.components.MirthTextField listenerPortField;
-    private com.webreach.mirth.client.ui.components.MirthComboBox payloadURLEncodingComboBox;
-    private com.webreach.mirth.client.ui.components.MirthTextField receiveTimeoutField;
+    private com.mirth.connect.client.ui.components.MirthRadioButton keepConnectionOpenNoRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton keepConnectionOpenYesRadio;
+    private com.mirth.connect.client.ui.components.MirthTextField listenerAddressField;
+    private com.mirth.connect.client.ui.components.MirthTextField listenerPortField;
+    private com.mirth.connect.client.ui.components.MirthComboBox payloadURLEncodingComboBox;
+    private com.mirth.connect.client.ui.components.MirthTextField receiveTimeoutField;
     private javax.swing.JLabel responseFromLabel;
-    private com.webreach.mirth.client.ui.components.MirthComboBox responseFromTransformer;
+    private com.mirth.connect.client.ui.components.MirthComboBox responseFromTransformer;
     // End of variables declaration//GEN-END:variables
 }

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.awt.Cursor;
 import java.util.Properties;
@@ -15,10 +15,10 @@ import java.util.Properties;
 import javax.swing.ImageIcon;
 import javax.swing.SwingWorker;
 
-import com.webreach.mirth.client.core.Client;
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.core.VersionMismatchException;
-import com.webreach.mirth.model.User;
+import com.mirth.connect.client.core.Client;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.core.VersionMismatchException;
+import com.mirth.connect.model.User;
 
 public class LoginPanel extends javax.swing.JFrame {
 
@@ -32,7 +32,7 @@ public class LoginPanel extends javax.swing.JFrame {
         jLabel2.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         jLabel5.setForeground(UIConstants.HEADER_TITLE_TEXT_COLOR);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setIconImage(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/mirth_32_ico.png")).getImage());
+        setIconImage(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/mirth_32_ico.png")).getImage());
         setLocationRelativeTo(null);
         setVisible(true);
         username.grabFocus();
@@ -89,14 +89,14 @@ public class LoginPanel extends javax.swing.JFrame {
         serverName = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        mirthHeadingPanel2 = new com.webreach.mirth.client.ui.MirthHeadingPanel();
+        mirthHeadingPanel2 = new com.mirth.connect.client.ui.MirthHeadingPanel();
         jLabel2 = new javax.swing.JLabel();
         username = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         password = new javax.swing.JPasswordField();
         mirthCorpImage = new javax.swing.JLabel();
         loggingIn = new javax.swing.JPanel();
-        mirthHeadingPanel1 = new com.webreach.mirth.client.ui.MirthHeadingPanel();
+        mirthHeadingPanel1 = new com.mirth.connect.client.ui.MirthHeadingPanel();
         jLabel5 = new javax.swing.JLabel();
         loginProgress = new javax.swing.JProgressBar();
         status = new javax.swing.JLabel();
@@ -453,8 +453,8 @@ public class LoginPanel extends javax.swing.JFrame {
     private javax.swing.JProgressBar loginProgress;
     private javax.swing.JLabel mirthCorpImage;
     private javax.swing.JLabel mirthCorpImage1;
-    private com.webreach.mirth.client.ui.MirthHeadingPanel mirthHeadingPanel1;
-    private com.webreach.mirth.client.ui.MirthHeadingPanel mirthHeadingPanel2;
+    private com.mirth.connect.client.ui.MirthHeadingPanel mirthHeadingPanel1;
+    private com.mirth.connect.client.ui.MirthHeadingPanel mirthHeadingPanel2;
     private javax.swing.JPasswordField password;
     private javax.swing.JTextField serverName;
     private javax.swing.JLabel status;

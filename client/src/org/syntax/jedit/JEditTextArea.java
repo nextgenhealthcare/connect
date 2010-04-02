@@ -76,7 +76,7 @@ import javax.swing.undo.UndoableEdit;
 import org.syntax.jedit.tokenmarker.Token;
 import org.syntax.jedit.tokenmarker.TokenMarker;
 
-import com.webreach.mirth.client.ui.editors.LineNumber;
+import com.mirth.connect.client.ui.editors.LineNumber;
 
 /**
  * jEdit's text area component. It is more suited for editing program source

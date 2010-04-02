@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers.tests;
+package com.mirth.connect.server.controllers.tests;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -16,13 +16,13 @@ import java.util.List;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import com.webreach.mirth.model.Alert;
-import com.webreach.mirth.server.controllers.AlertController;
-import com.webreach.mirth.server.controllers.ConfigurationController;
-import com.webreach.mirth.server.controllers.ControllerException;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.tools.ScriptRunner;
-import com.webreach.mirth.server.util.UUIDGenerator;
+import com.mirth.connect.model.Alert;
+import com.mirth.connect.server.controllers.AlertController;
+import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ControllerException;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.tools.ScriptRunner;
+import com.mirth.connect.server.util.UUIDGenerator;
 
 public class AlertControllerTest extends TestCase {
 	private AlertController alertController = ControllerFactory.getFactory().createAlertController();

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Point;
@@ -18,11 +18,11 @@ import java.util.TreeSet;
 
 import javax.swing.SwingWorker;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.ExtensionPoint;
-import com.webreach.mirth.model.ExtensionPointDefinition;
-import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.plugins.ChannelWizardPlugin;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ExtensionPoint;
+import com.mirth.connect.model.ExtensionPointDefinition;
+import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.plugins.ChannelWizardPlugin;
 
 /**
  * A dialog for creating a new channel
@@ -129,7 +129,7 @@ public class ChannelWizard extends javax.swing.JDialog {
         runWizardButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
-        mirthHeadingPanel1 = new com.webreach.mirth.client.ui.MirthHeadingPanel();
+        mirthHeadingPanel1 = new com.mirth.connect.client.ui.MirthHeadingPanel();
         jLabel2 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         wizardLabel = new javax.swing.JLabel();
@@ -337,7 +337,7 @@ public class ChannelWizard extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JSeparator jSeparator1;
-    private com.webreach.mirth.client.ui.MirthHeadingPanel mirthHeadingPanel1;
+    private com.mirth.connect.client.ui.MirthHeadingPanel mirthHeadingPanel1;
     private javax.swing.JButton runWizardButton;
     private javax.swing.JButton skipWizardButton;
     private javax.swing.JComboBox wizardComboBox;

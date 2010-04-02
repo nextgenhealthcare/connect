@@ -7,16 +7,16 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.mbeans;
+package com.mirth.connect.server.mbeans;
 
 import java.util.Properties;
 
-import com.webreach.mirth.server.Command;
-import com.webreach.mirth.server.CommandQueue;
-import com.webreach.mirth.server.Mirth;
-import com.webreach.mirth.server.controllers.ControllerException;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.ExtensionController;
+import com.mirth.connect.server.Command;
+import com.mirth.connect.server.CommandQueue;
+import com.mirth.connect.server.Mirth;
+import com.mirth.connect.server.controllers.ControllerException;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.ExtensionController;
 
 public class MirthService implements MirthServiceMBean {
 	private Mirth mirthServer = null;

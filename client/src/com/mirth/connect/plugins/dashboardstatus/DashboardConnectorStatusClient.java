@@ -7,17 +7,17 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.dashboardstatus;
+package com.mirth.connect.plugins.dashboardstatus;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.model.ChannelStatus;
-import com.webreach.mirth.plugins.DashboardPanelPlugin;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.model.ChannelStatus;
+import com.mirth.connect.plugins.DashboardPanelPlugin;
 
 public class DashboardConnectorStatusClient extends DashboardPanelPlugin {
 

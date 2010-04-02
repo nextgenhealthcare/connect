@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -20,13 +20,13 @@ import org.apache.log4j.Logger;
 import org.apache.velocity.tools.generic.DateTool;
 import org.mule.providers.TemplateValueReplacer;
 
-import com.webreach.mirth.model.Alert;
-import com.webreach.mirth.server.builders.ErrorMessageBuilder;
-import com.webreach.mirth.server.util.DatabaseUtil;
-import com.webreach.mirth.server.util.SMTPConnection;
-import com.webreach.mirth.server.util.SMTPConnectionFactory;
-import com.webreach.mirth.server.util.SqlConfig;
-import com.webreach.mirth.util.PropertyLoader;
+import com.mirth.connect.model.Alert;
+import com.mirth.connect.server.builders.ErrorMessageBuilder;
+import com.mirth.connect.server.util.DatabaseUtil;
+import com.mirth.connect.server.util.SMTPConnection;
+import com.mirth.connect.server.util.SMTPConnectionFactory;
+import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.util.PropertyLoader;
 
 public class DefaultAlertController extends AlertController {
     private Logger logger = Logger.getLogger(this.getClass());

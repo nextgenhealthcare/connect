@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.editors;
+package com.mirth.connect.client.ui.editors;
 
 import java.awt.Component;
 import java.awt.event.MouseEvent;
@@ -35,9 +35,9 @@ import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.syntax.jedit.SyntaxDocument;
 
-import com.webreach.mirth.client.ui.Mirth;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthTable;
+import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthTable;
 
 public class MapperPanel extends BasePanel {
 
@@ -326,14 +326,14 @@ public class MapperPanel extends BasePanel {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         regularExpressionsScrollPane = new javax.swing.JScrollPane();
-        regularExpressionsTable = new com.webreach.mirth.client.ui.components.MirthTable();
+        regularExpressionsTable = new com.mirth.connect.client.ui.components.MirthTable();
         newButton = new javax.swing.JButton();
         deleteButton = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
         variableTextField = new javax.swing.JTextField();
         mappingTextField = new javax.swing.JTextField();
         defaultValueTextField = new javax.swing.JTextField();
-        addTo = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        addTo = new com.mirth.connect.client.ui.components.MirthComboBox();
         jLabel5 = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
@@ -466,7 +466,7 @@ public class MapperPanel extends BasePanel {
         parent.modified = true;
     }// GEN-LAST:event_newButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.webreach.mirth.client.ui.components.MirthComboBox addTo;
+    private com.mirth.connect.client.ui.components.MirthComboBox addTo;
     private javax.swing.JTextField defaultValueTextField;
     private javax.swing.JButton deleteButton;
     private javax.swing.JLabel jLabel1;
@@ -477,7 +477,7 @@ public class MapperPanel extends BasePanel {
     private javax.swing.JTextField mappingTextField;
     private javax.swing.JButton newButton;
     private javax.swing.JScrollPane regularExpressionsScrollPane;
-    private com.webreach.mirth.client.ui.components.MirthTable regularExpressionsTable;
+    private com.mirth.connect.client.ui.components.MirthTable regularExpressionsTable;
     private javax.swing.JTextField variableTextField;
     // End of variables declaration//GEN-END:variables
 }

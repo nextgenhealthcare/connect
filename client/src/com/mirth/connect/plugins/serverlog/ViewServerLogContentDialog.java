@@ -7,11 +7,11 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.serverlog;
+package com.mirth.connect.plugins.serverlog;
 
 public class ViewServerLogContentDialog extends javax.swing.JDialog {
 
-    public ViewServerLogContentDialog(com.webreach.mirth.client.ui.Frame parent, String text) {
+    public ViewServerLogContentDialog(com.mirth.connect.client.ui.Frame parent, String text) {
         super(parent);
         initComponents();
         serverLogTextPane1.setText(text.replaceAll("\\t", "\n\t"));
@@ -36,7 +36,7 @@ public class ViewServerLogContentDialog extends javax.swing.JDialog {
 
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        serverLogTextPane1 = new com.webreach.mirth.plugins.serverlog.ServerLogTextPane();
+        serverLogTextPane1 = new com.mirth.connect.plugins.serverlog.ServerLogTextPane();
         jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -101,6 +101,6 @@ public class ViewServerLogContentDialog extends javax.swing.JDialog {
     private javax.swing.JButton jButton1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private com.webreach.mirth.plugins.serverlog.ServerLogTextPane serverLogTextPane1;
+    private com.mirth.connect.plugins.serverlog.ServerLogTextPane serverLogTextPane1;
     // End of variables declaration//GEN-END:variables
 }

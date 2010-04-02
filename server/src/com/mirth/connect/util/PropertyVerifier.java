@@ -7,18 +7,18 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.util;
+package com.mirth.connect.util;
 
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.ChannelProperties;
-import com.webreach.mirth.model.ComponentProperties;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.ConnectorMetaData;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelProperties;
+import com.mirth.connect.model.ComponentProperties;
+import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.ConnectorMetaData;
 
 public class PropertyVerifier
 {

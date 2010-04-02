@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.manager;
+package com.mirth.connect.manager;
 
 public class ManagerConstants {
 

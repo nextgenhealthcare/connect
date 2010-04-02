@@ -7,23 +7,23 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.mule.adaptors;
+package com.mirth.connect.server.mule.adaptors;
 
 import java.util.Calendar;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.converters.DefaultXMLSerializer;
-import com.webreach.mirth.model.converters.IXMLSerializer;
-import com.webreach.mirth.model.converters.SerializerException;
-import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.controllers.AlertController;
-import com.webreach.mirth.server.controllers.ConfigurationController;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.util.UUIDGenerator;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.converters.DefaultXMLSerializer;
+import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.model.converters.SerializerException;
+import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.controllers.AlertController;
+import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MessageObjectController;
+import com.mirth.connect.server.util.UUIDGenerator;
 
 public abstract class Adaptor {
     private Logger logger = Logger.getLogger(this.getClass());

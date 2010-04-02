@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers.tests;
+package com.mirth.connect.server.controllers.tests;
 
 import java.util.Iterator;
 import java.util.List;
@@ -16,11 +16,11 @@ import java.util.Map;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import com.webreach.mirth.model.ConnectorMetaData;
-import com.webreach.mirth.server.controllers.ControllerException;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.ExtensionController;
-import com.webreach.mirth.server.tools.ScriptRunner;
+import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.server.controllers.ControllerException;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.ExtensionController;
+import com.mirth.connect.server.tools.ScriptRunner;
 
 public class PluginControllerTest extends TestCase {
 	private ExtensionController pluginController = ControllerFactory.getFactory().createExtensionController();
@@ -39,7 +39,7 @@ public class PluginControllerTest extends TestCase {
 	public void testGetConnectorMetaData() throws ControllerException {
 		ConnectorMetaData sampleConnector = new ConnectorMetaData();
 		sampleConnector.setName("FTP Reader");
-		sampleConnector.setServerClassName("com.webreach.mirth.server.mule.providers.ftp.FtpConnector");
+		sampleConnector.setServerClassName("com.mirth.connect.server.mule.providers.ftp.FtpConnector");
 		sampleConnector.setProtocol("ftp");
 		sampleConnector.setTransformers("ByteArrayToString");
 		sampleConnector.setType(ConnectorMetaData.Type.SOURCE);

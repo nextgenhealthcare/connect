@@ -216,12 +216,12 @@
         <Property name="text" type="java.lang.String" value="Body:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="usernameField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="usernameField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="If the SMTP server requires authentication to send a message, enter the username here."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="SMTPServerPortField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="SMTPServerPortField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The port number of the SMTP server to send the email message to.&lt;br&gt;Generally, the default port of 25 is used.&lt;/html&gt;"/>
       </Properties>
@@ -229,22 +229,22 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="SMTPServerPortFieldActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="SMTPServerHostField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="SMTPServerHostField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter the DNS domain name or IP address of the SMTP server to use to send the email messages.&lt;br&gt;Note that sending email to an SMTP server that is not expecting it may result in the IP of the box running Mirth being added to the server&apos;s &quot;blacklist.&quot;&lt;/html&gt;"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="emailToField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="emailToField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The name of the mailbox (person, usually) to which the email should be sent."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="emailSubjectField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="emailSubjectField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The text that should appear as the subject of the email, as seen by the receiver&apos;s email client."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthPasswordField" name="passwordField">
+    <Component class="com.mirth.connect.client.ui.components.MirthPasswordField" name="passwordField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="If the SMTP server requires authentication to send a message, enter the password here."/>
       </Properties>
@@ -254,7 +254,7 @@
         <Property name="text" type="java.lang.String" value="From:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="emailFromField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="emailFromField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The name that should appear as the &quot;From address&quot; in the email."/>
       </Properties>
@@ -262,7 +262,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="emailFromFieldActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="emailBodyTextPane">
+    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="emailBodyTextPane">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -276,7 +276,7 @@
         <Property name="text" type="java.lang.String" value="Content Type:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="contentTypeHTMLButton">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="contentTypeHTMLButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -296,7 +296,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="contentTypePlainButton">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="contentTypePlainButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -328,7 +328,7 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="com.webreach.mirth.client.ui.components.MirthTable" name="attachmentsTable">
+        <Component class="com.mirth.connect.client.ui.components.MirthTable" name="attachmentsTable">
           <Properties>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
               <Table columnCount="3" rowCount="0">
@@ -363,7 +363,7 @@
         <Property name="text" type="java.lang.String" value="Secure Connection:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="secureConnectionNone">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="secureConnectionNone">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -383,7 +383,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="secureConnectionTLS">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="secureConnectionTLS">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -403,7 +403,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="secureConnectionSSL">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="secureConnectionSSL">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -423,7 +423,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="useAuthenticationYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="useAuthenticationYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -451,7 +451,7 @@
         <Property name="text" type="java.lang.String" value="Use Authentication:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="useAuthenticationNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="useAuthenticationNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -479,7 +479,7 @@
         <Property name="text" type="java.lang.String" value="Use Server Settings:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="useServerSettingsYesRadio">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="useServerSettingsYesRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -502,7 +502,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useServerSettingsYesRadioActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="useServerSettingsNoRadio">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="useServerSettingsNoRadio">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>

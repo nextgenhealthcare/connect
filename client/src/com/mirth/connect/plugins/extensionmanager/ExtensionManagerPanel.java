@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.extensionmanager;
+package com.mirth.connect.plugins.extensionmanager;
 
 import java.awt.Point;
 import java.awt.event.MouseWheelEvent;
@@ -26,16 +26,16 @@ import javax.swing.event.ListSelectionListener;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.webreach.mirth.client.ui.CellData;
-import com.webreach.mirth.client.ui.ImageCellRenderer;
-import com.webreach.mirth.client.ui.Mirth;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.RefreshTableModel;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.model.ConnectorMetaData;
-import com.webreach.mirth.model.MetaData;
-import com.webreach.mirth.model.PluginMetaData;
+import com.mirth.connect.client.ui.CellData;
+import com.mirth.connect.client.ui.ImageCellRenderer;
+import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.RefreshTableModel;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.model.MetaData;
+import com.mirth.connect.model.PluginMetaData;
 
 public class ExtensionManagerPanel extends javax.swing.JPanel {
 
@@ -94,8 +94,8 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
             int selectedRow = loadedConnectorsTable.getSelectedRow();
 
             if (selectedRow != -1) {
-                CellData enabledCellData = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
-                CellData disabledCellData = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
+                CellData enabledCellData = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
+                CellData disabledCellData = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
 
                 if (enabled) {
                     loadedConnectorsTable.getModel().setValueAt(enabledCellData, loadedConnectorsTable.convertRowIndexToModel(selectedRow), PLUGIN_STATUS_COLUMN_NUMBER);
@@ -107,8 +107,8 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
             int selectedRow = loadedPluginsTable.getSelectedRow();
 
             if (selectedRow != -1) {
-                CellData enabledCellData = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
-                CellData disabledCellData = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
+                CellData enabledCellData = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
+                CellData disabledCellData = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
 
                 if (enabled) {
                     loadedPluginsTable.getModel().setValueAt(enabledCellData, loadedPluginsTable.convertRowIndexToModel(selectedRow), PLUGIN_STATUS_COLUMN_NUMBER);
@@ -241,9 +241,9 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
             int i = 0;
             for (ConnectorMetaData metaData : connectorData.values()) {
                 if (metaData.isEnabled()) {
-                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
+                    tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
                 } else {
-                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
+                    tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
                 }
 
                 tableData[i][1] = metaData.getName();
@@ -408,9 +408,9 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
             int i = 0;
             for (PluginMetaData metaData : pluginData.values()) {
                 if (metaData.isEnabled()) {
-                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
+                    tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), "Enabled");
                 } else {
-                    tableData[i][0] = new CellData(new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
+                    tableData[i][0] = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), "Disabled");
                 }
 
                 tableData[i][1] = metaData.getName();
@@ -660,10 +660,10 @@ public class ExtensionManagerPanel extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel loadedConnectorsPanel;
     private javax.swing.JScrollPane loadedConnectorsScrollPane;
-    private com.webreach.mirth.client.ui.components.MirthTable loadedConnectorsTable;
+    private com.mirth.connect.client.ui.components.MirthTable loadedConnectorsTable;
     private javax.swing.JPanel loadedPluginsPanel;
     private javax.swing.JScrollPane loadedPluginsScrollPane;
-    private com.webreach.mirth.client.ui.components.MirthTable loadedPluginsTable;
+    private com.mirth.connect.client.ui.components.MirthTable loadedPluginsTable;
     // End of variables declaration//GEN-END:variables
 
     public static String slurp(InputStream in) throws IOException {

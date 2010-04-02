@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -18,14 +18,14 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.model.Credentials;
-import com.webreach.mirth.model.PasswordRequirements;
-import com.webreach.mirth.model.User;
-import com.webreach.mirth.model.util.PasswordRequirementsChecker;
-import com.webreach.mirth.server.util.DatabaseUtil;
-import com.webreach.mirth.server.util.SqlConfig;
-import com.webreach.mirth.util.EncryptionException;
-import com.webreach.mirth.util.FIPSEncrypter;
+import com.mirth.connect.model.Credentials;
+import com.mirth.connect.model.PasswordRequirements;
+import com.mirth.connect.model.User;
+import com.mirth.connect.model.util.PasswordRequirementsChecker;
+import com.mirth.connect.server.util.DatabaseUtil;
+import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.util.EncryptionException;
+import com.mirth.connect.util.FIPSEncrypter;
 
 public class DefaultUserController extends UserController {
     private Logger logger = Logger.getLogger(this.getClass());

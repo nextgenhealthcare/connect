@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.file.filesystems;
+package com.mirth.connect.connectors.file.filesystems;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,7 +25,7 @@ import org.mule.MuleException;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
 
-import com.webreach.mirth.connectors.file.filters.RegexFilenameFilter;
+import com.mirth.connect.connectors.file.filters.RegexFilenameFilter;
 
 /** The FileSystemConnection class for local files
  * 

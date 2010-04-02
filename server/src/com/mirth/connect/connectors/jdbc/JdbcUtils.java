@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.jdbc;
+package com.mirth.connect.connectors.jdbc;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -24,7 +24,7 @@ import org.dom4j.io.DOMReader;
 import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.endpoint.UMOEndpointURI;
 
-import com.webreach.mirth.model.MessageObject;
+import com.mirth.connect.model.MessageObject;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 

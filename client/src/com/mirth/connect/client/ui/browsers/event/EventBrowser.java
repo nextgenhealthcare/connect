@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.browsers.event;
+package com.mirth.connect.client.ui.browsers.event;
 
 import java.awt.Point;
 import java.awt.event.KeyEvent;
@@ -24,18 +24,18 @@ import javax.swing.event.ListSelectionListener;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.core.ListHandlerException;
-import com.webreach.mirth.client.core.SystemEventListHandler;
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.Mirth;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.RefreshTableModel;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.model.filters.SystemEventFilter;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.core.ListHandlerException;
+import com.mirth.connect.client.core.SystemEventListHandler;
+import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.RefreshTableModel;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.model.SystemEvent;
+import com.mirth.connect.model.filters.SystemEventFilter;
 
 /**
  * The event browser panel.
@@ -411,16 +411,16 @@ public class EventBrowser extends javax.swing.JPanel {
         filterPanel = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         resultsLabel = new javax.swing.JLabel();
-        pageSizeField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        pageSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
         nextPageButton = new javax.swing.JButton();
         previousPageButton = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         eventLabel = new javax.swing.JLabel();
-        eventField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        mirthDatePicker1 = new com.webreach.mirth.client.ui.components.MirthDatePicker();
+        eventField = new com.mirth.connect.client.ui.components.MirthTextField();
+        mirthDatePicker1 = new com.mirth.connect.client.ui.components.MirthDatePicker();
         jLabel3 = new javax.swing.JLabel();
-        mirthDatePicker2 = new com.webreach.mirth.client.ui.components.MirthDatePicker();
+        mirthDatePicker2 = new com.mirth.connect.client.ui.components.MirthDatePicker();
         jLabel2 = new javax.swing.JLabel();
         levelComboBox = new javax.swing.JComboBox();
         levelLabel = new javax.swing.JLabel();
@@ -428,7 +428,7 @@ public class EventBrowser extends javax.swing.JPanel {
         jSplitPane1 = new javax.swing.JSplitPane();
         descriptionTabbedPane = new javax.swing.JTabbedPane();
         descriptionPanel = new javax.swing.JPanel();
-        descriptionTextPane = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
+        descriptionTextPane = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         eventPane = new javax.swing.JScrollPane();
         eventTable = null;
 
@@ -753,11 +753,11 @@ public class EventBrowser extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel descriptionPanel;
     private javax.swing.JTabbedPane descriptionTabbedPane;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea descriptionTextPane;
-    private com.webreach.mirth.client.ui.components.MirthTextField eventField;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea descriptionTextPane;
+    private com.mirth.connect.client.ui.components.MirthTextField eventField;
     private javax.swing.JLabel eventLabel;
     private javax.swing.JScrollPane eventPane;
-    private com.webreach.mirth.client.ui.components.MirthTable eventTable;
+    private com.mirth.connect.client.ui.components.MirthTable eventTable;
     private javax.swing.JButton filterButton;
     private javax.swing.JPanel filterPanel;
     private javax.swing.JLabel jLabel2;
@@ -768,10 +768,10 @@ public class EventBrowser extends javax.swing.JPanel {
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JComboBox levelComboBox;
     private javax.swing.JLabel levelLabel;
-    private com.webreach.mirth.client.ui.components.MirthDatePicker mirthDatePicker1;
-    private com.webreach.mirth.client.ui.components.MirthDatePicker mirthDatePicker2;
+    private com.mirth.connect.client.ui.components.MirthDatePicker mirthDatePicker1;
+    private com.mirth.connect.client.ui.components.MirthDatePicker mirthDatePicker2;
     private javax.swing.JButton nextPageButton;
-    private com.webreach.mirth.client.ui.components.MirthTextField pageSizeField;
+    private com.mirth.connect.client.ui.components.MirthTextField pageSizeField;
     private javax.swing.JButton previousPageButton;
     private javax.swing.JLabel resultsLabel;
     // End of variables declaration//GEN-END:variables

@@ -9,7 +9,7 @@
 	<extensionPoint>
 		<name>XSLT Step</name>
 		<type>CLIENT_TRANSFORMER_STEP</type>
-		<className>com.webreach.mirth.plugins.xsltstep.XsltStepPlugin</className>
+		<className>com.mirth.connect.plugins.xsltstep.XsltStepPlugin</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
 	<library path="xsltstep-client.jar">

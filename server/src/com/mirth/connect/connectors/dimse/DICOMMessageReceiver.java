@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.dimse;
+package com.mirth.connect.connectors.dimse;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -36,13 +36,13 @@ import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.converters.DICOMSerializer;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
-import com.webreach.mirth.server.controllers.MonitoringController.Event;
-import com.webreach.mirth.server.mule.transformers.JavaScriptPostprocessor;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.converters.DICOMSerializer;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MonitoringController;
+import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
+import com.mirth.connect.server.controllers.MonitoringController.Event;
+import com.mirth.connect.server.mule.transformers.JavaScriptPostprocessor;
 
 public class DICOMMessageReceiver extends AbstractMessageReceiver {
     // --- DICOM Specific Variables ---

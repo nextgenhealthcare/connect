@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.jms.transformers;
+package com.mirth.connect.connectors.jms.transformers;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -17,8 +17,8 @@ import org.apache.commons.logging.LogFactory;
 import org.mule.providers.TemplateValueReplacer;
 import org.mule.umo.transformer.TransformerException;
 
-import com.webreach.mirth.connectors.jms.JmsConnector;
-import com.webreach.mirth.model.MessageObject;
+import com.mirth.connect.connectors.jms.JmsConnector;
+import com.mirth.connect.model.MessageObject;
 
 public class MessageObjectToJMSMessage extends AbstractJmsTransformer {
     private static transient Log logger = LogFactory.getLog(MessageObjectToJMSMessage.class);

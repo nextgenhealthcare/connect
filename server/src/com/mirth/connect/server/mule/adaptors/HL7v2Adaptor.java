@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.mule.adaptors;
+package com.mirth.connect.server.mule.adaptors;
 
 import java.io.Reader;
 import java.util.Map;
@@ -17,16 +17,16 @@ import java.util.regex.Pattern;
 import org.mule.umo.MessagingException;
 import org.mule.umo.UMOException;
 
-import com.webreach.mirth.model.MessageObject.Protocol;
-import com.webreach.mirth.model.converters.IXMLSerializer;
-import com.webreach.mirth.model.converters.SerializerFactory;
+import com.mirth.connect.model.MessageObject.Protocol;
+import com.mirth.connect.model.converters.IXMLSerializer;
+import com.mirth.connect.model.converters.SerializerFactory;
 
 public class HL7v2Adaptor extends Adaptor implements BatchAdaptor {
 
 	protected void populateMessage(boolean emptyFilterAndTransformer) throws AdaptorException {
-		messageObject.setRawDataProtocol(com.webreach.mirth.model.MessageObject.Protocol.HL7V2);
-		messageObject.setTransformedDataProtocol(com.webreach.mirth.model.MessageObject.Protocol.XML);
-		messageObject.setEncodedDataProtocol(com.webreach.mirth.model.MessageObject.Protocol.HL7V2);
+		messageObject.setRawDataProtocol(com.mirth.connect.model.MessageObject.Protocol.HL7V2);
+		messageObject.setTransformedDataProtocol(com.mirth.connect.model.MessageObject.Protocol.XML);
+		messageObject.setEncodedDataProtocol(com.mirth.connect.model.MessageObject.Protocol.HL7V2);
 		
 		try {
 			if (emptyFilterAndTransformer) {

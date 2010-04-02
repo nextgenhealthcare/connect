@@ -7,19 +7,19 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.builders;
+package com.mirth.connect.server.builders;
 
 import java.io.IOException;
 import java.util.ListIterator;
 
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Filter;
-import com.webreach.mirth.model.Rule;
-import com.webreach.mirth.model.Step;
-import com.webreach.mirth.model.Transformer;
-import com.webreach.mirth.server.util.FileUtil;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.Filter;
+import com.mirth.connect.model.Rule;
+import com.mirth.connect.model.Step;
+import com.mirth.connect.model.Transformer;
+import com.mirth.connect.server.util.FileUtil;
 
 public class JavaScriptBuilder {
 	private Logger logger = Logger.getLogger(this.getClass());

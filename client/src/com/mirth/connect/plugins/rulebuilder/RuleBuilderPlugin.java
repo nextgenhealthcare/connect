@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.rulebuilder;
+package com.mirth.connect.plugins.rulebuilder;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,12 +17,12 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 import org.mozilla.javascript.Script;
 
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.editors.BasePanel;
-import com.webreach.mirth.client.ui.editors.RuleBuilderPanel;
-import com.webreach.mirth.client.ui.editors.filter.FilterPane;
-import com.webreach.mirth.plugins.FilterRulePlugin;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.editors.BasePanel;
+import com.mirth.connect.client.ui.editors.RuleBuilderPanel;
+import com.mirth.connect.client.ui.editors.filter.FilterPane;
+import com.mirth.connect.plugins.FilterRulePlugin;
 
 public class RuleBuilderPlugin extends FilterRulePlugin {
 

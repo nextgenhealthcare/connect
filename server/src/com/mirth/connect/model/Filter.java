@@ -7,19 +7,17 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model;
+package com.mirth.connect.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.webreach.mirth.util.EqualsUtil;
+import com.mirth.connect.util.EqualsUtil;
 
 /**
  * A Filter represents a list of rules which are executed on each message and
  * either accepts or rejects the message.
- * 
- * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  * 
  */
 public class Filter implements Serializable {

@@ -7,13 +7,13 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.components;
+package com.mirth.connect.client.ui.components;
 
 import java.awt.Component;
 
 import javax.swing.JTable;
 
-import com.webreach.mirth.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.PlatformUI;
 
 
 public class DataTypesComboBoxCellRenderer extends MirthComboBoxCellRenderer {

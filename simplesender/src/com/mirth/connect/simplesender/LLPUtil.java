@@ -1,4 +1,4 @@
-package com.webreach.mirth.simplesender;
+package com.mirth.connect.simplesender;
 
 public class LLPUtil 
 {

@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.email;
+package com.mirth.connect.connectors.email;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -41,9 +41,9 @@ import org.mule.umo.routing.RoutingException;
 import org.mule.util.UUID;
 import org.mule.util.Utility;
 
-import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.controllers.AlertController;
-import com.webreach.mirth.server.controllers.ControllerFactory;
+import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.controllers.AlertController;
+import com.mirth.connect.server.controllers.ControllerFactory;
 
 /**
  * <code>Pop3MessageReceiver</code> polls a pop3 mailbox for messages removes

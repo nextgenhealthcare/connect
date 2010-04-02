@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.util;
+package com.mirth.connect.server.util;
 
 import java.util.Map.Entry;
 
@@ -25,10 +25,10 @@ import org.mule.umo.provider.DispatchException;
 import org.mule.util.queue.Queue;
 import org.mule.util.queue.QueueSession;
 
-import com.webreach.mirth.connectors.vm.VMConnector;
-import com.webreach.mirth.connectors.vm.VMMessageReceiver;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.server.controllers.ControllerFactory;
+import com.mirth.connect.connectors.vm.VMConnector;
+import com.mirth.connect.connectors.vm.VMMessageReceiver;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.server.controllers.ControllerFactory;
 
 public class VMRouter {
     private static transient Log logger = LogFactory.getLog(VMRouter.class);

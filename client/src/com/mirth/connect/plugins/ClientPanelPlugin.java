@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins;
+package com.mirth.connect.plugins;
 
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
@@ -25,7 +25,7 @@ import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.action.ActionFactory;
 import org.jdesktop.swingx.action.BoundAction;
 
-import com.webreach.mirth.client.core.ClientException;
+import com.mirth.connect.client.core.ClientException;
 
 public abstract class ClientPanelPlugin extends ClientPlugin {
 
@@ -40,13 +40,13 @@ public abstract class ClientPanelPlugin extends ClientPlugin {
         this.name = name;
 
         if (refresh) {
-            addTask("doRefresh", "Refresh", "Refresh loaded plugins.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/arrow_refresh.png")));
+            addTask("doRefresh", "Refresh", "Refresh loaded plugins.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/arrow_refresh.png")));
             refreshIndex = reservedTasksCount;
             reservedTasksCount++;
         }
 
         if (save) {
-            addTask("doSave", "Save", "Save plugin settings.", "", new ImageIcon(com.webreach.mirth.client.ui.Frame.class.getResource("images/disk.png")));
+            addTask("doSave", "Save", "Save plugin settings.", "", new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/disk.png")));
             saveIndex = reservedTasksCount;
             reservedTasksCount++;
         }

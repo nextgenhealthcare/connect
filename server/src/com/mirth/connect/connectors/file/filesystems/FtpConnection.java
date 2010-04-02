@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.file.filesystems;
+package com.mirth.connect.connectors.file.filesystems;
 
 import java.io.ByteArrayInputStream;
 import java.io.FilenameFilter;
@@ -24,7 +24,7 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 
-import com.webreach.mirth.connectors.file.filters.RegexFilenameFilter;
+import com.mirth.connect.connectors.file.filters.RegexFilenameFilter;
 
 /**
  * The FileSystemConnection class for files accessed via FTP.

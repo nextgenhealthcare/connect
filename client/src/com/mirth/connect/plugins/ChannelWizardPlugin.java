@@ -7,22 +7,22 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins;
+package com.mirth.connect.plugins;
 
 import java.awt.Component;
 import java.util.Calendar;
 import java.util.Properties;
 
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.connectors.file.FileWriterProperties;
-import com.webreach.mirth.connectors.mllp.LLPListenerProperties;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.Filter;
-import com.webreach.mirth.model.Transformer;
-import com.webreach.mirth.model.Connector.Mode;
-import com.webreach.mirth.model.MessageObject.Protocol;
+import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.connectors.file.FileWriterProperties;
+import com.mirth.connect.connectors.mllp.LLPListenerProperties;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.Filter;
+import com.mirth.connect.model.Transformer;
+import com.mirth.connect.model.Connector.Mode;
+import com.mirth.connect.model.MessageObject.Protocol;
 
 public abstract class ChannelWizardPlugin extends ClientPlugin {
 

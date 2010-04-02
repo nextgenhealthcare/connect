@@ -7,12 +7,12 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.util.List;
 import java.util.Properties;
 
-import com.webreach.mirth.model.User;
+import com.mirth.connect.model.User;
 
 public abstract class UserController extends Controller {
     public static UserController getInstance() {

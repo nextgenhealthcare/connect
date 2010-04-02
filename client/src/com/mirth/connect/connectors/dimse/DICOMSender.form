@@ -441,17 +441,17 @@
         <Property name="text" type="java.lang.String" value="Remote Port:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="listenerPortField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="listenerPortField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Remote PORT to send to."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="listenerAddressField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="listenerAddressField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Remote IP to send to."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="fileContentsTextPane">
+    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="fileContentsTextPane">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -460,7 +460,7 @@
         </Property>
       </Properties>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(false,false);"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(false,false);"/>
       </AuxValues>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel3">
@@ -468,7 +468,7 @@
         <Property name="text" type="java.lang.String" value="Template:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="accepttoField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="accepttoField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Timeout in ms for receiving A-ASSOCIATE-AC, 5000ms by default."/>
       </Properties>
@@ -483,7 +483,7 @@
         <Property name="text" type="java.lang.String" value="Max Async operations:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="asyncField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="asyncField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Maximum number of outstanding operations it may invoke asynchronously, unlimited by default."/>
       </Properties>
@@ -493,7 +493,7 @@
         <Property name="text" type="java.lang.String" value="Transcoder Buffer Size (KB):"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="bufsizeField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="bufsizeField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Transcoder buffer size in KB, 1KB by default."/>
       </Properties>
@@ -503,7 +503,7 @@
         <Property name="text" type="java.lang.String" value="TCP Connection Timeout (ms):"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="connecttoField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="connecttoField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Timeout in ms for TCP connect, no timeout by default."/>
       </Properties>
@@ -513,7 +513,7 @@
         <Property name="text" type="java.lang.String" value="Priority:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="highPriority">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="highPriority">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -536,7 +536,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="highPriorityActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="mediumPriority">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="mediumPriority">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -560,7 +560,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="mediumPriorityActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="lowPriority">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="lowPriority">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -588,7 +588,7 @@
         <Property name="text" type="java.lang.String" value="Keystore Password:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="keyStorePasswordField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="keyStorePasswordField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Password for keystore file."/>
       </Properties>
@@ -598,7 +598,7 @@
         <Property name="text" type="java.lang.String" value="Keystore:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="keyStoreField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="keyStoreField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="File path or URL of P12 or JKS keystore, resource:tls/test_sys_2.p12 by default."/>
       </Properties>
@@ -608,7 +608,7 @@
         <Property name="text" type="java.lang.String" value="Key Password:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="keyPasswordField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="keyPasswordField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Password for accessing the key in the keystore, keystore password by default."/>
       </Properties>
@@ -618,7 +618,7 @@
         <Property name="text" type="java.lang.String" value="Client Authentication TLS:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="noclientauthYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="noclientauthYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -639,7 +639,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="noclientauthNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="noclientauthNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -664,7 +664,7 @@
         <Property name="text" type="java.lang.String" value="Accept ssl v2 TLS handshake:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="nossl2Yes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="nossl2Yes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -685,7 +685,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="nossl2No">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="nossl2No">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -710,7 +710,7 @@
         <Property name="text" type="java.lang.String" value="User Name:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="usernameField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="usernameField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Enable User Identity Negotiation with specified username and  optional passcode."/>
       </Properties>
@@ -720,7 +720,7 @@
         <Property name="text" type="java.lang.String" value="Pass Code:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="passcodeField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="passcodeField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Optional passcode for User Identity Negotiation, only effective with option -username."/>
       </Properties>
@@ -730,7 +730,7 @@
         <Property name="text" type="java.lang.String" value="P-DATA-TF PDUs  max length received (KB):"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="rcvpdulenField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="rcvpdulenField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Maximal length in KB of received P-DATA-TF PDUs, 16KB by default."/>
       </Properties>
@@ -740,7 +740,7 @@
         <Property name="text" type="java.lang.String" value="Pack PDV:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="pdv1Yes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="pdv1Yes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -760,7 +760,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="pdv1No">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="pdv1No">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -786,7 +786,7 @@
         <Property name="text" type="java.lang.String" value="DIMSE-RSP interval period (s):"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="reaperField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="reaperField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Period in ms to check for outstanding DIMSE-RSP, 10s by default."/>
       </Properties>
@@ -796,7 +796,7 @@
         <Property name="text" type="java.lang.String" value="A-RELEASE-RP timeout (s):"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="releasetoField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="releasetoField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Timeout in ms for receiving A-RELEASE-RP, 5s by default."/>
       </Properties>
@@ -806,7 +806,7 @@
         <Property name="text" type="java.lang.String" value="DIMSE-RSP timeout (s):"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="rsptoField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="rsptoField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Timeout in ms for receiving DIMSE-RSP, 60s by default."/>
       </Properties>
@@ -816,7 +816,7 @@
         <Property name="text" type="java.lang.String" value="Shutdown delay (ms):"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="shutdowndelayField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="shutdowndelayField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Delay in ms for closing the listening socket, 1000ms by default."/>
       </Properties>
@@ -826,7 +826,7 @@
         <Property name="text" type="java.lang.String" value="P-DATA-TF PDUs max length sent (KB):"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="sndpdulenField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="sndpdulenField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Maximal length in KB of sent P-DATA-TF PDUs, 16KB by default."/>
       </Properties>
@@ -836,7 +836,7 @@
         <Property name="text" type="java.lang.String" value="Socket Close Delay After A-ABORT (ms):"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="soclosedelayField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="soclosedelayField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Delay in ms for Socket close after sending A-ABORT, 50ms by default."/>
       </Properties>
@@ -846,7 +846,7 @@
         <Property name="text" type="java.lang.String" value="Receive Socket Buffer Size (KB):"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="sorcvbufField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="sorcvbufField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Set receive socket buffer to specified value in KB."/>
       </Properties>
@@ -856,7 +856,7 @@
         <Property name="text" type="java.lang.String" value="Send Socket Buffer Size (KB):"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="sosndbufField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="sosndbufField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Set send socket buffer to specified value in KB."/>
       </Properties>
@@ -866,7 +866,7 @@
         <Property name="text" type="java.lang.String" value="Request Storage Commitment:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="stgcmtYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="stgcmtYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -887,7 +887,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="stgcmtNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="stgcmtNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -912,7 +912,7 @@
         <Property name="text" type="java.lang.String" value="TCP Delay:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="tcpdelayYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="tcpdelayYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -933,7 +933,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="tcpdelayNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="tcpdelayNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -958,7 +958,7 @@
         <Property name="text" type="java.lang.String" value="TLS:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="tlswithout">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="tlswithout">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -981,7 +981,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tlswithoutActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="tls3des">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="tls3des">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -1004,7 +1004,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tls3desActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="tlsaes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="tlsaes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -1032,7 +1032,7 @@
         <Property name="text" type="java.lang.String" value="Trust Store:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="truststoreField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="truststoreField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="File path or URL of JKS truststore, resource:tls/mesa_certs.jks by default."/>
       </Properties>
@@ -1042,7 +1042,7 @@
         <Property name="text" type="java.lang.String" value="Trust Store Password:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="truststorepwField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="truststorepwField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Password for truststore file."/>
       </Properties>
@@ -1052,7 +1052,7 @@
         <Property name="text" type="java.lang.String" value="Default Presentation Syntax:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="ts1Yes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="ts1Yes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -1072,7 +1072,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="ts1No">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="ts1No">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -1098,7 +1098,7 @@
         <Property name="text" type="java.lang.String" value="Request Positive User Identity Response:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="uidnegrspYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="uidnegrspYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -1118,7 +1118,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="uidnegrspNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="uidnegrspNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -1139,7 +1139,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="tlsno">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="tlsno">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -1163,7 +1163,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tlsnoActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="applicationEntityField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="applicationEntityField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Remote Application Entity"/>
       </Properties>
@@ -1188,17 +1188,17 @@
         <Property name="text" type="java.lang.String" value="Local Application Entity:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="localAddressField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="localAddressField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Local IP to send to."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="localPortField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="localPortField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Local PORT to send to."/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="localApplicationEntityField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="localApplicationEntityField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Local Application Entity"/>
       </Properties>

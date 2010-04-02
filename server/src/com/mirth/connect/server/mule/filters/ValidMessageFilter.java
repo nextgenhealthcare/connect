@@ -7,12 +7,12 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.mule.filters;
+package com.mirth.connect.server.mule.filters;
 
 import org.mule.umo.UMOFilter;
 import org.mule.umo.UMOMessage;
 
-import com.webreach.mirth.model.MessageObject;
+import com.mirth.connect.model.MessageObject;
 
 public class ValidMessageFilter implements UMOFilter {
 

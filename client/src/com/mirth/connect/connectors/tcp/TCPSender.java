@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.tcp;
+package com.mirth.connect.connectors.tcp;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,13 +15,13 @@ import java.util.Properties;
 
 import javax.swing.SwingWorker;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthFieldConstraints;
-import com.webreach.mirth.connectors.ConnectorClass;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.QueuedSenderProperties;
-import com.webreach.mirth.util.ConnectionTestResponse;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthFieldConstraints;
+import com.mirth.connect.connectors.ConnectorClass;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.QueuedSenderProperties;
+import com.mirth.connect.util.ConnectionTestResponse;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
@@ -266,31 +266,31 @@ public class TCPSender extends ConnectorClass {
         jLabel17 = new javax.swing.JLabel();
         jLabel18 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
-        hostPortField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        serverTimeoutField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        bufferSizeField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        maximumRetryCountField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        keepConnectionOpenYesRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        keepConnectionOpenNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        hostAddressField = new com.webreach.mirth.client.ui.components.MirthTextField();
-        ackTimeoutField = new com.webreach.mirth.client.ui.components.MirthTextField();
+        hostPortField = new com.mirth.connect.client.ui.components.MirthTextField();
+        serverTimeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
+        bufferSizeField = new com.mirth.connect.client.ui.components.MirthTextField();
+        maximumRetryCountField = new com.mirth.connect.client.ui.components.MirthTextField();
+        keepConnectionOpenYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        keepConnectionOpenNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        hostAddressField = new com.mirth.connect.client.ui.components.MirthTextField();
+        ackTimeoutField = new com.mirth.connect.client.ui.components.MirthTextField();
         jLabel19 = new javax.swing.JLabel();
-        charsetEncodingCombobox = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        charsetEncodingCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
         encodingLabel = new javax.swing.JLabel();
         jLabel36 = new javax.swing.JLabel();
-        usePersistentQueuesYesRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        usePersistentQueuesNoRadio = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        usePersistentQueuesYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        usePersistentQueuesNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         jLabel7 = new javax.swing.JLabel();
-        template = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
-        channelNames = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        template = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
+        channelNames = new com.mirth.connect.client.ui.components.MirthComboBox();
         URL = new javax.swing.JLabel();
-        reconnectInterval = new com.webreach.mirth.client.ui.components.MirthTextField();
+        reconnectInterval = new com.mirth.connect.client.ui.components.MirthTextField();
         jLabel1 = new javax.swing.JLabel();
-        ignoreACKCheckBox = new com.webreach.mirth.client.ui.components.MirthCheckBox();
-        dataTypeASCII = new com.webreach.mirth.client.ui.components.MirthRadioButton();
-        dataTypeBinary = new com.webreach.mirth.client.ui.components.MirthRadioButton();
+        ignoreACKCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        dataTypeASCII = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        dataTypeBinary = new com.mirth.connect.client.ui.components.MirthRadioButton();
         dataTypeLabel = new javax.swing.JLabel();
-        rotateMessages = new com.webreach.mirth.client.ui.components.MirthCheckBox();
+        rotateMessages = new com.mirth.connect.client.ui.components.MirthCheckBox();
         testConnection = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
@@ -622,19 +622,19 @@ private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GE
     }// GEN-LAST:event_charsetEncodingComboboxActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel URL;
-    private com.webreach.mirth.client.ui.components.MirthTextField ackTimeoutField;
-    private com.webreach.mirth.client.ui.components.MirthTextField bufferSizeField;
+    private com.mirth.connect.client.ui.components.MirthTextField ackTimeoutField;
+    private com.mirth.connect.client.ui.components.MirthTextField bufferSizeField;
     private javax.swing.ButtonGroup buttonGroup1;
-    private com.webreach.mirth.client.ui.components.MirthComboBox channelNames;
-    private com.webreach.mirth.client.ui.components.MirthComboBox charsetEncodingCombobox;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton dataTypeASCII;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton dataTypeBinary;
+    private com.mirth.connect.client.ui.components.MirthComboBox channelNames;
+    private com.mirth.connect.client.ui.components.MirthComboBox charsetEncodingCombobox;
+    private com.mirth.connect.client.ui.components.MirthRadioButton dataTypeASCII;
+    private com.mirth.connect.client.ui.components.MirthRadioButton dataTypeBinary;
     private javax.swing.ButtonGroup dataTypeButtonGroup;
     private javax.swing.JLabel dataTypeLabel;
     private javax.swing.JLabel encodingLabel;
-    private com.webreach.mirth.client.ui.components.MirthTextField hostAddressField;
-    private com.webreach.mirth.client.ui.components.MirthTextField hostPortField;
-    private com.webreach.mirth.client.ui.components.MirthCheckBox ignoreACKCheckBox;
+    private com.mirth.connect.client.ui.components.MirthTextField hostAddressField;
+    private com.mirth.connect.client.ui.components.MirthTextField hostPortField;
+    private com.mirth.connect.client.ui.components.MirthCheckBox ignoreACKCheckBox;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel13;
     private javax.swing.JLabel jLabel15;
@@ -646,16 +646,16 @@ private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GE
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
     private javax.swing.ButtonGroup keepConnectionOpenGroup;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenNoRadio;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton keepConnectionOpenYesRadio;
-    private com.webreach.mirth.client.ui.components.MirthTextField maximumRetryCountField;
-    private com.webreach.mirth.client.ui.components.MirthTextField reconnectInterval;
-    private com.webreach.mirth.client.ui.components.MirthCheckBox rotateMessages;
-    private com.webreach.mirth.client.ui.components.MirthTextField serverTimeoutField;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea template;
+    private com.mirth.connect.client.ui.components.MirthRadioButton keepConnectionOpenNoRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton keepConnectionOpenYesRadio;
+    private com.mirth.connect.client.ui.components.MirthTextField maximumRetryCountField;
+    private com.mirth.connect.client.ui.components.MirthTextField reconnectInterval;
+    private com.mirth.connect.client.ui.components.MirthCheckBox rotateMessages;
+    private com.mirth.connect.client.ui.components.MirthTextField serverTimeoutField;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea template;
     private javax.swing.JButton testConnection;
     private javax.swing.ButtonGroup usePersistenceQueuesGroup;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton usePersistentQueuesNoRadio;
-    private com.webreach.mirth.client.ui.components.MirthRadioButton usePersistentQueuesYesRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton usePersistentQueuesNoRadio;
+    private com.mirth.connect.client.ui.components.MirthRadioButton usePersistentQueuesYesRadio;
     // End of variables declaration//GEN-END:variables
 }

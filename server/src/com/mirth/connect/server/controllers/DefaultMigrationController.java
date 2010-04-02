@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.io.File;
 import java.io.StringReader;
@@ -31,12 +31,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.model.util.ImportConverter;
-import com.webreach.mirth.server.tools.ClassPathResource;
-import com.webreach.mirth.server.util.DatabaseUtil;
-import com.webreach.mirth.server.util.FileUtil;
-import com.webreach.mirth.server.util.SqlConfig;
+import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.util.ImportConverter;
+import com.mirth.connect.server.tools.ClassPathResource;
+import com.mirth.connect.server.util.DatabaseUtil;
+import com.mirth.connect.server.util.FileUtil;
+import com.mirth.connect.server.util.SqlConfig;
 
 /**
  * The MigrationController migrates the database to the current version.

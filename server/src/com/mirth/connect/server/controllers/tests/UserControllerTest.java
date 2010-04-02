@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers.tests;
+package com.mirth.connect.server.controllers.tests;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,11 +17,11 @@ import java.util.Properties;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import com.webreach.mirth.model.User;
-import com.webreach.mirth.server.controllers.ControllerException;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.UserController;
-import com.webreach.mirth.server.tools.ScriptRunner;
+import com.mirth.connect.model.User;
+import com.mirth.connect.server.controllers.ControllerException;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.UserController;
+import com.mirth.connect.server.tools.ScriptRunner;
 
 public class UserControllerTest extends TestCase {
 	private UserController userController = ControllerFactory.getFactory().createUserController();

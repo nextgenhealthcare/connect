@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.util;
+package com.mirth.connect.util;
 
 import java.util.List;
 import java.util.ListIterator;
@@ -19,10 +19,10 @@ import org.mule.util.queue.Queue;
 import org.mule.util.queue.QueueManager;
 import org.mule.util.queue.QueueSession;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.QueuedSenderProperties;
-import com.webreach.mirth.server.controllers.ControllerFactory;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.QueuedSenderProperties;
+import com.mirth.connect.server.controllers.ControllerFactory;
 
 public class QueueUtil {
 	private Log logger = LogFactory.getLog(getClass());

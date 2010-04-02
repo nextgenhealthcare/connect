@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.core;
+package com.mirth.connect.client.core;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,7 +28,7 @@ import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.util.IdleConnectionTimeoutThread;
 
-import com.webreach.mirth.client.core.ssl.EasySSLProtocolSocketFactory;
+import com.mirth.connect.client.core.ssl.EasySSLProtocolSocketFactory;
 
 public class ServerConnection {
 	private HttpClient client;

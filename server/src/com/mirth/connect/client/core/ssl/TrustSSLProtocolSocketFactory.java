@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.core.ssl;
+package com.mirth.connect.client.core.ssl;
 
 import java.io.FileInputStream;
 import java.io.IOException;

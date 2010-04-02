@@ -7,15 +7,15 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.editors;
+package com.mirth.connect.client.ui.editors;
 
 import java.util.Properties;
 import java.util.Set;
 
-import com.webreach.mirth.client.ui.FunctionList;
-import com.webreach.mirth.client.ui.VariableListHandler;
-import com.webreach.mirth.client.ui.panels.reference.VariableReferenceTable;
-import com.webreach.mirth.model.CodeTemplate.ContextType;
+import com.mirth.connect.client.ui.FunctionList;
+import com.mirth.connect.client.ui.VariableListHandler;
+import com.mirth.connect.client.ui.panels.reference.VariableReferenceTable;
+import com.mirth.connect.model.CodeTemplate.ContextType;
 
 public class TabbedTemplatePanel extends javax.swing.JPanel {
 
@@ -153,9 +153,9 @@ public class TabbedTemplatePanel extends javax.swing.JPanel {
         variableSplitPane = new javax.swing.JSplitPane();
         functionList = new FunctionList(ContextType.MESSAGE_CONTEXT.getContext());
         variableListScrollPane = new javax.swing.JScrollPane();
-        variableTable = new com.webreach.mirth.client.ui.panels.reference.VariableReferenceTable();
+        variableTable = new com.mirth.connect.client.ui.panels.reference.VariableReferenceTable();
         treeTab = new javax.swing.JPanel();
-        messageTreePanel = new com.webreach.mirth.client.ui.editors.MessageTreePanel();
+        messageTreePanel = new com.mirth.connect.client.ui.editors.MessageTreePanel();
         messageTab = new javax.swing.JPanel();
         messageTemplatePanel = new MessageTemplatePanel(parent);
 
@@ -228,15 +228,15 @@ public class TabbedTemplatePanel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private com.webreach.mirth.client.ui.FunctionList functionList;
+    private com.mirth.connect.client.ui.FunctionList functionList;
     public javax.swing.JPanel messageTab;
-    private com.webreach.mirth.client.ui.editors.MessageTemplatePanel messageTemplatePanel;
-    private com.webreach.mirth.client.ui.editors.MessageTreePanel messageTreePanel;
+    private com.mirth.connect.client.ui.editors.MessageTemplatePanel messageTemplatePanel;
+    private com.mirth.connect.client.ui.editors.MessageTreePanel messageTreePanel;
     public javax.swing.JTabbedPane tabPanel;
     public javax.swing.JPanel treeTab;
     private javax.swing.JScrollPane variableListScrollPane;
     private javax.swing.JSplitPane variableSplitPane;
     private javax.swing.JPanel variableTab;
-    private com.webreach.mirth.client.ui.panels.reference.VariableReferenceTable variableTable;
+    private com.mirth.connect.client.ui.panels.reference.VariableReferenceTable variableTable;
     // End of variables declaration//GEN-END:variables
 }

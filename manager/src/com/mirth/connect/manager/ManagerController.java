@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.manager;
+package com.mirth.connect.manager;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,9 +27,9 @@ import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
 
-import com.webreach.mirth.client.core.Client;
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.util.PropertyLoader;
+import com.mirth.connect.client.core.Client;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.util.PropertyLoader;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import javax.swing.SwingWorker;

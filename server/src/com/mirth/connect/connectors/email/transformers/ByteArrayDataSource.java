@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.webreach.mirth.connectors.email.transformers;
+package com.mirth.connect.connectors.email.transformers;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

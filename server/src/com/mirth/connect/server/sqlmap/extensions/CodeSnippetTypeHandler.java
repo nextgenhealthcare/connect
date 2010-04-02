@@ -7,9 +7,9 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.sqlmap.extensions;
+package com.mirth.connect.server.sqlmap.extensions;
 
-import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
+import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
 
 public class CodeSnippetTypeHandler extends EnumTypeHandler<CodeSnippetType> {
 	public CodeSnippetTypeHandler() {

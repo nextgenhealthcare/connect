@@ -79,7 +79,7 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
-            <Component class="com.webreach.mirth.plugins.serverlog.ServerLogTextPane" name="serverLogTextPane1">
+            <Component class="com.mirth.connect.plugins.serverlog.ServerLogTextPane" name="serverLogTextPane1">
               <Properties>
                 <Property name="editable" type="boolean" value="false"/>
                 <Property name="doubleBuffered" type="boolean" value="true"/>

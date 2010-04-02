@@ -9,7 +9,7 @@
 	<extensionPoint>
 		<name>Image Viewer</name>
 		<type>ATTACHMENT_VIEWER</type>
-		<className>com.webreach.mirth.plugins.imageviewer.ImageViewer</className>
+		<className>com.mirth.connect.plugins.imageviewer.ImageViewer</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
 	<library path="imageviewer-client.jar">

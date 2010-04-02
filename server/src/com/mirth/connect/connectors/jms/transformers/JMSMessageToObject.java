@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.jms.transformers;
+package com.mirth.connect.connectors.jms.transformers;
 
 import javax.jms.Message;
 

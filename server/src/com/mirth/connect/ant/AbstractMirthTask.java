@@ -7,15 +7,15 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.ant;
+package com.mirth.connect.ant;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 
-import com.webreach.mirth.client.core.Client;
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.ChannelStatus;
+import com.mirth.connect.client.core.Client;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelStatus;
 
 /**
  * @author andrzej@coalese.com

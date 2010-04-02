@@ -7,13 +7,13 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Point;
 import java.util.List;
 
-import com.webreach.mirth.model.ChannelStatus;
+import com.mirth.connect.model.ChannelStatus;
 
 /** Creates the Delete Statistics dialog. */
 public class DeleteStatisticsDialog extends javax.swing.JDialog {

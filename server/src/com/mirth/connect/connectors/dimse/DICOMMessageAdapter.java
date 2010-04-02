@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.dimse;
+package com.mirth.connect.connectors.dimse;
 
 import org.mule.providers.AbstractMessageAdapter;
 import org.mule.umo.MessagingException;

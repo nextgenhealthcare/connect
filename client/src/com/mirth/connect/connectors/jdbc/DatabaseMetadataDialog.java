@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.jdbc;
+package com.mirth.connect.connectors.jdbc;
 
 import java.awt.Dimension;
 import java.awt.Point;
@@ -28,14 +28,14 @@ import javax.swing.event.ListSelectionListener;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.Mirth;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.RefreshTableModel;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.connectors.ConnectorClass;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.RefreshTableModel;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.connectors.ConnectorClass;
 
 public class DatabaseMetadataDialog extends javax.swing.JDialog {
 
@@ -479,7 +479,7 @@ private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GE
     private javax.swing.JButton cancelButton;
     private javax.swing.JButton generateButton;
     private javax.swing.JScrollPane includedDestinationsPane;
-    private com.webreach.mirth.client.ui.components.MirthTable includedMetaDataTable;
+    private com.mirth.connect.client.ui.components.MirthTable includedMetaDataTable;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JSeparator jSeparator1;
     // End of variables declaration//GEN-END:variables

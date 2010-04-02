@@ -110,7 +110,7 @@
 
               <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
               <SubComponents>
-                <Component class="com.webreach.mirth.client.ui.components.MirthTable" name="sourceConnectorTable">
+                <Component class="com.mirth.connect.client.ui.components.MirthTable" name="sourceConnectorTable">
                   <Properties>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                       <Table columnCount="3" rowCount="2">
@@ -151,7 +151,7 @@
 
               <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
               <SubComponents>
-                <Component class="com.webreach.mirth.client.ui.components.MirthTable" name="destinationConnectorTable">
+                <Component class="com.mirth.connect.client.ui.components.MirthTable" name="destinationConnectorTable">
                   <Properties>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                       <Table columnCount="3" rowCount="4">

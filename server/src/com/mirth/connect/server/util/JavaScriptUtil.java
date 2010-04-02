@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.util;
+package com.mirth.connect.server.util;
 
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
@@ -18,15 +18,15 @@ import org.mozilla.javascript.Script;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
-import com.webreach.mirth.model.CodeTemplate;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
-import com.webreach.mirth.server.MirthJavascriptTransformerException;
-import com.webreach.mirth.server.controllers.ControllerException;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.EventController;
-import com.webreach.mirth.server.controllers.ScriptController;
+import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.SystemEvent;
+import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
+import com.mirth.connect.server.MirthJavascriptTransformerException;
+import com.mirth.connect.server.controllers.ControllerException;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.controllers.ScriptController;
 
 public class JavaScriptUtil {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -63,8 +63,8 @@ public class JavaScriptUtil {
 
     private String getJavascriptImportScript() {
         StringBuilder script = new StringBuilder();
-        script.append("importPackage(Packages.com.webreach.mirth.server.util);\n");
-        script.append("importPackage(Packages.com.webreach.mirth.model.converters);\n");
+        script.append("importPackage(Packages.com.mirth.connect.server.util);\n");
+        script.append("importPackage(Packages.com.mirth.connect.model.converters);\n");
         script.append("regex = new RegExp('');\n");
         script.append("xml = new XML('');\n");
         script.append("xmllist = new XMLList();\n");
@@ -213,13 +213,13 @@ public class JavaScriptUtil {
 
             // Helper function to access attachments (returns List<Attachment>)
             builtScript.append("function getAttachments() {");
-            builtScript.append("return Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().getAttachmentsByMessageId(messageObject.getId());");
+            builtScript.append("return Packages.com.mirth.connect.server.controllers.MessageObjectController.getInstance().getAttachmentsByMessageId(messageObject.getId());");
             builtScript.append("}");
 
             // Helper function to set attachment
             builtScript.append("function addAttachment(data, type) {");
-            builtScript.append("var attachment = Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().createAttachment(data, type, messageObject);");
-            builtScript.append("Packages.com.webreach.mirth.server.controllers.MessageObjectController.getInstance().insertAttachment(attachment); \n");
+            builtScript.append("var attachment = Packages.com.mirth.connect.server.controllers.MessageObjectController.getInstance().createAttachment(data, type, messageObject);");
+            builtScript.append("Packages.com.mirth.connect.server.controllers.MessageObjectController.getInstance().insertAttachment(attachment); \n");
             builtScript.append("return attachment; }\n");
         }
         

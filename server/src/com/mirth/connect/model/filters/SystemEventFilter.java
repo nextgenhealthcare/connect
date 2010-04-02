@@ -7,11 +7,11 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.filters;
+package com.mirth.connect.model.filters;
 
 import java.util.Calendar;
 
-import com.webreach.mirth.model.SystemEvent.Level;
+import com.mirth.connect.model.SystemEvent.Level;
 
 /**
  * A SystemEventFilter is used to search the system event log.

@@ -7,14 +7,14 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors;
+package com.mirth.connect.connectors;
 
 import java.util.ArrayList;
 import java.util.Properties;
 
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.model.CodeTemplate;
+import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.model.CodeTemplate;
 
 /**
  * Used to extend from for all of the Connectors. Each method is re-implemented

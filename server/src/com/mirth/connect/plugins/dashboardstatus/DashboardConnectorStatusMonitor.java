@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.dashboardstatus;
+package com.mirth.connect.plugins.dashboardstatus;
 
 import java.net.Socket;
 import java.sql.Timestamp;
@@ -22,24 +22,24 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.connectors.doc.DocumentWriterProperties;
-import com.webreach.mirth.connectors.email.EmailSenderProperties;
-import com.webreach.mirth.connectors.file.FileWriterProperties;
-import com.webreach.mirth.connectors.http.HTTPSenderProperties;
-import com.webreach.mirth.connectors.jdbc.DatabaseWriterProperties;
-import com.webreach.mirth.connectors.jms.JMSWriterProperties;
-import com.webreach.mirth.connectors.mllp.LLPSenderProperties;
-import com.webreach.mirth.connectors.tcp.TCPSenderProperties;
-import com.webreach.mirth.connectors.vm.ChannelWriterProperties;
-import com.webreach.mirth.connectors.ws.WebServiceSenderProperties;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.converters.ObjectCloner;
-import com.webreach.mirth.model.converters.ObjectClonerException;
-import com.webreach.mirth.plugins.ServerPlugin;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.MonitoringController.ConnectorType;
-import com.webreach.mirth.server.controllers.MonitoringController.Event;
+import com.mirth.connect.connectors.doc.DocumentWriterProperties;
+import com.mirth.connect.connectors.email.EmailSenderProperties;
+import com.mirth.connect.connectors.file.FileWriterProperties;
+import com.mirth.connect.connectors.http.HTTPSenderProperties;
+import com.mirth.connect.connectors.jdbc.DatabaseWriterProperties;
+import com.mirth.connect.connectors.jms.JMSWriterProperties;
+import com.mirth.connect.connectors.mllp.LLPSenderProperties;
+import com.mirth.connect.connectors.tcp.TCPSenderProperties;
+import com.mirth.connect.connectors.vm.ChannelWriterProperties;
+import com.mirth.connect.connectors.ws.WebServiceSenderProperties;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.converters.ObjectCloner;
+import com.mirth.connect.model.converters.ObjectClonerException;
+import com.mirth.connect.plugins.ServerPlugin;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
+import com.mirth.connect.server.controllers.MonitoringController.Event;
 
 public class DashboardConnectorStatusMonitor implements ServerPlugin {
     private Logger logger = Logger.getLogger(this.getClass());

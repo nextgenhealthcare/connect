@@ -211,7 +211,7 @@
         <Property name="text" type="java.lang.String" value="Method:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="schemeComboBox">
+    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="schemeComboBox">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="5">
@@ -233,7 +233,7 @@
         <Property name="text" type="java.lang.String" value="Directory:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="directoryField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="directoryField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The directory (folder) where the generated file should be written."/>
       </Properties>
@@ -243,7 +243,7 @@
         <Property name="text" type="java.lang.String" value="ftp://"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="hostField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="hostField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The name or IP address of the host (computer) on which the files will be written."/>
       </Properties>
@@ -253,7 +253,7 @@
         <Property name="text" type="java.lang.String" value="/"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="pathField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="pathField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The directory (folder) in which the files to be read can be found."/>
       </Properties>
@@ -263,7 +263,7 @@
         <Property name="text" type="java.lang.String" value="File Name:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="fileNameField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="fileNameField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The file name to give to the generated file."/>
       </Properties>
@@ -273,7 +273,7 @@
         <Property name="text" type="java.lang.String" value="Anonymous:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="anonymousYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="anonymousYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -296,7 +296,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="anonymousYesActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="anonymousNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="anonymousNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -325,7 +325,7 @@
         <Property name="text" type="java.lang.String" value="Username:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="usernameField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="usernameField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The user name used to gain access to the server."/>
       </Properties>
@@ -335,7 +335,7 @@
         <Property name="text" type="java.lang.String" value="Password:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthPasswordField" name="passwordField">
+    <Component class="com.mirth.connect.client.ui.components.MirthPasswordField" name="passwordField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The password used to gain access to the server."/>
       </Properties>
@@ -345,7 +345,7 @@
         <Property name="text" type="java.lang.String" value="Secure Mode:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="secureModeYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="secureModeYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -368,7 +368,7 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="secureModeYesActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="secureModeNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="secureModeNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -397,7 +397,7 @@
         <Property name="text" type="java.lang.String" value="Validate Connection:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="validateConnectionYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="validateConnectionYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -417,7 +417,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="validateConnectionNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="validateConnectionNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -443,7 +443,7 @@
         <Property name="text" type="java.lang.String" value="Append to file:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="appendToFileYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="appendToFileYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -463,7 +463,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="appendToFileNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="appendToFileNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -489,7 +489,7 @@
         <Property name="text" type="java.lang.String" value="File Type:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="fileTypeBinary">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="fileTypeBinary">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -509,7 +509,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="fileTypeASCII">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="fileTypeASCII">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -530,7 +530,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthComboBox" name="charsetEncodingCombobox">
+    <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="charsetEncodingCombobox">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
           <StringArray count="7">
@@ -556,7 +556,7 @@
         <Property name="text" type="java.lang.String" value="Template:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthSyntaxTextArea" name="fileContentsTextPane">
+    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="fileContentsTextPane">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -565,7 +565,7 @@
         </Property>
       </Properties>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(false,false);"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(false,false);"/>
       </AuxValues>
     </Component>
     <Component class="javax.swing.JButton" name="testConnection">
@@ -581,7 +581,7 @@
         <Property name="text" type="java.lang.String" value="Passive Mode:"/>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="passiveModeYes">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="passiveModeYes">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -601,7 +601,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthRadioButton" name="passiveModeNo">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="passiveModeNo">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -622,7 +622,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.webreach.mirth.client.ui.components.MirthTextField" name="timeoutField">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="timeoutField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="The socket timeout (in ms) for connecting to the server."/>
       </Properties>

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.actions;
+package com.mirth.connect.client.ui.actions;
 
 import java.awt.event.ActionEvent;
 
@@ -15,7 +15,7 @@ import javax.swing.AbstractAction;
 
 import org.syntax.jedit.JEditTextArea;
 
-import com.webreach.mirth.client.ui.Frame;
+import com.mirth.connect.client.ui.Frame;
 
 public class ShowLineEndingsAction extends AbstractAction {
 

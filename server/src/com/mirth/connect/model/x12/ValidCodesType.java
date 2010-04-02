@@ -15,7 +15,7 @@
 //
 
 
-package com.webreach.mirth.model.x12;
+package com.mirth.connect.model.x12;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

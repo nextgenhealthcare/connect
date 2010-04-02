@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.io.File;
 import java.util.List;
@@ -16,12 +16,12 @@ import java.util.Properties;
 
 import org.apache.commons.fileupload.FileItem;
 
-import com.webreach.mirth.model.ConnectorMetaData;
-import com.webreach.mirth.model.ExtensionPoint;
-import com.webreach.mirth.model.ExtensionPointDefinition;
-import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.plugins.ServerPlugin;
-import com.webreach.mirth.server.tools.ClassPathResource;
+import com.mirth.connect.model.ConnectorMetaData;
+import com.mirth.connect.model.ExtensionPoint;
+import com.mirth.connect.model.ExtensionPointDefinition;
+import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.plugins.ServerPlugin;
+import com.mirth.connect.server.tools.ClassPathResource;
 
 public abstract class ExtensionController extends Controller {
 	

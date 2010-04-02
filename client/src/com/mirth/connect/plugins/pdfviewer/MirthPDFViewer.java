@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.plugins.pdfviewer;
+package com.mirth.connect.plugins.pdfviewer;
 
 import java.io.File;
 import java.io.IOException;

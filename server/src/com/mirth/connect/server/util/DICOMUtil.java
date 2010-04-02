@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.util;
+package com.mirth.connect.server.util;
 
 import ij.ImagePlus;
 import ij.ImageStack;
@@ -29,12 +29,12 @@ import javax.imageio.ImageWriter;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.model.Attachment;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.converters.DICOMSerializer;
-import com.webreach.mirth.model.converters.SerializerException;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.MessageObjectController;
+import com.mirth.connect.model.Attachment;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.converters.DICOMSerializer;
+import com.mirth.connect.model.converters.SerializerException;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.MessageObjectController;
 
 /**
  * Created by IntelliJ IDEA. User: Date: Oct 4, 2007 Time: 10:42:11 AM To change

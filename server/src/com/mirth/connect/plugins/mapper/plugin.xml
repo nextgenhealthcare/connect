@@ -9,7 +9,7 @@
 	<extensionPoint>
 		<name>Mapper</name>
 		<type>CLIENT_TRANSFORMER_STEP</type>
-		<className>com.webreach.mirth.plugins.mapper.MapperStepPlugin</className>
+		<className>com.mirth.connect.plugins.mapper.MapperStepPlugin</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
 	<library path="mapper-client.jar">

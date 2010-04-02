@@ -7,12 +7,12 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server;
+package com.mirth.connect.server;
 
 import org.mozilla.javascript.RhinoException;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.server.controllers.ControllerFactory;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.server.controllers.ControllerFactory;
 
 public class MirthJavascriptTransformerException extends Exception {
 	private static final long serialVersionUID = 1L;

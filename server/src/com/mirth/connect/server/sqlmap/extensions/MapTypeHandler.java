@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.sqlmap.extensions;
+package com.mirth.connect.server.sqlmap.extensions;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -18,7 +18,7 @@ import java.util.Map.Entry;
 import com.ibatis.sqlmap.client.extensions.ParameterSetter;
 import com.ibatis.sqlmap.client.extensions.ResultGetter;
 import com.ibatis.sqlmap.client.extensions.TypeHandlerCallback;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class MapTypeHandler implements TypeHandlerCallback {
 	private ObjectXMLSerializer serializer = new ObjectXMLSerializer();

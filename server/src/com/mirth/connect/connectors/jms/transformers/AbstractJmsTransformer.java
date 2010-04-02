@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.jms.transformers;
+package com.mirth.connect.connectors.jms.transformers;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -32,7 +32,7 @@ import org.mule.umo.transformer.TransformerException;
 import org.mule.util.PropertiesHelper;
 import org.mule.util.compression.CompressionHelper;
 
-import com.webreach.mirth.connectors.jms.JmsMessageUtils;
+import com.mirth.connect.connectors.jms.JmsMessageUtils;
 
 /**
  * <code>AbstractJmsTransformer</code> is an abstract class the should be used

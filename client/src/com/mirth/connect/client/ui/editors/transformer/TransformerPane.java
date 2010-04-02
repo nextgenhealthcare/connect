@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.editors.transformer;
+package com.mirth.connect.client.ui.editors.transformer;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -60,31 +60,31 @@ import org.jdesktop.swingx.action.BoundAction;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.webreach.mirth.client.ui.CenterCellRenderer;
-import com.webreach.mirth.client.ui.Frame;
-import com.webreach.mirth.client.ui.MapperDropData;
-import com.webreach.mirth.client.ui.MessageBuilderDropData;
-import com.webreach.mirth.client.ui.Mirth;
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.TreeTransferable;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthComboBoxCellEditor;
-import com.webreach.mirth.client.ui.components.MirthTree;
-import com.webreach.mirth.client.ui.editors.BasePanel;
-import com.webreach.mirth.client.ui.editors.EditorTableCellEditor;
-import com.webreach.mirth.client.ui.editors.MirthEditorPane;
-import com.webreach.mirth.client.ui.util.VariableListUtil;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
-import com.webreach.mirth.model.ExtensionPoint;
-import com.webreach.mirth.model.ExtensionPointDefinition;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.PluginMetaData;
-import com.webreach.mirth.model.Step;
-import com.webreach.mirth.model.Transformer;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.model.util.ImportConverter;
-import com.webreach.mirth.plugins.TransformerStepPlugin;
+import com.mirth.connect.client.ui.CenterCellRenderer;
+import com.mirth.connect.client.ui.Frame;
+import com.mirth.connect.client.ui.MapperDropData;
+import com.mirth.connect.client.ui.MessageBuilderDropData;
+import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.TreeTransferable;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthComboBoxCellEditor;
+import com.mirth.connect.client.ui.components.MirthTree;
+import com.mirth.connect.client.ui.editors.BasePanel;
+import com.mirth.connect.client.ui.editors.EditorTableCellEditor;
+import com.mirth.connect.client.ui.editors.MirthEditorPane;
+import com.mirth.connect.client.ui.util.VariableListUtil;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.ExtensionPoint;
+import com.mirth.connect.model.ExtensionPointDefinition;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.PluginMetaData;
+import com.mirth.connect.model.Step;
+import com.mirth.connect.model.Transformer;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.model.util.ImportConverter;
+import com.mirth.connect.plugins.TransformerStepPlugin;
 
 public class TransformerPane extends MirthEditorPane implements
         DropTargetListener {

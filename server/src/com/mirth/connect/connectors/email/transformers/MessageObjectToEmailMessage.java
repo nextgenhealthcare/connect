@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.email.transformers;
+package com.mirth.connect.connectors.email.transformers;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -36,11 +36,11 @@ import org.mule.util.PropertiesHelper;
 import org.mule.util.TemplateParser;
 import org.mule.util.Utility;
 
-import com.webreach.mirth.connectors.email.MailProperties;
-import com.webreach.mirth.connectors.email.MailUtils;
-import com.webreach.mirth.connectors.email.SmtpConnector;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.server.util.FileUtil;
+import com.mirth.connect.connectors.email.MailProperties;
+import com.mirth.connect.connectors.email.MailUtils;
+import com.mirth.connect.connectors.email.SmtpConnector;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.server.util.FileUtil;
 
 /**
  * <code>StringToEmailMessage</code> will convert a string to a java mail

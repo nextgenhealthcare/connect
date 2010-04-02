@@ -5,7 +5,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 "conf/sql-map-2.dtd">
 
 <sqlMap namespace="User">
-	<resultMap class="com.webreach.mirth.model.User" id="get-user-result">
+	<resultMap class="com.mirth.connect.model.User" id="get-user-result">
 		<result property="id" column="ID" jdbcType="INTEGER" />
 		<result property="username" column="USERNAME" />
 		<result property="firstName" column="FIRSTNAME" />
@@ -17,13 +17,13 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<result property="description" column="DESCRIPTION" />
 	</resultMap>
 	
-	<resultMap class="com.webreach.mirth.model.Credentials" id="get-user-credentials">
+	<resultMap class="com.mirth.connect.model.Credentials" id="get-user-credentials">
 		<result property="username" column="USERNAME" />
 		<result property="password" column="PASSWORD" />
 		<result property="salt" column="SALT" />
 	</resultMap>
 
-	<select id="getUser" parameterClass="com.webreach.mirth.model.User" resultMap="get-user-result">
+	<select id="getUser" parameterClass="com.mirth.connect.model.User" resultMap="get-user-result">
 		SELECT ID, USERNAME, FIRSTNAME, LASTNAME, ORGANIZATION, EMAIL, PHONENUMBER, LAST_LOGIN, DESCRIPTION
 		FROM PERSON
 		<dynamic prepend="WHERE">
@@ -36,7 +36,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		</dynamic>
 	</select>
 
-	<select id="getUserCredentials" parameterClass="com.webreach.mirth.model.User" resultMap="get-user-credentials">
+	<select id="getUserCredentials" parameterClass="com.mirth.connect.model.User" resultMap="get-user-credentials">
 		SELECT USERNAME, PASSWORD, SALT
 		FROM PERSON
 		WHERE USERNAME = #username#
@@ -62,7 +62,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		WHERE ID = #id#
 	</update>
 	
-	<delete id="deleteUser" parameterClass="com.webreach.mirth.model.User">
+	<delete id="deleteUser" parameterClass="com.mirth.connect.model.User">
 		DELETE FROM PERSON
 		<dynamic prepend="WHERE">
 			<isNotNull prepend="AND" property="id">

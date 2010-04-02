@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.tcp;
+package com.mirth.connect.connectors.tcp;
 
 import java.io.IOException;
 import java.io.InputStream;

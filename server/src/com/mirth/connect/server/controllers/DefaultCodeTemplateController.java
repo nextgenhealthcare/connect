@@ -7,16 +7,16 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers;
+package com.mirth.connect.server.controllers;
 
 import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.model.CodeTemplate;
-import com.webreach.mirth.server.util.DatabaseUtil;
-import com.webreach.mirth.server.util.SqlConfig;
+import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.server.util.DatabaseUtil;
+import com.mirth.connect.server.util.SqlConfig;
 
 public class DefaultCodeTemplateController extends CodeTemplateController {
     private Logger logger = Logger.getLogger(this.getClass());

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 public class SettingsPane extends javax.swing.JPanel {
 
@@ -29,7 +29,7 @@ public class SettingsPane extends javax.swing.JPanel {
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        settingsPanel = new com.webreach.mirth.client.ui.SettingsPanel();
+        settingsPanel = new com.mirth.connect.client.ui.SettingsPanel();
 
         jScrollPane1.setBorder(null);
         jScrollPane1.setViewportView(settingsPanel);
@@ -51,6 +51,6 @@ public class SettingsPane extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
-    private com.webreach.mirth.client.ui.SettingsPanel settingsPanel;
+    private com.mirth.connect.client.ui.SettingsPanel settingsPanel;
     // End of variables declaration//GEN-END:variables
 }

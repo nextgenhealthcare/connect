@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.vm;
+package com.mirth.connect.connectors.vm;
 
 import java.util.Iterator;
 
@@ -35,7 +35,7 @@ import org.mule.util.ClassHelper;
 import org.mule.util.queue.QueueManager;
 import org.mule.util.queue.QueueSession;
 
-import com.webreach.mirth.server.util.VMRegistry;
+import com.mirth.connect.server.util.VMRegistry;
 
 /**
  * <code>VMConnector</code> A simple endpoint wrapper to allow a Mule component

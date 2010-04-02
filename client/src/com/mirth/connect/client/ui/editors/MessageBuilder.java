@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.editors;
+package com.mirth.connect.client.ui.editors;
 
 import java.awt.Component;
 import java.awt.event.MouseEvent;
@@ -33,9 +33,9 @@ import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.syntax.jedit.SyntaxDocument;
 
-import com.webreach.mirth.client.ui.Mirth;
-import com.webreach.mirth.client.ui.UIConstants;
-import com.webreach.mirth.client.ui.components.MirthTable;
+import com.mirth.connect.client.ui.Mirth;
+import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthTable;
 
 public class MessageBuilder extends BasePanel {
 
@@ -295,7 +295,7 @@ public class MessageBuilder extends BasePanel {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         regularExpressionsScrollPane = new javax.swing.JScrollPane();
-        regularExpressionsTable = new com.webreach.mirth.client.ui.components.MirthTable();
+        regularExpressionsTable = new com.mirth.connect.client.ui.components.MirthTable();
         newButton = new javax.swing.JButton();
         deleteButton = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
@@ -431,7 +431,7 @@ public class MessageBuilder extends BasePanel {
     private javax.swing.JTextField mappingTextField;
     private javax.swing.JButton newButton;
     private javax.swing.JScrollPane regularExpressionsScrollPane;
-    private com.webreach.mirth.client.ui.components.MirthTable regularExpressionsTable;
+    private com.mirth.connect.client.ui.components.MirthTable regularExpressionsTable;
     private javax.swing.JTextField variableTextField;
     // End of variables declaration//GEN-END:variables
 }

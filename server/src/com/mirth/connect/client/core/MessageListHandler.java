@@ -7,16 +7,16 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.core;
+package com.mirth.connect.client.core;
 
 import java.util.List;
 
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.log4j.Logger;
 
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.converters.ObjectXMLSerializer;
-import com.webreach.mirth.model.filters.MessageObjectFilter;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.converters.ObjectXMLSerializer;
+import com.mirth.connect.model.filters.MessageObjectFilter;
 
 public class MessageListHandler implements ListHandler {
 	private Logger logger = Logger.getLogger(this.getClass());

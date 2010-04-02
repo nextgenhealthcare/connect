@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server;
+package com.mirth.connect.server;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,30 +32,29 @@ import org.mortbay.http.SslListener;
 import org.mortbay.http.handler.ResourceHandler;
 import org.mortbay.jetty.servlet.ServletHandler;
 
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.server.controllers.ChannelController;
-import com.webreach.mirth.server.controllers.ChannelStatisticsController;
-import com.webreach.mirth.server.controllers.ConfigurationController;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.EngineController;
-import com.webreach.mirth.server.controllers.EventController;
-import com.webreach.mirth.server.controllers.ExtensionController;
-import com.webreach.mirth.server.controllers.MessageObjectController;
-import com.webreach.mirth.server.controllers.MigrationController;
-import com.webreach.mirth.server.controllers.MonitoringController;
-import com.webreach.mirth.server.controllers.MuleEngineController;
-import com.webreach.mirth.server.controllers.UserController;
-import com.webreach.mirth.server.util.GlobalChannelVariableStoreFactory;
-import com.webreach.mirth.server.util.GlobalVariableStore;
-import com.webreach.mirth.server.util.StackTracePrinter;
-import com.webreach.mirth.server.util.VMRegistry;
-import com.webreach.mirth.util.PropertyLoader;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.SystemEvent;
+import com.mirth.connect.server.controllers.ChannelController;
+import com.mirth.connect.server.controllers.ChannelStatisticsController;
+import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EngineController;
+import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.controllers.ExtensionController;
+import com.mirth.connect.server.controllers.MessageObjectController;
+import com.mirth.connect.server.controllers.MigrationController;
+import com.mirth.connect.server.controllers.MonitoringController;
+import com.mirth.connect.server.controllers.MuleEngineController;
+import com.mirth.connect.server.controllers.UserController;
+import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
+import com.mirth.connect.server.util.GlobalVariableStore;
+import com.mirth.connect.server.util.StackTracePrinter;
+import com.mirth.connect.server.util.VMRegistry;
+import com.mirth.connect.util.PropertyLoader;
 
 /**
  * Instantiate a Mirth server that listens for commands from the CommandQueue.
  * 
- * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  */
 public class Mirth extends Thread {
     private Logger logger = Logger.getLogger(this.getClass());
@@ -411,9 +410,9 @@ public class Mirth extends Thread {
             servletContext.setContextPath(contextPath + "/");
             servletContext.addHandler(servlets);
             httpServer.addContext(servletContext);
-            servlets.addServlet("WebStart", "/webstart.jnlp", "com.webreach.mirth.server.servlets.WebStartServlet");
+            servlets.addServlet("WebStart", "/webstart.jnlp", "com.mirth.connect.server.servlets.WebStartServlet");
             // Servlets for backwards compatibility
-            servlets.addServlet("WebStart", "/webstart", "com.webreach.mirth.server.servlets.WebStartServlet");
+            servlets.addServlet("WebStart", "/webstart", "com.mirth.connect.server.servlets.WebStartServlet");
 
             // Create a secure servlet container
             ServletHandler secureServlets = new ServletHandler();
@@ -423,16 +422,16 @@ public class Mirth extends Thread {
             servletContainer.addContext(secureServletContext);
 
             // Map a servlet onto the container
-            secureServlets.addServlet("Alerts", "/alerts", "com.webreach.mirth.server.servlets.AlertServlet");
-            secureServlets.addServlet("Channels", "/channels", "com.webreach.mirth.server.servlets.ChannelServlet");
-            secureServlets.addServlet("ChannelStatistics", "/channelstatistics", "com.webreach.mirth.server.servlets.ChannelStatisticsServlet");
-            secureServlets.addServlet("ChannelStatus", "/channelstatus", "com.webreach.mirth.server.servlets.ChannelStatusServlet");
-            secureServlets.addServlet("CodeTemplates", "/codetemplates", "com.webreach.mirth.server.servlets.CodeTemplateServlet");
-            secureServlets.addServlet("Configuration", "/configuration", "com.webreach.mirth.server.servlets.ConfigurationServlet");
-            secureServlets.addServlet("MessageObject", "/messages", "com.webreach.mirth.server.servlets.MessageObjectServlet");
-            secureServlets.addServlet("Extensions", "/extensions", "com.webreach.mirth.server.servlets.ExtensionServlet");
-            secureServlets.addServlet("SystemEvent", "/events", "com.webreach.mirth.server.servlets.SystemEventServlet");
-            secureServlets.addServlet("Users", "/users", "com.webreach.mirth.server.servlets.UserServlet");
+            secureServlets.addServlet("Alerts", "/alerts", "com.mirth.connect.server.servlets.AlertServlet");
+            secureServlets.addServlet("Channels", "/channels", "com.mirth.connect.server.servlets.ChannelServlet");
+            secureServlets.addServlet("ChannelStatistics", "/channelstatistics", "com.mirth.connect.server.servlets.ChannelStatisticsServlet");
+            secureServlets.addServlet("ChannelStatus", "/channelstatus", "com.mirth.connect.server.servlets.ChannelStatusServlet");
+            secureServlets.addServlet("CodeTemplates", "/codetemplates", "com.mirth.connect.server.servlets.CodeTemplateServlet");
+            secureServlets.addServlet("Configuration", "/configuration", "com.mirth.connect.server.servlets.ConfigurationServlet");
+            secureServlets.addServlet("MessageObject", "/messages", "com.mirth.connect.server.servlets.MessageObjectServlet");
+            secureServlets.addServlet("Extensions", "/extensions", "com.mirth.connect.server.servlets.ExtensionServlet");
+            secureServlets.addServlet("SystemEvent", "/events", "com.mirth.connect.server.servlets.SystemEventServlet");
+            secureServlets.addServlet("Users", "/users", "com.mirth.connect.server.servlets.UserServlet");
 
             // start the web server
             httpServer.start();

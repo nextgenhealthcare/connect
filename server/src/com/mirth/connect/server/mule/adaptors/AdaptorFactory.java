@@ -7,9 +7,9 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.mule.adaptors;
+package com.mirth.connect.server.mule.adaptors;
 
-import com.webreach.mirth.model.MessageObject.Protocol;
+import com.mirth.connect.model.MessageObject.Protocol;
 
 public class AdaptorFactory {
 	public static Adaptor getAdaptor(Protocol protocol) {

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.awt.Dimension;
 import java.awt.Point;
@@ -18,13 +18,13 @@ import javax.swing.JScrollPane;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-import com.webreach.mirth.client.ui.components.DataTypesButtonCellEditor;
-import com.webreach.mirth.client.ui.components.DataTypesComboBoxCellEditor;
-import com.webreach.mirth.client.ui.components.DataTypesComboBoxCellRenderer;
-import com.webreach.mirth.client.ui.components.MirthButtonCellRenderer;
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.Connector;
+import com.mirth.connect.client.ui.components.DataTypesButtonCellEditor;
+import com.mirth.connect.client.ui.components.DataTypesComboBoxCellEditor;
+import com.mirth.connect.client.ui.components.DataTypesComboBoxCellRenderer;
+import com.mirth.connect.client.ui.components.MirthButtonCellRenderer;
+import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.Connector;
 
 public class DataTypesDialog extends javax.swing.JDialog {
 
@@ -172,10 +172,10 @@ public class DataTypesDialog extends javax.swing.JDialog {
         jSeparator1 = new javax.swing.JSeparator();
         jPanel2 = new javax.swing.JPanel();
         sourceConnectorTablePane = new javax.swing.JScrollPane();
-        sourceConnectorTable = new com.webreach.mirth.client.ui.components.MirthTable();
+        sourceConnectorTable = new com.mirth.connect.client.ui.components.MirthTable();
         jPanel3 = new javax.swing.JPanel();
         destinationConnectorTablePane = new javax.swing.JScrollPane();
-        destinationConnectorTable = new com.webreach.mirth.client.ui.components.MirthTable();
+        destinationConnectorTable = new com.mirth.connect.client.ui.components.MirthTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Set Data Types");
@@ -286,13 +286,13 @@ private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton closeButton;
-    private com.webreach.mirth.client.ui.components.MirthTable destinationConnectorTable;
+    private com.mirth.connect.client.ui.components.MirthTable destinationConnectorTable;
     private javax.swing.JScrollPane destinationConnectorTablePane;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JSeparator jSeparator1;
-    private com.webreach.mirth.client.ui.components.MirthTable sourceConnectorTable;
+    private com.mirth.connect.client.ui.components.MirthTable sourceConnectorTable;
     private javax.swing.JScrollPane sourceConnectorTablePane;
     // End of variables declaration//GEN-END:variables
 }

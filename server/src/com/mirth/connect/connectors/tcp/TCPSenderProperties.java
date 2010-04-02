@@ -7,11 +7,11 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.tcp;
+package com.mirth.connect.connectors.tcp;
 
 import java.util.Properties;
 
-import com.webreach.mirth.model.QueuedSenderProperties;
+import com.mirth.connect.model.QueuedSenderProperties;
 
 public class TCPSenderProperties extends QueuedSenderProperties {
     public static final String name = "TCP Sender";

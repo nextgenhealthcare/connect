@@ -7,9 +7,9 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.sqlmap.extensions;
+package com.mirth.connect.server.sqlmap.extensions;
 
-import com.webreach.mirth.model.MessageObject.Status;
+import com.mirth.connect.model.MessageObject.Status;
 
 public class MessageStatusTypeHandler extends EnumTypeHandler<Status> {
 	public MessageStatusTypeHandler() {

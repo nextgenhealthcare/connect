@@ -7,10 +7,10 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.dicom;
+package com.mirth.connect.model.dicom;
 
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.util.MessageVocabulary;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.util.MessageVocabulary;
 
 public class DICOMVocabulary extends MessageVocabulary {
     private DICOMReference reference = null;

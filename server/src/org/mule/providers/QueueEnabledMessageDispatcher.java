@@ -9,7 +9,7 @@
 
 package org.mule.providers;
 
-import com.webreach.mirth.model.QueuedMessage;
+import com.mirth.connect.model.QueuedMessage;
 
 public interface QueueEnabledMessageDispatcher {
 

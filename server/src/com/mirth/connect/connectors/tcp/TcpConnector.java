@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.tcp;
+package com.mirth.connect.connectors.tcp;
 
 import org.mule.config.i18n.Message;
 import org.mule.impl.model.AbstractComponent;
@@ -18,11 +18,11 @@ import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOMessageReceiver;
 
-import com.webreach.mirth.connectors.tcp.protocols.DefaultProtocol;
-import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.server.Constants;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.EventController;
+import com.mirth.connect.connectors.tcp.protocols.DefaultProtocol;
+import com.mirth.connect.model.SystemEvent;
+import com.mirth.connect.server.Constants;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
 
 /**
  * <code>TcpConnector</code> can bind or sent to a given tcp port on a given

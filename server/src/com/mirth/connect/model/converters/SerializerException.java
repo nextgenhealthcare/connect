@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.converters;
+package com.mirth.connect.model.converters;
 
 public class SerializerException extends Exception {
 	private static final long serialVersionUID = 1L;

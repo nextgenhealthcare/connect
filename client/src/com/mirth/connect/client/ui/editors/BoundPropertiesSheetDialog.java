@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.editors;
+package com.mirth.connect.client.ui.editors;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -16,8 +16,8 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
-import com.webreach.mirth.client.ui.BeanBinder;
-import com.webreach.mirth.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.BeanBinder;
+import com.mirth.connect.client.ui.PlatformUI;
 
 public class BoundPropertiesSheetDialog extends javax.swing.JDialog {
 

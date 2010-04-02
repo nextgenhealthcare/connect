@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.controllers.tests;
+package com.mirth.connect.server.controllers.tests;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -16,13 +16,13 @@ import java.util.List;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
-import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.model.filters.SystemEventFilter;
-import com.webreach.mirth.server.controllers.ConfigurationController;
-import com.webreach.mirth.server.controllers.ControllerException;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.EventController;
-import com.webreach.mirth.server.tools.ScriptRunner;
+import com.mirth.connect.model.SystemEvent;
+import com.mirth.connect.model.filters.SystemEventFilter;
+import com.mirth.connect.server.controllers.ConfigurationController;
+import com.mirth.connect.server.controllers.ControllerException;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
+import com.mirth.connect.server.tools.ScriptRunner;
 
 public class EventControllerTest extends TestCase {
 	private EventController eventController = ControllerFactory.getFactory().createEventController();

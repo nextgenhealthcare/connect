@@ -7,14 +7,14 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.editors;
+package com.mirth.connect.client.ui.editors;
 
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
 
 import javax.swing.border.TitledBorder;
 
-import com.webreach.mirth.client.ui.TreePanel;
+import com.mirth.connect.client.ui.TreePanel;
 
 public class MessageTreePanel extends javax.swing.JPanel {
 
@@ -98,9 +98,9 @@ public class MessageTreePanel extends javax.swing.JPanel {
 
         split = new javax.swing.JSplitPane();
         treeScrollPaneOutbound = new javax.swing.JScrollPane();
-        treePanelOutbound = new com.webreach.mirth.client.ui.TreePanel();
+        treePanelOutbound = new com.mirth.connect.client.ui.TreePanel();
         treeScrollPaneInbound = new javax.swing.JScrollPane();
-        treePanelInbound = new com.webreach.mirth.client.ui.TreePanel();
+        treePanelInbound = new com.mirth.connect.client.ui.TreePanel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -133,8 +133,8 @@ public class MessageTreePanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JSplitPane split;
-    private com.webreach.mirth.client.ui.TreePanel treePanelInbound;
-    private com.webreach.mirth.client.ui.TreePanel treePanelOutbound;
+    private com.mirth.connect.client.ui.TreePanel treePanelInbound;
+    private com.mirth.connect.client.ui.TreePanel treePanelOutbound;
     private javax.swing.JScrollPane treeScrollPaneInbound;
     private javax.swing.JScrollPane treeScrollPaneOutbound;
     // End of variables declaration//GEN-END:variables

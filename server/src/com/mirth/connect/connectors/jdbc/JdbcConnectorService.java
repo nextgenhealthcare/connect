@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.jdbc;
+package com.mirth.connect.connectors.jdbc;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 
-import com.webreach.mirth.connectors.ConnectorService;
+import com.mirth.connect.connectors.ConnectorService;
 
 public class JdbcConnectorService implements ConnectorService {
 

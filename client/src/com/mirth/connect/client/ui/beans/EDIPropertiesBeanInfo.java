@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.beans;
+package com.mirth.connect.client.ui.beans;
 
 import java.beans.BeanDescriptor;
 import java.beans.EventSetDescriptor;
@@ -21,7 +21,7 @@ public class EDIPropertiesBeanInfo extends SimpleBeanInfo {
     // Bean descriptor//GEN-FIRST:BeanDescriptor
     /*lazy BeanDescriptor*/
     private static BeanDescriptor getBdescriptor(){
-        BeanDescriptor beanDescriptor = new BeanDescriptor  ( com.webreach.mirth.client.ui.beans.EDIProperties.class , null ); // NOI18N//GEN-HEADEREND:BeanDescriptor
+        BeanDescriptor beanDescriptor = new BeanDescriptor  ( com.mirth.connect.client.ui.beans.EDIProperties.class , null ); // NOI18N//GEN-HEADEREND:BeanDescriptor
 
         // Here you can add code for customizing the BeanDescriptor.
 
@@ -37,15 +37,15 @@ public class EDIPropertiesBeanInfo extends SimpleBeanInfo {
         PropertyDescriptor[] properties = new PropertyDescriptor[3];
     
         try {
-            properties[PROPERTY_elementDelimiter] = new PropertyDescriptor ( "elementDelimiter", com.webreach.mirth.client.ui.beans.EDIProperties.class, "getElementDelimiter", "setElementDelimiter" ); // NOI18N
+            properties[PROPERTY_elementDelimiter] = new PropertyDescriptor ( "elementDelimiter", com.mirth.connect.client.ui.beans.EDIProperties.class, "getElementDelimiter", "setElementDelimiter" ); // NOI18N
             properties[PROPERTY_elementDelimiter].setDisplayName ( "Element Delimiter" );
             properties[PROPERTY_elementDelimiter].setShortDescription ( "Characters that delimit the elements in the message." );
             properties[PROPERTY_elementDelimiter].setBound ( true );
-            properties[PROPERTY_segmentDelimiter] = new PropertyDescriptor ( "segmentDelimiter", com.webreach.mirth.client.ui.beans.EDIProperties.class, "getSegmentDelimiter", "setSegmentDelimiter" ); // NOI18N
+            properties[PROPERTY_segmentDelimiter] = new PropertyDescriptor ( "segmentDelimiter", com.mirth.connect.client.ui.beans.EDIProperties.class, "getSegmentDelimiter", "setSegmentDelimiter" ); // NOI18N
             properties[PROPERTY_segmentDelimiter].setDisplayName ( "Segment Delimiter" );
             properties[PROPERTY_segmentDelimiter].setShortDescription ( "Characters that delimit the segments in the message." );
             properties[PROPERTY_segmentDelimiter].setBound ( true );
-            properties[PROPERTY_subelementDelimiter] = new PropertyDescriptor ( "subelementDelimiter", com.webreach.mirth.client.ui.beans.EDIProperties.class, "getSubelementDelimiter", "setSubelementDelimiter" ); // NOI18N
+            properties[PROPERTY_subelementDelimiter] = new PropertyDescriptor ( "subelementDelimiter", com.mirth.connect.client.ui.beans.EDIProperties.class, "getSubelementDelimiter", "setSubelementDelimiter" ); // NOI18N
             properties[PROPERTY_subelementDelimiter].setDisplayName ( "Subelement Delimiter" );
             properties[PROPERTY_subelementDelimiter].setShortDescription ( "Characters that delimit the subelements in the message." );
             properties[PROPERTY_subelementDelimiter].setBound ( true );

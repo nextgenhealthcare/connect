@@ -7,7 +7,7 @@
  * the LICENSE-MULE.txt file.
  */
 
-package com.webreach.mirth.connectors.tcp;
+package com.mirth.connect.connectors.tcp;
 
 import org.mule.providers.AbstractMessageAdapter;
 import org.mule.umo.MessagingException;

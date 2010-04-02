@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.connectors.file;
+package com.mirth.connect.connectors.file;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -39,12 +39,12 @@ import org.mule.umo.provider.ConnectorException;
 import org.mule.umo.provider.UMOMessageReceiver;
 import org.mule.util.Utility;
 
-import com.webreach.mirth.connectors.file.filesystems.FileSystemConnection;
-import com.webreach.mirth.connectors.file.filesystems.FileSystemConnectionFactory;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.server.controllers.ControllerFactory;
-import com.webreach.mirth.server.controllers.EventController;
+import com.mirth.connect.connectors.file.filesystems.FileSystemConnection;
+import com.mirth.connect.connectors.file.filesystems.FileSystemConnectionFactory;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.SystemEvent;
+import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.EventController;
 
 
 public class FileConnector extends AbstractServiceEnabledConnector {

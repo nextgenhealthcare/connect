@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -35,20 +35,20 @@ import org.syntax.jedit.tokenmarker.HL7TokenMarker;
 import org.syntax.jedit.tokenmarker.X12TokenMarker;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
-import com.webreach.mirth.client.ui.beans.DelimitedProperties;
-import com.webreach.mirth.client.ui.beans.EDIProperties;
-import com.webreach.mirth.client.ui.beans.HL7Properties;
-import com.webreach.mirth.client.ui.beans.HL7V3Properties;
-import com.webreach.mirth.client.ui.beans.NCPDPProperties;
-import com.webreach.mirth.client.ui.beans.X12Properties;
-import com.webreach.mirth.client.ui.beans.XMLProperties;
-import com.webreach.mirth.client.ui.editors.BoundPropertiesSheetDialog;
-import com.webreach.mirth.client.ui.editors.MirthEditorPane;
-import com.webreach.mirth.client.ui.util.FileUtil;
-import com.webreach.mirth.client.ui.util.PropertiesUtil;
-import com.webreach.mirth.model.MessageObject;
-import com.webreach.mirth.model.converters.DICOMSerializer;
-import com.webreach.mirth.model.converters.DefaultSerializerPropertiesFactory;
+import com.mirth.connect.client.ui.beans.DelimitedProperties;
+import com.mirth.connect.client.ui.beans.EDIProperties;
+import com.mirth.connect.client.ui.beans.HL7Properties;
+import com.mirth.connect.client.ui.beans.HL7V3Properties;
+import com.mirth.connect.client.ui.beans.NCPDPProperties;
+import com.mirth.connect.client.ui.beans.X12Properties;
+import com.mirth.connect.client.ui.beans.XMLProperties;
+import com.mirth.connect.client.ui.editors.BoundPropertiesSheetDialog;
+import com.mirth.connect.client.ui.editors.MirthEditorPane;
+import com.mirth.connect.client.ui.util.FileUtil;
+import com.mirth.connect.client.ui.util.PropertiesUtil;
+import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.converters.DICOMSerializer;
+import com.mirth.connect.model.converters.DefaultSerializerPropertiesFactory;
 
 public class TemplatePanel extends javax.swing.JPanel implements DropTargetListener {
     public final String DEFAULT_TEXT = "Paste a sample message here.";
@@ -277,7 +277,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
         jLabel5 = new javax.swing.JLabel();
         dataType = new javax.swing.JComboBox();
         properties = new javax.swing.JButton();
-        pasteBox = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea();
+        pasteBox = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea();
         openFileButton = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
@@ -446,7 +446,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
     private javax.swing.JComboBox dataType;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JButton openFileButton;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea pasteBox;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea pasteBox;
     private javax.swing.JButton properties;
     // End of variables declaration//GEN-END:variables
 }

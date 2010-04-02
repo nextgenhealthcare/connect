@@ -7,15 +7,15 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui.components;
+package com.mirth.connect.client.ui.components;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import org.jdesktop.swingx.JXList;
 
-import com.webreach.mirth.client.ui.PlatformUI;
-import com.webreach.mirth.client.ui.VariableListHandler;
+import com.mirth.connect.client.ui.PlatformUI;
+import com.mirth.connect.client.ui.VariableListHandler;
 
 /**
  * An implementation of JXList that has mouse rollover selection implemented.

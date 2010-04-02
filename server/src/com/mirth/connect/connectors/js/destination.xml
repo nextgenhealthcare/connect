@@ -5,9 +5,9 @@
 	<mirthVersion>2.0.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to execute JavaScript to connect to an arbitrary destination.</description>
-	<clientClassName>com.webreach.mirth.connectors.js.JavaScriptWriter</clientClassName>
-	<serverClassName>com.webreach.mirth.connectors.js.JavaScriptConnector</serverClassName>
-	<sharedClassName>com.webreach.mirth.connectors.js.JavaScriptWriterProperties</sharedClassName>
+	<clientClassName>com.mirth.connect.connectors.js.JavaScriptWriter</clientClassName>
+	<serverClassName>com.mirth.connect.connectors.js.JavaScriptConnector</serverClassName>
+	<sharedClassName>com.mirth.connect.connectors.js.JavaScriptWriterProperties</sharedClassName>
 	<library path="js-client.jar">
 		<type>CLIENT</type>
 	</library>
@@ -22,9 +22,9 @@
 	<type>DESTINATION</type>
 	<enabled>true</enabled>
 	<mule-properties>
-		<property name="connector">com.webreach.mirth.connectors.js.JavaScriptConnector</property>
-		<property name="dispatcher.factory">com.webreach.mirth.connectors.js.JavaScriptMessageDispatcherFactory</property>
-		<property name="message.receiver">com.webreach.mirth.connectors.js.JavaScriptMessageReceiver</property>
-		<property name="message.adapter">com.webreach.mirth.connectors.js.JavaScriptMessageAdapter</property>
+		<property name="connector">com.mirth.connect.connectors.js.JavaScriptConnector</property>
+		<property name="dispatcher.factory">com.mirth.connect.connectors.js.JavaScriptMessageDispatcherFactory</property>
+		<property name="message.receiver">com.mirth.connect.connectors.js.JavaScriptMessageReceiver</property>
+		<property name="message.adapter">com.mirth.connect.connectors.js.JavaScriptMessageAdapter</property>
 	</mule-properties>
 </connectorMetaData>

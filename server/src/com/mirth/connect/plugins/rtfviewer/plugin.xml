@@ -9,7 +9,7 @@
 	<extensionPoint>
 		<name>RTF Viewer</name>
 		<type>ATTACHMENT_VIEWER</type>
-		<className>com.webreach.mirth.plugins.rtfviewer.RTFViewer</className>
+		<className>com.mirth.connect.plugins.rtfviewer.RTFViewer</className>
 		<mode>CLIENT</mode>
 	</extensionPoint>
 	<library path="rtfviewer-client.jar">

@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.util;
+package com.mirth.connect.server.util;
 
 import java.util.Hashtable;
 import java.util.Map;
@@ -23,8 +23,6 @@ import org.apache.log4j.Logger;
 
 /**
  * A JMXConnection provides a connection to the Mule MBean server.
- * 
- * @author <a href="mailto:geraldb@webreachinc.com">Gerald Bortis</a>
  * 
  */
 public class JMXConnection {

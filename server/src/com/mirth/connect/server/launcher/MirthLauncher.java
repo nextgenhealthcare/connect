@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.server.launcher;
+package com.mirth.connect.server.launcher;
 
 import java.io.File;
 import java.net.URLClassLoader;
@@ -34,7 +34,7 @@ public class MirthLauncher {
             
             ClasspathBuilder builder = new ClasspathBuilder(launcherFile);
             URLClassLoader classLoader = new URLClassLoader(builder.getClasspath());
-            Class<?> mirthClass = classLoader.loadClass("com.webreach.mirth.server.Mirth");
+            Class<?> mirthClass = classLoader.loadClass("com.mirth.connect.server.Mirth");
             Thread mirthThread = (Thread) mirthClass.newInstance();
             mirthThread.setContextClassLoader(classLoader);
             mirthThread.start();

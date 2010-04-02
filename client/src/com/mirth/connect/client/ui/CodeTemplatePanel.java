@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.client.ui;
+package com.mirth.connect.client.ui;
 
 import java.awt.Point;
 import java.awt.event.KeyEvent;
@@ -25,11 +25,11 @@ import org.mozilla.javascript.EvaluatorException;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.ui.components.MirthTable;
-import com.webreach.mirth.model.CodeTemplate;
-import com.webreach.mirth.model.CodeTemplate.CodeSnippetType;
-import com.webreach.mirth.model.CodeTemplate.ContextType;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
+import com.mirth.connect.model.CodeTemplate.ContextType;
 
 /** The template editor panel. */
 public class CodeTemplatePanel extends javax.swing.JPanel {
@@ -469,14 +469,14 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
         templatePane = new javax.swing.JScrollPane();
         templateTable = null;
         bottomPane = new javax.swing.JPanel();
-        template = new com.webreach.mirth.client.ui.components.MirthSyntaxTextArea(true,true,ContextType.MESSAGE_CONTEXT.getContext());
+        template = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,true,ContextType.MESSAGE_CONTEXT.getContext());
         templateLabel = new javax.swing.JLabel();
         contextLabel = new javax.swing.JLabel();
-        context = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        context = new com.mirth.connect.client.ui.components.MirthComboBox();
         descriptionLabel = new javax.swing.JLabel();
-        description = new com.webreach.mirth.client.ui.components.MirthTextField();
+        description = new com.mirth.connect.client.ui.components.MirthTextField();
         typeLabel = new javax.swing.JLabel();
-        type = new com.webreach.mirth.client.ui.components.MirthComboBox();
+        type = new com.mirth.connect.client.ui.components.MirthComboBox();
 
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
@@ -624,16 +624,16 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
     }//GEN-LAST:event_descriptionKeyReleased
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel bottomPane;
-    private com.webreach.mirth.client.ui.components.MirthComboBox context;
+    private com.mirth.connect.client.ui.components.MirthComboBox context;
     private javax.swing.JLabel contextLabel;
-    private com.webreach.mirth.client.ui.components.MirthTextField description;
+    private com.mirth.connect.client.ui.components.MirthTextField description;
     private javax.swing.JLabel descriptionLabel;
     private javax.swing.JSplitPane split;
-    private com.webreach.mirth.client.ui.components.MirthSyntaxTextArea template;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea template;
     private javax.swing.JLabel templateLabel;
     private javax.swing.JScrollPane templatePane;
-    private com.webreach.mirth.client.ui.components.MirthTable templateTable;
-    private com.webreach.mirth.client.ui.components.MirthComboBox type;
+    private com.mirth.connect.client.ui.components.MirthTable templateTable;
+    private com.mirth.connect.client.ui.components.MirthComboBox type;
     private javax.swing.JLabel typeLabel;
     // End of variables declaration//GEN-END:variables
 }

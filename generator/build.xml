@@ -25,7 +25,7 @@
 
 	<target name="generate-vocab-source" depends="dist-generator">
 		<mkdir dir="${vocab.src}" />
-		<java classname="com.webreach.mirth.model.generator.HL7ModelGenerator" dir="${basedir}" fork="true" failonerror="true">
+		<java classname="com.mirth.connect.model.generator.HL7ModelGenerator" dir="${basedir}" fork="true" failonerror="true">
 			<classpath>
 				<path refid="build.classpath" />
 				<fileset dir="${generator.dist}" includes="*.jar" />

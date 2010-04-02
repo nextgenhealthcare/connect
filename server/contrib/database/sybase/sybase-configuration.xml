@@ -6,7 +6,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 
 <sqlMap namespace="Configuration">
 
-	<resultMap class="com.webreach.mirth.model.Configuration" id="get-configuration-result">
+	<resultMap class="com.mirth.connect.model.Configuration" id="get-configuration-result">
 		<result property="id" column="ID" />
 		<result property="dateCreated" column="DATE_CREATED" />
 		<result property="data" column="DATA" />
@@ -23,7 +23,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		VALUES (#data#)
 	</insert>
 
-	<select id="getLatestConfiguration" resultClass="com.webreach.mirth.model.Configuration">
+	<select id="getLatestConfiguration" resultClass="com.mirth.connect.model.Configuration">
 		SELECT *
 		FROM CONFIGURATION
 		WHERE ID IN

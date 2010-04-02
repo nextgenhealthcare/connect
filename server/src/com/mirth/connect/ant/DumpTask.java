@@ -7,7 +7,7 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.ant;
+package com.mirth.connect.ant;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -20,13 +20,13 @@ import java.util.List;
 
 import org.apache.tools.ant.BuildException;
 
-import com.webreach.mirth.client.core.ClientException;
-import com.webreach.mirth.client.core.ListHandlerException;
-import com.webreach.mirth.client.core.SystemEventListHandler;
-import com.webreach.mirth.model.Channel;
-import com.webreach.mirth.model.ChannelStatistics;
-import com.webreach.mirth.model.SystemEvent;
-import com.webreach.mirth.model.filters.SystemEventFilter;
+import com.mirth.connect.client.core.ClientException;
+import com.mirth.connect.client.core.ListHandlerException;
+import com.mirth.connect.client.core.SystemEventListHandler;
+import com.mirth.connect.model.Channel;
+import com.mirth.connect.model.ChannelStatistics;
+import com.mirth.connect.model.SystemEvent;
+import com.mirth.connect.model.filters.SystemEventFilter;
 
 /**
  * an ant task to dump stats or events

@@ -7,10 +7,10 @@
  * the LICENSE.txt file.
  */
 
-package com.webreach.mirth.model.hl7v2;
+package com.mirth.connect.model.hl7v2;
 
-import com.webreach.mirth.model.MessageObject.Protocol;
-import com.webreach.mirth.model.util.MessageVocabulary;
+import com.mirth.connect.model.MessageObject.Protocol;
+import com.mirth.connect.model.util.MessageVocabulary;
 
 public class HL7v2Vocabulary extends MessageVocabulary {
     private String version;
