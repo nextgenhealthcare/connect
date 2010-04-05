@@ -149,9 +149,10 @@ public class JmsConnector extends AbstractServiceEnabledConnector implements Con
                 throw new InitialisationException(new Message(Messages.X_IS_NULL, "jndiInitialFactory"), this);
             }
 
-            if (jndiProviderUrl != null)
-                props.put(Context.PROVIDER_URL, jndiProviderUrl);
-
+            if (jndiProviderUrl != null) {
+                props.put(Context.PROVIDER_URL, replacer.replaceValues(jndiProviderUrl));
+            }
+            
             if (jndiProviderProperties != null) {
                 props.putAll(jndiProviderProperties);
             }
