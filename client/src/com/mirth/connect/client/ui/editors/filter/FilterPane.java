@@ -71,6 +71,7 @@ import com.mirth.connect.client.ui.components.MirthTree;
 import com.mirth.connect.client.ui.editors.BasePanel;
 import com.mirth.connect.client.ui.editors.EditorTableCellEditor;
 import com.mirth.connect.client.ui.editors.MirthEditorPane;
+import com.mirth.connect.client.ui.util.FileUtil;
 import com.mirth.connect.client.ui.util.VariableListUtil;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
@@ -931,7 +932,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         try {
-            filterXML = ImportConverter.convertFilter(importFile);
+            filterXML = ImportConverter.convertFilter(FileUtil.read(importFile));
             Filter importFilter = (Filter) serializer.fromXML(filterXML);
             prevSelRow = -1;
             modified = true;

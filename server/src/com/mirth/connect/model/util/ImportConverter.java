@@ -54,14 +54,25 @@ public class ImportConverter {
     }
 
     /*
-     * Method used to convert messages from one version to another. Right now
-     * this method does nothing more than returning the string contents.
+     * Method used to convert messages from one version to another.
      */
     public static String convertMessage(String message) throws Exception {
+        message = convertPackageNames(message);
         return message;
+    }
+    
+    /**
+     * Manually change the any old package XML to the new package
+     * @param xml
+     * @return updated xml
+     */
+    private static String convertPackageNames(String xml) {
+        return xml.replaceAll("com.webreach.mirth", "com.mirth.connect");
     }
 
     public static ServerConfiguration convertServerConfiguration(String serverConfiguration) throws Exception {
+        serverConfiguration = convertPackageNames(serverConfiguration);
+        
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document;
         DocumentBuilder builder;
@@ -100,15 +111,34 @@ public class ImportConverter {
 
         DocumentSerializer docSerializer = new DocumentSerializer();
         serverConfiguration = docSerializer.toXML(document);
-
+        
+        serverConfiguration = convertGlobalScripts(serverConfiguration);
+        
+        serverConfiguration = convertAlerts(serverConfiguration);
+        
         serverConfiguration = convertCodeTemplates(serverConfiguration);
         
         ServerConfiguration config = (ServerConfiguration) serializer.fromXML(serverConfiguration);
         config.setChannels(channelList);
+        
         return config;
+    }
+    
+    public static String convertGlobalScripts(String globalScriptsXml) {
+        globalScriptsXml = convertPackageNames(globalScriptsXml);
+        
+        return globalScriptsXml;
+    }
+    
+    public static String convertAlerts(String alertsXml) {
+        alertsXml = convertPackageNames(alertsXml);
+        
+        return alertsXml;
     }
 
     public static String convertCodeTemplates(String codeTemplatesXML) throws Exception {
+        codeTemplatesXML = convertPackageNames(codeTemplatesXML);
+        
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document;
         DocumentBuilder builder;
@@ -154,6 +184,8 @@ public class ImportConverter {
     }
 
     public static String convertChannelString(String channel) throws Exception {
+        channel = convertPackageNames(channel);
+        
         String contents = removeInvalidHexChar(channel);
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document;
@@ -642,20 +674,21 @@ public class ImportConverter {
         }
     }
 
-    public static String convertFilter(File filter) throws Exception {
-        String filterXML = "";
+    public static String convertFilter(String filterXml) throws Exception {
+        filterXml = convertPackageNames(filterXml);
+        
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document;
         DocumentBuilder builder;
         try {
             builder = factory.newDocumentBuilder();
-            document = builder.parse(filter);
+            document = builder.parse(new InputSource(new StringReader(filterXml)));
 
             updateFilterFor1_4(document.getDocumentElement());
             updateFilterFor1_7(document);
 
             DocumentSerializer docSerializer = new DocumentSerializer();
-            filterXML = docSerializer.toXML(document);
+            filterXml = docSerializer.toXML(document);
         } catch (ParserConfigurationException e) {
             e.printStackTrace();
         } catch (SAXException e) {
@@ -663,7 +696,7 @@ public class ImportConverter {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return updateLocalAndGlobalVariables(filterXML);
+        return updateLocalAndGlobalVariables(filterXml);
     }
 
     /**
@@ -674,14 +707,15 @@ public class ImportConverter {
      * @return
      * @throws Exception
      */
-    public static String convertConnector(File connector) throws Exception {
-        String connectorXML = "";
+    public static String convertConnector(String connectorXml) throws Exception {
+        connectorXml = convertPackageNames(connectorXml);
+        
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document;
         DocumentBuilder builder;
 
         builder = factory.newDocumentBuilder();
-        document = builder.parse(connector);
+        document = builder.parse(new InputSource(new StringReader(connectorXml)));
         Element connectorRoot = document.getDocumentElement();
 
         Node transportNode = getConnectorTransportNode(connectorRoot);
@@ -693,19 +727,20 @@ public class ImportConverter {
         }
 
         DocumentSerializer docSerializer = new DocumentSerializer();
-        connectorXML = docSerializer.toXML(document);
+        connectorXml = docSerializer.toXML(document);
 
-        return connectorXML;
+        return connectorXml;
     }
 
-    public static String convertTransformer(File transformer, Protocol incoming, Protocol outgoing) throws Exception {
-        String transformerXML = "";
+    public static String convertTransformer(String transformerXml, Protocol incoming, Protocol outgoing) throws Exception {
+        transformerXml = convertPackageNames(transformerXml);
+
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document;
         DocumentBuilder builder;
 
         builder = factory.newDocumentBuilder();
-        document = builder.parse(transformer);
+        document = builder.parse(new InputSource(new StringReader(transformerXml)));
         Element transformerRoot = document.getDocumentElement();
 
         updateTransformerFor1_4(document, transformerRoot, incoming, outgoing);
@@ -714,9 +749,9 @@ public class ImportConverter {
         updateTransformerFor1_7_1(document);
 
         DocumentSerializer docSerializer = new DocumentSerializer();
-        transformerXML = docSerializer.toXML(document);
+        transformerXml = docSerializer.toXML(document);
 
-        return updateLocalAndGlobalVariables(transformerXML);
+        return updateLocalAndGlobalVariables(transformerXml);
     }
 
     private static void updateFilterFor1_4(Element filterElement) {

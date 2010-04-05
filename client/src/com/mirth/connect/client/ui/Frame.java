@@ -1871,10 +1871,11 @@ public class Frame extends JXFrame {
 
         if (importFile != null) {
             try {
-                String scriptsXML = FileUtil.read(importFile);
-
+                String scriptsXml = FileUtil.read(importFile);
+                scriptsXml = ImportConverter.convertGlobalScripts(scriptsXml);
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-                Map<String, String> importScripts = (Map<String, String>) serializer.fromXML(scriptsXML);
+                
+                Map<String, String> importScripts = (Map<String, String>) serializer.fromXML(scriptsXml);
 
                 globalScriptsPanel.importAllScripts(importScripts);
             } catch (Exception e) {
@@ -3079,7 +3080,7 @@ public class Frame extends JXFrame {
 
         if (connectorFile != null) {
             try {
-                String connectorXML = ImportConverter.convertConnector(connectorFile);
+                String connectorXML = ImportConverter.convertConnector(FileUtil.read(connectorFile));
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 Connector connector = (Connector) serializer.fromXML(connectorXML);
                 channelEditPanel.importConnector(connector);
@@ -3734,12 +3735,13 @@ public class Frame extends JXFrame {
 
         if (importFile != null) {
             try {
-                String alertXML = FileUtil.read(importFile);
+                String alertsXml = FileUtil.read(importFile);
+                alertsXml = ImportConverter.convertAlerts(alertsXml);
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-
+                
                 boolean append = false;
 
-                List<Alert> newAlerts = (List<Alert>) serializer.fromXML(alertXML);
+                List<Alert> newAlerts = (List<Alert>) serializer.fromXML(alertsXml);
                 if (alerts != null && alerts.size() > 0) {
                     if (alertOption(this, "Would you like to append these alerts to the existing alerts?")) {
                         append = true;

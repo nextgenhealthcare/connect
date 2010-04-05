@@ -603,7 +603,14 @@ public class Shell {
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         
         try {
-            client.updateAlerts((List<Alert>) serializer.fromXML(readFile(fXml)));
+            String alertsXml = readFile(fXml);
+            try {
+                alertsXml = ImportConverter.convertAlerts(alertsXml);
+            } catch (Exception e) {
+                error("error migrating alerts", e);
+            }
+            
+            client.updateAlerts((List<Alert>) serializer.fromXML(alertsXml));
         } catch (IOException e) {
             error("cannot read " + path, e);
             return;

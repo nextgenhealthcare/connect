@@ -73,6 +73,7 @@ import com.mirth.connect.client.ui.components.MirthTree;
 import com.mirth.connect.client.ui.editors.BasePanel;
 import com.mirth.connect.client.ui.editors.EditorTableCellEditor;
 import com.mirth.connect.client.ui.editors.MirthEditorPane;
+import com.mirth.connect.client.ui.util.FileUtil;
 import com.mirth.connect.client.ui.util.VariableListUtil;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
@@ -974,7 +975,7 @@ public class TransformerPane extends MirthEditorPane implements
 
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         try {
-            transformerXML = ImportConverter.convertTransformer(importFile, incomingProtocol, outgoingProtocol);
+            transformerXML = ImportConverter.convertTransformer(FileUtil.read(importFile), incomingProtocol, outgoingProtocol);
             Transformer importTransformer = (Transformer) serializer.fromXML(transformerXML);
             prevSelRow = -1;
             modified = true;

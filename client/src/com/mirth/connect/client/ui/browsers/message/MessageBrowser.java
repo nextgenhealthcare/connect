@@ -347,6 +347,8 @@ public class MessageBrowser extends javax.swing.JPanel {
             BufferedReader br = null;
 
             try {
+                String deprecatedStartOfMessage = "<com.webreach.mirth.model.MessageObject>";
+                String deprecatedEndOfMessage = "</com.webreach.mirth.model.MessageObject>";
                 String startOfMessage = "<com.mirth.connect.model.MessageObject>";
                 String endOfMessage = "</com.mirth.connect.model.MessageObject>";
                 br = new BufferedReader(new InputStreamReader(new FileInputStream(importFile), FileUtil.CHARSET));
@@ -357,14 +359,14 @@ public class MessageBrowser extends javax.swing.JPanel {
                 boolean foundStart = false;
                 
                 while ((line = br.readLine()) != null) {
-                    if (line.equals(startOfMessage)) {
+                    if (line.equals(startOfMessage) || line.equals(deprecatedStartOfMessage)) {
                         foundStart = true;
                     }
                     
                     if (foundStart) {
                         buffer.append(line);
     
-                        if (line.equals(endOfMessage)) {
+                        if (line.equals(endOfMessage) || line.equals(deprecatedEndOfMessage)) {
                             messageXML = ImportConverter.convertMessage(buffer.toString());
     
                             ObjectXMLSerializer serializer = new ObjectXMLSerializer();
