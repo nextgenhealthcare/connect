@@ -16,7 +16,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.mirth.connect.util.EqualsUtil;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 
+@XStreamAlias("messageObject")
 public class MessageObject implements Serializable {
 	/**
 	 * Need to set this so that messages written to the queue will not fail with new versions of this class

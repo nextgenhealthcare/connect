@@ -13,7 +13,9 @@ import java.io.Serializable;
 import java.util.Calendar;
 
 import com.mirth.connect.util.EqualsUtil;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 
+@XStreamAlias("user")
 public class User implements Serializable {
 	private Integer id;
 	private String username;

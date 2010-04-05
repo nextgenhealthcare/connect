@@ -12,7 +12,9 @@ package com.mirth.connect.model;
 import java.io.Serializable;
 
 import com.mirth.connect.util.EqualsUtil;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 
+@XStreamAlias("rule")
 public class Rule implements Serializable {
 	public enum Operator {
 		AND, OR, NONE

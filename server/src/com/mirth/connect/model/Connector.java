@@ -13,6 +13,7 @@ import java.io.Serializable;
 import java.util.Properties;
 
 import com.mirth.connect.util.EqualsUtil;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
  * A Connector represents a connection to either a source or destination. Each
@@ -21,6 +22,8 @@ import com.mirth.connect.util.EqualsUtil;
  * 
  * 
  */
+
+@XStreamAlias("connector")
 public class Connector implements Serializable {
 	public enum Mode {
 		SOURCE, DESTINATION

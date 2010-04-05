@@ -12,13 +12,9 @@ package com.mirth.connect.model;
 import java.io.Serializable;
 import java.util.Arrays;
 
-/**
- * Created by IntelliJ IDEA.
- * User: dans
- * Date: Oct 1, 2007
- * Time: 1:12:28 PM
- * To change this template use File | Settings | File Templates.
- */
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
+@XStreamAlias("attachment")
 public class Attachment implements Serializable {
     private String attachmentId;
     private String messageId;

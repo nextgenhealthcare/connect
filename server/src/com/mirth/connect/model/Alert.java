@@ -13,7 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mirth.connect.util.EqualsUtil;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 
+@XStreamAlias("alert")
 public class Alert {
 	private String id;
 	private String name;

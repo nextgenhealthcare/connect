@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import com.thoughtworks.xstream.annotations.XStreamAlias;
+
+@XStreamAlias("serverConfiguration")
 public class ServerConfiguration implements Serializable {
 	private String date;
 	private List<Channel> channels = null;

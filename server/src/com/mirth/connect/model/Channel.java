@@ -16,12 +16,15 @@ import java.util.List;
 import java.util.Properties;
 
 import com.mirth.connect.util.EqualsUtil;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
  * A Channel is the main element of the Mirth architecture. Channels connect a
  * single source with multiple destinations which are represented by Connectors.
  * 
  */
+
+@XStreamAlias("channel")
 public class Channel implements Serializable {
 	private String id;
 	private String name;

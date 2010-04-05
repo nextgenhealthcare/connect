@@ -13,7 +13,9 @@ import java.io.Serializable;
 import java.util.UUID;
 
 import com.mirth.connect.util.EqualsUtil;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 
+@XStreamAlias("codeTemplate")
 public class CodeTemplate implements Serializable {
     public enum CodeSnippetType {
         CODE("Code"), VARIABLE("Variable"), FUNCTION("Function");

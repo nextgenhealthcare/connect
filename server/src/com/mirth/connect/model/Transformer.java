@@ -16,12 +16,15 @@ import java.util.Properties;
 
 import com.mirth.connect.model.MessageObject.Protocol;
 import com.mirth.connect.util.EqualsUtil;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
  * A Transformer represents a script which is executed on each message passing
  * through the Connector with which the transformer is associated.
  * 
  */
+
+@XStreamAlias("transformer")
 public class Transformer implements Serializable {
 	private List<Step> steps;
 	private String inboundTemplate;

@@ -14,12 +14,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mirth.connect.util.EqualsUtil;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
  * A Filter represents a list of rules which are executed on each message and
  * either accepts or rejects the message.
  * 
  */
+
+@XStreamAlias("filter")
 public class Filter implements Serializable {
 	private List<Rule> rules;
 

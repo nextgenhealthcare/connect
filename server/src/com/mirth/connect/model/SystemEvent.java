@@ -14,11 +14,14 @@ import java.util.Calendar;
 import java.util.Properties;
 
 import com.mirth.connect.util.EqualsUtil;
+import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
  * A SystemEvent represents a system event which can be logged.
  * 
  */
+
+@XStreamAlias("systemEvent")
 public class SystemEvent implements Serializable {
 	public enum Level {
 		NORMAL, HIGH
