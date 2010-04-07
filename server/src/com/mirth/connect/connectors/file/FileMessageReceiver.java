@@ -211,12 +211,11 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
                     if (fileConnector.isProcessBatchFiles()) {
                         processBatch(file);
                     } else {
-                        byte[] contents = getBytesFromFile(file);
                         String message = "";
                         if (fileConnector.isBinary()) {
-                            message = new String(new Base64().encode(contents));
+                            message = new String(new Base64().encode(getBytesFromFile(file)));
                         } else {
-                            message = new String(contents, fileConnector.getCharsetEncoding());
+                            message = new String(getBytesFromFile(file), fileConnector.getCharsetEncoding());
                         }
                         adapter = connector.getMessageAdapter(message);
                         adapter.setProperty(FileConnector.PROPERTY_ORIGINAL_FILENAME, originalFilename);
