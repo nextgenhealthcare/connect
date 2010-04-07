@@ -50,6 +50,9 @@ public class DashboardPanel extends javax.swing.JPanel {
     private final String ERROR_COLUMN_NAME = "Errored";
     private final String FILTERED_COLUMN_NAME = "Filtered";
     private final String ALERTED_COLUMN_NAME = "Alerted";
+    
+    private final int NAME_COLUMN_NUMBER = 1;
+    
     private Frame parent;
     private Map<String, DashboardColumnPlugin> loadedColumnPluginsBeforeStatus = new HashMap<String, DashboardColumnPlugin>();
     private Map<String, DashboardColumnPlugin> loadedColumnPluginsAfterStatus = new HashMap<String, DashboardColumnPlugin>();
@@ -261,6 +264,9 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.setRowSelectionAllowed(true);
 
         statusTable.setSortable(true);
+        
+        // Sort by Channel Name column
+        statusTable.getRowSorter().toggleSortOrder(NAME_COLUMN_NUMBER);
 
         statusPane.setViewportView(statusTable);
 

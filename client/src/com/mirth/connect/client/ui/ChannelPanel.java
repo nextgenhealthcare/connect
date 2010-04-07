@@ -45,6 +45,9 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
     private final String DESCRIPTION_COLUMN_NAME = "Description";
     private final String ID_COLUMN_NAME = "Id";
     private final String ENABLED_STATUS = "Enabled";
+    
+    private final int NAME_COLUMN_NUMBER = 2;
+    
     private Frame parent;
     private DropTarget dropTarget;
 
@@ -83,6 +86,11 @@ public class ChannelPanel extends javax.swing.JPanel implements DropTargetListen
         channelTable.setRowHeight(UIConstants.ROW_HEIGHT);
         channelTable.setOpaque(true);
         channelTable.setRowSelectionAllowed(true);
+        
+        channelTable.setSortable(true);
+        
+        // Sort by Channel Name column
+        channelTable.getRowSorter().toggleSortOrder(NAME_COLUMN_NUMBER);
 
         channelPane.setViewportView(channelTable);
 
