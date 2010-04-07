@@ -116,12 +116,10 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
                     monitoringController.updateStatus(connector, connectorType, Event.DONE);
                 }
             }
-        } catch (Exception e) {
-
-            alertController.sendAlerts(((FileConnector) connector).getChannelId(), Constants.ERROR_403, null, e);
-            handleException(e);
+        } catch (Throwable t) {
+            alertController.sendAlerts(((FileConnector) connector).getChannelId(), Constants.ERROR_403, null, t);
+            handleException(new Exception(t));
         } finally {
-
             monitoringController.updateStatus(connector, connectorType, Event.DONE);
         }
     }
@@ -239,8 +237,8 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
                         destinationDir = errorDir;
                         destinationName = file.getName();
                     }
-                } catch (Exception e) {
-                    logger.error(e.getMessage());
+                } catch (Throwable t) {
+                    logger.error("Error reading file " + file.getAbsolutePath() + "\n" + t.getMessage());
                     fileProcessedException = new MuleException(new Message(Messages.FAILED_TO_READ_PAYLOAD, file.getName()));
                 }
 

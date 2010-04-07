@@ -430,25 +430,25 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
             }
 
             return messageObject;
-        } catch (Exception e) {
-            if (e instanceof RhinoException) {
+        } catch (Throwable t) {
+            if (t instanceof RhinoException) {
                 try {
                     String script = CompiledScriptCache.getInstance().getSourceScript(scriptId);
-                    int linenumber = ((RhinoException) e).lineNumber();
+                    int linenumber = ((RhinoException) t).lineNumber();
                     String errorReport = JavaScriptUtil.getSourceCode(script, linenumber, 0);
-                    e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 0, phase.toUpperCase(), errorReport);
+                    t = new MirthJavascriptTransformerException((RhinoException) t, channelId, connectorName, 0, phase.toUpperCase(), errorReport);
                 } catch (Exception ee) {
-                    e = new MirthJavascriptTransformerException((RhinoException) e, channelId, connectorName, 0, phase.toUpperCase(), null);
+                    t = new MirthJavascriptTransformerException((RhinoException) t, channelId, connectorName, 0, phase.toUpperCase(), null);
                 }
             }
 
             if (phase.equals("filter")) {
-                messageObjectController.setError(messageObject, Constants.ERROR_200, "Error evaluating filter", e, null);
+                messageObjectController.setError(messageObject, Constants.ERROR_200, "Error evaluating filter", t, null);
             } else {
-                messageObjectController.setError(messageObject, Constants.ERROR_300, "Error evaluating transformer", e, null);
+                messageObjectController.setError(messageObject, Constants.ERROR_300, "Error evaluating transformer", t, null);
             }
 
-            throw new TransformerException(this, e);
+            throw new TransformerException(this, t);
         } finally {
             Context.exit();
         }
