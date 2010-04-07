@@ -13,8 +13,10 @@ import java.io.File;
 import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -265,13 +267,68 @@ public class DefaultMigrationController extends MigrationController {
      */
     private void migrateContents(int oldVersion, int newVersion) throws Exception {
 
+        // This migration is for 2.0.0
         if ((oldVersion == 6) && (newVersion == 7)) {
+
+            // Update the code template scopes and package names
             CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
             try {
                 codeTemplateController.updateCodeTemplates(ImportConverter.convertCodeTemplates(codeTemplateController.getCodeTemplate(null)));
             } catch (Exception e) {
                 logger.error("Error migrating code templates.", e);
             }
+
+            // Update the global script package names
+            try {
+                configurationController.setGlobalScripts(ImportConverter.convertGlobalScripts(configurationController.getGlobalScripts()));
+            } catch (Exception e) {
+                logger.error("Error migrating global scripts.", e);
+            }
+
+            // Update the connector package names in the database so the
+            // connector objects can serialize to the new package names
+            Connection conn = null;
+            Statement statement = null;
+            ResultSet results = null;
+
+            try {
+                conn = SqlConfig.getSqlMapClient().getDataSource().getConnection();
+                conn.setAutoCommit(true);
+                statement = conn.createStatement();
+                results = statement.executeQuery("SELECT ID, SOURCE_CONNECTOR, DESTINATION_CONNECTORS FROM CHANNEL");
+
+                while (results.next()) {
+                    String channelId = results.getString(1);
+                    String sourceConnector = results.getString(2);
+                    String destinationConnectors = results.getString(3);
+
+                    sourceConnector = sourceConnector.replaceAll("com.webreach.mirth", "com.mirth.connect");
+                    destinationConnectors = destinationConnectors.replaceAll("com.webreach.mirth", "com.mirth.connect");
+
+                    PreparedStatement preparedStatement = null;
+                    try {
+                        preparedStatement = conn.prepareStatement("UPDATE CHANNEL SET SOURCE_CONNECTOR = ?, DESTINATION_CONNECTORS = ? WHERE ID = ?");
+                        preparedStatement.setString(1, sourceConnector);
+                        preparedStatement.setString(2, destinationConnectors);
+                        preparedStatement.setString(3, channelId);
+
+                        preparedStatement.executeUpdate();
+                        preparedStatement.close();
+                    } catch (Exception ex) {
+                        logger.error("Error migrating connectors.", ex);
+                    } finally {
+                        DatabaseUtil.close(preparedStatement);
+                    }
+                }
+
+            } catch (Exception e) {
+                logger.error("Error migrating connectors.", e);
+            } finally {
+                DatabaseUtil.close(results);
+                DatabaseUtil.close(statement);
+                DatabaseUtil.close(conn);
+            }
+
         }
     }
 }

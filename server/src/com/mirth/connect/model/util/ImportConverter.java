@@ -130,6 +130,10 @@ public class ImportConverter {
         return globalScriptsXml;
     }
     
+    public static Map<String, String> convertGlobalScripts(Map<String, String> globalScripts) throws Exception {
+        return (Map<String, String>) serializer.fromXML(convertGlobalScripts(serializer.toXML(globalScripts)));
+    }
+    
     public static String convertAlerts(String alertsXml) {
         alertsXml = convertPackageNames(alertsXml);
         
