@@ -10,6 +10,8 @@
 package com.mirth.connect.server.controllers;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -269,6 +271,11 @@ public class DefaultMigrationController extends MigrationController {
 
         // This migration is for 2.0.0
         if ((oldVersion == 6) && (newVersion == 7)) {
+            /*
+             * Since we moved the server properties from a file to the database,
+             * we need to copy over the previous properties into the database.
+             */
+            migrateServerProperties();
 
             // Update the code template scopes and package names
             CodeTemplateController codeTemplateController = ControllerFactory.getFactory().createCodeTemplateController();
@@ -328,7 +335,25 @@ public class DefaultMigrationController extends MigrationController {
                 DatabaseUtil.close(statement);
                 DatabaseUtil.close(conn);
             }
+        }
+    }
 
+    private void migrateServerProperties() {
+        try {
+            Properties newProperties = configurationController.getServerProperties();
+            Properties oldProperties = new Properties();
+            File propertiesFile = new File(configurationController.getBaseDir() + File.separator + "server.properties");
+            oldProperties.load(new FileInputStream(propertiesFile));
+            newProperties.putAll(oldProperties);
+            configurationController.setServerProperties(newProperties);
+
+            if (!propertiesFile.delete()) {
+                logger.warn("Could not delete previous server.properties file.");
+            }
+        } catch (ControllerException ce) {
+            logger.warn("Could not load current server properties from database.", ce);
+        } catch (IOException ioe) {
+            logger.warn("Could not locate previous server.properties file to migrate.", ioe);
         }
     }
 }
