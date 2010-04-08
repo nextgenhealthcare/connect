@@ -12,6 +12,7 @@ package com.mirth.connect.server.util;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.plugin.DICOM;
+import ij.process.ImageProcessor;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -36,10 +37,6 @@ import com.mirth.connect.model.converters.SerializerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MessageObjectController;
 
-/**
- * Created by IntelliJ IDEA. User: Date: Oct 4, 2007 Time: 10:42:11 AM To change
- * this template use File | Settings | File Templates.
- */
 public class DICOMUtil {
     private static Logger logger = Logger.getLogger(AttachmentUtil.class);
 
@@ -79,10 +76,10 @@ public class DICOMUtil {
             images.add(base64.decode(attach.getData()));
         }
         byte[] headerData;
-        if (message.getRawDataProtocol().equals(MessageObject.Protocol.DICOM)) {
-            headerData = base64.decode(message.getRawData().getBytes());
-        } else if (message.getEncodedDataProtocol().equals(MessageObject.Protocol.DICOM)) {
+        if (message.getEncodedDataProtocol().equals(MessageObject.Protocol.DICOM)) {
             headerData = base64.decode(message.getEncodedData().getBytes());
+        } else if (message.getRawDataProtocol().equals(MessageObject.Protocol.DICOM)) {
+            headerData = base64.decode(message.getRawData().getBytes());
         } else {
             return "";
         }
@@ -94,21 +91,27 @@ public class DICOMUtil {
         return AttachmentUtil.getMessageAttachments(message);
     }
 
-    public static String convertDICOM(String imageType, MessageObject message) {
-        return returnOther(message, imageType);
+    public static String convertDICOM(String imageType, MessageObject message, boolean autoThreshold) {
+        return returnOtherImageFormat(message, imageType, autoThreshold);
     }
 
-    public static String returnOther(MessageObject message, String format) {
+    public static String convertDICOM(String imageType, MessageObject message) {
+        return returnOtherImageFormat(message, imageType, false);
+    }
+
+    private static String returnOtherImageFormat(MessageObject message, String format, boolean autoThreshold) {
         String encodedData = getDICOMRawData(message);
         Base64 base64 = new Base64();
+
         // use new method for jpegs
         if (format.equalsIgnoreCase("jpg") || format.equalsIgnoreCase("jpeg"))
-            return new String(base64.encode(dicomToJpg(1, message)));
+            return new String(base64.encode(dicomToJpg(1, message, autoThreshold)));
         try {
             byte[] rawImage = base64.decode(encodedData.getBytes());
             ByteArrayInputStream bis = new ByteArrayInputStream(rawImage);
             DICOM dcm = new DICOM(bis);
             dcm.run(message.getType());
+
             int width = dcm.getWidth();
             int height = dcm.getHeight();
             BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -128,18 +131,24 @@ public class DICOMUtil {
         return AttachmentUtil.reAttachMessage(message);
     }
 
-    public static byte[] dicomToJpg(int sliceIndex, MessageObject message) {
+    public static byte[] dicomToJpg(int sliceIndex, MessageObject message, boolean autoThreshold) {
         String encodedData = getDICOMRawData(message);
         Base64 base64 = new Base64();
         ByteArrayInputStream bis = new ByteArrayInputStream(base64.decode(encodedData.getBytes()));
         DICOM dcm = new DICOM(bis);
         dcm.run("dcm");
+        if (autoThreshold) {
+            ImageProcessor im = dcm.getProcessor();
+            // Automatically sets the lower and upper threshold levels, where
+            // 'method' must be ISODATA or ISODATA2
+            im.setAutoThreshold(0, 2);
+        }
         ImageStack imageStack = dcm.getImageStack();
         if (imageStack.getSize() < sliceIndex || sliceIndex < 1) {
             return null;
         }
         ImagePlus image = new ImagePlus("ImageName", imageStack.getProcessor(sliceIndex));
-        
+
         return saveAsJpeg(image, 100);
     }
 
@@ -150,7 +159,7 @@ public class DICOMUtil {
         if (imp.getProcessor().isDefaultLut())
             biType = BufferedImage.TYPE_BYTE_GRAY;
         BufferedImage bi = new BufferedImage(width, height, biType);
-        
+
         try {
             Graphics g = bi.createGraphics();
             g.drawImage(imp.getImage(), 0, 0, null);
