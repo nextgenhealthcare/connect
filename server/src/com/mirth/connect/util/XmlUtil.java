@@ -9,29 +9,38 @@
 
 package com.mirth.connect.util;
 
-import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Hashtable;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
+import org.apache.log4j.Logger;
 
 public class XmlUtil {
 
     private static XmlUtil instance = null;
-    final Hashtable<String, String> decoder = new Hashtable<String, String>(300);
-    final Hashtable<String, String> decoderXml = new Hashtable<String, String>(10);
-    final String[] encoder = new String[0x100];
-    final String[] encoderXml = new String[0x100];
+    private static Transformer normalizerTransformer = null;
+    private static Transformer serializerTransformer = null;
 
-    private final String prettyPrintingXslt = "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\"><xsl:strip-space elements=\"*\"/><xsl:template match=\"/\"><xsl:copy-of select=\".\"/></xsl:template></xsl:stylesheet>";
+    private final Hashtable<String, String> decoder = new Hashtable<String, String>(300);
+    private final Hashtable<String, String> decoderXml = new Hashtable<String, String>(10);
+    private final String[] encoder = new String[0x100];
+    private final String[] encoderXml = new String[0x100];
+
+    private Logger logger = Logger.getLogger(this.getClass());
+
+    private final String prettyPrintingXslt = "<xsl:stylesheet xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" version=\"1.0\"><xsl:output indent=\"no\" method=\"xml\" omit-xml-declaration=\"yes\"/><xsl:strip-space elements=\"*\"/><xsl:template match=\"/\"><xsl:copy-of select=\".\"/></xsl:template></xsl:stylesheet>";
 
     public static XmlUtil getInstance() {
         if (instance == null) {
@@ -43,26 +52,64 @@ public class XmlUtil {
 
     private XmlUtil() {
         addEntities();
+
+        try {
+            // Space Normalization Transformer
+            TransformerFactory normalizerTransformerFactory = TransformerFactory.newInstance();
+            normalizerTransformer = normalizerTransformerFactory.newTransformer(new StreamSource(new StringReader(prettyPrintingXslt)));
+            normalizerTransformer.setOutputProperty(OutputKeys.INDENT, "no");
+
+            // Pretty Printer transformer
+            TransformerFactory serializerTransformerFactory = TransformerFactory.newInstance();
+
+            // When Saxon-B is on the classpath setting this attribute throws an
+            // IllegalArgumentException.
+            try {
+                serializerTransformerFactory.setAttribute("indent-number", new Integer(4));
+            } catch (IllegalArgumentException ex) {
+                logger.warn("Could not set serializer attribute: indent-number", ex);
+            }
+
+            serializerTransformer = serializerTransformerFactory.newTransformer();
+
+            try {
+                serializerTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                serializerTransformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+                serializerTransformer.setOutputProperty(OutputKeys.METHOD, "xml");
+            } catch (IllegalArgumentException ex) {
+                logger.warn("Could not set serializer attribute", ex);
+            }
+        } catch (TransformerConfigurationException e) {
+            logger.error("Error setting pretty printer transformer.", e);
+        }
     }
 
     public String prettyPrint(String input) {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setNamespaceAware(true);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        if ((normalizerTransformer != null) && (serializerTransformer != null)) {
+            try {
+                Source source = new StreamSource(new StringReader(input));
+                Writer writer = new StringWriter();
 
-        try {
-            Document document = factory.newDocumentBuilder().parse(new InputSource(new StringReader(input)));
-            Transformer serializer = TransformerFactory.newInstance().newTransformer(new javax.xml.transform.stream.StreamSource(new java.io.StringReader(prettyPrintingXslt)));
-            serializer.setOutputProperty(OutputKeys.INDENT, "yes");
-            serializer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-            serializer.setOutputProperty(OutputKeys.METHOD, "xml");
-            serializer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-            serializer.transform(new DOMSource(document), new StreamResult(baos));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+                /*
+                 * Due to a problem with the indentation algorithm of Xalan, we
+                 * need to normalize the spaces first.
+                 */
+
+                // First, pre-process the xml to normalize the spaces
+                DOMResult result = new DOMResult();
+                normalizerTransformer.transform(source, result);
+                source = new DOMSource(result.getNode());
+
+                // Then, re-indent it
+                serializerTransformer.transform(source, new StreamResult(writer));
+
+                return writer.toString();
+            } catch (TransformerException e) {
+                logger.error("Error pretty printing xml.", e);
+            }
         }
 
-        return baos.toString();
+        return input;
     }
 
     public String decode(String entity) {

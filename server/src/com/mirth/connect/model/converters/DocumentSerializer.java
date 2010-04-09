@@ -48,7 +48,7 @@ public class DocumentSerializer implements IXMLSerializer<Document> {
             try {
                 factory.setAttribute("indent-number", new Integer(4));
             } catch (IllegalArgumentException ex) {
-                logger.warn("Could not set Document Serializer attribute: indent-number");
+                logger.warn("Could not set Document Serializer attribute: indent-number", ex);
             }
             Transformer transformer = factory.newTransformer();
             transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
