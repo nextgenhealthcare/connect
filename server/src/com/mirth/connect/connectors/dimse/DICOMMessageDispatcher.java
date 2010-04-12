@@ -144,7 +144,7 @@ public class DICOMMessageDispatcher extends AbstractMessageDispatcher {
                 dcmSnd.setKeyStorePassword(dicomConnector.getKeystorepw());
             dcmSnd.setTlsNeedClientAuth(dicomConnector.isNoclientauth());
             if (!dicomConnector.isNossl2())
-                dcmSnd.disableSSLv2Hello();
+            	dcmSnd.setTlsProtocol(new String[] {"TLSv1","SSLv3"});
             dcmSnd.initTLS();
         }
 

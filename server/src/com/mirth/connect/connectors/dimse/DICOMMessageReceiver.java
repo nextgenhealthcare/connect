@@ -13,7 +13,6 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
 import org.dcm4che2.data.BasicDicomObject;
@@ -26,6 +25,7 @@ import org.dcm4che2.net.CommandUtils;
 import org.dcm4che2.net.DicomServiceException;
 import org.dcm4che2.net.PDVInputStream;
 import org.dcm4che2.tool.dcmrcv.DcmRcv;
+import org.dcm4che2.tool.dcmrcv.StorageSCP;
 import org.mule.config.i18n.Message;
 import org.mule.impl.MuleMessage;
 import org.mule.providers.AbstractMessageReceiver;
@@ -37,7 +37,6 @@ import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
 
 import com.mirth.connect.model.MessageObject;
-import com.mirth.connect.model.converters.DICOMSerializer;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
@@ -46,7 +45,8 @@ import com.mirth.connect.server.mule.transformers.JavaScriptPostprocessor;
 
 public class DICOMMessageReceiver extends AbstractMessageReceiver {
     // --- DICOM Specific Variables ---
-    DcmRcv2 dcmrcv = new DcmRcv2();
+    MirthDcmRcv dcmrcv = new MirthDcmRcv("DCMRCV");
+
     protected DICOMConnector connector;
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private JavaScriptPostprocessor postProcessor = new JavaScriptPostprocessor();
@@ -67,7 +67,6 @@ public class DICOMMessageReceiver extends AbstractMessageReceiver {
             dcmrcv.setPort(uri.getPort());
             dcmrcv.setHostname(uri.getHost());
             dcmrcv.setAEtitle("DCMRCV");
-
             String[] only_def_ts = { UID.ImplicitVRLittleEndian };
             String[] native_le_ts = { UID.ImplicitVRLittleEndian };
             String[] native_ts = { UID.ImplicitVRLittleEndian };
@@ -134,7 +133,7 @@ public class DICOMMessageReceiver extends AbstractMessageReceiver {
                     dcmrcv.setKeyStorePassword(connector.getKeystorepw());
                 dcmrcv.setTlsNeedClientAuth(connector.isNoclientauth());
                 if (!connector.isNossl2())
-                    dcmrcv.disableSSLv2Hello();
+                    dcmrcv.setTlsProtocol(new String[] { "TLSv1", "SSLv3" });
                 dcmrcv.initTLS();
             }
 
@@ -170,15 +169,18 @@ public class DICOMMessageReceiver extends AbstractMessageReceiver {
         logger.info("Closed DICOM port");
     }
 
-    public class DcmRcv2 extends DcmRcv {
+    public class MirthStorageSCP extends StorageSCP {
+
+        public MirthStorageSCP(MirthDcmRcv dcmrcv, String[] sopClasses) {
+            super(dcmrcv, sopClasses);
+        }
 
         @Override
-        protected void onCStoreRQ(Association as, int pcid, DicomObject rq, PDVInputStream dataStream, String tsuid, DicomObject rsp) throws IOException, DicomServiceException {
+        public void onCStoreRQ(Association as, int pcid, DicomObject rq, PDVInputStream dataStream, String tsuid, DicomObject rsp) throws IOException, DicomServiceException {
             UMOMessage returnMessage = null;
             try {
                 String cuid = rq.getString(Tag.AffectedSOPClassUID);
                 String iuid = rq.getString(Tag.AffectedSOPInstanceUID);
-                byte[] dicomObj = DICOMSerializer.readDicomObj(rq);
                 BasicDicomObject fmi = new BasicDicomObject();
                 fmi.initFileMetaInformation(cuid, iuid, tsuid);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -195,8 +197,6 @@ public class DICOMMessageReceiver extends AbstractMessageReceiver {
                     if (payload instanceof MessageObject) {
                         MessageObject messageObjectResponse = (MessageObject) payload;
                         postProcessor.doPostProcess(messageObjectResponse);
-                        Map responseMap = messageObjectResponse.getResponseMap();
-                        String errorString = "";
                     }
                 }
             } catch (Exception e) {
@@ -213,5 +213,20 @@ public class DICOMMessageReceiver extends AbstractMessageReceiver {
             onCStoreRSP(as, pcid, rq, dataStream, tsuid, rsp);
         }
 
+    }
+
+    public class MirthDcmRcv extends DcmRcv {
+
+        public final MirthStorageSCP storageScp = new MirthStorageSCP(this, MirthDcmRcv.CUIDS);
+
+        public MirthDcmRcv() {
+            super();
+            this.registerStorageSCP(storageScp);
+        }
+
+        public MirthDcmRcv(String name) {
+            super(name);
+            this.registerStorageSCP(storageScp);
+        }
     }
 }
