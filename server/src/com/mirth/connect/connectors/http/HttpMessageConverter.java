@@ -18,7 +18,7 @@ import com.mirth.connect.model.converters.DocumentSerializer;
 public class HttpMessageConverter {
     private DocumentSerializer serializer = new DocumentSerializer(new String[] { "Content", "Body" });
 
-    public String httpRequestToXml(HttpRequest request) throws Exception {
+    public String httpRequestToXml(HttpRequest request, String charset) throws Exception {
         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         Element requestElement = document.createElement("HttpRequest");
 
@@ -45,14 +45,14 @@ public class HttpMessageConverter {
 
         // NOTE: "Content" is added as a CDATA element in the serializer constructor
         Element contentElement = document.createElement("Content");
-        contentElement.setTextContent(convertInputStreamToString(request.getInputStream()));
+        contentElement.setTextContent(convertInputStreamToString(request.getInputStream(), charset));
         requestElement.appendChild(contentElement);
 
         document.appendChild(requestElement);
         return serializer.toXML(document);
     }
 
-    public String httpResponseToXml(Header[] headers, InputStream body) throws Exception {
+    public String httpResponseToXml(Header[] headers, InputStream body, String charset) throws Exception {
         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         Element requestElement = document.createElement("HttpResponse");
 
@@ -76,15 +76,15 @@ public class HttpMessageConverter {
 
         // NOTE: "Body" is added as a CDATA element in the serializer constructor
         Element contentElement = document.createElement("Body");
-        contentElement.setTextContent(convertInputStreamToString(body));
+        contentElement.setTextContent(convertInputStreamToString(body, charset));
         requestElement.appendChild(contentElement);
 
         document.appendChild(requestElement);
         return serializer.toXML(document);
     }
 
-    public String convertInputStreamToString(InputStream is) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+    public String convertInputStreamToString(InputStream is, String charset) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is, charset));
         StringBuilder sb = new StringBuilder();
         String line = null;
 

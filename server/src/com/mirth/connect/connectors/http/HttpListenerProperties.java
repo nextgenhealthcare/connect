@@ -7,7 +7,8 @@ public class HttpListenerProperties {
     public static final String name = "HTTP Listener";
 
     public static final String DATATYPE = "DataType";
-    public static final String HTTP_URL = "host";
+    public static final String HTTP_HOST = "host";
+    public static final String HTTP_PORT = "port";
     
     public static final String HTTP_RESPONSE = "receiverResponse";
     public static final String HTTP_INCLUDE_HEADERS = "receiverIncludeHeaders";
@@ -18,7 +19,8 @@ public class HttpListenerProperties {
         
         properties.put(DATATYPE, name);
         
-        properties.put(HTTP_URL, "127.0.0.1:80");
+        properties.put(HTTP_HOST, "0.0.0.0");
+        properties.put(HTTP_PORT, "80");
         properties.put(HTTP_RESPONSE, "None");
         properties.put(HTTP_INCLUDE_HEADERS, "0");
         properties.put(HTTP_RESPONSE_CONTENT_TYPE, "text/plain");

@@ -11,11 +11,12 @@ public class HttpMessageAdapter extends AbstractMessageAdapter {
     public HttpMessageAdapter(HttpRequest request) {
         try {
             HttpMessageConverter converter = new HttpMessageConverter();
-
+            String charset = (String) getProperty("charset", "UTF-8");
+            
             if (getBooleanProperty("includeHeaders", false)) {
-                message = converter.httpRequestToXml(request);
+                message = converter.httpRequestToXml(request, charset);
             } else {
-                message = converter.convertInputStreamToString(request.getInputStream());
+                message = converter.convertInputStreamToString(request.getInputStream(), charset);
             }
         } catch (Exception e) {
             logger.error("Error converting HTTP request.", e);
