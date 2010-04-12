@@ -171,14 +171,14 @@
 			<fileset dir="${lib.extensions}/http" />
 		</copy>
 		<jar destfile="${connectors.http}/http-shared.jar" basedir="${classes}">
-			<include name="com/mirth/connect/connectors/http/HTTPListenerProperties.class" />
-			<include name="com/mirth/connect/connectors/http/HTTPSenderProperties.class" />
+			<include name="com/mirth/connect/connectors/http/HttpListenerProperties.class" />
+			<include name="com/mirth/connect/connectors/http/HttpSenderProperties.class" />
 		</jar>
 		<jar destfile="${connectors.http}/http-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/http/**" />
-				<exclude name="com/mirth/connect/connectors/http/HTTPListenerProperties.class" />
-				<exclude name="com/mirth/connect/connectors/http/HTTPSenderProperties.class" />
+				<exclude name="com/mirth/connect/connectors/http/HttpListenerProperties.class" />
+				<exclude name="com/mirth/connect/connectors/http/HttpSenderProperties.class" />
 			</fileset>
 		</jar>
 
