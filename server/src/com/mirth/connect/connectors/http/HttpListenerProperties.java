@@ -1,0 +1,28 @@
+package com.mirth.connect.connectors.http;
+
+import java.util.Properties;
+
+
+public class HttpListenerProperties {
+    public static final String name = "HTTP Listener";
+
+    public static final String DATATYPE = "DataType";
+    public static final String HTTP_URL = "host";
+    
+    public static final String HTTP_RESPONSE = "receiverResponse";
+    public static final String HTTP_INCLUDE_HEADERS = "receiverIncludeHeaders";
+    public static final String HTTP_RESPONSE_CONTENT_TYPE = "receiverResponseContentType";
+
+    public Properties getDefaults() {
+        Properties properties = new Properties();
+        
+        properties.put(DATATYPE, name);
+        
+        properties.put(HTTP_URL, "127.0.0.1:80");
+        properties.put(HTTP_RESPONSE, "None");
+        properties.put(HTTP_INCLUDE_HEADERS, "0");
+        properties.put(HTTP_RESPONSE_CONTENT_TYPE, "text/plain");
+        return properties;
+    }
+
+}

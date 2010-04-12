@@ -25,7 +25,7 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.connectors.doc.DocumentWriterProperties;
 import com.mirth.connect.connectors.email.EmailSenderProperties;
 import com.mirth.connect.connectors.file.FileWriterProperties;
-import com.mirth.connect.connectors.http.HTTPSenderProperties;
+import com.mirth.connect.connectors.http.HttpSenderProperties;
 import com.mirth.connect.connectors.jdbc.DatabaseWriterProperties;
 import com.mirth.connect.connectors.jms.JMSWriterProperties;
 import com.mirth.connect.connectors.mllp.LLPSenderProperties;
@@ -308,9 +308,9 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin {
                         connector = channel.getDestinationConnectors().get(destinationIndex);
                         connectorType = "Destination: " + connector.getTransportName() + " - " + connector.getName();
 
-                        if (connector.getTransportName().equals(HTTPSenderProperties.name)) {
+                        if (connector.getTransportName().equals(HttpSenderProperties.name)) {
                             // Destination - HTTP Sender.
-                            information = HTTPSenderProperties.getInformation(connector.getProperties());
+                            information = HttpSenderProperties.getInformation(connector.getProperties());
                         } else if (connector.getTransportName().equals(ChannelWriterProperties.name)) {
                             // Destination - Channel Writer.
                             String targetChannelName = ControllerFactory.getFactory().createChannelController().getChannelName(ChannelWriterProperties.getInformation(connector.getProperties()));

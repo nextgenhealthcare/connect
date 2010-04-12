@@ -5,9 +5,9 @@
 	<mirthVersion>2.0.0</mirthVersion>
 	<url>http://www.mirthcorp.com</url>
 	<description>This connector allows Mirth to send messages to an HTTP server. Custom header properties can be specified.</description>
-	<clientClassName>com.mirth.connect.connectors.http.HTTPSender</clientClassName>
+	<clientClassName>com.mirth.connect.connectors.http.HttpSender</clientClassName>
 	<serverClassName>com.mirth.connect.connectors.http.HttpConnector</serverClassName>
-	<sharedClassName>com.mirth.connect.connectors.http.HTTPSenderProperties</sharedClassName>
+	<sharedClassName>com.mirth.connect.connectors.http.HttpSenderProperties</sharedClassName>
 	<serviceClassName>com.mirth.connect.connectors.http.HttpConnectorService</serviceClassName>
 	<library path="http-client.jar">
 		<type>CLIENT</type>
@@ -24,10 +24,8 @@
 	<enabled>true</enabled>
 	<mule-properties>
 		<property name="connector">com.mirth.connect.connectors.http.HttpConnector</property>
-		<property name="dispatcher.factory">com.mirth.connect.connectors.http.HttpClientMessageDispatcherFactory</property>
+		<property name="dispatcher.factory">com.mirth.connect.connectors.http.HttpMessageDispatcherFactory</property>
 		<property name="message.receiver">com.mirth.connect.connectors.http.HttpMessageReceiver</property>
 		<property name="message.adapter">org.mule.providers.http.HttpMessageAdapter</property>
-		<property name="outbound.transformer">org.mule.providers.http.transformers.ObjectToHttpClientMethodRequest</property>
-		<property name="response.transformer">com.mirth.connect.connectors.http.transformers.UMOMessageToHttpResponse</property>
 	</mule-properties>
 </connectorMetaData>

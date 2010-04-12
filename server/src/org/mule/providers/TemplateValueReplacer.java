@@ -40,6 +40,16 @@ public class TemplateValueReplacer {
     public static boolean hasReplaceableValues(String str) {
         return ((str != null) && (str.indexOf("$") > -1));
     }
+    
+    public Map<String, String> replaceValuesInMap(Map<String, String> map, MessageObject mo) {
+        for (Entry<String, String> entry : map.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            map.put(key, replaceValues(value, mo));
+        }
+        
+        return map;
+    }
 
     public String replaceValues(String template, Map<String, Object> map) {
         if (hasReplaceableValues(template)) {
