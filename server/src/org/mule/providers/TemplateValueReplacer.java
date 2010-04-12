@@ -12,6 +12,7 @@ package org.mule.providers;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -40,15 +41,17 @@ public class TemplateValueReplacer {
     public static boolean hasReplaceableValues(String str) {
         return ((str != null) && (str.indexOf("$") > -1));
     }
-    
+
     public Map<String, String> replaceValuesInMap(Map<String, String> map, MessageObject mo) {
-        for (Entry<String, String> entry : map.entrySet()) {
+        Map<String, String> localMap = new HashMap<String, String>(map);
+
+        for (Entry<String, String> entry : localMap.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
-            map.put(key, replaceValues(value, mo));
+            localMap.put(key, replaceValues(value, mo));
         }
-        
-        return map;
+
+        return localMap;
     }
 
     public String replaceValues(String template, Map<String, Object> map) {
@@ -75,7 +78,7 @@ public class TemplateValueReplacer {
         }
     }
 
-    public String replaceValues(String template, String channelId) {        
+    public String replaceValues(String template, String channelId) {
         if (hasReplaceableValues(template)) {
             VelocityContext context = new VelocityContext();
             loadContextFromMap(context, GlobalChannelVariableStoreFactory.getInstance().get(channelId).getVariables());
