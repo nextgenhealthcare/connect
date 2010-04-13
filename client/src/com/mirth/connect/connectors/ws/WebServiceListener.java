@@ -467,11 +467,11 @@ public class WebServiceListener extends ConnectorClass {
         URL = new javax.swing.JLabel();
         serviceNameField = new com.mirth.connect.client.ui.components.MirthTextField();
         portField = new com.mirth.connect.client.ui.components.MirthTextField();
-        jLabel1 = new javax.swing.JLabel();
+        portLabel = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         URL1 = new javax.swing.JLabel();
         listenerAddressField = new com.mirth.connect.client.ui.components.MirthTextField();
-        jLabel3 = new javax.swing.JLabel();
+        listenerAddressLabel = new javax.swing.JLabel();
         methodField = new javax.swing.JTextField();
         wsdlURLField = new javax.swing.JTextField();
         responseFromLabel = new javax.swing.JLabel();
@@ -508,7 +508,7 @@ public class WebServiceListener extends ConnectorClass {
             }
         });
 
-        jLabel1.setText("Port:");
+        portLabel.setText("Port:");
 
         jLabel2.setText("Method:");
 
@@ -516,7 +516,7 @@ public class WebServiceListener extends ConnectorClass {
 
         listenerAddressField.setToolTipText("The DNS domain name or IP address on which the web service should listen for connections.");
 
-        jLabel3.setText("Listener Address:");
+        listenerAddressLabel.setText("Listener Address:");
 
         methodField.setText("String acceptMessage(String message)");
         methodField.setToolTipText("Displays the generated web service operation signature the client will call.");
@@ -625,8 +625,8 @@ public class WebServiceListener extends ConnectorClass {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel3)
+                    .addComponent(portLabel)
+                    .addComponent(listenerAddressLabel)
                     .addComponent(URL)
                     .addComponent(URL1)
                     .addComponent(jLabel2)
@@ -665,13 +665,13 @@ public class WebServiceListener extends ConnectorClass {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
+                    .addComponent(listenerAddressLabel)
                     .addComponent(listenerAllRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(listenerSpecificRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(listenerAddressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
+                    .addComponent(portLabel)
                     .addComponent(portField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -784,16 +784,16 @@ public class WebServiceListener extends ConnectorClass {
     private javax.swing.JScrollPane credentialsPane;
     private com.mirth.connect.client.ui.components.MirthTable credentialsTable;
     private javax.swing.JButton deleteButton;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.ButtonGroup listenerAddressButtonGroup;
     private com.mirth.connect.client.ui.components.MirthTextField listenerAddressField;
+    private javax.swing.JLabel listenerAddressLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton listenerAllRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton listenerSpecificRadio;
     private javax.swing.JTextField methodField;
     private javax.swing.JButton newButton;
     private com.mirth.connect.client.ui.components.MirthTextField portField;
+    private javax.swing.JLabel portLabel;
     private com.mirth.connect.client.ui.components.MirthComboBox respondFromComboBox;
     private javax.swing.JLabel responseFromLabel;
     private com.mirth.connect.client.ui.components.MirthTextField serviceNameField;
