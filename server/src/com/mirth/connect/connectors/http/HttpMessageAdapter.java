@@ -13,7 +13,7 @@ public class HttpMessageAdapter extends AbstractMessageAdapter {
             HttpMessageConverter converter = new HttpMessageConverter();
             
             if (getBooleanProperty("includeHeaders", false)) {
-                message = converter.httpRequestToXml(request, request.getCharacterEncoding());
+                message = converter.httpRequestToXml(request);
             } else {
                 message = converter.convertInputStreamToString(request.getInputStream(), request.getCharacterEncoding());
             }

@@ -18,7 +18,7 @@ import com.mirth.connect.model.converters.DocumentSerializer;
 public class HttpMessageConverter {
     private DocumentSerializer serializer = new DocumentSerializer(new String[] { "Content", "Body" });
 
-    public String httpRequestToXml(HttpRequest request, String charset) throws Exception {
+    public String httpRequestToXml(HttpRequest request) throws Exception {
         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         Element requestElement = document.createElement("HttpRequest");
 
@@ -45,7 +45,7 @@ public class HttpMessageConverter {
 
         // NOTE: "Content" is added as a CDATA element in the serializer constructor
         Element contentElement = document.createElement("Content");
-        contentElement.setTextContent(convertInputStreamToString(request.getInputStream(), charset));
+        contentElement.setTextContent(convertInputStreamToString(request.getInputStream(), request.getCharacterEncoding()));
         requestElement.appendChild(contentElement);
 
         document.appendChild(requestElement);
@@ -83,8 +83,8 @@ public class HttpMessageConverter {
         return serializer.toXML(document);
     }
 
-    public String convertInputStreamToString(InputStream is, String charset) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is, charset));
+    public String convertInputStreamToString(InputStream inputStream, String charset) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, charset));
         StringBuilder sb = new StringBuilder();
         String line = null;
 
@@ -93,7 +93,7 @@ public class HttpMessageConverter {
                 sb.append(line + "\n");
             }
         } finally {
-            is.close();
+            inputStream.close();
         }
 
         return sb.toString();
