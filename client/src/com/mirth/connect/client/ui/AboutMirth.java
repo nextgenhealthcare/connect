@@ -48,6 +48,7 @@ public class AboutMirth extends javax.swing.JDialog {
         content.append("Mirth Connect Administrator " + PlatformUI.SERVER_VERSION + "\n\n");
         content.append("Built on " + PlatformUI.BUILD_DATE + "\n\n");
         content.append("Server ID: " + PlatformUI.SERVER_ID + "\n\n");
+        content.append("Java version: " + System.getProperty("java.version") + "\n\n");
 
         content.append("(c) 2005-" + Calendar.getInstance().get(Calendar.YEAR) + " Mirth Corporation. All rights reserved. Visit http://www.mirthcorp.com\n\n");
         content.append("This product includes software developed by SymphonySoft Limited (http://www.symphonysoft.com) and its contributors.\n\n");
