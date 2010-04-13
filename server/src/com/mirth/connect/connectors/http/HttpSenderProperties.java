@@ -6,10 +6,8 @@ import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
 public class HttpSenderProperties {
     public static final String name = "HTTP Sender";
-
     public static final String DATATYPE = "DataType";
     public static final String HTTP_URL = "host";
-
     public static final String HTTP_METHOD = "dispatcherMethod";
     public static final String HTTP_HEADERS = "dispatcherHeaders";
     public static final String HTTP_PARAMETERS = "dispatcherParameters";

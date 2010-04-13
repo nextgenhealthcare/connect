@@ -5,15 +5,12 @@ import java.util.Properties;
 
 public class HttpListenerProperties {
     public static final String name = "HTTP Listener";
-
     public static final String DATATYPE = "DataType";
     public static final String HTTP_HOST = "host";
     public static final String HTTP_PORT = "port";
-    
     public static final String HTTP_RESPONSE = "receiverResponse";
     public static final String HTTP_INCLUDE_HEADERS = "receiverIncludeHeaders";
     public static final String HTTP_RESPONSE_CONTENT_TYPE = "receiverResponseContentType";
-    public static final String HTTP_CHARSET = "receiverCharset";
     
     public Properties getDefaults() {
         Properties properties = new Properties();
@@ -25,7 +22,6 @@ public class HttpListenerProperties {
         properties.put(HTTP_RESPONSE, "None");
         properties.put(HTTP_INCLUDE_HEADERS, "0");
         properties.put(HTTP_RESPONSE_CONTENT_TYPE, "text/plain");
-        properties.put(HTTP_CHARSET, "UTF-8");
         return properties;
     }
 
