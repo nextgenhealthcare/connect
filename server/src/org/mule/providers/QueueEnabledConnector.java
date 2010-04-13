@@ -159,7 +159,6 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 		public void run() {
 
 			try {
-				String lastError = "";
 				logger.debug("queuing thread started on connector: " + getName());
 				while (!killQueueThread) {
 					boolean connected = true;
@@ -209,20 +208,14 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 									}
 									
 									logger.debug("retrying queued message: id = " + theMessage.getMessageObject().getId() + ", endpointUri = " + theMessage.getEndpointUri().toString());
-									
-									if ((lastError != null) && (lastError.length() > 0)) {
-										theMessage.getMessageObject().getConnectorMap().put("lastError", lastError);
-										theMessage.getMessageObject().setErrors(lastError);
-									}
-									
 									if (dispatcher.sendPayload(theMessage)) {
 										// message sent, so poll is and start processing quickly to this destination
-										lastError = "";
+										
 										queue.poll(getPollMaxTime());
 										connected = true;
 									} else {
 										// didn't throw an exception, but still failed to send.  reset the queued status
-										lastError = theMessage.getMessageObject().getErrors();
+										
 										if (isRotateQueue()) {
 											rotateCurrentMessage();
 										}
@@ -240,8 +233,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 										if (isRotateQueue()) {
 											rotateCurrentMessage();
 										}
-										lastError = theMessage.getMessageObject().getErrors();
-										logger.warn("Connection error [" + t + "] " + " at " + theMessage.getEndpointUri().toString() + " queue size " + new Integer(queue.size()).toString());
+										logger.debug("Connection error [" + t + "] " + " at " + theMessage.getEndpointUri().toString() + " queue size " + new Integer(queue.size()).toString());
 										messageObjectController.resetQueuedStatus(theMessage.getMessageObject());
 									} else {
 										if (!interrupted) {		
