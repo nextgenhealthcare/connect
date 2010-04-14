@@ -28,6 +28,7 @@ import org.mule.umo.provider.UMOConnector;
 import org.mule.umo.provider.UMOMessageAdapter;
 
 import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.Response;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
@@ -101,7 +102,12 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
             if (payload instanceof MessageObject) {
                 MessageObject messageObjectResponse = (MessageObject) payload;
                 postProcessor.doPostProcess(messageObjectResponse);
-                return response.getPayloadAsString();
+                
+                if (!connector.getReceiverResponse().equalsIgnoreCase("None")) {
+                    return ((Response) messageObjectResponse.getResponseMap().get(connector.getReceiverResponse())).getMessage();
+                } else {
+                    return null;
+                }
             }
         }
 

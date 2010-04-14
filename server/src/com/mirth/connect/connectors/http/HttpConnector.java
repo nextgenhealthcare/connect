@@ -23,6 +23,7 @@ public class HttpConnector extends QueueEnabledConnector {
     private String receiverResponseContentType;
     private boolean receiverIncludeHeaders;
     private boolean dispatcherIncludeHeadersInResponse;
+    private String receiverResponse;
 
     public String getChannelId() {
         return channelId;
@@ -150,6 +151,14 @@ public class HttpConnector extends QueueEnabledConnector {
 
     public void setReceiverResponseContentType(String receiverResponseContentType) {
         this.receiverResponseContentType = receiverResponseContentType;
+    }
+
+    public String getReceiverResponse() {
+        return receiverResponse;
+    }
+
+    public void setReceiverResponse(String receiverResponse) {
+        this.receiverResponse = receiverResponse;
     }
 
     @Override

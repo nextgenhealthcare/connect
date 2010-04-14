@@ -9,13 +9,14 @@ import org.mule.providers.AbstractMessageAdapter;
 public class HttpMessageAdapter extends AbstractMessageAdapter {
     private HttpRequest request = null;
     private Logger logger = Logger.getLogger(this.getClass());
-    private HttpMessageConverter converter = new HttpMessageConverter();
-
+    
     public HttpMessageAdapter(HttpRequest request) {
         this.request = request;
     }
 
     public Object getPayload() {
+        HttpMessageConverter converter = new HttpMessageConverter();
+        
         try {
             if (getBooleanProperty("includeHeaders", false)) {
                 return converter.httpRequestToXml(request);

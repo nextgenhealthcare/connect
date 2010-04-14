@@ -2,8 +2,10 @@ package com.mirth.connect.connectors.http;
 
 import java.util.Properties;
 
+import com.mirth.connect.model.ComponentProperties;
 
-public class HttpListenerProperties {
+
+public class HttpListenerProperties implements ComponentProperties {
     public static final String name = "HTTP Listener";
     public static final String DATATYPE = "DataType";
     public static final String HTTP_HOST = "host";
