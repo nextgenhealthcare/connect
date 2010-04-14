@@ -112,7 +112,9 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
                 String response = null;
 
                 if (connector.isDispatcherIncludeHeadersInResponse()) {
-                    response = new HttpMessageConverter().httpResponseToXml(httpMethod.getResponseHeaders(), httpMethod.getResponseBodyAsStream(), connector.getDispatcherCharset());
+                    HttpMessageConverter converter = new HttpMessageConverter();
+                    String content = converter.convertInputStreamToString(httpMethod.getResponseBodyAsStream(), connector.getDispatcherCharset());
+                    response = converter.httpResponseToXml(httpMethod.getResponseHeaders(), content);
                 } else {
                     response = httpMethod.getResponseBodyAsString();
                 }

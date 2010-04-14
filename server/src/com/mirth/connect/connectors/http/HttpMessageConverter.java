@@ -1,10 +1,14 @@
 package com.mirth.connect.connectors.http;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -18,24 +22,21 @@ import com.mirth.connect.model.converters.DocumentSerializer;
 public class HttpMessageConverter {
     private DocumentSerializer serializer = new DocumentSerializer();
 
-    public String httpRequestToXml(HttpRequest request) throws Exception {
+    public String httpRequestToXml(Map<String, String> headers, String content) throws Exception {
         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         Element requestElement = document.createElement("HttpRequest");
 
         Element headerElement = document.createElement("Header");
 
-        for (Enumeration<String> enumeration = request.getFieldNames(); enumeration.hasMoreElements();) {
-            String name = enumeration.nextElement();
-            String value = request.getField(name);
-
+        for (Entry<String, String> entry : headers.entrySet()) {
             Element fieldElement = document.createElement("Field");
 
             Element nameElement = document.createElement("Name");
-            nameElement.setTextContent(name);
+            nameElement.setTextContent(entry.getKey());
             fieldElement.appendChild(nameElement);
 
             Element valueElement = document.createElement("Value");
-            valueElement.setTextContent(value);
+            valueElement.setTextContent(entry.getValue());
             fieldElement.appendChild(valueElement);
 
             headerElement.appendChild(fieldElement);
@@ -46,14 +47,14 @@ public class HttpMessageConverter {
         // NOTE: "Content" is added as a CDATA element in the serializer
         // constructor
         Element contentElement = document.createElement("Content");
-        contentElement.setTextContent(convertInputStreamToString(request.getInputStream(), request.getCharacterEncoding()));
+        contentElement.setTextContent(content);
         requestElement.appendChild(contentElement);
 
         document.appendChild(requestElement);
         return serializer.toXML(document);
     }
 
-    public String httpResponseToXml(Header[] headers, InputStream is, String charset) throws Exception {
+    public String httpResponseToXml(Header[] headers, String content) throws Exception {
         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         Element requestElement = document.createElement("HttpResponse");
 
@@ -78,7 +79,7 @@ public class HttpMessageConverter {
         // NOTE: "Body" is added as a CDATA element in the serializer
         // constructor
         Element contentElement = document.createElement("Body");
-        contentElement.setTextContent(convertInputStreamToString(is, charset));
+        contentElement.setTextContent(content);
         requestElement.appendChild(contentElement);
 
         document.appendChild(requestElement);
@@ -86,18 +87,30 @@ public class HttpMessageConverter {
     }
 
     public String convertInputStreamToString(InputStream is, String charset) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is, charset));
-        StringBuilder sb = new StringBuilder();
-        String line = null;
+        Reader reader = new InputStreamReader(is, charset);
+        StringWriter writer = new StringWriter();
+        char[] buffer = new char[1024];
 
         try {
-            while ((line = reader.readLine()) != null) {
-                sb.append(line).append("\n");
+            for (int n; (n = reader.read(buffer)) != -1;) {
+                writer.write(buffer, 0, n);
             }
         } finally {
             is.close();
         }
 
-        return sb.toString();
+        return writer.toString();
+    }
+    
+    public Map<String, String> convertFieldEnumerationToMap(HttpRequest request) {
+        Map<String, String> headers = new HashMap<String, String>();
+        
+        for (Enumeration<String> enumeration = request.getFieldNames(); enumeration.hasMoreElements();) {
+            String name = enumeration.nextElement();
+            String value = request.getField(name);
+            headers.put(name, value);
+        }
+        
+        return headers;
     }
 }

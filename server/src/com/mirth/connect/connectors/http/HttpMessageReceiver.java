@@ -2,6 +2,7 @@ package com.mirth.connect.connectors.http;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.nio.charset.Charset;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -45,23 +46,28 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
     private HttpServer server;
 
     private HttpHandler requestHandler = new AbstractHttpHandler() {
-        public void handle(String pathInContext, String pathParams, HttpRequest request, HttpResponse response) throws HttpException, IOException {
+        public void handle(String pathInContext, String pathParams, HttpRequest httpRequest, HttpResponse httpResponse) throws HttpException, IOException {
             logger.debug("received HTTP request");
             monitoringController.updateStatus(connector, connectorType, Event.CONNECTED);
 
             try {
-                response.setContentType(connector.getReceiverResponseContentType());
-                response.getOutputStream().write(processData(request).getBytes());
-                response.setStatus(HttpStatus.SC_OK);
+                httpResponse.setContentType(connector.getReceiverResponseContentType());
+                String response = processData(httpRequest);
+
+                if (response != null) {
+                    httpResponse.getOutputStream().write(response.getBytes());
+                }
+
+                httpResponse.setStatus(HttpStatus.SC_OK);
             } catch (Exception e) {
-                response.setContentType("text/plain");
-                response.getOutputStream().write(ExceptionUtils.getFullStackTrace(e).getBytes());
-                response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                httpResponse.setContentType("text/plain");
+                httpResponse.getOutputStream().write(ExceptionUtils.getFullStackTrace(e).getBytes());
+                httpResponse.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
             } finally {
                 monitoringController.updateStatus(connector, connectorType, Event.DONE);
             }
 
-            request.setHandled(true);
+            httpRequest.setHandled(true);
         }
     };
 
@@ -86,14 +92,21 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
 
     private String processData(HttpRequest request) throws Exception {
         monitoringController.updateStatus(connector, connectorType, Event.BUSY);
-        UMOMessageAdapter adapter = connector.getMessageAdapter(request);
+        HttpMessageConverter converter = new HttpMessageConverter();
+        HttpRequestMessage message = new HttpRequestMessage();
+        message.setHeaders(converter.convertFieldEnumerationToMap(request));
 
-        /*
-         * This property is being set so that the adapter knows if it should
-         * return the XML encoded headers and body, or just the body.
-         */
-        adapter.setBooleanProperty("includeHeaders", connector.isReceiverIncludeHeaders());
-        
+        String content = null;
+
+        if (request.getCharacterEncoding() != null) {
+            content = converter.convertInputStreamToString(request.getInputStream(), request.getCharacterEncoding());
+        } else {
+            content = converter.convertInputStreamToString(request.getInputStream(), Charset.defaultCharset().name());
+        }
+
+        message.setContent(content);
+        message.setIncludeHeaders(connector.isReceiverIncludeHeaders());
+        UMOMessageAdapter adapter = connector.getMessageAdapter(message);
         UMOMessage response = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
 
         if ((response != null) && (response instanceof MuleMessage)) {
@@ -102,7 +115,7 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
             if (payload instanceof MessageObject) {
                 MessageObject messageObjectResponse = (MessageObject) payload;
                 postProcessor.doPostProcess(messageObjectResponse);
-                
+
                 if (!connector.getReceiverResponse().equalsIgnoreCase("None")) {
                     return ((Response) messageObjectResponse.getResponseMap().get(connector.getReceiverResponse())).getMessage();
                 } else {
@@ -116,7 +129,7 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
 
     @Override
     public void doDisconnect() throws Exception {
-        
+
     }
 
     @Override
