@@ -2,7 +2,6 @@ package com.mirth.connect.connectors.http;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.nio.charset.Charset;
 
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -26,7 +25,6 @@ import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpoint;
 import org.mule.umo.lifecycle.InitialisationException;
 import org.mule.umo.provider.UMOConnector;
-import org.mule.umo.provider.UMOMessageAdapter;
 
 import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.Response;
@@ -95,19 +93,9 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
         HttpMessageConverter converter = new HttpMessageConverter();
         HttpRequestMessage message = new HttpRequestMessage();
         message.setHeaders(converter.convertFieldEnumerationToMap(request));
-
-        String content = null;
-
-        if (request.getCharacterEncoding() != null) {
-            content = converter.convertInputStreamToString(request.getInputStream(), request.getCharacterEncoding());
-        } else {
-            content = converter.convertInputStreamToString(request.getInputStream(), Charset.defaultCharset().name());
-        }
-
-        message.setContent(content);
+        message.setContent(converter.convertInputStreamToString(request.getInputStream(), request.getCharacterEncoding()));
         message.setIncludeHeaders(connector.isReceiverIncludeHeaders());
-        UMOMessageAdapter adapter = connector.getMessageAdapter(message);
-        UMOMessage response = routeMessage(new MuleMessage(adapter), endpoint.isSynchronous());
+        UMOMessage response = routeMessage(new MuleMessage(connector.getMessageAdapter(message)), endpoint.isSynchronous());
 
         if ((response != null) && (response instanceof MuleMessage)) {
             Object payload = response.getPayload();

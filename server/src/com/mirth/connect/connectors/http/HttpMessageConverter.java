@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -87,6 +88,10 @@ public class HttpMessageConverter {
     }
 
     public String convertInputStreamToString(InputStream is, String charset) throws IOException {
+        if (charset == null) {
+            charset = Charset.defaultCharset().name();
+        }
+        
         Reader reader = new InputStreamReader(is, charset);
         StringWriter writer = new StringWriter();
         char[] buffer = new char[1024];
