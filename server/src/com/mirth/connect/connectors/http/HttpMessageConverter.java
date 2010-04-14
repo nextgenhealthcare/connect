@@ -16,7 +16,7 @@ import org.w3c.dom.Element;
 import com.mirth.connect.model.converters.DocumentSerializer;
 
 public class HttpMessageConverter {
-    private DocumentSerializer serializer = new DocumentSerializer(new String[] { "Content", "Body" });
+    private DocumentSerializer serializer = new DocumentSerializer();
 
     public String httpRequestToXml(HttpRequest request) throws Exception {
         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
@@ -43,7 +43,8 @@ public class HttpMessageConverter {
 
         requestElement.appendChild(headerElement);
 
-        // NOTE: "Content" is added as a CDATA element in the serializer constructor
+        // NOTE: "Content" is added as a CDATA element in the serializer
+        // constructor
         Element contentElement = document.createElement("Content");
         contentElement.setTextContent(convertInputStreamToString(request.getInputStream(), request.getCharacterEncoding()));
         requestElement.appendChild(contentElement);
@@ -52,7 +53,7 @@ public class HttpMessageConverter {
         return serializer.toXML(document);
     }
 
-    public String httpResponseToXml(Header[] headers, InputStream body, String charset) throws Exception {
+    public String httpResponseToXml(Header[] headers, InputStream is, String charset) throws Exception {
         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         Element requestElement = document.createElement("HttpResponse");
 
@@ -74,26 +75,27 @@ public class HttpMessageConverter {
 
         requestElement.appendChild(headerElement);
 
-        // NOTE: "Body" is added as a CDATA element in the serializer constructor
+        // NOTE: "Body" is added as a CDATA element in the serializer
+        // constructor
         Element contentElement = document.createElement("Body");
-        contentElement.setTextContent(convertInputStreamToString(body, charset));
+        contentElement.setTextContent(convertInputStreamToString(is, charset));
         requestElement.appendChild(contentElement);
 
         document.appendChild(requestElement);
         return serializer.toXML(document);
     }
 
-    public String convertInputStreamToString(InputStream inputStream, String charset) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, charset));
+    public String convertInputStreamToString(InputStream is, String charset) throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is, charset));
         StringBuilder sb = new StringBuilder();
         String line = null;
 
         try {
             while ((line = reader.readLine()) != null) {
-                sb.append(line + "\n");
+                sb.append(line).append("\n");
             }
         } finally {
-            inputStream.close();
+            is.close();
         }
 
         return sb.toString();
