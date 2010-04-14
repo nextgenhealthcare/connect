@@ -2,10 +2,10 @@ package com.mirth.connect.connectors.http;
 
 import java.util.Properties;
 
-import com.mirth.connect.model.ComponentProperties;
+import com.mirth.connect.model.QueuedSenderProperties;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 
-public class HttpSenderProperties implements ComponentProperties {
+public class HttpSenderProperties extends QueuedSenderProperties {
     public static final String name = "HTTP Sender";
     public static final String DATATYPE = "DataType";
     public static final String HTTP_URL = "host";
