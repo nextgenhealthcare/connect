@@ -23,7 +23,7 @@ import com.mirth.connect.model.converters.DocumentSerializer;
 
 public class HttpMessageConverter {
     private Logger logger = Logger.getLogger(this.getClass());
-    private DocumentSerializer serializer = new DocumentSerializer();
+    private DocumentSerializer serializer = new DocumentSerializer(new String[] { "Content", "Body" });
 
     public String httpRequestToXml(HttpRequestMessage request) {
         try {
