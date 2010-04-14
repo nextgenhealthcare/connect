@@ -28,7 +28,7 @@ public class HttpMessageAdapter extends AbstractMessageAdapter {
 
         try {
             if (request.isIncludeHeaders()) {
-                message = converter.httpRequestToXml(request.getHeaders(), request.getContent());
+                message = converter.httpRequestToXml(request);
             } else {
                 message = request.getContent();
             }

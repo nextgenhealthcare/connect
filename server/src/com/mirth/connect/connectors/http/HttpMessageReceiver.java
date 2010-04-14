@@ -95,6 +95,8 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
         message.setHeaders(converter.convertFieldEnumerationToMap(request));
         message.setContent(converter.convertInputStreamToString(request.getInputStream(), request.getCharacterEncoding()));
         message.setIncludeHeaders(connector.isReceiverIncludeHeaders());
+        message.setContentType(request.getContentType());
+        message.setRemoteAddress(request.getRemoteAddr());
         UMOMessage response = routeMessage(new MuleMessage(connector.getMessageAdapter(message)), endpoint.isSynchronous());
 
         if ((response != null) && (response instanceof MuleMessage)) {

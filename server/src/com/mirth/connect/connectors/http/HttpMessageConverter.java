@@ -23,13 +23,17 @@ import com.mirth.connect.model.converters.DocumentSerializer;
 public class HttpMessageConverter {
     private DocumentSerializer serializer = new DocumentSerializer();
 
-    public String httpRequestToXml(Map<String, String> headers, String content) throws Exception {
+    public String httpRequestToXml(HttpRequestMessage request) throws Exception {
         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
         Element requestElement = document.createElement("HttpRequest");
-
+        
+        if (request.getRemoteAddress() != null) {
+            requestElement.setAttribute("remoteAddr", request.getRemoteAddress());
+        }
+        
         Element headerElement = document.createElement("Header");
 
-        for (Entry<String, String> entry : headers.entrySet()) {
+        for (Entry<String, String> entry : request.getHeaders().entrySet()) {
             Element fieldElement = document.createElement("Field");
 
             Element nameElement = document.createElement("Name");
@@ -48,7 +52,12 @@ public class HttpMessageConverter {
         // NOTE: "Content" is added as a CDATA element in the serializer
         // constructor
         Element contentElement = document.createElement("Content");
-        contentElement.setTextContent(content);
+        
+        if (request.getContentType() != null) {
+            contentElement.setAttribute("type", request.getContentType());
+        }
+        
+        contentElement.setTextContent(request.getContent());
         requestElement.appendChild(contentElement);
 
         document.appendChild(requestElement);

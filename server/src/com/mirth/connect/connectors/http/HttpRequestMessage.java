@@ -6,6 +6,8 @@ public class HttpRequestMessage {
     private String content;
     private Map<String, String> headers;
     private boolean includeHeaders;
+    private String contentType;
+    private String remoteAddress;
 
     public String getContent() {
         return content;
@@ -29,5 +31,21 @@ public class HttpRequestMessage {
 
     public void setIncludeHeaders(boolean includeHeaders) {
         this.includeHeaders = includeHeaders;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    public String getRemoteAddress() {
+        return remoteAddress;
+    }
+
+    public void setRemoteAddress(String remoteAddress) {
+        this.remoteAddress = remoteAddress;
     }
 }
