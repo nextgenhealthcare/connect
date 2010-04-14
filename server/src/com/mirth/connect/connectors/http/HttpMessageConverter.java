@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.httpclient.Header;
+import org.apache.log4j.Logger;
 import org.mortbay.http.HttpRequest;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -21,86 +22,99 @@ import org.w3c.dom.Element;
 import com.mirth.connect.model.converters.DocumentSerializer;
 
 public class HttpMessageConverter {
+    private Logger logger = Logger.getLogger(this.getClass());
     private DocumentSerializer serializer = new DocumentSerializer();
 
-    public String httpRequestToXml(HttpRequestMessage request) throws Exception {
-        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-        Element requestElement = document.createElement("HttpRequest");
-        
-        if (request.getRemoteAddress() != null) {
-            requestElement.setAttribute("remoteAddr", request.getRemoteAddress());
+    public String httpRequestToXml(HttpRequestMessage request) {
+        try {
+            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            Element requestElement = document.createElement("HttpRequest");
+
+            if (request.getRemoteAddress() != null) {
+                requestElement.setAttribute("remoteAddr", request.getRemoteAddress());
+            }
+
+            Element headerElement = document.createElement("Header");
+
+            for (Entry<String, String> entry : request.getHeaders().entrySet()) {
+                Element fieldElement = document.createElement("Field");
+
+                Element nameElement = document.createElement("Name");
+                nameElement.setTextContent(entry.getKey());
+                fieldElement.appendChild(nameElement);
+
+                Element valueElement = document.createElement("Value");
+                valueElement.setTextContent(entry.getValue());
+                fieldElement.appendChild(valueElement);
+
+                headerElement.appendChild(fieldElement);
+            }
+
+            requestElement.appendChild(headerElement);
+
+            // NOTE: "Content" is added as a CDATA element in the serializer
+            // constructor
+            Element contentElement = document.createElement("Content");
+
+            if (request.getContentType() != null) {
+                contentElement.setAttribute("type", request.getContentType());
+            }
+
+            contentElement.setTextContent(request.getContent());
+            requestElement.appendChild(contentElement);
+
+            document.appendChild(requestElement);
+            return serializer.toXML(document);
+        } catch (Exception e) {
+            logger.error("Error converting HTTP request.", e);
         }
-        
-        Element headerElement = document.createElement("Header");
 
-        for (Entry<String, String> entry : request.getHeaders().entrySet()) {
-            Element fieldElement = document.createElement("Field");
-
-            Element nameElement = document.createElement("Name");
-            nameElement.setTextContent(entry.getKey());
-            fieldElement.appendChild(nameElement);
-
-            Element valueElement = document.createElement("Value");
-            valueElement.setTextContent(entry.getValue());
-            fieldElement.appendChild(valueElement);
-
-            headerElement.appendChild(fieldElement);
-        }
-
-        requestElement.appendChild(headerElement);
-
-        // NOTE: "Content" is added as a CDATA element in the serializer
-        // constructor
-        Element contentElement = document.createElement("Content");
-        
-        if (request.getContentType() != null) {
-            contentElement.setAttribute("type", request.getContentType());
-        }
-        
-        contentElement.setTextContent(request.getContent());
-        requestElement.appendChild(contentElement);
-
-        document.appendChild(requestElement);
-        return serializer.toXML(document);
+        return null;
     }
 
-    public String httpResponseToXml(Header[] headers, String content) throws Exception {
-        Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-        Element requestElement = document.createElement("HttpResponse");
+    public String httpResponseToXml(Header[] headers, String content) {
+        try {
+            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+            Element requestElement = document.createElement("HttpResponse");
 
-        Element headerElement = document.createElement("Header");
+            Element headerElement = document.createElement("Header");
 
-        for (Header header : headers) {
-            Element fieldElement = document.createElement("Field");
+            for (Header header : headers) {
+                Element fieldElement = document.createElement("Field");
 
-            Element nameElement = document.createElement("Name");
-            nameElement.setTextContent(header.getName());
-            fieldElement.appendChild(nameElement);
+                Element nameElement = document.createElement("Name");
+                nameElement.setTextContent(header.getName());
+                fieldElement.appendChild(nameElement);
 
-            Element valueElement = document.createElement("Value");
-            valueElement.setTextContent(header.getValue());
-            fieldElement.appendChild(valueElement);
+                Element valueElement = document.createElement("Value");
+                valueElement.setTextContent(header.getValue());
+                fieldElement.appendChild(valueElement);
 
-            headerElement.appendChild(fieldElement);
+                headerElement.appendChild(fieldElement);
+            }
+
+            requestElement.appendChild(headerElement);
+
+            // NOTE: "Body" is added as a CDATA element in the serializer
+            // constructor
+            Element contentElement = document.createElement("Body");
+            contentElement.setTextContent(content);
+            requestElement.appendChild(contentElement);
+
+            document.appendChild(requestElement);
+            return serializer.toXML(document);
+        } catch (Exception e) {
+            logger.error("Error converting HTTP request.", e);
         }
 
-        requestElement.appendChild(headerElement);
-
-        // NOTE: "Body" is added as a CDATA element in the serializer
-        // constructor
-        Element contentElement = document.createElement("Body");
-        contentElement.setTextContent(content);
-        requestElement.appendChild(contentElement);
-
-        document.appendChild(requestElement);
-        return serializer.toXML(document);
+        return null;
     }
 
     public String convertInputStreamToString(InputStream is, String charset) throws IOException {
         if (charset == null) {
             charset = Charset.defaultCharset().name();
         }
-        
+
         Reader reader = new InputStreamReader(is, charset);
         StringWriter writer = new StringWriter();
         char[] buffer = new char[1024];
@@ -115,16 +129,16 @@ public class HttpMessageConverter {
 
         return writer.toString();
     }
-    
+
     public Map<String, String> convertFieldEnumerationToMap(HttpRequest request) {
         Map<String, String> headers = new HashMap<String, String>();
-        
+
         for (Enumeration<String> enumeration = request.getFieldNames(); enumeration.hasMoreElements();) {
             String name = enumeration.nextElement();
             String value = request.getField(name);
             headers.put(name, value);
         }
-        
+
         return headers;
     }
 }
