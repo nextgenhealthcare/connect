@@ -38,80 +38,87 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="multipartLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="httpMethodLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="URL1" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="responseHeadersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel36" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="reconnectIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel2" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel3" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel7" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="parametersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="headersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="urlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="contentLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="contentTypeLabel" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <Component id="contentTextArea" pref="443" max="32767" attributes="2"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                  </Group>
                   <Group type="102" attributes="0">
                       <Component id="multipartYesButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="multipartNoButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
-                  <Group type="103" alignment="0" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Component id="includeResponseHeadersYesButton" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="includeResponseHeadersNoButton" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Component id="httpURL" min="-2" pref="300" max="-2" attributes="1"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="testConnection" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Component id="post" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="get" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="put" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="delete" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <Component id="channelNames" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Component id="usePersistentQueuesYesRadio" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="usePersistentQueuesNoRadio" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="rotateMessages" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <Component id="reconnectInterval" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="includeResponseHeadersYesButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="includeResponseHeadersNoButton" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="urlField" min="-2" pref="300" max="-2" attributes="1"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="testConnection" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="postButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="getButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="putButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="deleteButton" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="channelNames" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="usePersistentQueuesYesRadio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="usePersistentQueuesNoRadio" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="rotateMessages" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="reconnectInterval" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
                       </Group>
-                      <Group type="102" alignment="0" attributes="0">
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="102" alignment="0" attributes="0">
-                                  <Component id="headerVariablesPane" pref="375" max="32767" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                      <Component id="headerNewButton" max="32767" attributes="1"/>
-                                      <Component id="headerDeleteButton" alignment="0" min="-2" max="-2" attributes="1"/>
-                                  </Group>
+                      <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="contentTypeField" min="-2" pref="125" max="-2" attributes="0"/>
+                                  <Component id="headersPane" pref="374" max="32767" attributes="0"/>
                               </Group>
-                              <Group type="102" alignment="1" attributes="0">
-                                  <Component id="propertiesPane" pref="375" max="32767" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="deleteButton" linkSize="1" min="-2" max="-2" attributes="0"/>
-                                      <Component id="newButton" linkSize="1" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                  <Component id="headersNewButton" max="32767" attributes="1"/>
+                                  <Component id="headersDeleteButton" alignment="0" min="-2" max="-2" attributes="1"/>
                               </Group>
                           </Group>
-                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="102" alignment="1" attributes="0">
+                              <Component id="parametersPane" pref="374" max="32767" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="parametersDeleteButton" linkSize="1" min="-2" max="-2" attributes="0"/>
+                                  <Component id="parametersNewButton" linkSize="1" alignment="0" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                          </Group>
                       </Group>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
           </Group>
@@ -121,68 +128,80 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel7" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="httpURL" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="urlLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="urlField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="testConnection" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="post" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="get" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="put" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="delete" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="httpMethodLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="postButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="getButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="putButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="deleteButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="multipartLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="multipartYesButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="multipartNoButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="URL1" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="channelNames" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="includeResponseHeadersYesButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="includeResponseHeadersNoButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="responseHeadersLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel36" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="usePersistentQueuesYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="usePersistentQueuesNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="rotateMessages" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="reconnectInterval" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="reconnectIntervalLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="1" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
-                          <Component id="newButton" min="-2" max="-2" attributes="0"/>
+                          <Component id="parametersLabel" min="-2" max="-2" attributes="0"/>
+                          <Component id="parametersNewButton" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="deleteButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="parametersDeleteButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="propertiesPane" pref="52" max="32767" attributes="0"/>
+                  <Component id="parametersPane" pref="81" max="32767" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="headerVariablesPane" pref="52" max="32767" attributes="0"/>
-                  <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+                  <Component id="headersLabel" min="-2" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="headerNewButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="headersNewButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="headerDeleteButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="headersDeleteButton" min="-2" max="-2" attributes="0"/>
                   </Group>
+                  <Group type="102" alignment="1" attributes="0">
+                      <Component id="headersPane" pref="78" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="contentTypeField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="contentTypeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="contentLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="contentTextArea" pref="90" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
@@ -190,40 +209,40 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JLabel" name="jLabel7">
+    <Component class="javax.swing.JLabel" name="urlLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="URL:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="httpURL">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="urlField">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Enter the URL of the HTTP server to send each message to."/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JButton" name="newButton">
+    <Component class="javax.swing.JButton" name="parametersNewButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="New"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="newButtonActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="parametersNewButtonActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="deleteButton">
+    <Component class="javax.swing.JButton" name="parametersDeleteButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="Delete"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deleteButtonActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="parametersDeleteButtonActionPerformed"/>
       </Events>
     </Component>
-    <Container class="javax.swing.JScrollPane" name="propertiesPane">
+    <Container class="javax.swing.JScrollPane" name="parametersPane">
       <AuxValues>
         <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
       </AuxValues>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="com.mirth.connect.client.ui.components.MirthTable" name="propertiesTable">
+        <Component class="com.mirth.connect.client.ui.components.MirthTable" name="parametersTable">
           <Properties>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
               <Table columnCount="2" rowCount="0">
@@ -236,17 +255,17 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JLabel" name="jLabel2">
+    <Component class="javax.swing.JLabel" name="parametersLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Request Variables:"/>
+        <Property name="text" type="java.lang.String" value="Parameters:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel1">
+    <Component class="javax.swing.JLabel" name="httpMethodLabel">
       <Properties>
         <Property name="text" type="java.lang.String" value="HTTP Method:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="post">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="postButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -266,10 +285,10 @@
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="postActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="postButtonActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="get">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="getButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -289,7 +308,7 @@
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="getActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="getButtonActionPerformed"/>
       </Events>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthComboBox" name="channelNames">
@@ -310,14 +329,14 @@
         <Property name="text" type="java.lang.String" value="Send Response to:"/>
       </Properties>
     </Component>
-    <Container class="javax.swing.JScrollPane" name="headerVariablesPane">
+    <Container class="javax.swing.JScrollPane" name="headersPane">
       <AuxValues>
         <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
       </AuxValues>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="com.mirth.connect.client.ui.components.MirthTable" name="headerVariablesTable">
+        <Component class="com.mirth.connect.client.ui.components.MirthTable" name="headersTable">
           <Properties>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
               <Table columnCount="2" rowCount="0">
@@ -330,25 +349,25 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JLabel" name="jLabel3">
+    <Component class="javax.swing.JLabel" name="headersLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Header Variables:"/>
+        <Property name="text" type="java.lang.String" value="Headers:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JButton" name="headerNewButton">
+    <Component class="javax.swing.JButton" name="headersNewButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="New"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="headerNewButtonActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="headersNewButtonActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="headerDeleteButton">
+    <Component class="javax.swing.JButton" name="headersDeleteButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="Delete"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="headerDeleteButtonActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="headersDeleteButtonActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="responseHeadersLabel">
@@ -375,9 +394,6 @@
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
       </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="includeResponseHeadersYesButtonActionPerformed"/>
-      </Events>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="includeResponseHeadersNoButton">
       <Properties>
@@ -466,7 +482,7 @@
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="reconnectInterval">
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="put">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="putButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -486,10 +502,10 @@
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="putActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="putButtonActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="delete">
+    <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="deleteButton">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -509,7 +525,7 @@
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deleteActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deleteButtonActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="testConnection">
@@ -563,6 +579,30 @@
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthSyntaxTextArea" name="contentTextArea">
+      <Properties>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
+            <EtchetBorder/>
+          </Border>
+        </Property>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);"/>
+      </AuxValues>
+    </Component>
+    <Component class="javax.swing.JLabel" name="contentLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Content:"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="contentTypeField">
+    </Component>
+    <Component class="javax.swing.JLabel" name="contentTypeLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Content Type:"/>
       </Properties>
     </Component>
   </SubComponents>

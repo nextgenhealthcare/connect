@@ -52,43 +52,41 @@ public class HttpSender extends ConnectorClass {
     private final int VALUE_COLUMN = 1;
     private final String VARIABLE_COLUMN_NAME = "Variable";
     private final String VALUE_COLUMN_NAME = "Value";
-    private final String PAYLOAD_KEY = "$payload";
     private int propertiesLastIndex = -1;
     private int headerLastIndex = -1;
-    /** Creates new form HTTPWriter */
     private HashMap channelList;
 
     public HttpSender() {
         name = HttpSenderProperties.name;
         initComponents();
-        propertiesPane.addMouseListener(new java.awt.event.MouseAdapter() {
+        parametersPane.addMouseListener(new java.awt.event.MouseAdapter() {
 
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                deselectRows(propertiesTable, deleteButton);
+                deselectRows(parametersTable, parametersDeleteButton);
             }
         });
-        headerVariablesPane.addMouseListener(new java.awt.event.MouseAdapter() {
+        headersPane.addMouseListener(new java.awt.event.MouseAdapter() {
 
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                deselectRows(headerVariablesTable, headerDeleteButton);
+                deselectRows(headersTable, headersDeleteButton);
             }
         });
-        deleteButton.setEnabled(false);
-        headerDeleteButton.setEnabled(false);
+        parametersDeleteButton.setEnabled(false);
+        headersDeleteButton.setEnabled(false);
     }
 
     public Properties getProperties() {
         Properties properties = new Properties();
         properties.put(HttpSenderProperties.DATATYPE, name);
-        properties.put(HttpSenderProperties.HTTP_URL, httpURL.getText());
+        properties.put(HttpSenderProperties.HTTP_URL, urlField.getText());
 
-        if (post.isSelected()) {
+        if (postButton.isSelected()) {
             properties.put(HttpSenderProperties.HTTP_METHOD, "post");
-        } else if (get.isSelected()) {
+        } else if (getButton.isSelected()) {
             properties.put(HttpSenderProperties.HTTP_METHOD, "get");
-        } else if (put.isSelected()) {
+        } else if (putButton.isSelected()) {
             properties.put(HttpSenderProperties.HTTP_METHOD, "put");
-        } else if (delete.isSelected()) {
+        } else if (deleteButton.isSelected()) {
             properties.put(HttpSenderProperties.HTTP_METHOD, "delete");
         }
 
@@ -123,6 +121,10 @@ public class HttpSender extends ConnectorClass {
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         properties.put(HttpSenderProperties.HTTP_PARAMETERS, serializer.toXML(getAdditionalProperties()));
         properties.put(HttpSenderProperties.HTTP_HEADERS, serializer.toXML(getHeaderProperties()));
+
+        properties.put(HttpSenderProperties.HTTP_CONTENT_TYPE, contentTypeField.getText());
+        properties.put(HttpSenderProperties.HTTP_CONTENT, contentTextArea.getText());
+
         return properties;
     }
 
@@ -131,16 +133,16 @@ public class HttpSender extends ConnectorClass {
 
         boolean visible = parent.channelEditTasks.getContentPane().getComponent(0).isVisible();
 
-        httpURL.setText((String) props.get(HttpSenderProperties.HTTP_URL));
+        urlField.setText((String) props.get(HttpSenderProperties.HTTP_URL));
 
         if (((String) props.get(HttpSenderProperties.HTTP_METHOD)).equalsIgnoreCase("post")) {
-            post.setSelected(true);
+            postButton.setSelected(true);
         } else if (((String) props.get(HttpSenderProperties.HTTP_METHOD)).equalsIgnoreCase("get")) {
-            get.setSelected(true);
+            getButton.setSelected(true);
         } else if (((String) props.get(HttpSenderProperties.HTTP_METHOD)).equalsIgnoreCase("put")) {
-            put.setSelected(true);
+            putButton.setSelected(true);
         } else if (((String) props.get(HttpSenderProperties.HTTP_METHOD)).equalsIgnoreCase("delete")) {
-            delete.setSelected(true);
+            deleteButton.setSelected(true);
         }
 
         if (((String) props.get(HttpSenderProperties.HTTP_MULTIPART)).equals(UIConstants.YES_OPTION)) {
@@ -170,6 +172,10 @@ public class HttpSender extends ConnectorClass {
         } else {
             setHeaderProperties(new Properties());
         }
+
+        contentTypeField.setText((String) props.get(HttpSenderProperties.HTTP_CONTENT_TYPE));
+
+        contentTextArea.setText((String) props.get(HttpSenderProperties.HTTP_CONTENT));
 
         reconnectInterval.setText((String) props.get(QueuedSenderProperties.RECONNECT_INTERVAL));
 
@@ -216,7 +222,7 @@ public class HttpSender extends ConnectorClass {
     public void setAdditionalProperties(Properties properties) {
         Object[][] tableData = new Object[properties.size()][2];
 
-        propertiesTable = new MirthTable();
+        parametersTable = new MirthTable();
 
         int j = 0;
         Iterator i = properties.entrySet().iterator();
@@ -227,7 +233,7 @@ public class HttpSender extends ConnectorClass {
             j++;
         }
 
-        propertiesTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[]{VARIABLE_COLUMN_NAME, VALUE_COLUMN_NAME}) {
+        parametersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[]{VARIABLE_COLUMN_NAME, VALUE_COLUMN_NAME}) {
 
             boolean[] canEdit = new boolean[]{true, true};
 
@@ -236,14 +242,14 @@ public class HttpSender extends ConnectorClass {
             }
         });
 
-        propertiesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+        parametersTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
             public void valueChanged(ListSelectionEvent evt) {
-                if (getSelectedRow(propertiesTable) != -1) {
-                    propertiesLastIndex = getSelectedRow(propertiesTable);
-                    deleteButton.setEnabled(true);
+                if (getSelectedRow(parametersTable) != -1) {
+                    propertiesLastIndex = getSelectedRow(parametersTable);
+                    parametersDeleteButton.setEnabled(true);
                 } else {
-                    deleteButton.setEnabled(false);
+                    parametersDeleteButton.setEnabled(false);
                 }
             }
         });
@@ -288,7 +294,7 @@ public class HttpSender extends ConnectorClass {
                     parent.enableSave();
                 }
 
-                deleteButton.setEnabled(true);
+                parametersDeleteButton.setEnabled(true);
 
                 return super.stopCellEditing();
             }
@@ -296,8 +302,8 @@ public class HttpSender extends ConnectorClass {
             public boolean checkUniqueProperty(String property) {
                 boolean exists = false;
 
-                for (int i = 0; i < propertiesTable.getRowCount(); i++) {
-                    if (propertiesTable.getValueAt(i, VARIABLE_COLUMN) != null && ((String) propertiesTable.getValueAt(i, VARIABLE_COLUMN)).equalsIgnoreCase(property)) {
+                for (int i = 0; i < parametersTable.getRowCount(); i++) {
+                    if (parametersTable.getValueAt(i, VARIABLE_COLUMN) != null && ((String) parametersTable.getValueAt(i, VARIABLE_COLUMN)).equalsIgnoreCase(property)) {
                         exists = true;
                     }
                 }
@@ -310,7 +316,7 @@ public class HttpSender extends ConnectorClass {
              */
             public boolean isCellEditable(EventObject evt) {
                 if (evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2) {
-                    deleteButton.setEnabled(false);
+                    parametersDeleteButton.setEnabled(false);
                     return true;
                 }
                 return false;
@@ -319,31 +325,31 @@ public class HttpSender extends ConnectorClass {
         ;
 
         // Set the custom cell editor for the Destination Name column.
-        propertiesTable.getColumnModel().getColumn(propertiesTable.getColumnModel().getColumnIndex(VARIABLE_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(true));
+        parametersTable.getColumnModel().getColumn(parametersTable.getColumnModel().getColumnIndex(VARIABLE_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(true));
 
         // Set the custom cell editor for the Destination Name column.
-        propertiesTable.getColumnModel().getColumn(propertiesTable.getColumnModel().getColumnIndex(VALUE_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(false));
+        parametersTable.getColumnModel().getColumn(parametersTable.getColumnModel().getColumnIndex(VALUE_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(false));
 
-        propertiesTable.setSelectionMode(0);
-        propertiesTable.setRowSelectionAllowed(true);
-        propertiesTable.setRowHeight(UIConstants.ROW_HEIGHT);
-        propertiesTable.setDragEnabled(false);
-        propertiesTable.setOpaque(true);
-        propertiesTable.setSortable(false);
-        propertiesTable.getTableHeader().setReorderingAllowed(false);
+        parametersTable.setSelectionMode(0);
+        parametersTable.setRowSelectionAllowed(true);
+        parametersTable.setRowHeight(UIConstants.ROW_HEIGHT);
+        parametersTable.setDragEnabled(false);
+        parametersTable.setOpaque(true);
+        parametersTable.setSortable(false);
+        parametersTable.getTableHeader().setReorderingAllowed(false);
 
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
-            propertiesTable.setHighlighters(highlighter);
+            parametersTable.setHighlighters(highlighter);
         }
 
-        propertiesPane.setViewportView(propertiesTable);
+        parametersPane.setViewportView(parametersTable);
     }
 
     public void setHeaderProperties(Properties properties) {
         Object[][] tableData = new Object[properties.size()][2];
 
-        headerVariablesTable = new MirthTable();
+        headersTable = new MirthTable();
 
         int j = 0;
         Iterator i = properties.entrySet().iterator();
@@ -354,7 +360,7 @@ public class HttpSender extends ConnectorClass {
             j++;
         }
 
-        headerVariablesTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[]{VARIABLE_COLUMN_NAME, VALUE_COLUMN_NAME}) {
+        headersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[]{VARIABLE_COLUMN_NAME, VALUE_COLUMN_NAME}) {
 
             boolean[] canEdit = new boolean[]{true, true};
 
@@ -363,14 +369,14 @@ public class HttpSender extends ConnectorClass {
             }
         });
 
-        headerVariablesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+        headersTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
             public void valueChanged(ListSelectionEvent evt) {
-                if (getSelectedRow(headerVariablesTable) != -1) {
-                    headerLastIndex = getSelectedRow(headerVariablesTable);
-                    headerDeleteButton.setEnabled(true);
+                if (getSelectedRow(headersTable) != -1) {
+                    headerLastIndex = getSelectedRow(headersTable);
+                    headersDeleteButton.setEnabled(true);
                 } else {
-                    headerDeleteButton.setEnabled(false);
+                    headersDeleteButton.setEnabled(false);
                 }
             }
         });
@@ -415,7 +421,7 @@ public class HttpSender extends ConnectorClass {
                     parent.enableSave();
                 }
 
-                headerDeleteButton.setEnabled(true);
+                headersDeleteButton.setEnabled(true);
 
                 return super.stopCellEditing();
             }
@@ -423,8 +429,8 @@ public class HttpSender extends ConnectorClass {
             public boolean checkUniqueProperty(String property) {
                 boolean exists = false;
 
-                for (int i = 0; i < headerVariablesTable.getRowCount(); i++) {
-                    if (headerVariablesTable.getValueAt(i, VARIABLE_COLUMN) != null && ((String) headerVariablesTable.getValueAt(i, VARIABLE_COLUMN)).equalsIgnoreCase(property)) {
+                for (int i = 0; i < headersTable.getRowCount(); i++) {
+                    if (headersTable.getValueAt(i, VARIABLE_COLUMN) != null && ((String) headersTable.getValueAt(i, VARIABLE_COLUMN)).equalsIgnoreCase(property)) {
                         exists = true;
                     }
                 }
@@ -437,7 +443,7 @@ public class HttpSender extends ConnectorClass {
              */
             public boolean isCellEditable(EventObject evt) {
                 if (evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2) {
-                    headerDeleteButton.setEnabled(false);
+                    headersDeleteButton.setEnabled(false);
                     return true;
                 }
                 return false;
@@ -446,33 +452,33 @@ public class HttpSender extends ConnectorClass {
         ;
 
         // Set the custom cell editor for the Destination Name column.
-        headerVariablesTable.getColumnModel().getColumn(headerVariablesTable.getColumnModel().getColumnIndex(VARIABLE_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(true));
+        headersTable.getColumnModel().getColumn(headersTable.getColumnModel().getColumnIndex(VARIABLE_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(true));
 
         // Set the custom cell editor for the Destination Name column.
-        headerVariablesTable.getColumnModel().getColumn(headerVariablesTable.getColumnModel().getColumnIndex(VALUE_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(false));
+        headersTable.getColumnModel().getColumn(headersTable.getColumnModel().getColumnIndex(VALUE_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(false));
 
-        headerVariablesTable.setSelectionMode(0);
-        headerVariablesTable.setRowSelectionAllowed(true);
-        headerVariablesTable.setRowHeight(UIConstants.ROW_HEIGHT);
-        headerVariablesTable.setDragEnabled(false);
-        headerVariablesTable.setOpaque(true);
-        headerVariablesTable.setSortable(false);
-        headerVariablesTable.getTableHeader().setReorderingAllowed(false);
+        headersTable.setSelectionMode(0);
+        headersTable.setRowSelectionAllowed(true);
+        headersTable.setRowHeight(UIConstants.ROW_HEIGHT);
+        headersTable.setDragEnabled(false);
+        headersTable.setOpaque(true);
+        headersTable.setSortable(false);
+        headersTable.getTableHeader().setReorderingAllowed(false);
 
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
-            headerVariablesTable.setHighlighters(highlighter);
+            headersTable.setHighlighters(highlighter);
         }
 
-        headerVariablesPane.setViewportView(headerVariablesTable);
+        headersPane.setViewportView(headersTable);
     }
 
     public Map getAdditionalProperties() {
         Properties properties = new Properties();
 
-        for (int i = 0; i < propertiesTable.getRowCount(); i++) {
-            if (((String) propertiesTable.getValueAt(i, VARIABLE_COLUMN)).length() > 0) {
-                properties.put(((String) propertiesTable.getValueAt(i, VARIABLE_COLUMN)), ((String) propertiesTable.getValueAt(i, VALUE_COLUMN)));
+        for (int i = 0; i < parametersTable.getRowCount(); i++) {
+            if (((String) parametersTable.getValueAt(i, VARIABLE_COLUMN)).length() > 0) {
+                properties.put(((String) parametersTable.getValueAt(i, VARIABLE_COLUMN)), ((String) parametersTable.getValueAt(i, VALUE_COLUMN)));
             }
         }
 
@@ -482,9 +488,9 @@ public class HttpSender extends ConnectorClass {
     public Map getHeaderProperties() {
         Properties properties = new Properties();
 
-        for (int i = 0; i < headerVariablesTable.getRowCount(); i++) {
-            if (((String) headerVariablesTable.getValueAt(i, VARIABLE_COLUMN)).length() > 0) {
-                properties.put(((String) headerVariablesTable.getValueAt(i, VARIABLE_COLUMN)), ((String) headerVariablesTable.getValueAt(i, VALUE_COLUMN)));
+        for (int i = 0; i < headersTable.getRowCount(); i++) {
+            if (((String) headersTable.getValueAt(i, VARIABLE_COLUMN)).length() > 0) {
+                properties.put(((String) headersTable.getValueAt(i, VARIABLE_COLUMN)), ((String) headersTable.getValueAt(i, VALUE_COLUMN)));
             }
         }
 
@@ -533,7 +539,7 @@ public class HttpSender extends ConnectorClass {
         if (((String) props.getProperty(HttpSenderProperties.HTTP_URL)).length() == 0) {
             valid = false;
             if (highlight) {
-                httpURL.setBackground(UIConstants.INVALID_COLOR);
+                urlField.setBackground(UIConstants.INVALID_COLOR);
             }
         }
 
@@ -543,12 +549,31 @@ public class HttpSender extends ConnectorClass {
                 reconnectInterval.setBackground(UIConstants.INVALID_COLOR);
             }
         }
+        
+        if (((String) props.getProperty(HttpSenderProperties.HTTP_METHOD)).equalsIgnoreCase("post") || ((String) props.getProperty(HttpSenderProperties.HTTP_METHOD)).equalsIgnoreCase("put")) {
+            if (((String) props.getProperty(HttpSenderProperties.HTTP_CONTENT_TYPE)).length() == 0) {
+                valid = false;
+                if (highlight) {
+                    contentTypeField.setBackground(UIConstants.INVALID_COLOR);
+                }
+            }
+            
+            if (((String) props.getProperty(HttpSenderProperties.HTTP_CONTENT)).length() == 0) {
+                valid = false;
+                if (highlight) {
+                    contentTextArea.setBackground(UIConstants.INVALID_COLOR);
+                }
+            }
+        }
 
         return valid;
     }
 
     private void resetInvalidProperties() {
-        httpURL.setBackground(null);
+        urlField.setBackground(null);
+        reconnectInterval.setBackground(null);
+        contentTypeField.setBackground(null);
+        contentTextArea.setBackground(null);
     }
 
     public String doValidate(Properties props, boolean highlight) {
@@ -562,7 +587,7 @@ public class HttpSender extends ConnectorClass {
     }
 
     private void checkMultipartEnabled() {
-        if (post.isSelected()) {
+        if (postButton.isSelected()) {
             multipartLabel.setEnabled(true);
             multipartYesButton.setEnabled(true);
             multipartNoButton.setEnabled(true);
@@ -572,6 +597,13 @@ public class HttpSender extends ConnectorClass {
             multipartNoButton.setEnabled(false);
             multipartNoButton.setSelected(true);
         }
+    }
+
+    private void setContentEnabled(boolean enabled) {
+        contentTypeLabel.setEnabled(enabled);
+        contentTypeField.setEnabled(enabled);
+        contentLabel.setEnabled(enabled);
+        contentTextArea.setEnabled(enabled);
     }
 
     /**
@@ -587,23 +619,23 @@ public class HttpSender extends ConnectorClass {
         responseHeadersButtonGroup = new javax.swing.ButtonGroup();
         buttonGroup1 = new javax.swing.ButtonGroup();
         multipartButtonGroup = new javax.swing.ButtonGroup();
-        jLabel7 = new javax.swing.JLabel();
-        httpURL = new com.mirth.connect.client.ui.components.MirthTextField();
-        newButton = new javax.swing.JButton();
-        deleteButton = new javax.swing.JButton();
-        propertiesPane = new javax.swing.JScrollPane();
-        propertiesTable = new com.mirth.connect.client.ui.components.MirthTable();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
-        post = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        get = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        urlLabel = new javax.swing.JLabel();
+        urlField = new com.mirth.connect.client.ui.components.MirthTextField();
+        parametersNewButton = new javax.swing.JButton();
+        parametersDeleteButton = new javax.swing.JButton();
+        parametersPane = new javax.swing.JScrollPane();
+        parametersTable = new com.mirth.connect.client.ui.components.MirthTable();
+        parametersLabel = new javax.swing.JLabel();
+        httpMethodLabel = new javax.swing.JLabel();
+        postButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        getButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
         channelNames = new com.mirth.connect.client.ui.components.MirthComboBox();
         URL1 = new javax.swing.JLabel();
-        headerVariablesPane = new javax.swing.JScrollPane();
-        headerVariablesTable = new com.mirth.connect.client.ui.components.MirthTable();
-        jLabel3 = new javax.swing.JLabel();
-        headerNewButton = new javax.swing.JButton();
-        headerDeleteButton = new javax.swing.JButton();
+        headersPane = new javax.swing.JScrollPane();
+        headersTable = new com.mirth.connect.client.ui.components.MirthTable();
+        headersLabel = new javax.swing.JLabel();
+        headersNewButton = new javax.swing.JButton();
+        headersDeleteButton = new javax.swing.JButton();
         responseHeadersLabel = new javax.swing.JLabel();
         includeResponseHeadersYesButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
         includeResponseHeadersNoButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
@@ -613,35 +645,39 @@ public class HttpSender extends ConnectorClass {
         jLabel36 = new javax.swing.JLabel();
         reconnectIntervalLabel = new javax.swing.JLabel();
         reconnectInterval = new com.mirth.connect.client.ui.components.MirthTextField();
-        put = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        delete = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        putButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        deleteButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
         testConnection = new javax.swing.JButton();
         multipartLabel = new javax.swing.JLabel();
         multipartYesButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
         multipartNoButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        contentTextArea = new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);
+        contentLabel = new javax.swing.JLabel();
+        contentTypeField = new com.mirth.connect.client.ui.components.MirthTextField();
+        contentTypeLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
 
-        jLabel7.setText("URL:");
+        urlLabel.setText("URL:");
 
-        httpURL.setToolTipText("Enter the URL of the HTTP server to send each message to.");
+        urlField.setToolTipText("Enter the URL of the HTTP server to send each message to.");
 
-        newButton.setText("New");
-        newButton.addActionListener(new java.awt.event.ActionListener() {
+        parametersNewButton.setText("New");
+        parametersNewButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                newButtonActionPerformed(evt);
+                parametersNewButtonActionPerformed(evt);
             }
         });
 
-        deleteButton.setText("Delete");
-        deleteButton.addActionListener(new java.awt.event.ActionListener() {
+        parametersDeleteButton.setText("Delete");
+        parametersDeleteButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deleteButtonActionPerformed(evt);
+                parametersDeleteButtonActionPerformed(evt);
             }
         });
 
-        propertiesTable.setModel(new javax.swing.table.DefaultTableModel(
+        parametersTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -649,34 +685,34 @@ public class HttpSender extends ConnectorClass {
                 "Property", "Value"
             }
         ));
-        propertiesTable.setToolTipText("Request variables are encoded as x=y pairs as part of the request URL, separated from it by a '?' and from each other by an '&'.");
-        propertiesPane.setViewportView(propertiesTable);
+        parametersTable.setToolTipText("Request variables are encoded as x=y pairs as part of the request URL, separated from it by a '?' and from each other by an '&'.");
+        parametersPane.setViewportView(parametersTable);
 
-        jLabel2.setText("Request Variables:");
+        parametersLabel.setText("Parameters:");
 
-        jLabel1.setText("HTTP Method:");
+        httpMethodLabel.setText("HTTP Method:");
 
-        post.setBackground(new java.awt.Color(255, 255, 255));
-        post.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        methodButtonGroup.add(post);
-        post.setText("POST");
-        post.setToolTipText("Selects whether the HTTP operation used to send each message.");
-        post.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        post.addActionListener(new java.awt.event.ActionListener() {
+        postButton.setBackground(new java.awt.Color(255, 255, 255));
+        postButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        methodButtonGroup.add(postButton);
+        postButton.setText("POST");
+        postButton.setToolTipText("Selects whether the HTTP operation used to send each message.");
+        postButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        postButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                postActionPerformed(evt);
+                postButtonActionPerformed(evt);
             }
         });
 
-        get.setBackground(new java.awt.Color(255, 255, 255));
-        get.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        methodButtonGroup.add(get);
-        get.setText("GET");
-        get.setToolTipText("Selects whether the HTTP operation used to send each message.");
-        get.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        get.addActionListener(new java.awt.event.ActionListener() {
+        getButton.setBackground(new java.awt.Color(255, 255, 255));
+        getButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        methodButtonGroup.add(getButton);
+        getButton.setText("GET");
+        getButton.setToolTipText("Selects whether the HTTP operation used to send each message.");
+        getButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        getButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                getActionPerformed(evt);
+                getButtonActionPerformed(evt);
             }
         });
 
@@ -685,7 +721,7 @@ public class HttpSender extends ConnectorClass {
 
         URL1.setText("Send Response to:");
 
-        headerVariablesTable.setModel(new javax.swing.table.DefaultTableModel(
+        headersTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -693,22 +729,22 @@ public class HttpSender extends ConnectorClass {
                 "Property", "Value"
             }
         ));
-        headerVariablesTable.setToolTipText("Header variables are encoded as HTTP headers in the HTTP request sent to the server.");
-        headerVariablesPane.setViewportView(headerVariablesTable);
+        headersTable.setToolTipText("Header variables are encoded as HTTP headers in the HTTP request sent to the server.");
+        headersPane.setViewportView(headersTable);
 
-        jLabel3.setText("Header Variables:");
+        headersLabel.setText("Headers:");
 
-        headerNewButton.setText("New");
-        headerNewButton.addActionListener(new java.awt.event.ActionListener() {
+        headersNewButton.setText("New");
+        headersNewButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                headerNewButtonActionPerformed(evt);
+                headersNewButtonActionPerformed(evt);
             }
         });
 
-        headerDeleteButton.setText("Delete");
-        headerDeleteButton.addActionListener(new java.awt.event.ActionListener() {
+        headersDeleteButton.setText("Delete");
+        headersDeleteButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                headerDeleteButtonActionPerformed(evt);
+                headersDeleteButtonActionPerformed(evt);
             }
         });
 
@@ -720,11 +756,6 @@ public class HttpSender extends ConnectorClass {
         includeResponseHeadersYesButton.setText("Yes");
         includeResponseHeadersYesButton.setToolTipText("<html>Only enabled if Send Response To selects a channel.<br>If Include is selected, the HTTP headers of the response received are included in the message sent to the selected channel.<br>If Exclude is selected, the HTTP headers are not included.</html>");
         includeResponseHeadersYesButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        includeResponseHeadersYesButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                includeResponseHeadersYesButtonActionPerformed(evt);
-            }
-        });
 
         includeResponseHeadersNoButton.setBackground(new java.awt.Color(255, 255, 255));
         includeResponseHeadersNoButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -765,27 +796,27 @@ public class HttpSender extends ConnectorClass {
 
         reconnectIntervalLabel.setText("Reconnect Interval (ms):");
 
-        put.setBackground(new java.awt.Color(255, 255, 255));
-        put.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        methodButtonGroup.add(put);
-        put.setText("PUT");
-        put.setToolTipText("Selects whether the HTTP operation used to send each message.");
-        put.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        put.addActionListener(new java.awt.event.ActionListener() {
+        putButton.setBackground(new java.awt.Color(255, 255, 255));
+        putButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        methodButtonGroup.add(putButton);
+        putButton.setText("PUT");
+        putButton.setToolTipText("Selects whether the HTTP operation used to send each message.");
+        putButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        putButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                putActionPerformed(evt);
+                putButtonActionPerformed(evt);
             }
         });
 
-        delete.setBackground(new java.awt.Color(255, 255, 255));
-        delete.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        methodButtonGroup.add(delete);
-        delete.setText("DELETE");
-        delete.setToolTipText("Selects whether the HTTP operation used to send each message.");
-        delete.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        delete.addActionListener(new java.awt.event.ActionListener() {
+        deleteButton.setBackground(new java.awt.Color(255, 255, 255));
+        deleteButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        methodButtonGroup.add(deleteButton);
+        deleteButton.setText("DELETE");
+        deleteButton.setToolTipText("Selects whether the HTTP operation used to send each message.");
+        deleteButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        deleteButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deleteActionPerformed(evt);
+                deleteButtonActionPerformed(evt);
             }
         });
 
@@ -812,90 +843,102 @@ public class HttpSender extends ConnectorClass {
         multipartNoButton.setToolTipText("Set not to use multipart in the Content-Type header.");
         multipartNoButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
+        contentTextArea.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        contentLabel.setText("Content:");
+
+        contentTypeLabel.setText("Content Type:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(multipartLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(URL1, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(responseHeadersLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel36, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(reconnectIntervalLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel7, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(multipartLabel)
+                    .addComponent(httpMethodLabel)
+                    .addComponent(URL1)
+                    .addComponent(responseHeadersLabel)
+                    .addComponent(jLabel36)
+                    .addComponent(reconnectIntervalLabel)
+                    .addComponent(parametersLabel)
+                    .addComponent(headersLabel)
+                    .addComponent(urlLabel)
+                    .addComponent(contentLabel)
+                    .addComponent(contentTypeLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(contentTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 443, Short.MAX_VALUE)
+                        .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(multipartYesButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(multipartNoButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap())
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(includeResponseHeadersYesButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(includeResponseHeadersNoButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(httpURL, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(testConnection))
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(post, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(get, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(put, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(delete, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addComponent(channelNames, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(usePersistentQueuesYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(usePersistentQueuesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(rotateMessages, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addComponent(reconnectInterval, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGap(14, 14, 14))
-                        .addGroup(layout.createSequentialGroup()
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addGroup(layout.createSequentialGroup()
-                                    .addComponent(headerVariablesPane, javax.swing.GroupLayout.DEFAULT_SIZE, 375, Short.MAX_VALUE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                        .addComponent(headerNewButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(headerDeleteButton)))
-                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                    .addComponent(propertiesPane, javax.swing.GroupLayout.DEFAULT_SIZE, 375, Short.MAX_VALUE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addComponent(deleteButton)
-                                        .addComponent(newButton))))
-                            .addContainerGap()))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(includeResponseHeadersYesButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(includeResponseHeadersNoButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(urlField, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(testConnection))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(postButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(getButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(putButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(deleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(channelNames, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(usePersistentQueuesYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(usePersistentQueuesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(rotateMessages, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(reconnectInterval, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(14, 14, 14))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(contentTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(headersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 374, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(headersNewButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(headersDeleteButton)))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(parametersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 374, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(parametersDeleteButton)
+                                    .addComponent(parametersNewButton))))
+                        .addContainerGap())))
         );
 
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {deleteButton, newButton});
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {parametersDeleteButton, parametersNewButton});
 
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel7)
-                    .addComponent(httpURL, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(urlLabel)
+                    .addComponent(urlField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(testConnection))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(post, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(get, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(put, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(delete, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(httpMethodLabel)
+                    .addComponent(postButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(getButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(putButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(deleteButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(multipartLabel)
@@ -921,51 +964,60 @@ public class HttpSender extends ConnectorClass {
                     .addComponent(reconnectInterval, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(reconnectIntervalLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel2)
-                            .addComponent(newButton))
+                            .addComponent(parametersLabel)
+                            .addComponent(parametersNewButton))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(deleteButton))
-                    .addComponent(propertiesPane, javax.swing.GroupLayout.DEFAULT_SIZE, 52, Short.MAX_VALUE))
+                        .addComponent(parametersDeleteButton))
+                    .addComponent(parametersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 81, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(headerVariablesPane, javax.swing.GroupLayout.DEFAULT_SIZE, 52, Short.MAX_VALUE)
-                    .addComponent(jLabel3)
+                    .addComponent(headersLabel)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(headerNewButton)
+                        .addComponent(headersNewButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(headerDeleteButton)))
+                        .addComponent(headersDeleteButton))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(headersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 78, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(contentTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(contentTypeLabel))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(contentLabel)
+                    .addComponent(contentTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 90, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void headerDeleteButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_headerDeleteButtonActionPerformed
-    {//GEN-HEADEREND:event_headerDeleteButtonActionPerformed
-        if (getSelectedRow(headerVariablesTable) != -1 && !headerVariablesTable.isEditing()) {
-            ((DefaultTableModel) headerVariablesTable.getModel()).removeRow(getSelectedRow(headerVariablesTable));
+    private void headersDeleteButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_headersDeleteButtonActionPerformed
+    {//GEN-HEADEREND:event_headersDeleteButtonActionPerformed
+        if (getSelectedRow(headersTable) != -1 && !headersTable.isEditing()) {
+            ((DefaultTableModel) headersTable.getModel()).removeRow(getSelectedRow(headersTable));
 
-            if (headerVariablesTable.getRowCount() != 0) {
+            if (headersTable.getRowCount() != 0) {
                 if (headerLastIndex == 0) {
-                    headerVariablesTable.setRowSelectionInterval(0, 0);
-                } else if (headerLastIndex == headerVariablesTable.getRowCount()) {
-                    headerVariablesTable.setRowSelectionInterval(headerLastIndex - 1, headerLastIndex - 1);
+                    headersTable.setRowSelectionInterval(0, 0);
+                } else if (headerLastIndex == headersTable.getRowCount()) {
+                    headersTable.setRowSelectionInterval(headerLastIndex - 1, headerLastIndex - 1);
                 } else {
-                    headerVariablesTable.setRowSelectionInterval(headerLastIndex, headerLastIndex);
+                    headersTable.setRowSelectionInterval(headerLastIndex, headerLastIndex);
                 }
             }
 
             parent.enableSave();
         }
-    }//GEN-LAST:event_headerDeleteButtonActionPerformed
+    }//GEN-LAST:event_headersDeleteButtonActionPerformed
 
-    private void headerNewButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_headerNewButtonActionPerformed
-    {//GEN-HEADEREND:event_headerNewButtonActionPerformed
-        ((DefaultTableModel) headerVariablesTable.getModel()).addRow(new Object[]{getNewPropertyName(headerVariablesTable), ""});
-        headerVariablesTable.setRowSelectionInterval(headerVariablesTable.getRowCount() - 1, headerVariablesTable.getRowCount() - 1);
+    private void headersNewButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_headersNewButtonActionPerformed
+    {//GEN-HEADEREND:event_headersNewButtonActionPerformed
+        ((DefaultTableModel) headersTable.getModel()).addRow(new Object[]{getNewPropertyName(headersTable), ""});
+        headersTable.setRowSelectionInterval(headersTable.getRowCount() - 1, headersTable.getRowCount() - 1);
         parent.enableSave();
-    }//GEN-LAST:event_headerNewButtonActionPerformed
+    }//GEN-LAST:event_headersNewButtonActionPerformed
 
 private void usePersistentQueuesNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usePersistentQueuesNoRadioActionPerformed
     rotateMessages.setEnabled(false);
@@ -979,45 +1031,25 @@ private void usePersistentQueuesYesRadioActionPerformed(java.awt.event.ActionEve
     reconnectIntervalLabel.setEnabled(true);
 }//GEN-LAST:event_usePersistentQueuesYesRadioActionPerformed
 
-private void includeResponseHeadersYesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_includeResponseHeadersYesButtonActionPerformed
-// TODO add your handling code here:
-}//GEN-LAST:event_includeResponseHeadersYesButtonActionPerformed
-
-private void postActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_postActionPerformed
-    Properties properties = (Properties) getAdditionalProperties();
-    if (!properties.containsKey(PAYLOAD_KEY)) {
-        properties.put(PAYLOAD_KEY, "");
-        setAdditionalProperties(properties);
-    }
+private void postButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_postButtonActionPerformed
+    setContentEnabled(true);
     checkMultipartEnabled();
-}//GEN-LAST:event_postActionPerformed
+}//GEN-LAST:event_postButtonActionPerformed
 
-private void getActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getActionPerformed
-    Properties properties = (Properties) getAdditionalProperties();
-    if (properties.containsKey(PAYLOAD_KEY)) {
-        properties.remove(PAYLOAD_KEY);
-        setAdditionalProperties(properties);
-    }
+private void getButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getButtonActionPerformed
+    setContentEnabled(false);
     checkMultipartEnabled();
-}//GEN-LAST:event_getActionPerformed
+}//GEN-LAST:event_getButtonActionPerformed
 
-private void putActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_putActionPerformed
-    Properties properties = (Properties) getAdditionalProperties();
-    if (!properties.containsKey(PAYLOAD_KEY)) {
-        properties.put(PAYLOAD_KEY, "");
-        setAdditionalProperties(properties);
-    }
+private void putButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_putButtonActionPerformed
+    setContentEnabled(true);
     checkMultipartEnabled();
-}//GEN-LAST:event_putActionPerformed
+}//GEN-LAST:event_putButtonActionPerformed
 
-private void deleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteActionPerformed
-    Properties properties = (Properties) getAdditionalProperties();
-    if (properties.containsKey(PAYLOAD_KEY)) {
-        properties.remove(PAYLOAD_KEY);
-        setAdditionalProperties(properties);
-    }
+private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
+    setContentEnabled(false);
     checkMultipartEnabled();
-}//GEN-LAST:event_deleteActionPerformed
+}//GEN-LAST:event_deleteButtonActionPerformed
 
 private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
     parent.setWorking("Testing connection...", true);
@@ -1052,66 +1084,68 @@ private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GE
     worker.execute();
 }//GEN-LAST:event_testConnectionActionPerformed
 
-    private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_deleteButtonActionPerformed
-    {// GEN-HEADEREND:event_deleteButtonActionPerformed
-        if (getSelectedRow(propertiesTable) != -1 && !propertiesTable.isEditing()) {
-            ((DefaultTableModel) propertiesTable.getModel()).removeRow(getSelectedRow(propertiesTable));
+private void parametersDeleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_parametersDeleteButtonActionPerformed
+    if (getSelectedRow(parametersTable) != -1 && !parametersTable.isEditing()) {
+        ((DefaultTableModel) parametersTable.getModel()).removeRow(getSelectedRow(parametersTable));
 
-            if (propertiesTable.getRowCount() != 0) {
-                if (propertiesLastIndex == 0) {
-                    propertiesTable.setRowSelectionInterval(0, 0);
-                } else if (propertiesLastIndex == propertiesTable.getRowCount()) {
-                    propertiesTable.setRowSelectionInterval(propertiesLastIndex - 1, propertiesLastIndex - 1);
-                } else {
-                    propertiesTable.setRowSelectionInterval(propertiesLastIndex, propertiesLastIndex);
-                }
+        if (parametersTable.getRowCount() != 0) {
+            if (propertiesLastIndex == 0) {
+                parametersTable.setRowSelectionInterval(0, 0);
+            } else if (propertiesLastIndex == parametersTable.getRowCount()) {
+                parametersTable.setRowSelectionInterval(propertiesLastIndex - 1, propertiesLastIndex - 1);
+            } else {
+                parametersTable.setRowSelectionInterval(propertiesLastIndex, propertiesLastIndex);
             }
-
-            parent.enableSave();
         }
-    }// GEN-LAST:event_deleteButtonActionPerformed
 
-    private void newButtonActionPerformed(java.awt.event.ActionEvent evt)// GEN-FIRST:event_newButtonActionPerformed
-    {// GEN-HEADEREND:event_newButtonActionPerformed
-        ((DefaultTableModel) propertiesTable.getModel()).addRow(new Object[]{getNewPropertyName(propertiesTable), ""});
-        propertiesTable.setRowSelectionInterval(propertiesTable.getRowCount() - 1, propertiesTable.getRowCount() - 1);
         parent.enableSave();
-    }// GEN-LAST:event_newButtonActionPerformed
+    }
+}//GEN-LAST:event_parametersDeleteButtonActionPerformed
+
+private void parametersNewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_parametersNewButtonActionPerformed
+    ((DefaultTableModel) parametersTable.getModel()).addRow(new Object[]{getNewPropertyName(parametersTable), ""});
+    parametersTable.setRowSelectionInterval(parametersTable.getRowCount() - 1, parametersTable.getRowCount() - 1);
+    parent.enableSave();
+}//GEN-LAST:event_parametersNewButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel URL1;
     private javax.swing.ButtonGroup buttonGroup1;
     private com.mirth.connect.client.ui.components.MirthComboBox channelNames;
-    private com.mirth.connect.client.ui.components.MirthRadioButton delete;
-    private javax.swing.JButton deleteButton;
-    private com.mirth.connect.client.ui.components.MirthRadioButton get;
-    private javax.swing.JButton headerDeleteButton;
-    private javax.swing.JButton headerNewButton;
-    private javax.swing.JScrollPane headerVariablesPane;
-    private com.mirth.connect.client.ui.components.MirthTable headerVariablesTable;
-    private com.mirth.connect.client.ui.components.MirthTextField httpURL;
+    private javax.swing.JLabel contentLabel;
+    private com.mirth.connect.client.ui.components.MirthSyntaxTextArea contentTextArea;
+    private com.mirth.connect.client.ui.components.MirthTextField contentTypeField;
+    private javax.swing.JLabel contentTypeLabel;
+    private com.mirth.connect.client.ui.components.MirthRadioButton deleteButton;
+    private com.mirth.connect.client.ui.components.MirthRadioButton getButton;
+    private javax.swing.JButton headersDeleteButton;
+    private javax.swing.JLabel headersLabel;
+    private javax.swing.JButton headersNewButton;
+    private javax.swing.JScrollPane headersPane;
+    private com.mirth.connect.client.ui.components.MirthTable headersTable;
+    private javax.swing.JLabel httpMethodLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton includeResponseHeadersNoButton;
     private com.mirth.connect.client.ui.components.MirthRadioButton includeResponseHeadersYesButton;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel36;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.ButtonGroup methodButtonGroup;
     private javax.swing.ButtonGroup multipartButtonGroup;
     private javax.swing.JLabel multipartLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton multipartNoButton;
     private com.mirth.connect.client.ui.components.MirthRadioButton multipartYesButton;
-    private javax.swing.JButton newButton;
-    private com.mirth.connect.client.ui.components.MirthRadioButton post;
-    private javax.swing.JScrollPane propertiesPane;
-    private com.mirth.connect.client.ui.components.MirthTable propertiesTable;
-    private com.mirth.connect.client.ui.components.MirthRadioButton put;
+    private javax.swing.JButton parametersDeleteButton;
+    private javax.swing.JLabel parametersLabel;
+    private javax.swing.JButton parametersNewButton;
+    private javax.swing.JScrollPane parametersPane;
+    private com.mirth.connect.client.ui.components.MirthTable parametersTable;
+    private com.mirth.connect.client.ui.components.MirthRadioButton postButton;
+    private com.mirth.connect.client.ui.components.MirthRadioButton putButton;
     private com.mirth.connect.client.ui.components.MirthTextField reconnectInterval;
     private javax.swing.JLabel reconnectIntervalLabel;
     private javax.swing.ButtonGroup responseHeadersButtonGroup;
     private javax.swing.JLabel responseHeadersLabel;
     private com.mirth.connect.client.ui.components.MirthCheckBox rotateMessages;
     private javax.swing.JButton testConnection;
+    private com.mirth.connect.client.ui.components.MirthTextField urlField;
+    private javax.swing.JLabel urlLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton usePersistentQueuesNoRadio;
     private com.mirth.connect.client.ui.components.MirthRadioButton usePersistentQueuesYesRadio;
     // End of variables declaration//GEN-END:variables

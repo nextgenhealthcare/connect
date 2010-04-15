@@ -24,8 +24,9 @@ public class HttpSenderProperties extends QueuedSenderProperties {
     public static final String HTTP_CHARSET = "dispatcherCharset";
 
     public Properties getDefaults() {
+        Properties properties = super.getDefaults();
+        
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
-        Properties properties = new Properties();
 
         properties.put(DATATYPE, name);
         properties.put(HTTP_URL, "");
