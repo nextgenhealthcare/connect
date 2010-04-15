@@ -38,7 +38,7 @@ public class HttpSenderProperties extends QueuedSenderProperties {
         properties.put(HTTP_INCLUDE_HEADERS_IN_RESPONSE, "0");
         properties.put(HTTP_MULTIPART, "0");
         properties.put(HTTP_USE_AUTHENTICATION, "0");
-        properties.put(HTTP_AUTHENTICATION_TYPE, "None");
+        properties.put(HTTP_AUTHENTICATION_TYPE, "Basic");
         properties.put(HTTP_USERNAME, "");
         properties.put(HTTP_PASSWORD, "");
         properties.put(HTTP_CONTENT, "");
