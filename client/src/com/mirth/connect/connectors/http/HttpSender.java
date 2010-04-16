@@ -59,6 +59,8 @@ public class HttpSender extends ConnectorClass {
     public HttpSender() {
         name = HttpSenderProperties.name;
         initComponents();
+        parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
+
         parametersPane.addMouseListener(new java.awt.event.MouseAdapter() {
 
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -132,6 +134,8 @@ public class HttpSender extends ConnectorClass {
         } else {
             properties.put(QueuedSenderProperties.ROTATE_QUEUE, UIConstants.NO_OPTION);
         }
+
+        properties.put(HttpSenderProperties.HTTP_CHARSET, parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
 
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         properties.put(HttpSenderProperties.HTTP_PARAMETERS, serializer.toXML(getAdditionalProperties()));
@@ -224,6 +228,8 @@ public class HttpSender extends ConnectorClass {
         } else {
             rotateMessages.setSelected(false);
         }
+
+        parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(HttpSenderProperties.HTTP_CHARSET));
 
         ArrayList<String> channelNameArray = new ArrayList<String>();
         channelList = new HashMap();
@@ -719,6 +725,8 @@ public class HttpSender extends ConnectorClass {
         authenticationTypeDigestRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         authenticationTypeBasicRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         authenticationTypeLabel = new javax.swing.JLabel();
+        charsetEncodingLabel = new javax.swing.JLabel();
+        charsetEncodingCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -963,6 +971,11 @@ public class HttpSender extends ConnectorClass {
 
         authenticationTypeLabel.setText("Authentication Type:");
 
+        charsetEncodingLabel.setText("Charset Encoding:");
+
+        charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "default", "utf-8", "iso-8859-1", "utf-16 (le)", "utf-16 (be)", "utf-16 (bom)", "us-ascii" }));
+        charsetEncodingCombobox.setToolTipText("<html>Select the character set encoding used by the sender of the message,<br> or Default to assume the default character set encoding for the JVM running Mirth.</html>");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -985,7 +998,8 @@ public class HttpSender extends ConnectorClass {
                     .addComponent(authenticationTypeLabel)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(passwordLabel)
-                        .addComponent(usernameLabel)))
+                        .addComponent(usernameLabel))
+                    .addComponent(charsetEncodingLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -1058,7 +1072,8 @@ public class HttpSender extends ConnectorClass {
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                                     .addComponent(parametersDeleteButton)
-                                                    .addComponent(parametersNewButton))))
+                                                    .addComponent(parametersNewButton)))
+                                            .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                         .addContainerGap())))))))
         );
 
@@ -1120,6 +1135,10 @@ public class HttpSender extends ConnectorClass {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(reconnectInterval, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(reconnectIntervalLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(charsetEncodingLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -1272,7 +1291,6 @@ private void authenticationYesRadioActionPerformed(java.awt.event.ActionEvent ev
 private void authenticationNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_authenticationNoRadioActionPerformed
     setAuthenticationEnabled(false);
 }//GEN-LAST:event_authenticationNoRadioActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel URL1;
     private javax.swing.ButtonGroup authenticationButtonGroup;
@@ -1284,6 +1302,8 @@ private void authenticationNoRadioActionPerformed(java.awt.event.ActionEvent evt
     private javax.swing.JLabel authenticationTypeLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton authenticationYesRadio;
     private com.mirth.connect.client.ui.components.MirthComboBox channelNames;
+    private com.mirth.connect.client.ui.components.MirthComboBox charsetEncodingCombobox;
+    private javax.swing.JLabel charsetEncodingLabel;
     private javax.swing.JLabel contentLabel;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea contentTextArea;
     private com.mirth.connect.client.ui.components.MirthTextField contentTypeField;
