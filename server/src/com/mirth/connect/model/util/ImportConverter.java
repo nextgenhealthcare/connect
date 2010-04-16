@@ -21,6 +21,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -60,9 +61,10 @@ public class ImportConverter {
         message = convertPackageNames(message);
         return message;
     }
-    
+
     /**
      * Manually change the any old package XML to the new package
+     * 
      * @param xml
      * @return updated xml
      */
@@ -72,7 +74,7 @@ public class ImportConverter {
 
     public static ServerConfiguration convertServerConfiguration(String serverConfiguration) throws Exception {
         serverConfiguration = convertPackageNames(serverConfiguration);
-        
+
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document;
         DocumentBuilder builder;
@@ -111,38 +113,38 @@ public class ImportConverter {
 
         DocumentSerializer docSerializer = new DocumentSerializer();
         serverConfiguration = docSerializer.toXML(document);
-        
+
         serverConfiguration = convertGlobalScripts(serverConfiguration);
-        
+
         serverConfiguration = convertAlerts(serverConfiguration);
-        
+
         serverConfiguration = convertCodeTemplates(serverConfiguration);
-        
+
         ServerConfiguration config = (ServerConfiguration) serializer.fromXML(serverConfiguration);
         config.setChannels(channelList);
-        
+
         return config;
     }
-    
+
     public static String convertGlobalScripts(String globalScriptsXml) {
         globalScriptsXml = convertPackageNames(globalScriptsXml);
-        
+
         return globalScriptsXml;
     }
-    
+
     public static Map<String, String> convertGlobalScripts(Map<String, String> globalScripts) throws Exception {
         return (Map<String, String>) serializer.fromXML(convertGlobalScripts(serializer.toXML(globalScripts)));
     }
-    
+
     public static String convertAlerts(String alertsXml) {
         alertsXml = convertPackageNames(alertsXml);
-        
+
         return alertsXml;
     }
 
     public static String convertCodeTemplates(String codeTemplatesXML) throws Exception {
         codeTemplatesXML = convertPackageNames(codeTemplatesXML);
-        
+
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document;
         DocumentBuilder builder;
@@ -189,7 +191,7 @@ public class ImportConverter {
 
     public static String convertChannelString(String channel) throws Exception {
         channel = convertPackageNames(channel);
-        
+
         String contents = removeInvalidHexChar(channel);
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document;
@@ -540,11 +542,13 @@ public class ImportConverter {
 
         // Convert the source connector
         convertSoapConnectorFor2_0(document, sourceConnectorRoot);
+        convertHttpConnectorFor2_0(document, sourceConnectorRoot);
 
         // Convert all destination connectors
         for (int i = 0; i < destinationsConnectors.getLength(); i++) {
             Element destinationConnector = (Element) destinationsConnectors.item(i);
             convertSoapConnectorFor2_0(document, destinationConnector);
+            convertHttpConnectorFor2_0(document, destinationConnector);
         }
     }
 
@@ -638,7 +642,6 @@ public class ImportConverter {
             propertyDefaults.put("dispatcherAttachmentContents", serializer.toXML(new ArrayList<String>()));
             propertyDefaults.put("dispatcherAttachmentTypes", serializer.toXML(new ArrayList<String>()));
 
-            // NodeList properties = document.getElementsByTagName("property");
             for (int i = 0; i < properties.getLength(); i++) {
                 // get the current attribute and current value
                 attribute = properties.item(i).getAttributes().item(0).getTextContent();
@@ -678,9 +681,125 @@ public class ImportConverter {
         }
     }
 
+    /** Convert http connector and destination settings */
+    public static void convertHttpConnectorFor2_0(Document document, Element connectorRoot) throws Exception {
+
+        // convert HTTP Listener and HTTP writer to the new formats
+        Node transportNode = getConnectorTransportNode(connectorRoot);
+        String transportNameText = transportNode.getTextContent();
+        String attribute = "";
+        String value = "";
+        Element propertiesElement = getPropertiesElement(connectorRoot);
+
+        // Default Properties
+        Map<String, String> propertyDefaults = new HashMap<String, String>();
+
+        // Properties to be added if missing, or reset if present
+        Map<String, String> propertyChanges = new HashMap<String, String>();
+
+        // logic to deal with SOAP listener settings
+        if (transportNameText.equals("HTTP Listener")) {
+            NodeList properties = connectorRoot.getElementsByTagName("property");
+
+            // set defaults
+            propertyDefaults.put("DataType", "HTTP Listener");
+            propertyDefaults.put("host", "0.0.0.0");
+            propertyDefaults.put("port", "80");
+            propertyDefaults.put("receiverResponse", "None");
+            propertyDefaults.put("receiverIncludeHeaders", "0");
+            propertyDefaults.put("HTTP_RESPONSE_CONTENT_TYPE", "text/plain");
+
+            // rename properties
+            for (int i = 0; i < properties.getLength(); i++) {
+                // get the current attribute and current value
+                attribute = properties.item(i).getAttributes().item(0).getTextContent();
+                value = properties.item(i).getTextContent();
+
+                // Now rename attributes
+                if (attribute.equals("responseValue")) {
+                    propertyChanges.put("receiverResponse", value);
+                }
+
+                if (attribute.equals("appendPayload")) {
+                    propertyChanges.put("receiverIncludeHeaders", value);
+                }
+            }
+
+            // set changes
+            propertyChanges.put("host", "0.0.0.0");
+
+            // update properties
+            updateProperties(document, propertiesElement, propertyDefaults, propertyChanges);
+
+        } else if (transportNameText.equals("HTTP Sender")) {
+            // get properties
+            NodeList properties = connectorRoot.getElementsByTagName("property");
+
+            // disable connector
+            // document.getElementsByTagName("enabled").item(0).setTextContent("false");
+
+            // set defaults
+            ObjectXMLSerializer serializer = new ObjectXMLSerializer();
+
+            propertyDefaults.put("DataType", "HTTP Sender");
+            propertyDefaults.put("host", "");
+
+            propertyDefaults.put("dispatcherMethod", "POST");
+            propertyDefaults.put("dispatcherHeaders", serializer.toXML(new Properties()));
+            propertyDefaults.put("dispatcherParameters", serializer.toXML(new Properties()));
+            propertyDefaults.put("dispatcherReplyChannelId", "sink");
+            propertyDefaults.put("dispatcherIncludeHeadersInResponse", "0");
+            propertyDefaults.put("dispatcherMultipart", "0");
+            propertyDefaults.put("dispatcherUseAuthentication", "0");
+            propertyDefaults.put("dispatcherAuthenticationType", "Basic");
+            propertyDefaults.put("dispatcherUsername", "");
+            propertyDefaults.put("dispatcherPassword", "");
+            propertyDefaults.put("dispatcherContent", "");
+            propertyDefaults.put("dispatcherContentType", "text/plain");
+            propertyDefaults.put("dispatcherCharset", "UTF-8");
+
+            for (int i = 0; i < properties.getLength(); i++) {
+                // get the current attribute and current value
+                attribute = properties.item(i).getAttributes().item(0).getTextContent();
+                value = properties.item(i).getTextContent();
+
+                // Now rename attributes
+                if (attribute.equals("method")) {
+                    propertyChanges.put("dispatcherMethod", value);
+                }
+
+                if (attribute.equals("requestVariables")) {
+                    propertyChanges.put("dispatcherParameters", value);
+                }
+
+                if (attribute.equals("replyChannelId")) {
+                    propertyChanges.put("dispatcherReplyChannelId", value);
+                }
+
+                if (attribute.equals("headerVariables")) {
+                    propertyChanges.put("dispatcherHeaders", value);
+                }
+
+                if (attribute.equals("excludeHeaders")) {
+                    if (value.equals("0")) {
+                        propertyChanges.put("dispatcherIncludeHeadersInResponse", "1");
+                    } else {
+                        propertyChanges.put("dispatcherIncludeHeadersInResponse", "0");
+                    }
+                }
+
+                if (attribute.equals("multipart")) {
+                    propertyChanges.put("dispatcherMultipart", value);
+                }
+            }
+
+            updateProperties(document, propertiesElement, propertyDefaults, propertyChanges);
+        }
+    }
+
     public static String convertFilter(String filterXml) throws Exception {
         filterXml = convertPackageNames(filterXml);
-        
+
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document;
         DocumentBuilder builder;
@@ -713,7 +832,7 @@ public class ImportConverter {
      */
     public static String convertConnector(String connectorXml) throws Exception {
         connectorXml = convertPackageNames(connectorXml);
-        
+
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document document;
         DocumentBuilder builder;
