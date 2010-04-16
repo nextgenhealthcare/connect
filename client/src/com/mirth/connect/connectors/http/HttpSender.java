@@ -680,7 +680,7 @@ public class HttpSender extends ConnectorClass {
         parametersPane = new javax.swing.JScrollPane();
         parametersTable = new com.mirth.connect.client.ui.components.MirthTable();
         parametersLabel = new javax.swing.JLabel();
-        httpMethodLabel = new javax.swing.JLabel();
+        methodLabel = new javax.swing.JLabel();
         postButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
         getButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
         channelNames = new com.mirth.connect.client.ui.components.MirthComboBox();
@@ -754,7 +754,7 @@ public class HttpSender extends ConnectorClass {
 
         parametersLabel.setText("Parameters:");
 
-        httpMethodLabel.setText("HTTP Method:");
+        methodLabel.setText("Method:");
 
         postButton.setBackground(new java.awt.Color(255, 255, 255));
         postButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -971,7 +971,7 @@ public class HttpSender extends ConnectorClass {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(multipartLabel)
-                    .addComponent(httpMethodLabel)
+                    .addComponent(methodLabel)
                     .addComponent(URL1)
                     .addComponent(responseHeadersLabel)
                     .addComponent(jLabel36)
@@ -1073,7 +1073,7 @@ public class HttpSender extends ConnectorClass {
                     .addComponent(testConnection))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(httpMethodLabel)
+                    .addComponent(methodLabel)
                     .addComponent(postButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(getButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(putButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1295,11 +1295,11 @@ private void authenticationNoRadioActionPerformed(java.awt.event.ActionEvent evt
     private javax.swing.JButton headersNewButton;
     private javax.swing.JScrollPane headersPane;
     private com.mirth.connect.client.ui.components.MirthTable headersTable;
-    private javax.swing.JLabel httpMethodLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton includeResponseHeadersNoButton;
     private com.mirth.connect.client.ui.components.MirthRadioButton includeResponseHeadersYesButton;
     private javax.swing.JLabel jLabel36;
     private javax.swing.ButtonGroup methodButtonGroup;
+    private javax.swing.JLabel methodLabel;
     private javax.swing.ButtonGroup multipartButtonGroup;
     private javax.swing.JLabel multipartLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton multipartNoButton;

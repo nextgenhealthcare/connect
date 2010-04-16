@@ -44,7 +44,7 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="multipartLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="httpMethodLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="methodLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="URL1" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="responseHeadersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel36" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -172,7 +172,7 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="httpMethodLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="methodLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="postButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="getButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="putButton" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -320,9 +320,9 @@
         <Property name="text" type="java.lang.String" value="Parameters:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="httpMethodLabel">
+    <Component class="javax.swing.JLabel" name="methodLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="HTTP Method:"/>
+        <Property name="text" type="java.lang.String" value="Method:"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="postButton">
