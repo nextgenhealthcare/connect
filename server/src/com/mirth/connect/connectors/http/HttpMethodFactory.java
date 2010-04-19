@@ -34,7 +34,7 @@ public class HttpMethodFactory {
         if ("GET".equalsIgnoreCase(method)) {
             httpMethod = new GetMethod(address);
         } else if ("POST".equalsIgnoreCase(method)) {
-            PostMethod postMethod = new PostMethod();
+            PostMethod postMethod = new PostMethod(address);
 
             if (isMultipart) {
                 logger.debug("setting multipart file content");
@@ -48,7 +48,7 @@ public class HttpMethodFactory {
 
             httpMethod = postMethod;
         } else if ("PUT".equalsIgnoreCase(method)) {
-            PutMethod putMethod = new PutMethod();
+            PutMethod putMethod = new PutMethod(address);
             putMethod.setRequestEntity(new StringRequestEntity(content, contentType, charset));
             httpMethod = putMethod;
         } else if ("DELETE".equalsIgnoreCase(method)) {
