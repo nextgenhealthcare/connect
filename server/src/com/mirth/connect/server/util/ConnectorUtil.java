@@ -13,6 +13,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.mirth.connect.util.ConnectionTestResponse;
 
 public class ConnectorUtil {
@@ -22,6 +24,10 @@ public class ConnectorUtil {
 
         try {
             address = new InetSocketAddress(host, port);
+            
+            if (StringUtils.isBlank(address.getAddress().getHostAddress()) || (address.getPort() < 0) || (address.getPort() > 65534)) {
+                throw new Exception();
+            }
         } catch (Exception e) {
             return new ConnectionTestResponse(ConnectionTestResponse.Type.FAILURE, "Invalid host or port.");
         }
