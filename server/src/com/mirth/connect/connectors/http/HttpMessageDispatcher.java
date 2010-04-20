@@ -95,10 +95,10 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
                     logger.debug("using Basic authentication");
                 }
 
+                client.getParams().setAuthenticationPreemptive(true);
                 client.getParams().setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, authenticationPreferences);
                 Credentials credentials = new UsernamePasswordCredentials(connector.getDispatcherUsername(), connector.getDispatcherPassword());
                 client.getState().setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM), credentials);
-                httpMethod.setDoAuthentication(true);
                 logger.debug("using authentication with credentials: " + credentials);
             }
 
