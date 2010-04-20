@@ -23,7 +23,7 @@ import com.mirth.connect.model.converters.DocumentSerializer;
 
 public class HttpMessageConverter {
     private Logger logger = Logger.getLogger(this.getClass());
-    private DocumentSerializer serializer = new DocumentSerializer(new String[] { "Content", "Body" });
+    private DocumentSerializer serializer = new DocumentSerializer(new String[] { "Content", "Body", "QueryString" });
 
     public String httpRequestToXml(HttpRequestMessage request) {
         try {
@@ -32,6 +32,34 @@ public class HttpMessageConverter {
 
             if (request.getRemoteAddress() != null) {
                 requestElement.setAttribute("remoteAddr", request.getRemoteAddress());
+            }
+
+            requestElement.setAttribute("method", request.getMethod());
+
+            if ("GET".equalsIgnoreCase(request.getMethod())) {
+                Element queryElement = document.createElement("Query");
+
+                for (Entry<String, String> entry : request.getQueryParameters().entrySet()) {
+                    Element paramElement = document.createElement("Parameter");
+
+                    Element nameElement = document.createElement("Name");
+                    nameElement.setTextContent(entry.getKey());
+                    paramElement.appendChild(nameElement);
+
+                    Element valueElement = document.createElement("Value");
+                    valueElement.setTextContent(entry.getValue());
+                    paramElement.appendChild(valueElement);
+
+                    queryElement.appendChild(paramElement);
+                }
+
+                requestElement.appendChild(queryElement);
+
+                // also add query string
+
+                Element queryStringElement = document.createElement("QueryString");
+                queryStringElement.setTextContent(request.getQueryString());
+                requestElement.appendChild(queryStringElement);
             }
 
             Element headerElement = document.createElement("Header");

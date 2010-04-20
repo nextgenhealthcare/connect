@@ -92,11 +92,14 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
         monitoringController.updateStatus(connector, connectorType, Event.BUSY);
         HttpMessageConverter converter = new HttpMessageConverter();
         HttpRequestMessage message = new HttpRequestMessage();
+        message.setMethod(request.getMethod());
         message.setHeaders(converter.convertFieldEnumerationToMap(request));
         message.setContent(converter.convertInputStreamToString(request.getInputStream(), request.getCharacterEncoding()));
         message.setIncludeHeaders(connector.isReceiverIncludeHeaders());
         message.setContentType(request.getContentType());
         message.setRemoteAddress(request.getRemoteAddr());
+        message.setQueryParameters(request.getParameters());
+        message.setQueryString(request.getQuery());
         UMOMessage response = routeMessage(new MuleMessage(connector.getMessageAdapter(message)), endpoint.isSynchronous());
 
         if ((response != null) && (response instanceof MuleMessage)) {
