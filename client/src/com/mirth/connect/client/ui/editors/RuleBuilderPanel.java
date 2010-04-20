@@ -73,21 +73,6 @@ public class RuleBuilderPanel extends BasePanel {
             }
         });
 
-        accept.addActionListener(new java.awt.event.ActionListener() {
-
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                parent.modified = true;
-                rulePlugin.updateName();
-            }
-        });
-
-        reject.addActionListener(new java.awt.event.ActionListener() {
-
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                parent.modified = true;
-                rulePlugin.updateName();
-            }
-        });
         doesNotEqual.addActionListener(new java.awt.event.ActionListener() {
 
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -159,12 +144,6 @@ public class RuleBuilderPanel extends BasePanel {
 
         m.put("Values", getValues());
 
-        if (accept.isSelected()) {
-            m.put("Accept", UIConstants.YES_OPTION);
-        } else {
-            m.put("Accept", UIConstants.NO_OPTION);
-        }
-
         return m;
     }
 
@@ -195,12 +174,6 @@ public class RuleBuilderPanel extends BasePanel {
                 setValues(new ArrayList<String>());
             }
 
-            if (((String) data.get("Accept")).equals(UIConstants.YES_OPTION)) {
-                accept.setSelected(true);
-            } else {
-                reject.setSelected(true);
-            }
-
             originalField = (String) data.get("OriginalField");
             name = (String) data.get("Name");
             fieldTextField.setText((String) data.get("Field"));
@@ -209,7 +182,6 @@ public class RuleBuilderPanel extends BasePanel {
             ArrayList<String> values = new ArrayList<String>();
             values.add("\"Example Value\"");
             setValues(values);
-            accept.setSelected(true);
             fieldTextField.setText("");
         }
 
@@ -356,7 +328,6 @@ public class RuleBuilderPanel extends BasePanel {
     private void initComponents() {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
-        buttonGroup2 = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
         valuesScrollPane = new javax.swing.JScrollPane();
         valuesTable = new com.mirth.connect.client.ui.components.MirthTable();
@@ -367,11 +338,10 @@ public class RuleBuilderPanel extends BasePanel {
         equals = new javax.swing.JRadioButton();
         doesNotEqual = new javax.swing.JRadioButton();
         jLabel2 = new javax.swing.JLabel();
-        accept = new javax.swing.JRadioButton();
         jLabel3 = new javax.swing.JLabel();
-        reject = new javax.swing.JRadioButton();
         exists = new javax.swing.JRadioButton();
         doesNotExist = new javax.swing.JRadioButton();
+        acceptLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -427,19 +397,7 @@ public class RuleBuilderPanel extends BasePanel {
 
         jLabel2.setText("Condition:");
 
-        accept.setBackground(new java.awt.Color(255, 255, 255));
-        buttonGroup2.add(accept);
-        accept.setText("Accept");
-        accept.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        accept.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
         jLabel3.setText("Behavior:");
-
-        reject.setBackground(new java.awt.Color(255, 255, 255));
-        buttonGroup2.add(reject);
-        reject.setText("Reject");
-        reject.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        reject.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         exists.setBackground(new java.awt.Color(255, 255, 255));
         buttonGroup1.add(exists);
@@ -463,6 +421,8 @@ public class RuleBuilderPanel extends BasePanel {
             }
         });
 
+        acceptLabel.setText("Accept");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -477,10 +437,6 @@ public class RuleBuilderPanel extends BasePanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(accept)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(reject))
-                    .addGroup(layout.createSequentialGroup()
                         .addComponent(exists)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(doesNotExist)
@@ -489,12 +445,13 @@ public class RuleBuilderPanel extends BasePanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(doesNotEqual))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(valuesScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 297, Short.MAX_VALUE)
+                        .addComponent(valuesScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 295, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(newButton)
                             .addComponent(deleteButton)))
-                    .addComponent(fieldTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE))
+                    .addComponent(fieldTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 364, Short.MAX_VALUE)
+                    .addComponent(acceptLabel))
                 .addContainerGap())
         );
 
@@ -505,9 +462,8 @@ public class RuleBuilderPanel extends BasePanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(accept)
-                    .addComponent(reject)
-                    .addComponent(jLabel3))
+                    .addComponent(jLabel3)
+                    .addComponent(acceptLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
@@ -526,7 +482,7 @@ public class RuleBuilderPanel extends BasePanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(deleteButton))
                     .addComponent(valuesLabel)
-                    .addComponent(valuesScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE))
+                    .addComponent(valuesScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 218, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -598,9 +554,8 @@ public class RuleBuilderPanel extends BasePanel {
         parent.modified = true;
     }//GEN-LAST:event_newButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JRadioButton accept;
+    private javax.swing.JLabel acceptLabel;
     private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.JButton deleteButton;
     private javax.swing.JRadioButton doesNotEqual;
     private javax.swing.JRadioButton doesNotExist;
@@ -611,7 +566,6 @@ public class RuleBuilderPanel extends BasePanel {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JButton newButton;
-    private javax.swing.JRadioButton reject;
     private javax.swing.JLabel valuesLabel;
     private javax.swing.JScrollPane valuesScrollPane;
     private com.mirth.connect.client.ui.components.MirthTable valuesTable;

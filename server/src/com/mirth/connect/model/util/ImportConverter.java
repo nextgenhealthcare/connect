@@ -380,6 +380,7 @@ public class ImportConverter {
 
             // Run for all versions prior to 2.0
             convertChannelConnectorsFor2_0(document, channelRoot);
+            updateFilterFor2_0(document);
         }
 
         DocumentSerializer docSerializer = new DocumentSerializer();
@@ -809,6 +810,7 @@ public class ImportConverter {
 
             updateFilterFor1_4(document.getDocumentElement());
             updateFilterFor1_7(document);
+            updateFilterFor2_0(document);
 
             DocumentSerializer docSerializer = new DocumentSerializer();
             filterXml = docSerializer.toXML(document);
@@ -1329,6 +1331,49 @@ public class ImportConverter {
                 stripNamespacesProperty.setTextContent("true");
 
                 outboundPropertiesElement.appendChild(stripNamespacesProperty);
+            }
+        }
+    }
+    
+    private static void updateFilterFor2_0(Document document) {
+        // Convert Rule Builder steps using "Reject" to JavaScript steps
+        NodeList rules = document.getElementsByTagName("com.mirth.connect.model.Rule");
+
+        for (int i = 0; i < rules.getLength(); i++) {
+            Element rule = (Element) rules.item(i);
+            
+            if (rule.getElementsByTagName("type").item(0).getTextContent().equalsIgnoreCase("Rule Builder")) {
+                boolean reject = false;
+                NodeList entries = rule.getElementsByTagName("entry");
+                for (int j = 0; j < entries.getLength(); j++) {
+                    NodeList entry = ((Element) entries.item(j)).getElementsByTagName("string");
+                    
+                    if ((entry.getLength() == 2) && entry.item(0).getTextContent().equalsIgnoreCase("Accept") && entry.item(1).getTextContent().equalsIgnoreCase("0")) {
+                        reject = true;
+                    }
+                }
+                
+                if (reject) {
+                    rule.getElementsByTagName("type").item(0).setTextContent("JavaScript");
+                    rule.removeChild(rule.getElementsByTagName("data").item(0));
+                    
+                    Element dataElement = document.createElement("data");
+                    dataElement.setAttribute("class", "map");
+
+                    Element entryElement = document.createElement("entry");
+                    Element keyElement = document.createElement("string");
+                    Element valueElement = document.createElement("string");
+
+                    keyElement.setTextContent("Script");
+                    valueElement.setTextContent(rule.getElementsByTagName("script").item(0).getTextContent());
+
+                    entryElement.appendChild(keyElement);
+                    entryElement.appendChild(valueElement);
+
+                    dataElement.appendChild(entryElement);
+
+                    rule.appendChild(dataElement);
+                }
             }
         }
     }

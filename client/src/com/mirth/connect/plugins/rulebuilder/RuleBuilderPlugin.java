@@ -6,7 +6,6 @@
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
  */
-
 package com.mirth.connect.plugins.rulebuilder;
 
 import java.util.ArrayList;
@@ -78,13 +77,8 @@ public class RuleBuilderPlugin extends FilterRulePlugin {
         ArrayList<String> values = (ArrayList<String>) map.get("Values");
         String acceptReturn, finalReturn, equals, equalsOperator;
 
-        if (((String) map.get("Accept")).equals(UIConstants.YES_OPTION)) {
-            acceptReturn = "true";
-            finalReturn = "false";
-        } else {
-            acceptReturn = "false";
-            finalReturn = "true";
-        }
+        acceptReturn = "true";
+        finalReturn = "false";
 
         script.append("if(");
 
@@ -101,13 +95,17 @@ public class RuleBuilderPlugin extends FilterRulePlugin {
                 equalsOperator = "&&";
             }
 
-            for (int i = 0; i < values.size(); i++) {
-                script.append(field + " " + equals + " " + values.get(i));
-                if (i + 1 == values.size()) {
-                    script.append(")\n");
-                } else {
-                    script.append(" " + equalsOperator + " ");
+            if (values.size() > 0) {
+                for (int i = 0; i < values.size(); i++) {
+                    script.append(field + " " + equals + " " + values.get(i));
+                    if (i + 1 == values.size()) {
+                        script.append(")\n");
+                    } else {
+                        script.append(" " + equalsOperator + " ");
+                    }
                 }
+            } else {
+                script.append(field + " " + equals + " \"\")\n");
             }
         }
 
@@ -147,36 +145,24 @@ public class RuleBuilderPlugin extends FilterRulePlugin {
     }
 
     public String getName() {
-        /*
-         * data.put("Field", mapping); data.put("Equals",
-         * UIConstants.EXISTS_OPTION); data.put("Values", new ArrayList());
-         * data.put("Accept", UIConstants.YES_OPTION);
-         */
         Map<Object, Object> map = panel.getData();
         if (map == null || map.get("Equals") == null || map.get("Field") == null || map.get("Values") == null) {
             return "New Rule";
         }
-        String accept = ((String) map.get("Accept"));
         String name = "";
         String equals = "";
         String blankVal = "";
-        String valueCompound = "or";
         boolean disableValues = false;
-        if (accept.equals(UIConstants.YES_OPTION)) {
-            name = "Accept";
-        } else {
-            name = "Reject";
-        }
+        name = "Accept";
+
         if (((String) map.get("Equals")).equals(UIConstants.EXISTS_OPTION)) {
             equals = "equals";
             blankVal = "exists";
             disableValues = true;
-            // valueCompound = "or";
         } else if (((String) map.get("Equals")).equals(UIConstants.DOES_NOT_EXISTS_OPTION)) {
             equals = "does not equal";
             blankVal = "does not exist";
             disableValues = true;
-            // valueCompound = "and";
         } else if (((String) map.get("Equals")).equals(UIConstants.YES_OPTION)) {
             equals = "equals";
             blankVal = "is blank";
