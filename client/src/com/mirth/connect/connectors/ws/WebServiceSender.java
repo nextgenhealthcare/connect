@@ -782,7 +782,7 @@ public class WebServiceSender extends ConnectorClass {
         authenticationYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         authenticationButtonGroup.add(authenticationYesRadio);
         authenticationYesRadio.setText("Yes");
-        authenticationYesRadio.setToolTipText("<html>Turning on authentication uses a username and password with to get the WSDL, if necessary,<br>and uses the username and password binding provider properties when calling the web service.</html>");
+        authenticationYesRadio.setToolTipText("<html>Turning on authentication uses a username and password to get the WSDL, if necessary,<br>and uses the username and password binding provider properties when calling the web service.</html>");
         authenticationYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         authenticationYesRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -794,7 +794,7 @@ public class WebServiceSender extends ConnectorClass {
         authenticationNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         authenticationButtonGroup.add(authenticationNoRadio);
         authenticationNoRadio.setText("No");
-        authenticationNoRadio.setToolTipText("<html>Turning on authentication uses a username and password with to get the WSDL, if necessary,<br>and uses the username and password binding provider properties when calling the web service.</html>");
+        authenticationNoRadio.setToolTipText("<html>Turning on authentication uses a username and password to get the WSDL, if necessary,<br>and uses the username and password binding provider properties when calling the web service.</html>");
         authenticationNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         authenticationNoRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

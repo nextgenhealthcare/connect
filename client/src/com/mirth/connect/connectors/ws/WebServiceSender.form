@@ -437,7 +437,7 @@
           <ComponentRef name="authenticationButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Turning on authentication uses a username and password with to get the WSDL, if necessary,&lt;br&gt;and uses the username and password binding provider properties when calling the web service.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Turning on authentication uses a username and password to get the WSDL, if necessary,&lt;br&gt;and uses the username and password binding provider properties when calling the web service.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -460,7 +460,7 @@
           <ComponentRef name="authenticationButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Turning on authentication uses a username and password with to get the WSDL, if necessary,&lt;br&gt;and uses the username and password binding provider properties when calling the web service.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Turning on authentication uses a username and password to get the WSDL, if necessary,&lt;br&gt;and uses the username and password binding provider properties when calling the web service.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>

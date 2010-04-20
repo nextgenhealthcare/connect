@@ -49,7 +49,7 @@
                   <Component id="responseHeadersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel36" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="reconnectIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="parametersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="queryParametersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="headersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="urlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="contentLabel" min="-2" max="-2" attributes="0"/>
@@ -145,11 +145,11 @@
                                               </Group>
                                           </Group>
                                           <Group type="102" alignment="1" attributes="0">
-                                              <Component id="parametersPane" pref="374" max="32767" attributes="0"/>
+                                              <Component id="queryParametersPane" pref="374" max="32767" attributes="0"/>
                                               <EmptySpace max="-2" attributes="0"/>
                                               <Group type="103" groupAlignment="0" attributes="0">
-                                                  <Component id="parametersDeleteButton" linkSize="1" min="-2" max="-2" attributes="0"/>
-                                                  <Component id="parametersNewButton" linkSize="1" alignment="0" min="-2" max="-2" attributes="0"/>
+                                                  <Component id="queryParametersDeleteButton" linkSize="1" min="-2" max="-2" attributes="0"/>
+                                                  <Component id="queryParametersNewButton" linkSize="1" alignment="0" min="-2" max="-2" attributes="0"/>
                                               </Group>
                                           </Group>
                                           <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -240,13 +240,13 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="parametersLabel" min="-2" max="-2" attributes="0"/>
-                          <Component id="parametersNewButton" min="-2" max="-2" attributes="0"/>
+                          <Component id="queryParametersLabel" min="-2" max="-2" attributes="0"/>
+                          <Component id="queryParametersNewButton" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="parametersDeleteButton" min="-2" max="-2" attributes="0"/>
+                      <Component id="queryParametersDeleteButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="parametersPane" pref="81" max="32767" attributes="0"/>
+                  <Component id="queryParametersPane" pref="81" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -286,45 +286,45 @@
         <Property name="toolTipText" type="java.lang.String" value="Enter the URL of the HTTP server to send each message to."/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JButton" name="parametersNewButton">
+    <Component class="javax.swing.JButton" name="queryParametersNewButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="New"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="parametersNewButtonActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="queryParametersNewButtonActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JButton" name="parametersDeleteButton">
+    <Component class="javax.swing.JButton" name="queryParametersDeleteButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="Delete"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="parametersDeleteButtonActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="queryParametersDeleteButtonActionPerformed"/>
       </Events>
     </Component>
-    <Container class="javax.swing.JScrollPane" name="parametersPane">
+    <Container class="javax.swing.JScrollPane" name="queryParametersPane">
       <AuxValues>
         <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
       </AuxValues>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="com.mirth.connect.client.ui.components.MirthTable" name="parametersTable">
+        <Component class="com.mirth.connect.client.ui.components.MirthTable" name="queryParametersTable">
           <Properties>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
               <Table columnCount="2" rowCount="0">
-                <Column editable="true" title="Property" type="java.lang.Object"/>
+                <Column editable="true" title="Name" type="java.lang.Object"/>
                 <Column editable="true" title="Value" type="java.lang.Object"/>
               </Table>
             </Property>
-            <Property name="toolTipText" type="java.lang.String" value="Request variables are encoded as x=y pairs as part of the request URL, separated from it by a &apos;?&apos; and from each other by an &apos;&amp;&apos;."/>
+            <Property name="toolTipText" type="java.lang.String" value="Query parameters are encoded as x=y pairs as part of the request URL, separated from it by a &apos;?&apos; and from each other by an &apos;&amp;&apos;."/>
           </Properties>
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JLabel" name="parametersLabel">
+    <Component class="javax.swing.JLabel" name="queryParametersLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Parameters:"/>
+        <Property name="text" type="java.lang.String" value="Query Parameters:"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="methodLabel">
@@ -346,7 +346,7 @@
           <ComponentRef name="methodButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="POST"/>
-        <Property name="toolTipText" type="java.lang.String" value="Selects whether the HTTP operation used to send each message."/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects the HTTP operation used to send each message."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -369,7 +369,7 @@
           <ComponentRef name="methodButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="GET"/>
-        <Property name="toolTipText" type="java.lang.String" value="Selects whether the HTTP operation used to send each message."/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects the HTTP operation used to send each message."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -407,11 +407,11 @@
           <Properties>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
               <Table columnCount="2" rowCount="0">
-                <Column editable="true" title="Property" type="java.lang.Object"/>
+                <Column editable="true" title="Name" type="java.lang.Object"/>
                 <Column editable="true" title="Value" type="java.lang.Object"/>
               </Table>
             </Property>
-            <Property name="toolTipText" type="java.lang.String" value="Header variables are encoded as HTTP headers in the HTTP request sent to the server."/>
+            <Property name="toolTipText" type="java.lang.String" value="Header parameters are encoded as HTTP headers in the HTTP request sent to the server."/>
           </Properties>
         </Component>
       </SubComponents>
@@ -456,7 +456,7 @@
           <ComponentRef name="responseHeadersButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Only enabled if Send Response To selects a channel.&lt;br&gt;If Include is selected, the HTTP headers of the response received are included in the message sent to the selected channel.&lt;br&gt;If Exclude is selected, the HTTP headers are not included.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Only enabled if Send Response To selects a channel.&lt;br&gt;If yes is selected, the HTTP headers of the response received are included in the message sent to the selected channel.&lt;br&gt;If no is selected, the HTTP headers are not included.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -476,7 +476,7 @@
           <ComponentRef name="responseHeadersButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Only enabled if Send Response To selects a channel.&lt;br&gt;If Include is selected, the HTTP headers of the response received are included in the message sent to the selected channel.&lt;br&gt;If Exclude is selected, the HTTP headers are not included.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Only enabled if Send Response To selects a channel.&lt;br&gt;If yes is selected, the HTTP headers of the response received are included in the message sent to the selected channel.&lt;br&gt;If no is selected, the HTTP headers are not included.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -548,6 +548,9 @@
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="reconnectInterval">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The amount of time that should elapse between attempts to send messages in the queue.&lt;/html&gt;"/>
+      </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="putButton">
       <Properties>
@@ -563,7 +566,7 @@
           <ComponentRef name="methodButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="PUT"/>
-        <Property name="toolTipText" type="java.lang.String" value="Selects whether the HTTP operation used to send each message."/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects the HTTP operation used to send each message."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -586,7 +589,7 @@
           <ComponentRef name="methodButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="DELETE"/>
-        <Property name="toolTipText" type="java.lang.String" value="Selects whether the HTTP operation used to send each message."/>
+        <Property name="toolTipText" type="java.lang.String" value="Selects the HTTP operation used to send each message."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -622,7 +625,7 @@
           <ComponentRef name="multipartButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="Set to use multipart in the Content-Type header. It can only be used with POST."/>
+        <Property name="toolTipText" type="java.lang.String" value="Set to use multipart in the Content-Type header. Multipart can only be used with POST."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -655,6 +658,7 @@
             <EtchetBorder/>
           </Border>
         </Property>
+        <Property name="toolTipText" type="java.lang.String" value="The HTTP message body."/>
       </Properties>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.mirth.connect.client.ui.components.MirthSyntaxTextArea(true,false);"/>
@@ -666,6 +670,9 @@
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="contentTypeField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="The HTTP message body MIME type."/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="contentTypeLabel">
       <Properties>
@@ -691,7 +698,7 @@
           <ComponentRef name="authenticationButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Turning on authentication uses a username and password with to get the WSDL, if necessary,&lt;br&gt;and uses the username and password binding provider properties when calling the web service.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Turning on authentication uses a username and password to communicate with the HTTP server.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -714,7 +721,7 @@
           <ComponentRef name="authenticationButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Turning on authentication uses a username and password with to get the WSDL, if necessary,&lt;br&gt;and uses the username and password binding provider properties when calling the web service.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Turning on authentication uses a username and password to communicate with the HTTP server.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -725,7 +732,7 @@
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="usernameField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="The username used to get the WSDL and call the web service."/>
+        <Property name="toolTipText" type="java.lang.String" value="The username used to connect to the HTTP server."/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="usernameLabel">
@@ -740,7 +747,7 @@
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthPasswordField" name="passwordField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="The password used to get the WSDL and call the web service."/>
+        <Property name="toolTipText" type="java.lang.String" value="The password used to connect to the HTTP server."/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthRadioButton" name="authenticationTypeDigestRadio">
@@ -757,7 +764,7 @@
           <ComponentRef name="authenticationTypeButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Digest"/>
-        <Property name="toolTipText" type="java.lang.String" value=""/>
+        <Property name="toolTipText" type="java.lang.String" value="Use the digest authentication scheme."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -777,7 +784,7 @@
           <ComponentRef name="authenticationTypeButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Basic"/>
-        <Property name="toolTipText" type="java.lang.String" value=""/>
+        <Property name="toolTipText" type="java.lang.String" value="Use the basic authentication scheme."/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>

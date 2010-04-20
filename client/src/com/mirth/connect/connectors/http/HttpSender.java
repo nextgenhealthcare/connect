@@ -48,9 +48,9 @@ import com.mirth.connect.util.ConnectionTestResponse;
  */
 public class HttpSender extends ConnectorClass {
 
-    private final int VARIABLE_COLUMN = 0;
+    private final int NAME_COLUMN = 0;
     private final int VALUE_COLUMN = 1;
-    private final String VARIABLE_COLUMN_NAME = "Variable";
+    private final String NAME_COLUMN_NAME = "Name";
     private final String VALUE_COLUMN_NAME = "Value";
     private int propertiesLastIndex = -1;
     private int headerLastIndex = -1;
@@ -61,10 +61,10 @@ public class HttpSender extends ConnectorClass {
         initComponents();
         parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
 
-        parametersPane.addMouseListener(new java.awt.event.MouseAdapter() {
+        queryParametersPane.addMouseListener(new java.awt.event.MouseAdapter() {
 
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                deselectRows(parametersTable, parametersDeleteButton);
+                deselectRows(queryParametersTable, queryParametersDeleteButton);
             }
         });
         headersPane.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -73,7 +73,7 @@ public class HttpSender extends ConnectorClass {
                 deselectRows(headersTable, headersDeleteButton);
             }
         });
-        parametersDeleteButton.setEnabled(false);
+        queryParametersDeleteButton.setEnabled(false);
         headersDeleteButton.setEnabled(false);
     }
 
@@ -156,12 +156,16 @@ public class HttpSender extends ConnectorClass {
 
         if (((String) props.get(HttpSenderProperties.HTTP_METHOD)).equalsIgnoreCase("post")) {
             postButton.setSelected(true);
+            postButtonActionPerformed(null);
         } else if (((String) props.get(HttpSenderProperties.HTTP_METHOD)).equalsIgnoreCase("get")) {
             getButton.setSelected(true);
+            getButtonActionPerformed(null);
         } else if (((String) props.get(HttpSenderProperties.HTTP_METHOD)).equalsIgnoreCase("put")) {
             putButton.setSelected(true);
+            putButtonActionPerformed(null);
         } else if (((String) props.get(HttpSenderProperties.HTTP_METHOD)).equalsIgnoreCase("delete")) {
             deleteButton.setSelected(true);
+            deleteButtonActionPerformed(null);
         }
 
         if (((String) props.get(HttpSenderProperties.HTTP_MULTIPART)).equals(UIConstants.YES_OPTION)) {
@@ -260,18 +264,18 @@ public class HttpSender extends ConnectorClass {
     public void setAdditionalProperties(Properties properties) {
         Object[][] tableData = new Object[properties.size()][2];
 
-        parametersTable = new MirthTable();
+        queryParametersTable = new MirthTable();
 
         int j = 0;
         Iterator i = properties.entrySet().iterator();
         while (i.hasNext()) {
             Map.Entry entry = (Map.Entry) i.next();
-            tableData[j][VARIABLE_COLUMN] = (String) entry.getKey();
+            tableData[j][NAME_COLUMN] = (String) entry.getKey();
             tableData[j][VALUE_COLUMN] = (String) entry.getValue();
             j++;
         }
 
-        parametersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[]{VARIABLE_COLUMN_NAME, VALUE_COLUMN_NAME}) {
+        queryParametersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[]{NAME_COLUMN_NAME, VALUE_COLUMN_NAME}) {
 
             boolean[] canEdit = new boolean[]{true, true};
 
@@ -280,14 +284,14 @@ public class HttpSender extends ConnectorClass {
             }
         });
 
-        parametersTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+        queryParametersTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
             public void valueChanged(ListSelectionEvent evt) {
-                if (getSelectedRow(parametersTable) != -1) {
-                    propertiesLastIndex = getSelectedRow(parametersTable);
-                    parametersDeleteButton.setEnabled(true);
+                if (getSelectedRow(queryParametersTable) != -1) {
+                    propertiesLastIndex = getSelectedRow(queryParametersTable);
+                    queryParametersDeleteButton.setEnabled(true);
                 } else {
-                    parametersDeleteButton.setEnabled(false);
+                    queryParametersDeleteButton.setEnabled(false);
                 }
             }
         });
@@ -332,7 +336,7 @@ public class HttpSender extends ConnectorClass {
                     parent.enableSave();
                 }
 
-                parametersDeleteButton.setEnabled(true);
+                queryParametersDeleteButton.setEnabled(true);
 
                 return super.stopCellEditing();
             }
@@ -340,8 +344,8 @@ public class HttpSender extends ConnectorClass {
             public boolean checkUniqueProperty(String property) {
                 boolean exists = false;
 
-                for (int i = 0; i < parametersTable.getRowCount(); i++) {
-                    if (parametersTable.getValueAt(i, VARIABLE_COLUMN) != null && ((String) parametersTable.getValueAt(i, VARIABLE_COLUMN)).equalsIgnoreCase(property)) {
+                for (int i = 0; i < queryParametersTable.getRowCount(); i++) {
+                    if (queryParametersTable.getValueAt(i, NAME_COLUMN) != null && ((String) queryParametersTable.getValueAt(i, NAME_COLUMN)).equalsIgnoreCase(property)) {
                         exists = true;
                     }
                 }
@@ -354,7 +358,7 @@ public class HttpSender extends ConnectorClass {
              */
             public boolean isCellEditable(EventObject evt) {
                 if (evt instanceof MouseEvent && ((MouseEvent) evt).getClickCount() >= 2) {
-                    parametersDeleteButton.setEnabled(false);
+                    queryParametersDeleteButton.setEnabled(false);
                     return true;
                 }
                 return false;
@@ -363,25 +367,25 @@ public class HttpSender extends ConnectorClass {
         ;
 
         // Set the custom cell editor for the Destination Name column.
-        parametersTable.getColumnModel().getColumn(parametersTable.getColumnModel().getColumnIndex(VARIABLE_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(true));
+        queryParametersTable.getColumnModel().getColumn(queryParametersTable.getColumnModel().getColumnIndex(NAME_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(true));
 
         // Set the custom cell editor for the Destination Name column.
-        parametersTable.getColumnModel().getColumn(parametersTable.getColumnModel().getColumnIndex(VALUE_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(false));
+        queryParametersTable.getColumnModel().getColumn(queryParametersTable.getColumnModel().getColumnIndex(VALUE_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(false));
 
-        parametersTable.setSelectionMode(0);
-        parametersTable.setRowSelectionAllowed(true);
-        parametersTable.setRowHeight(UIConstants.ROW_HEIGHT);
-        parametersTable.setDragEnabled(false);
-        parametersTable.setOpaque(true);
-        parametersTable.setSortable(false);
-        parametersTable.getTableHeader().setReorderingAllowed(false);
+        queryParametersTable.setSelectionMode(0);
+        queryParametersTable.setRowSelectionAllowed(true);
+        queryParametersTable.setRowHeight(UIConstants.ROW_HEIGHT);
+        queryParametersTable.setDragEnabled(false);
+        queryParametersTable.setOpaque(true);
+        queryParametersTable.setSortable(false);
+        queryParametersTable.getTableHeader().setReorderingAllowed(false);
 
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
-            parametersTable.setHighlighters(highlighter);
+            queryParametersTable.setHighlighters(highlighter);
         }
 
-        parametersPane.setViewportView(parametersTable);
+        queryParametersPane.setViewportView(queryParametersTable);
     }
 
     public void setHeaderProperties(Properties properties) {
@@ -393,12 +397,12 @@ public class HttpSender extends ConnectorClass {
         Iterator i = properties.entrySet().iterator();
         while (i.hasNext()) {
             Map.Entry entry = (Map.Entry) i.next();
-            tableData[j][VARIABLE_COLUMN] = (String) entry.getKey();
+            tableData[j][NAME_COLUMN] = (String) entry.getKey();
             tableData[j][VALUE_COLUMN] = (String) entry.getValue();
             j++;
         }
 
-        headersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[]{VARIABLE_COLUMN_NAME, VALUE_COLUMN_NAME}) {
+        headersTable.setModel(new javax.swing.table.DefaultTableModel(tableData, new String[]{NAME_COLUMN_NAME, VALUE_COLUMN_NAME}) {
 
             boolean[] canEdit = new boolean[]{true, true};
 
@@ -468,7 +472,7 @@ public class HttpSender extends ConnectorClass {
                 boolean exists = false;
 
                 for (int i = 0; i < headersTable.getRowCount(); i++) {
-                    if (headersTable.getValueAt(i, VARIABLE_COLUMN) != null && ((String) headersTable.getValueAt(i, VARIABLE_COLUMN)).equalsIgnoreCase(property)) {
+                    if (headersTable.getValueAt(i, NAME_COLUMN) != null && ((String) headersTable.getValueAt(i, NAME_COLUMN)).equalsIgnoreCase(property)) {
                         exists = true;
                     }
                 }
@@ -490,7 +494,7 @@ public class HttpSender extends ConnectorClass {
         ;
 
         // Set the custom cell editor for the Destination Name column.
-        headersTable.getColumnModel().getColumn(headersTable.getColumnModel().getColumnIndex(VARIABLE_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(true));
+        headersTable.getColumnModel().getColumn(headersTable.getColumnModel().getColumnIndex(NAME_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(true));
 
         // Set the custom cell editor for the Destination Name column.
         headersTable.getColumnModel().getColumn(headersTable.getColumnModel().getColumnIndex(VALUE_COLUMN_NAME)).setCellEditor(new HTTPTableCellEditor(false));
@@ -514,9 +518,9 @@ public class HttpSender extends ConnectorClass {
     public Map getAdditionalProperties() {
         Properties properties = new Properties();
 
-        for (int i = 0; i < parametersTable.getRowCount(); i++) {
-            if (((String) parametersTable.getValueAt(i, VARIABLE_COLUMN)).length() > 0) {
-                properties.put(((String) parametersTable.getValueAt(i, VARIABLE_COLUMN)), ((String) parametersTable.getValueAt(i, VALUE_COLUMN)));
+        for (int i = 0; i < queryParametersTable.getRowCount(); i++) {
+            if (((String) queryParametersTable.getValueAt(i, NAME_COLUMN)).length() > 0) {
+                properties.put(((String) queryParametersTable.getValueAt(i, NAME_COLUMN)), ((String) queryParametersTable.getValueAt(i, VALUE_COLUMN)));
             }
         }
 
@@ -527,8 +531,8 @@ public class HttpSender extends ConnectorClass {
         Properties properties = new Properties();
 
         for (int i = 0; i < headersTable.getRowCount(); i++) {
-            if (((String) headersTable.getValueAt(i, VARIABLE_COLUMN)).length() > 0) {
-                properties.put(((String) headersTable.getValueAt(i, VARIABLE_COLUMN)), ((String) headersTable.getValueAt(i, VALUE_COLUMN)));
+            if (((String) headersTable.getValueAt(i, NAME_COLUMN)).length() > 0) {
+                properties.put(((String) headersTable.getValueAt(i, NAME_COLUMN)), ((String) headersTable.getValueAt(i, VALUE_COLUMN)));
             }
         }
 
@@ -559,7 +563,7 @@ public class HttpSender extends ConnectorClass {
         for (int i = 1; i <= table.getRowCount() + 1; i++) {
             boolean exists = false;
             for (int j = 0; j < table.getRowCount(); j++) {
-                if (((String) table.getValueAt(j, VARIABLE_COLUMN)).equalsIgnoreCase(temp + i)) {
+                if (((String) table.getValueAt(j, NAME_COLUMN)).equalsIgnoreCase(temp + i)) {
                     exists = true;
                 }
             }
@@ -643,6 +647,15 @@ public class HttpSender extends ConnectorClass {
         contentLabel.setEnabled(enabled);
         contentTextArea.setEnabled(enabled);
     }
+    
+    private void setQueryParametersEnabled(boolean enabled) {
+        queryParametersLabel.setEnabled(enabled);
+        queryParametersPane.setEnabled(enabled);
+        queryParametersTable.setEnabled(enabled);
+        queryParametersNewButton.setEnabled(enabled);
+        
+        deselectRows(queryParametersTable, queryParametersDeleteButton);
+    }
 
     private void setAuthenticationEnabled(boolean enabled) {
         authenticationTypeLabel.setEnabled(enabled);
@@ -681,11 +694,11 @@ public class HttpSender extends ConnectorClass {
         authenticationTypeButtonGroup = new javax.swing.ButtonGroup();
         urlLabel = new javax.swing.JLabel();
         urlField = new com.mirth.connect.client.ui.components.MirthTextField();
-        parametersNewButton = new javax.swing.JButton();
-        parametersDeleteButton = new javax.swing.JButton();
-        parametersPane = new javax.swing.JScrollPane();
-        parametersTable = new com.mirth.connect.client.ui.components.MirthTable();
-        parametersLabel = new javax.swing.JLabel();
+        queryParametersNewButton = new javax.swing.JButton();
+        queryParametersDeleteButton = new javax.swing.JButton();
+        queryParametersPane = new javax.swing.JScrollPane();
+        queryParametersTable = new com.mirth.connect.client.ui.components.MirthTable();
+        queryParametersLabel = new javax.swing.JLabel();
         methodLabel = new javax.swing.JLabel();
         postButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
         getButton = new com.mirth.connect.client.ui.components.MirthRadioButton();
@@ -735,32 +748,32 @@ public class HttpSender extends ConnectorClass {
 
         urlField.setToolTipText("Enter the URL of the HTTP server to send each message to.");
 
-        parametersNewButton.setText("New");
-        parametersNewButton.addActionListener(new java.awt.event.ActionListener() {
+        queryParametersNewButton.setText("New");
+        queryParametersNewButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                parametersNewButtonActionPerformed(evt);
+                queryParametersNewButtonActionPerformed(evt);
             }
         });
 
-        parametersDeleteButton.setText("Delete");
-        parametersDeleteButton.addActionListener(new java.awt.event.ActionListener() {
+        queryParametersDeleteButton.setText("Delete");
+        queryParametersDeleteButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                parametersDeleteButtonActionPerformed(evt);
+                queryParametersDeleteButtonActionPerformed(evt);
             }
         });
 
-        parametersTable.setModel(new javax.swing.table.DefaultTableModel(
+        queryParametersTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Property", "Value"
+                "Name", "Value"
             }
         ));
-        parametersTable.setToolTipText("Request variables are encoded as x=y pairs as part of the request URL, separated from it by a '?' and from each other by an '&'.");
-        parametersPane.setViewportView(parametersTable);
+        queryParametersTable.setToolTipText("Query parameters are encoded as x=y pairs as part of the request URL, separated from it by a '?' and from each other by an '&'.");
+        queryParametersPane.setViewportView(queryParametersTable);
 
-        parametersLabel.setText("Parameters:");
+        queryParametersLabel.setText("Query Parameters:");
 
         methodLabel.setText("Method:");
 
@@ -768,7 +781,7 @@ public class HttpSender extends ConnectorClass {
         postButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         methodButtonGroup.add(postButton);
         postButton.setText("POST");
-        postButton.setToolTipText("Selects whether the HTTP operation used to send each message.");
+        postButton.setToolTipText("Selects the HTTP operation used to send each message.");
         postButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
         postButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -780,7 +793,7 @@ public class HttpSender extends ConnectorClass {
         getButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         methodButtonGroup.add(getButton);
         getButton.setText("GET");
-        getButton.setToolTipText("Selects whether the HTTP operation used to send each message.");
+        getButton.setToolTipText("Selects the HTTP operation used to send each message.");
         getButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
         getButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -798,10 +811,10 @@ public class HttpSender extends ConnectorClass {
 
             },
             new String [] {
-                "Property", "Value"
+                "Name", "Value"
             }
         ));
-        headersTable.setToolTipText("Header variables are encoded as HTTP headers in the HTTP request sent to the server.");
+        headersTable.setToolTipText("Header parameters are encoded as HTTP headers in the HTTP request sent to the server.");
         headersPane.setViewportView(headersTable);
 
         headersLabel.setText("Headers:");
@@ -826,14 +839,14 @@ public class HttpSender extends ConnectorClass {
         includeResponseHeadersYesButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         responseHeadersButtonGroup.add(includeResponseHeadersYesButton);
         includeResponseHeadersYesButton.setText("Yes");
-        includeResponseHeadersYesButton.setToolTipText("<html>Only enabled if Send Response To selects a channel.<br>If Include is selected, the HTTP headers of the response received are included in the message sent to the selected channel.<br>If Exclude is selected, the HTTP headers are not included.</html>");
+        includeResponseHeadersYesButton.setToolTipText("<html>Only enabled if Send Response To selects a channel.<br>If yes is selected, the HTTP headers of the response received are included in the message sent to the selected channel.<br>If no is selected, the HTTP headers are not included.</html>");
         includeResponseHeadersYesButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         includeResponseHeadersNoButton.setBackground(new java.awt.Color(255, 255, 255));
         includeResponseHeadersNoButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         responseHeadersButtonGroup.add(includeResponseHeadersNoButton);
         includeResponseHeadersNoButton.setText("No");
-        includeResponseHeadersNoButton.setToolTipText("<html>Only enabled if Send Response To selects a channel.<br>If Include is selected, the HTTP headers of the response received are included in the message sent to the selected channel.<br>If Exclude is selected, the HTTP headers are not included.</html>");
+        includeResponseHeadersNoButton.setToolTipText("<html>Only enabled if Send Response To selects a channel.<br>If yes is selected, the HTTP headers of the response received are included in the message sent to the selected channel.<br>If no is selected, the HTTP headers are not included.</html>");
         includeResponseHeadersNoButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         rotateMessages.setBackground(new java.awt.Color(255, 255, 255));
@@ -868,11 +881,13 @@ public class HttpSender extends ConnectorClass {
 
         reconnectIntervalLabel.setText("Reconnect Interval (ms):");
 
+        reconnectInterval.setToolTipText("<html>The amount of time that should elapse between attempts to send messages in the queue.</html>");
+
         putButton.setBackground(new java.awt.Color(255, 255, 255));
         putButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         methodButtonGroup.add(putButton);
         putButton.setText("PUT");
-        putButton.setToolTipText("Selects whether the HTTP operation used to send each message.");
+        putButton.setToolTipText("Selects the HTTP operation used to send each message.");
         putButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
         putButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -884,7 +899,7 @@ public class HttpSender extends ConnectorClass {
         deleteButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         methodButtonGroup.add(deleteButton);
         deleteButton.setText("DELETE");
-        deleteButton.setToolTipText("Selects whether the HTTP operation used to send each message.");
+        deleteButton.setToolTipText("Selects the HTTP operation used to send each message.");
         deleteButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
         deleteButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -905,7 +920,7 @@ public class HttpSender extends ConnectorClass {
         multipartYesButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         multipartButtonGroup.add(multipartYesButton);
         multipartYesButton.setText("Yes");
-        multipartYesButton.setToolTipText("Set to use multipart in the Content-Type header. It can only be used with POST.");
+        multipartYesButton.setToolTipText("Set to use multipart in the Content-Type header. Multipart can only be used with POST.");
         multipartYesButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         multipartNoButton.setBackground(new java.awt.Color(255, 255, 255));
@@ -916,8 +931,11 @@ public class HttpSender extends ConnectorClass {
         multipartNoButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         contentTextArea.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        contentTextArea.setToolTipText("The HTTP message body.");
 
         contentLabel.setText("Content:");
+
+        contentTypeField.setToolTipText("The HTTP message body MIME type.");
 
         contentTypeLabel.setText("Content Type:");
 
@@ -927,7 +945,7 @@ public class HttpSender extends ConnectorClass {
         authenticationYesRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         authenticationButtonGroup.add(authenticationYesRadio);
         authenticationYesRadio.setText("Yes");
-        authenticationYesRadio.setToolTipText("<html>Turning on authentication uses a username and password with to get the WSDL, if necessary,<br>and uses the username and password binding provider properties when calling the web service.</html>");
+        authenticationYesRadio.setToolTipText("<html>Turning on authentication uses a username and password to communicate with the HTTP server.</html>");
         authenticationYesRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         authenticationYesRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -939,7 +957,7 @@ public class HttpSender extends ConnectorClass {
         authenticationNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         authenticationButtonGroup.add(authenticationNoRadio);
         authenticationNoRadio.setText("No");
-        authenticationNoRadio.setToolTipText("<html>Turning on authentication uses a username and password with to get the WSDL, if necessary,<br>and uses the username and password binding provider properties when calling the web service.</html>");
+        authenticationNoRadio.setToolTipText("<html>Turning on authentication uses a username and password to communicate with the HTTP server.</html>");
         authenticationNoRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
         authenticationNoRadio.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -947,26 +965,26 @@ public class HttpSender extends ConnectorClass {
             }
         });
 
-        usernameField.setToolTipText("The username used to get the WSDL and call the web service.");
+        usernameField.setToolTipText("The username used to connect to the HTTP server.");
 
         usernameLabel.setText("Username:");
 
         passwordLabel.setText("Password:");
 
-        passwordField.setToolTipText("The password used to get the WSDL and call the web service.");
+        passwordField.setToolTipText("The password used to connect to the HTTP server.");
 
         authenticationTypeDigestRadio.setBackground(new java.awt.Color(255, 255, 255));
         authenticationTypeDigestRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         authenticationTypeButtonGroup.add(authenticationTypeDigestRadio);
         authenticationTypeDigestRadio.setText("Digest");
-        authenticationTypeDigestRadio.setToolTipText("");
+        authenticationTypeDigestRadio.setToolTipText("Use the digest authentication scheme.");
         authenticationTypeDigestRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         authenticationTypeBasicRadio.setBackground(new java.awt.Color(255, 255, 255));
         authenticationTypeBasicRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         authenticationTypeButtonGroup.add(authenticationTypeBasicRadio);
         authenticationTypeBasicRadio.setText("Basic");
-        authenticationTypeBasicRadio.setToolTipText("");
+        authenticationTypeBasicRadio.setToolTipText("Use the basic authentication scheme.");
         authenticationTypeBasicRadio.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         authenticationTypeLabel.setText("Authentication Type:");
@@ -989,7 +1007,7 @@ public class HttpSender extends ConnectorClass {
                     .addComponent(responseHeadersLabel)
                     .addComponent(jLabel36)
                     .addComponent(reconnectIntervalLabel)
-                    .addComponent(parametersLabel)
+                    .addComponent(queryParametersLabel)
                     .addComponent(headersLabel)
                     .addComponent(urlLabel)
                     .addComponent(contentLabel)
@@ -1068,16 +1086,16 @@ public class HttpSender extends ConnectorClass {
                                                     .addComponent(headersNewButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                     .addComponent(headersDeleteButton)))
                                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                                .addComponent(parametersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 374, Short.MAX_VALUE)
+                                                .addComponent(queryParametersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 374, Short.MAX_VALUE)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                    .addComponent(parametersDeleteButton)
-                                                    .addComponent(parametersNewButton)))
+                                                    .addComponent(queryParametersDeleteButton)
+                                                    .addComponent(queryParametersNewButton)))
                                             .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                         .addContainerGap())))))))
         );
 
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {parametersDeleteButton, parametersNewButton});
+        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {queryParametersDeleteButton, queryParametersNewButton});
 
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1143,11 +1161,11 @@ public class HttpSender extends ConnectorClass {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(parametersLabel)
-                            .addComponent(parametersNewButton))
+                            .addComponent(queryParametersLabel)
+                            .addComponent(queryParametersNewButton))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(parametersDeleteButton))
-                    .addComponent(parametersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 81, Short.MAX_VALUE))
+                        .addComponent(queryParametersDeleteButton))
+                    .addComponent(queryParametersPane, javax.swing.GroupLayout.DEFAULT_SIZE, 81, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(headersLabel)
@@ -1210,21 +1228,25 @@ private void usePersistentQueuesYesRadioActionPerformed(java.awt.event.ActionEve
 private void postButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_postButtonActionPerformed
     setContentEnabled(true);
     checkMultipartEnabled();
+    setQueryParametersEnabled(false);
 }//GEN-LAST:event_postButtonActionPerformed
 
 private void getButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getButtonActionPerformed
     setContentEnabled(false);
     checkMultipartEnabled();
+    setQueryParametersEnabled(true);
 }//GEN-LAST:event_getButtonActionPerformed
 
 private void putButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_putButtonActionPerformed
     setContentEnabled(true);
     checkMultipartEnabled();
+    setQueryParametersEnabled(false);
 }//GEN-LAST:event_putButtonActionPerformed
 
 private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
     setContentEnabled(false);
     checkMultipartEnabled();
+    setQueryParametersEnabled(false);
 }//GEN-LAST:event_deleteButtonActionPerformed
 
 private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_testConnectionActionPerformed
@@ -1260,29 +1282,29 @@ private void testConnectionActionPerformed(java.awt.event.ActionEvent evt) {//GE
     worker.execute();
 }//GEN-LAST:event_testConnectionActionPerformed
 
-private void parametersDeleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_parametersDeleteButtonActionPerformed
-    if (getSelectedRow(parametersTable) != -1 && !parametersTable.isEditing()) {
-        ((DefaultTableModel) parametersTable.getModel()).removeRow(getSelectedRow(parametersTable));
+private void queryParametersDeleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_queryParametersDeleteButtonActionPerformed
+    if (getSelectedRow(queryParametersTable) != -1 && !queryParametersTable.isEditing()) {
+        ((DefaultTableModel) queryParametersTable.getModel()).removeRow(getSelectedRow(queryParametersTable));
 
-        if (parametersTable.getRowCount() != 0) {
+        if (queryParametersTable.getRowCount() != 0) {
             if (propertiesLastIndex == 0) {
-                parametersTable.setRowSelectionInterval(0, 0);
-            } else if (propertiesLastIndex == parametersTable.getRowCount()) {
-                parametersTable.setRowSelectionInterval(propertiesLastIndex - 1, propertiesLastIndex - 1);
+                queryParametersTable.setRowSelectionInterval(0, 0);
+            } else if (propertiesLastIndex == queryParametersTable.getRowCount()) {
+                queryParametersTable.setRowSelectionInterval(propertiesLastIndex - 1, propertiesLastIndex - 1);
             } else {
-                parametersTable.setRowSelectionInterval(propertiesLastIndex, propertiesLastIndex);
+                queryParametersTable.setRowSelectionInterval(propertiesLastIndex, propertiesLastIndex);
             }
         }
 
         parent.enableSave();
     }
-}//GEN-LAST:event_parametersDeleteButtonActionPerformed
+}//GEN-LAST:event_queryParametersDeleteButtonActionPerformed
 
-private void parametersNewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_parametersNewButtonActionPerformed
-    ((DefaultTableModel) parametersTable.getModel()).addRow(new Object[]{getNewPropertyName(parametersTable), ""});
-    parametersTable.setRowSelectionInterval(parametersTable.getRowCount() - 1, parametersTable.getRowCount() - 1);
+private void queryParametersNewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_queryParametersNewButtonActionPerformed
+    ((DefaultTableModel) queryParametersTable.getModel()).addRow(new Object[]{getNewPropertyName(queryParametersTable), ""});
+    queryParametersTable.setRowSelectionInterval(queryParametersTable.getRowCount() - 1, queryParametersTable.getRowCount() - 1);
     parent.enableSave();
-}//GEN-LAST:event_parametersNewButtonActionPerformed
+}//GEN-LAST:event_queryParametersNewButtonActionPerformed
 
 private void authenticationYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_authenticationYesRadioActionPerformed
     setAuthenticationEnabled(true);
@@ -1324,15 +1346,15 @@ private void authenticationNoRadioActionPerformed(java.awt.event.ActionEvent evt
     private javax.swing.JLabel multipartLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton multipartNoButton;
     private com.mirth.connect.client.ui.components.MirthRadioButton multipartYesButton;
-    private javax.swing.JButton parametersDeleteButton;
-    private javax.swing.JLabel parametersLabel;
-    private javax.swing.JButton parametersNewButton;
-    private javax.swing.JScrollPane parametersPane;
-    private com.mirth.connect.client.ui.components.MirthTable parametersTable;
     private com.mirth.connect.client.ui.components.MirthPasswordField passwordField;
     private javax.swing.JLabel passwordLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton postButton;
     private com.mirth.connect.client.ui.components.MirthRadioButton putButton;
+    private javax.swing.JButton queryParametersDeleteButton;
+    private javax.swing.JLabel queryParametersLabel;
+    private javax.swing.JButton queryParametersNewButton;
+    private javax.swing.JScrollPane queryParametersPane;
+    private com.mirth.connect.client.ui.components.MirthTable queryParametersTable;
     private com.mirth.connect.client.ui.components.MirthTextField reconnectInterval;
     private javax.swing.JLabel reconnectIntervalLabel;
     private javax.swing.ButtonGroup responseHeadersButtonGroup;
