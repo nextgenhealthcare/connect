@@ -3,6 +3,9 @@ package com.mirth.connect.connectors.http;
 import java.util.Map;
 
 import org.mule.providers.QueueEnabledConnector;
+import org.mule.umo.lifecycle.InitialisationException;
+
+import com.mirth.connect.server.Constants;
 
 public class HttpConnector extends QueueEnabledConnector {
     private String channelId;
@@ -24,6 +27,16 @@ public class HttpConnector extends QueueEnabledConnector {
     private boolean receiverIncludeHeaders;
     private boolean dispatcherIncludeHeadersInResponse;
     private String receiverResponse;
+
+    @Override
+    public void doInitialise() throws InitialisationException {
+        super.doInitialise();
+
+        if (isUsePersistentQueues()) {
+            setConnectorErrorCode(Constants.ERROR_404);
+            setDispatcher(new HttpMessageDispatcher(this));
+        }
+    }
 
     public String getChannelId() {
         return channelId;
