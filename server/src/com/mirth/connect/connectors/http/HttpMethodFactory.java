@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -15,7 +16,6 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
@@ -32,7 +32,18 @@ public class HttpMethodFactory {
         // create the method and set the content
         
         if ("GET".equalsIgnoreCase(method)) {
-            httpMethod = new GetMethod(address);
+            GetMethod getMethod = new GetMethod(address);
+            NameValuePair[] queryParams = new NameValuePair[parameters.size()];
+            int index = 0;
+            
+            for (Entry<String, String> parameterEntry : parameters.entrySet()) {
+                queryParams[index] = new NameValuePair(parameterEntry.getKey(), parameterEntry.getValue());
+                index++;
+                logger.debug("setting query parameter: [" + parameterEntry.getKey() + ", " + parameterEntry.getValue() + "]");
+            }
+            
+            getMethod.setQueryString(queryParams);
+            httpMethod = getMethod;
         } else if ("POST".equalsIgnoreCase(method)) {
             PostMethod postMethod = new PostMethod(address);
 
@@ -55,18 +66,7 @@ public class HttpMethodFactory {
             httpMethod = new DeleteMethod(address);
         }
         
-        // parameters
-
-        HttpMethodParams httpParams = new HttpMethodParams();
-        
-        for (Entry<String, String> parameterEntry : parameters.entrySet()) {
-            httpParams.setParameter(parameterEntry.getKey(), parameterEntry.getValue());
-            logger.debug("setting method parameter: [" + parameterEntry.getKey() + ", " + parameterEntry.getValue() + "]");
-        }
-        
-        httpMethod.setParams(httpParams);
-        
-        // headers
+        // set the headers
         
         for (Entry<String, String> headerEntry : headers.entrySet()) {
             httpMethod.setRequestHeader(new Header(headerEntry.getKey(), headerEntry.getValue()));
