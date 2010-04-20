@@ -80,7 +80,7 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
         HttpMethod httpMethod = null;
 
         try {
-            httpMethod = httpMethodFactory.createHttpMethod(connector.getDispatcherMethod(), address, replacer.replaceValues(connector.getDispatcherContent(), mo), connector.getDispatcherContentType(), connector.getDispatcherCharset(), connector.isDispatcherMultipart(), replacer.replaceValuesInMap(connector.getDispatcherHeaders(), mo), replacer.replaceValuesInMap(connector.getDispatcherParameters(), mo));
+            httpMethod = httpMethodFactory.createHttpMethod(connector.getDispatcherMethod(), replacer.replaceValues(address, mo), replacer.replaceValues(connector.getDispatcherContent(), mo), connector.getDispatcherContentType(), connector.getDispatcherCharset(), connector.isDispatcherMultipart(), replacer.replaceValuesInMap(connector.getDispatcherHeaders(), mo), replacer.replaceValuesInMap(connector.getDispatcherParameters(), mo));
 
             // authentication
 
@@ -97,7 +97,7 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
 
                 client.getParams().setAuthenticationPreemptive(true);
                 client.getParams().setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, authenticationPreferences);
-                Credentials credentials = new UsernamePasswordCredentials(connector.getDispatcherUsername(), connector.getDispatcherPassword());
+                Credentials credentials = new UsernamePasswordCredentials(replacer.replaceValues(connector.getDispatcherUsername(), mo), replacer.replaceValues(connector.getDispatcherPassword(), mo));
                 client.getState().setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM), credentials);
                 logger.debug("using authentication with credentials: " + credentials);
             }
