@@ -102,6 +102,8 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
                 logger.debug("using authentication with credentials: " + credentials);
             }
 
+            client.getParams().setSoTimeout(connector.getDispatcherSocketTimeout());
+            
             // execute the method
 
             logger.debug("executing method: type=" + httpMethod.getName() + ", uri=" + httpMethod.getURI().toString());

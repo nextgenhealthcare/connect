@@ -27,6 +27,7 @@ public class HttpConnector extends QueueEnabledConnector {
     private boolean receiverIncludeHeaders;
     private boolean dispatcherIncludeHeadersInResponse;
     private String receiverResponse;
+    private int dispatcherSocketTimeout;
 
     @Override
     public void doInitialise() throws InitialisationException {
@@ -172,6 +173,14 @@ public class HttpConnector extends QueueEnabledConnector {
 
     public void setReceiverResponse(String receiverResponse) {
         this.receiverResponse = receiverResponse;
+    }
+
+    public int getDispatcherSocketTimeout() {
+        return dispatcherSocketTimeout;
+    }
+
+    public void setDispatcherSocketTimeout(int dispatcherSocketTimeout) {
+        this.dispatcherSocketTimeout = dispatcherSocketTimeout;
     }
 
     @Override

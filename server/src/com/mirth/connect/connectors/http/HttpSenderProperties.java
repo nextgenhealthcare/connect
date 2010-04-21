@@ -22,6 +22,7 @@ public class HttpSenderProperties extends QueuedSenderProperties {
     public static final String HTTP_CONTENT = "dispatcherContent";
     public static final String HTTP_CONTENT_TYPE = "dispatcherContentType";
     public static final String HTTP_CHARSET = "dispatcherCharset";
+    public static final String HTTP_SOCKET_TIMEOUT = "dispatcherSocketTimeout";
 
     public Properties getDefaults() {
         Properties properties = super.getDefaults();
@@ -44,6 +45,7 @@ public class HttpSenderProperties extends QueuedSenderProperties {
         properties.put(HTTP_CONTENT, "");
         properties.put(HTTP_CONTENT_TYPE, "text/plain");
         properties.put(HTTP_CHARSET, "UTF-8");
+        properties.put(HTTP_SOCKET_TIMEOUT, "0");
 
         return properties;
     }
