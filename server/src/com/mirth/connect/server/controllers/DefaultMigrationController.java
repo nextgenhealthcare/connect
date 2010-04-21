@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -105,8 +106,8 @@ public class DefaultMigrationController extends MigrationController {
             logger.error("Could not create schema on the configured database.", e);
             return;
         } finally {
-            DatabaseUtil.close(resultSet);
-            DatabaseUtil.close(conn);
+            DbUtils.closeQuietly(resultSet);
+            DbUtils.closeQuietly(conn);
         }
 
         // otherwise proceed with migration if necessary
@@ -324,16 +325,16 @@ public class DefaultMigrationController extends MigrationController {
                     } catch (Exception ex) {
                         logger.error("Error migrating connectors.", ex);
                     } finally {
-                        DatabaseUtil.close(preparedStatement);
+                        DbUtils.closeQuietly(preparedStatement);
                     }
                 }
 
             } catch (Exception e) {
                 logger.error("Error migrating connectors.", e);
             } finally {
-                DatabaseUtil.close(results);
-                DatabaseUtil.close(statement);
-                DatabaseUtil.close(conn);
+                DbUtils.closeQuietly(results);
+                DbUtils.closeQuietly(statement);
+                DbUtils.closeQuietly(conn);
             }
         }
     }

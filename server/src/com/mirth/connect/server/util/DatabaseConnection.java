@@ -21,6 +21,7 @@ import java.util.Properties;
 
 import javax.sql.rowset.CachedRowSet;
 
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.log4j.Logger;
 
 import com.sun.rowset.CachedRowSetImpl;
@@ -83,7 +84,7 @@ public class DatabaseConnection {
         } catch (SQLException e) {
             throw e;
         } finally {
-            DatabaseUtil.close(statement);
+            DbUtils.closeQuietly(statement);
         }
     }
 
@@ -104,12 +105,12 @@ public class DatabaseConnection {
             ResultSet result = statement.executeQuery(expression);
             CachedRowSetImpl crs = new CachedRowSetImpl();
             crs.populate(result);
-            DatabaseUtil.close(result);
+            DbUtils.closeQuietly(result);
             return crs;
         } catch (SQLException e) {
             throw e;
         } finally {
-            DatabaseUtil.close(statement);
+            DbUtils.closeQuietly(statement);
         }
     }
 
@@ -136,7 +137,7 @@ public class DatabaseConnection {
         } catch (SQLException e) {
             throw e;
         } finally {
-            DatabaseUtil.close(statement);
+            DbUtils.closeQuietly(statement);
         }
     }
 
@@ -175,7 +176,7 @@ public class DatabaseConnection {
         } catch (SQLException e) {
             throw e;
         } finally {
-            DatabaseUtil.close(statement);
+            DbUtils.closeQuietly(statement);
         }
     }
 
@@ -209,7 +210,7 @@ public class DatabaseConnection {
         } catch (SQLException e) {
             throw e;
         } finally {
-            DatabaseUtil.close(statement);
+            DbUtils.closeQuietly(statement);
         }
     }
 
@@ -241,12 +242,12 @@ public class DatabaseConnection {
             ResultSet result = statement.executeQuery();
             CachedRowSetImpl crs = new CachedRowSetImpl();
             crs.populate(result);
-            DatabaseUtil.close(result);
+            DbUtils.closeQuietly(result);
             return crs;
         } catch (SQLException e) {
             throw e;
         } finally {
-            DatabaseUtil.close(statement);
+            DbUtils.closeQuietly(statement);
         }
     }
 
@@ -318,7 +319,7 @@ public class DatabaseConnection {
         } catch (SQLException e) {
             throw e;
         } finally {
-            DatabaseUtil.close(statement);
+            DbUtils.closeQuietly(statement);
         }
     }
 
@@ -354,7 +355,7 @@ public class DatabaseConnection {
         } catch (SQLException e) {
             throw e;
         } finally {
-            DatabaseUtil.close(statement);
+            DbUtils.closeQuietly(statement);
         }
     }
     

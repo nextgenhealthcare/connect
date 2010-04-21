@@ -21,6 +21,7 @@ import java.util.Map;
 
 import javax.activation.UnsupportedDataTypeException;
 
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.log4j.Logger;
 import org.mule.umo.UMOEvent;
 
@@ -98,8 +99,8 @@ public class DefaultMessageObjectController extends MessageObjectController {
         } catch (SQLException e) {
             logger.error(e);
         } finally {
-            DatabaseUtil.close(resultSet);
-            DatabaseUtil.close(conn);
+            DbUtils.closeQuietly(resultSet);
+            DbUtils.closeQuietly(conn);
         }
     }
 

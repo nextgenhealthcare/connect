@@ -17,6 +17,7 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Scanner;
 
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.log4j.Logger;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
@@ -25,62 +26,7 @@ import com.ibatis.sqlmap.engine.impl.SqlMapClientImpl;
 import com.ibatis.sqlmap.engine.impl.SqlMapExecutorDelegate;
 
 public class DatabaseUtil {
-
 	private static Logger logger = Logger.getLogger(DatabaseUtil.class);
-
-	/**
-	 * Closes the specified ResultSet.
-	 * 
-	 * @param result
-	 *            the ResultSet to be closed.
-	 * @throws RuntimeException
-	 */
-	public static void close(ResultSet result) throws RuntimeException {
-		try {
-			if (result != null) {
-				result.close();
-			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * Closes the specified Statement.
-	 * 
-	 * @param statement
-	 *            the Statement to be closed.
-	 * @throws RuntimeException
-	 */
-	public static void close(Statement statement) throws RuntimeException {
-		try {
-			if (statement != null) {
-				statement.close();
-			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public static void close(DatabaseConnection connection) throws RuntimeException {
-		try {
-			if (connection != null) {
-				connection.close();
-			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public static void close(Connection connection) throws RuntimeException {
-		try {
-			if (connection != null) {
-				connection.close();
-			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
 
 	public static void executeScript(File script, boolean ignoreErrors) throws Exception {
 		SqlMapClient sqlMap = SqlConfig.getSqlMapClient();
@@ -126,9 +72,9 @@ public class DatabaseUtil {
 		} catch (Exception e) {
 			throw new Exception(e);
 		} finally {
-			close(statement);
-			close(resultSet);
-			close(conn);
+		    DbUtils.closeQuietly(statement);
+		    DbUtils.closeQuietly(resultSet);
+		    DbUtils.closeQuietly(conn);
 		}
 	}
 
@@ -163,9 +109,9 @@ public class DatabaseUtil {
 		} catch (Exception e) {
 			throw new Exception(e);
 		} finally {
-			close(statement);
-			close(resultSet);
-			close(conn);
+		    DbUtils.closeQuietly(statement);
+		    DbUtils.closeQuietly(resultSet);
+		    DbUtils.closeQuietly(conn);
 		}
 	}
 	

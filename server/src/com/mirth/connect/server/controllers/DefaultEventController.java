@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.log4j.Logger;
 
 import com.ibatis.sqlmap.client.SqlMapException;
@@ -78,8 +79,8 @@ public class DefaultEventController extends EventController {
 		} catch (SQLException e) {
 			logger.error(e);
 		} finally {
-			DatabaseUtil.close(resultSet);
-			DatabaseUtil.close(conn);
+		    DbUtils.closeQuietly(resultSet);
+		    DbUtils.closeQuietly(conn);
 		}
 	}
 	

@@ -28,6 +28,7 @@ import javax.crypto.SecretKey;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -483,8 +484,8 @@ public class DefaultConfigurationController extends ConfigurationController {
             logger.warn("could not retrieve status of database", e);
             isDatabaseRunning = false;
         } finally {
-            DatabaseUtil.close(statement);
-            DatabaseUtil.close(connection);
+            DbUtils.closeQuietly(statement);
+            DbUtils.closeQuietly(connection);
         }
 
         // If the database isn't running or the engine isn't running (only if it
