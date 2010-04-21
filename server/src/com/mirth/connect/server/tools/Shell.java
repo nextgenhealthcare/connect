@@ -276,6 +276,10 @@ public class Shell {
                         commandChannelStats(arguments);
                     } else if (comm == Token.RENAME) {
                         commandChannelRename(arguments);
+                    } else if (comm == Token.DEPLOY) {
+                        commandChannelDeploy(arguments);
+                    } else if (comm == Token.UNDEPLOY) {
+                        commandChannelUndeploy(arguments);
                     } else {
                         error("unknown channel command " + comm, null);
                     }
@@ -400,7 +404,7 @@ public class Shell {
         out.println("exportscripts \"path\"\n\tExports global script to <path>\n");
         out.println("importcodetemplates \"path\"\n\tImports code templates specified by <path>\n");
         out.println("exportcodetemplates \"path\"\n\tExports code templates to <path>\n");
-        out.println("channel start|stop|pause|resume|stats id|\"name\"|*\n\tPerforms specified channel action\n");
+        out.println("channel undeploy|deploy|start|stop|pause|resume|stats id|\"name\"|*\n\tPerforms specified channel action\n");
         out.println("channel remove|enable|disable id|\"name\"|*\n\tRemove, enable or disable specified channel\n");
         out.println("channel list\n\tLists all Channels\n");
         out.println("clear\n\tRemoves all messages from all Channels\n");
@@ -886,6 +890,20 @@ public class Shell {
                 out.println("Channel '" + oldName + "' renamed to '" + channel.getName() + "'");
             }
         }
+    }
+    
+    private void commandChannelDeploy(Token[] arguments) throws ClientException {
+        client.deployChannels(getMatchingChannels(arguments[2]));
+    }
+
+    private void commandChannelUndeploy(Token[] arguments) throws ClientException {
+        List<String> channelIds = new ArrayList<String>();
+        
+        for (Channel channel : getMatchingChannels(arguments[2])) {
+            channelIds.add(channel.getId());
+        }
+        
+        client.undeployChannels(channelIds);
     }
 
     private void commandShutdown(Token[] arguments) throws ClientException {
