@@ -223,7 +223,47 @@ class XmlProcessor implements Serializable {
             }
         }
     }
-
+    
+    /*
+     * This method removes all whitespace, but does not remove the content of
+     * empty nodes like <a>  </a>.  The original method can be modified to not
+     * remove leading and trailing whitespace in nodes, but it still removes the
+     * content of nodes containing only whitespace.
+     */
+    private void addTextNodesToRemoveAndTrim(List<Node> toRemove, Node topNode) {
+        NodeList nl = topNode.getChildNodes();
+        if (nl == null) {
+            return;
+        }
+        List<Node> possibleRemovalList = new java.util.ArrayList<Node>();     
+        boolean allTextNodes = true;
+        for (int i = 0; i < nl.getLength(); i++) {
+            Node subnode = nl.item(i);
+            if (subnode instanceof Text) {
+                Text text = (Text)subnode;
+                if (text.getData().trim().length() == 0) {
+                    possibleRemovalList.add(subnode);
+                }
+            } else {
+                allTextNodes = false;
+                addTextNodesToRemoveAndTrim(toRemove, subnode);
+            }            
+        }
+        
+        /*
+         *  We only remove the text node if it's not the only son of a parent.
+         *  This way we will not remove the content of nodes like <a>  </a>.
+         *  If allTextNodes is true and possibleRemovalList.size() > 0 then the
+         *  son of the topNode is not being removed because it is a blank string.
+         */
+        if (!allTextNodes) {
+            toRemove.addAll(possibleRemovalList);
+        }
+    }
+    
+/*  
+    // Set BUG_369394_IS_VALID to true to fix MIRTH-1405, but the content 
+    // of nodes like <a>  </a> is still removed.
     private void addTextNodesToRemoveAndTrim(List<Node> toRemove, Node node) {
         if (node instanceof Text) {
             Text text = (Text)node;
@@ -245,6 +285,7 @@ class XmlProcessor implements Serializable {
             }
         }
     }
+*/
     	
     final Node toXml(String defaultNamespaceUri, String xml) throws org.xml.sax.SAXException {
         //    See ECMA357 10.3.1

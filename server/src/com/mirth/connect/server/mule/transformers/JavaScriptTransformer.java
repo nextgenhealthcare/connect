@@ -171,6 +171,10 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
 
     public static String getJavascriptImportScript() {
         StringBuilder script = new StringBuilder();
+
+        // add #trim() function to JS String
+        script.append("String.prototype.trim = function() { return this.replace(/^\\s+|\\s+$/g,\"\").replace(/^\\t+|\\t+$/g,\"\"); };");
+
         script.append("importPackage(Packages.com.mirth.connect.server.util);\n");
         script.append("importPackage(Packages.com.mirth.connect.model.converters);\n");
         script.append("regex = new RegExp('');\n");
@@ -178,10 +182,17 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
         script.append("xmllist = new XMLList();\n");
         script.append("namespace = new Namespace();\n");
         script.append("qname = new QName();\n");
-        // ast: Allow ending whitespaces from the input XML
-        script.append("XML.ignoreWhitespace=false;");
-        // ast: Allow ending whitespaces to the output XML
+
+        /*
+         * Ignore whitespace so blank lines are removed when deleting elements.
+         * This also involves changing XmlProcessor.java in Rhino to account for
+         * Rhino issue 369394 and MIRTH-1405
+         */
+        script.append("XML.ignoreWhitespace=true;");
+        // Setting prettyPrinting to true causes HL7 to break when converting
+        // back from HL7.
         script.append("XML.prettyPrinting=false;");
+
         return script.toString();
     }
 
@@ -469,9 +480,6 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
         newScript.append("for (i = 0; i < replacement.length; i++) { ");
         newScript.append("var entry = replacement[i]; result = result.replaceAll(entry[0], entry[1]); } } return result; }");
 
-        // add #trim() function to JS String
-        newScript.append("String.prototype.trim = function() { return this.replace(/^\\s+|\\s+$/g,\"\").replace(/^\\t+|\\t+$/g,\"\"); };");
-
         newScript.append("function $(string) { ");
         newScript.append("if (connectorMap.containsKey(string)) { return connectorMap.get(string); }");
         newScript.append("else if (channelMap.containsKey(string)) { return channelMap.get(string); }");
@@ -539,10 +547,11 @@ public class JavaScriptTransformer extends AbstractEventAwareTransformer {
         newScript.append("}\n");
 
         /*
-         * Don't ignore whitespace so that spaces arent removed from within
-         * fields.
+         * Ignore whitespace so blank lines are removed when deleting elements.
+         * This also involves changing XmlProcessor.java in Rhino to account for
+         * Rhino issue 369394 and MIRTH-1405
          */
-        newScript.append("XML.ignoreWhitespace=false;");
+        newScript.append("XML.ignoreWhitespace=true;");
         // Setting prettyPrinting to true causes HL7 to break when converting
         // back from HL7.
         newScript.append("XML.prettyPrinting=false;");
