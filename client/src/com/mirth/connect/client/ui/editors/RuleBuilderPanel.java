@@ -279,8 +279,17 @@ public class RuleBuilderPanel extends BasePanel {
                 parent.modified = true;
 
                 deleteButton.setEnabled(true);
-
-                return super.stopCellEditing();
+                
+                boolean result = super.stopCellEditing();
+                
+                /*
+                 * Need to update the name after stopping cell editing, because
+                 * the swingx update caused the ListSelectionListener to stop
+                 * being called when there was only one row and it was edited.
+                 */
+                rulePlugin.updateName();
+                
+                return result;
             }
 
             /**

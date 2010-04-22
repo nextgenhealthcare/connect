@@ -98,6 +98,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     private JSplitPane vSplitPane;
     private boolean updating; // allow the selection listener to breathe
     private boolean addingNewRow;
+    private boolean removingRow;
     JXTaskPane viewTasks;
     JXTaskPane filterTasks;
     JPopupMenu filterPopupMenu;
@@ -743,7 +744,13 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
     }
 
     public void updateName(int row, String name) {
-        if (row > -1 && !addingNewRow) {
+        /*
+         * Make sure a row is not being added or removed when updating name.
+         * The removingRow check was added to force Rule Builder rows to disappear
+         * when they are removed. They stopped disappearing sometime after 1.8.2, 
+         * possibly with swingx changes.
+         */
+        if (row > -1 && !addingNewRow && !removingRow) {
             updating = true;
             filterTableModel.setValueAt(name, row, RULE_NAME_COL);
             updating = false;
@@ -830,6 +837,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
         }
 
         updating = true;
+        removingRow = true;
 
         int row = filterTable.getSelectedRow();
 
@@ -841,6 +849,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
             filterTableModel.removeRow(row);
         }
 
+        removingRow = false;
         updating = false;
 
         if (isValid(row)) {
