@@ -102,6 +102,20 @@ public class RuleBuilderPanel extends BasePanel {
                 rulePlugin.updateName();
             }
         });
+        contains.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                parent.modified = true;
+                rulePlugin.updateName();
+            }
+        });
+        doesNotContain.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                parent.modified = true;
+                rulePlugin.updateName();
+            }
+        });
 
 
         valuesScrollPane.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -139,7 +153,11 @@ public class RuleBuilderPanel extends BasePanel {
         } else if (exists.isSelected()) {
             m.put("Equals", UIConstants.EXISTS_OPTION);
         } else if (doesNotExist.isSelected()) {
-            m.put("Equals", UIConstants.DOES_NOT_EXISTS_OPTION);
+            m.put("Equals", UIConstants.DOES_NOT_EXIST_OPTION);
+        } else if (contains.isSelected()) {
+            m.put("Equals", UIConstants.CONTAINS_OPTION);
+        } else if (doesNotContain.isSelected()) {
+            m.put("Equals", UIConstants.DOES_NOT_CONTAIN_OPTION);
         }
 
         m.put("Values", getValues());
@@ -162,9 +180,15 @@ public class RuleBuilderPanel extends BasePanel {
             } else if (((String) data.get("Equals")).equals(UIConstants.EXISTS_OPTION)) {
                 existsActionPerformed(null);
                 exists.setSelected(true);
-            } else if (((String) data.get("Equals")).equals(UIConstants.DOES_NOT_EXISTS_OPTION)) {
+            } else if (((String) data.get("Equals")).equals(UIConstants.DOES_NOT_EXIST_OPTION)) {
                 doesNotExistActionPerformed(null);
                 doesNotExist.setSelected(true);
+            } else if (((String) data.get("Equals")).equals(UIConstants.CONTAINS_OPTION)) {
+                containsActionPerformed(null);
+                contains.setSelected(true);
+            } else if (((String) data.get("Equals")).equals(UIConstants.DOES_NOT_CONTAIN_OPTION)) {
+                doesNotContainActionPerformed(null);
+                doesNotContain.setSelected(true);
             }
 
             ArrayList<String> values = (ArrayList<String>) data.get("Values");
@@ -318,6 +342,17 @@ public class RuleBuilderPanel extends BasePanel {
         }
     }
 
+    private void setValuesEnabled(boolean enabled) {
+        valuesScrollPane.setEnabled(enabled);
+        valuesTable.setEnabled(enabled);
+        valuesLabel.setEnabled(enabled);
+        newButton.setEnabled(enabled);
+
+        deselectRows();
+
+        parent.modified = true;
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -342,6 +377,8 @@ public class RuleBuilderPanel extends BasePanel {
         exists = new javax.swing.JRadioButton();
         doesNotExist = new javax.swing.JRadioButton();
         acceptLabel = new javax.swing.JLabel();
+        contains = new javax.swing.JRadioButton();
+        doesNotContain = new javax.swing.JRadioButton();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -386,7 +423,7 @@ public class RuleBuilderPanel extends BasePanel {
 
         doesNotEqual.setBackground(new java.awt.Color(255, 255, 255));
         buttonGroup1.add(doesNotEqual);
-        doesNotEqual.setText("Does Not Equal");
+        doesNotEqual.setText("Not Equal");
         doesNotEqual.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         doesNotEqual.setMargin(new java.awt.Insets(0, 0, 0, 0));
         doesNotEqual.addActionListener(new java.awt.event.ActionListener() {
@@ -412,7 +449,7 @@ public class RuleBuilderPanel extends BasePanel {
 
         doesNotExist.setBackground(new java.awt.Color(255, 255, 255));
         buttonGroup1.add(doesNotExist);
-        doesNotExist.setText("Does Not Exist");
+        doesNotExist.setText("Not Exist");
         doesNotExist.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         doesNotExist.setMargin(new java.awt.Insets(0, 0, 0, 0));
         doesNotExist.addActionListener(new java.awt.event.ActionListener() {
@@ -422,6 +459,28 @@ public class RuleBuilderPanel extends BasePanel {
         });
 
         acceptLabel.setText("Accept");
+
+        contains.setBackground(new java.awt.Color(255, 255, 255));
+        buttonGroup1.add(contains);
+        contains.setText("Contains");
+        contains.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        contains.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        contains.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                containsActionPerformed(evt);
+            }
+        });
+
+        doesNotContain.setBackground(new java.awt.Color(255, 255, 255));
+        buttonGroup1.add(doesNotContain);
+        doesNotContain.setText("Not Contain");
+        doesNotContain.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        doesNotContain.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        doesNotContain.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                doesNotContainActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -443,14 +502,18 @@ public class RuleBuilderPanel extends BasePanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(equals)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(doesNotEqual))
+                        .addComponent(doesNotEqual)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(contains)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(doesNotContain))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(valuesScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 295, Short.MAX_VALUE)
+                        .addComponent(valuesScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(newButton)
                             .addComponent(deleteButton)))
-                    .addComponent(fieldTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 364, Short.MAX_VALUE)
+                    .addComponent(fieldTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 394, Short.MAX_VALUE)
                     .addComponent(acceptLabel))
                 .addContainerGap())
         );
@@ -474,7 +537,9 @@ public class RuleBuilderPanel extends BasePanel {
                     .addComponent(doesNotEqual)
                     .addComponent(jLabel2)
                     .addComponent(exists)
-                    .addComponent(doesNotExist))
+                    .addComponent(doesNotExist)
+                    .addComponent(contains)
+                    .addComponent(doesNotContain))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -489,42 +554,22 @@ public class RuleBuilderPanel extends BasePanel {
 
     private void doesNotExistActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_doesNotExistActionPerformed
     {//GEN-HEADEREND:event_doesNotExistActionPerformed
-        valuesScrollPane.setEnabled(false);
-        valuesTable.setEnabled(false);
-        valuesLabel.setEnabled(false);
-        newButton.setEnabled(false);
-        deleteButton.setEnabled(false);
-        parent.modified = true;
+        setValuesEnabled(false);
     }//GEN-LAST:event_doesNotExistActionPerformed
 
     private void doesNotEqualActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_doesNotEqualActionPerformed
     {//GEN-HEADEREND:event_doesNotEqualActionPerformed
-        valuesScrollPane.setEnabled(true);
-        valuesTable.setEnabled(true);
-        valuesLabel.setEnabled(true);
-        newButton.setEnabled(true);
-        deleteButton.setEnabled(true);
-        parent.modified = true;
+        setValuesEnabled(true);
     }//GEN-LAST:event_doesNotEqualActionPerformed
 
     private void equalsActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_equalsActionPerformed
     {//GEN-HEADEREND:event_equalsActionPerformed
-        valuesScrollPane.setEnabled(true);
-        valuesTable.setEnabled(true);
-        valuesLabel.setEnabled(true);
-        newButton.setEnabled(true);
-        deleteButton.setEnabled(true);
-        parent.modified = true;
+        setValuesEnabled(true);
     }//GEN-LAST:event_equalsActionPerformed
 
     private void existsActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_existsActionPerformed
     {//GEN-HEADEREND:event_existsActionPerformed
-        valuesScrollPane.setEnabled(false);
-        valuesTable.setEnabled(false);
-        valuesLabel.setEnabled(false);
-        newButton.setEnabled(false);
-        deleteButton.setEnabled(false);
-        parent.modified = true;
+        setValuesEnabled(false);
     }//GEN-LAST:event_existsActionPerformed
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_deleteButtonActionPerformed
@@ -553,10 +598,21 @@ public class RuleBuilderPanel extends BasePanel {
         rulePlugin.updateName();
         parent.modified = true;
     }//GEN-LAST:event_newButtonActionPerformed
+
+    private void containsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_containsActionPerformed
+        setValuesEnabled(true);
+    }//GEN-LAST:event_containsActionPerformed
+
+    private void doesNotContainActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doesNotContainActionPerformed
+        setValuesEnabled(true);
+    }//GEN-LAST:event_doesNotContainActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel acceptLabel;
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JRadioButton contains;
     private javax.swing.JButton deleteButton;
+    private javax.swing.JRadioButton doesNotContain;
     private javax.swing.JRadioButton doesNotEqual;
     private javax.swing.JRadioButton doesNotExist;
     private javax.swing.JRadioButton equals;

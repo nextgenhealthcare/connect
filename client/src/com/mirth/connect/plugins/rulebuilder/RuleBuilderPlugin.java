@@ -84,8 +84,29 @@ public class RuleBuilderPlugin extends FilterRulePlugin {
 
         if (((String) map.get("Equals")).equals(UIConstants.EXISTS_OPTION)) {
             script.append(field + ".length > 0)\n");
-        } else if (((String) map.get("Equals")).equals(UIConstants.DOES_NOT_EXISTS_OPTION)) {
+        } else if (((String) map.get("Equals")).equals(UIConstants.DOES_NOT_EXIST_OPTION)) {
             script.append(field + ".length == 0)\n");
+        } else if (((String) map.get("Equals")).equals(UIConstants.CONTAINS_OPTION) || ((String) map.get("Equals")).equals(UIConstants.DOES_NOT_CONTAIN_OPTION)) {
+            if (((String) map.get("Equals")).equals(UIConstants.CONTAINS_OPTION)) {
+                equals = "!=";
+                equalsOperator = "||";
+            } else {
+                equals = "==";
+                equalsOperator = "&&";
+            }
+
+            if (values.size() > 0) {
+                for (int i = 0; i < values.size(); i++) {
+                    script.append("(" + field + ".indexOf(" + values.get(i) + ") " + equals + " -1)");
+                    if (i + 1 == values.size()) {
+                        script.append(")\n");
+                    } else {
+                        script.append(" " + equalsOperator + " ");
+                    }
+                }
+            } else {
+                script.append(field + ".indexOf(\"\") " + equals + " -1)\n");
+            }
         } else {
             if (((String) map.get("Equals")).equals(UIConstants.YES_OPTION)) {
                 equals = "==";
@@ -159,7 +180,7 @@ public class RuleBuilderPlugin extends FilterRulePlugin {
             equals = "equals";
             blankVal = "exists";
             disableValues = true;
-        } else if (((String) map.get("Equals")).equals(UIConstants.DOES_NOT_EXISTS_OPTION)) {
+        } else if (((String) map.get("Equals")).equals(UIConstants.DOES_NOT_EXIST_OPTION)) {
             equals = "does not equal";
             blankVal = "does not exist";
             disableValues = true;
@@ -170,6 +191,14 @@ public class RuleBuilderPlugin extends FilterRulePlugin {
         } else if (((String) map.get("Equals")).equals(UIConstants.NO_OPTION)) {
             equals = "does not equal";
             blankVal = "is not blank";
+            disableValues = false;
+        } else if (((String) map.get("Equals")).equals(UIConstants.CONTAINS_OPTION)) {
+            equals = "contains";
+            blankVal = "contains \"\"";
+            disableValues = false;
+        } else if (((String) map.get("Equals")).equals(UIConstants.DOES_NOT_CONTAIN_OPTION)) {
+            equals = "does not contain";
+            blankVal = "does not contain \"\"";
             disableValues = false;
         }
 
