@@ -38,14 +38,14 @@ public class XMLAdaptor extends Adaptor {
 
     }
 
-    /** 
+    /**
      * Gets the name of the root node in an XML string
      */
     private String getNodeNameFromXMLString(String xml) {
         xml = xml.trim();
-        
+
         // remove processing-instructions or comments
-        while (xml.substring(0, 2).equals("<?") || xml.substring(0, 4).equals("<!--")) {
+        while ((xml.length() > 4) && (xml.substring(0, 2).equals("<?") || xml.substring(0, 4).equals("<!--"))) {
             if (xml.substring(0, 2).equals("<?")) {
                 // remove processing-instructions
                 xml = xml.substring(xml.indexOf("?>") + 2).trim();
@@ -54,13 +54,13 @@ public class XMLAdaptor extends Adaptor {
                 xml = xml.substring(xml.indexOf("-->") + 3).trim();
             }
         }
-        
+
         // get the node name in the form <[prefix]:nodeName[ (..)][/]>
         String rootNodeName = xml.substring(1, xml.indexOf(">")).trim();
-        
+
         // remove attributes (if any)
         rootNodeName = whiteSpacePattern.split(rootNodeName, 2)[0];
-        
+
         // remove prefix (if any)
         int nsPos = rootNodeName.indexOf(":");
         if (nsPos > 0)
