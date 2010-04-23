@@ -13,7 +13,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<resultMap class="com.mirth.connect.model.Channel" id="get-channel-result">
 		<result property="id" column="ID" />
 		<result property="name" column="NAME" />
-		<result property="description" column="DESCRIPTION" />
+		<result property="description" column="DESCRIPTION" nullValue="" />
 		<result property="enabled" column="IS_ENABLED" />
 		<result property="version" column="VERSION" />
 		<result property="revision" column="REVISION" />		
