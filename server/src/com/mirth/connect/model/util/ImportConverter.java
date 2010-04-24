@@ -379,6 +379,14 @@ public class ImportConverter {
             }
 
             // Run for all versions prior to 2.0
+
+            // MIRTH-1402 - Fix old channels from oracle that did not have
+            // description because they were blank
+            if (channelRoot.getElementsByTagName("description").getLength() == 0) {
+                Element descriptionElement = document.createElement("description");
+                channelRoot.appendChild(descriptionElement);
+            }
+
             convertChannelConnectorsFor2_0(document, channelRoot);
             updateFilterFor2_0(document);
         }
@@ -1334,29 +1342,29 @@ public class ImportConverter {
             }
         }
     }
-    
+
     private static void updateFilterFor2_0(Document document) {
         // Convert Rule Builder steps using "Reject" to JavaScript steps
         NodeList rules = document.getElementsByTagName("com.mirth.connect.model.Rule");
 
         for (int i = 0; i < rules.getLength(); i++) {
             Element rule = (Element) rules.item(i);
-            
+
             if (rule.getElementsByTagName("type").item(0).getTextContent().equalsIgnoreCase("Rule Builder")) {
                 boolean reject = false;
                 NodeList entries = rule.getElementsByTagName("entry");
                 for (int j = 0; j < entries.getLength(); j++) {
                     NodeList entry = ((Element) entries.item(j)).getElementsByTagName("string");
-                    
+
                     if ((entry.getLength() == 2) && entry.item(0).getTextContent().equalsIgnoreCase("Accept") && entry.item(1).getTextContent().equalsIgnoreCase("0")) {
                         reject = true;
                     }
                 }
-                
+
                 if (reject) {
                     rule.getElementsByTagName("type").item(0).setTextContent("JavaScript");
                     rule.removeChild(rule.getElementsByTagName("data").item(0));
-                    
+
                     Element dataElement = document.createElement("data");
                     dataElement.setAttribute("class", "map");
 
