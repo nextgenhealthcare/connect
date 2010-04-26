@@ -37,6 +37,7 @@ public class HttpListener extends ConnectorClass {
     public HttpListener() {
         name = HttpListenerProperties.name;
         initComponents();
+        parent.setupCharsetEncodingForConnector(charsetEncodingCombobox);
     }
 
     public Properties getProperties() {
@@ -53,6 +54,8 @@ public class HttpListener extends ConnectorClass {
 
         properties.put(HttpListenerProperties.HTTP_RESPONSE, (String) responseFromTransformer.getSelectedItem());
         properties.put(HttpListenerProperties.HTTP_RESPONSE_CONTENT_TYPE, responseContentTypeField.getText());
+
+        properties.put(HttpListenerProperties.HTTP_CHARSET, parent.getSelectedEncodingForConnector(charsetEncodingCombobox));
 
         return properties;
     }
@@ -80,6 +83,8 @@ public class HttpListener extends ConnectorClass {
         }
 
         responseContentTypeField.setText((String) props.get(HttpListenerProperties.HTTP_RESPONSE_CONTENT_TYPE));
+
+        parent.setPreviousSelectedEncodingForConnector(charsetEncodingCombobox, (String) props.get(HttpListenerProperties.HTTP_CHARSET));
     }
 
     public Properties getDefaults() {
@@ -164,6 +169,8 @@ public class HttpListener extends ConnectorClass {
         listenerPortLabel = new javax.swing.JLabel();
         responseContentTypeField = new com.mirth.connect.client.ui.components.MirthTextField();
         responseContentTypeLabel = new javax.swing.JLabel();
+        charsetEncodingCombobox = new com.mirth.connect.client.ui.components.MirthComboBox();
+        charsetEncodingLabel = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -228,6 +235,11 @@ public class HttpListener extends ConnectorClass {
 
         responseContentTypeLabel.setText("Response Content Type:");
 
+        charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "default", "utf-8", "iso-8859-1", "utf-16 (le)", "utf-16 (be)", "utf-16 (bom)", "us-ascii" }));
+        charsetEncodingCombobox.setToolTipText("<html>Select the character set encoding used by the sender of the message,<br> or Default to assume the default character set encoding for the JVM running Mirth.</html>");
+
+        charsetEncodingLabel.setText("Charset Encoding:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -239,9 +251,11 @@ public class HttpListener extends ConnectorClass {
                     .addComponent(listenerPortLabel)
                     .addComponent(includeHeadersLabel)
                     .addComponent(responseFromLabel)
-                    .addComponent(responseContentTypeLabel))
+                    .addComponent(responseContentTypeLabel)
+                    .addComponent(charsetEncodingLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(includeHeadersYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -282,7 +296,11 @@ public class HttpListener extends ConnectorClass {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(responseContentTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(responseContentTypeLabel))
-                .addContainerGap(21, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(charsetEncodingCombobox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(charsetEncodingLabel))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -392,6 +410,8 @@ public class HttpListener extends ConnectorClass {
         parent.channelEditTasks.getContentPane().getComponent(0).setVisible(visible);
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.mirth.connect.client.ui.components.MirthComboBox charsetEncodingCombobox;
+    private javax.swing.JLabel charsetEncodingLabel;
     private javax.swing.ButtonGroup includeHeadersGroup;
     private javax.swing.JLabel includeHeadersLabel;
     private com.mirth.connect.client.ui.components.MirthRadioButton includeHeadersNoRadio;

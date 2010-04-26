@@ -41,7 +41,6 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.QueuedSenderProperties;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.util.ConnectionTestResponse;
-import java.awt.Color;
 
 /**
  * A form that extends from ConnectorClass. All methods implemented are
