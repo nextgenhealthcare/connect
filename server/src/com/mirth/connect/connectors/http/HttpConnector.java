@@ -27,6 +27,7 @@ public class HttpConnector extends QueueEnabledConnector {
     private boolean receiverIncludeHeaders;
     private boolean dispatcherIncludeHeadersInResponse;
     private String receiverResponse;
+    private String receiverCharset;
     private int dispatcherSocketTimeout;
 
     @Override
@@ -173,6 +174,14 @@ public class HttpConnector extends QueueEnabledConnector {
 
     public void setReceiverResponse(String receiverResponse) {
         this.receiverResponse = receiverResponse;
+    }
+
+    public String getReceiverCharset() {
+        return receiverCharset;
+    }
+
+    public void setReceiverCharset(String receiverCharset) {
+        this.receiverCharset = receiverCharset;
     }
 
     public int getDispatcherSocketTimeout() {

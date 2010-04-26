@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
-import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,22 +33,19 @@ public class HttpMessageConverter {
                 requestElement.setAttribute("remoteAddr", request.getRemoteAddress());
             }
 
+            if (request.getRequestUrl() != null) {
+                requestElement.setAttribute("requestUrl", request.getRequestUrl());
+            }
+
             requestElement.setAttribute("method", request.getMethod());
 
-            if ("GET".equalsIgnoreCase(request.getMethod())) {
-                Element queryElement = document.createElement("Query");
+            if (!request.getParameters().isEmpty()) {
+                Element queryElement = document.createElement("Parameters");
 
-                for (Entry<String, String> entry : request.getQueryParameters().entrySet()) {
+                for (Entry<String, String> entry : request.getParameters().entrySet()) {
                     Element paramElement = document.createElement("Parameter");
-
-                    Element nameElement = document.createElement("Name");
-                    nameElement.setTextContent(entry.getKey());
-                    paramElement.appendChild(nameElement);
-
-                    Element valueElement = document.createElement("Value");
-                    valueElement.setTextContent(entry.getValue());
-                    paramElement.appendChild(valueElement);
-
+                    addElement(paramElement, "Name", entry.getKey());
+                    addElement(paramElement, "Value", entry.getValue());
                     queryElement.appendChild(paramElement);
                 }
 
@@ -57,24 +53,15 @@ public class HttpMessageConverter {
 
                 // also add query string
 
-                Element queryStringElement = document.createElement("QueryString");
-                queryStringElement.setTextContent(request.getQueryString());
-                requestElement.appendChild(queryStringElement);
+                addElement(requestElement, "QueryString", request.getQueryString());
             }
 
             Element headerElement = document.createElement("Header");
 
             for (Entry<String, String> entry : request.getHeaders().entrySet()) {
                 Element fieldElement = document.createElement("Field");
-
-                Element nameElement = document.createElement("Name");
-                nameElement.setTextContent(entry.getKey());
-                fieldElement.appendChild(nameElement);
-
-                Element valueElement = document.createElement("Value");
-                valueElement.setTextContent(entry.getValue());
-                fieldElement.appendChild(valueElement);
-
+                addElement(fieldElement, "Name", entry.getKey());
+                addElement(fieldElement, "Value", entry.getValue());
                 headerElement.appendChild(fieldElement);
             }
 
@@ -109,15 +96,8 @@ public class HttpMessageConverter {
 
             for (Header header : headers) {
                 Element fieldElement = document.createElement("Field");
-
-                Element nameElement = document.createElement("Name");
-                nameElement.setTextContent(header.getName());
-                fieldElement.appendChild(nameElement);
-
-                Element valueElement = document.createElement("Value");
-                valueElement.setTextContent(header.getValue());
-                fieldElement.appendChild(valueElement);
-
+                addElement(fieldElement, "Name", header.getName());
+                addElement(fieldElement, "Value", header.getValue());
                 headerElement.appendChild(fieldElement);
             }
 
@@ -140,7 +120,7 @@ public class HttpMessageConverter {
 
     public String convertInputStreamToString(InputStream is, String charset) throws IOException {
         if (charset == null) {
-            charset = Charset.defaultCharset().name();
+            charset = "ISO-8859-1"; // default charset for HTTP
         }
 
         Reader reader = new InputStreamReader(is, charset);
@@ -168,5 +148,12 @@ public class HttpMessageConverter {
         }
 
         return headers;
+    }
+    
+    private Element addElement(Element parent, String name, String textContent) {
+        Element child = parent.getOwnerDocument().createElement(name);
+        child.setTextContent(textContent);
+        parent.appendChild(child);
+        return child;
     }
 }

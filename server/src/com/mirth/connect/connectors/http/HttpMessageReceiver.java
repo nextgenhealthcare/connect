@@ -53,7 +53,7 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
                 String response = processData(httpRequest);
 
                 if (response != null) {
-                    httpResponse.getOutputStream().write(response.getBytes());
+                    httpResponse.getOutputStream().write(response.getBytes(connector.getReceiverCharset()));
                 }
 
                 httpResponse.setStatus(HttpStatus.SC_OK);
@@ -91,15 +91,22 @@ public class HttpMessageReceiver extends AbstractMessageReceiver {
     private String processData(HttpRequest request) throws Exception {
         monitoringController.updateStatus(connector, connectorType, Event.BUSY);
         HttpMessageConverter converter = new HttpMessageConverter();
+        
         HttpRequestMessage message = new HttpRequestMessage();
         message.setMethod(request.getMethod());
         message.setHeaders(converter.convertFieldEnumerationToMap(request));
+        /*
+         * XXX: The request.getParameters should be the first method to be called to
+         * avoid problems with the treatement of the input stream in Jetty
+         */
+        message.setParameters(request.getParameters());
         message.setContent(converter.convertInputStreamToString(request.getInputStream(), request.getCharacterEncoding()));
         message.setIncludeHeaders(connector.isReceiverIncludeHeaders());
         message.setContentType(request.getContentType());
         message.setRemoteAddress(request.getRemoteAddr());
-        message.setQueryParameters(request.getParameters());
         message.setQueryString(request.getQuery());
+        message.setRequestUrl(request.getRequestURL().toString());
+        
         UMOMessage response = routeMessage(new MuleMessage(connector.getMessageAdapter(message)), endpoint.isSynchronous());
 
         if ((response != null) && (response instanceof MuleMessage)) {
