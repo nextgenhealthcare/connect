@@ -40,125 +40,134 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="multipartLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="methodLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="URL1" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="responseHeadersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel36" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="reconnectIntervalLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="queryParametersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="headersLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="urlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="contentLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="contentTypeLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="charsetEncodingLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseHeadersLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="sendTimeoutLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="authenticationLabel" min="-2" max="-2" attributes="0"/>
                   <Component id="authenticationTypeLabel" min="-2" max="-2" attributes="0"/>
-                  <Group type="103" alignment="1" groupAlignment="0" attributes="0">
-                      <Component id="passwordLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                      <Component id="usernameLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="charsetEncodingLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="usernameLabel" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel36" min="-2" max="-2" attributes="0"/>
+                  <Component id="passwordLabel" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="passwordField" min="-2" pref="125" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="103" alignment="0" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <Component id="usernameField" min="-2" pref="125" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" attributes="0">
+                          <Component id="usePersistentQueuesYesRadio" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="usePersistentQueuesNoRadio" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="rotateMessages" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                       <Group type="103" alignment="0" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="authenticationTypeBasicRadio" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="authenticationTypeDigestRadio" min="-2" max="-2" attributes="0"/>
+                              <Component id="usernameField" min="-2" pref="125" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                           </Group>
                           <Group type="103" alignment="0" groupAlignment="0" attributes="0">
                               <Group type="102" alignment="0" attributes="0">
-                                  <Component id="authenticationYesRadio" min="-2" max="-2" attributes="0"/>
+                                  <Component id="authenticationTypeBasicRadio" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="authenticationNoRadio" min="-2" max="-2" attributes="0"/>
+                                  <Component id="authenticationTypeDigestRadio" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                               </Group>
                               <Group type="103" alignment="0" groupAlignment="0" attributes="0">
-                                  <Group type="102" attributes="0">
-                                      <Component id="contentTextArea" pref="443" max="32767" attributes="2"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                  </Group>
-                                  <Group type="102" attributes="0">
-                                      <Component id="multipartYesButton" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="multipartNoButton" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                  </Group>
                                   <Group type="102" alignment="0" attributes="0">
-                                      <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="authenticationYesRadio" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="authenticationNoRadio" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                  </Group>
+                                  <Group type="103" alignment="0" groupAlignment="0" attributes="0">
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="sendTimeoutField" min="-2" pref="75" max="-2" attributes="0"/>
+                                          <EmptySpace max="-2" attributes="0"/>
+                                      </Group>
+                                      <Group type="103" alignment="0" groupAlignment="0" attributes="0">
                                           <Group type="102" alignment="0" attributes="0">
                                               <Component id="includeResponseHeadersYesButton" min="-2" max="-2" attributes="0"/>
                                               <EmptySpace max="-2" attributes="0"/>
                                               <Component id="includeResponseHeadersNoButton" min="-2" max="-2" attributes="0"/>
+                                              <EmptySpace max="-2" attributes="0"/>
                                           </Group>
-                                          <Group type="102" alignment="0" attributes="0">
-                                              <Component id="urlField" min="-2" pref="300" max="-2" attributes="1"/>
+                                          <Group type="102" attributes="0">
+                                              <Component id="contentTextArea" pref="443" max="32767" attributes="2"/>
                                               <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="testConnection" min="-2" max="-2" attributes="0"/>
                                           </Group>
-                                          <Group type="102" alignment="0" attributes="0">
-                                              <Component id="postButton" min="-2" max="-2" attributes="0"/>
+                                          <Group type="102" attributes="0">
+                                              <Component id="multipartYesButton" min="-2" max="-2" attributes="0"/>
                                               <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="getButton" min="-2" max="-2" attributes="0"/>
+                                              <Component id="multipartNoButton" min="-2" max="-2" attributes="0"/>
                                               <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="putButton" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="deleteButton" min="-2" max="-2" attributes="0"/>
                                           </Group>
-                                          <Component id="channelNames" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
-                                          <Group type="102" alignment="0" attributes="0">
-                                              <Component id="usePersistentQueuesYesRadio" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="usePersistentQueuesNoRadio" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="rotateMessages" min="-2" max="-2" attributes="0"/>
-                                          </Group>
-                                          <Component id="reconnectInterval" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
-                                      </Group>
-                                      <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
-                                  </Group>
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <Group type="103" groupAlignment="0" attributes="0">
                                           <Group type="102" alignment="0" attributes="0">
                                               <Group type="103" groupAlignment="0" attributes="0">
-                                                  <Component id="contentTypeField" min="-2" pref="125" max="-2" attributes="0"/>
-                                                  <Component id="headersPane" pref="374" max="32767" attributes="0"/>
+                                                  <Group type="102" alignment="0" attributes="0">
+                                                      <Component id="urlField" min="-2" pref="300" max="-2" attributes="1"/>
+                                                      <EmptySpace max="-2" attributes="0"/>
+                                                      <Component id="testConnection" min="-2" max="-2" attributes="0"/>
+                                                  </Group>
+                                                  <Group type="102" alignment="0" attributes="0">
+                                                      <Component id="postButton" min="-2" max="-2" attributes="0"/>
+                                                      <EmptySpace max="-2" attributes="0"/>
+                                                      <Component id="getButton" min="-2" max="-2" attributes="0"/>
+                                                      <EmptySpace max="-2" attributes="0"/>
+                                                      <Component id="putButton" min="-2" max="-2" attributes="0"/>
+                                                      <EmptySpace max="-2" attributes="0"/>
+                                                      <Component id="deleteButton" min="-2" max="-2" attributes="0"/>
+                                                  </Group>
+                                                  <Component id="channelNames" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
+                                                  <Component id="reconnectInterval" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
                                               </Group>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                                  <Component id="headersNewButton" max="32767" attributes="1"/>
-                                                  <Component id="headersDeleteButton" alignment="0" min="-2" max="-2" attributes="1"/>
-                                              </Group>
+                                              <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
                                           </Group>
-                                          <Group type="102" alignment="1" attributes="0">
-                                              <Component id="queryParametersPane" pref="374" max="32767" attributes="0"/>
-                                              <EmptySpace max="-2" attributes="0"/>
+                                          <Group type="102" alignment="0" attributes="0">
                                               <Group type="103" groupAlignment="0" attributes="0">
-                                                  <Component id="queryParametersDeleteButton" linkSize="1" min="-2" max="-2" attributes="0"/>
-                                                  <Component id="queryParametersNewButton" linkSize="1" alignment="0" min="-2" max="-2" attributes="0"/>
+                                                  <Group type="102" alignment="0" attributes="0">
+                                                      <Group type="103" groupAlignment="0" attributes="0">
+                                                          <Component id="contentTypeField" min="-2" pref="125" max="-2" attributes="0"/>
+                                                          <Component id="headersPane" pref="374" max="32767" attributes="0"/>
+                                                      </Group>
+                                                      <EmptySpace max="-2" attributes="0"/>
+                                                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                                          <Component id="headersNewButton" max="32767" attributes="1"/>
+                                                          <Component id="headersDeleteButton" alignment="0" min="-2" max="-2" attributes="1"/>
+                                                      </Group>
+                                                  </Group>
+                                                  <Group type="102" alignment="1" attributes="0">
+                                                      <Component id="queryParametersPane" pref="374" max="32767" attributes="0"/>
+                                                      <EmptySpace max="-2" attributes="0"/>
+                                                      <Group type="103" groupAlignment="0" attributes="0">
+                                                          <Component id="queryParametersDeleteButton" linkSize="1" min="-2" max="-2" attributes="0"/>
+                                                          <Component id="queryParametersNewButton" linkSize="1" alignment="0" min="-2" max="-2" attributes="0"/>
+                                                      </Group>
+                                                  </Group>
+                                                  <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
                                               </Group>
+                                              <EmptySpace max="-2" attributes="0"/>
                                           </Group>
-                                          <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
                                       </Group>
-                                      <EmptySpace max="-2" attributes="0"/>
                                   </Group>
                               </Group>
                           </Group>
                       </Group>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="passwordField" min="-2" pref="125" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
           </Group>
@@ -188,8 +197,19 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="sendTimeoutField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="sendTimeoutLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="URL1" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="channelNames" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="includeResponseHeadersYesButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="includeResponseHeadersNoButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="responseHeadersLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -215,18 +235,12 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="includeResponseHeadersYesButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="includeResponseHeadersNoButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="responseHeadersLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel36" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="usePersistentQueuesYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="usePersistentQueuesNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="rotateMessages" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="jLabel36" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="reconnectInterval" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="reconnectIntervalLabel" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -814,6 +828,16 @@
           </StringArray>
         </Property>
         <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select the character set encoding used by the sender of the message,&lt;br&gt; or Default to assume the default character set encoding for the JVM running Mirth.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="sendTimeoutField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Sets the socket timeout (SO_TIMEOUT) in milliseconds to be used when executing the method.&lt;br&gt;A timeout value of zero is interpreted as an infinite timeout.&lt;/html&gt;"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="sendTimeoutLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Send Timeout (ms):"/>
       </Properties>
     </Component>
   </SubComponents>
