@@ -30,50 +30,33 @@ public class HttpMessageConverter {
             Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             Element requestElement = document.createElement("HttpRequest");
 
-            if (request.getRemoteAddress() != null) {
-                requestElement.setAttribute("remoteAddr", request.getRemoteAddress());
-            }
-
-            if (request.getRequestUrl() != null) {
-                requestElement.setAttribute("requestUrl", request.getRequestUrl());
-            }
-
-            requestElement.setAttribute("method", request.getMethod());
+            addElement(requestElement, "RemoteAddress", request.getRemoteAddress());
+            addElement(requestElement, "RequestUrl", request.getRequestUrl());
+            addElement(requestElement, "Method", request.getMethod());
+            addElement(requestElement, "RequestPath", request.getQueryString());
 
             if (!request.getParameters().isEmpty()) {
-                Element queryElement = document.createElement("Parameters");
+                Element parameteresElement = document.createElement("Parameters");
 
                 for (Entry<String, Object> entry : request.getParameters().entrySet()) {
-                    Element paramElement = document.createElement("Parameter");
-
                     if (entry.getValue() instanceof List<?>) {
-                        addElement(paramElement, "Name", entry.getKey().substring(0, entry.getKey().indexOf("[]")));
-                        Element valueElement = document.createElement("Value");
+                        String name = entry.getKey().substring(0, entry.getKey().indexOf("[]"));
                         
                         for (String value : (List<String>) entry.getValue()) {
-                            addElement(valueElement, "Item", value);
+                            addElement(parameteresElement, name, value);
                         }
-                        
-                        paramElement.appendChild(valueElement);
                     } else {
-                        addElement(paramElement, "Name", entry.getKey());
-                        addElement(paramElement, "Value", entry.getValue().toString());
+                        addElement(parameteresElement, entry.getKey(), entry.getValue().toString());
                     }
-
-                    queryElement.appendChild(paramElement);
                 }
 
-                requestElement.appendChild(queryElement);
-                addElement(requestElement, "QueryString", request.getQueryString());
+                requestElement.appendChild(parameteresElement);
             }
 
             Element headerElement = document.createElement("Header");
 
             for (Entry<String, String> entry : request.getHeaders().entrySet()) {
-                Element fieldElement = document.createElement("Field");
-                addElement(fieldElement, "Name", entry.getKey());
-                addElement(fieldElement, "Value", entry.getValue());
-                headerElement.appendChild(fieldElement);
+                addElement(headerElement, entry.getKey(), entry.getValue());
             }
 
             requestElement.appendChild(headerElement);
@@ -81,14 +64,7 @@ public class HttpMessageConverter {
             // NOTE: "Content" is added as a CDATA element in the
             // documentSerializer
             // constructor
-            Element contentElement = document.createElement("Content");
-
-            if (request.getContentType() != null) {
-                contentElement.setAttribute("type", request.getContentType());
-            }
-
-            contentElement.setTextContent(request.getContent());
-            requestElement.appendChild(contentElement);
+            addElement(requestElement, "Content", request.getContent());
 
             document.appendChild(requestElement);
             return documentSerializer.toXML(document);
