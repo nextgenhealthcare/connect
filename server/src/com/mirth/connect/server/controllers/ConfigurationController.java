@@ -59,9 +59,9 @@ public abstract class ConfigurationController extends Controller {
 
     public abstract void compileScripts(List<Channel> channels) throws Exception;
 
-    public abstract void executeChannelDeployScripts(List<Channel> channels);
+    public abstract void executeChannelDeployScripts(List<String> channelIds);
 
-    public abstract void executeChannelShutdownScripts(List<Channel> channels);
+    public abstract void executeChannelShutdownScripts(List<String> channelIds);
 
     public abstract void executeGlobalDeployScript();
 

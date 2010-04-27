@@ -120,10 +120,10 @@ public class DefaultConfigurationController extends ConfigurationController {
             }
 
             File appDataDirFile = null;
-            
+
             if (mirthConfig.getString(PROPERTY_APP_DATA_DIR) != null) {
                 appDataDirFile = new File(mirthConfig.getString(PROPERTY_APP_DATA_DIR));
-                
+
                 if (!appDataDirFile.exists()) {
                     if (appDataDirFile.mkdir()) {
                         logger.debug("created app data dir: " + appDataDirFile.getAbsolutePath());
@@ -137,10 +137,10 @@ public class DefaultConfigurationController extends ConfigurationController {
 
             appDataDir = appDataDirFile.getAbsolutePath();
             logger.debug("set app data dir: " + appDataDir);
-            
+
             baseDir = new File(ClassPathResource.getResourceURI("mirth.properties")).getParentFile().getParent();
             logger.debug("set base dir: " + baseDir);
-            
+
             if (mirthConfig.getString(CHARSET) != null) {
                 System.setProperty(CHARSET, mirthConfig.getString(CHARSET));
             }
@@ -218,8 +218,6 @@ public class DefaultConfigurationController extends ConfigurationController {
         // remove all scripts and templates
         ControllerFactory.getFactory().createTemplateController().removeAllTemplates();
 
-        // undeploy all running channels
-        CommandQueue.getInstance().addCommand(new Command(Command.Operation.REDEPLOY));
         // deploy all enabled channels
         deployChannels(ControllerFactory.getFactory().createChannelController().getChannel(null));
     }
@@ -298,17 +296,15 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
     }
 
-    public void executeChannelDeployScripts(List<Channel> channels) {
-        for (Channel channel : channels) {
-            String scriptType = GLOBAL_DEPLOY_KEY;
-            javaScriptUtil.executeScript(channel.getId() + "_" + scriptType, scriptType, channel.getId());
+    public void executeChannelDeployScripts(List<String> channelIds) {
+        for (String channelId : channelIds) {
+            javaScriptUtil.executeScript(channelId + "_" + GLOBAL_DEPLOY_KEY, GLOBAL_DEPLOY_KEY, channelId);
         }
     }
 
-    public void executeChannelShutdownScripts(List<Channel> channels) {
-        for (Channel channel : channels) {
-            String scriptType = GLOBAL_SHUTDOWN_KEY;
-            javaScriptUtil.executeScript(channel.getId() + "_" + scriptType, scriptType, channel.getId());
+    public void executeChannelShutdownScripts(List<String> channelIds) {
+        for (String channelId : channelIds) {
+            javaScriptUtil.executeScript(channelId + "_" + GLOBAL_SHUTDOWN_KEY, GLOBAL_SHUTDOWN_KEY, channelId);
         }
     }
 
@@ -474,7 +470,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         boolean isDatabaseRunning = false;
         Statement statement = null;
         Connection connection = null;
-        
+
         try {
             connection = SqlConfig.getSqlMapClient().getDataSource().getConnection();
             statement = connection.createStatement();
@@ -574,13 +570,13 @@ public class DefaultConfigurationController extends ConfigurationController {
     public String getBaseDir() {
         return baseDir;
     }
-    
+
     public String getApplicationDataDir() {
         return appDataDir;
     }
-    
+
     public String getConfigurationDir() {
-        return baseDir + File.separator + "conf"; 
+        return baseDir + File.separator + "conf";
     }
 
     public PasswordRequirements getPasswordRequirements() {

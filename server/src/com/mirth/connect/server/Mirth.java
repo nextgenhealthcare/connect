@@ -86,7 +86,7 @@ public class Mirth extends Thread {
     public static OutputStream getNullOutputStream() {
         return new OutputStream() {
             public void write(int b) throws IOException {
-                // ignore output
+            // ignore output
             }
         };
     }
@@ -220,7 +220,16 @@ public class Mirth extends Thread {
 
             // update the manager with the new classes
             managerBuilder.deployChannels(channels, extensionController.getConnectorMetaData());
-            configurationController.executeChannelDeployScripts(channelController.getChannel(null));
+
+            List<String> channelIds = new ArrayList<String>();
+
+            for (Channel channel : channelController.getChannel(null)) {
+                if (channel.isEnabled()) {
+                    channelIds.add(channel.getId());
+                }
+            }
+
+            configurationController.executeChannelDeployScripts(channelIds);
         } catch (Exception e) {
             logger.error("Error deploying channels.", e);
         }
@@ -234,6 +243,8 @@ public class Mirth extends Thread {
                     managerBuilder.unregisterChannel(channelId);
                 }
             }
+
+            configurationController.executeChannelShutdownScripts(channelIds);
         } catch (Exception e) {
             logger.error("Error un-deploying channels.", e);
         }
@@ -322,7 +333,14 @@ public class Mirth extends Thread {
 
         try {
             managerBuilder.stop();
-            configurationController.executeChannelShutdownScripts(channelController.getChannel(null));
+
+            List<String> channelIds = new ArrayList<String>();
+
+            for (Channel channel : channelController.getChannel(null)) {
+                channelIds.add(channel.getId());
+            }
+
+            configurationController.executeChannelShutdownScripts(channelIds);
             configurationController.executeGlobalShutdownScript();
         } catch (Exception e) {
             logger.error(e);
