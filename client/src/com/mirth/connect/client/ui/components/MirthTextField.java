@@ -135,8 +135,24 @@ public class MirthTextField extends javax.swing.JTextField implements MirthTextI
      * Overrides setText(String t) so that the save button is disabled when
      * Mirth sets the text of a field.
      */
+    @Override
     public void setText(String t) {
         super.setText(t);
         parent.disableSave();
+    }
+    
+    /**
+     * Overrides getText() so that it returns trimmed text.
+     */
+    @Override
+    public String getText() {
+        return super.getText().trim();
+    }
+    
+    /**
+     * Returns the result of the normal getText(), without trimming it.
+     */
+    public String getUntrimmedText() {
+        return super.getText();
     }
 }
