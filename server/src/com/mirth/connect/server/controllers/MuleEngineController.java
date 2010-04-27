@@ -168,7 +168,17 @@ public class MuleEngineController implements EngineController {
 
         for (Channel channel : channels) {
             if (channel.isEnabled()) {
-                registerChannel(channel);
+                try {
+                    registerChannel(channel);
+                } catch (Exception re) {
+                    logger.error("Error registering channel.", re);
+
+                    try {
+                        unregisterChannel(channel.getId());
+                    } catch (Exception ue) {
+                        logger.error("Error unregistering channel after failed deploy.", ue);
+                    }
+                }
             }
         }
     }
@@ -195,7 +205,7 @@ public class MuleEngineController implements EngineController {
         // register its mbean
         if (muleManager.isStarted()) {
             jmxAgent.registerComponentService(descriptor.getName());
-            
+
             // Build up a list of all destination connectors in the channel
             List<String> endpointNames = new ArrayList<String>();
             for (int i = 1; i <= channel.getDestinationConnectors().size(); i++) {
@@ -203,7 +213,7 @@ public class MuleEngineController implements EngineController {
             }
             // Add the source connector to the list
             endpointNames.add(getConnectorNameForRouter(getConnectorReferenceForInboundRouter(channel)));
-            
+
             // Register all of the endpoint services for the given connectors
             jmxAgent.registerEndpointServices(endpointNames);
         }
@@ -216,17 +226,17 @@ public class MuleEngineController implements EngineController {
         // add source endpoints
         MuleEndpoint vmEndpoint = new MuleEndpoint();
         vmEndpoint.setEndpointURI(new MuleEndpointURI(new URI("vm://" + channel.getId()).toString()));
-        
-        /* 
-         * Set create connector to true so that channel readers will not use 
-         * an existing connector (one from a different channel). This should 
-         * not be run during startup. If it is, it will create an extra
-         * _vmEndpoint service and _vmConnector service.
+
+        /*
+         * Set create connector to true so that channel readers will not use an
+         * existing connector (one from a different channel). This should not be
+         * run during startup. If it is, it will create an extra _vmEndpoint
+         * service and _vmConnector service.
          */
         if (muleManager.isStarted()) {
             vmEndpoint.setCreateConnector(1);
         }
-        
+
         MuleEndpoint endpoint = new MuleEndpoint();
 
         String connectorReference = getConnectorReferenceForInboundRouter(channel);
@@ -274,7 +284,7 @@ public class MuleEngineController implements EngineController {
         SelectiveConsumer selectiveConsumerRouter = new SelectiveConsumer();
         selectiveConsumerRouter.setFilter(new ValidMessageFilter());
         inboundRouter.addRouter(selectiveConsumerRouter);
-        
+
         // If a channel reader is being used, add the channel id
         // to the endpointUri so the endpoint can be deployed
         String endpointUri = getEndpointUri(channel.getSourceConnector());
@@ -359,6 +369,7 @@ public class MuleEngineController implements EngineController {
 
     /**
      * Add "_connector" to the connector id
+     * 
      * @param connectorId
      * @return
      */
@@ -468,7 +479,7 @@ public class MuleEngineController implements EngineController {
 
         // add the connector to the manager
         muleManager.registerConnector(umoConnector);
-        
+
         // register the connector service for the connector
         if (muleManager.isStarted()) {
             jmxAgent.registerConnectorService(umoConnector);
@@ -546,7 +557,13 @@ public class MuleEngineController implements EngineController {
     public void unregisterChannel(String channelId) throws Exception {
         logger.debug("unregistering descriptor: " + channelId);
         UMODescriptor descriptor = muleManager.getModel().getDescriptor(channelId);
-        muleManager.getModel().unregisterComponent(descriptor);
+
+        try {
+            muleManager.getModel().unregisterComponent(descriptor);
+        } catch (Exception e) {
+            logger.error("Error unregistering channel component.", e);
+        }
+
         unregisterConnectors(descriptor.getInboundRouter().getEndpoints());
         UMOOutboundRouter outboundRouter = (UMOOutboundRouter) descriptor.getOutboundRouter().getRouters().iterator().next();
         unregisterConnectors(outboundRouter.getEndpoints());
@@ -556,17 +573,41 @@ public class MuleEngineController implements EngineController {
         templateController.removeTemplates(channelId);
 
         // unregister its mbean
-        jmxAgent.unregisterComponentService(channelId);
+        try {
+            jmxAgent.unregisterComponentService(channelId);
+        } catch (Exception e) {
+            logger.error("Error unregistering component service: channelId=" + channelId, e);
+        }
     }
 
     private void unregisterConnectors(List<UMOEndpoint> endpoints) throws Exception {
         for (UMOEndpoint endpoint : endpoints) {
             logger.debug("unregistering endpoint: " + endpoint.getName());
-            muleManager.unregisterEndpoint(endpoint.getName());
-            jmxAgent.unregisterEndpointService(endpoint.getName());
-            jmxAgent.unregisterConnectorService(endpoint.getConnector().getName());
 
-            unregisterTransformer(endpoint.getTransformer());
+            muleManager.unregisterEndpoint(endpoint.getName());
+
+            /*
+             * Each method has a try/catch since we don't want it to abort the
+             * unregistration if an exception occurs.
+             */
+
+            try {
+                jmxAgent.unregisterEndpointService(endpoint.getName());
+            } catch (Exception e) {
+                logger.error("Error unregistering endpoint service: " + endpoint.getName(), e);
+            }
+
+            try {
+                jmxAgent.unregisterConnectorService(endpoint.getConnector().getName());
+            } catch (Exception e) {
+                logger.error("Error unregistering connector service: " + endpoint.getConnector().getName(), e);
+            }
+
+            try {
+                unregisterTransformer(endpoint.getTransformer());
+            } catch (Exception e) {
+                logger.error("Error unregistering transformer: " + endpoint.getTransformer(), e);
+            }
         }
     }
 
