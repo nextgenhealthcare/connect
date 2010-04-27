@@ -7,6 +7,7 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -22,7 +23,7 @@ import com.mirth.connect.model.converters.DocumentSerializer;
 
 public class HttpMessageConverter {
     private Logger logger = Logger.getLogger(this.getClass());
-    private DocumentSerializer serializer = new DocumentSerializer(new String[] { "Content", "Body", "QueryString" });
+    private DocumentSerializer documentSerializer = new DocumentSerializer(new String[] { "Content", "Body", "QueryString" });
 
     public String httpRequestToXml(HttpRequestMessage request) {
         try {
@@ -42,17 +43,27 @@ public class HttpMessageConverter {
             if (!request.getParameters().isEmpty()) {
                 Element queryElement = document.createElement("Parameters");
 
-                for (Entry<String, String> entry : request.getParameters().entrySet()) {
+                for (Entry<String, Object> entry : request.getParameters().entrySet()) {
                     Element paramElement = document.createElement("Parameter");
-                    addElement(paramElement, "Name", entry.getKey());
-                    addElement(paramElement, "Value", entry.getValue());
+
+                    if (entry.getValue() instanceof List<?>) {
+                        addElement(paramElement, "Name", entry.getKey().substring(0, entry.getKey().indexOf("[]")));
+                        Element valueElement = document.createElement("Value");
+                        
+                        for (String value : (List<String>) entry.getValue()) {
+                            addElement(valueElement, "Item", value);
+                        }
+                        
+                        paramElement.appendChild(valueElement);
+                    } else {
+                        addElement(paramElement, "Name", entry.getKey());
+                        addElement(paramElement, "Value", entry.getValue().toString());
+                    }
+
                     queryElement.appendChild(paramElement);
                 }
 
                 requestElement.appendChild(queryElement);
-
-                // also add query string
-
                 addElement(requestElement, "QueryString", request.getQueryString());
             }
 
@@ -67,7 +78,8 @@ public class HttpMessageConverter {
 
             requestElement.appendChild(headerElement);
 
-            // NOTE: "Content" is added as a CDATA element in the serializer
+            // NOTE: "Content" is added as a CDATA element in the
+            // documentSerializer
             // constructor
             Element contentElement = document.createElement("Content");
 
@@ -79,7 +91,7 @@ public class HttpMessageConverter {
             requestElement.appendChild(contentElement);
 
             document.appendChild(requestElement);
-            return serializer.toXML(document);
+            return documentSerializer.toXML(document);
         } catch (Exception e) {
             logger.error("Error converting HTTP request.", e);
         }
@@ -103,14 +115,15 @@ public class HttpMessageConverter {
 
             requestElement.appendChild(headerElement);
 
-            // NOTE: "Body" is added as a CDATA element in the serializer
+            // NOTE: "Body" is added as a CDATA element in the
+            // documentSerializer
             // constructor
             Element contentElement = document.createElement("Body");
             contentElement.setTextContent(content);
             requestElement.appendChild(contentElement);
 
             document.appendChild(requestElement);
-            return serializer.toXML(document);
+            return documentSerializer.toXML(document);
         } catch (Exception e) {
             logger.error("Error converting HTTP request.", e);
         }
@@ -149,7 +162,7 @@ public class HttpMessageConverter {
 
         return headers;
     }
-    
+
     private Element addElement(Element parent, String name, String textContent) {
         Element child = parent.getOwnerDocument().createElement(name);
         child.setTextContent(textContent);

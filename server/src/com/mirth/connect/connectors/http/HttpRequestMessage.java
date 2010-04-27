@@ -6,7 +6,7 @@ public class HttpRequestMessage {
     private String method;
     private String content;
     private Map<String, String> headers;
-    private Map<String, String> parameters;
+    private Map<String, Object> parameters;
     private boolean includeHeaders;
     private String contentType;
     private String remoteAddress;
@@ -37,12 +37,12 @@ public class HttpRequestMessage {
         this.headers = headers;
     }
 
-    public Map<String, String> getParameters() {
+    public Map<String, Object> getParameters() {
         return parameters;
     }
 
-    public void setParameters(Map<String, String> queryParameters) {
-        this.parameters = queryParameters;
+    public void setParameters(Map<String, Object> parameters) {
+        this.parameters = parameters;
     }
 
     public boolean isIncludeHeaders() {
