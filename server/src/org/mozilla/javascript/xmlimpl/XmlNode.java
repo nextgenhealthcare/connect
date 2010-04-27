@@ -580,6 +580,18 @@ class XmlNode implements Serializable {
     }
 
     String ecmaToXMLString(XmlProcessor processor) {
+        try {
+            javax.xml.transform.Transformer serializer = javax.xml.transform.TransformerFactory.newInstance().newTransformer();
+            serializer.setOutputProperty(javax.xml.transform.OutputKeys.INDENT, "no"); 
+            serializer.setOutputProperty(javax.xml.transform.OutputKeys.OMIT_XML_DECLARATION, "yes");
+            java.io.Writer writer = new java.io.StringWriter();
+            serializer.transform(new javax.xml.transform.dom.DOMSource(dom), new javax.xml.transform.stream.StreamResult(writer));
+            return writer.toString();
+        } catch (Exception e) {
+            return "";
+        }
+        
+        /*
         if (this.isElementType()) {
             Element copy = (Element)this.dom.cloneNode(true);
             Namespace[] inScope = this.getInScopeNamespaces();
@@ -590,6 +602,7 @@ class XmlNode implements Serializable {
         } else {
             return processor.ecmaToXmlString(dom);
         }
+        */
     }
 
     static class Namespace implements Serializable {
