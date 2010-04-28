@@ -337,29 +337,30 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" attributes="0">
-                                  <Group type="103" groupAlignment="0" attributes="0">
-                                      <Group type="102" attributes="0">
-                                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                              <Component id="serverWebstartPort" max="32767" attributes="1"/>
-                                              <Component id="serverAdministratorPort" alignment="0" pref="60" max="32767" attributes="1"/>
-                                          </Group>
-                                          <EmptySpace pref="12" max="32767" attributes="0"/>
-                                          <Group type="103" groupAlignment="0" attributes="0">
-                                              <Component id="jLabel5" alignment="1" min="-2" max="-2" attributes="0"/>
-                                              <Component id="jLabel6" alignment="1" min="-2" max="-2" attributes="0"/>
-                                          </Group>
-                                      </Group>
-                                      <Component id="jScrollPane1" pref="170" max="32767" attributes="1"/>
+                                  <Component id="serverJmxPort" min="-2" pref="60" max="-2" attributes="1"/>
+                                  <EmptySpace pref="8" max="32767" attributes="0"/>
+                                  <Component id="serverMemoryLabel" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <Group type="102" attributes="0">
+                                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                      <Component id="serverWebstartPort" max="32767" attributes="1"/>
+                                      <Component id="serverAdministratorPort" alignment="0" pref="60" max="32767" attributes="1"/>
                                   </Group>
-                                  <EmptySpace max="-2" attributes="0"/>
+                                  <EmptySpace pref="12" max="32767" attributes="0"/>
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="viewFileButton" linkSize="3" min="-2" max="-2" attributes="0"/>
-                                      <Component id="databaseLogLevel" alignment="0" pref="73" max="32767" attributes="0"/>
-                                      <Component id="mirthLogLevel" alignment="0" pref="73" max="32767" attributes="0"/>
-                                      <Component id="refreshButton" linkSize="3" alignment="1" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jLabel5" alignment="1" min="-2" max="-2" attributes="0"/>
+                                      <Component id="jLabel6" alignment="1" min="-2" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
-                              <Component id="serverJmxPort" min="-2" pref="60" max="-2" attributes="1"/>
+                              <Component id="jScrollPane1" pref="170" max="32767" attributes="1"/>
+                          </Group>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="viewFileButton" linkSize="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="databaseLogLevel" alignment="0" pref="73" max="32767" attributes="0"/>
+                              <Component id="mirthLogLevel" alignment="0" pref="73" max="32767" attributes="0"/>
+                              <Component id="refreshButton" linkSize="3" alignment="1" min="-2" max="-2" attributes="0"/>
+                              <Component id="serverMemoryField" alignment="0" pref="73" max="32767" attributes="1"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -386,6 +387,8 @@
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="jLabel18" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="serverJmxPort" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="serverMemoryLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="serverMemoryField" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" max="-2" attributes="0">
@@ -497,6 +500,13 @@
                   </Properties>
                 </Component>
                 <Component class="com.mirth.connect.manager.components.MirthTextField" name="serverJmxPort">
+                </Component>
+                <Component class="javax.swing.JLabel" name="serverMemoryLabel">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Server Memory (mb):"/>
+                  </Properties>
+                </Component>
+                <Component class="com.mirth.connect.manager.components.MirthTextField" name="serverMemoryField">
                 </Component>
               </SubComponents>
             </Container>

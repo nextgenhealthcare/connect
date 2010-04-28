@@ -6,9 +6,10 @@
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
  */
-
 package com.mirth.connect.manager;
 
+import java.awt.Cursor;
+import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -26,13 +27,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
+
+import org.apache.commons.io.FileUtils;
 
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.util.PropertyLoader;
-import java.awt.Cursor;
-import java.awt.Desktop;
-import javax.swing.SwingWorker;
 
 public class ManagerController {
 
@@ -367,6 +368,53 @@ public class ManagerController {
                 alertErrorDialog("Could not open file: " + path);
                 ex.printStackTrace();
             }
+        }
+    }
+
+    public String getServiceXmx() {
+        String match = "";
+
+        File file = new File(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SERVICE_VMOPTIONS);
+        String contents = "";
+        try {
+            contents = FileUtils.readFileToString(file);
+        } catch (IOException e) {
+            // Ignore error if file does not exist
+        }
+
+        Pattern pattern = Pattern.compile("-Xmx(.*?)m");
+        Matcher matcher = pattern.matcher(contents);
+
+        if (matcher.find()) {
+            match = matcher.group(1);
+        }
+
+        return match;
+    }
+
+    public void setServiceXmx(String xmx) {
+        File file = new File(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SERVICE_VMOPTIONS);
+        String contents = "";
+
+        try {
+            contents = FileUtils.readFileToString(file);
+        } catch (IOException e) {
+            // Ignore error if file does not exist
+        }
+
+        Pattern pattern = Pattern.compile("-Xmx(.*?)m");
+        Matcher matcher = pattern.matcher(contents);
+
+        if (matcher.find()) {
+            contents = matcher.replaceFirst("-Xmx" + xmx + "m");
+        } else if (xmx.length() != 0) {
+            contents += "-Xmx" + xmx + "m";
+        }
+
+        try {
+            FileUtils.writeStringToFile(file, contents);
+        } catch (IOException e) {
+            alertErrorDialog("Error writing file to: " + file.getPath());
         }
     }
 

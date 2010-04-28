@@ -49,6 +49,7 @@ public class ManagerConstants {
     public static final String PATH_ORACLE_PROPERTIES = "conf\\oracle\\oracle-SqlMapConfig.properties";
     public static final String PATH_VERSION_FILE = "conf\\version.properties";
     public static final String PATH_SERVER_ID_FILE = "server.id";
+    public static final String PATH_SERVICE_VMOPTIONS = "mirthconnect_service.vmoptions";
 
     // Windows service
     public static final String SERVICE_NAME = "Mirth Connect Service";

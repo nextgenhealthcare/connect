@@ -6,7 +6,6 @@
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
  */
-
 package com.mirth.connect.manager;
 
 import java.awt.Cursor;
@@ -16,6 +15,8 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 
 import javax.swing.DefaultComboBoxModel;
+
+import com.mirth.connect.manager.components.MirthFieldConstraints;
 
 public class ManagerDialog extends javax.swing.JDialog {
 
@@ -60,6 +61,8 @@ public class ManagerDialog extends javax.swing.JDialog {
 
         mirthSupportLink.setToolTipText("Visit Mirth Corporation's website.");
         mirthSupportLink.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        serverMemoryField.setDocument(new MirthFieldConstraints(0, false, false, true));
 
         loadServerProperties();
     }
@@ -127,6 +130,8 @@ public class ManagerDialog extends javax.swing.JDialog {
         databaseLogLevel = new com.mirth.connect.manager.components.MirthComboBox();
         jLabel18 = new javax.swing.JLabel();
         serverJmxPort = new com.mirth.connect.manager.components.MirthTextField();
+        serverMemoryLabel = new javax.swing.JLabel();
+        serverMemoryField = new com.mirth.connect.manager.components.MirthTextField();
         databasePanel = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
@@ -342,6 +347,8 @@ public class ManagerDialog extends javax.swing.JDialog {
 
         jLabel18.setText("JMX Port:");
 
+        serverMemoryLabel.setText("Server Memory (mb):");
+
         javax.swing.GroupLayout serverPanelLayout = new javax.swing.GroupLayout(serverPanel);
         serverPanel.setLayout(serverPanelLayout);
         serverPanelLayout.setHorizontalGroup(
@@ -356,23 +363,25 @@ public class ManagerDialog extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(serverPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(serverPanelLayout.createSequentialGroup()
+                        .addComponent(serverJmxPort, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
+                        .addComponent(serverMemoryLabel))
+                    .addGroup(serverPanelLayout.createSequentialGroup()
+                        .addGroup(serverPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(serverWebstartPort, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(serverAdministratorPort, javax.swing.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
                         .addGroup(serverPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(serverPanelLayout.createSequentialGroup()
-                                .addGroup(serverPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(serverWebstartPort, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(serverAdministratorPort, javax.swing.GroupLayout.DEFAULT_SIZE, 60, Short.MAX_VALUE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
-                                .addGroup(serverPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING)))
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 170, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(serverPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(viewFileButton)
-                            .addComponent(databaseLogLevel, javax.swing.GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE)
-                            .addComponent(mirthLogLevel, javax.swing.GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE)
-                            .addComponent(refreshButton, javax.swing.GroupLayout.Alignment.TRAILING)))
-                    .addComponent(serverJmxPort, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING)))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 170, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(serverPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(viewFileButton)
+                    .addComponent(databaseLogLevel, javax.swing.GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE)
+                    .addComponent(mirthLogLevel, javax.swing.GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE)
+                    .addComponent(refreshButton, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(serverMemoryField, javax.swing.GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -396,7 +405,9 @@ public class ManagerDialog extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(serverPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel18)
-                    .addComponent(serverJmxPort, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(serverJmxPort, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(serverMemoryLabel)
+                    .addComponent(serverMemoryField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(serverPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jLabel4)
@@ -700,7 +711,7 @@ private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
 
     private void loadServerProperties() {
         serverProperties = ManagerController.getInstance().getProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SERVER_PROPERTIES, true);
-        
+
         if (serverProperties.getProperty(ManagerConstants.DIR_APPDATA) != null) {
             PlatformUI.PATH_APPDATA = serverProperties.getProperty(ManagerConstants.DIR_APPDATA);
         }
@@ -719,6 +730,9 @@ private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         } else {
             serverId.setText("");
         }
+
+        String serviceXmx = ManagerController.getInstance().getServiceXmx();
+        serverMemoryField.setText(serviceXmx);
 
         if (versionProperties != null && (versionProperties.getProperty("mirth.version") != null) && (versionProperties.getProperty("mirth.version").length() > 0)) {
             version.setText(versionProperties.getProperty("mirth.version"));
@@ -824,6 +838,7 @@ private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
 
         ManagerController.getInstance().setProperties(serverProperties, PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SERVER_PROPERTIES);
         ManagerController.getInstance().setProperties(log4jProperties, PlatformUI.MIRTH_PATH + ManagerConstants.PATH_LOG4J_PROPERTIES);
+        ManagerController.getInstance().setServiceXmx(serverMemoryField.getText());
 
         if (((String) databaseType.getSelectedItem()).equals(ManagerConstants.DATABASE_DERBY)) {
             ManagerController.getInstance().setProperties(databaseProperties, PlatformUI.MIRTH_PATH + ManagerConstants.PATH_DERBY_PROPERTIES);
@@ -941,6 +956,8 @@ private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     private javax.swing.JLabel serverId;
     private com.mirth.connect.manager.components.MirthTextField serverJmxPort;
     private javax.swing.JList serverLogFiles;
+    private com.mirth.connect.manager.components.MirthTextField serverMemoryField;
+    private javax.swing.JLabel serverMemoryLabel;
     private javax.swing.JPanel serverPanel;
     private com.mirth.connect.manager.components.MirthTextField serverWebstartPort;
     private javax.swing.JPanel serviceButtonContainer;
