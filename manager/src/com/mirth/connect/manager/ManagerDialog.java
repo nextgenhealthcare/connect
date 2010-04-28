@@ -694,7 +694,7 @@ private void launchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 }//GEN-LAST:event_launchButtonActionPerformed
 
 private void viewFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewFileButtonActionPerformed
-    ManagerController.getInstance().openLogFile(PlatformUI.PATH_LOGS + (String) serverLogFiles.getSelectedValue());
+    ManagerController.getInstance().openLogFile(PlatformUI.PATH_LOGS + System.getProperty("file.separator") + (String) serverLogFiles.getSelectedValue());
 }//GEN-LAST:event_viewFileButtonActionPerformed
 
 private void restartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_restartButtonActionPerformed
