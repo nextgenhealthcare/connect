@@ -97,7 +97,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
         usageStatsMoreInfoLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Welcome to Mirth");
+        setTitle("Welcome to Mirth Connect");
         setResizable(false);
 
         channelOverview.setBackground(new java.awt.Color(255, 255, 255));
@@ -112,7 +112,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18));
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("Welcome to Mirth");
+        jLabel2.setText("Welcome to Mirth Connect");
 
         javax.swing.GroupLayout mirthHeadingPanel1Layout = new javax.swing.GroupLayout(mirthHeadingPanel1);
         mirthHeadingPanel1.setLayout(mirthHeadingPanel1Layout);
@@ -121,7 +121,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
             .addGroup(mirthHeadingPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel2)
-                .addContainerGap(209, Short.MAX_VALUE))
+                .addContainerGap(129, Short.MAX_VALUE))
         );
         mirthHeadingPanel1Layout.setVerticalGroup(
             mirthHeadingPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -133,7 +133,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
 
         jTextPane1.setBackground(new java.awt.Color(250, 250, 210));
         jTextPane1.setEditable(false);
-        jTextPane1.setText("You have recently installed or upgraded this Mirth Server, and may now customize your Mirth user account information. You also have the option of changing your account password.");
+        jTextPane1.setText("You have recently installed or upgraded this Mirth Connect Server, and may now customize your Mirth Connect user account information. You also have the option of changing your account password.");
         jTextPane1.setAutoscrolls(false);
         jTextPane1.setDisabledTextColor(new java.awt.Color(0, 0, 0));
         jTextPane1.setEnabled(false);
@@ -141,7 +141,7 @@ public class FirstLoginDialog extends javax.swing.JDialog implements UserDialogI
 
         registerCheckBox.setBackground(new java.awt.Color(255, 255, 255));
         registerCheckBox.setSelected(true);
-        registerCheckBox.setText("Register this instance of Mirth");
+        registerCheckBox.setText("Register this instance of Mirth Connect");
         registerCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 registerCheckBoxActionPerformed(evt);

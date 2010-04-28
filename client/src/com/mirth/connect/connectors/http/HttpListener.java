@@ -225,18 +225,18 @@ public class HttpListener extends ConnectorClass {
             }
         });
 
-        listenerAddressField.setToolTipText("The DNS domain name or IP address on which the web service should listen for connections.");
+        listenerAddressField.setToolTipText("The DNS domain name or IP address on which the server should listen for connections.");
 
-        listenerPortField.setToolTipText("The port on which the web service should listen for connections.");
+        listenerPortField.setToolTipText("The port on which the server should listen for connections.");
 
         listenerPortLabel.setText("Port:");
 
-        responseContentTypeField.setToolTipText("The port on which the web service should listen for connections.");
+        responseContentTypeField.setToolTipText("The MIME type to be used for the response.");
 
         responseContentTypeLabel.setText("Response Content Type:");
 
         charsetEncodingCombobox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "default", "utf-8", "iso-8859-1", "utf-16 (le)", "utf-16 (be)", "utf-16 (bom)", "us-ascii" }));
-        charsetEncodingCombobox.setToolTipText("<html>Select the character set encoding used by the sender of the message,<br> or Default to assume the default character set encoding for the JVM running Mirth.</html>");
+        charsetEncodingCombobox.setToolTipText("<html>Select the character set encoding to be used for the response to the sending system.<br>Set to Default to assume the default character set encoding for the JVM running Mirth.</html>");
 
         charsetEncodingLabel.setText("Charset Encoding:");
 

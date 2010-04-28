@@ -470,7 +470,7 @@
           <ComponentRef name="responseHeadersButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Yes"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Only enabled if Send Response To selects a channel.&lt;br&gt;If yes is selected, the HTTP headers of the response received are included in the message sent to the selected channel.&lt;br&gt;If no is selected, the HTTP headers are not included.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If yes is selected, the HTTP headers of the response received are included as part of the response.&lt;br&gt;If no is selected, the HTTP headers are not included.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>
@@ -490,7 +490,7 @@
           <ComponentRef name="responseHeadersButtonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" value="No"/>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Only enabled if Send Response To selects a channel.&lt;br&gt;If yes is selected, the HTTP headers of the response received are included in the message sent to the selected channel.&lt;br&gt;If no is selected, the HTTP headers are not included.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;If yes is selected, the HTTP headers of the response received are included as part of the response.&lt;br&gt;If no is selected, the HTTP headers are not included.&lt;/html&gt;"/>
         <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
           <Insets value="[0, 0, 0, 0]"/>
         </Property>

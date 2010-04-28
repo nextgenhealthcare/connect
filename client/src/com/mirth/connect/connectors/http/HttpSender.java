@@ -853,14 +853,14 @@ public class HttpSender extends ConnectorClass {
         includeResponseHeadersYesButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         responseHeadersButtonGroup.add(includeResponseHeadersYesButton);
         includeResponseHeadersYesButton.setText("Yes");
-        includeResponseHeadersYesButton.setToolTipText("<html>Only enabled if Send Response To selects a channel.<br>If yes is selected, the HTTP headers of the response received are included in the message sent to the selected channel.<br>If no is selected, the HTTP headers are not included.</html>");
+        includeResponseHeadersYesButton.setToolTipText("<html>If yes is selected, the HTTP headers of the response received are included as part of the response.<br>If no is selected, the HTTP headers are not included.</html>");
         includeResponseHeadersYesButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         includeResponseHeadersNoButton.setBackground(new java.awt.Color(255, 255, 255));
         includeResponseHeadersNoButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         responseHeadersButtonGroup.add(includeResponseHeadersNoButton);
         includeResponseHeadersNoButton.setText("No");
-        includeResponseHeadersNoButton.setToolTipText("<html>Only enabled if Send Response To selects a channel.<br>If yes is selected, the HTTP headers of the response received are included in the message sent to the selected channel.<br>If no is selected, the HTTP headers are not included.</html>");
+        includeResponseHeadersNoButton.setToolTipText("<html>If yes is selected, the HTTP headers of the response received are included as part of the response.<br>If no is selected, the HTTP headers are not included.</html>");
         includeResponseHeadersNoButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         rotateMessages.setBackground(new java.awt.Color(255, 255, 255));
