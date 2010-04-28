@@ -50,6 +50,7 @@ public class ManagerConstants {
     public static final String PATH_VERSION_FILE = "conf\\version.properties";
     public static final String PATH_SERVER_ID_FILE = "server.id";
     public static final String PATH_SERVICE_VMOPTIONS = "mirthconnect_service.vmoptions";
+    public static final String PATH_SERVER_MANAGER_EXE = "Mirth Connect Server Manager.exe";
 
     // Windows service
     public static final String SERVICE_NAME = "Mirth Connect Service";
@@ -65,7 +66,8 @@ public class ManagerConstants {
     public static final String CMD_QUERY_REGEX = "NET HELPMSG ([0-9]{4})";
 
     // Registry commands
-    public static final String CMD_REG_QUERY = "cmd /c REG QUERY HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v \"Mirth Connect\"";
-    public static final String CMD_REG_DELETE = "cmd /c REG DELETE HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /f /v \"Mirth Connect\"";
-    public static final String CMD_REG_ADD = "cmd /c REG ADD HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /f /v \"Mirth Connect\" /d ";
+    public static final String CMD_REG_QUERY = "cmd /c REG QUERY HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v \"Mirth Connect Server Manager\"";
+    public static final String CMD_REG_DELETE = "cmd /c REG DELETE HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /f /v \"Mirth Connect Server Manager\"";
+    public static final String CMD_REG_ADD = "cmd /c REG ADD HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /f /v \"Mirth Connect Server Manager\" /d ";
+
 }
