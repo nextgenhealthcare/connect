@@ -11,7 +11,7 @@
             <!-- put a shortcut on the desktop -->
             <desktop/>
             <!-- put shortcut in start menu too -->
-            <menu submenu="Mirth"/>
+            <menu submenu="Mirth Connect"/>
     	</shortcut>
 	</information>
 	
