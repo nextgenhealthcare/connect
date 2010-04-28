@@ -53,7 +53,7 @@ public class ManagerController {
         if (enabled) {
             try {
                 String absolutePath = new File(PlatformUI.MIRTH_PATH).getAbsolutePath();
-                execCmd(ManagerConstants.CMD_REG_ADD + "\"" + absolutePath + System.getProperty("file.separator") + ManagerConstants.PATH_SERVER_MANAGER_EXE + "\"", true);
+                execCmd(ManagerConstants.CMD_REG_ADD + "\"\"" + absolutePath + System.getProperty("file.separator") + ManagerConstants.PATH_SERVER_MANAGER_EXE + "\"\"", true);
             } catch (Exception e) {
                 e.printStackTrace();
             }
