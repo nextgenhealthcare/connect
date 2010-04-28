@@ -103,13 +103,14 @@ public class HttpMessageDispatcher extends AbstractMessageDispatcher implements 
             }
 
             client.getParams().setSoTimeout(connector.getDispatcherSocketTimeout());
-            
+
             // execute the method
 
             logger.debug("executing method: type=" + httpMethod.getName() + ", uri=" + httpMethod.getURI().toString());
             int statusCode = client.executeMethod(httpMethod);
             logger.debug("received status code: " + statusCode);
 
+            // TODO: Should this be updated to handle all 2xx responses?
             if (statusCode == HttpStatus.SC_OK) {
                 String response = null;
 
