@@ -694,7 +694,7 @@ private void launchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 }//GEN-LAST:event_launchButtonActionPerformed
 
 private void viewFileButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewFileButtonActionPerformed
-    ManagerController.getInstance().openLogFile(PlatformUI.MIRTH_PATH + PlatformUI.PATH_LOGS + (String) serverLogFiles.getSelectedValue());
+    ManagerController.getInstance().openLogFile(PlatformUI.PATH_LOGS + (String) serverLogFiles.getSelectedValue());
 }//GEN-LAST:event_viewFileButtonActionPerformed
 
 private void restartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_restartButtonActionPerformed
@@ -891,7 +891,7 @@ private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     }
 
     private void refreshLogs() {
-        serverLogFiles.setListData(ManagerController.getInstance().getLogFiles(PlatformUI.MIRTH_PATH + PlatformUI.PATH_LOGS).toArray());
+        serverLogFiles.setListData(ManagerController.getInstance().getLogFiles(PlatformUI.PATH_LOGS).toArray());
     }
 
     public void setStartButtonActive(boolean active) {
