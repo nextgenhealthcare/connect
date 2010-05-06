@@ -6,6 +6,7 @@
  * license a copy of which has been included with this distribution in
  * the LICENSE.txt file.
  */
+
 package com.mirth.connect.manager;
 
 import java.awt.Cursor;
@@ -25,8 +26,15 @@ public class ManagerDialog extends javax.swing.JDialog {
     private Properties log4jProperties;
     private Properties versionProperties;
     private Properties serverIdProperties;
+    private static ServiceController serviceController = null;
 
     public ManagerDialog() {
+        try {
+            serviceController = ServiceControllerFactory.getServiceController();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
     public void setupDialog() {
@@ -70,10 +78,16 @@ public class ManagerDialog extends javax.swing.JDialog {
     public void open() {
         ManagerController.getInstance().updateMirthServiceStatus();
         loadServerProperties();
-        if (ManagerController.getInstance().isStartup()) {
-            startup.setSelected(true);
+        if (serviceController.isStartupPossible()) {
+            startup.setEnabled(true);
+            
+            if (serviceController.isStartup()) {
+                startup.setSelected(true);
+            } else {
+                startup.setSelected(false);
+            }
         } else {
-            startup.setSelected(false);
+            startup.setEnabled(false);
         }
         setVisible(true);
     }
@@ -221,7 +235,7 @@ public class ManagerDialog extends javax.swing.JDialog {
         });
 
         startup.setBackground(new java.awt.Color(255, 255, 255));
-        startup.setText("Start Mirth Connect Server Manager on Windows startup");
+        startup.setText("Start Mirth Connect Server Manager on system startup");
         startup.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 startupActionPerformed(evt);
@@ -297,7 +311,7 @@ public class ManagerDialog extends javax.swing.JDialog {
             .addGroup(servicePanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(serviceButtonContainer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(19, Short.MAX_VALUE))
+                .addContainerGap(29, Short.MAX_VALUE))
         );
         servicePanelLayout.setVerticalGroup(
             servicePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -650,9 +664,9 @@ public class ManagerDialog extends javax.swing.JDialog {
 
 private void startupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startupActionPerformed
     if (startup.isSelected()) {
-        ManagerController.getInstance().setStartup(true);
+        serviceController.setStartup(true);
     } else {
-        ManagerController.getInstance().setStartup(false);
+        serviceController.setStartup(false);
     }
 }//GEN-LAST:event_startupActionPerformed
 
