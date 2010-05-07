@@ -254,7 +254,9 @@ public class ManagerController {
         Properties serverProperties = getProperties(PlatformUI.MIRTH_PATH + ManagerConstants.PATH_SERVER_PROPERTIES, true);
         String port = serverProperties.getProperty(ManagerConstants.SERVER_WEBSTART_PORT);
         try {
-            if (CmdUtil.execCmd(ManagerConstants.CMD_WEBSTART_PREFIX + port + ManagerConstants.CMD_WEBSTART_SUFFIX + "?time=" + new Date().getTime(), false) != 0) {
+        	String cmd = ManagerConstants.CMD_WEBSTART_PREFIX + port + ManagerConstants.CMD_WEBSTART_SUFFIX + "?time=" + new Date().getTime();
+        	
+            if (CmdUtil.execCmd(new String[]{cmd}, false) != 0) {
                 PlatformUI.MANAGER_TRAY.alertError("The Mirth Connect Administator could not be launched.");
             }
         } catch (Exception e) {

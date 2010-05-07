@@ -17,5 +17,5 @@ public interface ServiceController {
     public boolean isStartupPossible();
     public void setStartup(boolean enabled);
     public boolean isStartup();
-    
+    public String getCommand();
 }

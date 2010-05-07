@@ -40,5 +40,10 @@ public class LinuxServiceController implements ServiceController {
     public void setStartup(boolean enabled) {
         // Not available
     }
+    
+    @Override
+    public String getCommand() {
+    	return "sh -c";
+    }
 
 }

@@ -52,7 +52,7 @@ public class ManagerConstants {
     public static final String PATH_SERVICE_VMOPTIONS = "mirthconnect_service.vmoptions";
     
     // Webstart commands
-    public static final String CMD_WEBSTART_PREFIX = "cmd /c javaws http://localhost:";
+    public static final String CMD_WEBSTART_PREFIX = "javaws http://localhost:";
     public static final String CMD_WEBSTART_SUFFIX = "/webstart.jnlp";
     public static final String CMD_TEST_JETTY_PREFIX = "https://localhost:";
 }

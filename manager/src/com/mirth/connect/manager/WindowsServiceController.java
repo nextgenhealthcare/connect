@@ -17,16 +17,16 @@ public class WindowsServiceController implements ServiceController {
     
     private final String WINDOWS_PATH_SERVER_MANAGER_EXE = "Mirth Connect Server Manager.exe";
     private final String WINDOWS_SERVICE_NAME = "Mirth Connect Service";
-    private final String WINDOWS_CMD_START = "cmd /c net start \"";
-    private final String WINDOWS_CMD_STOP = "cmd /c net stop \"";
-    private final String WINDOWS_CMD_STATUS = "cmd /c net continue \"";
+    private final String WINDOWS_CMD_START = "net start \"";
+    private final String WINDOWS_CMD_STOP = "net stop \"";
+    private final String WINDOWS_CMD_STATUS = "net continue \"";
     private final int WINDOWS_STATUS_RUNNING = 2191;
     private final int WINDOWS_STATUS_STOPPED = 2184;
     private final String WINDOWS_STATUS_CHANGING = "2189";
     private final String WINDOWS_CMD_QUERY_REGEX = "NET HELPMSG ([0-9]{4})";
-    private final String WINDOWS_CMD_REG_QUERY = "cmd /c REG QUERY HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v \"Mirth Connect Server Manager\"";
-    private final String WINDOWS_CMD_REG_DELETE = "cmd /c REG DELETE HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /f /v \"Mirth Connect Server Manager\"";
-    private final String WINDOWS_CMD_REG_ADD = "cmd /c REG ADD HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /f /v \"Mirth Connect Server Manager\" /d ";
+    private final String WINDOWS_CMD_REG_QUERY = "REG QUERY HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /v \"Mirth Connect Server Manager\"";
+    private final String WINDOWS_CMD_REG_DELETE = "REG DELETE HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /f /v \"Mirth Connect Server Manager\"";
+    private final String WINDOWS_CMD_REG_ADD = "REG ADD HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run /f /v \"Mirth Connect Server Manager\" /d ";
    
     @Override
     public int checkService() {
@@ -119,6 +119,11 @@ public class WindowsServiceController implements ServiceController {
         } else {
             return false;
         }
+    }
+    
+    @Override
+    public String getCommand() {
+    	return "cmd /c";
     }
 
 }
