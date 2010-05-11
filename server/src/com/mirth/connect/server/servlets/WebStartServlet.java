@@ -116,6 +116,13 @@ public class WebStartServlet extends HttpServlet {
 				
 				resourcesElement.appendChild(jarElement);
 			}
+			
+			// Add the property element after jars.  Adding the endorsed
+			// dir was for jaxb (no longer present) and possibly xercesImpl.
+			Element propertyElement = document.createElement("property");
+			propertyElement.setAttribute("name", "java.endorsed.dirs");
+			propertyElement.setAttribute("value", "client-lib/");
+			resourcesElement.appendChild(propertyElement);
 
 			out.println(docSerializer.toXML(document));
 		} catch (Exception e) {
