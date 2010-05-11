@@ -3247,40 +3247,6 @@ public class Frame extends JXFrame {
         worker.execute();
     }
 
-    public void doRemoveAllMessagesAllChannels() {
-        if (alertOption(this, "Are you sure you would like to remove all messages and all statistics for all channels?")) {
-            setWorking("Removing messages...", true);
-
-            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-                public Void doInBackground() {
-                    for (int i = 0; i < status.size(); i++) {
-                        try {
-                            mirthClient.clearMessages(status.get(i).getChannelId());
-                        } catch (ClientException e) {
-                            alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                        }
-
-                    }
-                    setWorking("", false);
-                    setWorking("Clearing statistics...", true);
-                    clearStats(status, true, true, true, true, true, true);
-                    setWorking("", false);
-
-                    return null;
-                }
-
-                public void done() {
-                    doRefreshStatuses();
-
-                }
-            };
-
-            worker.execute();
-        }
-
-    }
-
     public void doRemoveAllMessages() {
         if (alertOption(this, "Are you sure you would like to remove all messages in this channel?")) {
             final boolean clearStats = alertOption(PlatformUI.MIRTH_FRAME, "Would you also like to clear all statistics?");
