@@ -21,10 +21,10 @@ public class ServiceControllerFactory {
                     serviceController = new WindowsServiceController();
                 } else if (os.indexOf("mac") >= 0) {
                     serviceController = new MacServiceController();
-                } else if (os.indexOf("nix") >= 0) {
+                } else if ((os.indexOf("nix") >= 0) || (os.indexOf("nux") >= 0)) {
                     serviceController = new LinuxServiceController();
                 } else {
-                    throw new Exception("Operating system must be Windows, Mac, or Linux.");
+                    throw new Exception("Operating system must be Windows, Mac, or Unix/Linux.");
                 }
             }
 
