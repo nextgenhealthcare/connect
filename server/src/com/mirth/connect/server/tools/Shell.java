@@ -35,6 +35,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.lang.exception.ExceptionUtils;
 
 import com.mirth.connect.client.core.Client;
 import com.mirth.connect.client.core.ClientException;
@@ -52,7 +53,6 @@ import com.mirth.connect.model.ChannelStatus.State;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.SystemEventFilter;
 import com.mirth.connect.model.util.ImportConverter;
-import com.mirth.connect.server.util.StackTracePrinter;
 import com.mirth.connect.util.PropertyVerifier;
 
 public class Shell {
@@ -183,7 +183,7 @@ public class Shell {
         err.println("Error: " + message);
 
         if ((e != null) && debug) {
-            err.println(StackTracePrinter.stackTraceToString(e));
+            err.println(ExceptionUtils.getFullStackTrace(e));
         }
     }
 

@@ -986,7 +986,7 @@ public class ImportConverter {
         }
 
         if (transformerTemplate != null)
-            transformerRoot.removeChild((Node) transformerTemplate);
+            transformerRoot.removeChild(transformerTemplate);
 
     }
 
