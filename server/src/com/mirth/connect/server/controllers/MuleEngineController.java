@@ -20,6 +20,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
 
+import javax.management.InstanceNotFoundException;
+
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
@@ -198,9 +200,19 @@ public class MuleEngineController implements EngineController {
 
         descriptor.setInitialState(initialState);
         descriptor.setExceptionListener(new ExceptionStrategy());
-        configureInboundRouter(descriptor, channel);
-        configureOutboundRouter(descriptor, channel);
-        muleManager.getModel().registerComponent(descriptor);
+
+        /*
+         * If any of the endpoints/connectors fail to register, we want to
+         * continue so that the descriptor is still registered.
+         */
+        try {
+            configureInboundRouter(descriptor, channel);
+            configureOutboundRouter(descriptor, channel);
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            muleManager.getModel().registerComponent(descriptor);
+        }
 
         // register its mbean
         if (muleManager.isStarted()) {
@@ -575,6 +587,8 @@ public class MuleEngineController implements EngineController {
         // unregister its mbean
         try {
             jmxAgent.unregisterComponentService(channelId);
+        } catch (InstanceNotFoundException infe) {
+            logger.warn(infe);
         } catch (Exception e) {
             logger.error("Error unregistering component service: channelId=" + channelId, e);
         }
