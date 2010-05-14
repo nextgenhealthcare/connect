@@ -27,7 +27,7 @@ public class MirthHeadingPanel extends javax.swing.JPanel {
     }
 
     protected void paintComponent(Graphics g) {
-        g.drawImage(new ImageIcon(this.getClass().getResource("images/header_nologo.png")).getImage(), 0, 0, null);
+        g.drawImage(new ImageIcon(this.getClass().getResource("images/header_nologo.png")).getImage(), 0, 0, this.getWidth(), this.getHeight(), null);
         super.paintComponent(g);
     }
 

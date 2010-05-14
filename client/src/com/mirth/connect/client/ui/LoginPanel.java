@@ -147,7 +147,7 @@ public class LoginPanel extends javax.swing.JFrame {
 
         jLabel3.setText("Username:");
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18));
+        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(255, 255, 255));
         jLabel2.setText("Mirth Connect Administrator Login");
 
@@ -157,8 +157,8 @@ public class LoginPanel extends javax.swing.JFrame {
             mirthHeadingPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mirthHeadingPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(46, Short.MAX_VALUE))
+                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 358, Short.MAX_VALUE)
+                .addContainerGap())
         );
         mirthHeadingPanel2Layout.setVerticalGroup(
             mirthHeadingPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

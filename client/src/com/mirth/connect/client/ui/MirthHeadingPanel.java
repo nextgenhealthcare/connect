@@ -27,7 +27,7 @@ public class MirthHeadingPanel extends javax.swing.JPanel {
     protected void paintComponent(Graphics g) {
         // Dispaly image at at full size
         if (PlatformUI.BACKGROUND_IMAGE != null) {
-            g.drawImage(PlatformUI.BACKGROUND_IMAGE.getImage(), 0, 0, null);
+            g.drawImage(PlatformUI.BACKGROUND_IMAGE.getImage(), 0, 0, this.getWidth(), this.getHeight(), null);
         }
         super.paintComponent(g);
     }

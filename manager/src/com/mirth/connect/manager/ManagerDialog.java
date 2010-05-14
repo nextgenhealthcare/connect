@@ -177,7 +177,7 @@ public class ManagerDialog extends javax.swing.JDialog {
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
 
-        headingLabel.setFont(new java.awt.Font("Tahoma", 1, 18));
+        headingLabel.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         headingLabel.setForeground(new java.awt.Color(255, 255, 255));
         headingLabel.setText("Mirth Connect Server Manager");
 
@@ -187,8 +187,8 @@ public class ManagerDialog extends javax.swing.JDialog {
             headingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(headingLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(headingLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 304, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(75, Short.MAX_VALUE))
+                .addComponent(headingLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE)
+                .addContainerGap())
         );
         headingLayout.setVerticalGroup(
             headingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -236,6 +236,7 @@ public class ManagerDialog extends javax.swing.JDialog {
 
         startup.setBackground(new java.awt.Color(255, 255, 255));
         startup.setText("Start Mirth Connect Server Manager on system startup");
+        startup.setToolTipText("Starts this application when logging into the operating system. Currently only enabled for Windows.");
         startup.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 startupActionPerformed(evt);
@@ -256,25 +257,23 @@ public class ManagerDialog extends javax.swing.JDialog {
         serviceButtonContainerLayout.setHorizontalGroup(
             serviceButtonContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(serviceButtonContainerLayout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(serviceButtonContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(serviceButtonContainerLayout.createSequentialGroup()
-                        .addComponent(startButton)
-                        .addGap(10, 10, 10)
-                        .addComponent(jLabel11))
-                    .addGroup(serviceButtonContainerLayout.createSequentialGroup()
-                        .addComponent(restartButton)
-                        .addGap(10, 10, 10)
-                        .addComponent(jLabel13))
-                    .addGroup(serviceButtonContainerLayout.createSequentialGroup()
-                        .addComponent(refreshServiceButton)
+                        .addContainerGap()
+                        .addGroup(serviceButtonContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(startButton)
+                            .addComponent(restartButton)
+                            .addComponent(refreshServiceButton)
+                            .addComponent(stopButton, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel20))
+                        .addGroup(serviceButtonContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel12)
+                            .addComponent(jLabel20)
+                            .addComponent(jLabel13)
+                            .addComponent(jLabel11)))
                     .addGroup(serviceButtonContainerLayout.createSequentialGroup()
-                        .addComponent(stopButton, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(10, 10, 10)
-                        .addComponent(jLabel12))
-                    .addComponent(startup))
+                        .addComponent(startup)))
                 .addContainerGap(26, Short.MAX_VALUE))
         );
 
