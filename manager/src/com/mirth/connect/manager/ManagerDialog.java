@@ -177,7 +177,7 @@ public class ManagerDialog extends javax.swing.JDialog {
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
 
-        headingLabel.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        headingLabel.setFont(new java.awt.Font("Tahoma", 1, 18));
         headingLabel.setForeground(new java.awt.Color(255, 255, 255));
         headingLabel.setText("Mirth Connect Server Manager");
 
@@ -198,6 +198,7 @@ public class ManagerDialog extends javax.swing.JDialog {
                 .addContainerGap())
         );
 
+        tabPanel.setBackground(new java.awt.Color(255, 255, 255));
         tabPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         tabPanel.setFocusable(false);
 
