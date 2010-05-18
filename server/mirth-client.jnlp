@@ -6,6 +6,7 @@
 		<description>Open Source Healthcare Integration Engine</description>
 		
 		<icon href="mirth_128_ico.png"/>
+		<icon href="mirthconnectlogowide.png" kind="splash"/> 
 		
 		<offline-allowed/>
 
