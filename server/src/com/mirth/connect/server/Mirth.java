@@ -206,7 +206,7 @@ public class Mirth extends Thread {
         startEngine();
     }
 
-    private void deployChannels(List<Channel> channels) {
+    private List<String> deployChannels(List<Channel> channels) {
         try {
             // unregister existing channels
             for (Channel channel : channels) {
@@ -219,19 +219,21 @@ public class Mirth extends Thread {
             resetGlobalChannelVariableStore(channels);
 
             // update the manager with the new classes
-            managerBuilder.deployChannels(channels, extensionController.getConnectorMetaData());
-
+            List<String> failedChannelIds = managerBuilder.deployChannels(channels, extensionController.getConnectorMetaData());
             List<String> channelIds = new ArrayList<String>();
 
+            // only run the deploy scripts for enabled and non-failed channels
             for (Channel channel : channelController.getChannel(null)) {
-                if (channel.isEnabled()) {
+                if (channel.isEnabled() && !failedChannelIds.contains(channel.getId())) {
                     channelIds.add(channel.getId());
                 }
             }
 
             configurationController.executeChannelDeployScripts(channelIds);
+            return failedChannelIds;
         } catch (Exception e) {
             logger.error("Error deploying channels.", e);
+            return null;
         }
     }
 
@@ -284,8 +286,9 @@ public class Mirth extends Thread {
             configurationController.compileScripts(channels);
             configurationController.executeGlobalDeployScript();
             managerBuilder.resetConfiguration();
-            deployChannels(channels);
+            List<String> failedChannels = deployChannels(channels);
             managerBuilder.start();
+            undeployChannels(failedChannels);
         } catch (Exception e) {
             logger.error("Error starting engine.", e);
             // if deploy fails, log to system events

@@ -19,7 +19,7 @@ public interface EngineController {
 
     public void resetConfiguration() throws Exception;
 
-    public void deployChannels(List<Channel> channels, Map<String, ConnectorMetaData> transports) throws Exception;
+    public List<String> deployChannels(List<Channel> channels, Map<String, ConnectorMetaData> transports) throws Exception;
 
     public void unregisterChannel(String channelId) throws Exception;
 

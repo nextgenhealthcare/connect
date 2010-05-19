@@ -161,32 +161,51 @@ public class MuleEngineController implements EngineController {
         muleManager.registerAgent(jmxAgent);
     }
 
-    public void deployChannels(List<Channel> channels, Map<String, ConnectorMetaData> transports) throws Exception {
+    public List<String> deployChannels(List<Channel> channels, Map<String, ConnectorMetaData> transports) throws Exception {
         this.transports = transports;
 
         if ((channels == null) || (transports == null)) {
             throw new Exception("Invalid channel or transport list.");
         }
 
+        List<String> failedChannelIds = new ArrayList<String>();
+
         for (Channel channel : channels) {
             if (channel.isEnabled()) {
                 try {
-                    registerChannel(channel);
+                    if (!registerChannel(channel)) {
+                        failedChannelIds.add(channel.getId());
+                    }
                 } catch (Exception re) {
                     logger.error("Error registering channel.", re);
-
-                    try {
-                        unregisterChannel(channel.getId());
-                    } catch (Exception ue) {
-                        logger.error("Error unregistering channel after failed deploy.", ue);
-                    }
+                    failedChannelIds.add(channel.getId());
                 }
             }
         }
+
+        /*
+         * XXX: Unregister the failed channels if the engine is started.
+         * Otherwise, the list of failed channel ids is returned to the
+         * Mirth#startEngine method so that the channels can be unregistered
+         * once the engine has started.
+         */
+        if (muleManager.isStarted()) {
+            for (String channelId : failedChannelIds) {
+                try {
+                    unregisterChannel(channelId);
+                } catch (Exception ue) {
+                    logger.error("Error unregistering channel after failed deploy.", ue);
+                }
+            }
+        }
+
+        return failedChannelIds;
     }
 
-    private void registerChannel(Channel channel) throws Exception {
+    private boolean registerChannel(Channel channel) throws Exception {
         logger.debug("registering descriptor for channel: " + channel.getId());
+
+        boolean registrationSuccessful = true;
         UMODescriptor descriptor = new MuleDescriptor();
         descriptor.setImplementation(Class.forName("com.mirth.connect.server.mule.components.Channel").newInstance());
         descriptor.setName(channel.getId());
@@ -207,14 +226,21 @@ public class MuleEngineController implements EngineController {
          */
         try {
             configureInboundRouter(descriptor, channel);
-            configureOutboundRouter(descriptor, channel);
         } catch (Exception e) {
-            throw e;
-        } finally {
-            muleManager.getModel().registerComponent(descriptor);
+            logger.error("Failed to configure inbound router.", e);
+            registrationSuccessful = false;
         }
 
-        // register its mbean
+        try {
+            configureOutboundRouter(descriptor, channel);
+        } catch (Exception e) {
+            logger.error("Failed to configure outbound router.", e);
+            registrationSuccessful = false;
+        }
+
+        muleManager.getModel().registerComponent(descriptor);
+
+        // register its mbean (if the server is started)
         if (muleManager.isStarted()) {
             jmxAgent.registerComponentService(descriptor.getName());
 
@@ -229,6 +255,8 @@ public class MuleEngineController implements EngineController {
             // Register all of the endpoint services for the given connectors
             jmxAgent.registerEndpointServices(endpointNames);
         }
+
+        return registrationSuccessful;
     }
 
     private void configureInboundRouter(UMODescriptor descriptor, Channel channel) throws Exception {
