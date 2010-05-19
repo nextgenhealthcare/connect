@@ -49,7 +49,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
-import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 
 import org.apache.log4j.Logger;
@@ -163,7 +162,6 @@ public class Frame extends JXFrame {
     public ArrayList<ConnectorClass> sourceConnectors;
     public ArrayList<ConnectorClass> destinationConnectors;
     private Thread statusUpdater;
-    private Border dsb;
     public static Preferences userPreferences;
     private StatusUpdater su;
     private boolean connectionError;
@@ -179,7 +177,6 @@ public class Frame extends JXFrame {
     private Map<String, Integer> safeErrorFailCountMap = new HashMap<String, Integer>();
 
     public Frame() {
-        dsb = BorderFactory.createEmptyBorder();
         rightContainer = new JXTitledPanel();
         channels = new HashMap<String, Channel>();
 
