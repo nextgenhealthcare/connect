@@ -24,7 +24,7 @@ public interface EngineController {
     public void unregisterChannel(String channelId) throws Exception;
 
     public boolean isChannelRegistered(String channelId) throws Exception;
-    
+
     public List<String> getDeployedChannelIds() throws Exception;
 
     public void start() throws Exception;

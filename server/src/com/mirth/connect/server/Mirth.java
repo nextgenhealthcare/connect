@@ -513,7 +513,7 @@ public class Mirth extends Thread {
     private void printSplashScreen() {
         String version = PropertyLoader.getProperty(versionProperties, "mirth.version");
         String buildDate = PropertyLoader.getProperty(versionProperties, "mirth.date");
-        
+
         logger.info("Mirth Connect " + version + " (" + buildDate + ") server successfully started: " + (new Date()).toString());
         logger.info("This product was developed by Mirth Corporation (http://www.mirthcorp.com) and its contributors (c)2005-" + Calendar.getInstance().get(Calendar.YEAR) + ".");
         logger.info("Running Java " + System.getProperty("java.version") + " on " + System.getProperty("os.name") + " (" + System.getProperty("os.version") + ", " + System.getProperty("os.arch") + ") with charset " + Charset.defaultCharset() + ".");
