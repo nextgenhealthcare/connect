@@ -26,17 +26,13 @@ import org.apache.log4j.Logger;
 
 import com.sun.rowset.CachedRowSetImpl;
 
-/**
- * A DatabaseConnection provides a connection to the internal Mirth database.
- * 
- */
 public class DatabaseConnection {
     private Logger logger = Logger.getLogger(this.getClass());
     private Connection connection;
     private String address;
 
     /**
-     * Initiliazes a database connection.
+     * Initiliazes a database connection with the server address.
      * 
      * @throws SQLException
      */
@@ -47,7 +43,8 @@ public class DatabaseConnection {
     }
 
     /**
-     * Initiliazes a database connection.
+     * Initiliazes a database connection with the server address and connection
+     * arguments.
      * 
      * @throws SQLException
      */
@@ -58,34 +55,12 @@ public class DatabaseConnection {
     }
 
     /**
-     * Returns the database address.
+     * Returns the server address.
      * 
      * @return
      */
     public String getAddress() {
-        return this.address;
-    }
-
-    /**
-     * Executes a query on the database and returns a ResultSet.
-     * 
-     * @param expression
-     *            the query expression to be executed.
-     * @return the result of the query.
-     * @throws SQLException
-     */
-    public ResultSet executeQuery(String expression) throws SQLException {
-        Statement statement = null;
-
-        try {
-            statement = connection.createStatement();
-            logger.debug("executing query:\n" + expression);
-            return statement.executeQuery(expression);
-        } catch (SQLException e) {
-            throw e;
-        } finally {
-            DbUtils.closeQuietly(statement);
-        }
+        return address;
     }
 
     /**
@@ -115,10 +90,10 @@ public class DatabaseConnection {
     }
 
     /**
-     * Executes an update on the database and returns the row count.
+     * Executes an INSERT/UPDATE on the database and returns the row count.
      * 
      * @param expression
-     *            the update query to be executed.
+     *            the statement to be executed.
      * @return a count of the number of updated rows.
      * @throws SQLException
      */
@@ -128,8 +103,8 @@ public class DatabaseConnection {
         try {
             statement = connection.createStatement();
             logger.debug("executing update:\n" + expression);
-            boolean results = statement.execute(expression);
-            if (results) {
+
+            if (statement.execute(expression)) {
                 return -1;
             } else {
                 return statement.getUpdateCount();
@@ -167,11 +142,10 @@ public class DatabaseConnection {
                 statement.setObject(index, value);
             }
 
-            boolean results = statement.execute();
-            if (results) {
+            if (statement.execute()) {
                 return -1;
             } else {
-            	return statement.getUpdateCount();
+                return statement.getUpdateCount();
             }
         } catch (SQLException e) {
             throw e;
@@ -180,50 +154,6 @@ public class DatabaseConnection {
         }
     }
 
-    /**
-     * Executes a prepared statement on the database and returns the row count.
-     * 
-     * @param expression
-     *            the prepared statement to be executed
-     * @param parameters
-     *            the parameteres for the prepared statement
-     * @return a count of the number of updated rows.
-     * @throws SQLException
-     */
-    public ResultSet executeQuery(String expression, List<Object> parameters) throws SQLException {
-        PreparedStatement statement = null;
-
-        try {
-            statement = connection.prepareStatement(expression);
-            logger.debug("executing prepared statement:\n" + expression);
-
-            ListIterator<Object> iterator = parameters.listIterator();
-
-            while (iterator.hasNext()) {
-                int index = iterator.nextIndex() + 1;
-                Object value = iterator.next();
-                logger.debug("adding parameter: index=" + index + ", value=" + value);
-                statement.setObject(index, value);
-            }
-
-            return statement.executeQuery();
-        } catch (SQLException e) {
-            throw e;
-        } finally {
-            DbUtils.closeQuietly(statement);
-        }
-    }
-
-    /**
-     * Executes a prepared statement on the database and returns the row count.
-     * 
-     * @param expression
-     *            the prepared statement to be executed
-     * @param parameters
-     *            the parameteres for the prepared statement
-     * @return a count of the number of updated rows.
-     * @throws SQLException
-     */
     public CachedRowSet executeCachedQuery(String expression, List<Object> parameters) throws SQLException {
         PreparedStatement statement = null;
 
@@ -239,6 +169,7 @@ public class DatabaseConnection {
                 logger.debug("adding parameter: index=" + index + ", value=" + value);
                 statement.setObject(index, value);
             }
+
             ResultSet result = statement.executeQuery();
             CachedRowSetImpl crs = new CachedRowSetImpl();
             crs.populate(result);
@@ -257,12 +188,7 @@ public class DatabaseConnection {
      */
     public void close() {
         try {
-            if ((connection != null) && (!connection.isClosed())) {
-                logger.debug("closing database connection");
-                connection.close();
-            } else {
-                logger.warn("connection is null or already closed");
-            }
+            DbUtils.close(connection);
         } catch (SQLException e) {
             logger.warn(e);
         }
@@ -299,23 +225,16 @@ public class DatabaseConnection {
         connection.commit();
     }
 
-    /**
-     * Executes an update on the database and returns a ResultSet containing the
-     * generated keys.
-     * 
-     * @param expression
-     *            the update query to be executed.
-     * @return a count of the number of updated rows.
-     * @throws SQLException
-     */
-    public ResultSet executeUpdateAndReturnGeneratedKeys(String expression) throws SQLException {
+    public CachedRowSet executeUpdateAndGetGeneratedKeys(String expression) throws SQLException {
         Statement statement = null;
 
         try {
             statement = connection.createStatement();
             logger.debug("executing update:\n" + expression);
             statement.executeUpdate(expression);
-            return statement.getGeneratedKeys();
+            CachedRowSetImpl crs = new CachedRowSetImpl();
+            crs.populate(statement.getGeneratedKeys());
+            return crs;
         } catch (SQLException e) {
             throw e;
         } finally {
@@ -323,18 +242,7 @@ public class DatabaseConnection {
         }
     }
 
-    /**
-     * Executes a prepared statement on the database and returns a ResultSet
-     * containing the generated keys.
-     * 
-     * @param expression
-     *            the prepared statement to be executed
-     * @param parameters
-     *            the parameteres for the prepared statement
-     * @return a count of the number of updated rows.
-     * @throws SQLException
-     */
-    public ResultSet executeUpdateAndGetGeneratedKeys(String expression, List<Object> parameters) throws SQLException {
+    public CachedRowSet executeUpdateAndGetGeneratedKeys(String expression, List<Object> parameters) throws SQLException {
         PreparedStatement statement = null;
 
         try {
@@ -351,22 +259,24 @@ public class DatabaseConnection {
             }
 
             statement.executeUpdate();
-            return statement.getGeneratedKeys();
+            CachedRowSetImpl crs = new CachedRowSetImpl();
+            crs.populate(statement.getGeneratedKeys());
+            return crs;
         } catch (SQLException e) {
             throw e;
         } finally {
             DbUtils.closeQuietly(statement);
         }
     }
-    
+
     /**
-     * Returns the database connection (java.sql.Connection) this
-     * class is using.
+     * Returns the database connection (java.sql.Connection) this class is
+     * using.
      * 
      * @return connection
      */
     public Connection getConnection() {
-    	return this.connection;
+        return this.connection;
     }
 
 }
