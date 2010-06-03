@@ -42,15 +42,13 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 
 	private QueueEnabledMessageDispatcher dispatcher;
 
-	public static final String PROPERTY_ROTATE_QUEUE = "rotateQueue";
-	public static final long DEFAULT_POLLING_FREQUENCY = 10;
-
 	private String connectorErrorCode;
 	private boolean rotateQueue = false;
 	private boolean usePersistentQueues = false;
 	private long pollMaxTime = 10000;
 	private int maxQueues = 16;
 	private int reconnectMillisecs = 10000;
+	private int queuePollInterval = 200;
 	private QueueProfile queueProfile;
 
 	private Thread queueThread = null;
@@ -172,7 +170,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 						logger.debug("queue size = " + queue.size());
 						
 						if(queue.size() == 0) {
-							Thread.sleep(getReconnectMillisecs());
+							Thread.sleep(queuePollInterval);
 						} else {
 							// If the endpoint is active, try to send without
 							// waiting
@@ -399,7 +397,15 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 		this.reconnectMillisecs = reconnectMillisecs;
 	}
 
-	public QueueEnabledMessageDispatcher getDispatcher() {
+	public int getQueuePollInterval() {
+        return queuePollInterval;
+    }
+
+    public void setQueuePollInterval(int queuePollInterval) {
+        this.queuePollInterval = queuePollInterval;
+    }
+
+    public QueueEnabledMessageDispatcher getDispatcher() {
 		return dispatcher;
 	}
 

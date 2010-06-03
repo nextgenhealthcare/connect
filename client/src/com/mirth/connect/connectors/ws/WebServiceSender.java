@@ -43,6 +43,7 @@ import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.Mirth;
 import com.mirth.connect.client.ui.UIConstants;
+import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.connectors.ConnectorClass;
 import com.mirth.connect.model.Channel;
@@ -68,6 +69,10 @@ public class WebServiceSender extends ConnectorClass {
     public WebServiceSender() {
         name = WebServiceSenderProperties.name;
         initComponents();
+
+        reconnectIntervalField.setDocument(new MirthFieldConstraints(0, false, false, true));
+        queuePollIntervalField.setDocument(new MirthFieldConstraints(0, false, false, true));
+
         SyntaxDocument document = new SyntaxDocument();
         document.setTokenMarker(new XMLTokenMarker());
         soapEnvelope.setDocument(document);
@@ -81,7 +86,8 @@ public class WebServiceSender extends ConnectorClass {
         properties.put(WebServiceSenderProperties.WEBSERVICE_WSDL_CACHE_ID, wsdlCacheId);
 
         // Queue properties
-        properties.put(QueuedSenderProperties.RECONNECT_INTERVAL, reconnectInterval.getText());
+        properties.put(QueuedSenderProperties.QUEUE_POLL_INTERVAL, queuePollIntervalField.getText());
+        properties.put(QueuedSenderProperties.RECONNECT_INTERVAL, reconnectIntervalField.getText());
 
         if (usePersistentQueuesYesRadio.isSelected()) {
             properties.put(QueuedSenderProperties.USE_PERSISTENT_QUEUES, UIConstants.YES_OPTION);
@@ -89,7 +95,7 @@ public class WebServiceSender extends ConnectorClass {
             properties.put(QueuedSenderProperties.USE_PERSISTENT_QUEUES, UIConstants.NO_OPTION);
         }
 
-        if (rotateMessages.isSelected()) {
+        if (rotateMessagesCheckBox.isSelected()) {
             properties.put(QueuedSenderProperties.ROTATE_QUEUE, UIConstants.YES_OPTION);
         } else {
             properties.put(QueuedSenderProperties.ROTATE_QUEUE, UIConstants.NO_OPTION);
@@ -169,7 +175,8 @@ public class WebServiceSender extends ConnectorClass {
         passwordField.setText(props.getProperty(WebServiceSenderProperties.WEBSERVICE_PASSWORD));
 
         // Queue properties
-        reconnectInterval.setText((String) props.get(QueuedSenderProperties.RECONNECT_INTERVAL));
+        queuePollIntervalField.setText((String) props.get(QueuedSenderProperties.QUEUE_POLL_INTERVAL));
+        reconnectIntervalField.setText((String) props.get(QueuedSenderProperties.RECONNECT_INTERVAL));
 
         if (((String) props.get(QueuedSenderProperties.USE_PERSISTENT_QUEUES)).equals(UIConstants.YES_OPTION)) {
             usePersistentQueuesYesRadio.setSelected(true);
@@ -180,9 +187,9 @@ public class WebServiceSender extends ConnectorClass {
         }
 
         if (((String) props.get(QueuedSenderProperties.ROTATE_QUEUE)).equals(UIConstants.YES_OPTION)) {
-            rotateMessages.setSelected(true);
+            rotateMessagesCheckBox.setSelected(true);
         } else {
-            rotateMessages.setSelected(false);
+            rotateMessagesCheckBox.setSelected(false);
         }
         // End of queue properties
 
@@ -287,10 +294,20 @@ public class WebServiceSender extends ConnectorClass {
             }
         }
 
-        if (((String) props.get(QueuedSenderProperties.USE_PERSISTENT_QUEUES)).equals(UIConstants.YES_OPTION) && ((String) props.get(QueuedSenderProperties.RECONNECT_INTERVAL)).length() == 0) {
-            valid = false;
-            if (highlight) {
-                reconnectInterval.setBackground(UIConstants.INVALID_COLOR);
+        if (((String) props.get(QueuedSenderProperties.USE_PERSISTENT_QUEUES)).equals(UIConstants.YES_OPTION)) {
+
+            if (((String) props.get(QueuedSenderProperties.RECONNECT_INTERVAL)).length() == 0) {
+                valid = false;
+                if (highlight) {
+                    reconnectIntervalField.setBackground(UIConstants.INVALID_COLOR);
+                }
+            }
+
+            if (((String) props.get(QueuedSenderProperties.QUEUE_POLL_INTERVAL)).length() == 0) {
+                valid = false;
+                if (highlight) {
+                    queuePollIntervalField.setBackground(UIConstants.INVALID_COLOR);
+                }
             }
         }
 
@@ -302,7 +319,8 @@ public class WebServiceSender extends ConnectorClass {
         serviceField.setBackground(new java.awt.Color(222, 222, 222));
         portField.setBackground(new java.awt.Color(222, 222, 222));
         soapEnvelope.setBackground(null);
-        reconnectInterval.setBackground(null);
+        queuePollIntervalField.setBackground(null);
+        reconnectIntervalField.setBackground(null);
     }
 
     public String doValidate(Properties props, boolean highlight) {
@@ -635,10 +653,10 @@ public class WebServiceSender extends ConnectorClass {
         generateEnvelope = new javax.swing.JButton();
         channelNames = new com.mirth.connect.client.ui.components.MirthComboBox();
         URL1 = new javax.swing.JLabel();
-        rotateMessages = new com.mirth.connect.client.ui.components.MirthCheckBox();
+        rotateMessagesCheckBox = new com.mirth.connect.client.ui.components.MirthCheckBox();
         usePersistentQueuesNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         usePersistentQueuesYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
-        reconnectInterval = new com.mirth.connect.client.ui.components.MirthTextField();
+        reconnectIntervalField = new com.mirth.connect.client.ui.components.MirthTextField();
         reconnectIntervalLabel = new javax.swing.JLabel();
         jLabel36 = new javax.swing.JLabel();
         attachmentsLabel = new javax.swing.JLabel();
@@ -659,6 +677,8 @@ public class WebServiceSender extends ConnectorClass {
         useMtomLabel = new javax.swing.JLabel();
         useMtomYesRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
         useMtomNoRadio = new com.mirth.connect.client.ui.components.MirthRadioButton();
+        queuePollIntervalLabel = new javax.swing.JLabel();
+        queuePollIntervalField = new com.mirth.connect.client.ui.components.MirthTextField();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
@@ -706,9 +726,9 @@ public class WebServiceSender extends ConnectorClass {
 
         URL1.setText("Send Response to:");
 
-        rotateMessages.setBackground(new java.awt.Color(255, 255, 255));
-        rotateMessages.setText("Rotate Messages in Queue");
-        rotateMessages.setToolTipText("<html>If checked, upon unsuccessful re-try, it will rotate and put the queued message to the back of the queue<br> in order to prevent it from clogging the queue and to let the other subsequent messages in queue be processed.<br>If the order of messages processed is important, this should be unchecked.</html>");
+        rotateMessagesCheckBox.setBackground(new java.awt.Color(255, 255, 255));
+        rotateMessagesCheckBox.setText("Rotate Messages in Queue");
+        rotateMessagesCheckBox.setToolTipText("<html>If checked, upon unsuccessful re-try, it will rotate and put the queued message to the back of the queue<br> in order to prevent it from clogging the queue and to let the other subsequent messages in queue be processed.<br>If the order of messages processed is important, this should be unchecked.</html>");
 
         usePersistentQueuesNoRadio.setBackground(new java.awt.Color(255, 255, 255));
         usePersistentQueuesNoRadio.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -735,7 +755,7 @@ public class WebServiceSender extends ConnectorClass {
             }
         });
 
-        reconnectInterval.setToolTipText("<html>The amount of time that should elapse between attempts to send messages in the queue.</html>");
+        reconnectIntervalField.setToolTipText("<html>The amount of time that should elapse between retry attempts to send messages in the queue.</html>");
 
         reconnectIntervalLabel.setText("Reconnect Interval (ms):");
 
@@ -853,29 +873,35 @@ public class WebServiceSender extends ConnectorClass {
             }
         });
 
+        queuePollIntervalLabel.setText("Queue Poll Interval (ms):");
+
+        queuePollIntervalField.setToolTipText("<html>The amount of time that should elapse between polls of an empty queue to check for queued messages.</html>");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(useMtomLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(attachmentsLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(invocationTypeLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(reconnectIntervalLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel36, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(URL1, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(passwordLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(usernameLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(authenticationLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(portLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(serviceLabel, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(wsdlUrlLabel, javax.swing.GroupLayout.Alignment.TRAILING))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(useMtomLabel)
+                    .addComponent(attachmentsLabel)
+                    .addComponent(jLabel4)
+                    .addComponent(jLabel1)
+                    .addComponent(invocationTypeLabel)
+                    .addComponent(reconnectIntervalLabel)
+                    .addComponent(jLabel36)
+                    .addComponent(URL1)
+                    .addComponent(passwordLabel)
+                    .addComponent(usernameLabel)
+                    .addComponent(authenticationLabel)
+                    .addComponent(portLabel)
+                    .addComponent(serviceLabel)
+                    .addComponent(wsdlUrlLabel)
+                    .addComponent(queuePollIntervalLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(queuePollIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(authenticationYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -894,13 +920,13 @@ public class WebServiceSender extends ConnectorClass {
                                 .addComponent(operationComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(generateEnvelope))
-                            .addComponent(reconnectInterval, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(reconnectIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(usePersistentQueuesYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(usePersistentQueuesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(rotateMessages, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(rotateMessagesCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(channelNames, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(64, 64, 64))
                     .addComponent(soapEnvelope, javax.swing.GroupLayout.DEFAULT_SIZE, 402, Short.MAX_VALUE)
@@ -957,11 +983,15 @@ public class WebServiceSender extends ConnectorClass {
                     .addComponent(jLabel36)
                     .addComponent(usePersistentQueuesYesRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(usePersistentQueuesNoRadio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(rotateMessages, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(rotateMessagesCheckBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(queuePollIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(queuePollIntervalLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(reconnectIntervalLabel)
-                    .addComponent(reconnectInterval, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(reconnectIntervalField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(invocationTypeLabel)
@@ -974,7 +1004,7 @@ public class WebServiceSender extends ConnectorClass {
                     .addComponent(generateEnvelope))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(soapEnvelope, javax.swing.GroupLayout.DEFAULT_SIZE, 124, Short.MAX_VALUE)
+                    .addComponent(soapEnvelope, javax.swing.GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE)
                     .addComponent(jLabel4))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -994,14 +1024,18 @@ public class WebServiceSender extends ConnectorClass {
     }// </editor-fold>//GEN-END:initComponents
 
 private void usePersistentQueuesNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usePersistentQueuesNoRadioActionPerformed
-    rotateMessages.setEnabled(false);
-    reconnectInterval.setEnabled(false);
+    rotateMessagesCheckBox.setEnabled(false);
+    queuePollIntervalLabel.setEnabled(false);
+    queuePollIntervalField.setEnabled(false);
+    reconnectIntervalField.setEnabled(false);
     reconnectIntervalLabel.setEnabled(false);
 }//GEN-LAST:event_usePersistentQueuesNoRadioActionPerformed
 
 private void usePersistentQueuesYesRadioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usePersistentQueuesYesRadioActionPerformed
-    rotateMessages.setEnabled(true);
-    reconnectInterval.setEnabled(true);
+    rotateMessagesCheckBox.setEnabled(true);
+    queuePollIntervalLabel.setEnabled(true);
+    queuePollIntervalField.setEnabled(true);
+    reconnectIntervalField.setEnabled(true);
     reconnectIntervalLabel.setEnabled(true);
 }//GEN-LAST:event_usePersistentQueuesYesRadioActionPerformed
 
@@ -1190,9 +1224,11 @@ private void useMtomNoRadioActionPerformed(java.awt.event.ActionEvent evt) {//GE
     private javax.swing.JLabel passwordLabel;
     private com.mirth.connect.client.ui.components.MirthTextField portField;
     private javax.swing.JLabel portLabel;
-    private com.mirth.connect.client.ui.components.MirthTextField reconnectInterval;
+    private com.mirth.connect.client.ui.components.MirthTextField queuePollIntervalField;
+    private javax.swing.JLabel queuePollIntervalLabel;
+    private com.mirth.connect.client.ui.components.MirthTextField reconnectIntervalField;
     private javax.swing.JLabel reconnectIntervalLabel;
-    private com.mirth.connect.client.ui.components.MirthCheckBox rotateMessages;
+    private com.mirth.connect.client.ui.components.MirthCheckBox rotateMessagesCheckBox;
     private com.mirth.connect.client.ui.components.MirthTextField serviceField;
     private javax.swing.JLabel serviceLabel;
     private com.mirth.connect.client.ui.components.MirthSyntaxTextArea soapEnvelope;

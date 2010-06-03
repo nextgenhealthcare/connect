@@ -36,9 +36,9 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="useMtomLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="attachmentsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel4" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -53,9 +53,11 @@
                   <Component id="portLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="serviceLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                   <Component id="wsdlUrlLabel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="queuePollIntervalLabel" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="queuePollIntervalField" alignment="0" min="-2" pref="75" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="authenticationYesRadio" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -77,13 +79,13 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="generateEnvelope" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="reconnectInterval" min="-2" pref="75" max="-2" attributes="0"/>
+                          <Component id="reconnectIntervalField" min="-2" pref="75" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="usePersistentQueuesYesRadio" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="usePersistentQueuesNoRadio" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="rotateMessages" min="-2" max="-2" attributes="0"/>
+                              <Component id="rotateMessagesCheckBox" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Component id="channelNames" alignment="0" min="-2" pref="250" max="-2" attributes="1"/>
                       </Group>
@@ -157,12 +159,17 @@
                   <Component id="jLabel36" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="usePersistentQueuesYesRadio" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="usePersistentQueuesNoRadio" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="rotateMessages" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="rotateMessagesCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="queuePollIntervalField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="queuePollIntervalLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="reconnectIntervalLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="reconnectInterval" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="reconnectIntervalField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -178,7 +185,7 @@
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="soapEnvelope" alignment="0" pref="124" max="32767" attributes="0"/>
+                  <Component id="soapEnvelope" alignment="0" pref="98" max="32767" attributes="0"/>
                   <Component id="jLabel4" alignment="0" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -305,7 +312,7 @@
         <Property name="text" type="java.lang.String" value="Send Response to:"/>
       </Properties>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="rotateMessages">
+    <Component class="com.mirth.connect.client.ui.components.MirthCheckBox" name="rotateMessagesCheckBox">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="ff" green="ff" red="ff" type="rgb"/>
@@ -361,9 +368,9 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="usePersistentQueuesYesRadioActionPerformed"/>
       </Events>
     </Component>
-    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="reconnectInterval">
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="reconnectIntervalField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The amount of time that should elapse between attempts to send messages in the queue.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The amount of time that should elapse between retry attempts to send messages in the queue.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="reconnectIntervalLabel">
@@ -585,6 +592,16 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useMtomNoRadioActionPerformed"/>
       </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="queuePollIntervalLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Queue Poll Interval (ms):"/>
+      </Properties>
+    </Component>
+    <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="queuePollIntervalField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;The amount of time that should elapse between polls of an empty queue to check for queued messages.&lt;/html&gt;"/>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>

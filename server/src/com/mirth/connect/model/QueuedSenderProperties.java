@@ -11,18 +11,18 @@ package com.mirth.connect.model;
 
 import java.util.Properties;
 
-public class QueuedSenderProperties implements ComponentProperties
-{
+public class QueuedSenderProperties implements ComponentProperties {
     public static final String USE_PERSISTENT_QUEUES = "usePersistentQueues";
     public static final String RECONNECT_INTERVAL = "reconnectMillisecs";
     public static final String ROTATE_QUEUE = "rotateQueue";
+    public static final String QUEUE_POLL_INTERVAL = "queuePollInterval";
 
-    public Properties getDefaults()
-    {
+    public Properties getDefaults() {
         Properties properties = new Properties();
         properties.put(USE_PERSISTENT_QUEUES, "0");
         properties.put(RECONNECT_INTERVAL, "10000");
         properties.put(ROTATE_QUEUE, "0");
+        properties.put(QUEUE_POLL_INTERVAL, "200");
         return properties;
     }
 }
