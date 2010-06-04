@@ -1,7 +1,6 @@
 <project name="mirth" basedir="." default="help">
 	<target name="help">
-		<echo>Mirth Build Help</echo>
-		<echo>----------------</echo>
+		<echo>Mirth Connect Build Help</echo>
 	</target>
 
 	<target name="init">
@@ -42,7 +41,6 @@
 		<property name="plugins.scriptfilerule" value="${extensions}/scriptfilerule" />
 		<property name="plugins.scriptfilestep" value="${extensions}/scriptfilestep" />
 		<property name="plugins.xsltstep" value="${extensions}/xsltstep" />
-
 	</target>
 
 	<target name="clean" depends="init">
@@ -54,6 +52,9 @@
 
 		<delete dir="${manager.lib}" />
 		<mkdir dir="${manager.lib}" />
+
+		<delete dir="${cli.lib}" />
+		<mkdir dir="${cli.lib}" />
 
 		<delete dir="${classes}" />
 		<delete dir="${setup}" />
@@ -575,6 +576,7 @@
 		<mkdir dir="${setup.lib}" />
 		<mkdir dir="${setup.client.lib}" />
 		<mkdir dir="${setup.manager.lib}" />
+		<mkdir dir="${setup.cli.lib}" />
 		<mkdir dir="${setup.logs}" />
 		<mkdir dir="${setup.licenses}" />
 		<mkdir dir="${setup.docs}" />
@@ -592,6 +594,11 @@
 		<!-- copy manager-lib -->
 		<copy todir="${setup.manager.lib}">
 			<fileset dir="${manager.lib}" />
+		</copy>
+
+		<!-- copy cli-lib -->
+		<copy todir="${setup.cli.lib}">
+			<fileset dir="${cli.lib}" />
 		</copy>
 
 		<!-- copy conf files -->
@@ -632,8 +639,8 @@
 		<copy todir="${setup}">
 			<fileset file="${basedir}/mirth-client-core.jar" />
 			<fileset file="${basedir}/mirth-manager.jar" />
+			<fileset file="${basedir}/mirth-cli.jar" />
 			<fileset file="${basedir}/mirth-launcher.xml" />
-			<fileset file="${basedir}/shell-launcher.xml" />
 			<fileset file="${basedir}/mirth-client.jnlp" />
 			<fileset file="${basedir}/keystore" />
 		</copy>
@@ -650,41 +657,14 @@
 
 			<exclude name="com/mirth/connect/server/launcher/**" />
 			<exclude name="com/mirth/connect/server/mbeans/**" />
-
-			<exclude name="com/mirth/connect/server/tools/Shell.class" />
-			<exclude name="com/mirth/connect/server/tools/Token.class" />
-			<exclude name="com/mirth/connect/server/tools/IntToken.class" />
-			<exclude name="com/mirth/connect/server/tools/StringToken.class" />
-			<exclude name="com/mirth/connect/server/tools/QuitShell.class" />
 		</jar>
 
 		<!-- create the mirth-launcher jar -->
 		<jar destfile="${setup}/${mirth-launcher.jar}" basedir="${classes}">
 			<include name="com/mirth/connect/server/launcher/**" />
-			<exclude name="com/mirth/connect/server/launcher/ShellLauncher.class" />
 			<manifest>
 				<attribute name="Main-Class" value="com.mirth.connect.server.launcher.MirthLauncher" />
 				<attribute name="Class-Path" value="lib/log4j-1.2.15.jar conf/" />
-			</manifest>
-		</jar>
-
-		<!-- create the shell jar -->
-		<jar destfile="${setup}/${shell.jar}" basedir="${classes}">
-			<include name="com/mirth/connect/server/tools/Shell.class" />
-			<include name="com/mirth/connect/server/tools/Token.class" />
-			<include name="com/mirth/connect/server/tools/IntToken.class" />
-			<include name="com/mirth/connect/server/tools/StringToken.class" />
-			<include name="com/mirth/connect/server/tools/QuitShell.class" />
-			<include name="com/thoughtworks/xstream/converters/collections/PropertiesConverter.class" />
-		</jar>
-
-		<!-- create the shell-launcher jar -->
-		<jar destfile="${setup}/${shell-launcher.jar}" basedir="${classes}">
-			<include name="com/mirth/connect/server/launcher/**" />
-			<exclude name="com/mirth/connect/server/launcher/MirthLauncher.class" />
-			<manifest>
-				<attribute name="Main-Class" value="com.mirth.connect.server.launcher.ShellLauncher" />
-				<attribute name="Class-Path" value="lib/log4j-1.2.15.jar conf/ extensions/connectors/" />
 			</manifest>
 		</jar>
 
