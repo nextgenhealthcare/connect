@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.StringReader;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -27,6 +28,7 @@ import org.mule.umo.UMOMessage;
 import org.mule.umo.endpoint.UMOEndpointURI;
 import org.mule.util.Utility;
 import org.xhtmlrenderer.pdf.ITextRenderer;
+import org.xml.sax.InputSource;
 
 import com.lowagie.text.html.HtmlParser;
 import com.lowagie.text.pdf.PdfEncryptor;
@@ -120,7 +122,7 @@ public class DocumentMessageDispatcher extends AbstractMessageDispatcher {
 
             try {
                 DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                org.w3c.dom.Document document = builder.parse(new ByteArrayInputStream(contents.toString().getBytes()));
+                org.w3c.dom.Document document = builder.parse(new InputSource(new StringReader(contents.toString())));
 
                 ITextRenderer renderer = new ITextRenderer();
                 renderer.setDocument(document, null);
