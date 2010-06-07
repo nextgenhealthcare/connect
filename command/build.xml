@@ -32,9 +32,12 @@
 			</manifest>
 		</jar>
 	</target>
-	
+
 	<target name="dist" depends="build">
 		<mkdir dir="${dist}" />
-		<zip destfile="${dist}/mirth-cli.zip" basedir="${build}" includes="**/*" />
+		<zip destfile="${dist}/mirth-cli.zip">
+			<fileset dir="${build}" includes="**/*.class" />
+			<fileset dir="${lib}" includes="**/*.jar" />
+		</zip>
 	</target>
 </project>
