@@ -41,6 +41,6 @@
 			<fileset dir="${lib}" />
 		</copy>
 
-		<zip destfile="${dist}/mirth-cli.zip" includes="${build}/**/*" />
+		<zip destfile="${dist}/mirth-cli.zip" basedir="${build}" includes="**/*" />
 	</target>
 </project>
