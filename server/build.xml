@@ -196,12 +196,16 @@
 		<jar destfile="${connectors.jdbc}/jdbc-shared.jar" basedir="${classes}">
 			<include name="com/mirth/connect/connectors/jdbc/DatabaseReaderProperties.class" />
 			<include name="com/mirth/connect/connectors/jdbc/DatabaseWriterProperties.class" />
+			<include name="com/mirth/connect/connectors/jdbc/Table.class" />
+			<include name="com/mirth/connect/connectors/jdbc/Column.class" />
 		</jar>
 		<jar destfile="${connectors.jdbc}/jdbc-server.jar">
 			<fileset dir="${classes}">
 				<include name="com/mirth/connect/connectors/jdbc/**" />
 				<exclude name="com/mirth/connect/connectors/jdbc/DatabaseReaderProperties.class" />
 				<exclude name="com/mirth/connect/connectors/jdbc/DatabaseWriterProperties.class" />
+				<exclude name="com/mirth/connect/connectors/jdbc/Table.class" />
+				<exclude name="com/mirth/connect/connectors/jdbc/Column.class" />
 			</fileset>
 		</jar>
 

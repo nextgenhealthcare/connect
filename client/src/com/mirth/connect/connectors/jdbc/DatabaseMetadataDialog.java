@@ -19,6 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.prefs.Preferences;
 
@@ -46,6 +47,7 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
     private final String INCLUDED_COLUMN_NAME_COLUMN_NAME = "Table/Column Name";
     private final String INCLUDED_STATUS_COLUMN_NAME = "Include";
     private final String INCLUDED_TYPE_COLUMN_NAME = "Type";
+    private final String INCLUDED_COLUMN_TYPE_NAME = "Column Type";
     private final String TABLE_TYPE_COLUMN = "table";
     private final String COLUMN_TYPE_COLUMN = "column";
 
@@ -73,17 +75,9 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
         } else {
             setLocation((frmSize.width - dlgSize.width) / 2 + loc.x, (frmSize.height - dlgSize.height) / 2 + loc.y);
         }
-        Map<String, Object> metaData = null;
 
-        try {
-            metaData = (Map<String, Object>) parent.mirthClient.invokeConnectorService("Database Reader", "getInformationSchema", connectionProperties);
-        } catch (ClientException e) {
-            parent.alertError(parent, "Could not retrieve database metadata.  Please ensure that your driver, URL, username, and password are correct.");
-            return;
-        }
-
-        makeIncludedDestinationsTable(metaData);
-        generateButton.requestFocus();
+        makeIncludedDestinationsTable(null);
+        filterTableTextField.requestFocus();
         generateButton.addKeyListener(new KeyListener() {
 
             public void keyPressed(KeyEvent e) {
@@ -107,7 +101,7 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
      * Makes the alert table with a parameter that is true if a new alert should
      * be added as well.
      */
-    public void makeIncludedDestinationsTable(Map<String, Object> metaData) {
+    public void makeIncludedDestinationsTable(Set<Table> metaData) {
         updateIncludedDestinationsTable(metaData);
 
         includedMetaDataTable.setDragEnabled(false);
@@ -121,6 +115,7 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
         includedMetaDataTable.getColumnExt(INCLUDED_STATUS_COLUMN_NAME).setMaxWidth(50);
         includedMetaDataTable.getColumnExt(INCLUDED_STATUS_COLUMN_NAME).setMinWidth(50);
         includedMetaDataTable.getColumnExt(INCLUDED_TYPE_COLUMN_NAME).setVisible(false);
+        includedMetaDataTable.getColumnExt(INCLUDED_TYPE_COLUMN_NAME).setMinWidth(5);
 
         if (Preferences.userNodeForPackage(Mirth.class).getBoolean("highlightRows", true)) {
             Highlighter highlighter = HighlighterFactory.createAlternateStriping(UIConstants.HIGHLIGHTER_COLOR, UIConstants.BACKGROUND_COLOR);
@@ -201,34 +196,32 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
         }
     }
 
-    public void updateIncludedDestinationsTable(Map<String, Object> metaData) {
+    public void updateIncludedDestinationsTable(Set<Table> metaData) {
         Object[][] tableData = null;
         int tableSize = 0;
-
+        
         if (metaData != null) {
-            for (Object o : metaData.values()) {
-                tableSize++;
-                List<String> l = (List<String>) o;
-                tableSize += l.size();
+            for (Table table : metaData) {
+            	int numOfColumns = table.getColumns() != null ? table.getColumns().size() : 0;
+                tableSize += 1 + numOfColumns;
             }
 
-            tableData = new Object[tableSize][3];
+            tableData = new Object[tableSize][4];
             int i = 0;
-            Iterator iterator = metaData.entrySet().iterator();
-            while (iterator.hasNext()) {
-                Entry entry = (Entry) iterator.next();
-
+            for (Table table : metaData) {                
                 tableData[i][0] = Boolean.FALSE;
-                tableData[i][1] = "<html><b>" + entry.getKey() + "</b></html>";
+                tableData[i][1] = "<html><b>" + table.getName() + "</b></html>";
                 tableData[i][2] = TABLE_TYPE_COLUMN;
+                tableData[i][3] = "";
                 i++;
 
-                List<String> columns = (List<String>) metaData.get(entry.getKey());
+                List<Column> columns = (List<Column>) table.getColumns();
 
-                for (String column : columns) {
+                for (Column column : columns) {
                     tableData[i][0] = Boolean.FALSE;
-                    tableData[i][1] = "     " + column;
+                    tableData[i][1] = "     " + column.getName();
                     tableData[i][2] = COLUMN_TYPE_COLUMN;
+                    tableData[i][3] = column.getType() + "(" + column.getPrecision() + ")";
                     i++;
                 }
             }
@@ -239,9 +232,9 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
             model.refreshDataVector(tableData);
         } else {
             includedMetaDataTable = new MirthTable();
-            includedMetaDataTable.setModel(new RefreshTableModel(tableData, new String[]{INCLUDED_STATUS_COLUMN_NAME, INCLUDED_COLUMN_NAME_COLUMN_NAME, INCLUDED_TYPE_COLUMN_NAME}) {
+            includedMetaDataTable.setModel(new RefreshTableModel(tableData, new String[]{INCLUDED_STATUS_COLUMN_NAME, INCLUDED_COLUMN_NAME_COLUMN_NAME, INCLUDED_TYPE_COLUMN_NAME, INCLUDED_COLUMN_TYPE_NAME}) {
 
-                boolean[] canEdit = new boolean[]{true, false, false};
+                boolean[] canEdit = new boolean[]{true, false, false, false};
 
                 public boolean isCellEditable(int rowIndex, int columnIndex) {
                     return canEdit[columnIndex];
@@ -390,6 +383,10 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
         jSeparator1 = new javax.swing.JSeparator();
         includedDestinationsPane = new javax.swing.JScrollPane();
         includedMetaDataTable = null;
+        tableFilterNamePanel = new javax.swing.JPanel();
+        filterByLabel = new javax.swing.JLabel();
+        filterTableTextField = new javax.swing.JTextField();
+        filterButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("SQL Creation");
@@ -412,19 +409,51 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
 
         includedDestinationsPane.setViewportView(includedMetaDataTable);
 
+        filterByLabel.setText("Filter by:");
+
+        filterButton.setText("Filter");
+        filterButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                filterButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout tableFilterNamePanelLayout = new javax.swing.GroupLayout(tableFilterNamePanel);
+        tableFilterNamePanel.setLayout(tableFilterNamePanelLayout);
+        tableFilterNamePanelLayout.setHorizontalGroup(
+            tableFilterNamePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(tableFilterNamePanelLayout.createSequentialGroup()
+                .addComponent(filterByLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(filterTableTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 324, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(filterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE))
+        );
+        tableFilterNamePanelLayout.setVerticalGroup(
+            tableFilterNamePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(tableFilterNamePanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(tableFilterNamePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(filterByLabel)
+                    .addComponent(filterTableTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(filterButton))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+            .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(includedDestinationsPane, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 361, Short.MAX_VALUE)
-                    .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 361, Short.MAX_VALUE)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(includedDestinationsPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 444, Short.MAX_VALUE)
+                    .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 444, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addComponent(generateButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cancelButton)))
+                        .addComponent(cancelButton))
+                    .addComponent(tableFilterNamePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -433,8 +462,9 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(includedDestinationsPane, javax.swing.GroupLayout.DEFAULT_SIZE, 413, Short.MAX_VALUE)
+                .addComponent(tableFilterNamePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(includedDestinationsPane, javax.swing.GroupLayout.DEFAULT_SIZE, 458, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -458,29 +488,55 @@ public class DatabaseMetadataDialog extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-    this.dispose();
-}//GEN-LAST:event_cancelButtonActionPerformed
+	private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_cancelButtonActionPerformed
+		this.dispose();
+	}// GEN-LAST:event_cancelButtonActionPerformed
 
-private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButtonActionPerformed
-    if (parentConnector instanceof DatabaseReader) {
-        if (type == STATEMENT_TYPE.SELECT_TYPE) {
-            ((DatabaseReader) parentConnector).setSelectText(createQueryFromMetaData(getSelectedMetaData()));
-        } else {
-            ((DatabaseReader) parentConnector).setUpdateText(createUpdateFromMetaData(getSelectedMetaData()));
-        }
-    } else if (parentConnector instanceof DatabaseWriter) {
-        ((DatabaseWriter) parentConnector).setInsertText(createInsertFromMetaData(getSelectedMetaData()));
-    }
+	private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_generateButtonActionPerformed
+		if (parentConnector instanceof DatabaseReader) {
+			if (type == STATEMENT_TYPE.SELECT_TYPE) {
+				((DatabaseReader) parentConnector).setSelectText(createQueryFromMetaData(getSelectedMetaData()));
+			} else {
+				((DatabaseReader) parentConnector).setUpdateText(createUpdateFromMetaData(getSelectedMetaData()));
+			}
+		} else if (parentConnector instanceof DatabaseWriter) {
+			((DatabaseWriter) parentConnector).setInsertText(createInsertFromMetaData(getSelectedMetaData()));
+		}
 
-    this.dispose();
-}//GEN-LAST:event_generateButtonActionPerformed
+		this.dispose();
+	}// GEN-LAST:event_generateButtonActionPerformed
+
+	/**
+	 * Action to send request to server and attempt to retrieve the tables based on the filter criteria.
+	 * 
+	 * @param evt Action event triggered
+	 */
+	private void filterButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filterButtonActionPerformed
+		try {
+			// retrieve the table pattern filter
+			connectionProperties.put(DatabaseReaderProperties.DATABASE_TABLE_NAME_PATTERN_EXPRESSION, filterTableTextField.getText());
+			
+			// method "getInformationSchema" will return Set<Table>
+			Set<Table> metaData = (Set<Table>) parent.mirthClient.invokeConnectorService("Database Reader", "getInformationSchema", connectionProperties);
+			
+			// format table information into presentation
+			makeIncludedDestinationsTable(metaData);
+		} catch (ClientException e) {
+			parent.alertError(parent, "Could not retrieve database metadata.  Please ensure that your driver, URL, username, and password are correct.");
+			return;
+		}		
+	}//GEN-LAST:event_filterButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
+    private javax.swing.JButton filterButton;
+    private javax.swing.JLabel filterByLabel;
+    private javax.swing.JTextField filterTableTextField;
     private javax.swing.JButton generateButton;
     private javax.swing.JScrollPane includedDestinationsPane;
     private com.mirth.connect.client.ui.components.MirthTable includedMetaDataTable;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JPanel tableFilterNamePanel;
     // End of variables declaration//GEN-END:variables
 }

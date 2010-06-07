@@ -47,7 +47,7 @@ public class DatabaseWriter extends ConnectorClass {
 
         initComponents();
 
-        drivers.add(0, new DriverInfo("Please Select One", "Please Select One", ""));
+        drivers.add(0, new DriverInfo("Please Select One", "Please Select One", "", ""));
         String[] driverNames = new String[drivers.size()];
 
         for (int i = 0; i < drivers.size(); i++) {
@@ -409,6 +409,16 @@ private void insertURLTemplateButtonActionPerformed(java.awt.event.ActionEvent e
         if (((String) connectionProperties.get(DatabaseWriterProperties.DATABASE_URL)).length() == 0 || (((String) connectionProperties.get(DatabaseWriterProperties.DATABASE_DRIVER)).equals("Please Select One"))) {
             parent.alertError(parent, "A valid Driver and URL are required to perform this operation.");
         } else {
+            
+            // Add the selectLimit to the connectionProperties
+            for (int i = 0; i < drivers.size(); i++) {
+                DriverInfo driver = drivers.get(i);
+                if (driver.getName().equalsIgnoreCase(((String) databaseDriverCombobox.getSelectedItem()))) {
+                    // Although this property is not persisted, it is used by the JdbcConnectorService
+                    connectionProperties.put(DatabaseWriterProperties.DATABASE_SELECT_LIMIT, driver.getSelectLimit());
+                }
+            }
+            
             new DatabaseMetadataDialog(this, type, connectionProperties);
         }
     }

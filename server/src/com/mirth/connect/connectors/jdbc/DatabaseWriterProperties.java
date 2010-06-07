@@ -26,6 +26,9 @@ public class DatabaseWriterProperties implements ComponentProperties {
     public static final String DATABASE_SQL_STATEMENT = "query";
     public static final String DATABASE_JS_SQL_STATEMENT = "script";
     public static final String DATABASE_USE_JS = "useScript";
+    
+    // Although this property is not persisted, it is used by the JdbcConnectorService
+    public static final String DATABASE_SELECT_LIMIT = "selectLimit";
 
     public Properties getDefaults() {
         Properties properties = new Properties();

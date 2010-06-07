@@ -33,6 +33,10 @@ public class DatabaseReaderProperties implements ComponentProperties {
     public static final String DATABASE_USE_ACK = "useAck";
     public static final String DATABASE_ACK = "ack";
     public static final String DATABASE_JS_ACK = "ackScript";
+    
+    // Although these properties are not persisted, they used by the JdbcConnectorService
+    public static final String DATABASE_TABLE_NAME_PATTERN_EXPRESSION = "tableNamePatternExpression";
+    public static final String DATABASE_SELECT_LIMIT = "selectLimit";
 
     public Properties getDefaults() {
         Properties properties = new Properties();

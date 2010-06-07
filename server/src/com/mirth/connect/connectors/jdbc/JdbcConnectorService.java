@@ -13,34 +13,48 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.TreeMap;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import com.mirth.connect.connectors.ConnectorService;
 
 public class JdbcConnectorService implements ConnectorService {
 
+	private final String[] TABLE_TYPES = { "TABLE", "VIEW" };
+	private Logger logger = Logger.getLogger(this.getClass());
+	
     public Object invoke(String method, Object object, String sessionsId) throws Exception {
         if (method.equals("getInformationSchema")) {
+        	// method 'getInformationSchema' will return Set<Table>
+        	
             Connection connection = null;
-            ResultSet tableResult = null;
-
             try {
                 Properties properties = (Properties) object;
-                Map<String, List<String>> schemaInfo = new TreeMap<String, List<String>>();
-
                 String driver = properties.getProperty(DatabaseReaderProperties.DATABASE_DRIVER);
                 String address = properties.getProperty(DatabaseReaderProperties.DATABASE_URL);
                 String user = properties.getProperty(DatabaseReaderProperties.DATABASE_USERNAME);
                 String password = properties.getProperty(DatabaseReaderProperties.DATABASE_PASSWORD);
+                
+                // Although these properties are not persisted, they used by the JdbcConnectorService
+                String tableNamePatternExp = properties.getProperty(DatabaseReaderProperties.DATABASE_TABLE_NAME_PATTERN_EXPRESSION);
+                String selectLimit = properties.getProperty(DatabaseReaderProperties.DATABASE_SELECT_LIMIT);
+                
                 String schema = null;
 
                 Class.forName(driver);
                 connection = DriverManager.getConnection(address, user, password);
                 DatabaseMetaData dbMetaData = connection.getMetaData();
+                
+                // the sorted set to hold the table information
+                SortedSet<Table> tableInfoList = new TreeSet<Table>();
 
                 // Use a schema if the user name matches one of the schemas.
                 // Fix for Oracle: MIRTH-1045
@@ -58,37 +72,87 @@ public class JdbcConnectorService implements ConnectorService {
                         schemasResult.close();
                     }
                 }
-
-                tableResult = dbMetaData.getTables(null, schema, null, new String[] { "TABLE", "VIEW" });
-
-                while (tableResult.next()) {
-                    String tableName = tableResult.getString("TABLE_NAME");
-                    ResultSet columnResult = null;
-
-                    try {
-                        columnResult = dbMetaData.getColumns(null, null, tableName, null);
-                        List<String> columnNames = new ArrayList<String>();
-
-                        while (columnResult.next()) {
-                            columnNames.add(columnResult.getString("COLUMN_NAME"));
-                        }
-
-                        schemaInfo.put(tableName, columnNames);
-                    } finally {
-                        if (columnResult != null) {
-                            columnResult.close();
-                        }
-                    }
+                
+                // based on the table name pattern, attempt to retrieve the table information
+                List<String> tablePatternList = translateTableNamePatternExpression(tableNamePatternExp);
+                List<String> tableNameList = new ArrayList<String>();
+                
+                // go through each possible table name patterns and query for the tables
+                for (String tableNamePattern : tablePatternList) {
+                	ResultSet rs = null;
+                	try {
+                		rs = dbMetaData.getTables(null, schema, tableNamePattern, TABLE_TYPES);
+                		
+                		// based on the result set, loop through to store the table name so it can be used to
+                		// retrieve the table's column information
+                		while (rs.next()) {
+                			tableNameList.add(rs.getString("TABLE_NAME"));
+                		}                		
+                	} finally {
+                		if (rs != null) {
+                			rs.close();
+                		}
+                	}
+                }
+                
+                // for each table, grab their column information
+                for (String tableName : tableNameList) {
+                	ResultSet rs = null;
+                	try {            
+                		// apparently it's much more efficient to use ResultSetMetaData to retrieve
+                		// column information.  So each driver is defined with their own unique SELECT
+                		// statement to query the table columns and use ResultSetMetaData to retrieve
+                		// the column information.  If driver is not defined with the select statement
+                		// then we'll define to the generic method of getting column information, but
+                		// this could be extremely slow
+                		List<Column> columnList = new ArrayList<Column>();
+                		if (StringUtils.isEmpty(selectLimit)) {
+                			logger.debug("No select limit is defined, using generic method");
+                			rs = dbMetaData.getColumns(null, null, tableName, null);
+                			
+                			// retrieve all relevant column information                			
+                			for (int i = 0; rs.next(); i++) {
+                				Column column = new Column(rs.getString("COLUMN_NAME"), rs.getString("TYPE_NAME"), rs.getInt("COLUMN_SIZE"));
+                				columnList.add(column);
+                			}
+                		} else {
+                			logger.debug("Select limit is defined, using specific select query : '" + selectLimit + "'");
+                			
+                			// replace the '?' with the appropriate schema.table name, and use ResultSetMetaData to 
+                			// retrieve column information 
+                			final String schemaTableName = StringUtils.isNotEmpty(schema) ? schema + "." + tableName : tableName;
+                			final String queryString = selectLimit.trim().replaceAll("\\?", schemaTableName);
+                			Statement statement = connection.createStatement();
+                			try {
+                				rs = statement.executeQuery(queryString);
+                				ResultSetMetaData rsmd = rs.getMetaData();
+                				
+                				// retrieve all relevant column information
+                				for (int i=1; i < rsmd.getColumnCount()+1; i++) {
+                					Column column = new Column(rsmd.getColumnName(i), rsmd.getColumnTypeName(i), rsmd.getPrecision(i));
+                					columnList.add(column);
+                				}
+                			} finally {
+                				if (statement != null) {
+                					statement.close();
+                				}
+                			}
+                		}      
+                		
+                		// create table object and add to the list of table definitions
+                		Table table = new Table(tableName, columnList);
+                		tableInfoList.add(table);
+                	} finally {
+                		if (rs != null) {
+                			rs.close();
+                		}
+                	}
                 }
 
-                return schemaInfo;
+                return tableInfoList;
             } catch (Exception e) {
                 throw new Exception("Could not retrieve database tables and columns.", e);
             } finally {
-                if (tableResult != null) {
-                    tableResult.close();
-                }
-
                 if (connection != null) {
                     connection.close();
                 }
@@ -96,5 +160,39 @@ public class JdbcConnectorService implements ConnectorService {
         }
 
         return null;
+    }
+    
+    /**
+     * Translate the given pattern expression so that it can be used properly for
+     * searching tables in the database.  Multiple table name patterns are delimited by comma (,)
+     * <p>
+     * This interpret and translate to the following:
+     * <p>
+     * <ul>
+     * <li>"*" = wild card for more than one character, will be converted to be used as '%'</li>
+     * <li>"_" = one character wild card</li>
+     * <li>"" = empty string will retrieve all tables
+     * </ul>
+     * <p>
+     * <i>Eg. rad*,table*test => Find all tables starts with 'rad' AND tables prefix with 'table' and postfix with 'test'</i>
+     * 
+     * @param tableNamePatternExpression pattern expression to translate, cannot be NULL.
+     * @return If table name pattern is an empty string, it'll never return NULL. 
+     */
+    private List<String> translateTableNamePatternExpression(String tableNamePatternExpression) {
+    	if (tableNamePatternExpression == null) {
+    		throw new IllegalArgumentException("Parameter 'tableNamePatternExpression' cannot be NULL'");
+    	}
+    	
+    	List<String> tablePatternList = new ArrayList<String>();
+    	if (tableNamePatternExpression.isEmpty()) {
+    		tablePatternList.add("%");
+    	} else {
+    		final String[] tablePatterns = tableNamePatternExpression.trim().split("[, ]+");
+    		for (String tablePattern : tablePatterns) {
+    			tablePatternList.add(tablePattern.trim().replaceAll("\\*", "%"));
+    		}    		
+    	}    	
+    	return tablePatternList;
     }
 }
