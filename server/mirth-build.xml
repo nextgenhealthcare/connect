@@ -57,8 +57,8 @@
 	<!-- CLI -->
 	<target name="build-cli" depends="build-client">
 		<copy file="${server}/mirth-client-core.jar" todir="${cli}/lib" />
-		<ant antfile="${cli}/build.xml" dir="${cli}" target="build" />
-		<copy file="${cli}/dist/mirth-cli.jar" todir="${server}/" />
+		<ant antfile="${cli}/build.xml" dir="${cli}" target="dist" />
+		<copy file="${cli}/build/mirth-cli.jar" todir="${server}/" />
 		<copy todir="${server}/cli-lib">
 			<fileset dir="${cli}/lib">
 				<exclude name="mirth-client.jar" />
@@ -103,5 +103,4 @@
 	</target>
 
 	<!-- custom extensions start here -->
-
 </project>

@@ -738,5 +738,8 @@
 
 	<target name="create-dist" depends="create-extension-zips">
 		<mkdir dir="${dist}" />
+
+		<!-- copy the CLI dist -->
+		<copy file="${cli}/dist/mirth-cli.zip" todir="${dist}" />
 	</target>
 </project>
