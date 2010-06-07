@@ -34,6 +34,7 @@
 	</target>
 	
 	<target name="dist" depends="build">
+		<mkdir dir="${dist}" />
 		<zip destfile="${dist}/mirth-cli.zip" basedir="${build}" includes="**/*" />
 	</target>
 </project>
