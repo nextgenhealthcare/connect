@@ -23,6 +23,11 @@
 
 	<target name="build" depends="compile">
 		<mkdir dir="${build}" />
+		<mkdir dir="${build}/cli-lib" />
+
+		<copy todir="${build}/cli-lib">
+			<fileset dir="${lib}" />
+		</copy>
 
 		<jar destfile="${build}/${cli.jar}" basedir="${classes}">
 			<manifest>
@@ -35,12 +40,6 @@
 
 	<target name="dist" depends="build">
 		<mkdir dir="${dist}" />
-		<mkdir dir="${dist}/cli-lib" />
-
-		<copy todir="${dist}/cli-lib">
-			<fileset dir="${lib}" />
-		</copy>
-
 		<zip destfile="${dist}/mirth-cli.zip" basedir="${build}" includes="**/*" />
 	</target>
 </project>
