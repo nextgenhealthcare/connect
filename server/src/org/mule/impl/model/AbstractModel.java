@@ -23,6 +23,7 @@ import org.mule.config.i18n.Messages;
 import org.mule.impl.DefaultComponentExceptionStrategy;
 import org.mule.impl.DefaultLifecycleAdapterFactory;
 import org.mule.impl.ImmutableMuleDescriptor;
+import org.mule.impl.MuleDescriptor;
 import org.mule.impl.MuleSession;
 import org.mule.impl.internal.events.ModelEvent;
 import org.mule.model.DynamicEntryPointResolver;
@@ -175,11 +176,16 @@ public abstract class AbstractModel implements UMOModel {
 			logger.info("Initialising component: " + descriptor.getName());
 			component.initialise();
 		}
-		if (started.get()) {
-			logger.info("Starting component: " + descriptor.getName());
-			registerListeners(component);
-			component.start();
+		
+		// MIRTH-1430: We don't want the channel to start if the initial state is stopped, even on a re-deploy.
+		if (!MuleDescriptor.INITIAL_STATE_STOPPED.equals(descriptor.getInitialState())) {
+	        if (started.get()) {
+	            logger.info("Starting component: " + descriptor.getName());
+	            registerListeners(component);
+	            component.start();
+	        }
 		}
+		
 		return component;
 	}
 

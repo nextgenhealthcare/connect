@@ -211,7 +211,7 @@ public class MuleEngineController implements EngineController {
         descriptor.setName(channel.getId());
 
         // default initial state is stopped if no state is found
-        String initialState = "stopped";
+        String initialState = MuleDescriptor.INITIAL_STATE_STOPPED;
 
         if (channel.getProperties().getProperty("initialState") != null) {
             initialState = channel.getProperties().getProperty("initialState");
@@ -239,7 +239,7 @@ public class MuleEngineController implements EngineController {
         }
 
         muleManager.getModel().registerComponent(descriptor);
-
+        
         // register its mbean (if the server is started)
         if (muleManager.isStarted()) {
             jmxAgent.registerComponentService(descriptor.getName());
