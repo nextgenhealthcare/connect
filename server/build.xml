@@ -744,6 +744,8 @@
 		<mkdir dir="${dist}" />
 
 		<!-- copy the CLI dist -->
-		<copy file="${cli}/dist/mirth-cli.zip" todir="${dist}" />
+		<copy todir="${dist}">
+			<fileset dir="${cli}/dist/" includes="*.zip" />
+		</copy>
 	</target>
 </project>
