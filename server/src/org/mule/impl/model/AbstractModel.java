@@ -177,14 +177,15 @@ public abstract class AbstractModel implements UMOModel {
 			component.initialise();
 		}
 		
-		// MIRTH-1430: We don't want the channel to start if the initial state is stopped, even on a re-deploy.
-		if (!MuleDescriptor.INITIAL_STATE_STOPPED.equals(descriptor.getInitialState())) {
-	        if (started.get()) {
-	            logger.info("Starting component: " + descriptor.getName());
-	            registerListeners(component);
-	            component.start();
-	        }
-		}
+        if (started.get()) {
+            logger.info("Starting component: " + descriptor.getName());
+            registerListeners(component);
+            
+            // MIRTH-1430: We don't want the channel to start if the initial state is stopped, even on a re-deploy.
+            if (!MuleDescriptor.INITIAL_STATE_STOPPED.equals(descriptor.getInitialState())) {
+                component.start();
+            }
+        }
 		
 		return component;
 	}
