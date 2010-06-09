@@ -50,7 +50,7 @@ public class ReferenceListHandler extends TransferHandler {
             int currRow = reftable.convertRowIndexToModel(reftable.getSelectedRow());
 
             String text;
-            if (currRow >= 0 && currRow < reftable.getRowCount() && currRow < listItems.size()) {
+            if (currRow >= 0 && currRow < reftable.getModel().getRowCount() && currRow < listItems.size()) {
                 CodeTemplate template = listItems.get(currRow);
                 if (template.getType() == CodeSnippetType.FUNCTION) {
                     String FUNCTION_PATTERN = "function\\s*(.*\\(.*\\))";

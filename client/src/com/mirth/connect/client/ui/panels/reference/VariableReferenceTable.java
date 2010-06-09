@@ -15,14 +15,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 
+import javax.swing.RowFilter;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 import com.mirth.connect.model.CodeTemplate;
 
 public class VariableReferenceTable extends ReferenceTable {
 
     private Object[] tooltip;
-    private ArrayList<CodeTemplate> _listItems;
     private String headerName = "blank";
 
     public VariableReferenceTable() {
@@ -41,7 +42,6 @@ public class VariableReferenceTable extends ReferenceTable {
     }
 
     public VariableReferenceTable(String headerName, ArrayList<CodeTemplate> listItems) {
-        this._listItems = listItems;
         makeTable(headerName, listItems);
     }
 
@@ -76,7 +76,7 @@ public class VariableReferenceTable extends ReferenceTable {
             d[i][1] = null;
         }
 
-        this.setModel(new DefaultTableModel(d, new Object[]{headerName}) {
+        this.setModel(new FilterTableModel(d, new Object[]{headerName}) {
 
             public boolean isCellEditable(int row, int col) {
                 return false;
@@ -101,7 +101,7 @@ public class VariableReferenceTable extends ReferenceTable {
         }
         
         if (col >= 0 && row >= 0 && tooltip != null) {
-            Object o = getValueAt(row, col);
+            Object o = ((FilterTableModel) getModel()).getValueAt(row, col);
             if (o != null) {
                 return "<html><body style=\"width:150px\"><p>" + tooltip[row] + "</p></body></html>";
             }
@@ -116,12 +116,72 @@ public class VariableReferenceTable extends ReferenceTable {
             d[j][1] = null;
         }
 
-        this.setModel(new DefaultTableModel(d, new Object[]{headerName}) {
+        this.setModel(new FilterTableModel(d, new Object[]{headerName}) {
 
             public boolean isCellEditable(int row, int col) {
                 return false;
             }
         });
 
+    }
+    
+    /**
+     * Execute to filter the table items based on the filter string
+     * 
+     * @param filterString The filtering string
+     */
+    public void performFilter(final String filterString) {
+    	TableModel tableModel = getModel();
+    	if (tableModel instanceof FilterTableModel) {
+    		FilterTableModel filterTableModel = (FilterTableModel) tableModel;
+    		filterTableModel.performFilter(filterString);
+    	}
+    }
+    
+    /**
+     * Filter table model that will manage the filtering of the items to be shown
+     * on the table item list.
+     *
+     */
+    public class FilterTableModel extends DefaultTableModel {
+
+		public FilterTableModel(Object[][] data, Object[] columnNames) {
+			super(data, columnNames);
+		}
+
+		@Override
+		public boolean isCellEditable(int row, int column) {
+			return false;
+		}
+		
+		/**
+		 * Performs the filtering of the table items based on the filter string
+		 * 
+		 * @param filterString The filter string
+		 */
+		public void performFilter(final String filterString) {
+			// cannot handle null filter strings
+			if (filterString == null)
+				return;
+			
+			RowFilter<Object, Object> rowFilter = new RowFilter<Object, Object>() {
+
+				@Override
+				public boolean include(RowFilter.Entry<? extends Object, ? extends Object> entry) {
+					try {
+						String name = entry.getStringValue(0);
+						if (name == null)
+							return false;
+						
+						return filterString.trim().isEmpty() 
+							|| name.trim().toLowerCase().contains(filterString.trim().toLowerCase());
+					} catch (IndexOutOfBoundsException e) {
+						// eat up the exception	, and it'll return false				
+					}
+					return false;
+				}	    		
+	    	};
+	    	setRowFilter(rowFilter);
+		}    	
     }
 }

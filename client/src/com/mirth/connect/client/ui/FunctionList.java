@@ -26,17 +26,47 @@ public class FunctionList extends javax.swing.JPanel {
 
     private LinkedHashMap<String, JPanel> panels;
     private int context;
+    private boolean enableFilter;
 
     public FunctionList() {
         initComponents();
+        this.enableFilter = true;
     }
 
     /** Creates new form FunctionList */
     public FunctionList(int context) {
+    	this.enableFilter = true;
         this.context = context;
         initComponents();
         panels = new LinkedHashMap<String, JPanel>();
         setup();
+        enableFilter(enableFilter);
+    }
+
+    /**
+     * Constructor to initialize the panel with the option to enable/disable
+     * the filter component
+     *
+     * @param context
+     * @param enableFilter TRUE the panel should be initialized with the filter component
+     */
+    public FunctionList(int context, boolean enableFilter) {
+        this(context);
+        this.enableFilter = enableFilter;
+        enableFilter(enableFilter);
+    }
+
+    /**
+     * Helper method to disable/enable the filter components for this panel.
+     *
+     * @param enable TRUE to enable filter component to the panel.
+     */
+    private void enableFilter(boolean enable) {
+    	enableFilter = enable;
+    	
+        filterLabel.setVisible(enable);
+        filterField.setVisible(enable);
+        filterField.setEnabled(enable);
     }
 
     public void setup() {
@@ -117,6 +147,18 @@ public class FunctionList extends javax.swing.JPanel {
         }
     }
 
+    private void refreshTableList() {
+        // only perform filtering if the enable filter is enabled
+        if (enableFilter) {
+            JPanel panel = panels.get(variableReferenceDropDown.getSelectedItem());
+            if (panel instanceof ReferenceListPanel) {
+                ReferenceListPanel refListPanel = (ReferenceListPanel) panel;
+                refListPanel.refreshTableList(filterField.getText());
+            }
+            variableScrollPane.setViewportView(panel);
+        }
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -126,8 +168,10 @@ public class FunctionList extends javax.swing.JPanel {
     private void initComponents() {
 
         variableReferenceDropDown = new javax.swing.JComboBox();
-        jLabel1 = new javax.swing.JLabel();
+        categoryLabel = new javax.swing.JLabel();
         variableScrollPane = new javax.swing.JScrollPane();
+        filterLabel = new javax.swing.JLabel();
+        filterField = new javax.swing.JTextField();
 
         setBackground(new java.awt.Color(255, 255, 255));
         setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -138,17 +182,35 @@ public class FunctionList extends javax.swing.JPanel {
             }
         });
 
-        jLabel1.setText("Filter:");
+        categoryLabel.setText("Category:");
+
+        filterLabel.setText("Filter:");
+
+        filterField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                filterFieldKeyPressed(evt);
+            }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                filterFieldKeyReleased(evt);
+            }
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                filterFieldKeyTyped(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel1)
+                .addGap(10, 10, 10)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(filterLabel, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(categoryLabel, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(variableReferenceDropDown, 0, 91, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(variableReferenceDropDown, 0, 70, Short.MAX_VALUE)
+                    .addComponent(filterField, javax.swing.GroupLayout.DEFAULT_SIZE, 70, Short.MAX_VALUE))
                 .addContainerGap())
             .addComponent(variableScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE)
         );
@@ -156,19 +218,39 @@ public class FunctionList extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(variableReferenceDropDown, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1))
+                    .addComponent(categoryLabel)
+                    .addComponent(variableReferenceDropDown, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(4, 4, 4)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(filterLabel)
+                    .addComponent(filterField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(variableScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 139, Short.MAX_VALUE))
+                .addComponent(variableScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 115, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void filterFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_filterFieldKeyPressed
+        refreshTableList();
+    }//GEN-LAST:event_filterFieldKeyPressed
+
+    private void filterFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_filterFieldKeyTyped
+        refreshTableList();
+    }//GEN-LAST:event_filterFieldKeyTyped
+
+    private void filterFieldKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_filterFieldKeyReleased
+        refreshTableList();
+    }//GEN-LAST:event_filterFieldKeyReleased
+
     private void variableReferenceDropDownActionPerformed(java.awt.event.ActionEvent evt) {
+    	filterField.setText("");  // clear the filter text field
+    	refreshTableList();  // refresh table list based on the new filter value
         updateUserTemplates();
         variableScrollPane.setViewportView((panels.get(variableReferenceDropDown.getSelectedItem())));
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel categoryLabel;
+    private javax.swing.JTextField filterField;
+    private javax.swing.JLabel filterLabel;
     private javax.swing.JComboBox variableReferenceDropDown;
     private javax.swing.JScrollPane variableScrollPane;
     // End of variables declaration//GEN-END:variables
