@@ -14,6 +14,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -98,6 +99,8 @@ public class JdbcConnectorService implements ConnectorService {
                 // for each table, grab their column information
                 for (String tableName : tableNameList) {
                 	ResultSet rs = null;
+                	ResultSet backupRs = null;
+                	boolean fallback = false;
                 	try {            
                 		// apparently it's much more efficient to use ResultSetMetaData to retrieve
                 		// column information.  So each driver is defined with their own unique SELECT
@@ -132,9 +135,28 @@ public class JdbcConnectorService implements ConnectorService {
                 					Column column = new Column(rsmd.getColumnName(i), rsmd.getColumnTypeName(i), rsmd.getPrecision(i));
                 					columnList.add(column);
                 				}
+                			} catch (SQLException sqle) {
+                				logger.info("Failed to execute '" + queryString + "', fall back to generic approach to retrieve column information");
+                				fallback = true;
                 			} finally {
                 				if (statement != null) {
                 					statement.close();
+                				}
+                			}
+                			
+                			// failed to use selectLimit method, so we need to fall back to generic
+                			// if this generic approach fails, then there's nothing we can do
+                			if (fallback) {
+                			    // Re-initialize in case some columns were added before failing
+                			    columnList = new ArrayList<Column>();
+                			    
+                			    logger.debug("Using fallback method for retrieving columns");
+                				backupRs = dbMetaData.getColumns(null, null, tableName, null);
+                			
+                				// retrieve all relevant column information                			
+                				for (int i = 0; backupRs.next(); i++) {
+                					Column column = new Column(backupRs.getString("COLUMN_NAME"), backupRs.getString("TYPE_NAME"), backupRs.getInt("COLUMN_SIZE"));
+                					columnList.add(column);
                 				}
                 			}
                 		}      
@@ -145,6 +167,10 @@ public class JdbcConnectorService implements ConnectorService {
                 	} finally {
                 		if (rs != null) {
                 			rs.close();
+                		}
+                		
+                		if (backupRs != null) {
+                			backupRs.close();
                 		}
                 	}
                 }
