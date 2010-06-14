@@ -16,7 +16,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,8 +31,6 @@ import com.mirth.connect.connectors.file.filters.RegexFilenameFilter;
  * 
  */
 public class FileConnection implements FileSystemConnection {
-    
-    private FileLock lock = null;
 
 	public class FileFileInfo implements FileInfo {
 
@@ -149,16 +146,8 @@ public class FileConnection implements FileSystemConnection {
 		throws MuleException
 	{
 		try {
-		    File src = new File(fromDir, file);
-			FileInputStream inputStream = new FileInputStream(src);
-			lock = inputStream.getChannel().tryLock();
-			
-			// If it fails to acquire a lock because an overlapping lock is held by another program then it returns null. 
-			if (lock == null) {
-			    throw new Exception("Failed to acquire a lock on file (" + src.getName() + ") because an overlapping lock is held by another program.");
-			}
-			
-			return inputStream;
+			File src = new File(fromDir, file);
+			return new FileInputStream(src);
 		}
 		catch (Exception e) {
 			throw new MuleException(new Message("file", 1), e);
@@ -167,9 +156,7 @@ public class FileConnection implements FileSystemConnection {
 
 	/** Must be called after readFile when reading is complete */
 	public void closeReadFile() throws Exception {
-	    if (lock != null) {
-	        lock.release();
-	    }
+		// nothing
 	}
 
 	public boolean canAppend() {
