@@ -351,6 +351,21 @@ class XML extends XMLObjectImpl {
         return child.getXml();
     }
 
+    /*
+     * MIRTH-1434
+     * https://bugzilla.mozilla.org/show_bug.cgi?id=566181
+     * https://bugzilla.mozilla.org/show_bug.cgi?id=566186
+     * Added the following lines
+     */
+    /*Return the last added element */
+    XML getLastXmlChild() {
+        int pos = this.node.getChildCount() - 1;
+        if (pos < 0) {
+            return null;
+        }
+        return getXmlChild(pos);
+    }
+    
     int childIndex() {
         return this.node.getChildIndex();
     }

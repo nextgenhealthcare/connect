@@ -192,6 +192,14 @@ class XMLList extends XMLObjectImpl implements Function {
                         targetProperty.getNamespace().getUri(),
                         targetProperty.getLocalName());
                 targetObject.putXMLProperty(name2, this);
+                
+                /*
+                 * MIRTH-1434
+                 * https://bugzilla.mozilla.org/show_bug.cgi?id=566181
+                 * https://bugzilla.mozilla.org/show_bug.cgi?id=566186
+                 * Added the following line
+                 */
+                replace(0, targetObject.getXML().getLastXmlChild());
             } else {
                 throw ScriptRuntime.typeError(
                   "Assignment to empty XMLList without targets not supported");
@@ -205,6 +213,13 @@ class XMLList extends XMLObjectImpl implements Function {
             // Update the list with the new item at location 0.
             replace(0, item(0));
             
+            /*
+             * MIRTH-1434
+             * https://bugzilla.mozilla.org/show_bug.cgi?id=566181
+             * https://bugzilla.mozilla.org/show_bug.cgi?id=566186
+             * Removed the following lines
+             */
+            /*
             if (targetObject != null && targetProperty != null &&
                 targetProperty.getLocalName() != null)
             {
@@ -214,6 +229,7 @@ class XMLList extends XMLObjectImpl implements Function {
                         targetProperty.getLocalName());
                 targetObject.putXMLProperty(name2, this);
             }
+            */
         }
     }
 

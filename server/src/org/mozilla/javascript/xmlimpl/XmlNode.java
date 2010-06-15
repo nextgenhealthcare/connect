@@ -572,10 +572,20 @@ class XmlNode implements Serializable {
     }
 
     void replaceWith(XmlNode other) {
+        /*
+         * MIRTH-1434
+         * https://bugzilla.mozilla.org/show_bug.cgi?id=567484
+         * Replaced the following lines...
+         */
+        /*
         Node replacement = other.dom;
         if (replacement.getOwnerDocument() != this.dom.getOwnerDocument()) {
             replacement = this.dom.getOwnerDocument().importNode(replacement, true);
         }
+        */
+        // ...with the following line
+        Node replacement = this.dom.getOwnerDocument().importNode(other.dom, true);
+        
         this.dom.getParentNode().replaceChild(replacement, this.dom);
     }
 
