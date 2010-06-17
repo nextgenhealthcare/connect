@@ -205,7 +205,7 @@ public abstract class AbstractModel implements UMOModel {
 		if (component != null) {
 			component.stop();
 			unregisterListeners(component);
-			// MIRTH-1427: Stop the dispatchers and their queue threads
+			// MIRTH-1427, MIRTH-1447: Stop the dispatchers and their queue threads
 			stopDispatchers(component);
 			descriptors.remove(descriptor.getName());
 			component.dispose();
