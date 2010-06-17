@@ -87,14 +87,16 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 
 	@Override
 	public void startDispatchers(UMOComponent component, UMOEndpoint endpoint) throws UMOException {
-		// TODO Auto-generated method stub
 		super.startDispatchers(component, endpoint);
-		startQueueThread();
+		
+		// MIRTH-1427: Let the AbstractModel's registerListeners() start the 
+		// queue thread. This prevents the queue thread from being started 
+		// during a deploy with the initial channel state of stopped.
+		// startQueueThread();
 	}
 
 	@Override
 	public void stopDispatchers(UMOComponent component, UMOEndpoint endpoint) throws UMOException {
-		// TODO Auto-generated method stub
 		super.stopDispatchers(component, endpoint);
 		stopQueueThread();	
 	}
@@ -286,24 +288,6 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 			queueProfile = MuleManager.getConfiguration().getQueueProfile();
 			configureQueues();
 			setQueues();
-		}
-	}
-
-	@Override
-	protected void doStart() throws UMOException {
-		// TODO Auto-generated method stub
-		super.doStart();
-		if (isUsePersistentQueues()) {
-			startQueueThread();
-		}
-	}
-
-	@Override
-	protected void doStop() throws UMOException {
-		// TODO Auto-generated method stub
-		super.doStop();
-		if (isUsePersistentQueues()) {
-			stopQueueThread();
 		}
 	}
 

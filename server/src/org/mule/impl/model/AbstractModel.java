@@ -25,8 +25,10 @@ import org.mule.impl.DefaultLifecycleAdapterFactory;
 import org.mule.impl.ImmutableMuleDescriptor;
 import org.mule.impl.MuleDescriptor;
 import org.mule.impl.MuleSession;
+import org.mule.impl.endpoint.MuleEndpoint;
 import org.mule.impl.internal.events.ModelEvent;
 import org.mule.model.DynamicEntryPointResolver;
+import org.mule.providers.QueueEnabledConnector;
 import org.mule.routing.outbound.FilteringMulticastingRouter;
 import org.mule.transaction.TransactionCoordination;
 import org.mule.umo.UMOComponent;
@@ -41,6 +43,7 @@ import org.mule.umo.manager.UMOServerEvent;
 import org.mule.umo.model.ModelException;
 import org.mule.umo.model.UMOEntryPointResolver;
 import org.mule.umo.model.UMOModel;
+import org.mule.umo.routing.UMOOutboundRouter;
 import org.mule.umo.routing.UMORouter;
 
 import com.mirth.connect.model.SystemEvent;
@@ -178,11 +181,10 @@ public abstract class AbstractModel implements UMOModel {
 		}
 		
         if (started.get()) {
-            logger.info("Starting component: " + descriptor.getName());
-            registerListeners(component);
-            
-            // MIRTH-1430: We don't want the channel to start if the initial state is stopped, even on a re-deploy.
+            // MIRTH-1430, MIRTH-1427: We don't want the channel to start if the initial state is stopped, even on a re-deploy.
             if (!MuleDescriptor.INITIAL_STATE_STOPPED.equals(descriptor.getInitialState())) {
+                logger.info("Starting component: " + descriptor.getName());
+                registerListeners(component);
                 component.start();
             }
         }
@@ -203,6 +205,8 @@ public abstract class AbstractModel implements UMOModel {
 		if (component != null) {
 			component.stop();
 			unregisterListeners(component);
+			// MIRTH-1427: Stop the dispatchers and their queue threads
+			stopDispatchers(component);
 			descriptors.remove(descriptor.getName());
 			component.dispose();
 			logger.info("The component: " + descriptor.getName() + " has been unregistered and disposing");
@@ -231,6 +235,27 @@ public abstract class AbstractModel implements UMOModel {
 				throw new ModelException(new Message(Messages.FAILED_TO_REGISTER_X_ON_ENDPOINT_X, component.getDescriptor().getName(), endpoint.getEndpointURI()), e);
 			}
 		}
+        
+        // MIRTH-1427: Start any queue threads if destinations are QueueEnabledConnectors
+        if (component.getDescriptor().getOutboundRouter().getRouters() != null) {
+            List outboundRouters = component.getDescriptor().getOutboundRouter().getRouters();
+            
+            for (int ori = 0; ori < outboundRouters.size(); ori++) {
+                UMOOutboundRouter outRouter = (UMOOutboundRouter) outboundRouters.get(ori);
+                
+                for (int epi = 0; epi < outRouter.getEndpoints().size(); epi++) {                   
+                    MuleEndpoint muleEP = (MuleEndpoint) outRouter.getEndpoints().get(epi);
+                    
+                    if (muleEP.getConnector() instanceof QueueEnabledConnector) {
+                        QueueEnabledConnector queueEnabledConnector = (QueueEnabledConnector) muleEP.getConnector();
+                        
+                        if (queueEnabledConnector.isUsePersistentQueues()) {
+                            queueEnabledConnector.startQueueThread();
+                        }
+                    }
+                }
+            }
+        }
 	}
 
 	protected void unregisterListeners(UMOComponent component) throws UMOException {
