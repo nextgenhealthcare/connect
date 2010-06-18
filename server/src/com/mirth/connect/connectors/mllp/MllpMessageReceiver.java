@@ -323,7 +323,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
          */
         public void run() {
             try {
-                dataIn = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+                dataIn = new DataInputStream(new BufferedInputStream(socket.getInputStream(), connector.getBufferSize()));
                 dataOut = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 
                 while (!socket.isClosed() && !disposing.get()) {

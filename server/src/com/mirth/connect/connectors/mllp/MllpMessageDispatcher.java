@@ -208,7 +208,7 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 
     protected void write(Socket socket, byte[] data) throws IOException {
         LlpProtocol protocol = connector.getLlpProtocol();
-        BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
+        BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream(), connector.getBufferSize());
         protocol.write(bos, data);
         bos.flush();
     }
@@ -216,14 +216,14 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
     protected void write(Socket socket, MessageObject messageObject) throws Exception {
         byte[] data = messageObject.getEncodedData().getBytes(connector.getCharsetEncoding());
         LlpProtocol protocol = connector.getLlpProtocol();
-        BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
+        BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream(), connector.getBufferSize());
         protocol.write(bos, data);
         bos.flush();
     }
 
     protected void write(Socket socket, String data) throws Exception {
         LlpProtocol protocol = connector.getLlpProtocol();
-        BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream());
+        BufferedOutputStream bos = new BufferedOutputStream(socket.getOutputStream(), connector.getBufferSize());
         protocol.write(bos, data.getBytes(connector.getCharsetEncoding()));
         bos.flush();
     }

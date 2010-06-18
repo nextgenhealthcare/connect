@@ -414,7 +414,7 @@ public class LLPSender extends ConnectorClass {
 
         serverTimeoutField.setToolTipText("<html>Enter the number of milliseconds that the connector should keep its host connection open even if it has no messages to send.<br>If it has no messages to send after this much time,<br> it will close the connection and reopen it later when messages need to be sent.</html>");
 
-        bufferSizeField.setToolTipText("<html>Enter at least the size, in bytes, of the largest response message expected.<br>Entering too small a value will cause larger messages to be rejected.<br>Entering too large a value wastes memory. Generally, the default value is fine.</html>");
+        bufferSizeField.setToolTipText("<html>Use larger values for larger messages, and smaller values <br>for smaller messages. Generally, the default value is fine.</html>");
 
         maximumRetryCountField.setToolTipText("The maximum number of times the connector should retry a failed attempt to connect to the host before giving up and logging an error.");
 

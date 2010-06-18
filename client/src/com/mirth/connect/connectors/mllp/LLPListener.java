@@ -459,7 +459,7 @@ public class LLPListener extends ConnectorClass {
 
         jLabel36.setText("Record Separator Char:");
 
-        bufferSizeField.setToolTipText("<html>Enter at least the size, in bytes, of the largest message expected.<br>Entering too small a value will cause larger messages to be rejected.<br>Entering too large a value wastes memory. Generally, the default value is fine.</html>");
+        bufferSizeField.setToolTipText("<html>Use larger values for larger messages, and smaller values <br>for smaller messages. Generally, the default value is fine.</html>");
 
         receiveTimeoutField.setToolTipText("Enter the time, in milliseconds, to wait without receiving a message before disconnecting.");
 

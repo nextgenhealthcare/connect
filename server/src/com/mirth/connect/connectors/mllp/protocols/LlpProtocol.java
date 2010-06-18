@@ -191,7 +191,14 @@ public class LlpProtocol implements TcpProtocol {
 		// Write the data with LLP wrappers
 		DataOutputStream dos = new DataOutputStream(os);
 		dos.writeByte(START_MESSAGE);
-		dos.write(data);
+		
+		// MIRTH-1448: Changed from writing the entire byte[] to writing
+		// each byte in the byte[] to avoid sending the START_MESSAGE as
+		// its own packet.
+		for (int i = 0; i < data.length; i++) {
+		    dos.writeByte(data[i]);
+		}
+		
 		dos.writeByte(END_MESSAGE);
 		if (END_OF_RECORD != 0) {
 			dos.writeByte(END_OF_RECORD);

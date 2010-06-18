@@ -59,8 +59,8 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="listenerAddressField" alignment="0" min="-2" pref="200" max="-2" attributes="0"/>
                   <Component id="listenerPortField" alignment="0" min="-2" pref="50" max="-2" attributes="0"/>
-                  <Component id="receiveTimeoutField" alignment="0" min="-2" pref="160" max="-2" attributes="1"/>
-                  <Component id="bufferSizeField" alignment="0" min="-2" pref="160" max="-2" attributes="1"/>
+                  <Component id="receiveTimeoutField" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
+                  <Component id="bufferSizeField" alignment="0" min="-2" pref="75" max="-2" attributes="1"/>
                   <Component id="charsetEncodingCombobox" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Component id="responseFromTransformer" alignment="0" min="-2" pref="150" max="-2" attributes="0"/>
                   <Component id="ackAddressField" alignment="0" min="-2" pref="200" max="-2" attributes="0"/>
@@ -162,7 +162,7 @@
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="bufferSizeField">
       <Properties>
-        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Enter at least the size, in bytes, of the largest message expected.&lt;br&gt;Entering too small a value will cause larger messages to be rejected.&lt;br&gt;Entering too large a value will waste memory. Generally, the default value is fine.&lt;/html&gt;"/>
+        <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Use larger values for larger messages, and smaller values &lt;br&gt;for smaller messages. Generally, the default value is fine.&lt;/html&gt;"/>
       </Properties>
     </Component>
     <Component class="com.mirth.connect.client.ui.components.MirthTextField" name="receiveTimeoutField">
