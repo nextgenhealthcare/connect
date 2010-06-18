@@ -107,13 +107,14 @@ public class DefaultMessageObjectController extends MessageObjectController {
     public void updateMessage(MessageObject incomingMessageObject, boolean checkIfMessageExists) {
         MessageObject messageObject = (MessageObject) incomingMessageObject.clone();
         Socket socket = null;
+
         try {
             // Check if we have a socket. We need to replace with a string
             // because
             // Sockets are not serializable and we want to retain the socket
             if (messageObject.getChannelMap().containsKey(RECEIVE_SOCKET)) {
                 Object socketObj = messageObject.getChannelMap().get(RECEIVE_SOCKET);
-                
+
                 // XXX: Aren't these two cases doing the exact same thing??
                 if (socketObj instanceof Socket) {
                     socket = (Socket) socketObj;
@@ -153,28 +154,23 @@ public class DefaultMessageObjectController extends MessageObjectController {
                 // then try to remove the old message if the new one succeeded.
                 if (checkIfMessageExists) {
                     if (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) {
-                        MessageObjectFilter filter = new MessageObjectFilter();
-                        filter.setId(messageObject.getId());
                         try {
-                            removeMessages(filter);
+                            removeMessage(messageObject);
                         } catch (ControllerException e) {
                             logger.error("Could not remove old message: id=" + messageObject.getId(), e);
                         }
                     }
+
                     if (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED)) {
-                        MessageObjectFilter filter = new MessageObjectFilter();
-                        filter.setId(messageObject.getId());
                         try {
-                            removeMessages(filter);
+                            removeMessage(messageObject);
                         } catch (ControllerException e) {
                             logger.error("Could not remove old message: id=" + messageObject.getId(), e);
                         }
                     }
                 }
-                
-                if (channel.getProperties().get("store_messages").equals("false") || 
-                        (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) || 
-                        (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
+
+                if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
                     logger.debug("message is not stored");
                     return;
                 } else if (channel.getProperties().getProperty("encryptData").equals("true")) {
@@ -193,43 +189,42 @@ public class DefaultMessageObjectController extends MessageObjectController {
             messageObject.getChannelMap().put(RECEIVE_SOCKET, socket);
         }
     }
-	
-	public void updateMessageStatus(String channelId, String messageId, MessageObject.Status newStatus) {
-		// update the stats counts
-		if (newStatus.equals(MessageObject.Status.TRANSFORMED)) {
-			statisticsController.incrementReceivedCount(channelId);
-		} else if (newStatus.equals(MessageObject.Status.FILTERED)) {
-			statisticsController.incrementFilteredCount(channelId);
-		} else if (newStatus.equals(MessageObject.Status.ERROR)) {
-			statisticsController.incrementErrorCount(channelId);
-		} else if (newStatus.equals(MessageObject.Status.SENT)) {
-			statisticsController.incrementSentCount(channelId);
-		} else if (newStatus.equals(MessageObject.Status.QUEUED)) {
-			statisticsController.incrementQueuedCount(channelId);
-		}
-		Channel channel = ControllerFactory.getFactory().createChannelController().getChannelCache().get(channelId);
-		if (channel == null) {
-			logger.warn("Cannot update message " + messageId + " status as the channel " + channelId + " doesn't exists ");
-			return;
-		}
-		if (channel.getProperties().containsKey("store_messages")) {
-			if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && (newStatus==MessageObject.Status.ERROR)) || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && (newStatus==MessageObject.Status.FILTERED))) {
-					logger.debug("message " + messageId + " status is not stored because channel store configuration parameters");
-					return;
-			}
-		}
 
-		try {
-			HashMap<String,String> params = new HashMap<String,String>();
-			params.put("status", newStatus.toString());
-			params.put("id", messageId);
-			SqlConfig.getSqlMapClient().update("Message.updateMessageStatus",params);
-		} catch (SQLException e) {
-			logger.error("Error updating message " + messageId + " status due to a database problem", e);
-		}
-	}
-    
-    
+    public void updateMessageStatus(String channelId, String messageId, MessageObject.Status newStatus) {
+        // update the stats counts
+        if (newStatus.equals(MessageObject.Status.TRANSFORMED)) {
+            statisticsController.incrementReceivedCount(channelId);
+        } else if (newStatus.equals(MessageObject.Status.FILTERED)) {
+            statisticsController.incrementFilteredCount(channelId);
+        } else if (newStatus.equals(MessageObject.Status.ERROR)) {
+            statisticsController.incrementErrorCount(channelId);
+        } else if (newStatus.equals(MessageObject.Status.SENT)) {
+            statisticsController.incrementSentCount(channelId);
+        } else if (newStatus.equals(MessageObject.Status.QUEUED)) {
+            statisticsController.incrementQueuedCount(channelId);
+        }
+        Channel channel = ControllerFactory.getFactory().createChannelController().getChannelCache().get(channelId);
+        if (channel == null) {
+            logger.warn("Cannot update message " + messageId + " status as the channel " + channelId + " doesn't exists ");
+            return;
+        }
+        if (channel.getProperties().containsKey("store_messages")) {
+            if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && (newStatus == MessageObject.Status.ERROR)) || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && (newStatus == MessageObject.Status.FILTERED))) {
+                logger.debug("message " + messageId + " status is not stored because channel store configuration parameters");
+                return;
+            }
+        }
+
+        try {
+            HashMap<String, String> params = new HashMap<String, String>();
+            params.put("status", newStatus.toString());
+            params.put("id", messageId);
+            SqlConfig.getSqlMapClient().update("Message.updateMessageStatus", params);
+        } catch (SQLException e) {
+            logger.error("Error updating message " + messageId + " status due to a database problem", e);
+        }
+    }
+
     public void importMessage(MessageObject messageObject) {
         writeMessageToDatabase(messageObject, true);
     }
@@ -352,10 +347,10 @@ public class DefaultMessageObjectController extends MessageObjectController {
     // ast: allow ordering with derby
     public List<MessageObject> getMessagesByPage(int page, int pageSize, int maxMessages, String uid, boolean descending) throws ControllerException {
         logger.debug("retrieving messages by page: page=" + page);
-        
+
         int last = maxMessages;
-        int first =1;
-        
+        int first = 1;
+
         try {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("uid", uid);
@@ -368,7 +363,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
                 first = last - pageSize + 1;
             } else {
                 parameterMap.put("order", "ASC");
-                first =  (page * pageSize) + 1;
+                first = (page * pageSize) + 1;
                 last = (page + 1) * pageSize;
             }
 
@@ -389,6 +384,21 @@ public class DefaultMessageObjectController extends MessageObjectController {
         }
     }
 
+    public void removeMessage(MessageObject messageObject) throws ControllerException {
+        logger.debug("removing message: id=" + messageObject.getId());
+
+        try {
+            removeMessageFromQueue(messageObject);
+            MessageObjectFilter filter = new MessageObjectFilter();
+            filter.setId(messageObject.getId());
+            SqlConfig.getSqlMapClient().delete("Message.deleteMessage", getFilterMap(filter, null));
+            SqlConfig.getSqlMapClient().delete("Message.deleteUnusedAttachments");
+            vacuumMessageAndAttachmentTable();
+        } catch (Exception e) {
+            throw new ControllerException(e);
+        }
+    }
+
     public int removeMessages(MessageObjectFilter filter) throws ControllerException {
         logger.debug("removing messages: filter=" + filter.toString());
 
@@ -396,75 +406,70 @@ public class DefaultMessageObjectController extends MessageObjectController {
             removeMessagesFromQueue(filter);
             int rowCount = SqlConfig.getSqlMapClient().delete("Message.deleteMessage", getFilterMap(filter, null));
             SqlConfig.getSqlMapClient().delete("Message.deleteUnusedAttachments");
-            
-            if (DatabaseUtil.statementExists("Message.vacuumMessageTable")) {
-                SqlConfig.getSqlMapClient().update("Message.vacuumMessageTable");
-            }
-            
-            if (DatabaseUtil.statementExists("Message.vacuumAttachmentTable")) {
-                SqlConfig.getSqlMapClient().update("Message.vacuumAttachmentTable");
-            }
-            
+            vacuumMessageAndAttachmentTable();
             return rowCount;
         } catch (Exception e) {
             throw new ControllerException(e);
         }
     }
-    
+
+    private void vacuumMessageAndAttachmentTable() throws SQLException {
+        if (DatabaseUtil.statementExists("Message.vacuumMessageTable")) {
+            SqlConfig.getSqlMapClient().update("Message.vacuumMessageTable");
+        }
+
+        if (DatabaseUtil.statementExists("Message.vacuumAttachmentTable")) {
+            SqlConfig.getSqlMapClient().update("Message.vacuumAttachmentTable");
+        }
+    }
+
     public int pruneMessages(MessageObjectFilter filter, int limit) throws ControllerException {
-        logger.debug("removing messages: filter=" + filter.toString());
+        logger.debug("pruning messages: filter=" + filter.toString());
 
         try {
-        	int totalRowCount = 0;
-        	int rowCount = 0;
-        	do { 
-        		Map<String, Object> parameterMap = getFilterMap(filter, null);
-        		parameterMap.put("limit", limit);
-        		
-        		// Retry blocks of pruning if they fail in case of deadlocks
-        		int retryCount = 0;
-        		do {
-        			try {
-        				rowCount = SqlConfig.getSqlMapClient().delete("Message.pruneMessages", parameterMap);
-        				retryCount = 0;
-        			} catch (Exception e) {
-        				if (retryCount < 10) {
-	        				logger.error("Could not prune messages, retry count: " + retryCount, e);
-	        				retryCount++;
-        				} else {
-        					throw e;  // Quit trying to prune after 10 failures
-        				}
-        			}
-        		} while (retryCount > 0);
-        		
-        		totalRowCount += rowCount;
-        		Thread.sleep(100);
-        	} while(rowCount > 0);
-        	
-    		// Retry attachment pruning if it fails in case of deadlocks
-    		int retryCount = 0;
-    		do {
-    			try {
-    				SqlConfig.getSqlMapClient().delete("Message.deleteUnusedAttachments");
-    				retryCount = 0;
-    			} catch (Exception e) {
-    				if (retryCount < 10) {
-        				logger.error("Could not prune attachments, retry count: " + retryCount, e);
-        				retryCount++;
-    				} else {
-    					throw e;  // Quit trying to prune after 10 failures
-    				}
-    			}
-    		} while (retryCount > 0);
-        	
-            if (DatabaseUtil.statementExists("Message.vacuumMessageTable")) {
-                SqlConfig.getSqlMapClient().update("Message.vacuumMessageTable");
-            }
-            
-            if (DatabaseUtil.statementExists("Message.vacuumAttachmentTable")) {
-                SqlConfig.getSqlMapClient().update("Message.vacuumAttachmentTable");
-            }
-            
+            int totalRowCount = 0;
+            int rowCount = 0;
+            do {
+                Map<String, Object> parameterMap = getFilterMap(filter, null);
+                parameterMap.put("limit", limit);
+
+                // Retry blocks of pruning if they fail in case of deadlocks
+                int retryCount = 0;
+                do {
+                    try {
+                        rowCount = SqlConfig.getSqlMapClient().delete("Message.pruneMessages", parameterMap);
+                        retryCount = 0;
+                    } catch (Exception e) {
+                        if (retryCount < 10) {
+                            logger.error("Could not prune messages, retry count: " + retryCount, e);
+                            retryCount++;
+                        } else {
+                            throw e; // Quit trying to prune after 10 failures
+                        }
+                    }
+                } while (retryCount > 0);
+
+                totalRowCount += rowCount;
+                Thread.sleep(100);
+            } while (rowCount > 0);
+
+            // Retry attachment pruning if it fails in case of deadlocks
+            int retryCount = 0;
+            do {
+                try {
+                    SqlConfig.getSqlMapClient().delete("Message.deleteUnusedAttachments");
+                    retryCount = 0;
+                } catch (Exception e) {
+                    if (retryCount < 10) {
+                        logger.error("Could not prune attachments, retry count: " + retryCount, e);
+                        retryCount++;
+                    } else {
+                        throw e; // Quit trying to prune after 10 failures
+                    }
+                }
+            } while (retryCount > 0);
+
+            vacuumMessageAndAttachmentTable();
             return totalRowCount;
         } catch (Exception e) {
             throw new ControllerException(e);
@@ -482,34 +487,47 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
         while ((page * interval) < size) {
             for (MessageObject message : getMessagesByPage(page, interval, size, uid, true)) {
-                String queueName = null;
-                String messageId = null;
-                
-                if (message.getConnectorMap().get(QueueUtil.QUEUE_NAME) != null) {
-                    queueName = message.getConnectorMap().get(QueueUtil.QUEUE_NAME).toString();    
-                }
-            	
-                if (message.getConnectorMap().get(QueueUtil.MESSAGE_ID) != null) {
-                    messageId = message.getConnectorMap().get(QueueUtil.MESSAGE_ID).toString();    
-                }
-
-            	if ((queueName == null) || (queueName.length() == 0)) {
-	                String connectorId = ControllerFactory.getFactory().createChannelController().getConnectorId(message.getChannelId(), message.getConnectorName());
-	                queueName = QueueUtil.getInstance().getQueueName(message.getChannelId(), connectorId);
-            	}
-            	
-            	if ((messageId == null) || (messageId.length() == 0)) {
-            	    messageId = message.getId();
-            	}
-            	
-	            QueueUtil.getInstance().removeMessageFromQueue(queueName, messageId );
-                ControllerFactory.getFactory().createChannelStatisticsController().decrementQueuedCount(message.getChannelId());
+                removeMessageFromQueue(message);
             }
 
             page++;
         }
 
         removeFilterTable(uid);
+    }
+
+    private void removeMessageFromQueue(MessageObject message) throws Exception {
+        /*
+         * Since removeMessagesFromQueue sets the filter status to QUEUED, we
+         * want to apply that same filter logic here when removing a single
+         * message.
+         */
+        if (!Status.QUEUED.equals(message.getStatus())) {
+            return;
+        }
+
+        String queueName = null;
+        String messageId = null;
+
+        if (message.getConnectorMap().get(QueueUtil.QUEUE_NAME) != null) {
+            queueName = message.getConnectorMap().get(QueueUtil.QUEUE_NAME).toString();
+        }
+
+        if (message.getConnectorMap().get(QueueUtil.MESSAGE_ID) != null) {
+            messageId = message.getConnectorMap().get(QueueUtil.MESSAGE_ID).toString();
+        }
+
+        if ((queueName == null) || (queueName.length() == 0)) {
+            String connectorId = ControllerFactory.getFactory().createChannelController().getConnectorId(message.getChannelId(), message.getConnectorName());
+            queueName = QueueUtil.getInstance().getQueueName(message.getChannelId(), connectorId);
+        }
+
+        if ((messageId == null) || (messageId.length() == 0)) {
+            messageId = message.getId();
+        }
+
+        QueueUtil.getInstance().removeMessageFromQueue(queueName, messageId);
+        ControllerFactory.getFactory().createChannelStatisticsController().decrementQueuedCount(message.getChannelId());
     }
 
     public void removeFilterTable(String uid) {
@@ -549,15 +567,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
             parameterMap.put("channelId", channelId);
             SqlConfig.getSqlMapClient().delete("Message.deleteMessage", parameterMap);
             SqlConfig.getSqlMapClient().delete("Message.deleteUnusedAttachments");
-            
-            if (DatabaseUtil.statementExists("Message.vacuumMessageTable")) {
-                SqlConfig.getSqlMapClient().update("Message.vacuumMessageTable");
-            }
-            
-            if (DatabaseUtil.statementExists("Message.vacuumAttachmentTable")) {
-                SqlConfig.getSqlMapClient().update("Message.vacuumAttachmentTable");
-            }
-
+            vacuumMessageAndAttachmentTable();
             Channel filterChannel = new Channel();
             filterChannel.setId(channelId);
             Channel channel = ControllerFactory.getFactory().createChannelController().getChannel(filterChannel).get(0);
@@ -594,11 +604,10 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
                                     // get attachment for old message
                                     if (message.isAttachment()) {
-                                        if(message.getRawDataProtocol().equals(MessageObject.Protocol.DICOM)) {
+                                        if (message.getRawDataProtocol().equals(MessageObject.Protocol.DICOM)) {
                                             String rawData = DICOMUtil.getDICOMRawData(message);
                                             message.setRawData(rawData);
-                                        }
-                                        else {
+                                        } else {
                                             String rawData = AttachmentUtil.reAttachMessage(message);
                                             message.setRawData(rawData);
                                         }
@@ -667,11 +676,11 @@ public class DefaultMessageObjectController extends MessageObjectController {
         parameterMap.put("searchRawData", filter.isSearchRawData());
         parameterMap.put("searchTransformedData", filter.isSearchTransformedData());
         parameterMap.put("searchEncodedData", filter.isSearchEncodedData());
-		parameterMap.put("searchErrors", filter.isSearchErrors());
+        parameterMap.put("searchErrors", filter.isSearchErrors());
         parameterMap.put("quickSearch", filter.getQuickSearch());
         parameterMap.put("ignoreQueued", filter.isIgnoreQueued());
         parameterMap.put("channelIdList", filter.getChannelIdList());
-        
+
         if (filter.getStartDate() != null) {
             parameterMap.put("startDate", String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", filter.getStartDate()));
         }
@@ -813,9 +822,11 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
                     if (existingId != null) {
                         String messageStatus = lookupMessageStatus(existingId);
-                        
-                        // The message status will be null if the destination message was
-                        // reprocessed without the associated source message being in the database
+
+                        // The message status will be null if the destination
+                        // message was
+                        // reprocessed without the associated source message
+                        // being in the database
                         if (messageStatus != null) {
                             oldStatus = MessageObject.Status.valueOf(lookupMessageStatus(existingId));
                         }
@@ -842,7 +853,6 @@ public class DefaultMessageObjectController extends MessageObjectController {
     }
 
     public void resetQueuedStatus(MessageObject messageObject) {
-
         if (messageObject != null) {
             messageObject.setStatus(Status.QUEUED);
             updateMessage(messageObject, true);
@@ -890,7 +900,6 @@ public class DefaultMessageObjectController extends MessageObjectController {
         }
     }
 
-
     public void deleteUnusedAttachments() {
         try {
             SqlConfig.getSqlMapClient().delete("Message.deleteUnusedAttachments");
@@ -926,10 +935,12 @@ public class DefaultMessageObjectController extends MessageObjectController {
 
     public void setAttachmentMessageId(MessageObject messageObject, Attachment attachment) {
         attachment.setMessageId(messageObject.getId());
-        // MIRTH-602 --- The following block of code sets the attachment message ID to be the source message id
-        // in case we are not storing messages. This will cause all message attachments to be removed in JavaScriptPostProcessor.
+        // MIRTH-602 --- The following block of code sets the attachment message
+        // ID to be the source message id
+        // in case we are not storing messages. This will cause all message
+        // attachments to be removed in JavaScriptPostProcessor.
         // Otherwise we will have dangling attachments in the DB .
-        if(messageObject.getCorrelationId() != null && !messageObject.getCorrelationId().equals("")){
+        if (messageObject.getCorrelationId() != null && !messageObject.getCorrelationId().equals("")) {
             // Check the cache for the channel
             String channelId = messageObject.getChannelId();
             HashMap<String, Channel> channelCache = ControllerFactory.getFactory().createChannelController().getChannelCache();
@@ -942,7 +953,6 @@ public class DefaultMessageObjectController extends MessageObjectController {
                 }
             }
         }
-
 
     }
 }
