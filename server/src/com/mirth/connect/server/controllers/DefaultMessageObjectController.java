@@ -393,7 +393,6 @@ public class DefaultMessageObjectController extends MessageObjectController {
             filter.setId(messageObject.getId());
             SqlConfig.getSqlMapClient().delete("Message.deleteMessage", getFilterMap(filter, null));
             SqlConfig.getSqlMapClient().delete("Message.deleteUnusedAttachments");
-            vacuumMessageAndAttachmentTable();
         } catch (Exception e) {
             throw new ControllerException(e);
         }
@@ -406,7 +405,6 @@ public class DefaultMessageObjectController extends MessageObjectController {
             removeMessagesFromQueue(filter);
             int rowCount = SqlConfig.getSqlMapClient().delete("Message.deleteMessage", getFilterMap(filter, null));
             SqlConfig.getSqlMapClient().delete("Message.deleteUnusedAttachments");
-            vacuumMessageAndAttachmentTable();
             return rowCount;
         } catch (Exception e) {
             throw new ControllerException(e);
@@ -567,7 +565,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
             parameterMap.put("channelId", channelId);
             SqlConfig.getSqlMapClient().delete("Message.deleteMessage", parameterMap);
             SqlConfig.getSqlMapClient().delete("Message.deleteUnusedAttachments");
-            vacuumMessageAndAttachmentTable();
+            
             Channel filterChannel = new Channel();
             filterChannel.setId(channelId);
             Channel channel = ControllerFactory.getFactory().createChannelController().getChannel(filterChannel).get(0);
