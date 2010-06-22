@@ -66,6 +66,7 @@ import com.mirth.connect.client.ui.ViewContentDialog;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthSyntaxTextArea;
 import com.mirth.connect.client.ui.components.MirthTable;
+import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.client.ui.util.FileUtil;
 import com.mirth.connect.model.Attachment;
 import com.mirth.connect.model.ExtensionPoint;
@@ -572,9 +573,9 @@ public class MessageBrowser extends javax.swing.JPanel {
             endResult = endResult - (pageSize - messageObjectListSize);
         }
         if (messageCount == -1) {
-            resultsLabel.setText("Results " + startResult + " - " + endResult);
+            resultsLabel.setText("Results " + DisplayUtil.formatNumber(startResult) + " - " + DisplayUtil.formatNumber(endResult));
         } else {
-            resultsLabel.setText("Results " + startResult + " - " + endResult + " of " + messageCount);
+            resultsLabel.setText("Results " + DisplayUtil.formatNumber(startResult) + " - " + DisplayUtil.formatNumber(endResult) + " of " + DisplayUtil.formatNumber(messageCount));
         }
         if (messageTable != null) {
             //lastRow = messageTable.getSelectedRow();

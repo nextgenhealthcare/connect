@@ -242,12 +242,12 @@ public class DashboardPanel extends javax.swing.JPanel {
         statusTable.getColumnExt(NAME_COLUMN_NAME).setMinWidth(UIConstants.MIN_WIDTH);
 
         statusTable.getColumnExt(STATUS_COLUMN_NAME).setCellRenderer(new ImageCellRenderer());
-        statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
-        statusTable.getColumnExt(SENT_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
-        statusTable.getColumnExt(ERROR_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
-        statusTable.getColumnExt(FILTERED_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
-        statusTable.getColumnExt(QUEUED_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
-        statusTable.getColumnExt(ALERTED_COLUMN_NAME).setCellRenderer(new CenterCellRenderer());
+        statusTable.getColumnExt(RECEIVED_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
+        statusTable.getColumnExt(SENT_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
+        statusTable.getColumnExt(ERROR_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
+        statusTable.getColumnExt(FILTERED_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
+        statusTable.getColumnExt(QUEUED_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
+        statusTable.getColumnExt(ALERTED_COLUMN_NAME).setCellRenderer(new NumberCellRenderer());
 
         for (DashboardColumnPlugin plugin : loadedColumnPluginsAfterStatus.values()) {
             String columnName = plugin.getColumnHeader();
