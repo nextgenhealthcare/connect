@@ -733,7 +733,7 @@ public class CommandLineInterface {
             return;
         }
 
-        StringToken key = (StringToken) arguments[1];
+        Token key = arguments[1];
         String path = arguments[2].getText();
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         List<Channel> channels = client.getChannel(null);
@@ -752,9 +752,10 @@ public class CommandLineInterface {
             return;
         } else {
             File fXml = new File(path);
-
+            StringToken skey = Token.stringToken(key.getText());
+            
             for (Channel channel : channels) {
-                if (key.equalsIgnoreCase(channel.getName()) != key.equalsIgnoreCase(channel.getId())) {
+                if (skey.equalsIgnoreCase(channel.getName()) != skey.equalsIgnoreCase(channel.getId())) {
                     out.println("Exporting " + channel.getName());
                     String channelXML = serializer.toXML(channel);
                     try {

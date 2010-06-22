@@ -66,15 +66,13 @@ public class Token {
 	static Token EVENTS = addKeyword("events");
 	static Token SHUTDOWN = addKeyword("shutdown");
 	static Token QUIT = addKeyword("quit");
-	
-
 	static Token WILDCARD = addKeyword("*");
 
-	static Token intToken(String value) {
+	static IntToken intToken(String value) {
 		return new IntToken(value);
 	}
 
-	static Token stringToken(String value) {
+	static StringToken stringToken(String value) {
 		return new StringToken(value);
 	}
 
