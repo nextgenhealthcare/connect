@@ -29,6 +29,8 @@
 			<fileset dir="${lib}" />
 		</copy>
 
+		<copy todir="${build}" file="log4j.properties" />
+
 		<jar destfile="${build}/${cli.jar}" basedir="${classes}">
 			<manifest>
 				<attribute name="Manifest-Version" value="1.0" />
