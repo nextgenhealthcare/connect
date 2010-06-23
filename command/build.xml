@@ -33,7 +33,7 @@
 			<manifest>
 				<attribute name="Manifest-Version" value="1.0" />
 				<attribute name="Main-Class" value="com.mirth.connect.cli.CommandLineInterface" />
-				<attribute name="Class-Path" value="cli-lib/log4j-1.2.15.jar cli-lib/commons-logging-1.1.1.jar cli-lib/commons-codec-1.4.jar cli-lib/commons-httpclient-3.0.1.jar cli-lib/commons-cli-1.2.jar cli-lib/commons-lang-2.4.jar cli-lib/xstream-1.3.jar cli-lib/mirth-client-core.jar cli-lib/mirth-model-1.0.jar" />
+				<attribute name="Class-Path" value="cli-lib/mirth-client-core.jar cli-lib/mirth-model-1.0.jar cli-lib/log4j-1.2.15.jar cli-lib/commons-logging-1.1.1.jar cli-lib/commons-codec-1.4.jar cli-lib/commons-httpclient-3.0.1.jar cli-lib/commons-cli-1.2.jar cli-lib/commons-lang-2.4.jar cli-lib/xstream-1.3.jar cli-lib/xpp3_min-1.1.4c.jar" />
 			</manifest>
 		</jar>
 	</target>
