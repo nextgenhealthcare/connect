@@ -9,7 +9,7 @@
 
 package com.mirth.connect.server.mule.transformers;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -26,7 +26,7 @@ public class JavaScriptPostprocessor {
 		JavaScriptUtil.getInstance().executeScript("Postprocessor", "postprocessor", messageObject);
 		String channelId = messageObject.getChannelId();
 		
-		HashMap<String, Channel> channelCache = ControllerFactory.getFactory().createChannelController().getChannelCache();
+		Map<String, Channel> channelCache = ControllerFactory.getFactory().createChannelController().getChannelCache();
 		
 		// Check the cache for the channel
 		if (channelCache != null && channelCache.containsKey(channelId)) {

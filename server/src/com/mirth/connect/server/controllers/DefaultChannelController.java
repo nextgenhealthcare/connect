@@ -137,17 +137,6 @@ public class DefaultChannelController extends ChannelController {
         }
     }
 
-    public List<Channel> getEnabledChannels() throws ControllerException {
-        List<Channel> channels = getChannel(null);
-
-        for (int i = 0; i < channels.size(); i++) {
-            if (!channels.get(i).isEnabled())
-                channels.remove(i);
-        }
-
-        return channels;
-    }
-
     public List<ChannelSummary> getChannelSummary(Map<String, Integer> cachedChannels) throws ControllerException {
         logger.debug("getting channel summary");
         List<ChannelSummary> channelSummaries = new ArrayList<ChannelSummary>();
@@ -287,7 +276,7 @@ public class DefaultChannelController extends ChannelController {
         }
     }
 
-    public HashMap<String, Channel> getChannelCache() {
+    public Map<String, Channel> getChannelCache() {
         return channelCache;
     }
 
@@ -307,9 +296,5 @@ public class DefaultChannelController extends ChannelController {
         channelCache.put(channel.getId(), channel);
         channelIdLookup.put(channel.getName(), channel.getId());
         channelNameLookup.put(channel.getId(), channel.getName());
-    }
-
-    public void setChannelCache(HashMap<String, Channel> channelCache) {
-        DefaultChannelController.channelCache = channelCache;
     }
 }

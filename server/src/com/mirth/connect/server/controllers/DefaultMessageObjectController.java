@@ -142,7 +142,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
         }
 
         String channelId = messageObject.getChannelId();
-        HashMap<String, Channel> channelCache = ControllerFactory.getFactory().createChannelController().getChannelCache();
+        Map<String, Channel> channelCache = ControllerFactory.getFactory().createChannelController().getChannelCache();
 
         // Check the cache for the channel
         if (channelCache != null && channelCache.containsKey(channelId)) {
@@ -941,7 +941,7 @@ public class DefaultMessageObjectController extends MessageObjectController {
         if (messageObject.getCorrelationId() != null && !messageObject.getCorrelationId().equals("")) {
             // Check the cache for the channel
             String channelId = messageObject.getChannelId();
-            HashMap<String, Channel> channelCache = ControllerFactory.getFactory().createChannelController().getChannelCache();
+            Map<String, Channel> channelCache = ControllerFactory.getFactory().createChannelController().getChannelCache();
             if (channelCache != null && channelCache.containsKey(channelId)) {
                 Channel channel = channelCache.get(channelId);
                 if (channel.getProperties().containsKey("store_messages")) {

@@ -9,7 +9,6 @@
 
 package com.mirth.connect.server.controllers;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,8 +22,6 @@ public abstract class ChannelController extends Controller {
     
     public abstract List<Channel> getChannel(Channel channel) throws ControllerException;
 
-    public abstract List<Channel> getEnabledChannels() throws ControllerException;
-
     public abstract List<ChannelSummary> getChannelSummary(Map<String, Integer> cachedChannels) throws ControllerException;
 
     public abstract boolean updateChannel(Channel channel, boolean override) throws ControllerException;
@@ -34,9 +31,7 @@ public abstract class ChannelController extends Controller {
     // channel cache
     public abstract void loadChannelCache();
     
-    public abstract HashMap<String, Channel> getChannelCache();
-
-    public abstract void setChannelCache(HashMap<String, Channel> channelCache);
+    public abstract Map<String, Channel> getChannelCache();
 
     public abstract void refreshChannelCache(List<Channel> channels) throws ControllerException;
 

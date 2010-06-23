@@ -10,9 +10,9 @@
 package com.mirth.connect.server.controllers;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.management.ObjectName;
@@ -189,7 +189,7 @@ public class DefaultChannelStatusController extends ChannelStatusController {
 
                 // check if the channel is running but has been removed from the
                 // channel list
-                HashMap<String, Channel> channelCache = ControllerFactory.getFactory().createChannelController().getChannelCache();
+                Map<String, Channel> channelCache = ControllerFactory.getFactory().createChannelController().getChannelCache();
 
                 if ((channelCache != null) && channelCache.containsKey(channelId)) {
                     Channel cachedChannel = channelCache.get(channelId);

@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -250,7 +251,7 @@ public class DashboardConnectorStatusMonitor implements ServerPlugin {
             LinkedList<String[]> channelLog = null;
 
             // HashMap(ChannelID, Channel)
-            HashMap<String, Channel> channelsFromCache = ControllerFactory.getFactory().createChannelController().getChannelCache();
+            Map<String, Channel> channelsFromCache = ControllerFactory.getFactory().createChannelController().getChannelCache();
 
             // redundant check as the channelId MUST exist in the channelCache.
             // but just for a safety measure...
