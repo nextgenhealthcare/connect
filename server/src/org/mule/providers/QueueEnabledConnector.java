@@ -54,21 +54,27 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 	private Thread queueThread = null;
 	private QueueWorker work = null;
 
-	private boolean killQueueThread = false;
+    private boolean killQueueThread = false;
+    private boolean queueThreadStarted = false;
 
-	public void startQueueThread() {
-		try {
-			killQueueThread = false;
+    public synchronized void startQueueThread() {
+        try {
+            if (queueThreadStarted) {
+                logger.error("Trying to start a started queue thread " + getName());
+                return;
+            }
+
 			work = (QueueWorker) createWork(queue);
 			queueThread = new Thread(work);
 			queueThread.setName(getName() + "_queue_thread");
 			queueThread.start();
+			queueThreadStarted = true;
 		} catch (Exception e) {
 			logger.error("Error starting queuing thread", e);
 		}
 	}
 
-	public void stopQueueThread() {
+	public synchronized void stopQueueThread() {
 		if (queueThread != null) {
 			try {
 				killQueueThread = true;
@@ -79,6 +85,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 				
 				queueThread.interrupt();
 				queueThread.join();
+				queueThreadStarted = false;
 			} catch (Exception e) {
 				logger.error("Could not stop queue thread", e);
 			}
@@ -272,6 +279,7 @@ public class QueueEnabledConnector extends AbstractServiceEnabledConnector {
 			} catch (InterruptedException e) {
 			}
 			logger.debug("queuing thread ended on connector: " + getName());
+			killQueueThread = false;
 		}
 	}
 
