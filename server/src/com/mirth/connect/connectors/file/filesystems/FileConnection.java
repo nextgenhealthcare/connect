@@ -27,244 +27,229 @@ import org.mule.config.i18n.Messages;
 
 import com.mirth.connect.connectors.file.filters.RegexFilenameFilter;
 
-/** The FileSystemConnection class for local files
+/**
+ * The FileSystemConnection class for local files
  * 
  */
 public class FileConnection implements FileSystemConnection, FileIgnoring {
 
-	public class FileFileInfo implements FileInfo {
+    private static final String IGNORE = ".ignore";
 
-		private File theFile;
-		
-		public FileFileInfo(File theFile) {
-			this.theFile = theFile;
-		}
+    public class FileFileInfo implements FileInfo {
 
-		/** Gets the name of the file relative to the folder searched */
-		public String getName() {
-			
-			return this.theFile.getName();
-		}
-		
-		/** Gets the absolute pathname of the file */
-		public String getAbsolutePath() {
-			
-			return this.theFile.getAbsolutePath();
-		}
-		
-		/** Gets the absolute pathname of the directory holding the file */
-		public String getParent() {
-			
-			return this.theFile.getParent();
-		}
-		
-		/** Gets the size of the file in bytes */
-		public long getSize() {
-			
-			return this.theFile.length();
-		}
-		
-		/** Gets the date and time the file was last modified, in milliseconds since the epoch */
-		public long getLastModified() {
-			
-			return this.theFile.lastModified();
-		}
-		
-		/** Tests if the file is a directory */
-		public boolean isDirectory() {
-			
-			return this.theFile.isDirectory();
-			
-		}
-		
-		/** Tests if the file is a plain file */
-		public boolean isFile() {
-			return this.theFile.isFile();
-		}
+        private File theFile;
 
-		/** Tests if the file exists and is readable */
-		public boolean isReadable() {
-			
-			return this.theFile.canRead();
-		}
-	}
+        public FileFileInfo(File theFile) {
+            this.theFile = theFile;
+        }
 
-	public FileConnection() {
-		
-		// That was easy
-	}
+        /** Gets the name of the file relative to the folder searched */
+        public String getName() {
 
-	public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex)
-		throws Exception
-	{
-	    FilenameFilter filenameFilter;
-	    
-	    if (isRegex) {
-	        filenameFilter = new RegexFilenameFilter(filenamePattern);    
-	    } else {
-	        filenameFilter = new WildcardFileFilter(filenamePattern);
-	    }
-	    
-		File readDirectory = null;
-		try {
-			readDirectory = new File(fromDir);
-		}
-		catch (Exception e) {
-			throw new MuleException(new Message(Messages.FILE_X_DOES_NOT_EXIST, fromDir), e);
-		}
+            return this.theFile.getName();
+        }
 
-		try {
-			File[] todoFiles = readDirectory.listFiles(filenameFilter);
-			if (todoFiles == null) {
+        /** Gets the absolute pathname of the file */
+        public String getAbsolutePath() {
 
-				return new ArrayList<FileInfo>();
-			}
-			else {
-				List<FileInfo> result = new ArrayList<FileInfo>(todoFiles.length);
-				for (File f : todoFiles) {
-					
-					if(!f.getName().endsWith(".ignore") && !isFileIgnored(f)) {
-						result.add(new FileFileInfo(f));
-					}
-				}
-			return result;
-			}
-		}
-		catch (Exception e) {
-			throw new MuleException(new Message("file", 1), e);
-		}
-	}
-	
-	public boolean canRead(String readDir) {
-	    File readDirectory = new File(readDir);
-	    return readDirectory.isDirectory() && readDirectory.canRead();
-	}
-	
-	public boolean canWrite(String writeDir) {
+            return this.theFile.getAbsolutePath();
+        }
+
+        /** Gets the absolute pathname of the directory holding the file */
+        public String getParent() {
+
+            return this.theFile.getParent();
+        }
+
+        /** Gets the size of the file in bytes */
+        public long getSize() {
+
+            return this.theFile.length();
+        }
+
+        /**
+         * Gets the date and time the file was last modified, in milliseconds
+         * since the epoch
+         */
+        public long getLastModified() {
+
+            return this.theFile.lastModified();
+        }
+
+        /** Tests if the file is a directory */
+        public boolean isDirectory() {
+
+            return this.theFile.isDirectory();
+
+        }
+
+        /** Tests if the file is a plain file */
+        public boolean isFile() {
+            return this.theFile.isFile();
+        }
+
+        /** Tests if the file exists and is readable */
+        public boolean isReadable() {
+
+            return this.theFile.canRead();
+        }
+    }
+
+    public FileConnection() {
+
+        // That was easy
+    }
+
+    public List<FileInfo> listFiles(String fromDir, String filenamePattern, boolean isRegex) throws Exception {
+        FilenameFilter filenameFilter;
+
+        if (isRegex) {
+            filenameFilter = new RegexFilenameFilter(filenamePattern);
+        } else {
+            filenameFilter = new WildcardFileFilter(filenamePattern);
+        }
+
+        File readDirectory = null;
+        try {
+            readDirectory = new File(fromDir);
+        } catch (Exception e) {
+            throw new MuleException(new Message(Messages.FILE_X_DOES_NOT_EXIST, fromDir), e);
+        }
+
+        try {
+            File[] todoFiles = readDirectory.listFiles(filenameFilter);
+            if (todoFiles == null) {
+
+                return new ArrayList<FileInfo>();
+            } else {
+                List<FileInfo> result = new ArrayList<FileInfo>(todoFiles.length);
+                for (File f : todoFiles) {
+
+                    if (!f.getName().endsWith(IGNORE) && !isFileIgnored(f)) {
+                        result.add(new FileFileInfo(f));
+                    }
+                }
+                return result;
+            }
+        } catch (Exception e) {
+            throw new MuleException(new Message("file", 1), e);
+        }
+    }
+
+    public boolean canRead(String readDir) {
+        File readDirectory = new File(readDir);
+        return readDirectory.isDirectory() && readDirectory.canRead();
+    }
+
+    public boolean canWrite(String writeDir) {
         File writeDirectory = new File(writeDir);
         return writeDirectory.isDirectory() && writeDirectory.canWrite();
-	}
+    }
 
-	public InputStream readFile(String file, String fromDir)
-		throws MuleException
-	{
-		try {
-			File src = new File(fromDir, file);
-			return new FileInputStream(src);
-		}
-		catch (Exception e) {
-			throw new MuleException(new Message("file", 1), e);
-		}
-	}
+    public InputStream readFile(String file, String fromDir) throws MuleException {
+        try {
+            File src = new File(fromDir, file);
+            return new FileInputStream(src);
+        } catch (Exception e) {
+            throw new MuleException(new Message("file", 1), e);
+        }
+    }
 
-	/** Must be called after readFile when reading is complete */
-	public void closeReadFile() throws Exception {
-		// nothing
-	}
+    /** Must be called after readFile when reading is complete */
+    public void closeReadFile() throws Exception {
+        // nothing
+    }
 
-	public boolean canAppend() {
+    public boolean canAppend() {
 
-		return true;
-	}
-	
-	public void writeFile(String file, String toDir, boolean append, byte[] message)
-		throws Exception
-	{
-		OutputStream os = null;
-		File dstDir = new File(toDir);
-		
-		if (!dstDir.exists()) {
-		    dstDir.mkdirs();
-		}
-		
-		File dst = new File(dstDir, file);
-		
-		try {
-			os = new FileOutputStream(dst, append);
-			os.write(message);
-		}
-		finally {
-			if (os != null) {
-				os.close();
-			}
-		}
-	}
+        return true;
+    }
 
-	public void delete(String file, String fromDir, boolean mayNotExist)
-		throws MuleException
-	{
-		File src = new File(fromDir, file);
+    public void writeFile(String file, String toDir, boolean append, byte[] message) throws Exception {
+        OutputStream os = null;
+        File dstDir = new File(toDir);
 
-		if (!src.delete()) {
-			
-			if (!mayNotExist) {
-				throw new MuleException(new Message("file", 3, src.getAbsolutePath()));
-			}
-		}
-	}
+        if (!dstDir.exists()) {
+            dstDir.mkdirs();
+        }
 
-	public void move(String fromName, String fromDir,
-					 String toName, String toDir)
-		throws MuleException
-	{
-		File src = new File(fromDir, fromName);
-		File dst = new File(toDir, toName);
+        File dst = new File(dstDir, file);
 
-		dst.delete();
+        try {
+            os = new FileOutputStream(dst, append);
+            os.write(message);
+        } finally {
+            if (os != null) {
+                os.close();
+            }
+        }
+    }
 
-		
-		
-		// File.renameTo operation doesn't work across file systems. So we will
-		// attempt to do a File.renameTo for efficiency and atomicity, if this
-		// fails then we will use the Commons-IO moveFile operation which
-		// does a "copy and delete"
-		if (!src.renameTo(dst)) {
-		    try {
-		    	// Copy the file
-		    	FileUtils.copyFile(src, dst);
-		    	
-		    	// This will NOT throw any exceptions, this only return true/false
-		    	if(!FileUtils.deleteQuietly(src)) {
-		    		// We had a problem, so now we should ignore it
-		    		ignoreFile(src);
-		    	}    
-		    } catch (IOException e) {
-		        throw new MuleException(new Message("file", 4, src.getAbsolutePath(), dst.getAbsolutePath()), e);    
-		    }
-		}
-	}
+    public void delete(String file, String fromDir, boolean mayNotExist) throws MuleException {
+        File src = new File(fromDir, file);
 
-	public boolean isConnected() {
-		return true;
-	}
+        if (!src.delete()) {
 
-	public void activate() {
-	}
+            if (!mayNotExist) {
+                throw new MuleException(new Message("file", 3, src.getAbsolutePath()));
+            }
+        }
+    }
 
-	public void passivate() {
-	}
+    public void move(String fromName, String fromDir, String toName, String toDir) throws MuleException {
+        File src = new File(fromDir, fromName);
+        File dst = new File(toDir, toName);
 
-	public void destroy() {
-	}
+        dst.delete();
 
-	public boolean isValid() {
-		return true;
-	}
-	
-	/////// Ignoring stuff
-	
-	public boolean isFileIgnored(File file) {
-		File f = new File(file.getAbsolutePath()+".ignore");
-		return f.exists();
-	}
-	
-	public void ignoreFile(File file) {
-		try {
-			File f = new File(file.getAbsolutePath()+".ignore");
-			f.createNewFile();
-		}
-		catch(IOException e) {
-			// BLAH
-		}
-	}
+        // File.renameTo operation doesn't work across file systems. So we will
+        // attempt to do a File.renameTo for efficiency and atomicity, if this
+        // fails then we will use the Commons-IO moveFile operation which
+        // does a "copy and delete"
+        if (!src.renameTo(dst)) {
+            try {
+                // Copy the file
+                FileUtils.copyFile(src, dst);
+
+                // This will NOT throw any exceptions, this only return
+                // true/false
+                if (!FileUtils.deleteQuietly(src)) {
+                    // We had a problem, so now we should ignore it
+                    ignoreFile(src);
+                }
+            } catch (IOException e) {
+                throw new MuleException(new Message("file", 4, src.getAbsolutePath(), dst.getAbsolutePath()), e);
+            }
+        }
+    }
+
+    public boolean isConnected() {
+        return true;
+    }
+
+    public void activate() {}
+
+    public void passivate() {}
+
+    public void destroy() {}
+
+    public boolean isValid() {
+        return true;
+    }
+
+    // ///// Ignoring stuff
+
+    public boolean isFileIgnored(File file) {
+        File f = new File(file.getAbsolutePath() + IGNORE);
+        return f.exists();
+    }
+
+    public void ignoreFile(File file) {
+        try {
+            File f = new File(file.getAbsolutePath() + IGNORE);
+            f.createNewFile();
+        } catch (IOException e) {
+            // handle exceptions
+        }
+    }
 }
