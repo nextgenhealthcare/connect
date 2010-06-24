@@ -30,7 +30,7 @@ import com.mirth.connect.connectors.file.filters.RegexFilenameFilter;
 /** The FileSystemConnection class for local files
  * 
  */
-public class FileConnection implements FileSystemConnection {
+public class FileConnection implements FileSystemConnection, FileIgnoring {
 
 	public class FileFileInfo implements FileInfo {
 
@@ -122,7 +122,10 @@ public class FileConnection implements FileSystemConnection {
 			else {
 				List<FileInfo> result = new ArrayList<FileInfo>(todoFiles.length);
 				for (File f : todoFiles) {
-					result.add(new FileFileInfo(f));
+					
+					if(!f.getName().endsWith(".ignore") && !isFileIgnored(f)) {
+						result.add(new FileFileInfo(f));
+					}
 				}
 			return result;
 			}
@@ -209,13 +212,22 @@ public class FileConnection implements FileSystemConnection {
 
 		dst.delete();
 
+		
+		
 		// File.renameTo operation doesn't work across file systems. So we will
 		// attempt to do a File.renameTo for efficiency and atomicity, if this
 		// fails then we will use the Commons-IO moveFile operation which
 		// does a "copy and delete"
 		if (!src.renameTo(dst)) {
 		    try {
-		        FileUtils.moveFile(src, dst);    
+		    	// Copy the file
+		    	FileUtils.copyFile(src, dst);
+		    	
+		    	// This will NOT throw any exceptions, this only return true/false
+		    	if(!FileUtils.deleteQuietly(src)) {
+		    		// We had a problem, so now we should ignore it
+		    		ignoreFile(src);
+		    	}    
 		    } catch (IOException e) {
 		        throw new MuleException(new Message("file", 4, src.getAbsolutePath(), dst.getAbsolutePath()), e);    
 		    }
@@ -237,5 +249,22 @@ public class FileConnection implements FileSystemConnection {
 
 	public boolean isValid() {
 		return true;
+	}
+	
+	/////// Ignoring stuff
+	
+	public boolean isFileIgnored(File file) {
+		File f = new File(file.getAbsolutePath()+".ignore");
+		return f.exists();
+	}
+	
+	public void ignoreFile(File file) {
+		try {
+			File f = new File(file.getAbsolutePath()+".ignore");
+			f.createNewFile();
+		}
+		catch(IOException e) {
+			// BLAH
+		}
 	}
 }
