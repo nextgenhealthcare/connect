@@ -8,7 +8,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 	<select id="getTemplate" parameterClass="java.util.Map" resultClass="java.lang.String">
 		SELECT TEMPLATE
 		FROM TEMPLATE
-		WHERE GROUP_ID = #groupId# ID = #id#
+		WHERE GROUP_ID = #groupId# AND ID = #id#
 	</select>
 	
 	<insert id="insertTemplate" parameterClass="java.util.Map">
