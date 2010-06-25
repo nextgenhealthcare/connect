@@ -370,26 +370,25 @@ public class MllpMessageDispatcher extends AbstractMessageDispatcher implements 
 
     public byte[] getAck(Socket socket, String endpointUri) {
         int maxTime = connector.getAckTimeout();
-        if (maxTime == 0)
+        if (maxTime == 0) {
             return null;
+        }
         try {
             byte[] result = receive(socket, maxTime);
-            if (result == null) {
-                return null;
+            if (result != null) {
+                return result;
             }
-            return result;
         } catch (SocketTimeoutException e) {
             // we don't necessarily expect to receive a response here
             logger.info("Socket timed out normally while doing a synchronous receive on endpointUri: " + endpointUri);
-            // dans: in case the ack times out it is necessary to get a
-            // new socket so that the next message does not use ack of previous
-            // message
-            doDispose(socket);
-            return null;
         } catch (Exception ex) {
             logger.info("Socket error while doing a synchronous receive on endpointUri: " + endpointUri);
-            return null;
         }
+        
+        // MIRTH-1442: In case the ack times out it is necessary to get a new
+        // socket so that the next message does not use ack of previous message
+        doDispose(socket);
+        return null;
     }
 
     // Function similar to the Receiver
