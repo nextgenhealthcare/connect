@@ -33,8 +33,10 @@ public class JavaScriptPostprocessor {
 			Channel channel = channelCache.get(channelId);
 			if (channel.getProperties().containsKey("store_messages")) {
 				if (channel.getProperties().get("store_messages").equals("false") || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("error_messages_only").equals("true") && !messageObject.getStatus().equals(MessageObject.Status.ERROR)) || (channel.getProperties().get("store_messages").equals("true") && channel.getProperties().get("dont_store_filtered").equals("true") && messageObject.getStatus().equals(MessageObject.Status.FILTERED))) {
-					// message is not stored, remove attachment
-					ControllerFactory.getFactory().createMessageObjectController().deleteAttachments(messageObject);
+				    // message is not stored, remove attachment if there is one
+                    if (messageObject.isAttachment()) {
+                        ControllerFactory.getFactory().createMessageObjectController().deleteAttachments(messageObject);
+                    }
 				}
 			}
 		}
