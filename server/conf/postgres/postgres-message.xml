@@ -6,9 +6,9 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 
 <sqlMap namespace="Message">
 	<parameterMap class="com.mirth.connect.model.MessageObject" id="insert-message-param">
-		<parameter property="id" jdbcType="VARCHAR" />
-		<parameter property="serverId" jdbcType="VARCHAR" />
-		<parameter property="channelId" jdbcType="VARCHAR" />
+		<parameter property="id" jdbcType="CHAR" />
+		<parameter property="serverId" jdbcType="CHAR" />
+		<parameter property="channelId" jdbcType="CHAR" />
 		<parameter property="source" jdbcType="VARCHAR" />
 		<parameter property="type" jdbcType="VARCHAR" />
 		<parameter property="dateCreated" jdbcType="TIMESTAMP" />
@@ -49,7 +49,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<parameter property="channelMap" jdbcType="CLOB" />
 		<parameter property="responseMap" jdbcType="CLOB" />
 		<parameter property="attachment" jdbcType="SMALLINT" />
-		<parameter property="id" jdbcType="VARCHAR" />
+		<parameter property="id" jdbcType="CHAR" />
 	</parameterMap>
 
 	<resultMap class="com.mirth.connect.model.MessageObject" id="get-message-result">

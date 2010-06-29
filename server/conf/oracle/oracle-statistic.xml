@@ -12,8 +12,8 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		<parameter property="error" jdbcType="NUMERIC" />		
 		<parameter property="queued" jdbcType="NUMERIC" />
 		<parameter property="alerted" jdbcType="NUMERIC" />
-		<parameter property="serverId" jdbcType="VARCHAR" />
-		<parameter property="channelId" jdbcType="VARCHAR" />
+		<parameter property="serverId" jdbcType="CHAR" />
+		<parameter property="channelId" jdbcType="CHAR" />
 	</parameterMap>
 
 	<resultMap class="com.mirth.connect.model.ChannelStatistics" id="get-statistics-result">
