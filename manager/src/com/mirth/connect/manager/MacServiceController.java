@@ -81,4 +81,14 @@ public class MacServiceController implements ServiceController {
     	return "sh -c";
     }
 
+    @Override
+    public boolean isShowTrayIcon() {
+        return false;
+    }
+
+    @Override
+    public boolean isShowServiceTab() {
+        return false;
+    }
+
 }

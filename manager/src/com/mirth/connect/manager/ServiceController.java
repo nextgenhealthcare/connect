@@ -18,4 +18,6 @@ public interface ServiceController {
     public void setStartup(boolean enabled);
     public boolean isStartup();
     public String getCommand();
+    public boolean isShowTrayIcon();
+    public boolean isShowServiceTab();
 }

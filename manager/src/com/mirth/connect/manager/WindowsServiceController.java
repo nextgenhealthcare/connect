@@ -126,4 +126,14 @@ public class WindowsServiceController implements ServiceController {
     	return "cmd /c";
     }
 
+    @Override
+    public boolean isShowTrayIcon() {
+        return true;
+    }
+
+    @Override
+    public boolean isShowServiceTab() {
+        return true;
+    }
+
 }

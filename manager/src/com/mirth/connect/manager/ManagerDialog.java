@@ -39,6 +39,12 @@ public class ManagerDialog extends javax.swing.JDialog {
 
     public void setupDialog() {
         initComponents();
+        
+        // Remove the service tab if it's not supported
+        if (!serviceController.isShowServiceTab()) {
+        	tabPanel.removeTabAt(0);
+        }
+        
         pack();
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -94,6 +100,11 @@ public class ManagerDialog extends javax.swing.JDialog {
 
     public void close() {
         setVisible(false);
+        
+        // if there is no tray icon, shutdown and exit the manager
+        if (!serviceController.isShowTrayIcon()) {
+        	Manager.shutdown();
+        }
     }
 
     public void setApplyEnabled(boolean enabled) {

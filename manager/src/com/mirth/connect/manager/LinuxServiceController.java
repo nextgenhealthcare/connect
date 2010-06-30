@@ -81,4 +81,14 @@ public class LinuxServiceController implements ServiceController {
         return "sh -c";
     }
 
+    @Override
+    public boolean isShowTrayIcon() {
+        return true;
+    }
+
+    @Override
+    public boolean isShowServiceTab() {
+        return true;
+    }
+
 }

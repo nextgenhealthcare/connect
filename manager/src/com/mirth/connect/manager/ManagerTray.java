@@ -114,15 +114,25 @@ public class ManagerTray {
             }
         });
 
-        SystemTray tray = null;
         try {
-            tray = SystemTray.getSystemTray();
-            tray.add(mirthTrayIcon);
-        } catch (Throwable t) {
-            // Exit the manager in case of the following error:
-            // java.lang.UnsatisfiedLinkError: C:\Program Files (x86)\Mirth\lib\tray.dll: Can't load IA 32-bit .dll on a AMD 64-bit platform
-            t.printStackTrace();
-            System.exit(1);
+            if (ServiceControllerFactory.getServiceController().isShowTrayIcon()) {
+                SystemTray tray = null;
+                try {
+                    tray = SystemTray.getSystemTray();
+                    tray.add(mirthTrayIcon);
+                } catch (Throwable t) {
+                    // Exit the manager in case of the following error:
+                    // java.lang.UnsatisfiedLinkError: C:\Program Files (x86)\Mirth\lib\tray.dll: Can't load IA 32-bit .dll on a AMD 64-bit platform
+                    t.printStackTrace();
+                    System.exit(1);
+                }
+            } else {
+            	// If no tray dialog is being shown, open the manager dialog automatically
+            	PlatformUI.MANAGER_DIALOG.open();
+            }
+        } catch (Exception e) {
+            // Ignore exceptions getting the service controller.
+            // The tray icon will not be displayed if there was a problem.
         }
     }
 
