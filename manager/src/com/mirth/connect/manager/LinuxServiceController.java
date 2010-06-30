@@ -12,7 +12,7 @@ package com.mirth.connect.manager;
 public class LinuxServiceController implements ServiceController {
 
     private final String LINUX_SERVICE_NAME = "mirthconnect_service";
-    private final String LINUX_SERVICE_CMD = "service";
+    private final String LINUX_SERVICE_CMD = "/etc/init.d/";
     private final String LINUX_SERVICE_START = "start";
     private final String LINUX_SERVICE_STOP = "stop";
     private final String LINUX_SERVICE_STATUS = "status";
@@ -20,7 +20,7 @@ public class LinuxServiceController implements ServiceController {
     @Override
     public int checkService() {
         try {
-            String[] input = new String[]{LINUX_SERVICE_CMD + " " + LINUX_SERVICE_NAME + " " + LINUX_SERVICE_STATUS};
+            String[] input = new String[]{LINUX_SERVICE_CMD + LINUX_SERVICE_NAME + " " + LINUX_SERVICE_STATUS};
             String output = CmdUtil.execCmdWithOutput(input);
             System.out.println(output);
             if (output.indexOf("running") != -1) {
@@ -38,7 +38,7 @@ public class LinuxServiceController implements ServiceController {
     @Override
     public boolean startService() {
         try {
-            if (CmdUtil.execCmd(new String[]{LINUX_SERVICE_CMD + " " + LINUX_SERVICE_NAME + " " + LINUX_SERVICE_START}, true) == 0) {
+            if (CmdUtil.execCmd(new String[]{LINUX_SERVICE_CMD + LINUX_SERVICE_NAME + " " + LINUX_SERVICE_START}, true) == 0) {
                 return true;
             }
         } catch (Exception e) {
@@ -51,7 +51,7 @@ public class LinuxServiceController implements ServiceController {
     @Override
     public boolean stopService() {
         try {
-            if (CmdUtil.execCmd(new String[]{LINUX_SERVICE_CMD + " " + LINUX_SERVICE_NAME + " " + LINUX_SERVICE_STOP}, true) == 0) {
+            if (CmdUtil.execCmd(new String[]{LINUX_SERVICE_CMD + LINUX_SERVICE_NAME + " " + LINUX_SERVICE_STOP}, true) == 0) {
                 return true;
             }
         } catch (Exception e) {
