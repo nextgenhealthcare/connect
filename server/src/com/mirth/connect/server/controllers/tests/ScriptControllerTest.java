@@ -54,7 +54,7 @@ public class ScriptControllerTest extends TestCase {
 		String id = configurationController.generateGuid();
 		String script = "return true;";
 		scriptController.putScript(groupId, id, script);
-		scriptController.removeAllScripts();
+		scriptController.removeScripts(groupId);
 		
 		Assert.assertNull(scriptController.getScript(groupId, id));
 	}

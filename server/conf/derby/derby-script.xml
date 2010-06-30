@@ -23,11 +23,16 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		WHERE GROUP_ID = #groupId# AND ID = #id#
 	</update>
 
-	<delete id="deleteScript" parameterClass="java.lang.String">
-		DELETE FROM SCRIPT 
-		<isPropertyAvailable prepend="AND" property="groupId">
-			GROUP_ID = #groupId#
-		</isPropertyAvailable>
+	<delete id="deleteScript" parameterClass="java.util.Map">
+		DELETE FROM SCRIPT
+		<dynamic prepend="WHERE">
+			<isPropertyAvailable prepend="AND" property="groupId">
+				GROUP_ID = #groupId#
+			</isPropertyAvailable>
+			<isPropertyAvailable prepend="AND" property="notGroupId">
+				GROUP_ID != #notGroupId#
+			</isPropertyAvailable>
+		</dynamic>
 	</delete>
 	
 	<procedure id="vacuumScriptTable">

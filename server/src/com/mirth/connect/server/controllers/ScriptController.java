@@ -38,5 +38,5 @@ public abstract class ScriptController extends Controller {
 
     public abstract void removeScripts(String groupId) throws ControllerException;
     
-    public abstract void removeAllScripts() throws ControllerException;
+    public abstract void removeAllExceptGlobalScripts() throws ControllerException;
 }

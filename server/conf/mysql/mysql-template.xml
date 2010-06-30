@@ -23,7 +23,7 @@ PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
 		WHERE GROUP_ID = #groupId# AND ID = #id#
 	</update>
 	
-	<delete id="deleteTemplate" parameterClass="java.lang.String">
+	<delete id="deleteTemplate" parameterClass="java.util.Map">
 		DELETE FROM TEMPLATE
 		<dynamic prepend="WHERE">
 			<isPropertyAvailable prepend="AND" property="groupId">

@@ -89,8 +89,11 @@ public class DefaultTemplateController extends TemplateController {
     public void removeTemplates(String groupId) throws ControllerException {
         logger.debug("removing templates: groupId=" + groupId);
 
+        Map<String, Object> parameterMap = new HashMap<String, Object>();
+        parameterMap.put("groupId", groupId);
+        
         try {
-            SqlConfig.getSqlMapClient().delete("Template.deleteTemplate", groupId);
+            SqlConfig.getSqlMapClient().delete("Template.deleteTemplate", parameterMap);
         } catch (SQLException e) {
             throw new ControllerException("error clearing templates", e);
         }

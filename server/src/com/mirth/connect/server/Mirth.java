@@ -45,6 +45,8 @@ import com.mirth.connect.server.controllers.MessageObjectController;
 import com.mirth.connect.server.controllers.MigrationController;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MuleEngineController;
+import com.mirth.connect.server.controllers.ScriptController;
+import com.mirth.connect.server.controllers.TemplateController;
 import com.mirth.connect.server.controllers.UserController;
 import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
 import com.mirth.connect.server.util.GlobalVariableStore;
@@ -76,6 +78,8 @@ public class Mirth extends Thread {
     private MigrationController migrationController = ControllerFactory.getFactory().createMigrationController();
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
+    private TemplateController templateController = ControllerFactory.getFactory().createTemplateController();
+    private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
 
     public static void main(String[] args) {
         Mirth mirth = new Mirth();
@@ -279,9 +283,13 @@ public class Mirth extends Thread {
         configurationController.setEngineStarting(true);
 
         try {
-            // disables validation of Mule configuration files
-            System.setProperty("org.mule.xml.validate", "false");
             VMRegistry.getInstance().rebuild();
+            
+            // remove all scripts and templates since the channels
+            // were never undeployed
+            scriptController.removeAllExceptGlobalScripts();
+            templateController.removeAllTemplates();
+            
             List<Channel> channels = channelController.getChannel(null);
             configurationController.compileScripts(channels);
             configurationController.executeGlobalDeployScript();

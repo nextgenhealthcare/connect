@@ -53,7 +53,7 @@ public class TemplateControllerTest extends TestCase {
 		String id = configurationController.generateGuid();
 		String template = "<sample><test>hello world</test></sample>";
 		templateController.putTemplate(GROUP_ID, id, template);
-		templateController.removeAllTemplates();
+		templateController.removeTemplates(GROUP_ID);
 		
 		Assert.assertNull(templateController.getTemplate(GROUP_ID, id));
 	}

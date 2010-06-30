@@ -86,18 +86,24 @@ public class DefaultScriptController extends ScriptController {
     public void removeScripts(String groupId) throws ControllerException {
         logger.debug("deleting scripts: groupId=" + groupId);
 
+        Map<String, Object> parameterMap = new HashMap<String, Object>();
+        parameterMap.put("groupId", groupId);
+        
         try {
-            SqlConfig.getSqlMapClient().delete("Script.deleteScript", groupId);
+            SqlConfig.getSqlMapClient().delete("Script.deleteScript", parameterMap);
         } catch (SQLException e) {
             throw new ControllerException("Error deleting scripts", e);
         }
     }
     
-    public void removeAllScripts() throws ControllerException {
+    public void removeAllExceptGlobalScripts() throws ControllerException {
         logger.debug("clearing scripts table");
 
+        Map<String, Object> parameterMap = new HashMap<String, Object>();
+        parameterMap.put("notGroupId", ConfigurationController.GLOBAL_KEY);
+        
         try {
-            SqlConfig.getSqlMapClient().delete("Script.deleteScript");
+            SqlConfig.getSqlMapClient().delete("Script.deleteScript", parameterMap);
 
             if (DatabaseUtil.statementExists("Script.vacuumScriptTable")) {
                 SqlConfig.getSqlMapClient().update("Script.vacuumScriptTable");

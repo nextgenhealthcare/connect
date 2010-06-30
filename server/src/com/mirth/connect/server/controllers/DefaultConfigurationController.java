@@ -215,9 +215,6 @@ public class DefaultConfigurationController extends ConfigurationController {
     public void redeployAllChannels() throws ControllerException {
         logger.debug("redeploying all channels");
 
-        // remove all scripts and templates
-        ControllerFactory.getFactory().createTemplateController().removeAllTemplates();
-
         // deploy all enabled channels
         deployChannels(ControllerFactory.getFactory().createChannelController().getChannel(null));
     }
