@@ -37,7 +37,7 @@
 		<copy todir="${build}/cli-lib">
 			<fileset dir="${lib}" />
 		</copy>
-
+		
 		<jar destfile="${build}/${cli.jar}" basedir="${classes}">
 			<manifest>
 				<attribute name="Manifest-Version" value="1.0" />

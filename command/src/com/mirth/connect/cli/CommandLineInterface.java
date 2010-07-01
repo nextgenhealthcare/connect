@@ -12,6 +12,7 @@ package com.mirth.connect.cli;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -24,6 +25,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -80,10 +82,12 @@ public class CommandLineInterface {
         Option passwordOption = OptionBuilder.withArgName("password").hasArg().withDescription("user password").create("p");
         Option scriptOption = OptionBuilder.withArgName("script").hasArg().withDescription("script file").create("s");
         Option versionOption = OptionBuilder.withArgName("version").hasArg().withDescription("version").create("v");
+        Option configOption = OptionBuilder.withArgName("config file").hasArg().withDescription("path to default configuration [default: config.properties]").create("c");
         Option helpOption = new Option("h", "help");
         Option debugOption = new Option("d", "debug");
 
         Options options = new Options();
+        options.addOption(configOption);
         options.addOption(serverOption);
         options.addOption(userOption);
         options.addOption(passwordOption);
@@ -97,19 +101,34 @@ public class CommandLineInterface {
         try {
             CommandLine line = parser.parse(options, args);
 
-            if (line.hasOption("a") && line.hasOption("u") && line.hasOption("p") && line.hasOption("v")) {
-                String server = line.getOptionValue("a");
-                String user = line.getOptionValue("u");
-                String password = line.getOptionValue("p");
-                String version = line.getOptionValue("v");
-                String script = line.getOptionValue("s");
-
-                runShell(server, user, password, version, script, line.hasOption("d"));
-            } else if (line.hasOption("h")) {
+            // Bail out early if they just want help
+            if (line.hasOption("h")) {
                 new HelpFormatter().printHelp("Shell", options);
+                System.exit(0);
+            }
+
+            Properties configDefaults = new Properties();
+            try {
+                configDefaults.load(new FileInputStream(line.getOptionValue("c", "conf" + File.separator + "config.properties")));
+            } catch (IOException e) {
+                // Only error out if they tried to load the config
+                if (line.hasOption("c")) {
+                    error("We could not find the file: " + line.getOptionValue("c"), null);
+                    System.exit(2);
+                }
+            }
+
+            String server = line.getOptionValue("a", configDefaults.getProperty("address"));
+            String user = line.getOptionValue("u", configDefaults.getProperty("user"));
+            String password = line.getOptionValue("p", configDefaults.getProperty("password"));
+            String version = line.getOptionValue("v", configDefaults.getProperty("version"));
+            String script = line.getOptionValue("s", configDefaults.getProperty("script"));
+
+            if ((server != null) && (user != null) && (password != null) && (version != null)) {
+                runShell(server, user, password, version, script, line.hasOption("d"));
             } else {
                 new HelpFormatter().printHelp("Shell", options);
-                error("all of -a, -u, -p, and -v options must be supplied", null);
+                error("all of address, user, password, and version options must be supplied as arguments or in the default configuration file", null);
                 System.exit(2);
             }
         } catch (ParseException e) {

@@ -11,6 +11,5 @@
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.mirth.connect.cli.CommandLineInterface"/>
-<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-a https://127.0.0.1:8443 -u admin -p admin -v 0.0.0 -d"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="Command"/>
 </launchConfiguration>
