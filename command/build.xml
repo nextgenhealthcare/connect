@@ -46,7 +46,8 @@
 			</manifest>
 		</jar>
 	</target>
-
+	
+	
 	<target name="dist" depends="build">
 		<mkdir dir="${dist}" />
 		<zip destfile="${dist}/mirthconnect-cli-${version}.zip" basedir="${build}" includes="**/*" />
