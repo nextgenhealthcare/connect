@@ -9,9 +9,11 @@
 
 package com.mirth.connect.server.builders;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ListIterator;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.Channel;
@@ -42,7 +44,8 @@ public class JavaScriptBuilder {
 
 					if (rule.getType().equalsIgnoreCase("External Script")) {
 						try {
-							builder.append("function filterRule" + iter.nextIndex() + "() {\n" + FileUtil.read(rule.getScript()) + "\n}");
+						    File externalScriptFile = new File(rule.getScript());
+							builder.append("function filterRule" + iter.nextIndex() + "() {\n" + FileUtils.readFileToString(externalScriptFile) + "\n}");
 						} catch (IOException e) {
 							throw new BuilderException("Could not add script file.", e);
 						}
@@ -79,7 +82,7 @@ public class JavaScriptBuilder {
 				
 				if (step.getType().equalsIgnoreCase("External Script")) {
 				    try {
-	                    builder.append("\n" + FileUtil.read(step.getScript()) + "\n");
+	                    builder.append("\n" + FileUtils.readFileToString(new File(step.getScript())) + "\n");
 				    } catch (IOException e) {
 				        throw new BuilderException("Could not add script file.", e);
 				    }

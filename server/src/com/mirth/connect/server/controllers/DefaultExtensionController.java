@@ -24,6 +24,7 @@ import java.util.Scanner;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -40,7 +41,6 @@ import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.plugins.ServerPlugin;
 import com.mirth.connect.server.util.DatabaseUtil;
-import com.mirth.connect.server.util.FileUtil;
 import com.mirth.connect.util.ExtensionUtil;
 
 public class DefaultExtensionController extends ExtensionController {
@@ -185,7 +185,8 @@ public class DefaultExtensionController extends ExtensionController {
 			
 			for (PluginMetaData plugin : plugins.values()) {
 				if (plugin.getPath().equals(packageName) && plugin.getSqlScript() != null) {
-					String contents = FileUtil.read(ExtensionController.getExtensionsPath() + plugin.getPath() + File.separator + plugin.getSqlScript());
+				    File pluginSqlScriptFile = new File(ExtensionController.getExtensionsPath() + plugin.getPath() + File.separator + plugin.getSqlScript());
+					String contents = FileUtils.readFileToString(pluginSqlScriptFile);
                     Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(contents)));
                     
                     String script = getUninstallScript(document);
@@ -354,7 +355,7 @@ public class DefaultExtensionController extends ExtensionController {
     	ObjectXMLSerializer serializer = new ObjectXMLSerializer();
     	
     	try {
-    		FileUtil.write(uninstallScriptsFile.getAbsolutePath(), false, serializer.toXML(uninstallScripts));
+    	    FileUtils.writeStringToFile(uninstallScriptsFile, serializer.toXML(uninstallScripts));
 		} catch (IOException e) {
 			throw new ControllerException(e);
 		}
@@ -367,7 +368,7 @@ public class DefaultExtensionController extends ExtensionController {
     	if (uninstallScriptsFile.exists()) {
     		ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         	try {
-				uninstallScripts = (List<String>) serializer.fromXML(FileUtil.read(uninstallScriptsFile.getAbsolutePath()));
+				uninstallScripts = (List<String>) serializer.fromXML(FileUtils.readFileToString(uninstallScriptsFile));
 			} catch (IOException e) {
 				throw new ControllerException(e);
 			}

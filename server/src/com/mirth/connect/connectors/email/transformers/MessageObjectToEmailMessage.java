@@ -25,6 +25,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mule.MuleManager;
@@ -40,7 +41,6 @@ import com.mirth.connect.connectors.email.MailProperties;
 import com.mirth.connect.connectors.email.MailUtils;
 import com.mirth.connect.connectors.email.SmtpConnector;
 import com.mirth.connect.model.MessageObject;
-import com.mirth.connect.server.util.FileUtil;
 
 /**
  * <code>StringToEmailMessage</code> will convert a string to a java mail
@@ -187,7 +187,7 @@ public class MessageObjectToEmailMessage extends AbstractEventAwareTransformer {
             if (attachmentType.split("/")[0].equalsIgnoreCase("text")) {
                 content = attachmentContent.getBytes();
             } else {
-                content = FileUtil.decode(attachmentContent);
+                content = Base64.decodeBase64(attachmentContent);
             }
 
             MimeBodyPart attachmentBodyPart = new MimeBodyPart();

@@ -21,14 +21,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -40,7 +41,6 @@ import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.util.ImportConverter;
 import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.DatabaseUtil;
-import com.mirth.connect.server.util.FileUtil;
 import com.mirth.connect.server.util.SqlConfig;
 
 /**
@@ -156,7 +156,8 @@ public class DefaultMigrationController extends MigrationController {
                     int baseSchemaVersion = Integer.parseInt(pluginProperties.getProperty("schema", "-1"));
 
                     if (plugin.getSqlScript() != null) {
-                        String contents = FileUtil.read(ExtensionController.getExtensionsPath() + plugin.getPath() + File.separator + plugin.getSqlScript());
+                        File pluginSqlScriptFile = new File(ExtensionController.getExtensionsPath() + plugin.getPath() + File.separator + plugin.getSqlScript());
+                        String contents = FileUtils.readFileToString(pluginSqlScriptFile);
                         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(new StringReader(contents)));
                         TreeMap<Integer, String> scripts = getDiffsForVersion(baseSchemaVersion, document);
                         List<String> scriptList = new LinkedList<String>();

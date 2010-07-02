@@ -11,6 +11,8 @@ package com.mirth.connect.connectors.dimse;
 
 import java.io.File;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FileUtils;
 import org.dcm4che2.net.UserIdentity;
 import org.dcm4che2.net.pdu.AAssociateRJ;
 import org.dcm4che2.tool.dcmsnd.DcmSnd;
@@ -28,7 +30,6 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.MessageObjectController;
 import com.mirth.connect.server.controllers.MonitoringController;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
-import com.mirth.connect.server.util.FileUtil;
 
 public class DICOMMessageDispatcher extends AbstractMessageDispatcher {
     private MessageObjectController messageObjectController = ControllerFactory.getFactory().createMessageObjectController();
@@ -54,7 +55,7 @@ public class DICOMMessageDispatcher extends AbstractMessageDispatcher {
         DICOMConnector dicomConnector = (DICOMConnector) connector;
         String template = replacer.replaceValues(dicomConnector.getTemplate(), messageObject);
         File tempFile = File.createTempFile("temp", "tmp");
-        FileUtil.write(tempFile.getAbsolutePath(), false, FileUtil.decode(template));
+        FileUtils.writeByteArrayToFile(tempFile, Base64.decodeBase64(template));
 
         DcmSnd dcmSnd = new DcmSnd();
         dcmSnd.setCalledAET("DCMRCV");

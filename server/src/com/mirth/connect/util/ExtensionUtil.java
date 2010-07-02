@@ -27,6 +27,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.io.FileUtils;
 
 import com.mirth.connect.client.core.VersionMismatchException;
 import com.mirth.connect.model.ConnectorMetaData;
@@ -38,7 +39,6 @@ import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.controllers.ExtensionController.ExtensionType;
-import com.mirth.connect.server.util.FileUtil;
 import com.mirth.connect.server.util.UUIDGenerator;
 
 public class ExtensionUtil {
@@ -51,8 +51,7 @@ public class ExtensionUtil {
 
 		try {
 			for (File extensionFile : extensionFiles) {
-				String xml = FileUtil.read(extensionFile.getAbsolutePath());
-				MetaData extensionMetadata = (MetaData) serializer.fromXML(xml);
+				MetaData extensionMetadata = (MetaData) serializer.fromXML(FileUtils.readFileToString(extensionFile));
 				extensionMap.put(extensionMetadata.getName(), extensionMetadata);
 			}
 		} catch (IOException ioe) {
@@ -78,7 +77,8 @@ public class ExtensionUtil {
 					}
 				}
 				
-				FileUtil.write(ExtensionController.getExtensionsPath() + extensionMetaData.getPath() + File.pathSeparator + fileName, false, serializer.toXML(metaData.get(entry.getKey())));
+				File metaDataFile = new File(ExtensionController.getExtensionsPath() + extensionMetaData.getPath() + File.pathSeparator + fileName);
+				FileUtils.writeStringToFile(metaDataFile, serializer.toXML(metaData.get(entry.getKey())));
 			}
 		} catch (IOException ioe) {
 			throw new ControllerException(ioe);
