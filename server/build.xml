@@ -1,4 +1,7 @@
 <project name="mirth" basedir="." default="help">
+	
+	<property name="keystore_property_file" value="keystore.properties" />
+	
 	<target name="help">
 		<echo>Mirth Connect Build Help</echo>
 	</target>
@@ -562,8 +565,16 @@
 	</target>
 
 	<target name="create-client-lib" depends="init">
+		
+		<property file="${keystore_property_file}" />
+		
 		<!-- sign jars for webstart -->
-		<signjar alias="mirth" keystore="${basedir}/keystore" storepass="abc12345" keypass="abc12345">
+		<signjar alias="${key.alias}" 
+			keystore="${key.keystore}" 
+			storepass="${key.storepass}" 
+			keypass="${key.keypass}"
+			storetype="${key.storetype}"
+		>
 			<fileset dir="${client.lib}">
 				<include name="**/*.jar" />
 			</fileset>
