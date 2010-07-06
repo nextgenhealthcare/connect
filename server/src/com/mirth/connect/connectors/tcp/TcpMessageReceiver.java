@@ -22,6 +22,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.Map;
 
 import javax.resource.spi.work.Work;
@@ -88,6 +89,9 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
         try {
             serverSocket = createSocket(uri);
             monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
+        } catch (UnknownHostException e) {
+            logger.error(e.getClass().getName() + ": " + e.getMessage());
+            throw new org.mule.providers.ConnectException(new Message("tcp", 1, uri), e, this);
         } catch (Exception e) {
             throw new org.mule.providers.ConnectException(new Message("tcp", 1, uri), e, this);
         }
@@ -113,7 +117,7 @@ public class TcpMessageReceiver extends AbstractMessageReceiver implements Work 
         }
     }
 
-    protected ServerSocket createSocket(URI uri) throws Exception {
+    protected ServerSocket createSocket(URI uri) throws IOException {
         String host = uri.getHost();
         int backlog = connector.getBacklog();
         if (host == null || host.length() == 0) {
