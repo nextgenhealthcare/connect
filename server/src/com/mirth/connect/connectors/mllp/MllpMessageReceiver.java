@@ -25,6 +25,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -39,6 +40,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.log4j.Logger;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
 import org.mule.impl.MuleMessage;
@@ -75,6 +77,8 @@ import com.mirth.connect.server.util.BatchMessageProcessor;
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 
 public class MllpMessageReceiver extends AbstractMessageReceiver implements Work {
+    private Logger logger = Logger.getLogger(this.getClass());
+    
     protected ServerSocket serverSocket = null;
     protected Socket clientSocket = null;
     private char END_MESSAGE = 0x1C; // character indicating end of message
@@ -119,6 +123,9 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
             try {
                 serverSocket = createServerSocket(uri);
                 monitoringController.updateStatus(connector, connectorType, Event.INITIALIZED);
+            } catch (UnknownHostException e) {
+                logger.error(e.getClass().getName() + ": " + e.getMessage());
+                throw new org.mule.providers.ConnectException(new Message("tcp", 1, uri), e, this);
             } catch (Exception e) {
                 throw new org.mule.providers.ConnectException(new Message("tcp", 1, uri), e, this);
             }
@@ -155,7 +162,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
         }
     }
 
-    protected ServerSocket createServerSocket(URI uri) throws Exception {
+    protected ServerSocket createServerSocket(URI uri) throws IOException {
         String host = uri.getHost();
         int backlog = connector.getBacklog();
         if (host == null || host.length() == 0) {
@@ -169,7 +176,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
         }
     }
 
-    protected Socket createClientSocket(URI uri) throws Exception {
+    protected Socket createClientSocket(URI uri) throws IOException {
         String host = uri.getHost();
         InetAddress inetAddress = InetAddress.getByName(host);
         return new Socket(inetAddress, uri.getPort());
