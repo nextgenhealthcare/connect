@@ -30,7 +30,7 @@ import org.apache.commons.httpclient.util.IdleConnectionTimeoutThread;
 
 import com.mirth.connect.client.core.ssl.EasySSLProtocolSocketFactory;
 
-public class ServerConnection {
+public final class ServerConnection {
 	private HttpClient client;
 	private String address;
 	private IdleConnectionTimeoutThread idleConnectionTimeoutThread;

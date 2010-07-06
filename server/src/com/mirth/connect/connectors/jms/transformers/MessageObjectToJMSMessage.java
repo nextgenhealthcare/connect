@@ -22,6 +22,7 @@ import com.mirth.connect.model.MessageObject;
 
 public class MessageObjectToJMSMessage extends AbstractJmsTransformer {
     private static transient Log logger = LogFactory.getLog(MessageObjectToJMSMessage.class);
+    private static final long serialVersionUID = 1L;
     private JmsConnector connector;
     private TemplateValueReplacer replacer = new TemplateValueReplacer();
     public MessageObjectToJMSMessage(JmsConnector connector){

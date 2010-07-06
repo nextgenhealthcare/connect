@@ -37,6 +37,7 @@ public class ObjectToJMSMessage extends AbstractJmsTransformer
      * logger used by this class
      */
     private static transient Log logger = LogFactory.getLog(ObjectToJMSMessage.class);
+    private static final long serialVersionUID = 1L;
 
     public Object doTransform(Object src) throws TransformerException
     {

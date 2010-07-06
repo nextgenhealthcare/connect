@@ -51,6 +51,8 @@ import com.mirth.connect.model.MessageObject;
  * @version $Revision: 1.8 $
  */
 public class MessageObjectToEmailMessage extends AbstractEventAwareTransformer {
+    
+    private static final long serialVersionUID = 1L;
     /**
      * logger used by this class
      */
