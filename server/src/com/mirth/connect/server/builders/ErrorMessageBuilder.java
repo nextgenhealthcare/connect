@@ -9,9 +9,8 @@
 
 package com.mirth.connect.server.builders;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.mozilla.javascript.RhinoException;
-
-import com.mirth.connect.server.util.StackTracePrinter;
 
 public class ErrorMessageBuilder {
     private String lineSeperator = System.getProperty("line.separator");
@@ -32,7 +31,7 @@ public class ErrorMessageBuilder {
         String stackTrace = new String();
         
         if (e != null) {
-            stackTrace = StackTracePrinter.stackTraceToString(e);
+            stackTrace = ExceptionUtils.getStackTrace(e);
         }
         
         errorMessage.append(errorType + lineSeperator);

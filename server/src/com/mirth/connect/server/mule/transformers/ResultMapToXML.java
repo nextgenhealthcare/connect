@@ -16,13 +16,13 @@ import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.mule.transformers.AbstractTransformer;
 import org.mule.umo.transformer.TransformerException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.mirth.connect.model.converters.DocumentSerializer;
-import com.mirth.connect.server.util.StackTracePrinter;
 
 /**
  * Transforms a database result row map into an XML string.
@@ -67,7 +67,7 @@ public class ResultMapToXML extends AbstractTransformer {
 									sb.append(charbuf, 0, i);
 								}
 							} catch (IOException e) {
-								logger.error("Error reading clob value.\n" + StackTracePrinter.stackTraceToString(e));
+								logger.error("Error reading clob value.\n" + ExceptionUtils.getStackTrace(e));
 
 							}
 							value = sb.toString();
@@ -76,7 +76,7 @@ public class ResultMapToXML extends AbstractTransformer {
 								java.sql.Blob blobValue = (java.sql.Blob) objectValue;
 								value = new String(blobValue.getBytes(1, (int) blobValue.length()));
 							} catch (Exception ex) {
-								logger.error("Error reading blob value.\n" + StackTracePrinter.stackTraceToString(ex));
+								logger.error("Error reading blob value.\n" + ExceptionUtils.getStackTrace(ex));
 							}
 						} else {
 							value = objectValue.toString();

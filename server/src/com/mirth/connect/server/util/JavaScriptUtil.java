@@ -9,6 +9,7 @@
 
 package com.mirth.connect.server.util;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
@@ -19,9 +20,9 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
 import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
 import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.SystemEvent;
-import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
 import com.mirth.connect.server.MirthJavascriptTransformerException;
 import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
@@ -97,7 +98,7 @@ public class JavaScriptUtil {
             EventController systemLogger = ControllerFactory.getFactory().createEventController();
             SystemEvent event = new SystemEvent("Exception occured in " + scriptType + " script");
             event.setLevel(SystemEvent.Level.NORMAL);
-            event.setDescription(StackTracePrinter.stackTraceToString(e));
+            event.setDescription(ExceptionUtils.getStackTrace(e));
             systemLogger.logSystemEvent(event);
             logger.error("Error executing " + scriptType + " script from channel: " + channelId, e);
         }

@@ -12,6 +12,7 @@ package org.mule.routing.inbound;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mule.impl.MuleEvent;
@@ -32,7 +33,6 @@ import org.mule.util.StringMessageHelper;
 import com.mirth.connect.connectors.vm.VMConnector;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.server.controllers.ControllerFactory;
-import com.mirth.connect.server.util.StackTracePrinter;
 
 import edu.emory.mathcs.backport.java.util.concurrent.CopyOnWriteArrayList;
 
@@ -159,7 +159,7 @@ public class InboundMessageRouter extends AbstractRouterCollection implements UM
 			return (eventsToRoute != null && eventsToRoute.length > 0
 			        ? eventsToRoute[eventsToRoute.length - 1].getMessage() : new MuleMessage(event.getTransformedMessage()));
 		} catch (TransformerException e) {
-			logger.error("Error transforming: " + StackTracePrinter.stackTraceToString(e));
+			logger.error("Error transforming: " + ExceptionUtils.getStackTrace(e));
 			return null;
 		}
 

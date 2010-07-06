@@ -15,6 +15,7 @@ import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mule.MuleManager;
@@ -49,7 +50,6 @@ import org.mule.umo.routing.UMORouter;
 import com.mirth.connect.model.SystemEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.util.StackTracePrinter;
 
 import edu.emory.mathcs.backport.java.util.concurrent.ConcurrentHashMap;
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
@@ -406,7 +406,7 @@ public abstract class AbstractModel implements UMOModel {
 
 					SystemEvent event = new SystemEvent("Error starting the channel cannot be activated due to a problem at one of the endpoint " + temp.getDescriptor().getName());
 					event.setLevel(SystemEvent.Level.HIGH);
-					event.setDescription(StackTracePrinter.stackTraceToString(e));
+					event.setDescription(ExceptionUtils.getStackTrace(e));
 					EventController sl = ControllerFactory.getFactory().createEventController();
 					sl.logSystemEvent(event);
 				}
@@ -506,7 +506,7 @@ public abstract class AbstractModel implements UMOModel {
 
 				SystemEvent event = new SystemEvent("Error starting the channel cannot be activated due to a problem at one of the endpoint " + component.getDescriptor().getName());
 				event.setLevel(SystemEvent.Level.HIGH);
-				event.setDescription(StackTracePrinter.stackTraceToString(e));
+				event.setDescription(ExceptionUtils.getStackTrace(e));
 				EventController sl = ControllerFactory.getFactory().createEventController();;
 				sl.logSystemEvent(event);
 			}

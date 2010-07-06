@@ -38,6 +38,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
 import org.mule.impl.MuleMessage;
@@ -59,8 +60,8 @@ import org.xml.sax.InputSource;
 
 import com.mirth.connect.connectors.mllp.protocols.LlpProtocol;
 import com.mirth.connect.model.MessageObject;
-import com.mirth.connect.model.Response;
 import com.mirth.connect.model.MessageObject.Protocol;
+import com.mirth.connect.model.Response;
 import com.mirth.connect.server.Constants;
 import com.mirth.connect.server.controllers.AlertController;
 import com.mirth.connect.server.controllers.ChannelController;
@@ -70,7 +71,6 @@ import com.mirth.connect.server.controllers.MonitoringController.ConnectorType;
 import com.mirth.connect.server.controllers.MonitoringController.Event;
 import com.mirth.connect.server.mule.transformers.JavaScriptPostprocessor;
 import com.mirth.connect.server.util.BatchMessageProcessor;
-import com.mirth.connect.server.util.StackTracePrinter;
 
 import edu.emory.mathcs.backport.java.util.concurrent.atomic.AtomicBoolean;
 
@@ -630,7 +630,7 @@ public class MllpMessageReceiver extends AbstractMessageReceiver implements Work
                         protocol.write(os, ACK.getBytes((connector).getCharsetEncoding()));
                     }
                 } catch (Throwable t) {
-                    logger.error("Can't write ACK to the sender\n" + StackTracePrinter.stackTraceToString(t));
+                    logger.error("Can't write ACK to the sender\n" + ExceptionUtils.getStackTrace(t));
                 }
             }
         }

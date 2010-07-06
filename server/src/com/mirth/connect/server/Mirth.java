@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.runtime.RuntimeConstants;
@@ -50,7 +51,6 @@ import com.mirth.connect.server.controllers.TemplateController;
 import com.mirth.connect.server.controllers.UserController;
 import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
 import com.mirth.connect.server.util.GlobalVariableStore;
-import com.mirth.connect.server.util.StackTracePrinter;
 import com.mirth.connect.server.util.VMRegistry;
 import com.mirth.connect.util.PropertyLoader;
 
@@ -302,7 +302,7 @@ public class Mirth extends Thread {
             // if deploy fails, log to system events
             SystemEvent event = new SystemEvent("Error deploying channels.");
             event.setLevel(SystemEvent.Level.HIGH);
-            event.setDescription(StackTracePrinter.stackTraceToString(e));
+            event.setDescription(ExceptionUtils.getStackTrace(e));
             eventController.logSystemEvent(event);
         }
 

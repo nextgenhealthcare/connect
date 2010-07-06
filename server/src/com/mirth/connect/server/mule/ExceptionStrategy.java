@@ -9,6 +9,7 @@
 
 package com.mirth.connect.server.mule;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.mule.impl.DefaultComponentExceptionStrategy;
 import org.mule.providers.AbstractMessageReceiver;
 import org.mule.providers.ConnectException;
@@ -17,7 +18,6 @@ import org.mule.providers.FatalConnectException;
 import com.mirth.connect.model.SystemEvent;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.EventController;
-import com.mirth.connect.server.util.StackTracePrinter;
 
 public class ExceptionStrategy extends DefaultComponentExceptionStrategy {
 
@@ -51,7 +51,7 @@ public class ExceptionStrategy extends DefaultComponentExceptionStrategy {
 	protected void logException(Throwable t) {
 		EventController systemLogger = ControllerFactory.getFactory().createEventController();
 		SystemEvent event = new SystemEvent("Exception occured in channel.");
-		event.setDescription(StackTracePrinter.stackTraceToString(t));
+		event.setDescription(ExceptionUtils.getStackTrace(t));
 		systemLogger.logSystemEvent(event);
 	}
 }

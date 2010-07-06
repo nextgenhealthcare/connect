@@ -18,6 +18,7 @@ import java.util.Comparator;
 import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.mule.MuleException;
 import org.mule.config.i18n.Message;
 import org.mule.config.i18n.Messages;
@@ -49,7 +50,6 @@ import com.mirth.connect.server.mule.adaptors.AdaptorFactory;
 import com.mirth.connect.server.mule.adaptors.BatchAdaptor;
 import com.mirth.connect.server.mule.adaptors.BatchMessageProcessor;
 import com.mirth.connect.server.mule.transformers.JavaScriptPostprocessor;
-import com.mirth.connect.server.util.StackTracePrinter;
 
 public class FileMessageReceiver extends PollingMessageReceiver implements BatchMessageProcessor {
     private String readDir = null;
@@ -225,7 +225,7 @@ public class FileMessageReceiver extends PollingMessageReceiver implements Batch
                         }
                     }
                 } catch (RoutingException e) {
-                    logger.error("Unable to route." + StackTracePrinter.stackTraceToString(e));
+                    logger.error("Unable to route." + ExceptionUtils.getStackTrace(e));
 
                     // routingError is reset to false at the beginning of the
                     // poll method
