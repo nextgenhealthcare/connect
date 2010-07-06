@@ -9,6 +9,8 @@
 
 package com.mirth.connect.server.controllers.tests;
 
+import java.io.File;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
@@ -19,44 +21,44 @@ import com.mirth.connect.server.controllers.ScriptController;
 import com.mirth.connect.server.tools.ScriptRunner;
 
 public class ScriptControllerTest extends TestCase {
-	private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
-	private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
-	private static final String groupId = "TEST";
-	
-	protected void setUp() throws Exception {
-		super.setUp();
-		// clear all database tables
-		ScriptRunner.runScript("derby-database.sql");
-	}
+    private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+    private static final String groupId = "TEST";
 
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
+    protected void setUp() throws Exception {
+        super.setUp();
+        // clear all database tables
+        ScriptRunner.runScript(new File("conf/" + ControllerTestSuite.database + "/" + ControllerTestSuite.database + "-database.sql"));
+    }
 
-	public void testPutScript() throws ControllerException {
-	    
-		String id = configurationController.generateGuid();
-		String script = "return true;";
-		scriptController.putScript(groupId, id, script);
+    protected void tearDown() throws Exception {
+        super.tearDown();
+    }
 
-		Assert.assertEquals(script, scriptController.getScript(groupId, id));
-	}
+    public void testPutScript() throws ControllerException {
 
-	public void testGetScript() throws ControllerException {
-		String id = configurationController.generateGuid();
-		String script = "return true;";
-		scriptController.putScript(groupId, id, script);
+        String id = configurationController.generateGuid();
+        String script = "return true;";
+        scriptController.putScript(groupId, id, script);
 
-		Assert.assertEquals(script, scriptController.getScript(groupId, id));
-	}
-	
-	public void testClearScripts() throws ControllerException {
-		String id = configurationController.generateGuid();
-		String script = "return true;";
-		scriptController.putScript(groupId, id, script);
-		scriptController.removeScripts(groupId);
-		
-		Assert.assertNull(scriptController.getScript(groupId, id));
-	}
+        Assert.assertEquals(script, scriptController.getScript(groupId, id));
+    }
+
+    public void testGetScript() throws ControllerException {
+        String id = configurationController.generateGuid();
+        String script = "return true;";
+        scriptController.putScript(groupId, id, script);
+
+        Assert.assertEquals(script, scriptController.getScript(groupId, id));
+    }
+
+    public void testClearScripts() throws ControllerException {
+        String id = configurationController.generateGuid();
+        String script = "return true;";
+        scriptController.putScript(groupId, id, script);
+        scriptController.removeScripts(groupId);
+
+        Assert.assertNull(scriptController.getScript(groupId, id));
+    }
 
 }

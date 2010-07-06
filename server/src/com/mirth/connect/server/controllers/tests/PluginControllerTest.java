@@ -9,6 +9,7 @@
 
 package com.mirth.connect.server.controllers.tests;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -23,37 +24,36 @@ import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.tools.ScriptRunner;
 
 public class PluginControllerTest extends TestCase {
-	private ExtensionController pluginController = ControllerFactory.getFactory().createExtensionController();
+    private ExtensionController pluginController = ControllerFactory.getFactory().createExtensionController();
 
-	protected void setUp() throws Exception {
-		super.setUp();
-		// clear all database tables
-		ScriptRunner.runScript("derby-database.sql");
-	}
+    protected void setUp() throws Exception {
+        super.setUp();
+        // clear all database tables
+        ScriptRunner.runScript(new File("conf/" + ControllerTestSuite.database + "/" + ControllerTestSuite.database + "-database.sql"));
+    }
 
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
-	
-    
-	public void testGetConnectorMetaData() throws ControllerException {
-		ConnectorMetaData sampleConnector = new ConnectorMetaData();
-		sampleConnector.setName("FTP Reader");
-		sampleConnector.setServerClassName("com.mirth.connect.server.mule.providers.ftp.FtpConnector");
-		sampleConnector.setProtocol("ftp");
-		sampleConnector.setTransformers("ByteArrayToString");
-		sampleConnector.setType(ConnectorMetaData.Type.SOURCE);
-		Map<String, ConnectorMetaData> testTransportList = pluginController.getConnectorMetaData();
+    protected void tearDown() throws Exception {
+        super.tearDown();
+    }
 
-		Assert.assertTrue(testTransportList.containsValue(sampleConnector));
-	}
-	
-	public void testGetConnectorLibraries() throws ControllerException {
-		List<String> libraries = pluginController.getClientLibraries();
-		
-		for (Iterator iter = libraries.iterator(); iter.hasNext();) {
-			String library = (String) iter.next();
-			System.out.println(library);
-		}
-	}
+    public void testGetConnectorMetaData() throws ControllerException {
+        ConnectorMetaData sampleConnector = new ConnectorMetaData();
+        sampleConnector.setName("FTP Reader");
+        sampleConnector.setServerClassName("com.mirth.connect.server.mule.providers.ftp.FtpConnector");
+        sampleConnector.setProtocol("ftp");
+        sampleConnector.setTransformers("ByteArrayToString");
+        sampleConnector.setType(ConnectorMetaData.Type.SOURCE);
+        Map<String, ConnectorMetaData> testTransportList = pluginController.getConnectorMetaData();
+
+        Assert.assertTrue(testTransportList.containsValue(sampleConnector));
+    }
+
+    public void testGetConnectorLibraries() throws ControllerException {
+        List<String> libraries = pluginController.getClientLibraries();
+
+        for (Iterator<String> iter = libraries.iterator(); iter.hasNext();) {
+            String library = iter.next();
+            System.out.println(library);
+        }
+    }
 }

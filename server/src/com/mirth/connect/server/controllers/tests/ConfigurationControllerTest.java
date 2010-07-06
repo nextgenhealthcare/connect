@@ -9,6 +9,8 @@
 
 package com.mirth.connect.server.controllers.tests;
 
+import java.io.File;
+
 import junit.framework.TestCase;
 
 import com.mirth.connect.server.controllers.ConfigurationController;
@@ -16,15 +18,16 @@ import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.tools.ScriptRunner;
 
 public class ConfigurationControllerTest extends TestCase {
-	private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
-	protected void setUp() throws Exception {
-		super.setUp();
-		// clear all database tables
-		ScriptRunner.runScript("derby-database.sql");
-	}
+    protected void setUp() throws Exception {
+        super.setUp();
+        // clear all database tables
+        // ScriptRunner.runScript("derby-database.sql");
+        ScriptRunner.runScript(new File("conf/" + ControllerTestSuite.database + "/" + ControllerTestSuite.database + "-database.sql"));
+    }
 
-	protected void tearDown() throws Exception {
-		super.tearDown();
-	}
+    protected void tearDown() throws Exception {
+        super.tearDown();
+    }
 }

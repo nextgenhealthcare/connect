@@ -58,17 +58,19 @@ public class SqlConfig {
                     Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new InputSource(br));
                     Element sqlMapConfigElement = document.getDocumentElement();
 
-                    for (String pluginName : plugins.keySet()) {
-                        PluginMetaData pmd = plugins.get(pluginName);
-
-                        if (pmd.getSqlMapConfigs() != null) {
-                            if (pmd.getSqlMapConfigs().get(database) != null) {
-                                String sqlMapConfigPath = ExtensionController.getExtensionsPath() + pmd.getPath() + File.separator + pmd.getSqlMapConfigs().get(database);
-                                Element sqlMapElement = document.createElement("sqlMap");
-                                sqlMapElement.setAttribute("url", new File(sqlMapConfigPath).toURI().toURL().toString());
-                                sqlMapConfigElement.appendChild(sqlMapElement);
-                            } else {
-                                throw new RuntimeException("SQL map file not found for database: " + database);
+                    if (plugins != null) {
+                        for (String pluginName : plugins.keySet()) {
+                            PluginMetaData pmd = plugins.get(pluginName);
+    
+                            if (pmd.getSqlMapConfigs() != null) {
+                                if (pmd.getSqlMapConfigs().get(database) != null) {
+                                    String sqlMapConfigPath = ExtensionController.getExtensionsPath() + pmd.getPath() + File.separator + pmd.getSqlMapConfigs().get(database);
+                                    Element sqlMapElement = document.createElement("sqlMap");
+                                    sqlMapElement.setAttribute("url", new File(sqlMapConfigPath).toURI().toURL().toString());
+                                    sqlMapConfigElement.appendChild(sqlMapElement);
+                                } else {
+                                    throw new RuntimeException("SQL map file not found for database: " + database);
+                                }
                             }
                         }
                     }
