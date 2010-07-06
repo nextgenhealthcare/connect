@@ -127,4 +127,8 @@ public abstract class PropertyLoader {
         
         return property;
     }
+    
+    public static String getProperty(final Properties properties, final String propertyKey, final String defaultValue) {
+        return properties.getProperty(propertyKey, defaultValue);
+    }
 }
