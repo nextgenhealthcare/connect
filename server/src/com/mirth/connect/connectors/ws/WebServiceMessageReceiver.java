@@ -144,7 +144,7 @@ public class WebServiceMessageReceiver extends AbstractMessageReceiver {
         }
     }
 
-    protected String processData(String message) {
+    public String processData(String message) {
         try {
             monitoringController.updateStatus(connector, connectorType, Event.BUSY);
             UMOMessageAdapter adapter = connector.getMessageAdapter(message);
