@@ -13,7 +13,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mirth.connect.util.EqualsUtil;
+import org.apache.commons.lang.ObjectUtils;
+
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -49,6 +50,6 @@ public class Filter implements Serializable {
 
 		Filter filter = (Filter) that;
 
-		return EqualsUtil.areEqual(this.getRules(), filter.getRules());
+		return ObjectUtils.equals(this.getRules(), filter.getRules());
 	}
 }

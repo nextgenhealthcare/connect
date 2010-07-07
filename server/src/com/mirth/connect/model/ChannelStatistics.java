@@ -11,7 +11,7 @@ package com.mirth.connect.model;
 
 import java.io.Serializable;
 
-import com.mirth.connect.util.EqualsUtil;
+import org.apache.commons.lang.ObjectUtils;
 
 public class ChannelStatistics implements Serializable {
     private String serverId;
@@ -102,14 +102,14 @@ public class ChannelStatistics implements Serializable {
 		ChannelStatistics statistic = (ChannelStatistics) that;
 		
 		return
-            EqualsUtil.areEqual(this.getServerId(), statistic.getServerId()) &&
-			EqualsUtil.areEqual(this.getChannelId(), statistic.getChannelId()) &&
-			EqualsUtil.areEqual(this.getReceived(), statistic.getReceived()) &&
-			EqualsUtil.areEqual(this.getSent(), statistic.getSent()) &&
-			EqualsUtil.areEqual(this.getError(), statistic.getError()) &&
-			EqualsUtil.areEqual(this.getFiltered(), statistic.getReceived()) &&
-			EqualsUtil.areEqual(this.getQueued(), statistic.getQueued()) &&
-			EqualsUtil.areEqual(this.getAlerted(), statistic.getAlerted());
+            ObjectUtils.equals(this.getServerId(), statistic.getServerId()) &&
+			ObjectUtils.equals(this.getChannelId(), statistic.getChannelId()) &&
+			ObjectUtils.equals(this.getReceived(), statistic.getReceived()) &&
+			ObjectUtils.equals(this.getSent(), statistic.getSent()) &&
+			ObjectUtils.equals(this.getError(), statistic.getError()) &&
+			ObjectUtils.equals(this.getFiltered(), statistic.getReceived()) &&
+			ObjectUtils.equals(this.getQueued(), statistic.getQueued()) &&
+			ObjectUtils.equals(this.getAlerted(), statistic.getAlerted());
 	}	
 
 	public String toString() {

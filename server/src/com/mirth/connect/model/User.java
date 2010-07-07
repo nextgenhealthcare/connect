@@ -12,7 +12,8 @@ package com.mirth.connect.model;
 import java.io.Serializable;
 import java.util.Calendar;
 
-import com.mirth.connect.util.EqualsUtil;
+import org.apache.commons.lang.ObjectUtils;
+
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("user")
@@ -111,15 +112,15 @@ public class User implements Serializable {
 		User user = (User) that;
 		
 		return
-			EqualsUtil.areEqual(this.getId(), user.getId()) &&
-			EqualsUtil.areEqual(this.getUsername(), user.getUsername()) &&
-			EqualsUtil.areEqual(this.getEmail(), user.getEmail()) &&
-			EqualsUtil.areEqual(this.getFirstName(), user.getFirstName()) &&
-			EqualsUtil.areEqual(this.getLastName(), user.getLastName()) &&
-			EqualsUtil.areEqual(this.getOrganization(), user.getOrganization()) &&
-			EqualsUtil.areEqual(this.getDescription(), user.getDescription()) &&
-			EqualsUtil.areEqual(this.getLastLogin(), user.getLastLogin()) &&
-			EqualsUtil.areEqual(this.getPhoneNumber(), user.getPhoneNumber());
+			ObjectUtils.equals(this.getId(), user.getId()) &&
+			ObjectUtils.equals(this.getUsername(), user.getUsername()) &&
+			ObjectUtils.equals(this.getEmail(), user.getEmail()) &&
+			ObjectUtils.equals(this.getFirstName(), user.getFirstName()) &&
+			ObjectUtils.equals(this.getLastName(), user.getLastName()) &&
+			ObjectUtils.equals(this.getOrganization(), user.getOrganization()) &&
+			ObjectUtils.equals(this.getDescription(), user.getDescription()) &&
+			ObjectUtils.equals(this.getLastLogin(), user.getLastLogin()) &&
+			ObjectUtils.equals(this.getPhoneNumber(), user.getPhoneNumber());
 	}
 
 	public String toString() {

@@ -12,7 +12,8 @@ package com.mirth.connect.model;
 import java.io.Serializable;
 import java.util.Properties;
 
-import com.mirth.connect.util.EqualsUtil;
+import org.apache.commons.lang.ObjectUtils;
+
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -123,12 +124,12 @@ public class Connector implements Serializable {
 		Connector connector = (Connector) that;
 		
 		return
-			EqualsUtil.areEqual(this.getName(), connector.getName()) &&
-			EqualsUtil.areEqual(this.getProperties(), connector.getProperties()) &&
-			EqualsUtil.areEqual(this.getTransformer(), connector.getTransformer()) &&
-			EqualsUtil.areEqual(this.getFilter(), connector.getFilter()) &&
-			EqualsUtil.areEqual(this.isEnabled(), connector.isEnabled()) &&
-			EqualsUtil.areEqual(this.getTransportName(), connector.getTransportName());
+			ObjectUtils.equals(this.getName(), connector.getName()) &&
+			ObjectUtils.equals(this.getProperties(), connector.getProperties()) &&
+			ObjectUtils.equals(this.getTransformer(), connector.getTransformer()) &&
+			ObjectUtils.equals(this.getFilter(), connector.getFilter()) &&
+			ObjectUtils.equals(this.isEnabled(), connector.isEnabled()) &&
+			ObjectUtils.equals(this.getTransportName(), connector.getTransportName());
 	}
 
 	public String toString() {

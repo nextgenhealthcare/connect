@@ -14,9 +14,10 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
-import com.mirth.connect.util.EqualsUtil;
 
 @XStreamAlias("pluginMetaData")
 public class PluginMetaData extends MetaData implements Serializable {
@@ -65,13 +66,13 @@ public class PluginMetaData extends MetaData implements Serializable {
 		PluginMetaData plugin = (PluginMetaData) that;
 
 		return
-			EqualsUtil.areEqual(this.getName(), plugin.getName()) &&
-			EqualsUtil.areEqual(this.getAuthor(), plugin.getAuthor()) &&
-			EqualsUtil.areEqual(this.getPluginVersion(), plugin.getPluginVersion()) &&
-			EqualsUtil.areEqual(this.getMirthVersion(), plugin.getMirthVersion()) &&
-			EqualsUtil.areEqual(this.isEnabled(), plugin.isEnabled()) &&
-			EqualsUtil.areEqual(this.getExtensionPoints(), plugin.getExtensionPoints()) &&
-			EqualsUtil.areEqual(this.getDescription(), plugin.getDescription());
+			ObjectUtils.equals(this.getName(), plugin.getName()) &&
+			ObjectUtils.equals(this.getAuthor(), plugin.getAuthor()) &&
+			ObjectUtils.equals(this.getPluginVersion(), plugin.getPluginVersion()) &&
+			ObjectUtils.equals(this.getMirthVersion(), plugin.getMirthVersion()) &&
+			ObjectUtils.equals(this.isEnabled(), plugin.isEnabled()) &&
+			ObjectUtils.equals(this.getExtensionPoints(), plugin.getExtensionPoints()) &&
+			ObjectUtils.equals(this.getDescription(), plugin.getDescription());
 	}
 
 	public String toString() {

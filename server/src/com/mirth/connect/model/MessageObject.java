@@ -15,7 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.mirth.connect.util.EqualsUtil;
+import org.apache.commons.lang.ObjectUtils;
+
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("messageObject")
@@ -276,29 +277,29 @@ public class MessageObject implements Serializable, Cloneable {
 		MessageObject messageObject = (MessageObject) that;
 
 		return
-			EqualsUtil.areEqual(this.getId(), messageObject.getId()) &&
-            EqualsUtil.areEqual(this.getServerId(), messageObject.getServerId()) &&
-			EqualsUtil.areEqual(this.getChannelId(), messageObject.getChannelId()) &&
-			EqualsUtil.areEqual(this.getSource(), messageObject.getSource()) &&
-			EqualsUtil.areEqual(this.getType(), messageObject.getType()) &&
-			EqualsUtil.areEqual(this.getStatus(), messageObject.getStatus()) &&
-			EqualsUtil.areEqual(this.getDateCreated(), messageObject.getDateCreated()) &&
-			EqualsUtil.areEqual(this.getRawData(), messageObject.getRawData()) &&
-			EqualsUtil.areEqual(this.getRawDataProtocol(), messageObject.getRawDataProtocol()) &&
-			EqualsUtil.areEqual(this.getTransformedData(), messageObject.getTransformedData()) &&
-			EqualsUtil.areEqual(this.getTransformedDataProtocol(), messageObject.getTransformedDataProtocol()) &&
-			EqualsUtil.areEqual(this.getEncodedData(), messageObject.getEncodedData()) &&
-			EqualsUtil.areEqual(this.getEncodedDataProtocol(), messageObject.getEncodedDataProtocol()) &&
-			EqualsUtil.areEqual(this.getConnectorName(), messageObject.getConnectorName()) &&
-			EqualsUtil.areEqual(this.isEncrypted(), messageObject.isEncrypted()) &&
-			EqualsUtil.areEqual(this.getErrors(), messageObject.getErrors()) &&
-			EqualsUtil.areEqual(this.getVersion(), messageObject.getVersion()) &&
-			EqualsUtil.areEqual(this.getCorrelationId(), messageObject.getCorrelationId()) &&
-			EqualsUtil.areEqual(this.getConnectorMap(), messageObject.getConnectorMap()) &&
-			EqualsUtil.areEqual(this.getResponseMap(), messageObject.getResponseMap()) &&
-            EqualsUtil.areEqual(this.getChannelMap(), messageObject.getChannelMap()) &&
-            EqualsUtil.areEqual(this.getContext(), messageObject.getContext()) &&
-            EqualsUtil.areEqual(this.isAttachment(), messageObject.isAttachment());
+			ObjectUtils.equals(this.getId(), messageObject.getId()) &&
+            ObjectUtils.equals(this.getServerId(), messageObject.getServerId()) &&
+			ObjectUtils.equals(this.getChannelId(), messageObject.getChannelId()) &&
+			ObjectUtils.equals(this.getSource(), messageObject.getSource()) &&
+			ObjectUtils.equals(this.getType(), messageObject.getType()) &&
+			ObjectUtils.equals(this.getStatus(), messageObject.getStatus()) &&
+			ObjectUtils.equals(this.getDateCreated(), messageObject.getDateCreated()) &&
+			ObjectUtils.equals(this.getRawData(), messageObject.getRawData()) &&
+			ObjectUtils.equals(this.getRawDataProtocol(), messageObject.getRawDataProtocol()) &&
+			ObjectUtils.equals(this.getTransformedData(), messageObject.getTransformedData()) &&
+			ObjectUtils.equals(this.getTransformedDataProtocol(), messageObject.getTransformedDataProtocol()) &&
+			ObjectUtils.equals(this.getEncodedData(), messageObject.getEncodedData()) &&
+			ObjectUtils.equals(this.getEncodedDataProtocol(), messageObject.getEncodedDataProtocol()) &&
+			ObjectUtils.equals(this.getConnectorName(), messageObject.getConnectorName()) &&
+			ObjectUtils.equals(this.isEncrypted(), messageObject.isEncrypted()) &&
+			ObjectUtils.equals(this.getErrors(), messageObject.getErrors()) &&
+			ObjectUtils.equals(this.getVersion(), messageObject.getVersion()) &&
+			ObjectUtils.equals(this.getCorrelationId(), messageObject.getCorrelationId()) &&
+			ObjectUtils.equals(this.getConnectorMap(), messageObject.getConnectorMap()) &&
+			ObjectUtils.equals(this.getResponseMap(), messageObject.getResponseMap()) &&
+            ObjectUtils.equals(this.getChannelMap(), messageObject.getChannelMap()) &&
+            ObjectUtils.equals(this.getContext(), messageObject.getContext()) &&
+            ObjectUtils.equals(this.isAttachment(), messageObject.isAttachment());
 	}
 
 	public String getCorrelationId() {

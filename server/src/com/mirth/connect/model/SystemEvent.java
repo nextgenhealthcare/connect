@@ -13,7 +13,8 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Properties;
 
-import com.mirth.connect.util.EqualsUtil;
+import org.apache.commons.lang.ObjectUtils;
+
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -107,12 +108,12 @@ public class SystemEvent implements Serializable {
 		SystemEvent systemEvent = (SystemEvent) that;
 		
 		return
-			EqualsUtil.areEqual(this.getId(), systemEvent.getId()) &&
-			EqualsUtil.areEqual(this.getLevel(), systemEvent.getLevel()) &&
-			EqualsUtil.areEqual(this.getEvent(), systemEvent.getEvent()) &&
-			EqualsUtil.areEqual(this.getDescription(), systemEvent.getDescription()) &&
-			EqualsUtil.areEqual(this.getDate(), systemEvent.getDate()) &&
-			EqualsUtil.areEqual(this.getAttributes(), systemEvent.getAttributes());
+			ObjectUtils.equals(this.getId(), systemEvent.getId()) &&
+			ObjectUtils.equals(this.getLevel(), systemEvent.getLevel()) &&
+			ObjectUtils.equals(this.getEvent(), systemEvent.getEvent()) &&
+			ObjectUtils.equals(this.getDescription(), systemEvent.getDescription()) &&
+			ObjectUtils.equals(this.getDate(), systemEvent.getDate()) &&
+			ObjectUtils.equals(this.getAttributes(), systemEvent.getAttributes());
 	}
 
 	public String toString() {

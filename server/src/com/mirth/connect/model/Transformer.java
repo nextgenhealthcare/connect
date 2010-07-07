@@ -14,8 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.mirth.connect.model.MessageObject.Protocol;
-import com.mirth.connect.util.EqualsUtil;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 /**
@@ -90,13 +91,13 @@ public class Transformer implements Serializable {
 		Transformer transformer = (Transformer) that;
 
 		return
-			EqualsUtil.areEqual(this.getSteps(), transformer.getSteps()) &&
-			EqualsUtil.areEqual(this.getInboundTemplate(), transformer.getInboundTemplate()) &&
-			EqualsUtil.areEqual(this.getOutboundTemplate(), transformer.getOutboundTemplate()) &&
-			EqualsUtil.areEqual(this.getInboundProtocol(), transformer.getInboundProtocol()) &&
-			EqualsUtil.areEqual(this.getOutboundProtocol(), transformer.getOutboundProtocol()) &&
-			EqualsUtil.areEqual(this.getInboundProperties(), transformer.getInboundProperties()) &&
-			EqualsUtil.areEqual(this.getOutboundProperties(), transformer.getOutboundProperties());
+			ObjectUtils.equals(this.getSteps(), transformer.getSteps()) &&
+			ObjectUtils.equals(this.getInboundTemplate(), transformer.getInboundTemplate()) &&
+			ObjectUtils.equals(this.getOutboundTemplate(), transformer.getOutboundTemplate()) &&
+			ObjectUtils.equals(this.getInboundProtocol(), transformer.getInboundProtocol()) &&
+			ObjectUtils.equals(this.getOutboundProtocol(), transformer.getOutboundProtocol()) &&
+			ObjectUtils.equals(this.getInboundProperties(), transformer.getInboundProperties()) &&
+			ObjectUtils.equals(this.getOutboundProperties(), transformer.getOutboundProperties());
 	}
 
 	public Properties getInboundProperties()

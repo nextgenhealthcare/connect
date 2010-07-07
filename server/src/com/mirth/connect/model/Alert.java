@@ -12,7 +12,8 @@ package com.mirth.connect.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mirth.connect.util.EqualsUtil;
+import org.apache.commons.lang.ObjectUtils;
+
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("alert")
@@ -107,12 +108,12 @@ public class Alert {
 		Alert alert = (Alert) that;
 		
 		return
-			EqualsUtil.areEqual(this.getId(), alert.getId()) &&
-			EqualsUtil.areEqual(this.getSubject(), alert.getSubject()) &&
-			EqualsUtil.areEqual(this.isEnabled(), alert.isEnabled()) &&
-			EqualsUtil.areEqual(this.getExpression(), alert.getExpression()) &&
-			EqualsUtil.areEqual(this.getTemplate(), alert.getTemplate()) &&
-			EqualsUtil.areEqual(this.getChannels(), alert.getChannels()) &&
-			EqualsUtil.areEqual(this.getEmails(), alert.getEmails());
+    		ObjectUtils.equals(this.getId(), alert.getId()) &&
+    		ObjectUtils.equals(this.getSubject(), alert.getSubject()) &&
+    		ObjectUtils.equals(this.isEnabled(), alert.isEnabled()) &&
+    		ObjectUtils.equals(this.getExpression(), alert.getExpression()) &&
+    		ObjectUtils.equals(this.getTemplate(), alert.getTemplate()) &&
+    		ObjectUtils.equals(this.getChannels(), alert.getChannels()) &&
+    		ObjectUtils.equals(this.getEmails(), alert.getEmails());
 	}
 }

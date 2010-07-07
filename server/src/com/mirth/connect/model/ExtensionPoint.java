@@ -9,7 +9,7 @@
 
 package com.mirth.connect.model;
 
-import com.mirth.connect.util.EqualsUtil;
+import org.apache.commons.lang.ObjectUtils;
 
 public class ExtensionPoint {
 	
@@ -68,11 +68,11 @@ public class ExtensionPoint {
 		ExtensionPoint extensionPoint = (ExtensionPoint) that;
 		
 		return
-			EqualsUtil.areEqual(this.getId(), extensionPoint.getId()) &&
-			EqualsUtil.areEqual(this.getName(), extensionPoint.getName()) &&
-			EqualsUtil.areEqual(this.getClassName(), extensionPoint.getClassName()) &&
-            EqualsUtil.areEqual(this.getMode(), extensionPoint.getMode()) &&
-            EqualsUtil.areEqual(this.getType(), extensionPoint.getType());
+			ObjectUtils.equals(this.getId(), extensionPoint.getId()) &&
+			ObjectUtils.equals(this.getName(), extensionPoint.getName()) &&
+			ObjectUtils.equals(this.getClassName(), extensionPoint.getClassName()) &&
+            ObjectUtils.equals(this.getMode(), extensionPoint.getMode()) &&
+            ObjectUtils.equals(this.getType(), extensionPoint.getType());
 	}
 
 	public String toString() {

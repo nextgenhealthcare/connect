@@ -11,7 +11,7 @@ package com.mirth.connect.model;
 
 import java.io.Serializable;
 
-import com.mirth.connect.util.EqualsUtil;
+import org.apache.commons.lang.ObjectUtils;
 
 /**
  * A ChannelStatus represents the status of a deployed Channel.
@@ -62,9 +62,9 @@ public class ChannelStatus implements Serializable {
 		ChannelStatus status = (ChannelStatus) that;
 		
 		return
-			EqualsUtil.areEqual(this.getChannelId(), status.getChannelId()) &&
-			EqualsUtil.areEqual(this.getName(), status.getName()) &&
-			EqualsUtil.areEqual(this.getState(), status.getState());
+			ObjectUtils.equals(this.getChannelId(), status.getChannelId()) &&
+			ObjectUtils.equals(this.getName(), status.getName()) &&
+			ObjectUtils.equals(this.getState(), status.getState());
 	}
 	
 	public String toString() {

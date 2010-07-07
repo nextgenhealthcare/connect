@@ -11,7 +11,8 @@ package com.mirth.connect.model;
 
 import java.io.Serializable;
 
-import com.mirth.connect.util.EqualsUtil;
+import org.apache.commons.lang.ObjectUtils;
+
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("rule")
@@ -87,12 +88,12 @@ public class Rule implements Serializable {
 		Rule rule = (Rule) that;
 		
 		return
-			EqualsUtil.areEqual(this.getSequenceNumber(), rule.getSequenceNumber()) &&
-			EqualsUtil.areEqual(this.getName(), rule.getName()) &&
-			EqualsUtil.areEqual(this.getType(), rule.getType()) &&
-			EqualsUtil.areEqual(this.getData(), rule.getData()) &&
-			EqualsUtil.areEqual(this.getScript(), rule.getScript()) &&
-			EqualsUtil.areEqual(this.getOperator(), rule.getOperator());
+			ObjectUtils.equals(this.getSequenceNumber(), rule.getSequenceNumber()) &&
+			ObjectUtils.equals(this.getName(), rule.getName()) &&
+			ObjectUtils.equals(this.getType(), rule.getType()) &&
+			ObjectUtils.equals(this.getData(), rule.getData()) &&
+			ObjectUtils.equals(this.getScript(), rule.getScript()) &&
+			ObjectUtils.equals(this.getOperator(), rule.getOperator());
 	}
 	
 	public String toString() {

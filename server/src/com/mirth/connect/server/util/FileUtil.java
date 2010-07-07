@@ -26,7 +26,20 @@ import javax.swing.text.rtf.RTFEditorKit;
 
 import org.apache.commons.codec.binary.Base64;
 
+/**
+ * @deprecated
+ * @see org.apache.commons.io.FileUtils
+ */
 public class FileUtil {
+    
+    /**
+     * @deprecated
+     * @see org.apache.commons.io.FileUtils#writeStringToFile(File, String)
+     * @param fileName
+     * @param append
+     * @param data
+     * @throws IOException
+     */
 	public static void write(String fileName, boolean append, String data) throws IOException {
 		write(fileName, append, data.getBytes());
 	}
@@ -39,6 +52,14 @@ public class FileUtil {
 		return new String(new Base64().encode(data));
 	}
 
+	/**
+	 * @deprecated
+	 * @see org.apache.commons.io.FileUtils#writeByteArrayToFile(File, byte[])
+	 * @param fileName
+	 * @param append
+	 * @param bytes
+	 * @throws IOException
+	 */
 	public static void write(String fileName, boolean append, byte[] bytes) throws IOException {
 		File file = new File(fileName);
 		FileOutputStream fos = null;
@@ -52,7 +73,15 @@ public class FileUtil {
 		}
 	}
 
-	// Returns the contents of the file in a byte array.
+	/**
+	 * Returns the contents of the file in a byte array.
+	 * 
+	 * @deprecated
+	 * @see org.apache.commons.io.FileUtils#readFileToByteArray(File)
+	 * @param fileName
+	 * @return
+	 * @throws IOException
+	 */
 	public static byte[] readBytes(String fileName) throws IOException {
 		File file = new File(fileName);
 		InputStream is = new FileInputStream(file);
@@ -89,6 +118,13 @@ public class FileUtil {
 		return bytes;
 	}
 
+	/**
+	 * @deprecated
+	 * @see org.apache.commons.io.FileUtils#readFileToString(File)
+	 * @param fileName
+	 * @return
+	 * @throws IOException
+	 */
 	public static String read(String fileName) throws IOException {
 		File file = new File(fileName);
 		BufferedReader reader = new BufferedReader(new FileReader(file));

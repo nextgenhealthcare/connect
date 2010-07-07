@@ -12,7 +12,8 @@ package com.mirth.connect.model;
 import java.io.Serializable;
 import java.util.UUID;
 
-import com.mirth.connect.util.EqualsUtil;
+import org.apache.commons.lang.ObjectUtils;
+
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("codeTemplate")
@@ -139,7 +140,7 @@ public class CodeTemplate implements Serializable {
 
         CodeTemplate codeTemplate = (CodeTemplate) that;
 
-        return EqualsUtil.areEqual(this.getId(), codeTemplate.getId()) && EqualsUtil.areEqual(this.getName(), codeTemplate.getName()) && EqualsUtil.areEqual(this.getTooltip(), codeTemplate.getTooltip()) && EqualsUtil.areEqual(this.getScope(), codeTemplate.getScope()) && EqualsUtil.areEqual(this.getType(), codeTemplate.getType()) && EqualsUtil.areEqual(this.getCode(), codeTemplate.getCode()) && EqualsUtil.areEqual(this.getVersion(), codeTemplate.getVersion());
+        return ObjectUtils.equals(this.getId(), codeTemplate.getId()) && ObjectUtils.equals(this.getName(), codeTemplate.getName()) && ObjectUtils.equals(this.getTooltip(), codeTemplate.getTooltip()) && ObjectUtils.equals(this.getScope(), codeTemplate.getScope()) && ObjectUtils.equals(this.getType(), codeTemplate.getType()) && ObjectUtils.equals(this.getCode(), codeTemplate.getCode()) && ObjectUtils.equals(this.getVersion(), codeTemplate.getVersion());
     }
 
     public String toString() {

@@ -11,7 +11,8 @@ package com.mirth.connect.model;
 
 import java.io.Serializable;
 
-import com.mirth.connect.util.EqualsUtil;
+import org.apache.commons.lang.ObjectUtils;
+
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 
 @XStreamAlias("step")
@@ -74,10 +75,10 @@ public class Step implements Serializable {
 		Step step = (Step) that;
 		
 		return
-			EqualsUtil.areEqual(this.getSequenceNumber(), step.getSequenceNumber()) &&
-			EqualsUtil.areEqual(this.getName(), step.getName()) &&
-			EqualsUtil.areEqual(this.getScript(), step.getScript()) &&
-			EqualsUtil.areEqual(this.getType(), step.getType());
+			ObjectUtils.equals(this.getSequenceNumber(), step.getSequenceNumber()) &&
+			ObjectUtils.equals(this.getName(), step.getName()) &&
+			ObjectUtils.equals(this.getScript(), step.getScript()) &&
+			ObjectUtils.equals(this.getType(), step.getType());
 	}
 
 	public String toString() {

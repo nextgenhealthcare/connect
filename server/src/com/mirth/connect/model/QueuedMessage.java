@@ -11,9 +11,8 @@ package com.mirth.connect.model;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.mule.umo.endpoint.UMOEndpointURI;
-
-import com.mirth.connect.util.EqualsUtil;
 
 public class QueuedMessage implements Serializable {
 	private MessageObject messageObject;
@@ -38,8 +37,8 @@ public class QueuedMessage implements Serializable {
 		QueuedMessage queuedMessage = (QueuedMessage) that;
 
 		return
-			EqualsUtil.areEqual(this.getEndpointUri(), queuedMessage.getEndpointUri()) &&
-            EqualsUtil.areEqual(this.getMessageObject(), queuedMessage.getMessageObject());
+			ObjectUtils.equals(this.getEndpointUri(), queuedMessage.getEndpointUri()) &&
+            ObjectUtils.equals(this.getMessageObject(), queuedMessage.getMessageObject());
 	}
 
 	public String toString() {

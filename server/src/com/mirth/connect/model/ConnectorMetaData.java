@@ -12,8 +12,9 @@ package com.mirth.connect.model;
 import java.io.Serializable;
 import java.util.Properties;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.mirth.connect.util.EqualsUtil;
 
 @XStreamAlias("connectorMetaData")
 public class ConnectorMetaData extends MetaData implements Serializable {
@@ -108,20 +109,20 @@ public class ConnectorMetaData extends MetaData implements Serializable {
 		ConnectorMetaData transport = (ConnectorMetaData) that;
 
 		return
-			EqualsUtil.areEqual(this.getName(), transport.getName()) &&
-			EqualsUtil.areEqual(this.getAuthor(), transport.getAuthor()) &&
-			EqualsUtil.areEqual(this.getServerClassName(), transport.getServerClassName()) &&
-			EqualsUtil.areEqual(this.getSharedClassName(), transport.getSharedClassName()) &&
-			EqualsUtil.areEqual(this.getClientClassName(), transport.getClientClassName()) &&
-			EqualsUtil.areEqual(this.getServiceClassName(), transport.getServiceClassName()) &&
-			EqualsUtil.areEqual(this.getProtocol(), transport.getProtocol()) &&
-			EqualsUtil.areEqual(this.getPluginVersion(), transport.getPluginVersion()) &&
-			EqualsUtil.areEqual(this.getMirthVersion(), transport.getMirthVersion()) &&
-			EqualsUtil.areEqual(this.isEnabled(), transport.isEnabled()) &&
-			EqualsUtil.areEqual(this.getTransformers(), transport.getTransformers()) &&
-			EqualsUtil.areEqual(this.getType(), transport.getType()) &&
-			EqualsUtil.areEqual(this.getDescription(), transport.getDescription()) &&
-			EqualsUtil.areEqual(this.getProperties(), transport.getProperties());
+			ObjectUtils.equals(this.getName(), transport.getName()) &&
+			ObjectUtils.equals(this.getAuthor(), transport.getAuthor()) &&
+			ObjectUtils.equals(this.getServerClassName(), transport.getServerClassName()) &&
+			ObjectUtils.equals(this.getSharedClassName(), transport.getSharedClassName()) &&
+			ObjectUtils.equals(this.getClientClassName(), transport.getClientClassName()) &&
+			ObjectUtils.equals(this.getServiceClassName(), transport.getServiceClassName()) &&
+			ObjectUtils.equals(this.getProtocol(), transport.getProtocol()) &&
+			ObjectUtils.equals(this.getPluginVersion(), transport.getPluginVersion()) &&
+			ObjectUtils.equals(this.getMirthVersion(), transport.getMirthVersion()) &&
+			ObjectUtils.equals(this.isEnabled(), transport.isEnabled()) &&
+			ObjectUtils.equals(this.getTransformers(), transport.getTransformers()) &&
+			ObjectUtils.equals(this.getType(), transport.getType()) &&
+			ObjectUtils.equals(this.getDescription(), transport.getDescription()) &&
+			ObjectUtils.equals(this.getProperties(), transport.getProperties());
 	}
 
 	public String toString() {

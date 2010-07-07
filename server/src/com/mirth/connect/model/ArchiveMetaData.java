@@ -11,8 +11,9 @@ package com.mirth.connect.model;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.ObjectUtils;
+
 import com.thoughtworks.xstream.annotations.XStreamAlias;
-import com.mirth.connect.util.EqualsUtil;
 
 @XStreamAlias("archiveMetaData")
 public class ArchiveMetaData implements Serializable {
@@ -44,7 +45,7 @@ public class ArchiveMetaData implements Serializable {
 		ArchiveMetaData transport = (ArchiveMetaData) that;
 
 		return
-			EqualsUtil.areEqual(this.getType(), transport.getType());
+		    ObjectUtils.equals(this.getType(), transport.getType());
 	}
 
 	public String toString() {

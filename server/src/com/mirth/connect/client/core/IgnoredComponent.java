@@ -9,7 +9,8 @@
 
 package com.mirth.connect.client.core;
 
-import com.mirth.connect.util.EqualsUtil;
+import org.apache.commons.lang.ObjectUtils;
+
 
 public class IgnoredComponent {
     public final static String COMPONENT_NAME_VERSION_SEPARATOR = ":";
@@ -51,6 +52,7 @@ public class IgnoredComponent {
         }
 
         IgnoredComponent ignoredComponent = (IgnoredComponent) that;
-        return EqualsUtil.areEqual(this.getName(), ignoredComponent.getName()) && EqualsUtil.areEqual(this.getVersion(), ignoredComponent.getVersion());
+
+        return ObjectUtils.equals(this.getName(), ignoredComponent.getName()) && ObjectUtils.equals(this.getVersion(), ignoredComponent.getVersion());
     }
 }
