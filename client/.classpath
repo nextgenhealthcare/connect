@@ -18,6 +18,8 @@
 	<classpathentry kind="lib" path="lib/looks-2.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/extensions/pdfviewer/PDFRenderer.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl-2.9.1.jar"/>
+	<classpathentry kind="lib" path="lib/commons-io-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.5.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
