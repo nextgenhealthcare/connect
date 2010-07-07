@@ -69,7 +69,6 @@
 
 	<target name="create-client" depends="compile">
 		<mkdir dir="${dist}" />
-		<mkdir dir="${dist.source}" />
 
 		<jar destfile="${dist}/${client.jar}">
 			<fileset dir="${classes}">
