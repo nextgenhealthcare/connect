@@ -221,20 +221,5 @@
 		<jar destfile="${plugins.xsltstep}/xsltstep-client.jar" basedir="${classes}">
 			<include name="com/mirth/connect/plugins/xsltstep/**" />
 		</jar>
-
-		<!-- copy source files -->
-		<copy todir="${dist.source}">
-			<fileset dir="${src}">
-				<exclude name="**/*.form" />
-			</fileset>
-		</copy>
-
-		<!-- remove svn folders -->
-		<delete>
-			<fileset dir="${dist.source}" includes="**/.svn" />
-		</delete>
-
-		<zip basedir="${dist.source}" destfile="${dist}/mirth-client-src.zip" />
-		<delete dir="${dist.source}" />
 	</target>
 </project>
