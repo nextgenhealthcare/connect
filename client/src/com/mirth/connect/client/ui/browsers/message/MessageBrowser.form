@@ -188,7 +188,7 @@
                           <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel5" alignment="1" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                          <Component id="quickSearchLabel" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
@@ -207,7 +207,7 @@
                                   <Component id="advSearchButton" linkSize="2" alignment="0" min="-2" pref="93" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <Component id="quickSearch" min="-2" pref="224" max="-2" attributes="1"/>
+                          <Component id="quickSearchField" min="-2" pref="224" max="-2" attributes="1"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="filterButton" min="-2" max="-2" attributes="0"/>
@@ -231,8 +231,8 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="quickSearch" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="quickSearchField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="quickSearchLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
@@ -292,9 +292,9 @@
             </Component>
             <Component class="com.mirth.connect.client.ui.components.MirthTimePicker" name="mirthTimePicker2">
             </Component>
-            <Component class="javax.swing.JTextField" name="quickSearch">
+            <Component class="javax.swing.JTextField" name="quickSearchField">
             </Component>
-            <Component class="javax.swing.JLabel" name="jLabel1">
+            <Component class="javax.swing.JLabel" name="quickSearchLabel">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Quick Search:"/>
               </Properties>

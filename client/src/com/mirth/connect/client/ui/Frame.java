@@ -4015,6 +4015,11 @@ public class Frame extends JXFrame {
     public String getSelectedChannelIdFromDashboard() {
         return dashboardPanel.getSelectedStatuses().get(0).getChannelId();
     }
+    
+    public Channel getSelectedChannelFromDashboard() {
+        retrieveChannels();
+        return channels.get(getSelectedChannelIdFromDashboard());
+    }
 
     public PasswordRequirements getPasswordRequirements() throws ClientException {
         return mirthClient.getPasswordRequirements();

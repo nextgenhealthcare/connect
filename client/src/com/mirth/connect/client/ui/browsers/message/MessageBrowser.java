@@ -69,11 +69,12 @@ import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.util.DisplayUtil;
 import com.mirth.connect.client.ui.util.FileUtil;
 import com.mirth.connect.model.Attachment;
+import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ExtensionPoint;
 import com.mirth.connect.model.ExtensionPointDefinition;
 import com.mirth.connect.model.MessageObject;
-import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.MessageObject.Protocol;
+import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.converters.DocumentSerializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.filters.MessageObjectFilter;
@@ -159,7 +160,7 @@ public class MessageBrowser extends javax.swing.JPanel {
         });
         attachmentPopupMenu.add(viewAttach);
 
-        advSearchFilterPopup = new MessageBrowserAdvancedFilter(parent, "Advanced Search Filter", true);
+        advSearchFilterPopup = new MessageBrowserAdvancedFilter(parent, "Advanced Search Filter", true, true);
         advSearchFilterPopup.setVisible(false);
     }
 
@@ -306,8 +307,14 @@ public class MessageBrowser extends javax.swing.JPanel {
         messageListHandler = null;
 
         statusComboBox.setSelectedIndex(0);
-        quickSearch.setText("");
-        advSearchFilterPopup.reset();
+        quickSearchField.setText("");
+        
+        Channel selectedChannel = parent.getSelectedChannelFromDashboard();
+        boolean allowSearch = !((String) selectedChannel.getProperties().get("encryptData")).equalsIgnoreCase("true");
+        
+        quickSearchLabel.setEnabled(allowSearch);
+        quickSearchField.setEnabled(allowSearch);
+        advSearchFilterPopup.reset(allowSearch);
 
         mirthDatePicker1.setDate(Calendar.getInstance().getTime());
         mirthDatePicker2.setDate(Calendar.getInstance().getTime());
@@ -1101,8 +1108,8 @@ public class MessageBrowser extends javax.swing.JPanel {
         statusComboBox = new javax.swing.JComboBox();
         mirthTimePicker1 = new com.mirth.connect.client.ui.components.MirthTimePicker();
         mirthTimePicker2 = new com.mirth.connect.client.ui.components.MirthTimePicker();
-        quickSearch = new javax.swing.JTextField();
-        jLabel1 = new javax.swing.JLabel();
+        quickSearchField = new javax.swing.JTextField();
+        quickSearchLabel = new javax.swing.JLabel();
         jSplitPane1 = new javax.swing.JSplitPane();
         descriptionTabbedPane = new javax.swing.JTabbedPane();
         RawMessagePanel = new javax.swing.JPanel();
@@ -1213,7 +1220,7 @@ public class MessageBrowser extends javax.swing.JPanel {
 
         jLabel5.setText("Status:");
 
-        jLabel1.setText("Quick Search:");
+        quickSearchLabel.setText("Quick Search:");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -1225,7 +1232,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                     .addComponent(jLabel2)
                     .addComponent(jLabel5)
                     .addComponent(jLabel3)
-                    .addComponent(jLabel1))
+                    .addComponent(quickSearchLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -1239,7 +1246,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                                 .addComponent(mirthTimePicker2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(mirthTimePicker1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(advSearchButton, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(quickSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(quickSearchField, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(filterButton)
                 .addContainerGap(27, Short.MAX_VALUE))
@@ -1261,8 +1268,8 @@ public class MessageBrowser extends javax.swing.JPanel {
                     .addComponent(mirthTimePicker2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(quickSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1))
+                    .addComponent(quickSearchField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(quickSearchLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
@@ -1521,7 +1528,10 @@ public class MessageBrowser extends javax.swing.JPanel {
         boolean includeErrors = advSearchFilterPopup.isIncludeErrors();
         String protocol = advSearchFilterPopup.getProtocol();
 
-        advSearchFilterPopup = new MessageBrowserAdvancedFilter(parent, "Advanced Search Filter", true);
+        Channel selectedChannel = parent.getSelectedChannelFromDashboard();
+        boolean allowSearch = !((String) selectedChannel.getProperties().get("encryptData")).equalsIgnoreCase("true");
+        
+        advSearchFilterPopup = new MessageBrowserAdvancedFilter(parent, "Advanced Search Filter", true, allowSearch);
         advSearchFilterPopup.setFieldValues(connector, messageSource, messageType, containingKeyword, messageId, correlationId, includeRawMessage, includeTransformedMessage, includeEncodedMessage, includeErrors, protocol);
 
         advSearchFilterPopup.setVisible(true);
@@ -1670,8 +1680,8 @@ public class MessageBrowser extends javax.swing.JPanel {
             messageObjectFilter.setSearchErrors(true);
         }
 
-        if (!quickSearch.getText().equals("")) {
-            messageObjectFilter.setQuickSearch(quickSearch.getText());
+        if (!quickSearchField.getText().equals("")) {
+            messageObjectFilter.setQuickSearch(quickSearchField.getText());
         }
 
         if (advSearchFilterPopup.getProtocol().equalsIgnoreCase("ALL")) {
@@ -1735,7 +1745,6 @@ public class MessageBrowser extends javax.swing.JPanel {
     private javax.swing.JTabbedPane descriptionTabbedPane;
     private javax.swing.JButton filterButton;
     private javax.swing.JPanel filterPanel;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
@@ -1758,7 +1767,8 @@ public class MessageBrowser extends javax.swing.JPanel {
     private javax.swing.JButton nextPageButton;
     private com.mirth.connect.client.ui.components.MirthTextField pageSizeField;
     private javax.swing.JButton previousPageButton;
-    private javax.swing.JTextField quickSearch;
+    private javax.swing.JTextField quickSearchField;
+    private javax.swing.JLabel quickSearchLabel;
     private javax.swing.JLabel resultsLabel;
     private javax.swing.JComboBox statusComboBox;
     // End of variables declaration//GEN-END:variables

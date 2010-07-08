@@ -9,7 +9,8 @@
 
 package com.mirth.connect.client.ui.browsers.message;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Point;
 
 import com.mirth.connect.model.MessageObject;
 
@@ -28,7 +29,7 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
     private String protocol = "ALL";
 
     /** Creates new form MessageBrowserAdvancedFilter */
-    public MessageBrowserAdvancedFilter(com.mirth.connect.client.ui.Frame parent, String title, boolean modal) {
+    public MessageBrowserAdvancedFilter(com.mirth.connect.client.ui.Frame parent, String title, boolean modal, boolean allowSearch) {
         super(parent, title, modal);
 
         initComponents();
@@ -55,10 +56,10 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
 
         protocolComboBox.setModel(new javax.swing.DefaultComboBoxModel(protocolValues));
 
-        reset();
+        reset(allowSearch);
     }
 
-    public void reset() {
+    public void reset(boolean allowSearch) {
         connector = "";
         messageSource = "";
         messageType = "";
@@ -82,6 +83,10 @@ public class MessageBrowserAdvancedFilter extends javax.swing.JDialog {
         encodedMessageCheckBox.setSelected(includeEncodedMessage);
         errorsCheckBox.setSelected(includeErrors);
         protocolComboBox.setSelectedIndex(0);
+        
+        rawMessageCheckBox.setEnabled(allowSearch);
+        transformedMessageCheckBox.setEnabled(allowSearch);
+        encodedMessageCheckBox.setEnabled(allowSearch);
     }
 
     public void setFieldValues(String connector, String messageSource, String messageType, String containingKeyword, String messageId, String correlationId,
