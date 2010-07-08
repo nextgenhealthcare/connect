@@ -21,7 +21,7 @@ public class JMXConnectionFactory {
     public static JMXConnection createJMXConnection() throws Exception {
         Properties properties = PropertyLoader.loadProperties("mirth");
         String port = PropertyLoader.getProperty(properties, "jmx.port");
-        String jmxUrl = "service:jmx:rmi:///jndi/rmi://localhost:" + port + "/server";
+        String jmxUrl = "service:jmx:rmi:///jndi/rmi://" + PropertyLoader.getProperty(properties, "jmx.host", "localhost") + ":" + port + "/server";
         String password = PropertyLoader.getProperty(properties, "jmx.password");
         Map<String, String[]> environment = new HashMap<String, String[]>();
         String[] credentials = { "admin", password };

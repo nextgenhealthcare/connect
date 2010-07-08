@@ -144,7 +144,7 @@ public class MuleEngineController implements EngineController {
         String port = PropertyLoader.getProperty(properties, "jmx.port");
         RmiRegistryAgent rmiRegistryAgent = new RmiRegistryAgent();
         rmiRegistryAgent.setName("RMI");
-        rmiRegistryAgent.setServerUri("rmi://localhost:" + port);
+        rmiRegistryAgent.setServerUri("rmi://" + PropertyLoader.getProperty(properties, "jmx.host", "localhost") + ":" + port);
         muleManager.registerAgent(rmiRegistryAgent);
 
         jmxAgent = new JmxAgent();
@@ -152,8 +152,8 @@ public class MuleEngineController implements EngineController {
         Map<String, String> connectorServerProperties = new HashMap<String, String>();
         connectorServerProperties.put("jmx.remote.jndi.rebind", "true");
         jmxAgent.setConnectorServerProperties(connectorServerProperties);
-        jmxAgent.setConnectorServerUrl("service:jmx:rmi:///jndi/rmi://localhost:" + port + "/server");
-        logger.debug("JMX server URL: " + "service:jmx:rmi:///jndi/rmi://localhost:" + port + "/server");
+        jmxAgent.setConnectorServerUrl("service:jmx:rmi:///jndi/rmi://" + PropertyLoader.getProperty(properties, "jmx.host", "localhost") + ":" + port + "/server");
+        logger.debug("JMX server URL: " + "service:jmx:rmi:///jndi/rmi://" + PropertyLoader.getProperty(properties, "jmx.host", "localhost") + ":" + port + "/server");
         Map<String, String> credentialsMap = new HashMap<String, String>();
         credentialsMap.put("admin", PropertyLoader.getProperty(properties, "jmx.password"));
         jmxAgent.setCredentials(credentialsMap);
