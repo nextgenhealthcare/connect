@@ -32,7 +32,7 @@ public class HttpSenderProperties extends QueuedSenderProperties {
         properties.put(DATATYPE, name);
         properties.put(HTTP_URL, "");
 
-        properties.put(HTTP_METHOD, "POST");
+        properties.put(HTTP_METHOD, "post");
         properties.put(HTTP_HEADERS, serializer.toXML(new Properties()));
         properties.put(HTTP_PARAMETERS, serializer.toXML(new Properties()));
         properties.put(HTTP_REPLY_CHANNEL_ID, "sink");
