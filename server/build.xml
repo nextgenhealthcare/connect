@@ -781,4 +781,27 @@
 		</java>
 	</target>
 	
+	
+	<target name="dev-launcher" depends="init" description="This runs Mirth using the setup launcher">
+		<java classname="com.mirth.connect.server.launcher.MirthLauncher" fork="true" dir="${setup}" failonerror="true">
+			<classpath>
+				<pathelement location="${setup}/mirth-launcher.jar" />
+			</classpath>
+		</java>
+	</target>
+	
+	<target name="dev-run" depends="init" description="This runs the mirth server using the Eclipse environment">
+		<java classname="com.mirth.connect.server.Mirth" fork="true" dir="${basedir}" failonerror="true">
+			<classpath>
+				<pathelement location="bin" />
+				<pathelement location="conf" />
+				<pathelement location="build" />
+				<fileset dir="${lib}">
+					<include name="**/*.jar" />
+					<include name="*.jar" />
+				</fileset>
+			</classpath>
+		</java>
+	</target>
+	
 </project>
