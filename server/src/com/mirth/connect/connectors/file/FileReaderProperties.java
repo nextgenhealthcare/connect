@@ -72,8 +72,8 @@ public class FileReaderProperties implements ComponentProperties {
         properties.put(FILE_MOVE_TO_DIRECTORY, "");
         properties.put(FILE_MOVE_TO_ERROR_DIRECTORY, "");
         properties.put(FILE_DELETE_AFTER_READ, "0");
-        properties.put(FILE_CHECK_FILE_AGE, "0");
-        properties.put(FILE_FILE_AGE, "0");
+        properties.put(FILE_CHECK_FILE_AGE, "1");
+        properties.put(FILE_FILE_AGE, "1000");
         properties.put(FILE_SORT_BY, SORT_BY_DATE);
         properties.put(FILE_TYPE, "0");
         properties.put(FILE_TIMEOUT, "10000");
