@@ -17,8 +17,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import javax.management.InstanceNotFoundException;
 
@@ -239,7 +239,7 @@ public class MuleEngineController implements EngineController {
         }
 
         muleManager.getModel().registerComponent(descriptor);
-        
+
         // register its mbean (if the server is started)
         if (muleManager.isStarted()) {
             jmxAgent.registerComponentService(descriptor.getName());
@@ -278,19 +278,15 @@ public class MuleEngineController implements EngineController {
         }
 
         MuleEndpoint endpoint = new MuleEndpoint();
-
         String connectorReference = getConnectorReferenceForInboundRouter(channel);
 
-        // add the source connector
-        UMOConnector connector = registerConnector(channel.getSourceConnector(), getConnectorNameForRouter(connectorReference), channel.getId());
-        endpoint.setConnector(connector);
-
-        // if the channel is snychronous
+        // Check if the channel is snychronous
         if ((channel.getProperties().get("synchronous")) != null && ((String) channel.getProperties().get("synchronous")).equalsIgnoreCase("true")) {
             endpoint.setSynchronous(true);
         }
 
-        // 1. append the default transformers required by the transport (ex.
+        // STEP 1. append the default transformers required by the transport
+        // (ex.
         // ByteArrayToString)
         ConnectorMetaData transport = transports.get(channel.getSourceConnector().getTransportName());
         LinkedList<UMOTransformer> transformerList = null;
@@ -299,7 +295,7 @@ public class MuleEngineController implements EngineController {
             transformerList = chainTransformers(transport.getTransformers());
         }
 
-        // 2. append the preprocessing transformer
+        // STEP 2. append the preprocessing transformer
         UMOTransformer preprocessorTransformer = registerPreprocessor(channel, connectorReference + "_preprocessor");
 
         if (!transformerList.isEmpty()) {
@@ -310,12 +306,12 @@ public class MuleEngineController implements EngineController {
             transformerList.add(preprocessorTransformer);
         }
 
-        // 3. finally, append the JavaScriptTransformer that does the
+        // STEP 3. finally, append the JavaScriptTransformer that does the
         // mappings
         UMOTransformer javascriptTransformer = registerTransformer(channel, channel.getSourceConnector(), connectorReference + "_transformer");
         preprocessorTransformer.setTransformer(javascriptTransformer);
 
-        // 4. add the transformer sequence as an attribute to the endpoint
+        // STEP 4. add the transformer sequence as an attribute to the endpoint
         endpoint.setTransformer(transformerList.getFirst());
         vmEndpoint.setTransformer(preprocessorTransformer);
 
@@ -328,12 +324,22 @@ public class MuleEngineController implements EngineController {
         // If a channel reader is being used, add the channel id
         // to the endpointUri so the endpoint can be deployed
         String endpointUri = getEndpointUri(channel.getSourceConnector());
+        
         if (endpointUri.equals("vm://")) {
             endpointUri += channel.getId();
         }
-        endpoint.setEndpointURI(new MuleEndpointURI(new URI(endpointUri).toString(), channel.getId()));
-        inboundRouter.addEndpoint(endpoint);
+        
+        endpoint.setEndpointURI(new MuleEndpointURI(endpointUri, channel.getId()));
 
+        /*
+         * MUST BE LAST STEP: Add the source connector last so that if an
+         * exception occurs (like creating the URI) it wont register the JMX
+         * service
+         */
+        UMOConnector connector = registerConnector(channel.getSourceConnector(), getConnectorNameForRouter(connectorReference), channel.getId());
+        endpoint.setConnector(connector);
+
+        inboundRouter.addEndpoint(endpoint);
         descriptor.setInboundRouter(inboundRouter);
     }
 
@@ -347,7 +353,7 @@ public class MuleEngineController implements EngineController {
 
             if (connector.isEnabled()) {
                 MuleEndpoint endpoint = new MuleEndpoint();
-                endpoint.setEndpointURI(new MuleEndpointURI(new URI(getEndpointUri(connector)).toString(), channel.getId()));
+                endpoint.setEndpointURI(new MuleEndpointURI(getEndpointUri(connector), channel.getId()));
 
                 // if there are multiple endpoints, make them all
                 // synchronous to
