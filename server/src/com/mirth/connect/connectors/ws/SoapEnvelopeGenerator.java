@@ -53,8 +53,19 @@ public class SoapEnvelopeGenerator {
 
         if ((extensibilityElement != null) && (extensibilityElement instanceof Schema)) {
             Schema schemaExtensibilityElement = (Schema) extensibilityElement;
-            SchemaImport schemaImport = ((Vector<SchemaImport>) schemaExtensibilityElement.getImports().values().iterator().next()).get(0);
-            Element schemaElement = schemaImport.getReferencedSchema().getElement();
+            Element schemaElement = null;
+
+            /*
+             * If the schema is imported, then we'll resolve the import.
+             * Otherwise, the schema is inline and we'll use the Element.
+             */
+            if (!schemaExtensibilityElement.getImports().isEmpty()) {
+                SchemaImport schemaImport = ((Vector<SchemaImport>) schemaExtensibilityElement.getImports().values().iterator().next()).get(0);
+                schemaElement = schemaImport.getReferencedSchema().getElement();
+            } else {
+                schemaElement = schemaExtensibilityElement.getElement();
+            }
+
             parser.parse(new InputSource(new StringReader(domToString(schemaElement))));
             schema = parser.getResult().getSchema(1);
         }
@@ -76,6 +87,7 @@ public class SoapEnvelopeGenerator {
     private ExtensibilityElement findExtensibilityElementByName(List<ExtensibilityElement> extensbilityElements, String name) {
         for (Iterator<ExtensibilityElement> iterator = extensbilityElements.iterator(); iterator.hasNext();) {
             ExtensibilityElement extensibilityElement = iterator.next();
+
             if (extensibilityElement.getElementType().getLocalPart().equals(name)) {
                 return extensibilityElement;
             }
@@ -94,7 +106,18 @@ public class SoapEnvelopeGenerator {
         Element bodyElement = document.createElement(SOAPENV_NS + ":Body");
         Element operationElement = document.createElement("ns:" + operation);
 
-        XSContentType contentType = schema.getComplexType(operation).getContentType();
+        XSContentType contentType = null;
+
+        /*
+         * TODO: Not sure if the first check is needed. Will there always be an
+         * Element associated with each ComplexType?
+         */
+        if (schema.getComplexType(operation) != null) {
+            contentType = schema.getComplexType(operation).getContentType();
+        } else {
+            contentType = schema.getElementDecl(operation).getType().asComplexType().getContentType();
+        }
+
         generateRequestElement(document, operationElement, contentType);
 
         bodyElement.appendChild(operationElement);
