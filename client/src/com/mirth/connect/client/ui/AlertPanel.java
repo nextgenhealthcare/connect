@@ -368,10 +368,12 @@ public class AlertPanel extends javax.swing.JPanel {
 
     public void setAlertTemplateVariableList() {
         ArrayList<String> variables = new ArrayList<String>();
-        variables.add("ERROR");
-        variables.add("SYSTIME");
+        variables.add("error");
+        variables.add("errorMessage");
+        variables.add("systemTime");
         variables.add("channelName");
         variables.add("date");
+        variables.add("globalMapVariable");
 
         templateVariableList.removeAll();
         templateVariableList.setListData(variables.toArray());

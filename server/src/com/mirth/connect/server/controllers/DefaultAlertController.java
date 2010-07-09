@@ -152,13 +152,14 @@ public class DefaultAlertController extends AlertController {
     }
 
     public void sendAlerts(String channelId, String errorType, String customMessage, Throwable e) {
-        String errorMessage = errorBuilder.buildErrorMessage(errorType, customMessage, e);
+        String fullError = errorBuilder.buildErrorMessage(errorType, customMessage, e);
+        String errorMessage = (e == null) ? "No exception message." : e.getMessage();
 
         try {
             for (Alert alert : getAlertByChannelId(channelId)) {
-                if (alert.isEnabled() && isAlertableError(alert.getExpression(), errorMessage)) {
+                if (alert.isEnabled() && isAlertableError(alert.getExpression(), fullError)) {
                     statisticsController.incrementAlertedCount(channelId);
-                    sendAlertEmails(alert.getSubject(), alert.getEmails(), alert.getTemplate(), errorMessage, channelId);
+                    sendAlertEmails(alert.getSubject(), alert.getEmails(), alert.getTemplate(), fullError, errorMessage, channelId);
                 }
             }
         } catch (ControllerException ce) {
@@ -174,7 +175,7 @@ public class DefaultAlertController extends AlertController {
         }
     }
 
-    private void sendAlertEmails(String subject, List<String> emails, String template, String errorMessage, String channelId) throws ControllerException {
+    private void sendAlertEmails(String subject, List<String> emails, String template, String fullError, String errorMessage, String channelId) throws ControllerException {
         TemplateValueReplacer replacer = new TemplateValueReplacer();
         Properties properties = ControllerFactory.getFactory().createConfigurationController().getServerProperties();
         final String fromAddress = PropertyLoader.getProperty(properties, "smtp.from");
@@ -182,10 +183,14 @@ public class DefaultAlertController extends AlertController {
 
         Map<String, Object> context = new HashMap<String, Object>();
         context.put("channelName", ControllerFactory.getFactory().createChannelController().getChannelName(channelId));
-        context.put("ERROR", errorMessage);
-        context.put("error", errorMessage);
-        context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
+        context.put("error", fullError);
+        context.put("errorMessage", errorMessage);
+        context.put("systemTime", String.valueOf(System.currentTimeMillis()));
         context.put("date", new DateTool());
+        
+        // no longer shown on UI
+        context.put("ERROR", fullError);
+        context.put("SYSTIME", String.valueOf(System.currentTimeMillis()));
         
         if (subject != null) {
             subject = replacer.replaceValues(subject, context);
@@ -196,7 +201,7 @@ public class DefaultAlertController extends AlertController {
             subject = "Mirth Connect Alert";
         }
 
-        String body = errorMessage;
+        String body = fullError;
 
         if (template != null) {
             body = replacer.replaceValues(template, context);

@@ -54,10 +54,19 @@ public class TemplateValueReplacer {
         return localMap;
     }
 
+    /**
+     * Replaces variables in the template with values from the passed in map and
+     * the global map.
+     * 
+     * @param template
+     * @param map
+     * @return
+     */
     public String replaceValues(String template, Map<String, Object> map) {
         if (hasReplaceableValues(template)) {
             VelocityContext context = new VelocityContext();
             loadContextFromMap(context, map);
+            loadContextFromMap(context, GlobalVariableStore.getInstance().getVariables());
             return evaluate(context, template);
         } else {
             return template;
