@@ -44,7 +44,7 @@ import com.mirth.connect.model.Channel;
 public class AlertPanel extends javax.swing.JPanel {
 
     private Frame parent;
-    private boolean isDeletingAlert = false;
+    public boolean isDeletingAlert = false;
     private boolean updatingAlertTable = false;
     private int lastAlertRow;
     private final String ALERT_NAME_COLUMN_NAME = "Name";
@@ -380,7 +380,6 @@ public class AlertPanel extends javax.swing.JPanel {
         templateVariablesPane.setViewportView(templateVariableList);
     }
 
-    /** Loads a selected connector and returns true on success. */
     public boolean loadAlert() {
         int index = alertTable.getSelectedModelIndex();
 
@@ -516,6 +515,7 @@ public class AlertPanel extends javax.swing.JPanel {
         CellData enabled = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_blue.png")), ENABLED_TEXT);
         alertTable.getModel().setValueAt(enabled, alertTable.getSelectedModelIndex(), alertTable.getColumnModelIndex(ALERT_STATUS_COLUMN_NAME));
 
+        checkVisibleAlertTasks();
         parent.enableSave();
     }
 
@@ -526,6 +526,7 @@ public class AlertPanel extends javax.swing.JPanel {
         CellData disabled = new CellData(new ImageIcon(com.mirth.connect.client.ui.Frame.class.getResource("images/bullet_black.png")), DISABLED_TEXT);
         alertTable.getModel().setValueAt(disabled, alertTable.getSelectedModelIndex(), alertTable.getColumnModelIndex(ALERT_STATUS_COLUMN_NAME));
 
+        checkVisibleAlertTasks();
         parent.enableSave();
     }
 
@@ -556,7 +557,7 @@ public class AlertPanel extends javax.swing.JPanel {
         isDeletingAlert = false;
 
         if (parent.alerts.size() == 0) {
-            resetBlankPane();
+            deselectAlertRows();
         } else {
             alertTable.setRowSelectionInterval(newViewIndex, newViewIndex);
         }

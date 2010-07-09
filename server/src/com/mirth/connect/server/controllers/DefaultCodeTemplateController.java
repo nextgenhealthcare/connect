@@ -43,6 +43,7 @@ public class DefaultCodeTemplateController extends CodeTemplateController {
         try {
             List<CodeTemplate> codeTemplates = SqlConfig.getSqlMapClient().queryForList("CodeTemplate.getCodeTemplate", codeTemplate);
 
+            // The version is not stored in the database, so set it when pulling code templates out.
             for (CodeTemplate singleCodeTemplate : codeTemplates) {
                 singleCodeTemplate.setVersion(configurationController.getServerVersion());
             }

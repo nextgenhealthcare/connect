@@ -3746,7 +3746,19 @@ public class Frame extends JXFrame {
                 alertInformation(this, "All alerts imported successfully.");
 
                 enableSave();
-                alertPanel.loadAlert();
+                
+                // If appending, just deselect the rows, which saves 
+                // the state of the last selected row.
+                // If replacing, set isDeletingAlert so the state is 
+                // not saved while the alert is being removed.
+                if (append) {
+                    alertPanel.deselectAlertRows();
+                } else {
+                    alertPanel.isDeletingAlert = true;
+                    alertPanel.deselectAlertRows();
+                    alertPanel.isDeletingAlert = false;
+                }
+                
                 alertPanel.updateAlertTable();
 
             } catch (Exception e) {
@@ -3901,7 +3913,19 @@ public class Frame extends JXFrame {
                 alertInformation(this, "All code templates imported successfully.");
 
                 enableSave();
-                codeTemplatePanel.loadCodeTemplate();
+                
+                // If appending, just deselect the rows, which saves 
+                // the state of the last selected row.
+                // If replacing, set isDeletingAlert so the state is 
+                // not saved while the alert is being removed.
+                if (append) {
+                    codeTemplatePanel.deselectCodeTemplateRows();
+                } else {
+                    codeTemplatePanel.isDeleting = true;
+                    codeTemplatePanel.deselectCodeTemplateRows();
+                    codeTemplatePanel.isDeleting = false;
+                }
+                
                 codeTemplatePanel.updateCodeTemplateTable();
             } catch (Exception e) {
                 alertError(this, "Invalid code template file.");

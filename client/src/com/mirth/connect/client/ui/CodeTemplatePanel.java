@@ -35,7 +35,7 @@ import com.mirth.connect.model.CodeTemplate.ContextType;
 public class CodeTemplatePanel extends javax.swing.JPanel {
 
     private Frame parent;
-    private boolean isDeleting = false;
+    public boolean isDeleting = false;
     private int lastModelRow;
     private final String TEMPLATE_NAME_COLUMN_NAME = "Name";
     private final String TEMPLATE_CONTEXT_COLUMN_NAME = "Context";
@@ -386,6 +386,9 @@ public class CodeTemplatePanel extends javax.swing.JPanel {
             parent.alertException(this, e.getStackTrace(), e.getMessage());
         }
 
+        // Set the version when creating new code templates in case they are exported
+        // without being retrieved from the server again, which always sets the version
+        codeTemplate.setVersion(PlatformUI.SERVER_VERSION);
         codeTemplate.setName(getNewCodeTemplateName(model.getRowCount() + 1));
         codeTemplate.setCode(functionCodeExample);
         codeTemplate.setTooltip("");
