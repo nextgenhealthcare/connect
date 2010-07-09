@@ -19,7 +19,6 @@ import javax.swing.ImageIcon;
  */
 public class UIConstants {
     // for EOL stuff
-
     public static final String EOL_JAVA = "\n";
     public static final String EOL_UNIX = "\n";
     public static final String EOL_WIN32 = "\r\n";
@@ -123,4 +122,7 @@ public class UIConstants {
     // for privacy
     public static final String PRIVACY_URL = "http://www.mirthcorp.com/company/about/privacy#mirthconnect";
     public static final String PRIVACY_TOOLTIP = "Privacy Information";
+    
+    // FileUtils reading/writing
+    public static final String CHARSET = "UTF-8";
 }

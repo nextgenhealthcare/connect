@@ -18,8 +18,10 @@ import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.Constructor;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,6 +45,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.text.DateFormatter;
 
+import org.apache.commons.io.FileUtils;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.syntax.jedit.SyntaxDocument;
@@ -67,7 +70,6 @@ import com.mirth.connect.client.ui.components.MirthFieldConstraints;
 import com.mirth.connect.client.ui.components.MirthSyntaxTextArea;
 import com.mirth.connect.client.ui.components.MirthTable;
 import com.mirth.connect.client.ui.util.DisplayUtil;
-import com.mirth.connect.client.ui.util.FileUtil;
 import com.mirth.connect.model.Attachment;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ExtensionPoint;
@@ -359,7 +361,7 @@ public class MessageBrowser extends javax.swing.JPanel {
                 String deprecatedEndOfMessage = "</com.webreach.mirth.model.MessageObject>";
                 String startOfMessage = "<com.mirth.connect.model.MessageObject>";
                 String endOfMessage = "</com.mirth.connect.model.MessageObject>";
-                br = new BufferedReader(new InputStreamReader(new FileInputStream(importFile), FileUtil.CHARSET));
+                br = new BufferedReader(new InputStreamReader(new FileInputStream(importFile), UIConstants.CHARSET));
                 StringBuffer buffer = new StringBuffer();
                 String line;
 
@@ -475,7 +477,8 @@ public class MessageBrowser extends javax.swing.JPanel {
                 if (length < 4 || !exportFile.getName().substring(length - 4, length).equals(fileExtension)) {
                     exportFile = new File(exportFile.getAbsolutePath() + fileExtension);
                 }
-                FileUtil.write(exportFile, "", false);
+                
+                FileUtils.writeStringToFile(exportFile, "", UIConstants.CHARSET);
 
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
@@ -501,7 +504,14 @@ public class MessageBrowser extends javax.swing.JPanel {
                         messages.append("\n");
                     }
 
-                    FileUtil.write(exportFile, messages.toString(), true);
+                    OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(exportFile, true), UIConstants.CHARSET);
+                    try {
+                        writer.write(messages.toString());
+                        writer.flush();
+                    } finally {
+                        writer.close();
+                    }
+                    
                     messages.delete(0, messages.length());
 
                     messageObjects = tempMessageListHandler.getNextPage();

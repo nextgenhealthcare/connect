@@ -51,6 +51,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.LineBorder;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXFrame;
 import org.jdesktop.swingx.JXHyperlink;
@@ -70,7 +71,6 @@ import com.mirth.connect.client.core.UpdateClient;
 import com.mirth.connect.client.ui.browsers.event.EventBrowser;
 import com.mirth.connect.client.ui.browsers.message.MessageBrowser;
 import com.mirth.connect.client.ui.panels.reference.ReferenceListFactory;
-import com.mirth.connect.client.ui.util.FileUtil;
 import com.mirth.connect.connectors.ConnectorClass;
 import com.mirth.connect.model.Alert;
 import com.mirth.connect.model.Channel;
@@ -79,15 +79,15 @@ import com.mirth.connect.model.ChannelStatistics;
 import com.mirth.connect.model.ChannelStatus;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.CodeTemplate;
+import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
 import com.mirth.connect.model.Connector;
+import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.UpdateInfo;
 import com.mirth.connect.model.User;
-import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
-import com.mirth.connect.model.Connector.Mode;
 import com.mirth.connect.model.converters.ObjectCloner;
 import com.mirth.connect.model.converters.ObjectClonerException;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
@@ -1868,7 +1868,7 @@ public class Frame extends JXFrame {
 
         if (importFile != null) {
             try {
-                String scriptsXml = FileUtil.read(importFile);
+                String scriptsXml = FileUtils.readFileToString(importFile, UIConstants.CHARSET);
                 scriptsXml = ImportConverter.convertGlobalScripts(scriptsXml);
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 
@@ -2984,7 +2984,7 @@ public class Frame extends JXFrame {
                         }
                     }
 
-                    FileUtil.write(exportFile, channelXML, false);
+                    FileUtils.writeStringToFile(exportFile, channelXML, UIConstants.CHARSET);
                 }
                 alertInformation(this, "All files were written successfully to " + exportDirectory.getPath() + ".");
             } catch (IOException ex) {
@@ -3060,7 +3060,7 @@ public class Frame extends JXFrame {
             }
 
             try {
-                FileUtil.write(exportFile, fileContents, false);
+                FileUtils.writeStringToFile(exportFile, fileContents, UIConstants.CHARSET);
                 alertInformation(this, name + " was written to " + exportFile.getPath() + ".");
             } catch (IOException ex) {
                 alertError(this, "File could not be written.");
@@ -3077,7 +3077,7 @@ public class Frame extends JXFrame {
 
         if (connectorFile != null) {
             try {
-                String connectorXML = ImportConverter.convertConnector(FileUtil.read(connectorFile));
+                String connectorXML = ImportConverter.convertConnector(FileUtils.readFileToString(connectorFile, UIConstants.CHARSET));
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 Connector connector = (Connector) serializer.fromXML(connectorXML);
                 channelEditPanel.importConnector(connector);
@@ -3698,7 +3698,7 @@ public class Frame extends JXFrame {
 
         if (importFile != null) {
             try {
-                String alertsXml = FileUtil.read(importFile);
+                String alertsXml = FileUtils.readFileToString(importFile, UIConstants.CHARSET);
                 alertsXml = ImportConverter.convertAlerts(alertsXml);
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
                 
@@ -3853,7 +3853,7 @@ public class Frame extends JXFrame {
 
         if (importFile != null) {
             try {
-                String codeTemplatesXML = FileUtil.read(importFile);
+                String codeTemplatesXML = FileUtils.readFileToString(importFile, UIConstants.CHARSET);
                 codeTemplatesXML = ImportConverter.convertCodeTemplates(codeTemplatesXML);
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 

@@ -53,6 +53,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import org.apache.commons.io.FileUtils;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.action.ActionFactory;
@@ -73,7 +74,6 @@ import com.mirth.connect.client.ui.components.MirthTree;
 import com.mirth.connect.client.ui.editors.BasePanel;
 import com.mirth.connect.client.ui.editors.EditorTableCellEditor;
 import com.mirth.connect.client.ui.editors.MirthEditorPane;
-import com.mirth.connect.client.ui.util.FileUtil;
 import com.mirth.connect.client.ui.util.VariableListUtil;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
@@ -975,7 +975,7 @@ public class TransformerPane extends MirthEditorPane implements
 
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         try {
-            transformerXML = ImportConverter.convertTransformer(FileUtil.read(importFile), incomingProtocol, outgoingProtocol);
+            transformerXML = ImportConverter.convertTransformer(FileUtils.readFileToString(importFile, UIConstants.CHARSET), incomingProtocol, outgoingProtocol);
             Transformer importTransformer = (Transformer) serializer.fromXML(transformerXML);
             prevSelRow = -1;
             modified = true;

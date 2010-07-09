@@ -29,6 +29,7 @@ import java.util.TimerTask;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.apache.commons.io.FileUtils;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.EDITokenMarker;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
@@ -44,7 +45,6 @@ import com.mirth.connect.client.ui.beans.X12Properties;
 import com.mirth.connect.client.ui.beans.XMLProperties;
 import com.mirth.connect.client.ui.editors.BoundPropertiesSheetDialog;
 import com.mirth.connect.client.ui.editors.MirthEditorPane;
-import com.mirth.connect.client.ui.util.FileUtil;
 import com.mirth.connect.client.ui.util.PropertiesUtil;
 import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.converters.DICOMSerializer;
@@ -162,7 +162,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                 if (getProtocol().equals(PlatformUI.MIRTH_FRAME.protocols.get(MessageObject.Protocol.DICOM))) {
                     pasteBox.setText(new DICOMSerializer().toXML(file));
                 } else {
-                    pasteBox.setText(FileUtil.read(file));
+                    pasteBox.setText(FileUtils.readFileToString(file, UIConstants.CHARSET));
                 }
 
                 parent.modified = true;
@@ -365,7 +365,7 @@ public class TemplatePanel extends javax.swing.JPanel implements DropTargetListe
                     //pasteBox.setText(file.getPath());
                     pasteBox.setText(new DICOMSerializer().toXML(file));
                 } else {
-                    pasteBox.setText(FileUtil.read(file));
+                    pasteBox.setText(FileUtils.readFileToString(file, UIConstants.CHARSET));
                 }
 
                 parent.modified = true;

@@ -52,6 +52,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import org.apache.commons.io.FileUtils;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.action.ActionFactory;
@@ -71,7 +72,6 @@ import com.mirth.connect.client.ui.components.MirthTree;
 import com.mirth.connect.client.ui.editors.BasePanel;
 import com.mirth.connect.client.ui.editors.EditorTableCellEditor;
 import com.mirth.connect.client.ui.editors.MirthEditorPane;
-import com.mirth.connect.client.ui.util.FileUtil;
 import com.mirth.connect.client.ui.util.VariableListUtil;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
@@ -941,7 +941,7 @@ public class FilterPane extends MirthEditorPane implements DropTargetListener {
 
         ObjectXMLSerializer serializer = new ObjectXMLSerializer();
         try {
-            filterXML = ImportConverter.convertFilter(FileUtil.read(importFile));
+            filterXML = ImportConverter.convertFilter(FileUtils.readFileToString(importFile, UIConstants.CHARSET));
             Filter importFilter = (Filter) serializer.fromXML(filterXML);
             prevSelRow = -1;
             modified = true;

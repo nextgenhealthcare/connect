@@ -28,6 +28,7 @@ import java.util.Iterator;
 
 import javax.swing.JDialog;
 
+import org.apache.commons.io.FileUtils;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.EvaluatorException;
 import org.syntax.jedit.SyntaxDocument;
@@ -35,7 +36,7 @@ import org.syntax.jedit.tokenmarker.JavaScriptTokenMarker;
 
 import com.mirth.connect.client.ui.Frame;
 import com.mirth.connect.client.ui.PlatformUI;
-import com.mirth.connect.client.ui.util.FileUtil;
+import com.mirth.connect.client.ui.UIConstants;
 
 public class JavaScriptEditorDialog extends javax.swing.JDialog implements DropTargetListener {
 
@@ -140,7 +141,7 @@ public class JavaScriptEditorDialog extends javax.swing.JDialog implements DropT
                 while (iterator.hasNext()) {
                     File file = (File) iterator.next();
 
-                    scriptContent.setText(scriptContent.getText() + FileUtil.read(file));
+                    scriptContent.setText(scriptContent.getText() + FileUtils.readFileToString(file, UIConstants.CHARSET));
                 }
             }
         } catch (Exception e) {
@@ -256,7 +257,7 @@ public class JavaScriptEditorDialog extends javax.swing.JDialog implements DropT
 
         if (importFile != null) {
             try {
-                scriptContent.setText(FileUtil.read(importFile));
+                scriptContent.setText(FileUtils.readFileToString(importFile, UIConstants.CHARSET));
             } catch (IOException e) {
                 parent.alertError(this, "Unable to read file.");
             }

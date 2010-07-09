@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FileUtils;
 import org.syntax.jedit.SyntaxDocument;
 import org.syntax.jedit.tokenmarker.EDITokenMarker;
 import org.syntax.jedit.tokenmarker.HL7TokenMarker;
@@ -31,7 +33,6 @@ import org.syntax.jedit.tokenmarker.X12TokenMarker;
 import org.syntax.jedit.tokenmarker.XMLTokenMarker;
 
 import com.mirth.connect.client.ui.components.MirthSyntaxTextArea;
-import com.mirth.connect.client.ui.util.FileUtil;
 import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.MessageObject.Protocol;
 
@@ -105,7 +106,7 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
                 Iterator<File> iterator = fileList.iterator();
                 while (iterator.hasNext()) {
                     File file = iterator.next();
-                    messageContent.setText(messageContent.getText() + FileUtil.read(file));
+                    messageContent.setText(messageContent.getText() + FileUtils.readFileToString(file, UIConstants.CHARSET));
                 }
             }
         } catch (Exception e) {
@@ -252,7 +253,8 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
 
         if (importFile != null) {
             try {
-                message.setRawData(FileUtil.readBinaryBase64(importFile));
+                String rawBase64Data = new String(new Base64().encode(FileUtils.readFileToByteArray(importFile)));
+                message.setRawData(rawBase64Data);
                 parent.processMessage(message);
                 this.dispose();
             } catch (IOException e) {
@@ -267,7 +269,7 @@ public class EditMessageDialog extends javax.swing.JDialog implements DropTarget
 
         if (importFile != null) {
             try {
-                messageContent.setText(FileUtil.read(importFile));
+                messageContent.setText(FileUtils.readFileToString(importFile, UIConstants.CHARSET));
             } catch (IOException e) {
                 parent.alertError(this, "Unable to read file.");
             }

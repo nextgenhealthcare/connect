@@ -13,7 +13,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import com.mirth.connect.client.ui.util.FileUtil;
+import org.apache.commons.io.FileUtils;
+
+import com.mirth.connect.client.ui.UIConstants;
 import com.mirth.connect.model.MessageObject;
 
 public class MessageObjectHtmlSerializer {
@@ -108,8 +110,8 @@ public class MessageObjectHtmlSerializer {
             encodedData += "\n\n";
         }
 
-        FileUtil.write(rawFile, rawData, false);
-        FileUtil.write(transformedFile, transformedData, false);
-        FileUtil.write(encodedFile, encodedData, false);
+        FileUtils.writeStringToFile(rawFile, rawData, UIConstants.CHARSET);
+        FileUtils.writeStringToFile(transformedFile, transformedData, UIConstants.CHARSET);
+        FileUtils.writeStringToFile(encodedFile, encodedData, UIConstants.CHARSET);
     }
 }

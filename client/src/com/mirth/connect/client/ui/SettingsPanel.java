@@ -19,9 +19,10 @@ import java.util.prefs.Preferences;
 
 import javax.swing.JOptionPane;
 
+import org.apache.commons.io.FileUtils;
+
 import com.mirth.connect.client.core.ClientException;
 import com.mirth.connect.client.ui.components.MirthFieldConstraints;
-import com.mirth.connect.client.ui.util.FileUtil;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.ImportConverter;
@@ -617,7 +618,7 @@ public class SettingsPanel extends javax.swing.JPanel {
         if (backupFile != null) {
             String backupXML = null;
             try {
-                backupXML = FileUtil.read(backupFile);
+                backupXML = FileUtils.readFileToString(backupFile, UIConstants.CHARSET);
             } catch (IOException ex) {
                 parent.alertError(this, "File could not be read.");
                 return;
