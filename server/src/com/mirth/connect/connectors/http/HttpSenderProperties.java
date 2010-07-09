@@ -45,7 +45,7 @@ public class HttpSenderProperties extends QueuedSenderProperties {
         properties.put(HTTP_CONTENT, "");
         properties.put(HTTP_CONTENT_TYPE, "text/plain");
         properties.put(HTTP_CHARSET, "UTF-8");
-        properties.put(HTTP_SOCKET_TIMEOUT, "0");
+        properties.put(HTTP_SOCKET_TIMEOUT, "30000");
 
         return properties;
     }
