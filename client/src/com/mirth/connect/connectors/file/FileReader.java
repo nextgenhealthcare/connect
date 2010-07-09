@@ -1252,7 +1252,6 @@ public class FileReader extends ConnectorClass {
         charsetEncodingCombobox.setEnabled(true);
 
         processBatchFilesLabel.setEnabled(true);
-        processBatchFilesYes.setSelected(true);
         processBatchFilesNo.setEnabled(true);
         processBatchFilesYes.setEnabled(true);
     }//GEN-LAST:event_fileTypeASCIIActionPerformed
