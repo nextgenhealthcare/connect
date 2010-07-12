@@ -16,13 +16,10 @@ import java.net.ServerSocket;
 import java.nio.charset.Charset;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.runtime.RuntimeConstants;
@@ -33,8 +30,6 @@ import org.mortbay.http.SslListener;
 import org.mortbay.http.handler.ResourceHandler;
 import org.mortbay.jetty.servlet.ServletHandler;
 
-import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.SystemEvent;
 import com.mirth.connect.server.controllers.ChannelController;
 import com.mirth.connect.server.controllers.ChannelStatisticsController;
 import com.mirth.connect.server.controllers.ConfigurationController;
@@ -45,13 +40,7 @@ import com.mirth.connect.server.controllers.ExtensionController;
 import com.mirth.connect.server.controllers.MessageObjectController;
 import com.mirth.connect.server.controllers.MigrationController;
 import com.mirth.connect.server.controllers.MonitoringController;
-import com.mirth.connect.server.controllers.MuleEngineController;
-import com.mirth.connect.server.controllers.ScriptController;
-import com.mirth.connect.server.controllers.TemplateController;
 import com.mirth.connect.server.controllers.UserController;
-import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
-import com.mirth.connect.server.util.GlobalVariableStore;
-import com.mirth.connect.server.util.VMRegistry;
 import com.mirth.connect.util.PropertyLoader;
 
 /**
@@ -66,9 +55,7 @@ public class Mirth extends Thread {
     private HttpServer httpServer = null;
     private HttpServer servletContainer = null;
     private CommandQueue commandQueue = CommandQueue.getInstance();
-
-    private EngineController managerBuilder = new MuleEngineController();
-
+    private EngineController engineController = ControllerFactory.getFactory().createEngineController();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private UserController userController = ControllerFactory.getFactory().createUserController();
@@ -78,8 +65,6 @@ public class Mirth extends Thread {
     private MigrationController migrationController = ControllerFactory.getFactory().createMigrationController();
     private MonitoringController monitoringController = ControllerFactory.getFactory().createMonitoringController();
     private EventController eventController = ControllerFactory.getFactory().createEventController();
-    private TemplateController templateController = ControllerFactory.getFactory().createTemplateController();
-    private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
 
     public static void main(String[] args) {
         Mirth mirth = new Mirth();
@@ -90,7 +75,7 @@ public class Mirth extends Thread {
     public static OutputStream getNullOutputStream() {
         return new OutputStream() {
             public void write(int b) throws IOException {
-            // ignore output
+                // ignore output
             }
         };
     }
@@ -124,18 +109,6 @@ public class Mirth extends Thread {
                     startup();
                 } else if (command.getOperation().equals(Command.Operation.SHUTDOWN_SERVER)) {
                     shutdown();
-                } else if (command.getOperation().equals(Command.Operation.START_ENGINE)) {
-                    startEngine();
-                } else if (command.getOperation().equals(Command.Operation.STOP_ENGINE)) {
-                    stopEngine();
-                } else if (command.getOperation().equals(Command.Operation.RESTART_ENGINE)) {
-                    restartEngine();
-                } else if (command.getOperation().equals(Command.Operation.DEPLOY_CHANNELS)) {
-                    deployChannels((List<Channel>) command.getParameter());
-                } else if (command.getOperation().equals(Command.Operation.UNDEPLOY_CHANNELS)) {
-                    undeployChannels((List<String>) command.getParameter());
-                } else if (command.getOperation().equals(Command.Operation.REDEPLOY)) {
-                    redeployChannels();
                 }
             }
         } else {
@@ -200,166 +173,38 @@ public class Mirth extends Thread {
     }
 
     /**
-     * Restarts the Mule server. This is accomplished by stopping and starting
-     * the server.
-     * 
-     */
-    private void restartEngine() {
-        logger.debug("retarting mule");
-        stopEngine();
-        startEngine();
-    }
-
-    private List<String> deployChannels(List<Channel> channels) {
-        try {
-            // unregister existing channels
-            for (Channel channel : channels) {
-                if (managerBuilder.isChannelRegistered(channel.getId())) {
-                    channelController.getChannelCache().remove(channel);
-                    managerBuilder.unregisterChannel(channel.getId());
-                }
-            }
-
-            resetGlobalChannelVariableStore(channels);
-
-            // update the manager with the new classes
-            List<String> failedChannelIds = managerBuilder.deployChannels(channels, extensionController.getConnectorMetaData());
-            List<String> channelIds = new ArrayList<String>();
-
-            // only run the deploy scripts for enabled and non-failed channels
-            for (Channel channel : channelController.getChannel(null)) {
-                if (channel.isEnabled() && !failedChannelIds.contains(channel.getId())) {
-                    channelIds.add(channel.getId());
-                }
-            }
-
-            configurationController.executeChannelDeployScripts(channelIds);
-            return failedChannelIds;
-        } catch (Exception e) {
-            logger.error("Error deploying channels.", e);
-            return null;
-        }
-    }
-
-    private void undeployChannels(List<String> channelIds) {
-        try {
-            for (String channelId : channelIds) {
-                if (managerBuilder.isChannelRegistered(channelId)) {
-                    channelController.getChannelCache().remove(channelController.getChannelCache().get(channelId));
-                    managerBuilder.unregisterChannel(channelId);
-                }
-            }
-
-            configurationController.executeChannelShutdownScripts(channelIds);
-        } catch (Exception e) {
-            logger.error("Error un-deploying channels.", e);
-        }
-    }
-
-    private void redeployChannels() {
-        logger.debug("reseting global variable store");
-        resetGlobalVariableStore();
-
-        try {
-            List<String> channelIds = new ArrayList<String>();
-
-            for (String channelId : managerBuilder.getDeployedChannelIds()) {
-                channelIds.add(channelId);
-            }
-
-            undeployChannels(channelIds);
-            deployChannels(channelController.getChannel(null));
-        } catch (Exception e) {
-            logger.error("Error re-deploying channels.", e);
-        }
-    }
-
-    /**
-     * Starts the Mule server.
+     * Starts the engine.
      * 
      */
     private void startEngine() {
-        resetGlobalVariableStore();
+        logger.debug("starting engine");
         configurationController.setEngineStarting(true);
 
         try {
-            VMRegistry.getInstance().rebuild();
-            
-            // remove all scripts and templates since the channels
-            // were never undeployed
-            scriptController.removeAllExceptGlobalScripts();
-            templateController.removeAllTemplates();
-            
-            List<Channel> channels = channelController.getChannel(null);
-            configurationController.compileScripts(channels);
-            configurationController.executeGlobalDeployScript();
-            managerBuilder.resetConfiguration();
-            List<String> failedChannels = deployChannels(channels);
-            managerBuilder.start();
-            undeployChannels(failedChannels);
+            engineController.startEngine();
         } catch (Exception e) {
-            logger.error("Error starting engine.", e);
-            // if deploy fails, log to system events
-            SystemEvent event = new SystemEvent("Error deploying channels.");
-            event.setLevel(SystemEvent.Level.HIGH);
-            event.setDescription(ExceptionUtils.getStackTrace(e));
-            eventController.logSystemEvent(event);
+            logger.error(e);
         }
 
         configurationController.setEngineStarting(false);
     }
 
-    private void resetGlobalVariableStore() {
-        try {
-            // clear global map
-            if (configurationController.getServerProperties().getProperty("server.resetglobalvariables") == null || configurationController.getServerProperties().getProperty("server.resetglobalvariables").equals("1")) {
-                GlobalVariableStore.getInstance().clear();
-                GlobalVariableStore.getInstance().clearSync();
-            }
-        } catch (Exception e) {
-            logger.error("Could not clear the global map.", e);
-        }
-    }
-
-    private void resetGlobalChannelVariableStore(List<Channel> channels) {
-        // clear global channel map
-        for (Channel channel : channels) {
-            try {
-                if (channel.getProperties().getProperty("clearGlobalChannelMap") == null || channel.getProperties().getProperty("clearGlobalChannelMap").equalsIgnoreCase("true")) {
-                    GlobalChannelVariableStoreFactory.getInstance().get(channel.getId()).clear();
-                    GlobalChannelVariableStoreFactory.getInstance().get(channel.getId()).clearSync();
-                }
-            } catch (Exception e) {
-                logger.error("Could not clear the global channel map: " + channel.getId(), e);
-            }
-        }
-    }
-
     /**
-     * Stops the Mule server.
+     * Stops the engine.
      * 
      */
     private void stopEngine() {
-        logger.debug("stopping mule");
+        logger.debug("stopping engine");
 
         try {
-            managerBuilder.stop();
-
-            List<String> channelIds = new ArrayList<String>();
-
-            for (Channel channel : channelController.getChannel(null)) {
-                channelIds.add(channel.getId());
-            }
-
-            configurationController.executeChannelShutdownScripts(channelIds);
-            configurationController.executeGlobalShutdownScript();
+            engineController.stopEngine();
         } catch (Exception e) {
             logger.error(e);
         }
     }
 
     /**
-     * Starts the Jetty web server.
+     * Starts the web server.
      * 
      */
     private void startWebServer() {
@@ -377,7 +222,7 @@ public class Mirth extends Thread {
 
             httpServer = new HttpServer();
             servletContainer = new HttpServer();
-            
+
             // add HTTPS listener
             SslListener sslListener = new SslListener();
             sslListener.setHost(PropertyLoader.getProperty(mirthProperties, "https.host", "0.0.0.0"));
@@ -460,6 +305,7 @@ public class Mirth extends Thread {
             secureServlets.addServlet("CodeTemplates", "/codetemplates", "com.mirth.connect.server.servlets.CodeTemplateServlet");
             secureServlets.addServlet("Configuration", "/configuration", "com.mirth.connect.server.servlets.ConfigurationServlet");
             secureServlets.addServlet("MessageObject", "/messages", "com.mirth.connect.server.servlets.MessageObjectServlet");
+            secureServlets.addServlet("Engine", "/engine", "com.mirth.connect.server.servlets.EngineServlet");
             secureServlets.addServlet("Extensions", "/extensions", "com.mirth.connect.server.servlets.ExtensionServlet");
             secureServlets.addServlet("SystemEvent", "/events", "com.mirth.connect.server.servlets.SystemEventServlet");
             secureServlets.addServlet("Users", "/users", "com.mirth.connect.server.servlets.UserServlet");
@@ -475,7 +321,7 @@ public class Mirth extends Thread {
     }
 
     /**
-     * Stops the Jetty web server.
+     * Stops the web server.
      * 
      */
     private void stopWebServer() {
@@ -562,5 +408,4 @@ public class Mirth extends Thread {
 
         return true;
     }
-
 }

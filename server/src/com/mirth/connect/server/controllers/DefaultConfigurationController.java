@@ -18,10 +18,10 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.SortedMap;
 import java.util.UUID;
-import java.util.Map.Entry;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -37,11 +37,8 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.DriverInfo;
 import com.mirth.connect.model.PasswordRequirements;
 import com.mirth.connect.model.ServerConfiguration;
-import com.mirth.connect.model.SystemEvent;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.model.util.PasswordRequirementsChecker;
-import com.mirth.connect.server.Command;
-import com.mirth.connect.server.CommandQueue;
 import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.JMXConnection;
@@ -65,7 +62,6 @@ public class DefaultConfigurationController extends ConfigurationController {
     private static final String GLOBAL_SHUTDOWN_DEFAULT_SCRIPT = "// This script executes once when all channels shut down from a redeploy\n// You only have access to the globalMap here to persist data\nreturn;";
 
     private Logger logger = Logger.getLogger(this.getClass());
-    private EventController systemLogger = ControllerFactory.getFactory().createEventController();
     private String appDataDir = null;
     private String baseDir = null;
     private static SecretKey encryptionKey = null;
@@ -210,44 +206,6 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     public String generateGuid() throws ControllerException {
         return UUID.randomUUID().toString();
-    }
-
-    public void redeployAllChannels() throws ControllerException {
-        logger.debug("redeploying all channels");
-
-        // deploy all enabled channels
-        deployChannels(ControllerFactory.getFactory().createChannelController().getChannel(null));
-    }
-
-    public void deployChannels(List<Channel> channels) throws ControllerException {
-        logger.debug("deploying channels");
-
-        try {
-            ControllerFactory.getFactory().createChannelController().loadChannelCache();
-            ControllerFactory.getFactory().createChannelController().refreshChannelCache(channels);
-            ControllerFactory.getFactory().createExtensionController().triggerDeploy();
-            CommandQueue.getInstance().addCommand(new Command(Command.Operation.DEPLOY_CHANNELS, channels));
-            ControllerFactory.getFactory().createChannelController().loadChannelCache();
-        } catch (Exception e) {
-            throw new ControllerException(e);
-        }
-
-        systemLogger.logSystemEvent(new SystemEvent("Channels deployed."));
-    }
-
-    public void undeployChannels(List<String> channelIds) throws ControllerException {
-        logger.debug("undeploying " + channelIds.size() + " channels");
-
-        try {
-            Command command = new Command(Command.Operation.UNDEPLOY_CHANNELS);
-            command.setParameter(channelIds);
-            CommandQueue.getInstance().addCommand(command);
-            ControllerFactory.getFactory().createChannelController().loadChannelCache();
-        } catch (Exception e) {
-            throw new ControllerException(e);
-        }
-
-        systemLogger.logSystemEvent(new SystemEvent("Channels un-deployed."));
     }
 
     public void compileScripts(List<Channel> channels) throws Exception {
@@ -558,10 +516,6 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     public void setEngineStarting(boolean isEngineStarting) {
         this.isEngineStarting = isEngineStarting;
-    }
-
-    public void shutdown() {
-        CommandQueue.getInstance().addCommand(new Command(Command.Operation.SHUTDOWN_SERVER));
     }
 
     public String getBaseDir() {

@@ -17,40 +17,41 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.mirth.connect.connectors.vm.VMMessageReceiver;
 
 public class VMRegistry {
-	public Map<String, VMMessageReceiver> vmRegistry = new ConcurrentHashMap<String, VMMessageReceiver>();
-	private static VMRegistry instance = null;
+    private Map<String, VMMessageReceiver> vmRegistry = new ConcurrentHashMap<String, VMMessageReceiver>();
+    private static VMRegistry instance = null;
 
-	private VMRegistry() {
+    private VMRegistry() {
 
-	}
+    }
 
-	public static VMRegistry getInstance() {
-		synchronized (VMRegistry.class) {
-			if (instance == null)
-				instance = new VMRegistry();
+    public static VMRegistry getInstance() {
+        synchronized (VMRegistry.class) {
+            if (instance == null) {
+                instance = new VMRegistry();
+            }
 
-			return instance;
-		}
-	}
+            return instance;
+        }
+    }
 
-	public boolean containsKey(String key) {
-		return vmRegistry.containsKey(key);
-	}
+    public boolean containsKey(String key) {
+        return vmRegistry.containsKey(key);
+    }
 
-	public synchronized void remove(String key) {
-		vmRegistry.remove(key);
-	}
+    public synchronized void remove(String key) {
+        vmRegistry.remove(key);
+    }
 
-	public VMMessageReceiver get(String key) {
-		return vmRegistry.get(key);
-	}
+    public VMMessageReceiver get(String key) {
+        return vmRegistry.get(key);
+    }
 
-	public synchronized void register(String key, VMMessageReceiver value) {
-		vmRegistry.put(key, value);
-	}
+    public synchronized void register(String key, VMMessageReceiver value) {
+        vmRegistry.put(key, value);
+    }
 
-	public synchronized void rebuild() {
-		vmRegistry = Collections.synchronizedMap(new HashMap<String, VMMessageReceiver>());
-	}
+    public synchronized void rebuild() {
+        vmRegistry = Collections.synchronizedMap(new HashMap<String, VMMessageReceiver>());
+    }
 
 }

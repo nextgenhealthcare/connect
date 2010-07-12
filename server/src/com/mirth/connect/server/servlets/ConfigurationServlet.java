@@ -11,7 +11,6 @@ package com.mirth.connect.server.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -19,7 +18,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ConfigurationController;
@@ -52,14 +50,6 @@ public class ConfigurationServlet extends MirthServlet {
                 } else if (operation.equals("getGuid")) {
                     response.setContentType("text/plain");
                     out.print(configurationController.generateGuid());
-                } else if (operation.equals("redeployAllChannels")) {
-                    configurationController.redeployAllChannels();
-                } else if (operation.equals("deployChannels")) {
-                    List<Channel> channels = (List<Channel>) serializer.fromXML(request.getParameter("channels"));
-                    configurationController.deployChannels(channels);
-                } else if (operation.equals("uneployChannels")) {
-                    List<String> channelIds = (List<String>) serializer.fromXML(request.getParameter("channelIds"));
-                    configurationController.undeployChannels(channelIds);
                 } else if (operation.equals("getDatabaseDrivers")) {
                     response.setContentType("application/xml");
                     out.println(serializer.toXML(configurationController.getDatabaseDrivers()));
@@ -84,8 +74,6 @@ public class ConfigurationServlet extends MirthServlet {
                 } else if (operation.equals("setGlobalScripts")) {
                     String scripts = request.getParameter("scripts");
                     configurationController.setGlobalScripts((Map<String, String>) serializer.fromXML(scripts));
-                } else if (operation.equals("shutdown")) {
-                    configurationController.shutdown();
                 } else if (operation.equals("getPasswordRequirements")) {
                     response.setContentType("application/xml");
                     out.println(serializer.toXML(configurationController.getPasswordRequirements()));

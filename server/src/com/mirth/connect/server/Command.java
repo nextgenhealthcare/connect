@@ -15,86 +15,86 @@ package com.mirth.connect.server;
  * 
  */
 public class Command implements Comparable<Command> {
-	public enum Operation {
-		START_SERVER, SHUTDOWN_SERVER, START_ENGINE, STOP_ENGINE, RESTART_ENGINE, DEPLOY_CHANNELS, UNDEPLOY_CHANNELS, REDEPLOY
-	}
-	
-	public enum Priority {
-		NORMAL(0), HIGH(1);
-		
-		private final int value;
-		
-		private Priority(int value) {
-			this.value = value;
-		}
-		
-		public int getValue() {
-			return value;
-		}
-	}
-	
-	private Operation operation;
-	private Priority priority;
-	private Object parameter;
+    public enum Operation {
+        START_SERVER, SHUTDOWN_SERVER
+    }
 
-	public Command(Operation operation) {
-		this(operation, null, Priority.NORMAL);
-	}
+    public enum Priority {
+        NORMAL(0), HIGH(1);
 
-	public Command(Operation operation, Object parameter) {
-		this(operation, parameter, Priority.NORMAL);
-	}
+        private final int value;
 
-	public Command(Operation operation, Priority priority) {
-		this(operation, null, priority);
-	}
+        private Priority(int value) {
+            this.value = value;
+        }
 
-	public Command(Operation operation, Object parameter, Priority priority) {
-		this.operation = operation;
-		this.parameter = parameter;
-		this.priority = priority;
-	}
+        public int getValue() {
+            return value;
+        }
+    }
 
-	public Operation getOperation() {
-		return operation;
-	}
+    private Operation operation;
+    private Priority priority;
+    private Object parameter;
 
-	public void setOperation(Operation operation) {
-		this.operation = operation;
-	}
+    public Command(Operation operation) {
+        this(operation, null, Priority.NORMAL);
+    }
 
-	public Object getParameter() {
-		return parameter;
-	}
+    public Command(Operation operation, Object parameter) {
+        this(operation, parameter, Priority.NORMAL);
+    }
 
-	public void setParameter(Object parameter) {
-		this.parameter = parameter;
-	}
+    public Command(Operation operation, Priority priority) {
+        this(operation, null, priority);
+    }
 
-	public Priority getPriority() {
-		return priority;
-	}
+    public Command(Operation operation, Object parameter, Priority priority) {
+        this.operation = operation;
+        this.parameter = parameter;
+        this.priority = priority;
+    }
 
-	public void setPriority(Priority priority) {
-		this.priority = priority;
-	}
+    public Operation getOperation() {
+        return operation;
+    }
 
-	public int compareTo(Command compareCommand) {
-		if (getPriority().getValue() < compareCommand.getPriority().getValue())
-			return -1;
-		else if (getPriority().getValue() > compareCommand.getPriority().getValue())
-			return 1;
-		else
-			return 0;
-	}
+    public void setOperation(Operation operation) {
+        this.operation = operation;
+    }
 
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("Command[");
-		builder.append("operation=" + getOperation() + ", ");
-		builder.append("priority=" + getPriority() + ", ");
-		builder.append("parameter=" + getParameter());
-		builder.append("]");
-		return builder.toString();
-	}
+    public Object getParameter() {
+        return parameter;
+    }
+
+    public void setParameter(Object parameter) {
+        this.parameter = parameter;
+    }
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Priority priority) {
+        this.priority = priority;
+    }
+
+    public int compareTo(Command compareCommand) {
+        if (getPriority().getValue() < compareCommand.getPriority().getValue())
+            return -1;
+        else if (getPriority().getValue() > compareCommand.getPriority().getValue())
+            return 1;
+        else
+            return 0;
+    }
+
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Command[");
+        builder.append("operation=" + getOperation() + ", ");
+        builder.append("priority=" + getPriority() + ", ");
+        builder.append("parameter=" + getParameter());
+        builder.append("]");
+        return builder.toString();
+    }
 }

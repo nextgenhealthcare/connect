@@ -25,6 +25,7 @@ import javax.management.InstanceNotFoundException;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.mule.MuleManager;
 import org.mule.components.simple.PassThroughComponent;
@@ -56,6 +57,7 @@ import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.MessageObject;
+import com.mirth.connect.model.SystemEvent;
 import com.mirth.connect.model.Transformer;
 import com.mirth.connect.model.converters.DefaultSerializerPropertiesFactory;
 import com.mirth.connect.model.converters.IXMLSerializer;
@@ -64,7 +66,10 @@ import com.mirth.connect.server.builders.JavaScriptBuilder;
 import com.mirth.connect.server.mule.ExceptionStrategy;
 import com.mirth.connect.server.mule.adaptors.AdaptorFactory;
 import com.mirth.connect.server.mule.filters.ValidMessageFilter;
+import com.mirth.connect.server.util.GlobalChannelVariableStoreFactory;
+import com.mirth.connect.server.util.GlobalVariableStore;
 import com.mirth.connect.server.util.UUIDGenerator;
+import com.mirth.connect.server.util.VMRegistry;
 import com.mirth.connect.util.PropertyLoader;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
@@ -73,8 +78,14 @@ public class MuleEngineController implements EngineController {
     private Logger logger = Logger.getLogger(this.getClass());
     private Map<String, ConnectorMetaData> transports = null;
     private JavaScriptBuilder scriptBuilder = new JavaScriptBuilder();
+
+    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+    private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
+    private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private TemplateController templateController = ControllerFactory.getFactory().createTemplateController();
+    private EventController eventController = ControllerFactory.getFactory().createEventController();
+
     private ObjectXMLSerializer objectSerializer = new ObjectXMLSerializer();
     private UMOManager muleManager = MuleManager.getInstance();
     private JmxAgent jmxAgent = null;
@@ -82,7 +93,25 @@ public class MuleEngineController implements EngineController {
     private static List<String> keysOfValuesThatAreBeans = null;
     private static Map<String, String> defaultTransformers = null;
 
-    static {
+    // singleton pattern
+    private static MuleEngineController instance = null;
+
+    private MuleEngineController() {
+
+    }
+
+    public static MuleEngineController create() {
+        synchronized (MuleEngineController.class) {
+            if (instance == null) {
+                instance = new MuleEngineController();
+                instance.initialize();
+            }
+
+            return instance;
+        }
+    }
+
+    private void initialize() {
         // list of all properties which should not be appended to the
         // connector
         nonConnectorProperties = Arrays.asList(new String[] { "host", "port", "DataType" });
@@ -100,98 +129,84 @@ public class MuleEngineController implements EngineController {
         defaultTransformers.put("HttpRequestToString", "com.mirth.connect.server.mule.transformers.HttpRequestToString");
     }
 
-    public void resetConfiguration() throws Exception {
-        logger.debug("loading manager with default components");
+    public void startEngine() throws ControllerException {
+        logger.debug("starting mule engine");
 
-        Properties properties = PropertyLoader.loadProperties("mirth");
-        muleManager.setId("MirthConfiguration");
-        MuleManager.getConfiguration().setEmbedded(true);
-        MuleManager.getConfiguration().setRecoverableMode(true);
-        MuleManager.getConfiguration().setClientMode(false);
-        MuleManager.getConfiguration().setWorkingDirectory(ControllerFactory.getFactory().createConfigurationController().getApplicationDataDir());
+        try {
+            clearGlobalMap();
+            VMRegistry.getInstance().rebuild();
 
-        for (String transformerName : defaultTransformers.keySet()) {
-            UMOTransformer umoTransformer = (UMOTransformer) Class.forName(defaultTransformers.get(transformerName)).newInstance();
-            umoTransformer.setName(transformerName);
-            muleManager.registerTransformer(umoTransformer);
+            // remove all scripts and templates since the channels
+            // were never undeployed
+            scriptController.removeAllExceptGlobalScripts();
+            templateController.removeAllTemplates();
+            
+            // loads the connector transport data 
+            transports = extensionController.getConnectorMetaData();
+            resetEngine();
+            muleManager.start();
+            deployChannels(channelController.getChannel(null));
+        } catch (Exception e) {
+            logger.error("Error starting engine.", e);
         }
-
-        // add interceptor stack
-        InterceptorStack stack = new InterceptorStack();
-        List<UMOInterceptor> interceptors = new ArrayList<UMOInterceptor>();
-        interceptors.add(new LoggingInterceptor());
-        interceptors.add(new TimerInterceptor());
-        stack.setInterceptors(interceptors);
-        muleManager.registerInterceptorStack("default", stack);
-
-        // add model
-        UMOModel model = new SedaModel();
-        model.setName("Mirth");
-
-        // add MessageSink descriptor
-        UMODescriptor messageSinkDescriptor = new MuleDescriptor();
-        messageSinkDescriptor.setName("MessageSink");
-        messageSinkDescriptor.setImplementation(new PassThroughComponent());
-        InboundMessageRouter messageSinkInboundRouter = new InboundMessageRouter();
-        MuleEndpoint vmSinkEndpoint = new MuleEndpoint();
-        vmSinkEndpoint.setEndpointURI(new MuleEndpointURI(new URI("vm://sink").toString()));
-        messageSinkInboundRouter.addEndpoint(vmSinkEndpoint);
-        messageSinkDescriptor.setInboundRouter(messageSinkInboundRouter);
-        model.registerComponent(messageSinkDescriptor);
-
-        // set the model (which also initializes and starts the model)
-        muleManager.setModel(model);
-
-        // add agents
-        String port = PropertyLoader.getProperty(properties, "jmx.port");
-        RmiRegistryAgent rmiRegistryAgent = new RmiRegistryAgent();
-        rmiRegistryAgent.setName("RMI");
-        rmiRegistryAgent.setServerUri("rmi://" + PropertyLoader.getProperty(properties, "jmx.host", "localhost") + ":" + port);
-        muleManager.registerAgent(rmiRegistryAgent);
-
-        jmxAgent = new JmxAgent();
-        jmxAgent.setName("JMX");
-        Map<String, String> connectorServerProperties = new HashMap<String, String>();
-        connectorServerProperties.put("jmx.remote.jndi.rebind", "true");
-        jmxAgent.setConnectorServerProperties(connectorServerProperties);
-        jmxAgent.setConnectorServerUrl("service:jmx:rmi:///jndi/rmi://" + PropertyLoader.getProperty(properties, "jmx.host", "localhost") + ":" + port + "/server");
-        logger.debug("JMX server URL: " + "service:jmx:rmi:///jndi/rmi://" + PropertyLoader.getProperty(properties, "jmx.host", "localhost") + ":" + port + "/server");
-        Map<String, String> credentialsMap = new HashMap<String, String>();
-        credentialsMap.put("admin", PropertyLoader.getProperty(properties, "jmx.password"));
-        jmxAgent.setCredentials(credentialsMap);
-        jmxAgent.setDomain(muleManager.getId());
-        muleManager.registerAgent(jmxAgent);
     }
 
-    public List<String> deployChannels(List<Channel> channels, Map<String, ConnectorMetaData> transports) throws Exception {
-        this.transports = transports;
+    public void stopEngine() throws ControllerException {
+        undeployChannels(getDeployedChannelIds());
 
-        if ((channels == null) || (transports == null)) {
-            throw new Exception("Invalid channel or transport list.");
-        }
-
-        List<String> failedChannelIds = new ArrayList<String>();
-
-        for (Channel channel : channels) {
-            if (channel.isEnabled()) {
-                try {
-                    if (!registerChannel(channel)) {
-                        failedChannelIds.add(channel.getId());
-                    }
-                } catch (Exception re) {
-                    logger.error("Error registering channel.", re);
-                    failedChannelIds.add(channel.getId());
+        if (muleManager != null) {
+            try {
+                if (muleManager.isStarted()) {
+                    logger.error("stopping mule engine");
+                    muleManager.stop();
                 }
+            } catch (Exception e) {
+                throw new ControllerException(e);
+            } finally {
+                logger.debug("disposing mule instance");
+                muleManager.dispose();
             }
         }
+    }
 
-        /*
-         * XXX: Unregister the failed channels if the engine is started.
-         * Otherwise, the list of failed channel ids is returned to the
-         * Mirth#startEngine method so that the channels can be unregistered
-         * once the engine has started.
-         */
-        if (muleManager.isStarted()) {
+    public void deployChannels(List<Channel> channels) throws ControllerException {
+        if (channels == null) {
+            throw new ControllerException("Invalid channel list.");
+        }
+
+        try {
+            channelController.loadChannelCache();
+            channelController.refreshChannelCache(channels);
+            extensionController.triggerDeploy();
+            configurationController.executeGlobalDeployScript();
+            configurationController.compileScripts(channels);
+
+            undeployChannels(getChannelIdsFromChannels(channels));
+
+            clearGlobalChannelMap(channels);
+
+            // update the manager with the new classes
+            List<String> failedChannelIds = new ArrayList<String>();
+
+            for (Channel channel : channels) {
+                if (channel.isEnabled()) {
+                    try {
+                        if (!registerChannel(channel)) {
+                            failedChannelIds.add(channel.getId());
+                        }
+                    } catch (Exception e) {
+                        logger.error("Error registering channel.", e);
+                        failedChannelIds.add(channel.getId());
+                    }
+                }
+            }
+
+            /*
+             * XXX: Unregister the failed channels if the engine is started.
+             * Otherwise, the list of failed channel ids is returned to the
+             * Mirth#startEngine method so that the channels can be unregistered
+             * once the engine has started.
+             */
             for (String channelId : failedChannelIds) {
                 try {
                     unregisterChannel(channelId);
@@ -199,10 +214,56 @@ public class MuleEngineController implements EngineController {
                     logger.error("Error unregistering channel after failed deploy.", ue);
                 }
             }
+
+            configurationController.executeChannelDeployScripts(getDeployedChannelIds());
+            channelController.loadChannelCache();
+            eventController.logSystemEvent(new SystemEvent("Channels deployed."));
+        } catch (Exception e) {
+            logger.error("Error deploying channels.", e);
+
+            // if deploy fails, log to system events
+            SystemEvent event = new SystemEvent("Error deploying channels.");
+            event.setLevel(SystemEvent.Level.HIGH);
+            event.setDescription(ExceptionUtils.getStackTrace(e));
+            eventController.logSystemEvent(event);
+        }
+    }
+
+    public void undeployChannels(List<String> channelIds) throws ControllerException {
+        try {
+            channelController.loadChannelCache();
+            configurationController.executeChannelShutdownScripts(channelIds);
+            configurationController.executeGlobalShutdownScript();
+
+            for (String channelId : channelIds) {
+                if (isChannelRegistered(channelId)) {
+                    channelController.getChannelCache().remove(channelController.getChannelCache().get(channelId));
+                    unregisterChannel(channelId);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error undeploying channels.", e);
         }
 
-        return failedChannelIds;
+        eventController.logSystemEvent(new SystemEvent("Channels undeployed."));
     }
+
+    public void redeployAllChannels() throws ControllerException {
+        clearGlobalMap();
+
+        try {
+            undeployChannels(getDeployedChannelIds());
+            deployChannels(channelController.getChannel(null));
+        } catch (Exception e) {
+            logger.error("Error redeploying channels.", e);
+        }
+    }
+
+    /**************************************
+     * INTERNAL MULE STUFF
+     * 
+     ************************************** 
+     */
 
     private boolean registerChannel(Channel channel) throws Exception {
         logger.debug("registering descriptor for channel: " + channel.getId());
@@ -326,11 +387,11 @@ public class MuleEngineController implements EngineController {
         // If a channel reader is being used, add the channel id
         // to the endpointUri so the endpoint can be deployed
         String endpointUri = getEndpointUri(channel.getSourceConnector());
-        
+
         if (endpointUri.equals("vm://")) {
             endpointUri += channel.getId();
         }
-        
+
         endpoint.setEndpointURI(new MuleEndpointURI(endpointUri, channel.getId()));
 
         /*
@@ -469,11 +530,11 @@ public class MuleEngineController implements EngineController {
         beanProperties.put("scriptId", scriptId);
         beanProperties.put("connectorName", connector.getName());
 
-        if (transformer.getInboundProperties() != null && transformer.getInboundProperties().size() > 0) {
+        if (MapUtils.isEmpty(transformer.getInboundProperties())) {
             beanProperties.put("inboundProperties", transformer.getInboundProperties());
         }
 
-        if (transformer.getOutboundProperties() != null && transformer.getOutboundProperties().size() > 0) {
+        if (MapUtils.isEmpty(transformer.getOutboundProperties())) {
             beanProperties.put("outboundProperties", transformer.getOutboundProperties());
         }
 
@@ -523,18 +584,18 @@ public class MuleEngineController implements EngineController {
 
         // populate the bean properties
         beanProperties.put("queries", queriesMap);
-        
+
         // inboundProtocol and protocolProperties are only used in the
         // file reader connector when processing batch messages.
         beanProperties.put("inboundProtocol", connector.getTransformer().getInboundProtocol().toString());
-        
+
         if (connector.getMode().equals(Connector.Mode.SOURCE)) {
             Map protocolProperties = connector.getTransformer().getInboundProperties();
-            
+
             if (MapUtils.isEmpty(protocolProperties)) {
                 protocolProperties = DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(connector.getTransformer().getInboundProtocol());
             }
-            
+
             beanProperties.put("protocolProperties", protocolProperties);
         }
 
@@ -617,7 +678,7 @@ public class MuleEngineController implements EngineController {
         return transformerList;
     }
 
-    public void unregisterChannel(String channelId) throws Exception {
+    private void unregisterChannel(String channelId) throws Exception {
         logger.debug("unregistering descriptor: " + channelId);
         UMODescriptor descriptor = muleManager.getModel().getDescriptor(channelId);
 
@@ -683,11 +744,11 @@ public class MuleEngineController implements EngineController {
         }
     }
 
-    public boolean isChannelRegistered(String channelId) throws Exception {
+    private boolean isChannelRegistered(String channelId) throws Exception {
         return muleManager.getModel().isComponentRegistered(channelId);
     }
 
-    public List<String> getDeployedChannelIds() throws Exception {
+    private List<String> getDeployedChannelIds() {
         List<String> channelIds = new ArrayList<String>();
 
         for (Iterator<String> iterator = muleManager.getModel().getComponentNames(); iterator.hasNext();) {
@@ -701,24 +762,107 @@ public class MuleEngineController implements EngineController {
         return channelIds;
     }
 
-    public void start() throws Exception {
-        logger.debug("starting mule engine");
-        muleManager.start();
+    private void clearGlobalMap() {
+        try {
+            if (configurationController.getServerProperties().getProperty("server.resetglobalvariables") == null || configurationController.getServerProperties().getProperty("server.resetglobalvariables").equals("1")) {
+                logger.debug("clearing global map");
+                GlobalVariableStore.getInstance().clear();
+                GlobalVariableStore.getInstance().clearSync();
+            }
+        } catch (Exception e) {
+            logger.error("Could not clear the global map.", e);
+        }
     }
 
-    public void stop() throws Exception {
-        if (muleManager != null) {
+    private void clearGlobalChannelMap(List<Channel> channels) {
+        for (Channel channel : channels) {
             try {
-                if (muleManager.isStarted()) {
-                    logger.error("stopping mule engine");
-                    muleManager.stop();
+                if (channel.getProperties().getProperty("clearGlobalChannelMap") == null || channel.getProperties().getProperty("clearGlobalChannelMap").equalsIgnoreCase("true")) {
+                    logger.debug("clearing global channel map for channel: " + channel.getId());
+                    GlobalChannelVariableStoreFactory.getInstance().get(channel.getId()).clear();
+                    GlobalChannelVariableStoreFactory.getInstance().get(channel.getId()).clearSync();
                 }
             } catch (Exception e) {
-                throw e;
-            } finally {
-                logger.debug("disposing mule instance");
-                muleManager.dispose();
+                logger.error("Could not clear the global channel map: " + channel.getId(), e);
             }
         }
+    }
+
+    /**
+     * Resets the Mule model to a clean state.
+     * 
+     * @throws Exception
+     */
+    private void resetEngine() throws Exception {
+        logger.debug("loading manager with default components");
+
+        Properties properties = PropertyLoader.loadProperties("mirth");
+        muleManager.setId("MirthConfiguration");
+        MuleManager.getConfiguration().setEmbedded(true);
+        MuleManager.getConfiguration().setRecoverableMode(true);
+        MuleManager.getConfiguration().setClientMode(false);
+        MuleManager.getConfiguration().setWorkingDirectory(ControllerFactory.getFactory().createConfigurationController().getApplicationDataDir());
+
+        for (String transformerName : defaultTransformers.keySet()) {
+            UMOTransformer umoTransformer = (UMOTransformer) Class.forName(defaultTransformers.get(transformerName)).newInstance();
+            umoTransformer.setName(transformerName);
+            muleManager.registerTransformer(umoTransformer);
+        }
+
+        // add interceptor stack
+        InterceptorStack stack = new InterceptorStack();
+        List<UMOInterceptor> interceptors = new ArrayList<UMOInterceptor>();
+        interceptors.add(new LoggingInterceptor());
+        interceptors.add(new TimerInterceptor());
+        stack.setInterceptors(interceptors);
+        muleManager.registerInterceptorStack("default", stack);
+
+        // add model
+        UMOModel model = new SedaModel();
+        model.setName("Mirth");
+
+        // add MessageSink descriptor
+        UMODescriptor messageSinkDescriptor = new MuleDescriptor();
+        messageSinkDescriptor.setName("MessageSink");
+        messageSinkDescriptor.setImplementation(new PassThroughComponent());
+        InboundMessageRouter messageSinkInboundRouter = new InboundMessageRouter();
+        MuleEndpoint vmSinkEndpoint = new MuleEndpoint();
+        vmSinkEndpoint.setEndpointURI(new MuleEndpointURI(new URI("vm://sink").toString()));
+        messageSinkInboundRouter.addEndpoint(vmSinkEndpoint);
+        messageSinkDescriptor.setInboundRouter(messageSinkInboundRouter);
+        model.registerComponent(messageSinkDescriptor);
+
+        // set the model (which also initializes and starts the model)
+        muleManager.setModel(model);
+
+        // add agents
+        String port = PropertyLoader.getProperty(properties, "jmx.port");
+        RmiRegistryAgent rmiRegistryAgent = new RmiRegistryAgent();
+        rmiRegistryAgent.setName("RMI");
+        rmiRegistryAgent.setServerUri("rmi://" + PropertyLoader.getProperty(properties, "jmx.host", "localhost") + ":" + port);
+        muleManager.registerAgent(rmiRegistryAgent);
+
+        jmxAgent = new JmxAgent();
+        jmxAgent.setName("JMX");
+        Map<String, String> connectorServerProperties = new HashMap<String, String>();
+        connectorServerProperties.put("jmx.remote.jndi.rebind", "true");
+        jmxAgent.setConnectorServerProperties(connectorServerProperties);
+        jmxAgent.setConnectorServerUrl("service:jmx:rmi:///jndi/rmi://" + PropertyLoader.getProperty(properties, "jmx.host", "localhost") + ":" + port + "/server");
+        logger.debug("JMX server URL: " + "service:jmx:rmi:///jndi/rmi://" + PropertyLoader.getProperty(properties, "jmx.host", "localhost") + ":" + port + "/server");
+        Map<String, String> credentialsMap = new HashMap<String, String>();
+        credentialsMap.put("admin", PropertyLoader.getProperty(properties, "jmx.password"));
+        jmxAgent.setCredentials(credentialsMap);
+        jmxAgent.setDomain(muleManager.getId());
+        muleManager.registerAgent(jmxAgent);
+    }
+
+    private List<String> getChannelIdsFromChannels(List<Channel> channels) {
+        List<String> channelIds = new ArrayList<String>();
+
+        for (Channel channel : channels) {
+            channelIds.add(channel.getId());
+        }
+
+        return channelIds;
     }
 }

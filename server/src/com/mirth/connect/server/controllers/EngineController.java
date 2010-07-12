@@ -10,25 +10,17 @@
 package com.mirth.connect.server.controllers;
 
 import java.util.List;
-import java.util.Map;
 
 import com.mirth.connect.model.Channel;
-import com.mirth.connect.model.ConnectorMetaData;
 
 public interface EngineController {
+    public void startEngine() throws ControllerException;
 
-    public void resetConfiguration() throws Exception;
+    public void stopEngine() throws ControllerException;
 
-    public List<String> deployChannels(List<Channel> channels, Map<String, ConnectorMetaData> transports) throws Exception;
+    public void deployChannels(List<Channel> channels) throws ControllerException;
+    
+    public void undeployChannels(List<String> channelIds) throws ControllerException;
 
-    public void unregisterChannel(String channelId) throws Exception;
-
-    public boolean isChannelRegistered(String channelId) throws Exception;
-
-    public List<String> getDeployedChannelIds() throws Exception;
-
-    public void start() throws Exception;
-
-    public void stop() throws Exception;
-
+    public void redeployAllChannels() throws ControllerException;
 }

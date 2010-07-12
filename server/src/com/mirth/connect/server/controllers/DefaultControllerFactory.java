@@ -34,6 +34,10 @@ public class DefaultControllerFactory extends ControllerFactory {
         return DefaultConfigurationController.create();
     }
 
+    public EngineController createEngineController() {
+        return MuleEngineController.create();
+    }
+    
     public ExtensionController createExtensionController() {
         return DefaultExtensionController.create();
     }

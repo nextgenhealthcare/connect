@@ -54,6 +54,7 @@ public class Client {
     public final static String ALERT_SERVLET = "/alerts";
     public final static String TEMPLATE_SERVLET = "/codetemplates";
     public final static String EXTENSION_SERVLET = "/extensions";
+    public final static String ENGINE_SERVLET = "/engine";
 
     /**
      * Instantiates a new Mirth client with a connection to the specified
@@ -494,7 +495,7 @@ public class Client {
     public synchronized void redeployAllChannels() throws ClientException {
         logger.debug("deploying channels");
         NameValuePair[] params = { new NameValuePair("op", "redeployAllChannels") };
-        serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
+        serverConnection.executePostMethod(ENGINE_SERVLET, params);
     }
 
     /**
@@ -505,7 +506,7 @@ public class Client {
     public synchronized void deployChannels(List<Channel> channels) throws ClientException {
         logger.debug("deploying channels");
         NameValuePair[] params = { new NameValuePair("op", "deployChannels"), new NameValuePair("channels", serializer.toXML(channels)) };
-        serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
+        serverConnection.executePostMethod(ENGINE_SERVLET, params);
     }
     
     /**
@@ -516,7 +517,7 @@ public class Client {
     public synchronized void undeployChannels(List<String> channelIds) throws ClientException {
         logger.debug("undeploying channels");
         NameValuePair[] params = { new NameValuePair("op", "uneployChannels"), new NameValuePair("channelIds", serializer.toXML(channelIds)) };
-        serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
+        serverConnection.executePostMethod(ENGINE_SERVLET, params);
     }
     
     /**
@@ -831,12 +832,6 @@ public class Client {
         logger.debug("Getting DICOM message for message: " + message);
         NameValuePair[] params = { new NameValuePair("op", "getDICOMMessage"), new NameValuePair("message", serializer.toXML(message)) };
         return serverConnection.executePostMethod(MESSAGE_SERVLET, params);
-    }
-
-    public void shutdown() throws ClientException {
-        logger.debug("shutting down server");
-        NameValuePair[] params = { new NameValuePair("op", "shutdown") };
-        serverConnection.executePostMethod(CONFIGURATION_SERVLET, params);
     }
 
     public UpdateClient getUpdateClient(User requestUser) {

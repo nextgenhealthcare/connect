@@ -40,14 +40,6 @@ public abstract class ConfigurationController extends Controller {
     public static ConfigurationController getInstance() {
         return ControllerFactory.getFactory().createConfigurationController();
     }
-
-    public abstract void shutdown();
-    
-    public abstract void redeployAllChannels() throws ControllerException;
-
-    public abstract void deployChannels(List<Channel> channels) throws ControllerException;
-    
-    public abstract void undeployChannels(List<String> channelIds) throws ControllerException;
     
     public abstract void loadEncryptionKey();
     

@@ -48,6 +48,8 @@ public abstract class ControllerFactory {
     public abstract CodeTemplateController createCodeTemplateController();
 
     public abstract ConfigurationController createConfigurationController();
+    
+    public abstract EngineController createEngineController();
 
     public abstract ExtensionController createExtensionController();
 
