@@ -54,7 +54,7 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
     private ConnectorType connectorType = ConnectorType.LISTENER;
 
     public VMMessageReceiver(UMOConnector connector, UMOComponent component, UMOEndpoint endpoint) throws InitialisationException {
-        super(connector, component, endpoint, new Long(10));
+        super(connector, component, endpoint, new Long(1));  // sleep for 1ms between channel writer queued messages
         this.vmConnector = (VMConnector) connector;
         componentName = component.getDescriptor().getName() + "_source_connector";
         receiveMessagesInTransaction = endpoint.getTransactionConfig().isTransacted();
