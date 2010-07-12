@@ -15,7 +15,6 @@ import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -28,6 +27,7 @@ import java.util.zip.ZipFile;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import com.mirth.connect.client.core.VersionMismatchException;
 import com.mirth.connect.model.ConnectorMetaData;
@@ -220,7 +220,7 @@ public class ExtensionUtil {
 					continue;
 				}
 
-				copyInputStream(zipFile.getInputStream(entry), new BufferedOutputStream(new FileOutputStream(new File(location + entry.getName()))));
+				IOUtils.copy(zipFile.getInputStream(entry), new BufferedOutputStream(new FileOutputStream(new File(location + entry.getName()))));
 			}
 		} catch (Exception e) {
 			throw new ControllerException(e);
@@ -240,16 +240,5 @@ public class ExtensionUtil {
 				}
 			}
 		}
-	}
-
-	public static final void copyInputStream(InputStream in, OutputStream out) throws IOException {
-		byte[] buffer = new byte[1024];
-		int len;
-
-		while ((len = in.read(buffer)) >= 0)
-			out.write(buffer, 0, len);
-
-		in.close();
-		out.close();
 	}
 }
