@@ -24,6 +24,7 @@ import javax.management.InstanceNotFoundException;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.log4j.Logger;
 import org.mule.MuleManager;
 import org.mule.components.simple.PassThroughComponent;
@@ -56,6 +57,7 @@ import com.mirth.connect.model.Connector;
 import com.mirth.connect.model.ConnectorMetaData;
 import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.Transformer;
+import com.mirth.connect.model.converters.DefaultSerializerPropertiesFactory;
 import com.mirth.connect.model.converters.IXMLSerializer;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.builders.JavaScriptBuilder;
@@ -521,6 +523,21 @@ public class MuleEngineController implements EngineController {
 
         // populate the bean properties
         beanProperties.put("queries", queriesMap);
+        
+        // inboundProtocol and protocolProperties are only used in the
+        // file reader connector when processing batch messages.
+        beanProperties.put("inboundProtocol", connector.getTransformer().getInboundProtocol().toString());
+        
+        if (connector.getMode().equals(Connector.Mode.SOURCE)) {
+            Map protocolProperties = connector.getTransformer().getInboundProperties();
+            
+            if (MapUtils.isEmpty(protocolProperties)) {
+                protocolProperties = DefaultSerializerPropertiesFactory.getDefaultSerializerProperties(connector.getTransformer().getInboundProtocol());
+            }
+            
+            beanProperties.put("protocolProperties", protocolProperties);
+        }
+
         BeanUtils.populate(umoConnector, beanProperties);
 
         // add the connector to the manager
