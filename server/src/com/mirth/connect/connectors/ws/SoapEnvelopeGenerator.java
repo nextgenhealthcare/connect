@@ -98,14 +98,21 @@ public class SoapEnvelopeGenerator {
 
     public String generateEnvelopeForOperation(String operation) throws Exception {
         Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+
+        // create the envelope
         Element envelopeElement = document.createElement(SOAPENV_NS + ":Envelope");
         envelopeElement.setAttribute("xmlns:" + SOAPENV_NS, "http://schemas.xmlsoap.org/soap/envelope/");
         envelopeElement.setAttribute("xmlns:ns", schema.getTargetNamespace());
+
+        // add the header element
         Element headerElement = document.createElement(SOAPENV_NS + ":Header");
         envelopeElement.appendChild(headerElement);
+
+        // add the body element
         Element bodyElement = document.createElement(SOAPENV_NS + ":Body");
         Element operationElement = document.createElement("ns:" + operation);
 
+        // add the operation element
         XSContentType contentType = null;
 
         /*
@@ -134,12 +141,14 @@ public class SoapEnvelopeGenerator {
 
             for (XSParticle particle : modelGroup.getChildren()) {
                 if (isUseComments()) {
-                    Comment comment;
+                    Comment comment = null;
 
-                    if (particle.getMinOccurs() == 0) {
-                        comment = document.createComment("Optional");
+                    if (particle.isRepeated()) {
+                        comment = document.createComment("Zero or more repetitions:");
+                    } else if (particle.getMinOccurs() == 0) {
+                        comment = document.createComment("Optional:");
                     } else {
-                        comment = document.createComment("Required");
+                        comment = document.createComment("Required:");
                     }
 
                     parentElement.appendChild(comment);
@@ -150,23 +159,32 @@ public class SoapEnvelopeGenerator {
                 if (particleTerm.isElementDecl()) {
                     // xs:element inside complex type
                     XSElementDecl elementDecl = particleTerm.asElementDecl();
-                    Element requestElement;
+                    String requestElementName = null;
+
+                    if (elementDecl.getName().startsWith("arg")) {
+                        requestElementName = elementDecl.getName();
+                    } else {
+                        requestElementName = "ns:" + elementDecl.getName();
+                    }
+
+                    Element requestElement = document.createElement(requestElementName);
 
                     if (elementDecl.getType().isComplexType()) {
                         XSComplexType complexType = schema.getComplexType(elementDecl.getType().getName());
+                        parentElement.appendChild(requestElement);
 
-                        if (elementDecl.getName().startsWith("arg")) {
-                            requestElement = document.createElement(elementDecl.getName());
-                            parentElement.appendChild(requestElement);
-                        } else {
-                            requestElement = document.createElement(complexType.getName());
-                            parentElement.appendChild(requestElement);
-                        }
-
+                        // recursively generate nested simple types
                         generateRequestElement(document, requestElement, complexType.getContentType());
                     } else {
-                        requestElement = document.createElement(elementDecl.getName());
-                        requestElement.setTextContent("? (" + elementDecl.getType().getName() + ")");
+                        String requestElementContent = null;
+
+                        if (elementDecl.getType().getName() != null) {
+                            requestElementContent = "? (" + elementDecl.getType().getName() + ")";
+                        } else {
+                            requestElementContent = "?";
+                        }
+
+                        requestElement.setTextContent(requestElementContent);
                         parentElement.appendChild(requestElement);
                     }
                 }
