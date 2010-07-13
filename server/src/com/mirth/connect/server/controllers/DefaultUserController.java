@@ -78,6 +78,14 @@ public class DefaultUserController extends UserController {
                 throw new ControllerException(resString);
             }
             if (user.getId() == null) {
+
+                User checkUserName = new User();
+                checkUserName.setUsername(user.getUsername());
+
+                if (getUser(checkUserName).size() != 0) {
+                    throw new ControllerException("Error adding user: username must be unique");
+                }
+
                 logger.debug("adding user: " + user);
                 SqlConfig.getSqlMapClient().insert("User.insertUser", getUserMap(user, plainTextPassword));
             } else {
