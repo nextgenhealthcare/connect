@@ -26,10 +26,9 @@ import org.mule.umo.transformer.TransformerException;
 
 import com.mirth.connect.model.Attachment;
 import com.mirth.connect.model.CodeTemplate;
-import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.model.CodeTemplate.CodeSnippetType;
+import com.mirth.connect.model.MessageObject;
 import com.mirth.connect.server.controllers.CodeTemplateController;
-import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerException;
 import com.mirth.connect.server.controllers.ControllerFactory;
 import com.mirth.connect.server.controllers.ScriptController;
@@ -116,7 +115,7 @@ public class JavaScriptPreprocessor extends AbstractEventAwareTransformer {
 		boolean createdContext = false;
 		
 		try {
-			Script globalCompiledScript = compiledScriptCache.getCompiledScript(ConfigurationController.GLOBAL_PREPROCESSOR_KEY);
+			Script globalCompiledScript = compiledScriptCache.getCompiledScript(ScriptController.PREPROCESSOR_SCRIPT_KEY);
 			Script compiledScript = compiledScriptCache.getCompiledScript(preprocessingScriptId);
 			String returnValue = message;
 			

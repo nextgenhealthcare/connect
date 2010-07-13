@@ -22,6 +22,7 @@ import com.mirth.connect.model.ServerConfiguration;
 import com.mirth.connect.model.converters.ObjectXMLSerializer;
 import com.mirth.connect.server.controllers.ConfigurationController;
 import com.mirth.connect.server.controllers.ControllerFactory;
+import com.mirth.connect.server.controllers.ScriptController;
 
 public class ConfigurationServlet extends MirthServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -36,6 +37,7 @@ public class ConfigurationServlet extends MirthServlet {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             } else {
                 ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
+                ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
                 if (operation.equals("getAvaiableCharsetEncodings")) {
@@ -70,10 +72,10 @@ public class ConfigurationServlet extends MirthServlet {
                     out.println(configurationController.getServerId());
                 } else if (operation.equals("getGlobalScripts")) {
                     response.setContentType("application/xml");
-                    out.println(serializer.toXML(configurationController.getGlobalScripts()));
+                    out.println(serializer.toXML(scriptController.getGlobalScripts()));
                 } else if (operation.equals("setGlobalScripts")) {
                     String scripts = request.getParameter("scripts");
-                    configurationController.setGlobalScripts((Map<String, String>) serializer.fromXML(scripts));
+                    scriptController.setGlobalScripts((Map<String, String>) serializer.fromXML(scripts));
                 } else if (operation.equals("getPasswordRequirements")) {
                     response.setContentType("application/xml");
                     out.println(serializer.toXML(configurationController.getPasswordRequirements()));

@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.SortedMap;
 import java.util.UUID;
@@ -43,7 +42,6 @@ import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.JMXConnection;
 import com.mirth.connect.server.util.JMXConnectionFactory;
-import com.mirth.connect.server.util.JavaScriptUtil;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.util.Encrypter;
 import com.mirth.connect.util.PropertyVerifier;
@@ -55,19 +53,12 @@ import com.mirth.connect.util.PropertyVerifier;
 public class DefaultConfigurationController extends ConfigurationController {
     private static final String PROPERTIES_CORE = "core";
 
-    private static final String CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT = "// This script executes once after a message has been processed\nreturn;";
-    private static final String GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT = "// Modify the message variable below to pre process data\n// This script applies across all channels\nreturn message;";
-    private static final String GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT = "// This script executes once after a message has been processed\n// This script applies across all channels\nreturn;";
-    private static final String GLOBAL_DEPLOY_DEFAULT_SCRIPT = "// This script executes once when all channels start up from a redeploy\n// You only have access to the globalMap here to persist data\nreturn;";
-    private static final String GLOBAL_SHUTDOWN_DEFAULT_SCRIPT = "// This script executes once when all channels shut down from a redeploy\n// You only have access to the globalMap here to persist data\nreturn;";
-
     private Logger logger = Logger.getLogger(this.getClass());
     private String appDataDir = null;
     private String baseDir = null;
     private static SecretKey encryptionKey = null;
     private static String serverId = null;
     private boolean isEngineStarting = true;
-    private JavaScriptUtil javaScriptUtil = JavaScriptUtil.getInstance();
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
     private PasswordRequirements passwordRequirements;
     private static PropertiesConfiguration versionConfig;
@@ -206,111 +197,6 @@ public class DefaultConfigurationController extends ConfigurationController {
 
     public String generateGuid() throws ControllerException {
         return UUID.randomUUID().toString();
-    }
-
-    public void compileScripts(List<Channel> channels) throws Exception {
-        for (Entry<String, String> entry : getGlobalScripts().entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-
-            if (key.equals(GLOBAL_PREPROCESSOR_KEY)) {
-                if (!javaScriptUtil.compileAndAddScript(key, value, GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT, false, false)) {
-                    logger.debug("removing global preprocessor");
-                    javaScriptUtil.removeScriptFromCache(GLOBAL_PREPROCESSOR_KEY);
-                }
-            } else if (key.equals(GLOBAL_POSTPROCESSOR_KEY)) {
-                if (!javaScriptUtil.compileAndAddScript(key, value, GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT, false, false)) {
-                    logger.debug("removing global postprocessor");
-                    javaScriptUtil.removeScriptFromCache(GLOBAL_POSTPROCESSOR_KEY);
-                }
-            } else {
-                // add the DEPLOY and SHUTDOWN scripts,
-                // which do not have defaults
-                if (!javaScriptUtil.compileAndAddScript(key, value, "", false, false)) {
-                    logger.debug("remvoing " + key);
-                    javaScriptUtil.removeScriptFromCache(key);
-                }
-            }
-        }
-
-        for (Channel channel : channels) {
-            if (channel.isEnabled()) {
-                javaScriptUtil.compileAndAddScript(channel.getId() + "_Deploy", channel.getDeployScript(), null, false, true);
-                javaScriptUtil.compileAndAddScript(channel.getId() + "_Shutdown", channel.getShutdownScript(), null, false, true);
-
-                // only compile and run post processor if its not the default
-                if (!javaScriptUtil.compileAndAddScript(channel.getId() + "_Postprocessor", channel.getPostprocessingScript(), CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT, true, true)) {
-                    logger.debug("removing " + channel.getId() + "_Postprocessor");
-                    javaScriptUtil.removeScriptFromCache(channel.getId() + "_Postprocessor");
-                }
-            } else {
-                javaScriptUtil.removeScriptFromCache(channel.getId() + "_Deploy");
-                javaScriptUtil.removeScriptFromCache(channel.getId() + "_Shutdown");
-                javaScriptUtil.removeScriptFromCache(channel.getId() + "_Postprocessor");
-            }
-        }
-    }
-
-    public void executeChannelDeployScripts(List<String> channelIds) {
-        for (String channelId : channelIds) {
-            javaScriptUtil.executeScript(channelId + "_" + GLOBAL_DEPLOY_KEY, GLOBAL_DEPLOY_KEY, channelId);
-        }
-    }
-
-    public void executeChannelShutdownScripts(List<String> channelIds) {
-        for (String channelId : channelIds) {
-            javaScriptUtil.executeScript(channelId + "_" + GLOBAL_SHUTDOWN_KEY, GLOBAL_SHUTDOWN_KEY, channelId);
-        }
-    }
-
-    public void executeGlobalDeployScript() {
-        executeGlobalScript(GLOBAL_DEPLOY_KEY);
-    }
-
-    public void executeGlobalShutdownScript() {
-        executeGlobalScript(GLOBAL_SHUTDOWN_KEY);
-    }
-
-    public void executeGlobalScript(String scriptType) {
-        javaScriptUtil.executeScript(scriptType, scriptType, "");
-    }
-
-    public Map<String, String> getGlobalScripts() throws ControllerException {
-        Map<String, String> scripts = new HashMap<String, String>();
-
-        String deployScript = scriptController.getScript(GLOBAL_KEY, GLOBAL_DEPLOY_KEY);
-        String shutdownScript = scriptController.getScript(GLOBAL_KEY, GLOBAL_SHUTDOWN_KEY);
-        String preprocessorScript = scriptController.getScript(GLOBAL_KEY, GLOBAL_PREPROCESSOR_KEY);
-        String postprocessorScript = scriptController.getScript(GLOBAL_KEY, GLOBAL_POSTPROCESSOR_KEY);
-
-        if ((deployScript == null) || deployScript.equals("")) {
-            deployScript = GLOBAL_DEPLOY_DEFAULT_SCRIPT;
-        }
-
-        if ((shutdownScript == null) || shutdownScript.equals("")) {
-            shutdownScript = GLOBAL_SHUTDOWN_DEFAULT_SCRIPT;
-        }
-
-        if ((preprocessorScript == null) || preprocessorScript.equals("")) {
-            preprocessorScript = GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT;
-        }
-
-        if ((postprocessorScript == null) || postprocessorScript.equals("")) {
-            postprocessorScript = GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT;
-        }
-
-        scripts.put(GLOBAL_DEPLOY_KEY, deployScript);
-        scripts.put(GLOBAL_SHUTDOWN_KEY, shutdownScript);
-        scripts.put(GLOBAL_PREPROCESSOR_KEY, preprocessorScript);
-        scripts.put(GLOBAL_POSTPROCESSOR_KEY, postprocessorScript);
-
-        return scripts;
-    }
-
-    public void setGlobalScripts(Map<String, String> scripts) throws ControllerException {
-        for (Entry<String, String> entry : scripts.entrySet()) {
-            scriptController.putScript(GLOBAL_KEY, entry.getKey().toString(), scripts.get(entry.getKey()));
-        }
     }
 
     public String getDatabaseType() {
@@ -462,7 +348,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         serverConfiguration.setAlerts(alertController.getAlert(null));
         serverConfiguration.setCodeTempaltes(codeTemplateController.getCodeTemplate(null));
         serverConfiguration.setProperties(getServerProperties());
-        serverConfiguration.setGlobalScripts(getGlobalScripts());
+        serverConfiguration.setGlobalScripts(scriptController.getGlobalScripts());
         return serverConfiguration;
     }
 
@@ -506,7 +392,7 @@ public class DefaultConfigurationController extends ConfigurationController {
         }
 
         if (serverConfiguration.getGlobalScripts() != null) {
-            setGlobalScripts(serverConfiguration.getGlobalScripts());
+            scriptController.setGlobalScripts(serverConfiguration.getGlobalScripts());
         }
     }
 

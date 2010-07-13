@@ -9,15 +9,25 @@
 
 package com.mirth.connect.server.controllers;
 
+import java.util.List;
+import java.util.Map;
+
+import com.mirth.connect.model.Channel;
 
 public abstract class ScriptController extends Controller {
+    public static final String GLOBAL_SCRIPT_KEY = "GLOBAL";
+    public static final String POSTPROCESSOR_SCRIPT_KEY = "Postprocessor";
+    public static final String PREPROCESSOR_SCRIPT_KEY = "Preprocessor";
+    public static final String SHUTDOWN_SCRIPT_KEY = "Shutdown";
+    public static final String DEPLOY_SCRIPT_KEY = "Deploy";
+
     public static ScriptController getInstance() {
         return ControllerFactory.getFactory().createScriptController();
     }
-    
+
     /**
-     * Adds a script with the specified groupId and id to the database. If a script with the
-     * id already exists it will be overwritten.
+     * Adds a script with the specified groupId and id to the database. If a
+     * script with the id already exists it will be overwritten.
      * 
      * @param groupId
      * @param id
@@ -37,6 +47,28 @@ public abstract class ScriptController extends Controller {
     public abstract String getScript(String groupId, String id) throws ControllerException;
 
     public abstract void removeScripts(String groupId) throws ControllerException;
-    
+
     public abstract void removeAllExceptGlobalScripts() throws ControllerException;
+
+    // Non-database actions
+
+    public abstract Map<String, String> getGlobalScripts() throws ControllerException;
+
+    public abstract void setGlobalScripts(Map<String, String> scripts) throws ControllerException;
+
+    public abstract void executeGlobalScript(String scriptType);
+
+    public abstract void compileScripts(List<Channel> channels) throws Exception;
+
+    // deploy
+    
+    public abstract void executeGlobalDeployScript();
+    
+    public abstract void executeChannelDeployScript(String channelId);
+
+    // shutdown
+    
+    public abstract void executeGlobalShutdownScript();
+    
+    public abstract void executeChannelShutdownScript(String channelId);
 }

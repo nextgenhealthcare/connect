@@ -11,16 +11,27 @@ package com.mirth.connect.server.controllers;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
+import com.mirth.connect.model.Channel;
 import com.mirth.connect.server.util.DatabaseUtil;
+import com.mirth.connect.server.util.JavaScriptUtil;
 import com.mirth.connect.server.util.SqlConfig;
 
 public class DefaultScriptController extends ScriptController {
+    private static final String CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT = "// This script executes once after a message has been processed\nreturn;";
+    private static final String GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT = "// Modify the message variable below to pre process data\n// This script applies across all channels\nreturn message;";
+    private static final String GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT = "// This script executes once after a message has been processed\n// This script applies across all channels\nreturn;";
+    private static final String GLOBAL_DEPLOY_DEFAULT_SCRIPT = "// This script executes once when all channels start up from a redeploy\n// You only have access to the globalMap here to persist data\nreturn;";
+    private static final String GLOBAL_SHUTDOWN_DEFAULT_SCRIPT = "// This script executes once when all channels shut down from a redeploy\n// You only have access to the globalMap here to persist data\nreturn;";
+
     private Logger logger = Logger.getLogger(this.getClass());
     private static DefaultScriptController instance = null;
+    private JavaScriptUtil javaScriptUtil = JavaScriptUtil.getInstance();
 
     private DefaultScriptController() {
 
@@ -88,20 +99,20 @@ public class DefaultScriptController extends ScriptController {
 
         Map<String, Object> parameterMap = new HashMap<String, Object>();
         parameterMap.put("groupId", groupId);
-        
+
         try {
             SqlConfig.getSqlMapClient().delete("Script.deleteScript", parameterMap);
         } catch (SQLException e) {
             throw new ControllerException("Error deleting scripts", e);
         }
     }
-    
+
     public void removeAllExceptGlobalScripts() throws ControllerException {
         logger.debug("clearing scripts table");
 
         Map<String, Object> parameterMap = new HashMap<String, Object>();
-        parameterMap.put("notGroupId", ConfigurationController.GLOBAL_KEY);
-        
+        parameterMap.put("notGroupId", GLOBAL_SCRIPT_KEY);
+
         try {
             SqlConfig.getSqlMapClient().delete("Script.deleteScript", parameterMap);
 
@@ -110,6 +121,109 @@ public class DefaultScriptController extends ScriptController {
             }
         } catch (SQLException e) {
             throw new ControllerException("Error clearing scripts", e);
+        }
+    }
+
+    // Non-database actions
+
+    public void compileScripts(List<Channel> channels) throws Exception {
+        for (Entry<String, String> entry : getGlobalScripts().entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+
+            if (key.equals(PREPROCESSOR_SCRIPT_KEY)) {
+                if (!javaScriptUtil.compileAndAddScript(key, value, GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT, false, false)) {
+                    logger.debug("removing global preprocessor");
+                    javaScriptUtil.removeScriptFromCache(PREPROCESSOR_SCRIPT_KEY);
+                }
+            } else if (key.equals(POSTPROCESSOR_SCRIPT_KEY)) {
+                if (!javaScriptUtil.compileAndAddScript(key, value, GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT, false, false)) {
+                    logger.debug("removing global postprocessor");
+                    javaScriptUtil.removeScriptFromCache(POSTPROCESSOR_SCRIPT_KEY);
+                }
+            } else {
+                // add the DEPLOY and SHUTDOWN scripts,
+                // which do not have defaults
+                if (!javaScriptUtil.compileAndAddScript(key, value, "", false, false)) {
+                    logger.debug("remvoing " + key);
+                    javaScriptUtil.removeScriptFromCache(key);
+                }
+            }
+        }
+
+        for (Channel channel : channels) {
+            if (channel.isEnabled()) {
+                javaScriptUtil.compileAndAddScript(channel.getId() + "_Deploy", channel.getDeployScript(), null, false, true);
+                javaScriptUtil.compileAndAddScript(channel.getId() + "_Shutdown", channel.getShutdownScript(), null, false, true);
+
+                // only compile and run post processor if its not the default
+                if (!javaScriptUtil.compileAndAddScript(channel.getId() + "_Postprocessor", channel.getPostprocessingScript(), CHANNEL_POSTPROCESSOR_DEFAULT_SCRIPT, true, true)) {
+                    logger.debug("removing " + channel.getId() + "_Postprocessor");
+                    javaScriptUtil.removeScriptFromCache(channel.getId() + "_Postprocessor");
+                }
+            } else {
+                javaScriptUtil.removeScriptFromCache(channel.getId() + "_Deploy");
+                javaScriptUtil.removeScriptFromCache(channel.getId() + "_Shutdown");
+                javaScriptUtil.removeScriptFromCache(channel.getId() + "_Postprocessor");
+            }
+        }
+    }
+
+    public void executeGlobalDeployScript() {
+        executeGlobalScript(DEPLOY_SCRIPT_KEY);
+    }
+
+    public void executeChannelDeployScript(String channelId) {
+        javaScriptUtil.executeScript(channelId + "_" + DEPLOY_SCRIPT_KEY, DEPLOY_SCRIPT_KEY, channelId);
+    }
+
+    public void executeGlobalShutdownScript() {
+        executeGlobalScript(SHUTDOWN_SCRIPT_KEY);
+    }
+
+    public void executeChannelShutdownScript(String channelId) {
+        javaScriptUtil.executeScript(channelId + "_" + SHUTDOWN_SCRIPT_KEY, SHUTDOWN_SCRIPT_KEY, channelId);
+    }
+
+    public void executeGlobalScript(String scriptType) {
+        javaScriptUtil.executeScript(scriptType, scriptType, "");
+    }
+
+    public Map<String, String> getGlobalScripts() throws ControllerException {
+        Map<String, String> scripts = new HashMap<String, String>();
+
+        String deployScript = getScript(GLOBAL_SCRIPT_KEY, DEPLOY_SCRIPT_KEY);
+        String shutdownScript = getScript(GLOBAL_SCRIPT_KEY, SHUTDOWN_SCRIPT_KEY);
+        String preprocessorScript = getScript(GLOBAL_SCRIPT_KEY, PREPROCESSOR_SCRIPT_KEY);
+        String postprocessorScript = getScript(GLOBAL_SCRIPT_KEY, POSTPROCESSOR_SCRIPT_KEY);
+
+        if ((deployScript == null) || deployScript.equals("")) {
+            deployScript = GLOBAL_DEPLOY_DEFAULT_SCRIPT;
+        }
+
+        if ((shutdownScript == null) || shutdownScript.equals("")) {
+            shutdownScript = GLOBAL_SHUTDOWN_DEFAULT_SCRIPT;
+        }
+
+        if ((preprocessorScript == null) || preprocessorScript.equals("")) {
+            preprocessorScript = GLOBAL_PREPROCESSOR_DEFAULT_SCRIPT;
+        }
+
+        if ((postprocessorScript == null) || postprocessorScript.equals("")) {
+            postprocessorScript = GLOBAL_POSTPROCESSOR_DEFAULT_SCRIPT;
+        }
+
+        scripts.put(DEPLOY_SCRIPT_KEY, deployScript);
+        scripts.put(SHUTDOWN_SCRIPT_KEY, shutdownScript);
+        scripts.put(PREPROCESSOR_SCRIPT_KEY, preprocessorScript);
+        scripts.put(POSTPROCESSOR_SCRIPT_KEY, postprocessorScript);
+
+        return scripts;
+    }
+
+    public void setGlobalScripts(Map<String, String> scripts) throws ControllerException {
+        for (Entry<String, String> entry : scripts.entrySet()) {
+            putScript(GLOBAL_SCRIPT_KEY, entry.getKey().toString(), scripts.get(entry.getKey()));
         }
     }
 }

@@ -133,19 +133,18 @@ public class MuleEngineController implements EngineController {
         logger.debug("starting mule engine");
 
         try {
-            clearGlobalMap();
             VMRegistry.getInstance().rebuild();
 
             // remove all scripts and templates since the channels
             // were never undeployed
             scriptController.removeAllExceptGlobalScripts();
             templateController.removeAllTemplates();
-            
-            // loads the connector transport data 
+
+            // loads the connector transport data
             transports = extensionController.getConnectorMetaData();
             resetEngine();
             muleManager.start();
-            deployChannels(channelController.getChannel(null));
+            redeployAllChannels();
         } catch (Exception e) {
             logger.error("Error starting engine.", e);
         }
@@ -178,12 +177,22 @@ public class MuleEngineController implements EngineController {
             channelController.loadChannelCache();
             channelController.refreshChannelCache(channels);
             extensionController.triggerDeploy();
-            configurationController.executeGlobalDeployScript();
-            configurationController.compileScripts(channels);
+            scriptController.compileScripts(channels);
 
-            undeployChannels(getChannelIdsFromChannels(channels));
+            List<String> registeredChannelIds = new ArrayList<String>();
 
-            clearGlobalChannelMap(channels);
+            for (Channel channel : channels) {
+                if (isChannelRegistered(channel.getId())) {
+                    registeredChannelIds.add(channel.getId());
+                }
+            }
+
+            // only undeploy if a channel is being re-registered
+            if (!registeredChannelIds.isEmpty()) {
+                undeployChannels(registeredChannelIds);
+            }
+
+            scriptController.executeGlobalDeployScript();
 
             // update the manager with the new classes
             List<String> failedChannelIds = new ArrayList<String>();
@@ -193,6 +202,9 @@ public class MuleEngineController implements EngineController {
                     try {
                         if (!registerChannel(channel)) {
                             failedChannelIds.add(channel.getId());
+                        } else {
+                            clearGlobalChannelMap(channel);
+                            scriptController.executeChannelDeployScript(channel.getId());
                         }
                     } catch (Exception e) {
                         logger.error("Error registering channel.", e);
@@ -215,7 +227,6 @@ public class MuleEngineController implements EngineController {
                 }
             }
 
-            configurationController.executeChannelDeployScripts(getDeployedChannelIds());
             channelController.loadChannelCache();
             eventController.logSystemEvent(new SystemEvent("Channels deployed."));
         } catch (Exception e) {
@@ -232,14 +243,12 @@ public class MuleEngineController implements EngineController {
     public void undeployChannels(List<String> channelIds) throws ControllerException {
         try {
             channelController.loadChannelCache();
-            configurationController.executeChannelShutdownScripts(channelIds);
-            configurationController.executeGlobalShutdownScript();
+            scriptController.executeGlobalShutdownScript();
 
             for (String channelId : channelIds) {
-                if (isChannelRegistered(channelId)) {
-                    channelController.getChannelCache().remove(channelController.getChannelCache().get(channelId));
-                    unregisterChannel(channelId);
-                }
+                channelController.getChannelCache().remove(channelController.getChannelCache().get(channelId));
+                unregisterChannel(channelId);
+                scriptController.executeChannelShutdownScript(channelId);
             }
         } catch (Exception e) {
             logger.error("Error undeploying channels.", e);
@@ -259,10 +268,8 @@ public class MuleEngineController implements EngineController {
         }
     }
 
-    /**************************************
-     * INTERNAL MULE STUFF
-     * 
-     ************************************** 
+    /*
+     * Internal Mule logic
      */
 
     private boolean registerChannel(Channel channel) throws Exception {
@@ -774,17 +781,15 @@ public class MuleEngineController implements EngineController {
         }
     }
 
-    private void clearGlobalChannelMap(List<Channel> channels) {
-        for (Channel channel : channels) {
-            try {
-                if (channel.getProperties().getProperty("clearGlobalChannelMap") == null || channel.getProperties().getProperty("clearGlobalChannelMap").equalsIgnoreCase("true")) {
-                    logger.debug("clearing global channel map for channel: " + channel.getId());
-                    GlobalChannelVariableStoreFactory.getInstance().get(channel.getId()).clear();
-                    GlobalChannelVariableStoreFactory.getInstance().get(channel.getId()).clearSync();
-                }
-            } catch (Exception e) {
-                logger.error("Could not clear the global channel map: " + channel.getId(), e);
+    private void clearGlobalChannelMap(Channel channel) {
+        try {
+            if (channel.getProperties().getProperty("clearGlobalChannelMap") == null || channel.getProperties().getProperty("clearGlobalChannelMap").equalsIgnoreCase("true")) {
+                logger.debug("clearing global channel map for channel: " + channel.getId());
+                GlobalChannelVariableStoreFactory.getInstance().get(channel.getId()).clear();
+                GlobalChannelVariableStoreFactory.getInstance().get(channel.getId()).clearSync();
             }
+        } catch (Exception e) {
+            logger.error("Could not clear the global channel map: " + channel.getId(), e);
         }
     }
 
@@ -854,15 +859,5 @@ public class MuleEngineController implements EngineController {
         jmxAgent.setCredentials(credentialsMap);
         jmxAgent.setDomain(muleManager.getId());
         muleManager.registerAgent(jmxAgent);
-    }
-
-    private List<String> getChannelIdsFromChannels(List<Channel> channels) {
-        List<String> channelIds = new ArrayList<String>();
-
-        for (Channel channel : channels) {
-            channelIds.add(channel.getId());
-        }
-
-        return channelIds;
     }
 }

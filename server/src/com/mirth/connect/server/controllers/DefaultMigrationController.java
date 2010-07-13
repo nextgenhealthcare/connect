@@ -52,6 +52,7 @@ public class DefaultMigrationController extends MigrationController {
     private Logger logger = Logger.getLogger(this.getClass());
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
+    private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
 
     // singleton pattern
     private static DefaultMigrationController instance = null;
@@ -289,7 +290,7 @@ public class DefaultMigrationController extends MigrationController {
 
             // Update the global script package names
             try {
-                configurationController.setGlobalScripts(ImportConverter.convertGlobalScripts(configurationController.getGlobalScripts()));
+                scriptController.setGlobalScripts(ImportConverter.convertGlobalScripts(scriptController.getGlobalScripts()));
             } catch (Exception e) {
                 logger.error("Error migrating global scripts.", e);
             }
