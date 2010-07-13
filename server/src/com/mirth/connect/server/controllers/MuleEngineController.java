@@ -133,8 +133,6 @@ public class MuleEngineController implements EngineController {
         logger.debug("starting mule engine");
 
         try {
-            VMRegistry.getInstance().rebuild();
-
             // remove all scripts and templates since the channels
             // were never undeployed
             scriptController.removeAllExceptGlobalScripts();
@@ -699,6 +697,9 @@ public class MuleEngineController implements EngineController {
         unregisterConnectors(descriptor.getInboundRouter().getEndpoints());
         UMOOutboundRouter outboundRouter = (UMOOutboundRouter) descriptor.getOutboundRouter().getRouters().iterator().next();
         unregisterConnectors(outboundRouter.getEndpoints());
+        
+        // Remove the associated VMMessageReceiver from the registry
+        VMRegistry.getInstance().unregister(channelId);
 
         // remove the scripts associated with the channel
         scriptController.removeScripts(channelId);

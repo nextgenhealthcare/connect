@@ -9,15 +9,13 @@
 
 package com.mirth.connect.server.util;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.mirth.connect.connectors.vm.VMMessageReceiver;
 
 public class VMRegistry {
-    private Map<String, VMMessageReceiver> vmRegistry = new ConcurrentHashMap<String, VMMessageReceiver>();
+    private Map<String, VMMessageReceiver> vmRegistry = null;
     private static VMRegistry instance = null;
 
     private VMRegistry() {
@@ -28,17 +26,18 @@ public class VMRegistry {
         synchronized (VMRegistry.class) {
             if (instance == null) {
                 instance = new VMRegistry();
+                instance.initialize();
             }
 
             return instance;
         }
     }
 
-    public boolean containsKey(String key) {
-        return vmRegistry.containsKey(key);
+    private void initialize() {
+        vmRegistry = new ConcurrentHashMap<String, VMMessageReceiver>();
     }
 
-    public synchronized void remove(String key) {
+    public synchronized void unregister(String key) {
         vmRegistry.remove(key);
     }
 
@@ -49,9 +48,4 @@ public class VMRegistry {
     public synchronized void register(String key, VMMessageReceiver value) {
         vmRegistry.put(key, value);
     }
-
-    public synchronized void rebuild() {
-        vmRegistry = Collections.synchronizedMap(new HashMap<String, VMMessageReceiver>());
-    }
-
 }
