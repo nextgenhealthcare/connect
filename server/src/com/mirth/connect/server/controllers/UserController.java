@@ -25,7 +25,7 @@ public abstract class UserController extends Controller {
 
     public abstract void updateUser(User user, String plainTextPassword) throws ControllerException;
 
-    public abstract void removeUser(User user) throws ControllerException;
+    public abstract void removeUser(User user, Integer currentUserId) throws ControllerException;
 
     public abstract boolean authorizeUser(User user, String plainTextPassword) throws ControllerException;
 

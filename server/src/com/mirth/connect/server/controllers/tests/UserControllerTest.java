@@ -72,7 +72,7 @@ public class UserControllerTest extends TestCase {
         insertSampleUsers();
 
         User sampleUser = sampleUserList.get(0);
-        userController.removeUser(sampleUser);
+        userController.removeUser(sampleUser, new Integer(1));
         List<User> testUserList = userController.getUser(null);
 
         Assert.assertFalse(testUserList.contains(sampleUser));

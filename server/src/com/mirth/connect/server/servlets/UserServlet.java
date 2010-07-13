@@ -60,7 +60,7 @@ public class UserServlet extends MirthServlet {
 					userController.updateUser(user, password);
 				} else if (operation.equals("removeUser")) {
 					User user = (User) serializer.fromXML(request.getParameter("user"));
-					userController.removeUser(user);
+					userController.removeUser(user, (Integer) request.getSession().getAttribute(SESSION_USER));
 				} else if (operation.equals("authorizeUser")) {
 					response.setContentType("text/plain");
 					User user = (User) serializer.fromXML(request.getParameter("user"));

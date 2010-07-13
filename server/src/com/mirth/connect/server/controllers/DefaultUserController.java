@@ -89,8 +89,16 @@ public class DefaultUserController extends UserController {
         }
     }
 
-    public void removeUser(User user) throws ControllerException {
+    public void removeUser(User user, Integer currentUserId) throws ControllerException {
         logger.debug("removing user: " + user);
+
+        if (user.getId() == null) {
+            throw new ControllerException("Error removing user: User Id cannot be null");
+        }
+
+        if (user.getId().equals(currentUserId)) {
+            throw new ControllerException("Error removing user: You cannot remove yourself");
+        }
 
         try {
             SqlConfig.getSqlMapClient().delete("User.deleteUser", user);
