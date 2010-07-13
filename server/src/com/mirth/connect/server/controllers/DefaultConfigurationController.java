@@ -28,6 +28,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -169,7 +170,7 @@ public class DefaultConfigurationController extends ConfigurationController {
                 String charsetName = charset.name();
 
                 try {
-                    if ((charsetName == null) || (charsetName.equals(""))) {
+                    if (StringUtils.isEmpty(charsetName)) {
                         charsetName = charset.aliases().iterator().next();
                     }
                 } catch (Exception e) {
@@ -181,7 +182,7 @@ public class DefaultConfigurationController extends ConfigurationController {
 
             return simpleAvaiableCharsets;
         } catch (Exception e) {
-            throw new ControllerException("Error retrieving charset encodings.", e);
+            throw new ControllerException("Error retrieving available charset encodings.", e);
         }
     }
 
