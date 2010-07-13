@@ -2566,21 +2566,38 @@ public class Frame extends JXFrame {
         worker.execute();
     }
 
-    public void doDeployEnabled() {
-        setWorking("Deploying enabled channels...", true);
+    public void doDeployChannel() {
+        List<Channel> selectedChannels = channelPanel.getSelectedChannels();
+        if (selectedChannels.size() == 0) {
+            alertWarning(this, "Channel no longer exists.");
+            return;
+        }
+
+        // Only deploy enabled channels
+        final List<Channel> selectedEnabledChannels = new ArrayList<Channel>();
+        boolean channelDisabled = false;
+        for (Channel channel : selectedChannels) {
+            if (channel.isEnabled()) {
+                selectedEnabledChannels.add(channel);
+            } else {
+                channelDisabled = true;
+            }
+        }
+        
+        if (channelDisabled) {
+            alertWarning(this, "Disabled channels will not be deployed.");
+        }
+
+        String plural = (selectedChannels.size() > 1) ? "s" : "";
+        setWorking("Deploying channel" + plural + "...", true);
+
         dashboardPanel.deselectRows();
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
             public Void doInBackground() {
                 try {
-                    List<Channel> enabledChannels = new ArrayList<Channel>();
-                    for (Channel channel : channels.values()) {
-                        if (channel.isEnabled()) {
-                            enabledChannels.add(channel);
-                        }
-                    }
-                    mirthClient.deployChannels(enabledChannels);
+                    mirthClient.deployChannels(selectedEnabledChannels);
                 } catch (ClientException e) {
                     alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
@@ -2596,48 +2613,8 @@ public class Frame extends JXFrame {
         worker.execute();
     }
 
-    public void doDeployChannel() {
-        final List<Channel> selectedChannels = channelPanel.getSelectedChannels();
-        if (selectedChannels.size() == 0) {
-            alertWarning(this, "Channel no longer exists.");
-            return;
-        }
-
-        for (final Channel channel : selectedChannels) {
-            if (!channel.isEnabled()) {
-                alertWarning(this, "Channel must be enabled before it is deployed.");
-                return;
-            }
-
-            setWorking("Deploying channel...", true);
-
-            dashboardPanel.deselectRows();
-
-            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-                public Void doInBackground() {
-                    try {
-                        List<Channel> channels = new ArrayList<Channel>();
-                        channels.add(channel);
-                        mirthClient.deployChannels(channels);
-                    } catch (ClientException e) {
-                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
-                    }
-                    return null;
-                }
-
-                public void done() {
-                    setWorking("", false);
-                    doShowDashboard();
-                }
-            };
-
-            worker.execute();
-        }
-    }
-
     public void doUndeployChannel() {
-        List<ChannelStatus> selectedChannelStatuses = dashboardPanel.getSelectedStatuses();
+        final List<ChannelStatus> selectedChannelStatuses = dashboardPanel.getSelectedStatuses();
 
         if (selectedChannelStatuses.size() == 0) {
             return;
@@ -2645,31 +2622,33 @@ public class Frame extends JXFrame {
 
         dashboardPanel.deselectRows();
 
-        for (final ChannelStatus channelStatus : selectedChannelStatuses) {
+        String plural = (selectedChannelStatuses.size() > 1) ? "s" : "";
+        setWorking("Undeploying channel" + plural + "...", true);
 
-            setWorking("Undeploying channel...", true);
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
-            SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
-
-                public Void doInBackground() {
-                    try {
-                        List<String> channelIds = new ArrayList<String>();
+            public Void doInBackground() {
+                try {
+                    List<String> channelIds = new ArrayList<String>();
+                    
+                    for (ChannelStatus channelStatus : selectedChannelStatuses) {
                         channelIds.add(channelStatus.getChannelId());
-                        mirthClient.undeployChannels(channelIds);
-                    } catch (ClientException e) {
-                        alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                     }
-                    return null;
+                    
+                    mirthClient.undeployChannels(channelIds);
+                } catch (ClientException e) {
+                    alertException(PlatformUI.MIRTH_FRAME, e.getStackTrace(), e.getMessage());
                 }
+                return null;
+            }
 
-                public void done() {
-                    setWorking("", false);
-                    doRefreshStatuses();
-                }
-            };
+            public void done() {
+                setWorking("", false);
+                doRefreshStatuses();
+            }
+        };
 
-            worker.execute();
-        }
+        worker.execute();
     }
 
     public void doSaveChannel() {
