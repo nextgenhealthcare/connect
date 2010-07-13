@@ -187,10 +187,7 @@ public class MuleEngineController implements EngineController {
                 }
             }
 
-            // only undeploy if a channel is being re-registered
-            if (!registeredChannelIds.isEmpty()) {
-                undeployChannels(registeredChannelIds);
-            }
+            undeployChannels(registeredChannelIds);
 
             scriptController.executeGlobalDeployScript();
 
@@ -241,6 +238,10 @@ public class MuleEngineController implements EngineController {
     }
 
     public void undeployChannels(List<String> channelIds) throws ControllerException {
+        if (channelIds.isEmpty()) {
+            return;
+        }
+        
         try {
             channelController.loadChannelCache();
             scriptController.executeGlobalShutdownScript();
