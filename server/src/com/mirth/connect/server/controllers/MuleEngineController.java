@@ -309,21 +309,19 @@ public class MuleEngineController implements EngineController {
 
         muleManager.getModel().registerComponent(descriptor);
 
-        // register its mbean (if the server is started)
-        if (muleManager.isStarted()) {
-            jmxAgent.registerComponentService(descriptor.getName());
+        // register its mbean
+        jmxAgent.registerComponentService(descriptor.getName());
 
-            // Build up a list of all destination connectors in the channel
-            List<String> endpointNames = new ArrayList<String>();
-            for (int i = 1; i <= channel.getDestinationConnectors().size(); i++) {
-                endpointNames.add(getConnectorNameForRouter(getConnectorReferenceForOutboundRouter(channel, i)));
-            }
-            // Add the source connector to the list
-            endpointNames.add(getConnectorNameForRouter(getConnectorReferenceForInboundRouter(channel)));
-
-            // Register all of the endpoint services for the given connectors
-            jmxAgent.registerEndpointServices(endpointNames);
+        // Build up a list of all destination connectors in the channel
+        List<String> endpointNames = new ArrayList<String>();
+        for (int i = 1; i <= channel.getDestinationConnectors().size(); i++) {
+            endpointNames.add(getConnectorNameForRouter(getConnectorReferenceForOutboundRouter(channel, i)));
         }
+        // Add the source connector to the list
+        endpointNames.add(getConnectorNameForRouter(getConnectorReferenceForInboundRouter(channel)));
+
+        // Register all of the endpoint services for the given connectors
+        jmxAgent.registerEndpointServices(endpointNames);
 
         return registrationSuccessful;
     }
@@ -342,9 +340,7 @@ public class MuleEngineController implements EngineController {
          * run during startup. If it is, it will create an extra _vmEndpoint
          * service and _vmConnector service.
          */
-        if (muleManager.isStarted()) {
-            vmEndpoint.setCreateConnector(1);
-        }
+        vmEndpoint.setCreateConnector(1);
 
         MuleEndpoint endpoint = new MuleEndpoint();
         String connectorReference = getConnectorReferenceForInboundRouter(channel);
@@ -611,9 +607,8 @@ public class MuleEngineController implements EngineController {
         muleManager.registerConnector(umoConnector);
 
         // register the connector service for the connector
-        if (muleManager.isStarted()) {
-            jmxAgent.registerConnectorService(umoConnector);
-        }
+        jmxAgent.registerConnectorService(umoConnector);
+        
         return umoConnector;
     }
 
