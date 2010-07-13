@@ -239,7 +239,7 @@ public class MuleEngineController implements EngineController {
         if (channelIds.isEmpty()) {
             return;
         }
-        
+
         try {
             channelController.loadChannelCache();
             scriptController.executeGlobalShutdownScript();
@@ -335,10 +335,11 @@ public class MuleEngineController implements EngineController {
         vmEndpoint.setEndpointURI(new MuleEndpointURI(new URI("vm://" + channel.getId()).toString()));
 
         /*
-         * Set create connector to true so that channel readers will not use an
-         * existing connector (one from a different channel). This should not be
-         * run during startup. If it is, it will create an extra _vmEndpoint
-         * service and _vmConnector service.
+         * XXX: Set create connector to true so that channel readers will not
+         * use an existing connector (one from a different channel). Not sure if
+         * this is still needed, but if this is set to 0 then the behavior of
+         * mbeans being created is sometimes different during a redeploy from
+         * the initial startup.
          */
         vmEndpoint.setCreateConnector(1);
 
@@ -608,7 +609,7 @@ public class MuleEngineController implements EngineController {
 
         // register the connector service for the connector
         jmxAgent.registerConnectorService(umoConnector);
-        
+
         return umoConnector;
     }
 
@@ -692,7 +693,7 @@ public class MuleEngineController implements EngineController {
         unregisterConnectors(descriptor.getInboundRouter().getEndpoints());
         UMOOutboundRouter outboundRouter = (UMOOutboundRouter) descriptor.getOutboundRouter().getRouters().iterator().next();
         unregisterConnectors(outboundRouter.getEndpoints());
-        
+
         // Remove the associated VMMessageReceiver from the registry
         VMRegistry.getInstance().unregister(channelId);
 

@@ -63,7 +63,6 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
 
     @Override
     public void start() throws UMOException {
-        // TODO Auto-generated method stub
         try {
             getWorkManager().start();
         } catch (Exception e) {
@@ -73,7 +72,6 @@ public class VMMessageReceiver extends TransactedPollingMessageReceiver {
 
     @Override
     public void stop() {
-        // TODO Auto-generated method stub
         super.stop();
         try {
             getWorkManager().stop();
