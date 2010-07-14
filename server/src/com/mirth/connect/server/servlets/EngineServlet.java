@@ -36,7 +36,7 @@ public class EngineServlet extends MirthServlet {
                 } else if (operation.equals("deployChannels")) {
                     List<Channel> channels = (List<Channel>) serializer.fromXML(request.getParameter("channels"));
                     engineController.deployChannels(channels);
-                } else if (operation.equals("uneployChannels")) {
+                } else if (operation.equals("undeployChannels")) {
                     List<String> channelIds = (List<String>) serializer.fromXML(request.getParameter("channelIds"));
                     engineController.undeployChannels(channelIds);
                 }
