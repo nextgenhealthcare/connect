@@ -37,7 +37,6 @@ import com.mirth.connect.server.controllers.DefaultChannelStatisticsController;
 import com.mirth.connect.server.controllers.DefaultExtensionController;
 import com.mirth.connect.server.controllers.MessageObjectController;
 import com.mirth.connect.server.tools.ScriptRunner;
-import com.mirth.connect.server.util.ChannelStatisticsCache;
 import com.mirth.connect.server.util.SqlConfig;
 import com.mirth.connect.server.util.UUIDGenerator;
 
@@ -73,12 +72,7 @@ public class MessageObjectControllerTest extends TestCase {
         chanStats.setAlerted(0);
 
         DefaultChannelStatisticsController.create();
-        DefaultChannelStatisticsController.getInstance().start();
-
-        HashMap<String, ChannelStatistics> chanStatCache = new HashMap<String, ChannelStatistics>();
-        chanStatCache.put(channelId, chanStats);
-        ChannelStatisticsCache.getInstance().setCache(chanStatCache);
-
+        DefaultChannelStatisticsController.getInstance().loadCache();
         DefaultChannelStatisticsController.getInstance().updateAllStatistics();
 
         // DefaultChannelStatisticsController.getInstance().createStatistics(channelId);

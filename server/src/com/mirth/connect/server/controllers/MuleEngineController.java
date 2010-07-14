@@ -172,8 +172,7 @@ public class MuleEngineController implements EngineController {
         }
 
         try {
-            channelController.loadChannelCache();
-            channelController.refreshChannelCache(channels);
+            channelController.loadCache();
             extensionController.triggerDeploy();
             scriptController.compileScripts(channels);
 
@@ -222,7 +221,7 @@ public class MuleEngineController implements EngineController {
                 }
             }
 
-            channelController.loadChannelCache();
+            channelController.loadCache();
             eventController.logSystemEvent(new SystemEvent("Channels deployed."));
         } catch (Exception e) {
             logger.error("Error deploying channels.", e);
@@ -241,7 +240,7 @@ public class MuleEngineController implements EngineController {
         }
 
         try {
-            channelController.loadChannelCache();
+            channelController.loadCache();
             scriptController.executeGlobalShutdownScript();
 
             for (String channelId : channelIds) {

@@ -143,8 +143,9 @@ public class Mirth extends Thread {
         extensionController.uninstallExtensions();
         migrationController.migrateExtensions();
         extensionController.initPlugins();
-        channelStatisticsController.start();
-        channelController.loadChannelCache();
+        channelStatisticsController.loadCache();
+        channelStatisticsController.startUpdaterThread();
+        channelController.loadCache();
         migrationController.migrateChannels();
         configurationController.loadEncryptionKey();
         userController.resetUserStatus();
@@ -164,11 +165,10 @@ public class Mirth extends Thread {
     public void shutdown() {
         logger.info("shutting down mirth due to normal request");
         stopEngine();
-        channelStatisticsController.updateAllStatistics();
-        // do one last update to the stats table
         stopWebServer();
         extensionController.stopPlugins();
-        channelStatisticsController.shutdown();
+        // Stats updater thread will update the stats one more time before stopping
+        channelStatisticsController.stopUpdaterThread();
         stopDatabase();
         running = false;
     }

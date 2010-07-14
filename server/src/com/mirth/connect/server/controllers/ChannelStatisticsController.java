@@ -22,11 +22,11 @@ public abstract class ChannelStatisticsController extends Controller {
         return ControllerFactory.getFactory().createChannelStatisticsController();
     }
     
-    public abstract void shutdown();
-
-    public abstract void start();
+    public abstract void startUpdaterThread();
     
-    public abstract void reloadLocalCache();
+    public abstract void stopUpdaterThread();
+
+    public abstract void loadCache();
 
     public abstract ChannelStatistics getStatistics(String channelId);
 

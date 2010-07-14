@@ -16,18 +16,11 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.mirth.connect.model.ChannelStatistics;
-import com.mirth.connect.server.util.ChannelStatisticsCache;
 import com.mirth.connect.server.util.SqlConfig;
 
-/**
- * The StatisticsContoller provides access to channel statistics.
- * 
- * @author GeraldB
- * 
- */
 public class DefaultChannelStatisticsController extends ChannelStatisticsController {
     private Logger logger = Logger.getLogger(this.getClass());
-    private ChannelStatisticsCache statsCache;
+    private Map<String, ChannelStatistics> cache = null;
     private StatisticsUpdater statsUpdater = null;
     private Thread updaterThread = null;
     private boolean statsChanged = false;
@@ -50,10 +43,6 @@ public class DefaultChannelStatisticsController extends ChannelStatisticsControl
         }
     }
 
-    public void shutdown() {
-        running = false;
-    }
-
     private class StatisticsUpdater implements Runnable {
         public void run() {
             try {
@@ -69,22 +58,21 @@ public class DefaultChannelStatisticsController extends ChannelStatisticsControl
         }
     }
 
-    public void start() {
-        logger.debug("initialzing statistics controller");
-
-        statsCache = ChannelStatisticsCache.getInstance();
-        reloadLocalCache();
-
+    public void startUpdaterThread() {
         statsUpdater = new StatisticsUpdater();
         updaterThread = new Thread(statsUpdater);
         updaterThread.start();
     }
+
+    public void stopUpdaterThread() {
+        running = false;
+    }
     
-    public void reloadLocalCache() {
+    public void loadCache() {
         try {
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("serverId", configurationController.getServerId());
-            statsCache.setCache(SqlConfig.getSqlMapClient().queryForMap("Statistic.getStatistics", parameterMap, "channelId"));
+            cache = SqlConfig.getSqlMapClient().queryForMap("Statistic.getStatistics", parameterMap, "channelId");
         } catch (SQLException e) {
             logger.error("Could not initialize channel statistics.", e);
         }
@@ -100,18 +88,23 @@ public class DefaultChannelStatisticsController extends ChannelStatisticsControl
         } catch (SQLException e) {
             logger.warn("could not update statistics");
         }
+
+        // add a new channel with 0 stats to the cache
+        ChannelStatistics channelStatistics = new ChannelStatistics();
+        channelStatistics.setServerId(configurationController.getServerId());
+        channelStatistics.setChannelId(channelId);
+        cache.put(channelId, channelStatistics);
     }
 
     public boolean checkIfStatisticsExist(String channelId) {
         try {
-
             Map<String, Object> parameterMap = new HashMap<String, Object>();
             parameterMap.put("serverId", configurationController.getServerId());
             parameterMap.put("channelId", channelId);
 
-            Map<String, ChannelStatistics> tempStats = SqlConfig.getSqlMapClient().queryForMap("Statistic.getStatistics", parameterMap, "channelId");
-            
-            if (tempStats != null && tempStats.size() > 0) {
+            Map<String, ChannelStatistics> channelStatistics = SqlConfig.getSqlMapClient().queryForMap("Statistic.getStatistics", parameterMap, "channelId");
+
+            if (channelStatistics != null && channelStatistics.size() > 0) {
                 return true;
             }
         } catch (SQLException e) {
@@ -122,77 +115,77 @@ public class DefaultChannelStatisticsController extends ChannelStatisticsControl
     }
 
     public ChannelStatistics getStatistics(String channelId) {
-        return statsCache.getCache().get(channelId);
+        return cache.get(channelId);
     }
 
     public synchronized void incrementReceivedCount(String channelId) {
-        statsCache.getCache().get(channelId).setReceived(statsCache.getCache().get(channelId).getReceived() + 1);
+        cache.get(channelId).setReceived(cache.get(channelId).getReceived() + 1);
         statsChanged = true;
     }
 
     public synchronized void incrementSentCount(String channelId) {
-        statsCache.getCache().get(channelId).setSent(statsCache.getCache().get(channelId).getSent() + 1);
+        cache.get(channelId).setSent(cache.get(channelId).getSent() + 1);
         statsChanged = true;
     }
 
     public synchronized void incrementFilteredCount(String channelId) {
-        statsCache.getCache().get(channelId).setFiltered(statsCache.getCache().get(channelId).getFiltered() + 1);
+        cache.get(channelId).setFiltered(cache.get(channelId).getFiltered() + 1);
         statsChanged = true;
     }
 
     public synchronized void incrementErrorCount(String channelId) {
-        statsCache.getCache().get(channelId).setError(statsCache.getCache().get(channelId).getError() + 1);
+        cache.get(channelId).setError(cache.get(channelId).getError() + 1);
         statsChanged = true;
     }
 
     public synchronized void incrementQueuedCount(String channelId) {
-        statsCache.getCache().get(channelId).setQueued(statsCache.getCache().get(channelId).getQueued() + 1);
+        cache.get(channelId).setQueued(cache.get(channelId).getQueued() + 1);
         statsChanged = true;
     }
 
     public synchronized void incrementAlertedCount(String channelId) {
-        statsCache.getCache().get(channelId).setAlerted(statsCache.getCache().get(channelId).getAlerted() + 1);
+        cache.get(channelId).setAlerted(cache.get(channelId).getAlerted() + 1);
         statsChanged = true;
     }
 
     public synchronized void decrementQueuedCount(String channelId) {
-        if (statsCache.getCache().get(channelId).getQueued() > 0) {
-            statsCache.getCache().get(channelId).setQueued(statsCache.getCache().get(channelId).getQueued() - 1);
+        if (cache.get(channelId).getQueued() > 0) {
+            cache.get(channelId).setQueued(cache.get(channelId).getQueued() - 1);
             statsChanged = true;
         }
     }
 
     public synchronized void decrementErrorCount(String channelId) {
-        if (statsCache.getCache().get(channelId).getError() > 0) {
-            statsCache.getCache().get(channelId).setError(statsCache.getCache().get(channelId).getError() - 1);
+        if (cache.get(channelId).getError() > 0) {
+            cache.get(channelId).setError(cache.get(channelId).getError() - 1);
             statsChanged = true;
         }
     }
 
     public synchronized void decrementFilteredCount(String channelId) {
-        if (statsCache.getCache().get(channelId).getFiltered() > 0) {
-            statsCache.getCache().get(channelId).setFiltered(statsCache.getCache().get(channelId).getFiltered() - 1);
+        if (cache.get(channelId).getFiltered() > 0) {
+            cache.get(channelId).setFiltered(cache.get(channelId).getFiltered() - 1);
             statsChanged = true;
         }
     }
 
     public synchronized void decrementSentCount(String channelId) {
-        if (statsCache.getCache().get(channelId).getSent() > 0) {
-            statsCache.getCache().get(channelId).setSent(statsCache.getCache().get(channelId).getSent() - 1);
+        if (cache.get(channelId).getSent() > 0) {
+            cache.get(channelId).setSent(cache.get(channelId).getSent() - 1);
             statsChanged = true;
         }
     }
 
     public synchronized void decrementReceivedCount(String channelId) {
-        if (statsCache.getCache().get(channelId).getReceived() > 0) {
-            statsCache.getCache().get(channelId).setReceived(statsCache.getCache().get(channelId).getReceived() - 1);
+        if (cache.get(channelId).getReceived() > 0) {
+            cache.get(channelId).setReceived(cache.get(channelId).getReceived() - 1);
             statsChanged = true;
         }
     }
 
     private void updateStatistics(String channelId) {
         try {
-            SqlConfig.getSqlMapClient().update("Statistic.updateStatistics", statsCache.getCache().get(channelId));
+            SqlConfig.getSqlMapClient().update("Statistic.updateStatistics", cache.get(channelId));
         } catch (SQLException e) {
             logger.warn("could not update statistics");
         }
@@ -200,7 +193,7 @@ public class DefaultChannelStatisticsController extends ChannelStatisticsControl
 
     public void updateAllStatistics() {
         if (statsChanged) {
-            for (ChannelStatistics stats : statsCache.getCache().values()) {
+            for (ChannelStatistics stats : cache.values()) {
                 updateStatistics(stats.getChannelId());
             }
 
@@ -210,17 +203,17 @@ public class DefaultChannelStatisticsController extends ChannelStatisticsControl
 
     public void clearStatistics(String channelId, boolean received, boolean filtered, boolean queued, boolean sent, boolean errored, boolean alerted) throws ControllerException {
         if (received)
-            statsCache.getCache().get(channelId).setReceived(0);
+            cache.get(channelId).setReceived(0);
         if (filtered)
-            statsCache.getCache().get(channelId).setFiltered(0);
+            cache.get(channelId).setFiltered(0);
         if (queued)
-            statsCache.getCache().get(channelId).setQueued(0);
+            cache.get(channelId).setQueued(0);
         if (sent)
-            statsCache.getCache().get(channelId).setSent(0);
+            cache.get(channelId).setSent(0);
         if (errored)
-            statsCache.getCache().get(channelId).setError(0);
+            cache.get(channelId).setError(0);
         if (alerted)
-            statsCache.getCache().get(channelId).setAlerted(0);
+            cache.get(channelId).setAlerted(0);
 
         updateStatistics(channelId);
     }

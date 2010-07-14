@@ -29,13 +29,13 @@ public abstract class ChannelController extends Controller {
     public abstract void removeChannel(Channel channel) throws ControllerException;
     
     // channel cache
-    public abstract void loadChannelCache();
+    
+    public abstract void loadCache();
     
     public abstract Map<String, Channel> getChannelCache();
 
-    public abstract void refreshChannelCache(List<Channel> channels) throws ControllerException;
-
     // utility methods
+
     public abstract String getChannelId(String channelName);
     
     public abstract String getChannelName(String channelId);

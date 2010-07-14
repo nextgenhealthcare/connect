@@ -27,12 +27,11 @@ import com.mirth.connect.util.QueueUtil;
 
 public class DefaultChannelController extends ChannelController {
     private Logger logger = Logger.getLogger(this.getClass());
-    private static HashMap<String, Channel> channelCache = new HashMap<String, Channel>();
-    private static HashMap<String, String> channelIdLookup = new HashMap<String, String>();
-    private static HashMap<String, String> channelNameLookup = new HashMap<String, String>();
+    private static Map<String, Channel> channelCache = new HashMap<String, Channel>();
+    private static Map<String, String> channelIdLookup = new HashMap<String, String>();
+    private static Map<String, String> channelNameLookup = new HashMap<String, String>();
     private ChannelStatisticsController statisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
-    private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
 
     private static DefaultChannelController instance = null;
 
@@ -50,29 +49,23 @@ public class DefaultChannelController extends ChannelController {
         }
     }
 
-    public void loadChannelCache() {
+    public void loadCache() {
         try {
-            refreshChannelCache(getChannel(null));
+            channelCache.clear();
+            channelIdLookup.clear();
+            channelNameLookup.clear();
+
+            for (Channel channel : getChannel(null)) {
+                updateChannelInCache(channel);
+            }
 
             for (Channel channel : channelCache.values()) {
                 if (!statisticsController.checkIfStatisticsExist(channel.getId())) {
                     statisticsController.createStatistics(channel.getId());
                 }
             }
-
-            statisticsController.reloadLocalCache();
         } catch (Exception e) {
             logger.warn(e);
-        }
-    }
-
-    public void refreshChannelCache(List<Channel> channels) throws ControllerException {
-        channelCache = new HashMap<String, Channel>();
-        channelIdLookup = new HashMap<String, String>();
-        channelNameLookup = new HashMap<String, String>();
-
-        for (Channel channel : channels) {
-            updateChannelInCache(channel);
         }
     }
 
@@ -218,7 +211,6 @@ public class DefaultChannelController extends ChannelController {
         }
         
         try {
-
             updateChannelInCache(channel);
 
             Channel channelFilter = new Channel();
