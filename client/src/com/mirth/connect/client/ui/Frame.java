@@ -242,7 +242,7 @@ public class Frame extends JXFrame {
             return;
         }
         try {
-            this.charsetEncodings = this.mirthClient.getAvaiableCharsetEncodings();
+            this.charsetEncodings = this.mirthClient.getAvailableCharsetEncodings();
             this.availableCharsetEncodings = new ArrayList<CharsetEncodingInformation>();
             this.availableCharsetEncodings.add(new CharsetEncodingInformation(UIConstants.DEFAULT_ENCODING_OPTION, "Default"));
             for (int i = 0; i < charsetEncodings.size(); i++) {

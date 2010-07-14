@@ -40,7 +40,7 @@ public class ConfigurationServlet extends MirthServlet {
                 ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
                 ObjectXMLSerializer serializer = new ObjectXMLSerializer();
 
-                if (operation.equals("getAvaiableCharsetEncodings")) {
+                if (operation.equals("getAvailableCharsetEncodings")) {
                     response.setContentType("application/xml");
                     out.println(serializer.toXML(configurationController.getAvaiableCharsetEncodings()));
                 } else if (operation.equals("getServerProperties")) {

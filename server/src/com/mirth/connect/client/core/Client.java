@@ -308,11 +308,11 @@ public class Client {
      * @return
      * @throws ClientException
      */
-    // ast: The avaiable charset encodings depends on the JVM in which the
+    // ast: The available charset encodings depends on the JVM in which the
     // server is running
-    public List<String> getAvaiableCharsetEncodings() throws ClientException {
+    public List<String> getAvailableCharsetEncodings() throws ClientException {
         logger.debug("retrieving the server supported charset encoging list");
-        NameValuePair[] params = { new NameValuePair("op", "getAvaiableCharsetEncodings") };
+        NameValuePair[] params = { new NameValuePair("op", "getAvailableCharsetEncodings") };
         return (List<String>) serializer.fromXML(serverConnection.executePostMethod(CONFIGURATION_SERVLET, params));
     }
 
