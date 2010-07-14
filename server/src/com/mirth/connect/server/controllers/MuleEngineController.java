@@ -235,7 +235,22 @@ public class MuleEngineController implements EngineController {
     }
 
     public void undeployChannels(List<String> channelIds) throws ControllerException {
-        if (channelIds.isEmpty()) {
+        List<String> registeredChannelIds = new ArrayList<String>();
+        
+        // Only allow undeployment of channels that are currently deployed.
+        for (String channelId : channelIds) {
+            try {
+                if (isChannelRegistered(channelId)) {
+                    registeredChannelIds.add(channelId);
+                } else {
+                    logger.warn("You cannot undeploy a channel that is not currently deployed.");
+                }
+            } catch (Exception e) {
+                logger.error("Error checking if channel is registered before undeploy.", e);
+            }
+        }
+        
+        if (registeredChannelIds.isEmpty()) {
             return;
         }
 
@@ -243,10 +258,10 @@ public class MuleEngineController implements EngineController {
             channelController.loadCache();
             scriptController.executeGlobalShutdownScript();
 
-            for (String channelId : channelIds) {
-                channelController.getChannelCache().remove(channelController.getChannelCache().get(channelId));
-                unregisterChannel(channelId);
-                scriptController.executeChannelShutdownScript(channelId);
+            for (String registeredChannelId : registeredChannelIds) {
+                channelController.getChannelCache().remove(channelController.getChannelCache().get(registeredChannelId));
+                unregisterChannel(registeredChannelId);
+                scriptController.executeChannelShutdownScript(registeredChannelId);
             }
         } catch (Exception e) {
             logger.error("Error undeploying channels.", e);
