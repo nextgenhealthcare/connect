@@ -259,8 +259,6 @@ public class CommandLineInterface {
                     commandStatus(arguments);
                 } else if (arg1 == Token.EXPORT) {
                     commandExport(arguments);
-                } else if (arg1 == Token.SHUTDOWN) {
-                    commandShutdown(arguments);
                 } else if (arg1 == Token.CHANNEL) {
                     String syntax = "invalid number of arguments. Syntax is: channel start|stop|pause|resume|stats|remove|enable|disable <id|name>, channel rename <id|name> newname, or channel list|stats";
                     if (arguments.length < 2) {
@@ -924,11 +922,6 @@ public class CommandLineInterface {
         }
         
         client.undeployChannels(channelIds);
-    }
-
-    private void commandShutdown(Token[] arguments) throws ClientException {
-        client.shutdown();
-        throw new Quit();
     }
 
     /**

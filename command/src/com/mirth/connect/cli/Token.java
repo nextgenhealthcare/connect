@@ -64,7 +64,6 @@ public class Token {
 	static Token RESETSTATS = addKeyword("resetstats");
 	static Token DUMP = addKeyword("dump");
 	static Token EVENTS = addKeyword("events");
-	static Token SHUTDOWN = addKeyword("shutdown");
 	static Token QUIT = addKeyword("quit");
 	static Token WILDCARD = addKeyword("*");
 
