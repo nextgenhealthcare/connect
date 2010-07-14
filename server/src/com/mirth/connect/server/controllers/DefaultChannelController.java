@@ -31,7 +31,7 @@ public class DefaultChannelController extends ChannelController {
     private static Map<String, String> channelIdLookup = new HashMap<String, String>();
     private static Map<String, String> channelNameLookup = new HashMap<String, String>();
     private ChannelStatisticsController statisticsController = ControllerFactory.getFactory().createChannelStatisticsController();
-    private EngineController engineController = ControllerFactory.getFactory().createEngineController();
+    private ChannelStatusController channelStatusController = ControllerFactory.getFactory().createChannelStatusController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
 
     private static DefaultChannelController instance = null;
@@ -239,7 +239,7 @@ public class DefaultChannelController extends ChannelController {
     public void removeChannel(Channel channel) throws ControllerException {
         logger.debug("removing channel");
 
-        if ((channel != null) && engineController.getDeployedChannelIds().contains(channel.getId())) {
+        if ((channel != null) && channelStatusController.getDeployedIds().contains(channel.getId())) {
             logger.warn("Cannot remove deployed channel.");
             return;
         }

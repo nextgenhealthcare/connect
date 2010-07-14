@@ -216,7 +216,7 @@ public class DefaultChannelStatusController extends ChannelStatusController {
      * @return
      * @throws ControllerException
      */
-    private List<String> getDeployedIds() throws ControllerException {
+    public List<String> getDeployedIds() throws ControllerException {
         logger.debug("retrieving deployed channel id list");
         List<String> deployedChannelIdList = new ArrayList<String>();
 

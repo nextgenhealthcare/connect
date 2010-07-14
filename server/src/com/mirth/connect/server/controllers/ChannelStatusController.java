@@ -52,4 +52,12 @@ public abstract class ChannelStatusController extends Controller {
      * @throws ControllerException
      */
     public abstract List<ChannelStatus> getChannelStatusList();
+    
+    /**
+     * Returns a list of deployed channel ids.
+     * 
+     * @return
+     * @throws ControllerException
+     */
+    public abstract List<String> getDeployedIds() throws ControllerException;
 }
