@@ -516,7 +516,7 @@ public class Client {
      */
     public synchronized void undeployChannels(List<String> channelIds) throws ClientException {
         logger.debug("undeploying channels");
-        NameValuePair[] params = { new NameValuePair("op", "uneployChannels"), new NameValuePair("channelIds", serializer.toXML(channelIds)) };
+        NameValuePair[] params = { new NameValuePair("op", "undeployChannels"), new NameValuePair("channelIds", serializer.toXML(channelIds)) };
         serverConnection.executePostMethod(ENGINE_SERVLET, params);
     }
     
