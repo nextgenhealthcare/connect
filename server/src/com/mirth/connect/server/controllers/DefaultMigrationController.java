@@ -37,11 +37,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.PluginMetaData;
 import com.mirth.connect.model.util.ImportConverter;
 import com.mirth.connect.server.tools.ClassPathResource;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
+import com.mirth.connect.util.PropertyVerifier;
 
 /**
  * The MigrationController migrates the database to the current version.
@@ -50,6 +52,7 @@ import com.mirth.connect.server.util.SqlConfig;
 public class DefaultMigrationController extends MigrationController {
     private static final String DELTA_FOLDER = "deltas";
     private Logger logger = Logger.getLogger(this.getClass());
+    private ChannelController channelController = ControllerFactory.getFactory().createChannelController();
     private ConfigurationController configurationController = ControllerFactory.getFactory().createConfigurationController();
     private ExtensionController extensionController = ControllerFactory.getFactory().createExtensionController();
     private ScriptController scriptController = ControllerFactory.getFactory().createScriptController();
@@ -145,6 +148,22 @@ public class DefaultMigrationController extends MigrationController {
             }
         } catch (Exception e) {
             logger.error("Could not initialize migration controller.", e);
+        }
+    }
+    
+    public void migrateChannels() {
+        try {
+            for (Channel channel : channelController.getChannel(null)) {
+                if (!channel.getVersion().equals(configurationController.getServerVersion())) {
+                    Channel updatedChannel = ImportConverter.convertChannelObject(channel);
+                    PropertyVerifier.checkChannelProperties(updatedChannel);
+                    PropertyVerifier.checkConnectorProperties(updatedChannel, extensionController.getConnectorMetaData());
+                    updatedChannel.setVersion(configurationController.getServerVersion());
+                    channelController.updateChannel(updatedChannel, true);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Could not migrate channels.", e);
         }
     }
 

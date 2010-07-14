@@ -145,6 +145,7 @@ public class Mirth extends Thread {
         extensionController.initPlugins();
         channelStatisticsController.start();
         channelController.loadChannelCache();
+        migrationController.migrateChannels();
         configurationController.loadEncryptionKey();
         userController.resetUserStatus();
         monitoringController.initPlugins();

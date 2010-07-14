@@ -21,10 +21,8 @@ import org.apache.log4j.Logger;
 import com.mirth.connect.model.Channel;
 import com.mirth.connect.model.ChannelSummary;
 import com.mirth.connect.model.Connector;
-import com.mirth.connect.model.util.ImportConverter;
 import com.mirth.connect.server.util.DatabaseUtil;
 import com.mirth.connect.server.util.SqlConfig;
-import com.mirth.connect.util.PropertyVerifier;
 import com.mirth.connect.util.QueueUtil;
 
 public class DefaultChannelController extends ChannelController {
@@ -57,14 +55,6 @@ public class DefaultChannelController extends ChannelController {
             refreshChannelCache(getChannel(null));
 
             for (Channel channel : channelCache.values()) {
-                if (!channel.getVersion().equals(configurationController.getServerVersion())) {
-                    Channel updatedChannel = ImportConverter.convertChannelObject(channel);
-                    PropertyVerifier.checkChannelProperties(updatedChannel);
-                    PropertyVerifier.checkConnectorProperties(updatedChannel, extensionController.getConnectorMetaData());
-                    updatedChannel.setVersion(configurationController.getServerVersion());
-                    updateChannel(updatedChannel, true);
-                }
-
                 if (!statisticsController.checkIfStatisticsExist(channel.getId())) {
                     statisticsController.createStatistics(channel.getId());
                 }

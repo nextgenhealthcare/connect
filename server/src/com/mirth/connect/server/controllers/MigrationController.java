@@ -17,7 +17,10 @@ public abstract class MigrationController extends Controller {
     public static MigrationController getInstance() {
         return ControllerFactory.getFactory().createMigrationController();
     }
-    
+
     public abstract void migrate();
+
+    public abstract void migrateChannels();
+
     public abstract void migrateExtensions();
 }
