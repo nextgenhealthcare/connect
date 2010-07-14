@@ -767,7 +767,7 @@ public class MuleEngineController implements EngineController {
         return muleManager.getModel().isComponentRegistered(channelId);
     }
 
-    private List<String> getDeployedChannelIds() {
+    public List<String> getDeployedChannelIds() {
         List<String> channelIds = new ArrayList<String>();
 
         for (Iterator<String> iterator = muleManager.getModel().getComponentNames(); iterator.hasNext();) {

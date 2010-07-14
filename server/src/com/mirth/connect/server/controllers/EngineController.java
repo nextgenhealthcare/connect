@@ -23,4 +23,6 @@ public interface EngineController {
     public void undeployChannels(List<String> channelIds) throws ControllerException;
 
     public void redeployAllChannels() throws ControllerException;
+    
+    public List<String> getDeployedChannelIds();
 }
